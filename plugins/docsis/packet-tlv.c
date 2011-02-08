@@ -274,7 +274,7 @@ static int hf_docsis_tlv_rcp_name = -1;
 static int hf_docsis_tlv_rcp_freq_spc = -1;
 static int hf_docsis_tlv_rcp_rcv_mod_enc = -1;
 static int hf_docsis_tlv_rcp_rcv_ch = -1;
-static int hf_docsis_tlv_rcp_ven_spec = -1; 
+static int hf_docsis_tlv_rcp_ven_spec = -1;
 
 static int hf_docsis_rcv_mod_enc_idx = -1;
 static int hf_docsis_rcv_mod_enc_adj_ch = -1;
@@ -305,8 +305,8 @@ static int hf_docsis_tlv_rcc_id = -1;
 static int hf_docsis_tlv_rcc_rcv_mod_enc = -1;
 static int hf_docsis_tlv_rcc_rcv_ch = -1;
 static int hf_docsis_tlv_rcc_part_serv_ds_ch = -1;
-static int hf_docsis_tlv_rcc_ven_spec = -1; 
-static int hf_docsis_tlv_rcc_err = -1; 
+static int hf_docsis_tlv_rcc_ven_spec = -1;
+static int hf_docsis_tlv_rcc_err = -1;
 
 static int hf_docsis_tlv_rcc_err_mod_or_ch = -1;
 static int hf_docsis_tlv_rcc_err_idx = -1;
@@ -460,10 +460,8 @@ static const true_false_string verify_tfs = {
 static const value_string rng_tech_vals[] = {
   {0, "Perform initial maintenance on new channel"},
   {1, "Perform only station maintenance on new channel"},
-  {2,
-   "Perform either initial maintenance or station maintenance on new channel"},
-  {3,
-   "Use the new channel directly without performing initial or station maintenance"},
+  {2, "Perform either initial maintenance or station maintenance on new channel"},
+  {3, "Use the new channel directly without performing initial or station maintenance"},
   {0, NULL},
 };
 
@@ -585,7 +583,7 @@ static const value_string init_reason_vals[] = {
 /* Code to actually dissect the packets */
 static void
 dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
-		 guint16 len)
+                 guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -593,7 +591,7 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "5 Service Flow Error Encodings (Length = %u)", len);
+                         "5 Service Flow Error Encodings (Length = %u)", len);
   err_tree = proto_item_add_subtree (it, ett_docsis_tlv_sflow_err);
 
   while (pos < (start + len))
@@ -601,37 +599,37 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case PHS_ERR_PARAM:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_param, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_ERR_CODE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_code, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_ERR_MSG:
-	  proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_msg, tvb, pos,
-			       length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case PHS_ERR_PARAM:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_param, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_ERR_CODE:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_code, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_ERR_MSG:
+          proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_msg, tvb, pos,
+                               length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
@@ -643,7 +641,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "26 PHS Encodings (Length = %u)", len);
+                         "26 PHS Encodings (Length = %u)", len);
   phs_tree = proto_item_add_subtree (it, ett_docsis_tlv_phs);
 
   while (pos < (start + len))
@@ -651,113 +649,113 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case PHS_CLSFR_REF:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_class_ref, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_CLSFR_ID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_class_id, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_SFLOW_REF:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_sflow_ref, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_SFLOW_ID:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_sflow_id, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_DSC_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_dsc_action,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_ERRORS:
-	  dissect_phs_err (tvb, phs_tree, pos, length);
-	case PHS_FIELD:
-	  proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
-			       length, FALSE);
-	  break;
-	case PHS_INDEX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsi, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_MASK:
-	  proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsm, tvb, pos,
-			       length, FALSE);
-	  break;
-	case PHS_SUP_SIZE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phss, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_VERIFICATION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case PHS_VENDOR_SPEC:
-	  proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_vendorspec, tvb,
-			       pos, length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case PHS_CLSFR_REF:
+          if (length == 1)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_class_ref, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_CLSFR_ID:
+          if (length == 2)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_class_id, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_SFLOW_REF:
+          if (length == 2)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_sflow_ref, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_SFLOW_ID:
+          if (length == 4)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_sflow_id, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_DSC_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_dsc_action,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_ERRORS:
+          dissect_phs_err (tvb, phs_tree, pos, length);
+        case PHS_FIELD:
+          proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
+                               length, FALSE);
+          break;
+        case PHS_INDEX:
+          if (length == 1)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsi, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_MASK:
+          proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsm, tvb, pos,
+                               length, FALSE);
+          break;
+        case PHS_SUP_SIZE:
+          if (length == 1)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phss, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_VERIFICATION:
+          if (length == 1)
+            {
+              proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case PHS_VENDOR_SPEC:
+          proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_vendorspec, tvb,
+                               pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 
@@ -771,41 +769,41 @@ dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
   value = tvb_get_ntohl (tvb, start);
   it =
     proto_tree_add_item (tree, hf_docsis_tlv_sflow_reqxmit_pol, tvb, start, 4,
-			 FALSE);
+                         FALSE);
   pol_tree = proto_item_add_subtree (it, ett_docsis_tlv_reqxmitpol);
 
   if (value & 0x01)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT use \"all CMs\" broadcast request opportunities");
+                         "Service flow MUST NOT use \"all CMs\" broadcast request opportunities");
   if (value & 0x02)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT use priority multicast request opportunities");
+                         "Service flow MUST NOT use priority multicast request opportunities");
   if (value & 0x04)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT use Request/Data opportunities for requests");
+                         "Service flow MUST NOT use Request/Data opportunities for requests");
   if (value & 0x08)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT use Request/Data opportunities for data");
+                         "Service flow MUST NOT use Request/Data opportunities for data");
   if (value & 0x10)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT use piggy back requests with data");
+                         "Service flow MUST NOT use piggy back requests with data");
   if (value & 0x20)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT concatenate data");
+                         "Service flow MUST NOT concatenate data");
   if (value & 0x40)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT fragment data");
+                         "Service flow MUST NOT fragment data");
   if (value & 0x80)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST NOT suppress payload headers");
+                         "Service flow MUST NOT suppress payload headers");
   if (value & 0x100)
     proto_tree_add_text (pol_tree, tvb, start, 4,
-			 "Service flow MUST drop packets that do not fit in the UGS size");
+                         "Service flow MUST drop packets that do not fit in the UGS size");
 }
 
 static void
 dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
-		   guint16 len)
+                   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -813,7 +811,7 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "5 Service Flow Error Encodings (Length = %u)", len);
+                         "5 Service Flow Error Encodings (Length = %u)", len);
   err_tree = proto_item_add_subtree (it, ett_docsis_tlv_sflow_err);
 
   while (pos < (start + len))
@@ -821,42 +819,42 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case SFW_ERR_PARAM:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_param,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_ERR_CODE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_code,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_ERR_MSG:
-	  proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_msg, tvb,
-			       pos, length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case SFW_ERR_PARAM:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_param,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_ERR_CODE:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_code,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_ERR_MSG:
+          proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_msg, tvb,
+                               pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
 dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-			  int start, guint16 len)
+                          int start, guint16 len)
 {
   guint8 type, length;
   int pos = start;
@@ -865,29 +863,29 @@ dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case SFW_MAX_DOWN_LAT:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_max_down_latency, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
+        {
+        case SFW_MAX_DOWN_LAT:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_max_down_latency, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
 
-	    }
-	  break;
-	}			/* switch */
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
 dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-			int start, guint16 len)
+                        int start, guint16 len)
 {
   guint8 type, length;
   int pos = start;
@@ -896,139 +894,139 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case SFW_MAX_CONCAT_BURST:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_max_concat_burst, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
+        {
+        case SFW_MAX_CONCAT_BURST:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_max_concat_burst, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
 
-	    }
-	  break;
-	case SFW_SCHEDULING_TYPE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_sched_type,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_REQ_XMIT_POL:
-	  dissect_reqxmit_policy (tvb, sflow_tree, pos);
-	  break;
-	case SFW_NOM_POLL_INT:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_nominal_polling, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_POLL_JTTR_TOL:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_tolerated_jitter, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_UG_SIZE:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_ugs_size,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_NOM_GRNT_INTV:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_nom_grant_intvl, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_GRNT_JTTR_TOL:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_tol_grant_jitter, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_GRNTS_PER_INTV:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_grants_per_intvl, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_IP_TOS_OVERWRITE:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_ip_tos_overwrite, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_UG_TIME_REF:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_ugs_timeref, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
+            }
+          break;
+        case SFW_SCHEDULING_TYPE:
+          if (length == 1)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_sched_type,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_REQ_XMIT_POL:
+          dissect_reqxmit_policy (tvb, sflow_tree, pos);
+          break;
+        case SFW_NOM_POLL_INT:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_nominal_polling, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_POLL_JTTR_TOL:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_tolerated_jitter, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_UG_SIZE:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_ugs_size,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_NOM_GRNT_INTV:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_nom_grant_intvl, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_GRNT_JTTR_TOL:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_tol_grant_jitter, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_GRNTS_PER_INTV:
+          if (length == 1)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_grants_per_intvl, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_IP_TOS_OVERWRITE:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_ip_tos_overwrite, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_UG_TIME_REF:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_ugs_timeref, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
 
-	}			/* switch */
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
 dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
-	       guint8 direction)
+               guint8 direction)
 {
   guint8 type, length;
   proto_item *it;
@@ -1037,11 +1035,11 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
   if (direction == 24)
     it =
       proto_tree_add_text (tree, tvb, start, len,
-			   "24 Upstream Service Flow (Length = %u)", len);
+                           "24 Upstream Service Flow (Length = %u)", len);
   else if (direction == 25)
     it =
       proto_tree_add_text (tree, tvb, start, len,
-			   "25 Downstream Service Flow (Length = %u)", len);
+                           "25 Downstream Service Flow (Length = %u)", len);
   else
     return;
   sflow_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr);
@@ -1051,158 +1049,158 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case SFW_REF:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_ref, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_ID:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_id, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_SID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_sid, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_SERVICE_CLASS_NAME:
-	  proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_classname, tvb,
-			       pos, length, FALSE);
-	  break;
-	case SFW_ERRORS:
-	  dissect_sflow_err (tvb, sflow_tree, pos, length);
-	  break;
-	case SFW_QOS_SET_TYPE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_qos_param,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_TRAF_PRI:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_traf_pri,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_MAX_SUSTAINED:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_max_sus,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_MAX_BURST:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_max_burst,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_MIN_RSVD_TRAF:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_min_traf,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_MIN_RSVD_PACKETSIZE:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_ass_min_pkt_size, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_ACTIVE_QOS_TIMEOUT:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_timeout_active, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_ADMITT_QOS_TIMEOUT:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (sflow_tree,
-				   hf_docsis_tlv_sflow_timeout_admitted, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SFW_VENDOR_SPEC:
-	  proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_vendor_spec,
-			       tvb, pos, length, FALSE);
-	  break;
-	default:
-	  if (direction == 24)
-	    dissect_upstream_sflow (tvb, sflow_tree, pos - 2, length);
-	  else
-	    dissect_downstream_sflow (tvb, sflow_tree, pos - 2, length);
-	  break;
+        {
+        case SFW_REF:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_ref, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_ID:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_id, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_SID:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_sid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_SERVICE_CLASS_NAME:
+          proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_classname, tvb,
+                               pos, length, FALSE);
+          break;
+        case SFW_ERRORS:
+          dissect_sflow_err (tvb, sflow_tree, pos, length);
+          break;
+        case SFW_QOS_SET_TYPE:
+          if (length == 1)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_qos_param,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_TRAF_PRI:
+          if (length == 1)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_traf_pri,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_MAX_SUSTAINED:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_max_sus,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_MAX_BURST:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_max_burst,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_MIN_RSVD_TRAF:
+          if (length == 4)
+            {
+              proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_min_traf,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_MIN_RSVD_PACKETSIZE:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_ass_min_pkt_size, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_ACTIVE_QOS_TIMEOUT:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_timeout_active, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_ADMITT_QOS_TIMEOUT:
+          if (length == 2)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_timeout_admitted, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SFW_VENDOR_SPEC:
+          proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_vendor_spec,
+                               tvb, pos, length, FALSE);
+          break;
+        default:
+          if (direction == 24)
+            dissect_upstream_sflow (tvb, sflow_tree, pos - 2, length);
+          else
+            dissect_downstream_sflow (tvb, sflow_tree, pos - 2, length);
+          break;
 
-	}			/* switch (type) */
+        }                       /* switch (type) */
       pos = pos + length;
-    }				/* while(pos < start + len) */
+    }                           /* while(pos < start + len) */
 
 }
 
 static void
 dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
-		     guint16 len)
+                     guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1210,7 +1208,7 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "11 801.1P/Q Classifiers (Length = %u)", len);
+                         "11 801.1P/Q Classifiers (Length = %u)", len);
   dot1qclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
@@ -1218,45 +1216,45 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CFR_D1Q_USER_PRI:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (dot1qclsfr_tree,
-				   hf_docsis_tlv_dot1qclsfr_user_pri, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_D1Q_VLAN_ID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (dot1qclsfr_tree,
-				   hf_docsis_tlv_dot1qclsfr_vlanid, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_D1Q_VENDOR_SPEC:
-	  proto_tree_add_item (dot1qclsfr_tree,
-			       hf_docsis_tlv_dot1qclsfr_vendorspec, tvb, pos,
-			       length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case CFR_D1Q_USER_PRI:
+          if (length == 2)
+            {
+              proto_tree_add_item (dot1qclsfr_tree,
+                                   hf_docsis_tlv_dot1qclsfr_user_pri, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_D1Q_VLAN_ID:
+          if (length == 2)
+            {
+              proto_tree_add_item (dot1qclsfr_tree,
+                                   hf_docsis_tlv_dot1qclsfr_vlanid, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_D1Q_VENDOR_SPEC:
+          proto_tree_add_item (dot1qclsfr_tree,
+                               hf_docsis_tlv_dot1qclsfr_vendorspec, tvb, pos,
+                               length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
 dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
-		   guint16 len)
+                   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1264,7 +1262,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "10 Ethernet Classifiers (Length = %u)", len);
+                         "10 Ethernet Classifiers (Length = %u)", len);
   ethclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_eth);
 
   while (pos < (start + len))
@@ -1272,45 +1270,45 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CFR_ETH_DST_MAC:
-	  if (length == 6)
-	    {
-	      proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_dmac,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ETH_SRC_MAC:
-	  if (length == 6)
-	    {
-	      proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_smac,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ETH_DSAP:
-	  if (length == 3)
-	    {
-	      proto_tree_add_item (ethclsfr_tree,
-				   hf_docsis_tlv_ethclsfr_ethertype, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case CFR_ETH_DST_MAC:
+          if (length == 6)
+            {
+              proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_dmac,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ETH_SRC_MAC:
+          if (length == 6)
+            {
+              proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_smac,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ETH_DSAP:
+          if (length == 3)
+            {
+              proto_tree_add_item (ethclsfr_tree,
+                                   hf_docsis_tlv_ethclsfr_ethertype, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 
 
 
@@ -1318,7 +1316,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
 
 static void
 dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
-		   guint16 len)
+                   guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1326,7 +1324,7 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "8 Classifier Error Encodings (Length = %u)", len);
+                         "8 Classifier Error Encodings (Length = %u)", len);
   err_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_err);
 
   while (pos < (start + len))
@@ -1334,42 +1332,42 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CFR_ERR_PARAM:
-	  if (length == 1)
-	    proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param, tvb,
-				 pos, length, FALSE);
-	  else if (length == 2)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param,
-				   tvb, pos, 1, FALSE);
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param,
-				   tvb, pos + 1, 1, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ERR_CODE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_code,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ERR_MSG:
-	  proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_msg, tvb,
-			       pos, length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case CFR_ERR_PARAM:
+          if (length == 1)
+            proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param, tvb,
+                                 pos, length, FALSE);
+          else if (length == 2)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param,
+                                   tvb, pos, 1, FALSE);
+              proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param,
+                                   tvb, pos + 1, 1, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ERR_CODE:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_code,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ERR_MSG:
+          proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_msg, tvb,
+                               pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 
 
 
@@ -1377,7 +1375,7 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
 
 static void
 dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
-		       guint16 len)
+                       guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1385,7 +1383,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "9 IP Classifier (Length = %u)", len);
+                         "9 IP Classifier (Length = %u)", len);
   ipclsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr_ip);
 
   while (pos < (start + len))
@@ -1393,134 +1391,134 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CFR_IP_TOS_RANGE_MASK:
-	  if (length == 3)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_tosmask, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_PROTO:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_ipproto, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_SOURCE_ADDR:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_src,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_SOURCE_MASK:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_srcmask, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_DEST_ADDR:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_dst,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_DEST_MASK:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_dstmask, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_SRCPORT_START:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_sport_start, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_SRCPORT_END:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_sport_end, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_DSTPORT_START:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_dport_start, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_IP_DSTPORT_END:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (ipclsfr_tree,
-				   hf_docsis_tlv_ipclsfr_dport_end, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case CFR_IP_TOS_RANGE_MASK:
+          if (length == 3)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_tosmask, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_PROTO:
+          if (length == 2)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_ipproto, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_SOURCE_ADDR:
+          if (length == 4)
+            {
+              proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_src,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_SOURCE_MASK:
+          if (length == 4)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_srcmask, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_DEST_ADDR:
+          if (length == 4)
+            {
+              proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_dst,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_DEST_MASK:
+          if (length == 4)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_dstmask, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_SRCPORT_START:
+          if (length == 2)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_sport_start, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_SRCPORT_END:
+          if (length == 2)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_sport_end, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_DSTPORT_START:
+          if (length == 2)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_dport_start, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_IP_DSTPORT_END:
+          if (length == 2)
+            {
+              proto_tree_add_item (ipclsfr_tree,
+                                   hf_docsis_tlv_ipclsfr_dport_end, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 
 }
 static void
 dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
-		     guint16 len, guint8 direction)
+                     guint16 len, guint8 direction)
 {
   guint8 type, length;
   proto_item *it;
@@ -1529,13 +1527,13 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
   if (direction == 22)
     it =
       proto_tree_add_text (tree, tvb, start, len,
-			   "22 Upstream Packet Classifier (Length = %u)",
-			   len);
+                           "22 Upstream Packet Classifier (Length = %u)",
+                           len);
   else if (direction == 23)
     it =
       proto_tree_add_text (tree, tvb, start, len,
-			   "23 Downstream Packet Classifier (Length = %u)",
-			   len);
+                           "23 Downstream Packet Classifier (Length = %u)",
+                           len);
   else
     return;
   clsfr_tree = proto_item_add_subtree (it, ett_docsis_tlv_clsfr);
@@ -1545,104 +1543,104 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CFR_REF:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_ref, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_id, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_SFLOW_REF:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_sflow_ref,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_SFLOW_ID:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_sflow_id,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_RULE_PRI:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_rule_pri,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ACT_STATE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_act_state,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_DSA_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_dsc_act,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CFR_ERROR:
-	  dissect_clsfr_err (tvb, clsfr_tree, pos, length);
-	  break;
-	case CFR_IP_CLASSIFIER:
-	  dissect_ip_classifier (tvb, clsfr_tree, pos, length);
-	  break;
-	case CFR_ETH_CLASSIFIER:
-	  dissect_eth_clsfr (tvb, clsfr_tree, pos, length);
-	  break;
-	case CFR_8021Q_CLASSIFIER:
-	  dissect_dot1q_clsfr (tvb, clsfr_tree, pos, length);
-	  break;
-	case CFR_VENDOR_SPEC:
-	  proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_vendor_spc,
-			       tvb, pos, length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case CFR_REF:
+          if (length == 1)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_ref, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ID:
+          if (length == 2)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_id, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_SFLOW_REF:
+          if (length == 2)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_sflow_ref,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_SFLOW_ID:
+          if (length == 4)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_sflow_id,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_RULE_PRI:
+          if (length == 1)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_rule_pri,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ACT_STATE:
+          if (length == 1)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_act_state,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_DSA_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_dsc_act,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CFR_ERROR:
+          dissect_clsfr_err (tvb, clsfr_tree, pos, length);
+          break;
+        case CFR_IP_CLASSIFIER:
+          dissect_ip_classifier (tvb, clsfr_tree, pos, length);
+          break;
+        case CFR_ETH_CLASSIFIER:
+          dissect_eth_clsfr (tvb, clsfr_tree, pos, length);
+          break;
+        case CFR_8021Q_CLASSIFIER:
+          dissect_dot1q_clsfr (tvb, clsfr_tree, pos, length);
+          break;
+        case CFR_VENDOR_SPEC:
+          proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_vendor_spc,
+                               tvb, pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 
 
 
@@ -1650,7 +1648,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
 
 static void
 dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
-		  guint16 len)
+                  guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1658,7 +1656,7 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "1 Docsis 1.0 Class of Service (Length = %u)", len);
+                         "1 Docsis 1.0 Class of Service (Length = %u)", len);
   doc10cos_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
@@ -1666,38 +1664,38 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case 1:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (doc10cos_tree, hf_docsis_tlv_cos_id, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case 2:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (doc10cos_tree, hf_docsis_tlv_cos_sid, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case 1:
+          if (length == 1)
+            {
+              proto_tree_add_item (doc10cos_tree, hf_docsis_tlv_cos_id, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case 2:
+          if (length == 2)
+            {
+              proto_tree_add_item (doc10cos_tree, hf_docsis_tlv_cos_sid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
 
-    }				/* while */
+    }                           /* while */
 }
 
 static void
 dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
-		  guint16 len)
+                  guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -1706,7 +1704,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "5 Modem Capabilities Type (Length = %u)", len);
+                         "5 Modem Capabilities Type (Length = %u)", len);
 
   mcap_tree = proto_item_add_subtree (it, ett_docsis_tlv_mcap);
   while (pos < (start + len))
@@ -1714,145 +1712,145 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case CAP_CONCAT:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_concat, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_DOCSIS_VER:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_docs_ver,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_FRAG:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_frag, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_PHS:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_phs, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_IGMP:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_igmp, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_PRIVACY:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_privacy, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_DOWN_SAID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_down_said,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_UP_SID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_up_sid, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_OPT_FILT:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_8021P_filter,
-				   tvb, pos, length, FALSE);
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_8021Q_filter,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_XMIT_EQPERSYM:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree,
-				   hf_docsis_tlv_mcap_xmit_eq_taps_per_sym,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_NUM_XMIT_EQ_TAPS:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_xmit_eq_taps,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case CAP_DCC:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dcc, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch (type) */
+        {
+        case CAP_CONCAT:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_concat, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_DOCSIS_VER:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_docs_ver,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_FRAG:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_frag, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_PHS:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_phs, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_IGMP:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_igmp, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_PRIVACY:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_privacy, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_DOWN_SAID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_down_said,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_UP_SID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_up_sid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_OPT_FILT:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_8021P_filter,
+                                   tvb, pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_8021Q_filter,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_XMIT_EQPERSYM:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree,
+                                   hf_docsis_tlv_mcap_xmit_eq_taps_per_sym,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_NUM_XMIT_EQ_TAPS:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_xmit_eq_taps,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_DCC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dcc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch (type) */
       pos = pos + length;
-    }				/* while (pos < pos+len) */
+    }                           /* while (pos < pos+len) */
 
 }
 
@@ -1866,7 +1864,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "4 Class of Service Type (Length = %u)", len);
+                         "4 Class of Service Type (Length = %u)", len);
   cos_tree = proto_item_add_subtree (it, ett_docsis_tlv_cos);
 
   while (pos < (start + len))
@@ -1874,88 +1872,88 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case COS_CLASSID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_MAX_DOWN:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_down, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_MAX_UP:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_up, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_UP_CH_PRIO:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_up_chnl_pri,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_MIN_UP_RATE:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_min_grntd_up,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_MAX_UP_BURST:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_up_burst,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case COS_BP_ENABLE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_privacy_enable,
-				   tvb, pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
+        {
+        case COS_CLASSID:
+          if (length == 1)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_MAX_DOWN:
+          if (length == 4)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_down, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_MAX_UP:
+          if (length == 4)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_up, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_UP_CH_PRIO:
+          if (length == 1)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_up_chnl_pri,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_MIN_UP_RATE:
+          if (length == 4)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_min_grntd_up,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_MAX_UP_BURST:
+          if (length == 2)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_max_up_burst,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case COS_BP_ENABLE:
+          if (length == 1)
+            {
+              proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_privacy_enable,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
 
-	    }
-	  break;
-	}			/* switch (type) */
+            }
+          break;
+        }                       /* switch (type) */
       pos = pos + length;
-    }				/* while (pos < pos+len) */
+    }                           /* while (pos < pos+len) */
 
 }
 
@@ -1965,18 +1963,18 @@ dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, guint16 length) 
   proto_item *svc_unavail_it;
   proto_tree *svc_unavail_tree;
   svc_unavail_it = proto_tree_add_item (tree,
-                            hf_docsis_tlv_svc_unavail,
-			    tvb, pos, length, FALSE);
+                                        hf_docsis_tlv_svc_unavail,
+                                        tvb, pos, length, FALSE);
   svc_unavail_tree = proto_item_add_subtree(svc_unavail_it, ett_docsis_tlv_svc_unavail );
   proto_tree_add_item (svc_unavail_tree,
                        hf_docsis_tlv_svc_unavail_classid, tvb,
-	   		pos, 1, FALSE);
+                       pos, 1, FALSE);
   proto_tree_add_item (svc_unavail_tree,
-	           hf_docsis_tlv_svc_unavail_type, tvb,
-		   pos+1, 1, FALSE);
+                       hf_docsis_tlv_svc_unavail_type, tvb,
+                       pos+1, 1, FALSE);
   proto_tree_add_item (svc_unavail_tree,
-	           hf_docsis_tlv_svc_unavail_code, tvb,
-		   pos+2, 1, FALSE);
+                       hf_docsis_tlv_svc_unavail_code, tvb,
+                       pos+2, 1, FALSE);
 
 }
 
@@ -1988,32 +1986,34 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
   int pos = start;
 
   snmpv3_it = proto_tree_add_item (tree,
-                            hf_docsis_tlv_snmpv3_kick,
-			    tvb, start, len, FALSE);
+                                   hf_docsis_tlv_snmpv3_kick,
+                                   tvb, start, len, FALSE);
   snmpv3_tree = proto_item_add_subtree(snmpv3_it, ett_docsis_tlv_snmpv3_kick);
 
-  while (pos < (start + len)) {
-    type = tvb_get_guint8 (tvb, pos++);
-    length = tvb_get_guint8 (tvb, pos++);
-    switch (type) {
-	case SNMPV3_SEC_NAME:
-  	  proto_tree_add_item (snmpv3_tree,
-	           hf_docsis_tlv_snmpv3_kick_name, tvb,
-		   pos, length, FALSE);
-	  break;
-	case SNMPV3_MGR_PUB_NUM:
-  	  proto_tree_add_item (snmpv3_tree,
-	           hf_docsis_tlv_snmpv3_kick_publicnum, tvb,
-		   pos, length, FALSE);
-	  break;
-    }  /* switch */
-    pos += length;
-  }   /* while */
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+        case SNMPV3_SEC_NAME:
+          proto_tree_add_item (snmpv3_tree,
+                               hf_docsis_tlv_snmpv3_kick_name, tvb,
+                               pos, length, FALSE);
+          break;
+        case SNMPV3_MGR_PUB_NUM:
+          proto_tree_add_item (snmpv3_tree,
+                               hf_docsis_tlv_snmpv3_kick_publicnum, tvb,
+                               pos, length, FALSE);
+          break;
+        }  /* switch */
+      pos += length;
+    }   /* while */
 }
 
 static void
-dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree, 
-		                   int start, guint16 len)
+dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
+                           int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2021,7 +2021,7 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "1 Single Downstream Channel (Length = %u)", len);
+                         "1 Single Downstream Channel (Length = %u)", len);
   single_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_single);
 
   while (pos < (start + len))
@@ -2029,37 +2029,37 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case SINGLE_CH_TIMEOUT:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_timeout, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case SINGLE_CH_FREQ:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_freq, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    }  /* switch */
+        {
+        case SINGLE_CH_TIMEOUT:
+          if (length == 2)
+            {
+              proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_timeout, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SINGLE_CH_FREQ:
+          if (length == 4)
+            {
+              proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_freq, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }  /* switch */
       pos = pos + length;
-  }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree, 
-		                   int start, guint16 len)
+dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
+                          int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2067,7 +2067,7 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "2 Downstream Frequency Range (Length = %u)", len);
+                         "2 Downstream Frequency Range (Length = %u)", len);
   range_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_range);
 
   while (pos < (start + len))
@@ -2075,59 +2075,59 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case FREQ_RNG_TIMEOUT:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_timeout, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case FREQ_RNG_START:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_start, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case FREQ_RNG_END:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_end, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case FREQ_RNG_STEP:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_step, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    }				/* switch */
+        {
+        case FREQ_RNG_TIMEOUT:
+          if (length == 2)
+            {
+              proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_timeout, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case FREQ_RNG_START:
+          if (length == 4)
+            {
+              proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_start, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case FREQ_RNG_END:
+          if (length == 4)
+            {
+              proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_end, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case FREQ_RNG_STEP:
+          if (length == 4)
+            {
+              proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_step, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                           /* switch */
       pos = pos + length;
-  }				/* while */
+    }                             /* while */
 }
 
 static void
-dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree, 
-		                   int start, guint16 len)
+dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
+                    int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2135,7 +2135,7 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Downstream Unencrypted Traffic (Length = %u)", len);
+                         "Downstream Unencrypted Traffic (Length = %u)", len);
   dut_tree = proto_item_add_subtree (it, ett_docsis_tlv_dut_filter);
 
   while (pos < (start + len))
@@ -2143,29 +2143,29 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case DUT_CONTROL:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_control, tvb,
-				   pos, length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case DUT_CMIM:
-	  proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_cmim, tvb,
-				   pos, length, FALSE);
-	  break;
-    }				/* switch */
+        {
+        case DUT_CONTROL:
+          if (length == 1)
+            {
+              proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_control, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case DUT_CMIM:
+          proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_cmim, tvb,
+                                   pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
-  }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2173,7 +2173,7 @@ dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "41 Downstream Channel List (Length = %u)", len);
+                         "41 Downstream Channel List (Length = %u)", len);
   dschlst_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list);
 
   while (pos < (start + len))
@@ -2181,32 +2181,32 @@ dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case DS_CH_LIST_SINGLE:
+        {
+        case DS_CH_LIST_SINGLE:
       dissect_ds_ch_list_single(tvb, dschlst_tree, pos, length);
-	  break;
-	case DS_CH_LIST_RANGE:
+          break;
+        case DS_CH_LIST_RANGE:
       dissect_ds_ch_list_range(tvb, dschlst_tree, pos, length);
-	  break;
-	case DS_CH_LIST_DEFAULT_TIMEOUT:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (dschlst_tree,
-				   hf_docsis_tlv_ds_ch_list_default_timeout, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+          break;
+        case DS_CH_LIST_DEFAULT_TIMEOUT:
+          if (length == 2)
+            {
+              proto_tree_add_item (dschlst_tree,
+                                   hf_docsis_tlv_ds_ch_list_default_timeout, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2214,7 +2214,7 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "TCC Error Encodings (Length = %u)", len);
+                         "TCC Error Encodings (Length = %u)", len);
   tccerr_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_err);
 
   while (pos < (start + len))
@@ -2222,36 +2222,36 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case TCC_ERR_SUBTYPE:
-      proto_tree_add_item (tccerr_tree,
-	       hf_docsis_tcc_err_subtype, tvb,
-		   pos, length, FALSE);
-	  break;
-	case TCC_ERR_CODE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tccerr_tree,
-				   hf_docsis_tcc_err_code, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TCC_ERR_MSG:
-      proto_tree_add_item (tccerr_tree,
-	       hf_docsis_tcc_err_msg, tvb,
-		   pos, length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case TCC_ERR_SUBTYPE:
+          proto_tree_add_item (tccerr_tree,
+                               hf_docsis_tcc_err_subtype, tvb,
+                               pos, length, FALSE);
+          break;
+        case TCC_ERR_CODE:
+          if (length == 1)
+            {
+              proto_tree_add_item (tccerr_tree,
+                                   hf_docsis_tcc_err_code, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TCC_ERR_MSG:
+          proto_tree_add_item (tccerr_tree,
+                               hf_docsis_tcc_err_msg, tvb,
+                               pos, length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2259,7 +2259,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Ranging Parameters (Length = %u)", len);
+                         "Ranging Parameters (Length = %u)", len);
   rngparm_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_rng_parms);
 
   while (pos < (start + len))
@@ -2267,74 +2267,74 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RNG_PARMS_US_CH_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rngparm_tree,
-				   hf_docsis_rng_parms_us_ch_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RNG_PARMS_TIME_OFF_INT:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (rngparm_tree,
-				   hf_docsis_rng_parms_time_off_int, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RNG_PARMS_TIME_OFF_FRAC:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rngparm_tree,
-				   hf_docsis_rng_parms_time_off_frac, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RNG_PARMS_POWER_OFF:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rngparm_tree,
-				   hf_docsis_rng_parms_power_off, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RNG_PARMS_FREQ_OFF:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rngparm_tree,
-				   hf_docsis_rng_parms_freq_off, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case RNG_PARMS_US_CH_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (rngparm_tree,
+                                   hf_docsis_rng_parms_us_ch_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RNG_PARMS_TIME_OFF_INT:
+          if (length == 4)
+            {
+              proto_tree_add_item (rngparm_tree,
+                                   hf_docsis_rng_parms_time_off_int, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RNG_PARMS_TIME_OFF_FRAC:
+          if (length == 1)
+            {
+              proto_tree_add_item (rngparm_tree,
+                                   hf_docsis_rng_parms_time_off_frac, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RNG_PARMS_POWER_OFF:
+          if (length == 1)
+            {
+              proto_tree_add_item (rngparm_tree,
+                                   hf_docsis_rng_parms_power_off, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RNG_PARMS_FREQ_OFF:
+          if (length == 1)
+            {
+              proto_tree_add_item (rngparm_tree,
+                                   hf_docsis_rng_parms_freq_off, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2342,7 +2342,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "SID Cluster Switchover Criteria (Length = %u)", len);
+                         "SID Cluster Switchover Criteria (Length = %u)", len);
   crit_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_so);
 
   while (pos < (start + len))
@@ -2350,62 +2350,62 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case SID_CL_SO_MAX_REQ:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (crit_tree,
-				   hf_docsis_sid_cl_so_max_req, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_SO_MAX_OUT_BYTES:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (crit_tree,
-				   hf_docsis_sid_cl_so_max_out_bytes, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_SO_MAX_REQ_BYTES:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (crit_tree,
-				   hf_docsis_sid_cl_so_max_req_bytes, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_SO_MAX_TIME:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (crit_tree,
-				   hf_docsis_sid_cl_so_max_time, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case SID_CL_SO_MAX_REQ:
+          if (length == 1)
+            {
+              proto_tree_add_item (crit_tree,
+                                   hf_docsis_sid_cl_so_max_req, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_SO_MAX_OUT_BYTES:
+          if (length == 4)
+            {
+              proto_tree_add_item (crit_tree,
+                                   hf_docsis_sid_cl_so_max_out_bytes, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_SO_MAX_REQ_BYTES:
+          if (length == 4)
+            {
+              proto_tree_add_item (crit_tree,
+                                   hf_docsis_sid_cl_so_max_req_bytes, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_SO_MAX_TIME:
+          if (length == 2)
+            {
+              proto_tree_add_item (crit_tree,
+                                   hf_docsis_sid_cl_so_max_time, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2413,7 +2413,7 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "SID-to-Channel Mapping (Length = %u)", len);
+                         "SID-to-Channel Mapping (Length = %u)", len);
   map_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc_map);
 
   while (pos < (start + len))
@@ -2421,50 +2421,50 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case SID_CL_MAP_US_CH_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (map_tree,
-				   hf_docsis_sid_cl_map_us_ch_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_MAP_SID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (map_tree,
-				   hf_docsis_sid_cl_map_sid, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_MAP_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (map_tree,
-				   hf_docsis_sid_cl_map_action, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case SID_CL_MAP_US_CH_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (map_tree,
+                                   hf_docsis_sid_cl_map_us_ch_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_MAP_SID:
+          if (length == 2)
+            {
+              proto_tree_add_item (map_tree,
+                                   hf_docsis_sid_cl_map_sid, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_MAP_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (map_tree,
+                                   hf_docsis_sid_cl_map_action, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2472,7 +2472,7 @@ dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "SID Cluster Encoding (Length = %u)", len);
+                         "SID Cluster Encoding (Length = %u)", len);
   enc_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc);
 
   while (pos < (start + len))
@@ -2480,32 +2480,32 @@ dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case SID_CL_ENC_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (enc_tree,
-				   hf_docsis_sid_cl_enc_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_ENC_MAP:
-	  if (length == 10)
-	     dissect_sid_cl_enc_map(tvb, enc_tree, pos, length);
-	  else
-	      THROW (ReportedBoundsError);
-	  break;
-	}			/* switch */
+        {
+        case SID_CL_ENC_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (enc_tree,
+                                   hf_docsis_sid_cl_enc_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_ENC_MAP:
+          if (length == 10)
+             dissect_sid_cl_enc_map(tvb, enc_tree, pos, length);
+          else
+              THROW (ReportedBoundsError);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2513,7 +2513,7 @@ dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "47 Service Flow SID Cluster Assignments (Length = %u)", len);
+                         "47 Service Flow SID Cluster Assignments (Length = %u)", len);
   sid_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl);
 
   while (pos < (start + len))
@@ -2521,33 +2521,33 @@ dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case SID_CL_SF_ID:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (sid_tree,
-				   hf_docsis_sid_cl_sf_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case SID_CL_ENC:
-	  dissect_sid_cl_enc(tvb, sid_tree, pos, length);
-	  break;
-    case SID_CL_SO_CRIT:
-	  dissect_sid_cl_so_crit(tvb, sid_tree, pos, length);
-	  break;
-	}			/* switch */
+        {
+        case SID_CL_SF_ID:
+          if (length == 4)
+            {
+              proto_tree_add_item (sid_tree,
+                                   hf_docsis_sid_cl_sf_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case SID_CL_ENC:
+          dissect_sid_cl_enc(tvb, sid_tree, pos, length);
+          break;
+        case SID_CL_SO_CRIT:
+          dissect_sid_cl_so_crit(tvb, sid_tree, pos, length);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_, 
-		    proto_tree *tree, int start, guint16 len) 
+dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
+            proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2557,7 +2557,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "46 Transmit Channel Configuration (Length = %u)", len);
+                         "46 Transmit Channel Configuration (Length = %u)", len);
   tcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc);
 
   while (pos < (start + len))
@@ -2565,108 +2565,108 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case TLV_TCC_REFID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_refid, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_US_CH_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_us_ch_action, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_US_CH_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_NEW_US_CH_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_new_us_ch_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_UCD:
-	  ucd_tvb = tvb_new_subset (tvb, pos, length, length);
-	  call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, tcc_tree);
-	  break;
-	case TLV_TCC_RNG_SID:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_rng_sid, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_INIT_TECH:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_init_tech, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_RNG_PARMS:
-	  dissect_tcc_rng_parms(tvb, tcc_tree, pos, length);
-	  break;
-	case TLV_TCC_DYN_RNG_WIN:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (tcc_tree,
-				   hf_docsis_tlv_tcc_dyn_rng_win, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_TCC_ERR:
-	  dissect_tcc_err(tvb, tcc_tree, pos, length);
-	  break;
-	}			/* switch */
+        {
+        case TLV_TCC_REFID:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_refid, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_US_CH_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_us_ch_action, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_US_CH_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_NEW_US_CH_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_new_us_ch_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_UCD:
+          ucd_tvb = tvb_new_subset (tvb, pos, length, length);
+          call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, tcc_tree);
+          break;
+        case TLV_TCC_RNG_SID:
+          if (length == 2)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_rng_sid, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_INIT_TECH:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_init_tech, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_RNG_PARMS:
+          dissect_tcc_rng_parms(tvb, tcc_tree, pos, length);
+          break;
+        case TLV_TCC_DYN_RNG_WIN:
+          if (length == 1)
+            {
+              proto_tree_add_item (tcc_tree,
+                                   hf_docsis_tlv_tcc_dyn_rng_win, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_TCC_ERR:
+          dissect_tcc_err(tvb, tcc_tree, pos, length);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2674,7 +2674,7 @@ dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Receive Module Channel Block Range (Length = %u)", len);
+                         "Receive Module Channel Block Range (Length = %u)", len);
   chblrng_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_ch_bl_rng);
 
   while (pos < (start + len))
@@ -2682,38 +2682,38 @@ dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case CH_BL_RNG_MIN_CTR_FREQ:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (chblrng_tree,
-				   hf_docsis_ch_bl_rng_min_ctr_freq, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case CH_BL_RNG_MAX_CTR_FREQ:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (chblrng_tree,
-				   hf_docsis_ch_bl_rng_max_ctr_freq, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case CH_BL_RNG_MIN_CTR_FREQ:
+          if (length == 4)
+            {
+              proto_tree_add_item (chblrng_tree,
+                                   hf_docsis_ch_bl_rng_min_ctr_freq, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CH_BL_RNG_MAX_CTR_FREQ:
+          if (length == 4)
+            {
+              proto_tree_add_item (chblrng_tree,
+                                   hf_docsis_ch_bl_rng_max_ctr_freq, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2721,7 +2721,7 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Receive Module Capability (Length = %u)", len);
+                         "Receive Module Capability (Length = %u)", len);
   rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_mod_enc);
 
   while (pos < (start + len))
@@ -2729,56 +2729,56 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RCV_MOD_ENC_IDX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvmod_tree,
-				   hf_docsis_rcv_mod_enc_idx, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCV_MOD_ENC_CH_BL_RNG:
-	  dissect_ch_bl_rng(tvb, rcvmod_tree, pos, length);
-	  break;
-	case RCV_MOD_ENC_CTR_FREQ_ASGN:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (rcvmod_tree,
-				   hf_docsis_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RCV_MOD_ENC_RSQ_CH_SUBS_CAP:
-	  proto_tree_add_item (rcvmod_tree,
-		   hf_docsis_rcv_mod_enc_rsq_ch_subs_cap, tvb, pos,
-		   length, FALSE);
-	  break;
-	case RCV_MOD_ENC_CONN:
-	  proto_tree_add_item (rcvmod_tree,
-		   hf_docsis_rcv_mod_enc_conn, tvb, pos,
-		   length, FALSE);
-	  break;
-	case RCV_MOD_ENC_PHY_LAYR_PARMS:
-	  proto_tree_add_item (rcvmod_tree,
-		   hf_docsis_rcv_mod_enc_phy_layr_parms, tvb, pos,
-		   length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case RCV_MOD_ENC_IDX:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvmod_tree,
+                                   hf_docsis_rcv_mod_enc_idx, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_MOD_ENC_CH_BL_RNG:
+          dissect_ch_bl_rng(tvb, rcvmod_tree, pos, length);
+          break;
+        case RCV_MOD_ENC_CTR_FREQ_ASGN:
+          if (length == 4)
+            {
+              proto_tree_add_item (rcvmod_tree,
+                                   hf_docsis_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_MOD_ENC_RSQ_CH_SUBS_CAP:
+          proto_tree_add_item (rcvmod_tree,
+                   hf_docsis_rcv_mod_enc_rsq_ch_subs_cap, tvb, pos,
+                   length, FALSE);
+          break;
+        case RCV_MOD_ENC_CONN:
+          proto_tree_add_item (rcvmod_tree,
+                   hf_docsis_rcv_mod_enc_conn, tvb, pos,
+                   length, FALSE);
+          break;
+        case RCV_MOD_ENC_PHY_LAYR_PARMS:
+          proto_tree_add_item (rcvmod_tree,
+                   hf_docsis_rcv_mod_enc_phy_layr_parms, tvb, pos,
+                   length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2786,7 +2786,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Receive Channels (Length = %u)", len);
+                         "Receive Channels (Length = %u)", len);
   rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_ch);
 
   while (pos < (start + len))
@@ -2794,57 +2794,57 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RCV_CH_IDX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcv_ch_idx, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCV_CH_CONN:
-	  proto_tree_add_item (rcvch_tree,
-			   hf_docsis_rcv_ch_conn, tvb, pos,
-			   length, FALSE);
-	  break;
-    case RCV_CH_CONN_OFF:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcv_ch_conn_off, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCV_CH_PRIM_DS_CH_IND:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcv_ch_prim_ds_ch_ind, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case RCV_CH_IDX:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcv_ch_idx, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_CH_CONN:
+          proto_tree_add_item (rcvch_tree,
+                           hf_docsis_rcv_ch_conn, tvb, pos,
+                           length, FALSE);
+          break;
+        case RCV_CH_CONN_OFF:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcv_ch_conn_off, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_CH_PRIM_DS_CH_IND:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcv_ch_prim_ds_ch_ind, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 
 static void
-dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_, 
-		        proto_tree *tree, int start, guint16 len) 
+dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
+            proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2854,7 +2854,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			  "48 Receive Channel Profile (Length = %u)", len);
+                          "48 Receive Channel Profile (Length = %u)", len);
   rcp_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp);
 
   while (pos < (start + len))
@@ -2862,60 +2862,60 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case TLV_RCP_ID:
-	  if (length == 5)
-	    {
-	      proto_tree_add_item (rcp_tree,
-				   hf_docsis_tlv_rcp_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_RCP_NAME:
-	  if (length <= 15)
-	    {
-	      proto_tree_add_item (rcp_tree,
-				   hf_docsis_tlv_rcp_name, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_RCP_FREQ_SPC:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcp_tree,
-				   hf_docsis_tlv_rcp_freq_spc, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_RCP_RCV_MOD_ENC:
-	  dissect_rcp_rcv_mod(tvb, rcp_tree, pos, length);
-	  break;
-	case TLV_RCP_RCV_CH:
-	  dissect_rcp_rcv_ch(tvb, rcp_tree, pos, length);
-	  break;
-	case TLV_RCP_VEN_SPEC:
-	  vsif_tvb = tvb_new_subset (tvb, pos, length, length);
-	  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcp_tree);
-	  break;
-	}			/* switch */
+        {
+        case TLV_RCP_ID:
+          if (length == 5)
+            {
+              proto_tree_add_item (rcp_tree,
+                                   hf_docsis_tlv_rcp_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_RCP_NAME:
+          if (length <= 15)
+            {
+              proto_tree_add_item (rcp_tree,
+                                   hf_docsis_tlv_rcp_name, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_RCP_FREQ_SPC:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcp_tree,
+                                   hf_docsis_tlv_rcp_freq_spc, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_RCP_RCV_MOD_ENC:
+          dissect_rcp_rcv_mod(tvb, rcp_tree, pos, length);
+          break;
+        case TLV_RCP_RCV_CH:
+          dissect_rcp_rcv_ch(tvb, rcp_tree, pos, length);
+          break;
+        case TLV_RCP_VEN_SPEC:
+          vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+          call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcp_tree);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2923,7 +2923,7 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Receive Module Assignment (Length = %u)", len);
+                         "Receive Module Assignment (Length = %u)", len);
   rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_mod_enc);
 
   while (pos < (start + len))
@@ -2931,43 +2931,43 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RCV_MOD_ENC_IDX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvmod_tree,
-				   hf_docsis_rcc_rcv_mod_enc_idx, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RCV_MOD_ENC_CTR_FREQ_ASGN:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (rcvmod_tree,
-				   hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case RCV_MOD_ENC_CONN:
-	  proto_tree_add_item (rcvmod_tree,
-		   hf_docsis_rcc_rcv_mod_enc_conn, tvb, pos,
-		   length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case RCV_MOD_ENC_IDX:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvmod_tree,
+                                   hf_docsis_rcc_rcv_mod_enc_idx, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_MOD_ENC_CTR_FREQ_ASGN:
+          if (length == 4)
+            {
+              proto_tree_add_item (rcvmod_tree,
+                                   hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_MOD_ENC_CONN:
+          proto_tree_add_item (rcvmod_tree,
+                   hf_docsis_rcc_rcv_mod_enc_conn, tvb, pos,
+                   length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -2975,7 +2975,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Receive Channels (Length = %u)", len);
+                         "Receive Channels (Length = %u)", len);
   rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
 
   while (pos < (start + len))
@@ -2983,55 +2983,55 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RCV_CH_IDX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcc_rcv_ch_idx, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCV_CH_CONN:
-	  proto_tree_add_item (rcvch_tree,
-			   hf_docsis_rcc_rcv_ch_conn, tvb, pos,
-			   length, FALSE);
-	  break;
-    case RCV_CH_CTR_FREQ_ASGN:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcc_rcv_ch_ctr_freq_asgn, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCV_CH_PRIM_DS_CH_IND:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (rcvch_tree,
-				   hf_docsis_rcc_rcv_ch_prim_ds_ch_ind, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case RCV_CH_IDX:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcc_rcv_ch_idx, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_CH_CONN:
+          proto_tree_add_item (rcvch_tree,
+                           hf_docsis_rcc_rcv_ch_conn, tvb, pos,
+                           length, FALSE);
+          break;
+        case RCV_CH_CTR_FREQ_ASGN:
+          if (length == 4)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcc_rcv_ch_ctr_freq_asgn, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCV_CH_PRIM_DS_CH_IND:
+          if (length == 1)
+            {
+              proto_tree_add_item (rcvch_tree,
+                                   hf_docsis_rcc_rcv_ch_prim_ds_ch_ind, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3039,7 +3039,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "RCC Error Encodings (Length = %u)", len);
+                         "RCC Error Encodings (Length = %u)", len);
   err_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
 
   while (pos < (start + len))
@@ -3047,68 +3047,68 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case RCC_ERR_MOD_OR_CH:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree,
-				   hf_docsis_tlv_rcc_err_mod_or_ch, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCC_ERR_IDX:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree,
-				   hf_docsis_tlv_rcc_err_idx, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCC_ERR_PARAM:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree,
-				   hf_docsis_tlv_rcc_err_param, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCC_ERR_CODE:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (err_tree,
-				   hf_docsis_tlv_rcc_err_code, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case RCC_ERR_MSG:
-      proto_tree_add_item (err_tree,
-			   hf_docsis_tlv_rcc_err_msg, tvb, pos,
-			   length, FALSE);
-	  break;
-	}			/* switch */
+        {
+        case RCC_ERR_MOD_OR_CH:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree,
+                                   hf_docsis_tlv_rcc_err_mod_or_ch, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCC_ERR_IDX:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree,
+                                   hf_docsis_tlv_rcc_err_idx, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCC_ERR_PARAM:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree,
+                                   hf_docsis_tlv_rcc_err_param, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCC_ERR_CODE:
+          if (length == 1)
+            {
+              proto_tree_add_item (err_tree,
+                                   hf_docsis_tlv_rcc_err_code, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case RCC_ERR_MSG:
+          proto_tree_add_item (err_tree,
+                               hf_docsis_tlv_rcc_err_msg, tvb, pos,
+                               length, FALSE);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_, 
-		        proto_tree *tree, int start, guint16 len) 
+dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
+            proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3118,7 +3118,7 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
 
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			  "49 Receive Channel Configuration (Length = %u)", len);
+                          "49 Receive Channel Configuration (Length = %u)", len);
   rcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc);
 
   while (pos < (start + len))
@@ -3126,39 +3126,39 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case TLV_RCP_ID:
-	  if (length == 5)
-	    {
-	      proto_tree_add_item (rcc_tree,
-				   hf_docsis_tlv_rcc_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case TLV_RCP_RCV_MOD_ENC:
-	  dissect_rcc_rcv_mod(tvb, rcc_tree, pos, length);
-	  break;
-	case TLV_RCP_RCV_CH:
-	  dissect_rcc_rcv_ch(tvb, rcc_tree, pos, length);
-	  break;
-	case TLV_RCP_VEN_SPEC:
-	  vsif_tvb = tvb_new_subset (tvb, pos, length, length);
-	  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
-	  break;
-	case TLV_RCC_ERR:
-	  dissect_rcc_err(tvb, rcc_tree, pos, length);
-	  break;
-	}			/* switch */
+        {
+        case TLV_RCP_ID:
+          if (length == 5)
+            {
+              proto_tree_add_item (rcc_tree,
+                                   hf_docsis_tlv_rcc_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_RCP_RCV_MOD_ENC:
+          dissect_rcc_rcv_mod(tvb, rcc_tree, pos, length);
+          break;
+        case TLV_RCP_RCV_CH:
+          dissect_rcc_rcv_ch(tvb, rcc_tree, pos, length);
+          break;
+        case TLV_RCP_VEN_SPEC:
+          vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+          call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
+          break;
+        case TLV_RCC_ERR:
+          dissect_rcc_err(tvb, rcc_tree, pos, length);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3166,7 +3166,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Resequencing DSID (Length = %u)", len);
+                         "Resequencing DSID (Length = %u)", len);
   dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_ds_reseq);
 
   while (pos < (start + len))
@@ -3174,67 +3174,67 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case DS_RESEQ_DSID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_ds_reseq_dsid, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case DS_RESEQ_CH_LST:
-	  proto_tree_add_item (dsid_tree,
-			   hf_docsis_ds_reseq_ch_lst, tvb, pos,
-			   length, FALSE);
-	  break;
-    case DS_RESEQ_WAIT_TIME:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_ds_reseq_wait_time, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case DS_RESEQ_WARN_THRESH:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_ds_reseq_warn_thresh, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case DS_RESEQ_HO_TIMER:
-	  if (length == 2)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_ds_reseq_ho_timer, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case DS_RESEQ_DSID:
+          if (length == 1)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_ds_reseq_dsid, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case DS_RESEQ_CH_LST:
+          proto_tree_add_item (dsid_tree,
+                           hf_docsis_ds_reseq_ch_lst, tvb, pos,
+                           length, FALSE);
+          break;
+        case DS_RESEQ_WAIT_TIME:
+          if (length == 1)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_ds_reseq_wait_time, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case DS_RESEQ_WARN_THRESH:
+          if (length == 1)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_ds_reseq_warn_thresh, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case DS_RESEQ_HO_TIMER:
+          if (length == 2)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_ds_reseq_ho_timer, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3242,7 +3242,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Client MAC Address Encodings (Length = %u)", len);
+                         "Client MAC Address Encodings (Length = %u)", len);
   dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc_addr);
 
   while (pos < (start + len))
@@ -3250,38 +3250,38 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case MC_ADDR_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_mc_addr_action, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case MC_ADDR_ADDR:
-	  if (length == 6)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_mc_addr_addr, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case MC_ADDR_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_mc_addr_action, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case MC_ADDR_ADDR:
+          if (length == 6)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_mc_addr_addr, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3289,7 +3289,7 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Multicast Encodings (Length = %u)", len);
+                         "Multicast Encodings (Length = %u)", len);
   dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc);
 
   while (pos < (start + len))
@@ -3297,30 +3297,30 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case TLV_DSID_MC_ADDR:
-	  dissect_dsid_mc_addr(tvb, dsid_tree, pos, length);
-	  break;
-    case TLV_DSID_MC_CMIM:
-	  proto_tree_add_item (dsid_tree,
-			   hf_docsis_tlv_dsid_mc_cmim, tvb, pos,
-			   length, FALSE);
-	  break;
-    case TLV_DSID_MC_GROUP:
-	  proto_tree_add_item (dsid_tree,
-			   hf_docsis_tlv_dsid_mc_group, tvb, pos,
-			   length, FALSE);
-	  break;
+        {
+        case TLV_DSID_MC_ADDR:
+          dissect_dsid_mc_addr(tvb, dsid_tree, pos, length);
+          break;
+        case TLV_DSID_MC_CMIM:
+          proto_tree_add_item (dsid_tree,
+                               hf_docsis_tlv_dsid_mc_cmim, tvb, pos,
+                               length, FALSE);
+          break;
+        case TLV_DSID_MC_GROUP:
+          proto_tree_add_item (dsid_tree,
+                               hf_docsis_tlv_dsid_mc_group, tvb, pos,
+                               length, FALSE);
+          break;
     case TLV_DSID_MC_PHS:
-	  dissect_phs(tvb, dsid_tree, pos, length);
-	  break;
-	}			/* switch */
+          dissect_phs(tvb, dsid_tree, pos, length);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3328,7 +3328,7 @@ dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "50 DSID Encodings (Length = %u)", len);
+                         "50 DSID Encodings (Length = %u)", len);
   dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
 
   while (pos < (start + len))
@@ -3336,44 +3336,44 @@ dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case TLV_DSID_ID:
-	  if (length == 3)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_tlv_dsid_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case TLV_DSID_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (dsid_tree,
-				   hf_docsis_tlv_dsid_action, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case TLV_DSID_DS_RESEQ:
-	  dissect_dsid_ds_reseq(tvb, dsid_tree, pos, length);
-	  break;
-    case TLV_DSID_MC:
-	  dissect_dsid_mc(tvb, dsid_tree, pos, length);
-	  break;
-	}			/* switch */
+        {
+        case TLV_DSID_ID:
+          if (length == 3)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_tlv_dsid_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_DSID_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (dsid_tree,
+                                   hf_docsis_tlv_dsid_action, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_DSID_DS_RESEQ:
+          dissect_dsid_ds_reseq(tvb, dsid_tree, pos, length);
+          break;
+        case TLV_DSID_MC:
+          dissect_dsid_mc(tvb, dsid_tree, pos, length);
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3381,7 +3381,7 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "51 Security Association Encodings (Length = %u)", len);
+                         "51 Security Association Encodings (Length = %u)", len);
   sec_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
 
   while (pos < (start + len))
@@ -3389,38 +3389,38 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case TLV_SEC_ASSOC_ACTION:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (sec_tree,
-				   hf_docsis_tlv_sec_assoc_action, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case TLV_SEC_ASSOC_DESC:
-	  if (length == 14)
-	    {
-	      proto_tree_add_item (sec_tree,
-				   hf_docsis_tlv_sec_assoc_desc, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case TLV_SEC_ASSOC_ACTION:
+          if (length == 1)
+            {
+              proto_tree_add_item (sec_tree,
+                                   hf_docsis_tlv_sec_assoc_action, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_SEC_ASSOC_DESC:
+          if (length == 14)
+            {
+              proto_tree_add_item (sec_tree,
+                                   hf_docsis_tlv_sec_assoc_desc, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3428,7 +3428,7 @@ dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "56 Channel Assignment Configuration Settings (Length = %u)", len);
+                         "56 Channel Assignment Configuration Settings (Length = %u)", len);
   asgn_tree = proto_item_add_subtree (it, ett_docsis_tlv_ch_asgn);
 
   while (pos < (start + len))
@@ -3436,38 +3436,38 @@ dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case TLV_CH_ASGN_US_CH_ID:
-	  if (length == 1)
-	    {
-	      proto_tree_add_item (asgn_tree,
-				   hf_docsis_ch_asgn_us_ch_id, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case TLV_CH_ASGN_RX_FREQ:
-	  if (length == 4)
-	    {
-	      proto_tree_add_item (asgn_tree,
-				   hf_docsis_ch_asgn_rx_freq, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case TLV_CH_ASGN_US_CH_ID:
+          if (length == 1)
+            {
+              proto_tree_add_item (asgn_tree,
+                                   hf_docsis_ch_asgn_us_ch_id, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case TLV_CH_ASGN_RX_FREQ:
+          if (length == 4)
+            {
+              proto_tree_add_item (asgn_tree,
+                                   hf_docsis_ch_asgn_rx_freq, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -3475,7 +3475,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "64 CMTS Static Multicast Session Encoding (Length = %u)", len);
+                         "64 CMTS Static Multicast Session Encoding (Length = %u)", len);
   mc_tree = proto_item_add_subtree (it, ett_docsis_cmts_mc_sess_enc);
 
   while (pos < (start + len))
@@ -3483,34 +3483,34 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-    case CMTS_MC_SESS_ENC_GRP:
-	  if (length == 4 || length == 16)
-	    {
-	      proto_tree_add_item (mc_tree,
-				   hf_docsis_cmts_mc_sess_enc_grp, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-    case CMTS_MC_SESS_ENC_SRC:
-	  if (length == 4 || length == 16)
-	    {
-	      proto_tree_add_item (mc_tree,
-				   hf_docsis_cmts_mc_sess_enc_src, tvb, pos,
-				   length, FALSE);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	}			/* switch */
+        {
+        case CMTS_MC_SESS_ENC_GRP:
+          if (length == 4 || length == 16)
+            {
+              proto_tree_add_item (mc_tree,
+                                   hf_docsis_cmts_mc_sess_enc_grp, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CMTS_MC_SESS_ENC_SRC:
+          if (length == 4 || length == 16)
+            {
+              proto_tree_add_item (mc_tree,
+                                   hf_docsis_cmts_mc_sess_enc_src, tvb, pos,
+                                   length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 
@@ -3528,433 +3528,431 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 
   total_len = tvb_reported_length_remaining (tvb, 0);
 
-    {
-      it =
-	proto_tree_add_protocol_format (tree, proto_docsis_tlv, tvb, 0,
-					total_len, "TLV Data");
-      tlv_tree = proto_item_add_subtree (it, ett_docsis_tlv);
-      while (pos < total_len)
-	{
-	  type = tvb_get_guint8 (tvb, pos++);
-	  length = tvb_get_guint8 (tvb, pos++);
-	  switch (type)
-	    {
-	    case TLV_DOWN_FREQ:
-	      /* This is ugly.  There are multiple type 1 TLV's that may appear
-	       * in the TLV data, the problem is that they are dependent on
-	       * message type.  */
-	      if (length == 4)
-		proto_tree_add_item (tlv_tree, hf_docsis_tlv_down_freq, tvb,
-				     pos, length, FALSE);
-	      else if (length == 1)
-		proto_tree_add_item (tlv_tree, hf_docsis_tlv_rng_tech, tvb,
-				     pos, length, FALSE);
-	      else
-		dissect_doc10cos (tvb, tlv_tree, pos, length);
-	      break;
-	    case TLV_CHNL_ID:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_upstream_chid,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_NET_ACCESS:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_net_access,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_COS:
-	      dissect_cos (tvb, tlv_tree, pos, length);
-	      break;
-	    case TLV_MODEM_CAP:
-	      dissect_modemcap (tvb, tlv_tree, pos, length);
-	      break;
-	    case TLV_CM_MIC:
-	      if (length == 16)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_cm_mic, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_CMTS_MIC:
-	      if (length == 16)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_cmts_mic, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_VENDOR_ID:
-	      if (length == 3)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_vendor_id, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_SW_UPG_FILE:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_file, tvb, pos,
-				   length, FALSE);
-	      break;
-	    case TLV_SNMP_WRITE_CTRL:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb,
-			          pos, length, FALSE);
-	      break;
-	    case TLV_SNMP_OBJECT:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_obj, tvb,
-			          pos, length, FALSE);
-	      break;
-	    case TLV_MODEM_IP:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_modem_addr,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_SVC_UNAVAIL:
-	      if (length == 3)
-	        {
-	          dissect_svc_unavail(tvb, tlv_tree, pos, length);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_ETHERNET_MAC:
-	      if (length == 6)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_cpe_ethernet,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_TEL_SETTINGS:
-	      break;
-	    case TLV_BPI_CONFIG:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_bpi, tvb,
-				   pos, length, FALSE);
-	      break;
-	    case TLV_MAX_CPES:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_max_cpe, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_TFTP_TIME:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (tlv_tree,
-				       hf_docsis_tlv_tftp_server_timestamp,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_TFTP_MODEM_ADDRESS:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (tlv_tree,
-				       hf_docsis_tlv_tftp_prov_modem_address,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_SW_UPG_SRVR:
-	      if (length == 4)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_UPSTREAM_CLASSIFIER:
-	    case TLV_DOWN_CLASSIFIER:
-	      dissect_classifiers (tvb, tlv_tree, pos, length, type);
-	      break;
-	    case TLV_UPSTREAM_SERVICE_FLOW:
-	    case TLV_DOWN_SERVICE_FLOW:
-	      dissect_sflow (tvb, tlv_tree, pos, length, type);
-	      break;
-	    case TLV_PHS:
-	      dissect_phs (tvb, tlv_tree, pos, length);
-	      break;
-	    case TLV_HMAC_DIGEST:
-	      if (length == 20)
-	        {
-		  proto_tree_add_item (tlv_tree,
-				      hf_docsis_tlv_hmac_digest, tvb,
-				      pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_MAX_CLASSIFIERS:
-	      if (length == 2)
-		{
-		  proto_tree_add_item (tlv_tree,
-				       hf_docsis_tlv_max_classifiers, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_PRIVACY_ENABLE:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_privacy_enable,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_AUTH_BLOCK:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_auth_block,
-		                   tvb, pos, length, FALSE);
-	      break;
-	    case TLV_KEY_SEQ_NUM:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_key_seq_num, tvb,
-				       pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_MFGR_CVC:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_mfgr_cvc,
-		                   tvb, pos, length, FALSE);
-	      break;
-	    case TLV_COSIGN_CVC:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_cosign_cvc,
-		                   tvb, pos, length, FALSE);
-	      break;
-	    case TLV_SNMPV3_KICKSTART:
-	      dissect_snmpv3_kickstart(tvb, tlv_tree, pos, length);
-	      break;
-	    case TLV_SUBS_MGMT_CTRL:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl,
-		                   tvb, pos, length, FALSE);
-	      break;
-	    case TLV_SUBS_MGMT_CPE:
-	      if ((length % 4) == 0)
-	        {
-	        proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ip_table,
-		                   tvb, pos, length, FALSE);
-	        for (x = 0; x < length; x+=4)
-		  {
-	          proto_tree_add_item (tlv_tree,
-				       hf_docsis_tlv_subs_mgmt_ip_entry,
-		                       tvb, pos + x, 4, FALSE);
-		  }
-	        }
-	      else
-	        {
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_SUBS_MGMT_FLTR:
-	      proto_tree_add_item (tlv_tree,
-			           hf_docsis_tlv_subs_mgmt_filter_grps,
-		                   tvb, pos, length, FALSE);
-	      break;
-		case TLV_SNMPV3_NTFY_RCVR:
-		  proto_tree_add_item(tlv_tree,
-				  hf_docsis_tlv_snmpv3_ntfy_rcvr,
-				  tvb, pos, length, FALSE);
-		  break;
-	    case TLV_ENABLE_20_MODE:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_20_mode,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_ENABLE_TEST_MODES:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_test_modes,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-		case TLV_DS_CH_LIST:
-		  dissect_ds_ch_list(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_MC_MAC_ADDRESS:
-	      if (length == 6)
-	      {
-		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_mc_mac_address,
-				  tvb, pos, length, FALSE);
-	      }
-	      else
-	      {
-	        THROW (ReportedBoundsError);
-	      }
-		  break;
-	    case TLV_VENDOR_SPEC:
-	      vsif_tvb = tvb_new_subset (tvb, pos, length, length);
-	      call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
-	      break;
-		case TLV_DUT_FILTER:
-		  dissect_dut_filter(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_TCC:
-		  dissect_tcc(tvb, pinfo, tlv_tree, pos, length);
-		  break;
-		case TLV_SID_CL:
-		  dissect_sid_cl(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_RCP:
-		  dissect_rcp(tvb, pinfo, tlv_tree, pos, length);
-		  break;
-		case TLV_RCC:
-		  dissect_rcc(tvb, pinfo, tlv_tree, pos, length);
-		  break;
-		case TLV_DSID:
-		  dissect_dsid(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_SEC_ASSOC:
-		  dissect_sec_assoc(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_INIT_CH_TIMEOUT:
-	      if (length == 2)
-	      {
-		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_init_ch_timeout,
-				  tvb, pos, length, FALSE);
-	      }
-	      else
-	      {
-	        THROW (ReportedBoundsError);
-	      }
-		  break;
-		case TLV_CH_ASGN:
-		  dissect_ch_asgn(tvb, tlv_tree, pos, length);
-		  break;
-		case TLV_CM_INIT_REASON:
-	      if (length == 1)
-	      {
-		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_cm_init_reason,
-				  tvb, pos, length, FALSE);
-	      }
-	      else
-	      {
-	        THROW (ReportedBoundsError);
-	      }
-		  break;
-	    case TLV_SW_UPG_SRVR_IPV6:
-	      if (length == 16)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr_ipv6,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case TLV_TFTP_PROV_CM_IPV6_ADDR:
-	      if (length == 16)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-		case TLV_US_DROP_CLFY:
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy,
-				       tvb, pos, length, FALSE);
-		  break;
-		case TLV_SUBS_MGMT_IPV6_LST:
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ipv6_lst,
-				       tvb, pos, length, FALSE);
-		  break;
-		case TLV_US_DROP_CLFY_GROUP_ID:
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy_group_id,
-				       tvb, pos, length, FALSE);
-		  break;
-		case TLV_SUBS_MGMT_CTRL_MAX_CPE_IPV6:
-	      if (length == 2)
-		{
-		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-		  break;
-		case TLV_CMTS_MC_SESS_ENC:
-		  dissect_cmts_mc_sess_enc(tvb, tlv_tree, pos, length);
-		  break;
-	    case TLV_END:
-	      break;
-	    }			/* switch(type) */
+  {
+    it =
+      proto_tree_add_protocol_format (tree, proto_docsis_tlv, tvb, 0,
+                                      total_len, "TLV Data");
+    tlv_tree = proto_item_add_subtree (it, ett_docsis_tlv);
+    while (pos < total_len)
+      {
+        type = tvb_get_guint8 (tvb, pos++);
+        length = tvb_get_guint8 (tvb, pos++);
+        switch (type)
+          {
+          case TLV_DOWN_FREQ:
+            /* This is ugly.  There are multiple type 1 TLV's that may appear
+             * in the TLV data, the problem is that they are dependent on
+             * message type.  */
+            if (length == 4)
+              proto_tree_add_item (tlv_tree, hf_docsis_tlv_down_freq, tvb,
+                                   pos, length, FALSE);
+            else if (length == 1)
+              proto_tree_add_item (tlv_tree, hf_docsis_tlv_rng_tech, tvb,
+                                   pos, length, FALSE);
+            else
+              dissect_doc10cos (tvb, tlv_tree, pos, length);
+            break;
+          case TLV_CHNL_ID:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_upstream_chid,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_NET_ACCESS:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_net_access,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_COS:
+            dissect_cos (tvb, tlv_tree, pos, length);
+            break;
+          case TLV_MODEM_CAP:
+            dissect_modemcap (tvb, tlv_tree, pos, length);
+            break;
+          case TLV_CM_MIC:
+            if (length == 16)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_cm_mic, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_CMTS_MIC:
+            if (length == 16)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_cmts_mic, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_VENDOR_ID:
+            if (length == 3)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_vendor_id, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_SW_UPG_FILE:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_file, tvb, pos,
+                                 length, FALSE);
+            break;
+          case TLV_SNMP_WRITE_CTRL:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb,
+                                 pos, length, FALSE);
+            break;
+          case TLV_SNMP_OBJECT:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_obj, tvb,
+                                 pos, length, FALSE);
+            break;
+          case TLV_MODEM_IP:
+            if (length == 4)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_modem_addr,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_SVC_UNAVAIL:
+            if (length == 3)
+              {
+                dissect_svc_unavail(tvb, tlv_tree, pos, length);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_ETHERNET_MAC:
+            if (length == 6)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_cpe_ethernet,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_TEL_SETTINGS:
+            break;
+          case TLV_BPI_CONFIG:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_bpi, tvb,
+                                 pos, length, FALSE);
+            break;
+          case TLV_MAX_CPES:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_max_cpe, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_TFTP_TIME:
+            if (length == 4)
+              {
+                proto_tree_add_item (tlv_tree,
+                                     hf_docsis_tlv_tftp_server_timestamp,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_TFTP_MODEM_ADDRESS:
+            if (length == 4)
+              {
+                proto_tree_add_item (tlv_tree,
+                                     hf_docsis_tlv_tftp_prov_modem_address,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_SW_UPG_SRVR:
+            if (length == 4)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_UPSTREAM_CLASSIFIER:
+          case TLV_DOWN_CLASSIFIER:
+            dissect_classifiers (tvb, tlv_tree, pos, length, type);
+            break;
+          case TLV_UPSTREAM_SERVICE_FLOW:
+          case TLV_DOWN_SERVICE_FLOW:
+            dissect_sflow (tvb, tlv_tree, pos, length, type);
+            break;
+          case TLV_PHS:
+            dissect_phs (tvb, tlv_tree, pos, length);
+            break;
+          case TLV_HMAC_DIGEST:
+            if (length == 20)
+              {
+                proto_tree_add_item (tlv_tree,
+                                     hf_docsis_tlv_hmac_digest, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_MAX_CLASSIFIERS:
+            if (length == 2)
+              {
+                proto_tree_add_item (tlv_tree,
+                                     hf_docsis_tlv_max_classifiers, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_PRIVACY_ENABLE:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_privacy_enable,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_AUTH_BLOCK:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_auth_block,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_KEY_SEQ_NUM:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_key_seq_num, tvb,
+                                     pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_MFGR_CVC:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_mfgr_cvc,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_COSIGN_CVC:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_cosign_cvc,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_SNMPV3_KICKSTART:
+            dissect_snmpv3_kickstart(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_SUBS_MGMT_CTRL:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_SUBS_MGMT_CPE:
+            if ((length % 4) == 0)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ip_table,
+                                     tvb, pos, length, FALSE);
+                for (x = 0; x < length; x+=4)
+                  {
+                    proto_tree_add_item (tlv_tree,
+                                         hf_docsis_tlv_subs_mgmt_ip_entry,
+                                         tvb, pos + x, 4, FALSE);
+                  }
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_SUBS_MGMT_FLTR:
+            proto_tree_add_item (tlv_tree,
+                                 hf_docsis_tlv_subs_mgmt_filter_grps,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_SNMPV3_NTFY_RCVR:
+            proto_tree_add_item(tlv_tree,
+                                hf_docsis_tlv_snmpv3_ntfy_rcvr,
+                                tvb, pos, length, FALSE);
+            break;
+          case TLV_ENABLE_20_MODE:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_20_mode,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_ENABLE_TEST_MODES:
+            if (length == 1)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_test_modes,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_DS_CH_LIST:
+            dissect_ds_ch_list(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_MC_MAC_ADDRESS:
+            if (length == 6)
+              {
+                proto_tree_add_item(tlv_tree, hf_docsis_tlv_mc_mac_address,
+                                    tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_VENDOR_SPEC:
+            vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+            call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
+            break;
+          case TLV_DUT_FILTER:
+            dissect_dut_filter(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_TCC:
+            dissect_tcc(tvb, pinfo, tlv_tree, pos, length);
+            break;
+          case TLV_SID_CL:
+            dissect_sid_cl(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_RCP:
+            dissect_rcp(tvb, pinfo, tlv_tree, pos, length);
+            break;
+          case TLV_RCC:
+            dissect_rcc(tvb, pinfo, tlv_tree, pos, length);
+            break;
+          case TLV_DSID:
+            dissect_dsid(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_SEC_ASSOC:
+            dissect_sec_assoc(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_INIT_CH_TIMEOUT:
+            if (length == 2)
+              {
+                proto_tree_add_item(tlv_tree, hf_docsis_tlv_init_ch_timeout,
+                                    tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_CH_ASGN:
+            dissect_ch_asgn(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_CM_INIT_REASON:
+            if (length == 1)
+              {
+                proto_tree_add_item(tlv_tree, hf_docsis_tlv_cm_init_reason,
+                                    tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_SW_UPG_SRVR_IPV6:
+            if (length == 16)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr_ipv6,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_TFTP_PROV_CM_IPV6_ADDR:
+            if (length == 16)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_US_DROP_CLFY:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_SUBS_MGMT_IPV6_LST:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ipv6_lst,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_US_DROP_CLFY_GROUP_ID:
+            proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy_group_id,
+                                 tvb, pos, length, FALSE);
+            break;
+          case TLV_SUBS_MGMT_CTRL_MAX_CPE_IPV6:
+            if (length == 2)
+              {
+                proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6,
+                                     tvb, pos, length, FALSE);
+              }
+            else
+              {
+                THROW (ReportedBoundsError);
+              }
+            break;
+          case TLV_CMTS_MC_SESS_ENC:
+            dissect_cmts_mc_sess_enc(tvb, tlv_tree, pos, length);
+            break;
+          case TLV_END:
+            break;
+          }                     /* switch(type) */
 
-	  pos = pos + length;
-	}			/* while (pos < total_len) */
-    }				/*if (tree) */
-
-
+        pos = pos + length;
+      }                         /* while (pos < total_len) */
+  }                             /*if (tree) */
 
 }
 
@@ -4415,8 +4413,7 @@ proto_register_docsis_tlv (void)
       "Traffic Priority", HFILL}
      },
     {&hf_docsis_tlv_sflow_max_sus,
-     {".8 Maximum Sustained Traffic Rate (bps)",
-      "docsis_tlv.sflow.maxtrafrate",
+     {".8 Maximum Sustained Traffic Rate (bps)", "docsis_tlv.sflow.maxtrafrate",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Maximum Sustained Traffic Rate (bps)", HFILL}
      },
@@ -4431,8 +4428,7 @@ proto_register_docsis_tlv (void)
       "Minimum Traffic Rate (bps)", HFILL}
      },
     {&hf_docsis_tlv_sflow_ass_min_pkt_size,
-     {".11 Assumed Min Reserved Packet Size",
-      "docsis_tlv.sflow.assumed_min_pkt_size",
+     {".11 Assumed Min Reserved Packet Size", "docsis_tlv.sflow.assumed_min_pkt_size",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Assumed Minimum Reserved Packet Size", HFILL}
      },
@@ -4442,14 +4438,12 @@ proto_register_docsis_tlv (void)
       "Timeout for Active Params (secs)", HFILL}
      },
     {&hf_docsis_tlv_sflow_timeout_admitted,
-     {".13 Timeout for Admitted Params (secs)",
-      "docsis_tlv.sflow.adm_timeout",
+     {".13 Timeout for Admitted Params (secs)", "docsis_tlv.sflow.adm_timeout",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Timeout for Admitted Params (secs)", HFILL}
      },
     {&hf_docsis_tlv_sflow_max_down_latency,
-     {".14 Maximum Downstream Latency (usec)",
-      "docsis_tlv.sflow.max_down_lat",
+     {".14 Maximum Downstream Latency (usec)", "docsis_tlv.sflow.max_down_lat",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Maximum Downstream Latency (usec)", HFILL}
      },
@@ -4469,8 +4463,7 @@ proto_register_docsis_tlv (void)
       "Request/Transmission Policy", HFILL}
      },
     {&hf_docsis_tlv_sflow_nominal_polling,
-     {".17 Nominal Polling Interval(usec)",
-      "docsis_tlv.sflow.nominal_polling",
+     {".17 Nominal Polling Interval(usec)", "docsis_tlv.sflow.nominal_polling",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Nominal Polling Interval(usec)", HFILL}
      },
@@ -4490,8 +4483,7 @@ proto_register_docsis_tlv (void)
       "Nominal Grant Interval (usec)", HFILL}
      },
     {&hf_docsis_tlv_sflow_tol_grant_jitter,
-     {".21 Tolerated Grant Jitter (usec)",
-      "docsis_tlv.sflow.tol_grant_jitter",
+     {".21 Tolerated Grant Jitter (usec)", "docsis_tlv.sflow.tol_grant_jitter",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Tolerated Grant Jitter (usec)", HFILL}
      },
@@ -4746,8 +4738,7 @@ proto_register_docsis_tlv (void)
       NULL, HFILL}
      },
     {&hf_docsis_tlv_dut_filter,
-     {"45 Downstream Unencrypted Traffic Filtering Encoding", 
-		"docsis_tlv.dut",
+     {"45 Downstream Unencrypted Traffic Filtering Encoding", "docsis_tlv.dut",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Downstream Unencrypted Traffic Filtering Encoding", HFILL}
      },
@@ -4762,8 +4753,7 @@ proto_register_docsis_tlv (void)
       "DUT CMIM", HFILL}
      },
     {&hf_docsis_tlv_tcc,
-     {"46 Transmit Channel Configuration", 
-		"docsis_tlv.tcc",
+     {"46 Transmit Channel Configuration", "docsis_tlv.tcc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Transmit Channel Configuration", HFILL}
      },
@@ -4858,8 +4848,7 @@ proto_register_docsis_tlv (void)
       "Error Message", HFILL}
      },
     {&hf_docsis_tlv_sid_cl,
-     {"47 Service Flow SID Cluster Assignments", 
-		"docsis_tlv.sid",
+     {"47 Service Flow SID Cluster Assignments", "docsis_tlv.sid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Service Flow SID Cluster Assignments", HFILL}
      },
@@ -4869,74 +4858,62 @@ proto_register_docsis_tlv (void)
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_sid_cl_enc,
-     {".2 SID Cluster Encodings", 
-		"docsis_tlv.sid.enc",
+     {".2 SID Cluster Encodings", "docsis_tlv.sid.enc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SID Cluster Encodings", HFILL}
      },
     {&hf_docsis_sid_cl_enc_id,
-     {"..1 SID Cluster ID", 
-		"docsis_tlv.sid.enc.id",
+     {"..1 SID Cluster ID", "docsis_tlv.sid.enc.id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SID Cluster ID", HFILL}
      },
     {&hf_docsis_sid_cl_enc_map,
-     {"..2 SID-to-Channel Mapping", 
-		"docsis_tlv.sid.enc.map",
+     {"..2 SID-to-Channel Mapping", "docsis_tlv.sid.enc.map",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SID Cluster ID", HFILL}
      },
     {&hf_docsis_sid_cl_map_us_ch_id,
-     {"...1 Upstraem Channel ID", 
-		"docsis_tlv.sid.enc.map.uschid",
+     {"...1 Upstraem Channel ID", "docsis_tlv.sid.enc.map.uschid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_sid_cl_map_sid,
-     {"...2 SID", 
-		"docsis_tlv.sid.enc.map.sid",
+     {"...2 SID", "docsis_tlv.sid.enc.map.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "SID", HFILL}
      },
     {&hf_docsis_sid_cl_map_action,
-     {"...3 SID-to-Channel Mapping Action", 
-		"docsis_tlv.sid.enc.map.action",
+     {"...3 SID-to-Channel Mapping Action", "docsis_tlv.sid.enc.map.action",
       FT_UINT8, BASE_DEC, VALS (sid_ch_map_vals), 0x0,
       "SID-to-Channel Mapping Action", HFILL}
      },
     {&hf_docsis_sid_cl_so_crit,
-     {".3 SID Cluster Switchover Criteria", 
-		"docsis_tlv.sid.socrit",
+     {".3 SID Cluster Switchover Criteria", "docsis_tlv.sid.socrit",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SID Cluster Switchover Criteria", HFILL}
      },
     {&hf_docsis_sid_cl_so_max_req,
-     {"..1 Maximum Requests per SID Cluster", 
-		"docsis_tlv.sid.socrit.maxreq",
+     {"..1 Maximum Requests per SID Cluster", "docsis_tlv.sid.socrit.maxreq",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Maximum Requests per SID Cluster", HFILL}
      },
     {&hf_docsis_sid_cl_so_max_out_bytes,
-     {"..2 Maximum Outstanding Bytes per SID Cluster", 
-		"docsis_tlv.sid.socrit.maxoutbytes",
+     {"..2 Maximum Outstanding Bytes per SID Cluster", "docsis_tlv.sid.socrit.maxoutbytes",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Maximum Outstanding Bytes per SID Cluster", HFILL}
      },
     {&hf_docsis_sid_cl_so_max_req_bytes,
-     {"..3 Maximum Total Bytes Requested per SID Cluster", 
-		"docsis_tlv.sid.socrit.maxreqbytes",
+     {"..3 Maximum Total Bytes Requested per SID Cluster", "docsis_tlv.sid.socrit.maxreqbytes",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Maximum Total Bytes Requested per SID Cluster", HFILL}
      },
     {&hf_docsis_sid_cl_so_max_time,
-     {"..4 Maximum Time in the SID Cluster", 
-		"docsis_tlv.sid.socrit.maxtime",
+     {"..4 Maximum Time in the SID Cluster", "docsis_tlv.sid.socrit.maxtime",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Maximum Time in the SID Cluster", HFILL}
      },
     {&hf_docsis_tlv_rcp,
-     {"48 Receive Channel Profile", 
-		"docsis_tlv.rcp",
+     {"48 Receive Channel Profile", "docsis_tlv.rcp",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Receive Channel Profile", HFILL}
      },
@@ -4976,32 +4953,27 @@ proto_register_docsis_tlv (void)
       "Channel Block Range", HFILL}
      },
     {&hf_docsis_ch_bl_rng_min_ctr_freq,
-     {"...1 Minimum Center Frequency", 
-      "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.min_ctr_freq",
+     {"...1 Minimum Center Frequency", "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.min_ctr_freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Minimum Center Frequency", HFILL}
      },
     {&hf_docsis_ch_bl_rng_max_ctr_freq,
-     {"...2 Maximum Center Frequency", 
-      "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.max_ctr_freq",
+     {"...2 Maximum Center Frequency", "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.max_ctr_freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Maximum Center Frequency", HFILL}
      },
     {&hf_docsis_rcv_mod_enc_rsq_ch_subs_cap ,
-     {"..5 Resequencing Channel Subset Capability", 
-      "docsis_tlv.rcp.rcv_mod_enc.rsq_ch_subs_cap",
+     {"..5 Resequencing Channel Subset Capability", "docsis_tlv.rcp.rcv_mod_enc.rsq_ch_subs_cap",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Resequencing Channel Subset Capability", HFILL}
      },
     {&hf_docsis_rcv_mod_enc_conn ,
-     {"..6 Receive Module Connectivity", 
-      "docsis_tlv.rcp.rcv_mod_enc.conn",
+     {"..6 Receive Module Connectivity", "docsis_tlv.rcp.rcv_mod_enc.conn",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Receive Module Connectivity", HFILL}
      },
     {&hf_docsis_rcv_mod_enc_phy_layr_parms,
-     {"..7 Physical Layer Parameter", 
-      "docsis_tlv.rcp.rcv_mod_enc.phy_layr_parms",
+     {"..7 Physical Layer Parameter", "docsis_tlv.rcp.rcv_mod_enc.phy_layr_parms",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Physical Layer Parameter", HFILL}
      },
@@ -5021,14 +4993,12 @@ proto_register_docsis_tlv (void)
       "Receive Channel Connectivity", HFILL}
      },
     {&hf_docsis_rcv_ch_conn_off,
-     {"..3 Receive Channel Connected Offset", 
-      "docsis_tlv.rcp.rcv_ch.conn_off",
+     {"..3 Receive Channel Connected Offset", "docsis_tlv.rcp.rcv_ch.conn_off",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Receive Channel Connected Offset", HFILL}
      },
     {&hf_docsis_rcv_ch_prim_ds_ch_ind,
-     {"..5 Primary Downstream Channel Indicator", 
-      "docsis_tlv.rcp.rcv_ch.prim_ds_ch_ind",
+     {"..5 Primary Downstream Channel Indicator", "docsis_tlv.rcp.rcv_ch.prim_ds_ch_ind",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Primary Downstream Channel Indicator", HFILL}
      },
@@ -5038,8 +5008,7 @@ proto_register_docsis_tlv (void)
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_tlv_rcc,
-     {"49 Receive Channel Configuration", 
-		"docsis_tlv.rcc",
+     {"49 Receive Channel Configuration", "docsis_tlv.rcc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Receive Channel Configuration", HFILL}
      },
@@ -5059,14 +5028,12 @@ proto_register_docsis_tlv (void)
       "Receive Module Index", HFILL}
      },
     {&hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn,
-     {"..4 First Channel Center Frequency Assignment", 
-      "docsis_tlv.rcc.rcv_mod_enc.ctr_freq_asgn",
+     {"..4 First Channel Center Frequency Assignment", "docsis_tlv.rcc.rcv_mod_enc.ctr_freq_asgn",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "First Channel Center Frequency Assignment", HFILL}
      },
     {&hf_docsis_rcc_rcv_mod_enc_conn ,
-     {"..6 Receive Module Connectivity", 
-      "docsis_tlv.rcc.rcv_mod_enc.conn",
+     {"..6 Receive Module Connectivity", "docsis_tlv.rcc.rcv_mod_enc.conn",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Receive Module Connectivity", HFILL}
      },
@@ -5086,20 +5053,17 @@ proto_register_docsis_tlv (void)
       "Receive Channel Connectivity", HFILL}
      },
     {&hf_docsis_rcc_rcv_ch_ctr_freq_asgn,
-     {"..4 Receive Channel Center Frequency Assignment", 
-      "docsis_tlv.rcc.rcv_ch.ctr_freq_asgn",
+     {"..4 Receive Channel Center Frequency Assignment", "docsis_tlv.rcc.rcv_ch.ctr_freq_asgn",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Receive Channel Center Frequency Assignment", HFILL}
      },
     {&hf_docsis_rcc_rcv_ch_prim_ds_ch_ind,
-     {"..5 Primary Downstream Channel Indicator", 
-      "docsis_tlv.rcc.rcv_ch.prim_ds_ch_ind",
+     {"..5 Primary Downstream Channel Indicator", "docsis_tlv.rcc.rcv_ch.prim_ds_ch_ind",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Primary Downstream Channel Indicator", HFILL}
      },
     {&hf_docsis_tlv_rcc_part_serv_ds_ch,
-     {".6 Partial Service Downstream Channels", 
-      "docsis_tlv.rcc.part_serv_ds_ch",
+     {".6 Partial Service Downstream Channels", "docsis_tlv.rcc.part_serv_ds_ch",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Partial Service Downstream Channels", HFILL}
      },
@@ -5114,176 +5078,147 @@ proto_register_docsis_tlv (void)
       "RCC Error Encodings", HFILL}
      },
     {&hf_docsis_tlv_rcc_err_mod_or_ch,
-     {".1 Receive Modul or Receive Channel", 
-      "docsis_tlv.rcc.err.mod_or_ch",
+     {".1 Receive Modul or Receive Channel", "docsis_tlv.rcc.err.mod_or_ch",
       FT_UINT8, BASE_DEC, VALS (mod_or_ch_vals), 0x0,
       "Receive Modul or Receive Channel", HFILL}
      },
     {&hf_docsis_tlv_rcc_err_idx,
-     {".2 Receive Modul/Channel Index", 
-      "docsis_tlv.rcc.err.idx",
+     {".2 Receive Modul/Channel Index", "docsis_tlv.rcc.err.idx",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Receive Modul/Channel Index", HFILL}
      },
     {&hf_docsis_tlv_rcc_err_param,
-     {".3 Reported Parameter", 
-      "docsis_tlv.rcc.err.param",
+     {".3 Reported Parameter", "docsis_tlv.rcc.err.param",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Reported Parameter", HFILL}
      },
     {&hf_docsis_tlv_rcc_err_code,
-     {".4 Error Code", 
-      "docsis_tlv.rcc.err.code",
+     {".4 Error Code", "docsis_tlv.rcc.err.code",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       "Error Code", HFILL}
      },
     {&hf_docsis_tlv_rcc_err_msg,
-     {".5 Error Message", 
-      "docsis_tlv.rcc.err.msg",
+     {".5 Error Message", "docsis_tlv.rcc.err.msg",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Error Message", HFILL}
      },
     {&hf_docsis_tlv_dsid,
-     {"50 DSID Encodings", 
-		"docsis_tlv.dsid",
+     {"50 DSID Encodings", "docsis_tlv.dsid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "DSID Encodings", HFILL}
      },
     {&hf_docsis_tlv_dsid_id,
-     {".1 Downstream Service Identifier (DSID)", 
-      "docsis_tlv.dsid.id",
+     {".1 Downstream Service Identifier (DSID)", "docsis_tlv.dsid.id",
       FT_UINT24, BASE_DEC, NULL, 0x0,
       "Downstream Service Identifier (DSID)", HFILL}
      },
     {&hf_docsis_tlv_dsid_action,
-     {".2 DSID Action", 
-      "docsis_tlv.dsid.action",
+     {".2 DSID Action", "docsis_tlv.dsid.action",
       FT_UINT8, BASE_DEC, VALS (dsid_action_vals), 0x0,
       "DSID Action", HFILL}
      },
     {&hf_docsis_tlv_dsid_ds_reseq,
-     {".3 Downstream Resequencing Encodings", 
-		"docsis_tlv.dsid.ds_reseq",
+     {".3 Downstream Resequencing Encodings", "docsis_tlv.dsid.ds_reseq",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Downstream Resequencing Encodings", HFILL}
      },
     {&hf_docsis_ds_reseq_dsid,
-     {"..1 Resequencing DSID", 
-      "docsis_tlv.dsid.ds_reseq.dsid",
+     {"..1 Resequencing DSID", "docsis_tlv.dsid.ds_reseq.dsid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Resequencing DSID", HFILL}
      },
     {&hf_docsis_ds_reseq_ch_lst,
-     {"..2 Downstream Resequencing Channel List", 
-      "docsis_tlv.dsid.ds_reseq.ch_lst",
+     {"..2 Downstream Resequencing Channel List", "docsis_tlv.dsid.ds_reseq.ch_lst",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Downstream Resequencing Channel List", HFILL}
      },
     {&hf_docsis_ds_reseq_wait_time,
-     {"..3 Downstream Resequencing Wait Time", 
-      "docsis_tlv.dsid.ds_reseq.wait_time",
+     {"..3 Downstream Resequencing Wait Time", "docsis_tlv.dsid.ds_reseq.wait_time",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream Resequencing Wait Time", HFILL}
      },
     {&hf_docsis_ds_reseq_warn_thresh,
-     {"..4 Resequencing Warn Threshold", 
-      "docsis_tlv.dsid.ds_reseq.warn_thresh",
+     {"..4 Resequencing Warn Threshold", "docsis_tlv.dsid.ds_reseq.warn_thresh",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Resequencing Warn Threshold", HFILL}
      },
     {&hf_docsis_ds_reseq_ho_timer,
-     {"..5 CM-Status max. Event Hold-Off Timer (Out-of-Range Events)", 
-      "docsis_tlv.dsid.ds_reseq.ho_timer",
+     {"..5 CM-Status max. Event Hold-Off Timer (Out-of-Range Events)", "docsis_tlv.dsid.ds_reseq.ho_timer",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "CM-Status max. Event Hold-Off Timer (Out-of-Range Events)", HFILL}
      },
     {&hf_docsis_tlv_dsid_mc,
-     {".4 Multicast Encodings", 
-		"docsis_tlv.dsid.mc",
+     {".4 Multicast Encodings", "docsis_tlv.dsid.mc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Multicast Encodings", HFILL}
      },
     {&hf_docsis_tlv_dsid_mc_addr,
-     {"..1 Client MAC Address Encodings",
-		"docsis_tlv.dsid.mc.addr",
+     {"..1 Client MAC Address Encodings", "docsis_tlv.dsid.mc.addr",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Client MAC Address Encodings", HFILL}
      },
     {&hf_docsis_mc_addr_action,
-     {"...1 Client MAC Address Action",
-		"docsis_tlv.dsid.mc.addr.action",
+     {"...1 Client MAC Address Action", "docsis_tlv.dsid.mc.addr.action",
       FT_UINT8, BASE_DEC, VALS (add_del_vals), 0x0,
       "Client MAC Address Action", HFILL}
      },
     {&hf_docsis_mc_addr_addr,
-     {"...2 Client MAC Address",
-		"docsis_tlv.dsid.mc.addr.addr",
+     {"...2 Client MAC Address", "docsis_tlv.dsid.mc.addr.addr",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Client MAC Address", HFILL}
      },
     {&hf_docsis_tlv_dsid_mc_cmim,
-     {"..2 Multicast CM Interface Mask",
-		"docsis_tlv.dsid.mc.cmim",
+     {"..2 Multicast CM Interface Mask", "docsis_tlv.dsid.mc.cmim",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Multicast CM Interface Mask", HFILL}
      },
     {&hf_docsis_tlv_dsid_mc_group,
-     {"..3 Multicast Group MAC Addresses",
-		"docsis_tlv.dsid.mc.group",
+     {"..3 Multicast Group MAC Addresses", "docsis_tlv.dsid.mc.group",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Multicast Group MAC Addresses", HFILL}
      },
     {&hf_docsis_tlv_dsid_mc_phs,
-     {"..26 Payload Header Suppression Encodings",
-		"docsis_tlv.dsid.mc.phs",
+     {"..26 Payload Header Suppression Encodings", "docsis_tlv.dsid.mc.phs",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Payload Header Suppression Encodings", HFILL}
      },
     {&hf_docsis_tlv_sec_assoc,
-     {"51 Security Association Encodings", 
-		"docsis_tlv.sec_assoc",
+     {"51 Security Association Encodings", "docsis_tlv.sec_assoc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Security Association Encodings", HFILL}
      },
     {&hf_docsis_tlv_sec_assoc_action,
-     {".1 SA Action", 
-		"docsis_tlv.sec_assoc.action",
+     {".1 SA Action", "docsis_tlv.sec_assoc.action",
       FT_UINT8, BASE_DEC, VALS (add_del_vals), 0x0,
       "SA Action", HFILL}
      },
     {&hf_docsis_tlv_sec_assoc_desc,
-     {".23 SA Descriptor", 
-		"docsis_tlv.sec_assoc.desc",
+     {".23 SA Descriptor", "docsis_tlv.sec_assoc.desc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Descriptor", HFILL}
      },
     {&hf_docsis_tlv_init_ch_timeout,
-     {"52 Intializing Channel Timeout", 
-		"docsis_tlv.init_ch_timeout",
+     {"52 Intializing Channel Timeout", "docsis_tlv.init_ch_timeout",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Intializing Channel Timeout", HFILL}
      },
     {&hf_docsis_tlv_ch_asgn,
-     {"56 Channel Assignment Configuration Settings", 
-		"docsis_tlv.ch_asgn",
+     {"56 Channel Assignment Configuration Settings", "docsis_tlv.ch_asgn",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Channel Assignment Configuration Settings", HFILL}
      },
     {&hf_docsis_ch_asgn_us_ch_id,
-     {".1 Upstream Channel ID", 
-		"docsis_tlv.ch_asgn.us_ch_id",
+     {".1 Upstream Channel ID", "docsis_tlv.ch_asgn.us_ch_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_ch_asgn_rx_freq,
-     {".2 Rx Frequency", 
-		"docsis_tlv.ch_asgn.rx_freq",
+     {".2 Rx Frequency", "docsis_tlv.ch_asgn.rx_freq",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Rx Frequency", HFILL}
      },
     {&hf_docsis_tlv_cm_init_reason,
-     {"57 CM Initialization Reason", 
-		"docsis_tlv.cm_init_reason",
+     {"57 CM Initialization Reason", "docsis_tlv.cm_init_reason",
       FT_UINT16, BASE_DEC, VALS (init_reason_vals), 0x0,
       "CM Initialization Reason", HFILL}
      },
@@ -5293,50 +5228,42 @@ proto_register_docsis_tlv (void)
       "Software Upgrade Server IPv6", HFILL}
      },
     {&hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
-     {"59 TFTP Server Provisioned Modem IPv6 Address", 
-      "docsis_tlv.tftp_prov_cm_ipv6_addr",
+     {"59 TFTP Server Provisioned Modem IPv6 Address", "docsis_tlv.tftp_prov_cm_ipv6_addr",
       FT_IPv6, BASE_NONE, NULL, 0x0,
       "TFTP Server Provisioned Modem IPv6 Address", HFILL}
      },
     {&hf_docsis_tlv_us_drop_clfy,
-     {"60 Upstream Drop Packet Classification Encoding", 
-      "docsis_tlv.us_drop_clfy",
+     {"60 Upstream Drop Packet Classification Encoding", "docsis_tlv.us_drop_clfy",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Upstream Drop Packet Classification Encoding", HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_ipv6_lst,
-     {"61 Subscriber Management CPE IPv6 Prefix List", 
-      "docsis_tlv.subs_mgmt_ipv6_lst",
+     {"61 Subscriber Management CPE IPv6 Prefix List", "docsis_tlv.subs_mgmt_ipv6_lst",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Subscriber Management CPE IPv6 Prefix List", HFILL}
      },
     {&hf_docsis_tlv_us_drop_clfy_group_id,
-     {"62 Upstream Drop Classifier Group ID", 
-      "docsis_tlv.us_drop_clfy_group_id",
+     {"62 Upstream Drop Classifier Group ID", "docsis_tlv.us_drop_clfy_group_id",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Upstream Drop Classifier Group ID", HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6,
-     {"63 Subscriber Management Control Max CPE IPv6 Prefix", 
-      "docsis_tlv.subs_mgmt_ctrl_max_cpe_ipv6",
+     {"63 Subscriber Management Control Max CPE IPv6 Prefix", "docsis_tlv.subs_mgmt_ctrl_max_cpe_ipv6",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Subscriber Management Control Max CPE IPv6 Prefix", HFILL}
      },
     {&hf_docsis_tlv_cmts_mc_sess_enc,
-     {"64 CMTS Static Multicast Session Encoding", 
-      "docsis_tlv.cmts_mc_sess_enc",
+     {"64 CMTS Static Multicast Session Encoding", "docsis_tlv.cmts_mc_sess_enc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CMTS Static Multicast Session Encoding", HFILL}
      },
     {&hf_docsis_cmts_mc_sess_enc_grp,
-     {".1 Multicast Group Address", 
-      "docsis_tlv.cmts_mc_sess_enc.grp",
+     {".1 Multicast Group Address", "docsis_tlv.cmts_mc_sess_enc.grp",
       FT_IPXNET, BASE_NONE, NULL, 0x0,
       "Multicast Group Address", HFILL}
      },
     {&hf_docsis_cmts_mc_sess_enc_src,
-     {".2 Source IP Address", 
-      "docsis_tlv.cmts_mc_sess_enc.src",
+     {".2 Source IP Address", "docsis_tlv.cmts_mc_sess_enc.src",
       FT_IPXNET, BASE_NONE, NULL, 0x0,
       "Source IP Address", HFILL}
      },
@@ -5358,13 +5285,13 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_phs_err,
     &ett_docsis_tlv_svc_unavail,
     &ett_docsis_tlv_snmpv3_kick,
-	&ett_docsis_tlv_ds_ch_list,
-	&ett_docsis_tlv_ds_ch_list_single,
-	&ett_docsis_tlv_ds_ch_list_range,
-	&ett_docsis_tlv_tcc,
-	&ett_docsis_tlv_tcc_ucd,
-	&ett_docsis_tlv_tcc_rng_parms,
-	&ett_docsis_tlv_tcc_err,
+    &ett_docsis_tlv_ds_ch_list,
+    &ett_docsis_tlv_ds_ch_list_single,
+    &ett_docsis_tlv_ds_ch_list_range,
+    &ett_docsis_tlv_tcc,
+    &ett_docsis_tlv_tcc_ucd,
+    &ett_docsis_tlv_tcc_rng_parms,
+    &ett_docsis_tlv_tcc_err,
     &ett_docsis_tlv_sid_cl,
     &ett_docsis_tlv_sid_cl_enc,
     &ett_docsis_tlv_sid_cl_enc_map,
@@ -5383,12 +5310,12 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_dsid_mc_addr,
     &ett_docsis_tlv_sec_assoc,
     &ett_docsis_tlv_ch_asgn,
-	&ett_docsis_cmts_mc_sess_enc,
+    &ett_docsis_cmts_mc_sess_enc,
   };
 
 /* Register the protocol name and description */
   proto_docsis_tlv = proto_register_protocol ("DOCSIS Appendix C TLV's",
-					      "DOCSIS TLVs", "docsis_tlv");
+                                              "DOCSIS TLVs", "docsis_tlv");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_tlv, hf, array_length (hf));
@@ -5405,12 +5332,14 @@ proto_register_docsis_tlv (void)
 void
 proto_reg_handoff_docsis_tlv (void)
 {
+#if 0
   dissector_handle_t docsis_tlv_handle;
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
+  dissector_add_uint ("docsis", 0xFF, docsis_tlv_handle);
+#endif
+
   docsis_vsif_handle = find_dissector("docsis_vsif");
   docsis_ucd_handle = find_dissector("docsis_ucd");
-
-  dissector_add_uint ("docsis", 0xFF, docsis_tlv_handle);
 
 }

@@ -171,27 +171,27 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       mgt_hdr_it =
-	proto_tree_add_protocol_format (tree, proto_docsis_mgmt, tvb, 0, 20,
-					"Mac Management");
+        proto_tree_add_protocol_format (tree, proto_docsis_mgmt, tvb, 0, 20,
+                                        "Mac Management");
       mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dst_addr, tvb, 0, 6,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_src_addr, tvb, 6, 6,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1,
-			   FALSE);
+                           FALSE);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1,
-			   FALSE);
+                           FALSE);
 
     }
   /* Code to Call subdissector */
@@ -276,14 +276,14 @@ proto_register_docsis_mgmt (void)
   };
 
   docsis_mgmt_dissector_table = register_dissector_table ("docsis_mgmt",
-							  "DOCSIS Mac Management",
-							  FT_UINT8, BASE_DEC);
+                                                          "DOCSIS Mac Management",
+                                                          FT_UINT8, BASE_DEC);
 
 
 /* Register the protocol name and description */
   proto_docsis_mgmt = proto_register_protocol ("DOCSIS Mac Management",
-					       "DOCSIS MAC MGMT",
-					       "docsis_mgmt");
+                                               "DOCSIS MAC MGMT",
+                                               "docsis_mgmt");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_mgmt, hf, array_length (hf));
@@ -300,10 +300,12 @@ proto_register_docsis_mgmt (void)
 void
 proto_reg_handoff_docsis_mgmt (void)
 {
+#if 0
   dissector_handle_t docsis_mgmt_handle;
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
-  data_handle = find_dissector ("data");
-
   dissector_add_uint ("docsis", 0x03, docsis_mgmt_handle);
+#endif
+
+  data_handle = find_dissector ("data");
 }

@@ -64,7 +64,7 @@ static gint ett_cmctrl_tlv_us_event = -1;
 
 
 static void
-dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -72,7 +72,7 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Override Downstream Status Event Event Mask (Length = %u)", len);
+                         "Override Downstream Status Event Event Mask (Length = %u)", len);
   event_tree = proto_item_add_subtree (it, ett_cmctrl_tlv_ds_event);
 
   while (pos < (start + len))
@@ -80,36 +80,36 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case DS_EVENT_CH_ID:
+        {
+        case DS_EVENT_CH_ID:
       if (length == 1)
-	{
-	  proto_tree_add_item (event_tree, hf_ds_event_ch_id,
-			       tvb, pos, length, FALSE);
-	}
+        {
+          proto_tree_add_item (event_tree, hf_ds_event_ch_id,
+                               tvb, pos, length, FALSE);
+        }
       else
-	{
-	  THROW (ReportedBoundsError);
-	}
-	  break;
-	case DS_EVENT_MASK:
+        {
+          THROW (ReportedBoundsError);
+        }
+          break;
+        case DS_EVENT_MASK:
       if (length == 2)
-	{
-	  proto_tree_add_item (event_tree, hf_ds_event_mask,
-			       tvb, pos, length, FALSE);
-	}
+        {
+          proto_tree_add_item (event_tree, hf_ds_event_mask,
+                               tvb, pos, length, FALSE);
+        }
       else
-	{
-	  THROW (ReportedBoundsError);
-	}
-	  break;
-	}			/* switch */
+        {
+          THROW (ReportedBoundsError);
+        }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
-dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_item *it;
@@ -117,7 +117,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
   int pos = start;
   it =
     proto_tree_add_text (tree, tvb, start, len,
-			 "Override Upstream Status Enable Event Mask (Length = %u)", len);
+                         "Override Upstream Status Enable Event Mask (Length = %u)", len);
   event_tree = proto_item_add_subtree (it, ett_cmctrl_tlv_us_event);
 
   while (pos < (start + len))
@@ -125,32 +125,32 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case US_EVENT_CH_ID:
+        {
+        case US_EVENT_CH_ID:
       if (length == 1)
-	{
-	  proto_tree_add_item (event_tree, hf_us_event_ch_id,
-			       tvb, pos, length, FALSE);
-	}
+        {
+          proto_tree_add_item (event_tree, hf_us_event_ch_id,
+                               tvb, pos, length, FALSE);
+        }
       else
-	{
-	  THROW (ReportedBoundsError);
-	}
-	  break;
-	case US_EVENT_MASK:
+        {
+          THROW (ReportedBoundsError);
+        }
+          break;
+        case US_EVENT_MASK:
       if (length == 2)
-	{
-	  proto_tree_add_item (event_tree, hf_us_event_mask,
-			       tvb, pos, length, FALSE);
-	}
+        {
+          proto_tree_add_item (event_tree, hf_us_event_mask,
+                               tvb, pos, length, FALSE);
+        }
       else
-	{
-	  THROW (ReportedBoundsError);
-	}
-	  break;
-	}			/* switch */
+        {
+          THROW (ReportedBoundsError);
+        }
+          break;
+        }                       /* switch */
       pos = pos + length;
-    }				/* while */
+    }                           /* while */
 }
 
 static void
@@ -166,89 +166,89 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   total_len = tvb_reported_length_remaining (tvb, 0);
 
   it =
-	proto_tree_add_protocol_format (tree, proto_cmctrl_tlv, tvb, 0,
-					total_len, "TLV Data");
-      tlv_tree = proto_item_add_subtree (it, ett_cmctrl_tlv);
+    proto_tree_add_protocol_format (tree, proto_cmctrl_tlv, tvb, 0,
+                                    total_len, "TLV Data");
+  tlv_tree = proto_item_add_subtree (it, ett_cmctrl_tlv);
 
-    while (pos < total_len)
-	{
-	  type = tvb_get_guint8 (tvb, pos++);
-	  length = tvb_get_guint8 (tvb, pos++);
-	  switch (type)
-	    {
-	    case CM_CTRL_MUTE:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-	    case CM_CTRL_MUTE_TIMEOUT:
-	      if (length == 4 || length == 1) /* response TLV always with len 1 */
-		{
-		  proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute_timeout,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-		  break;
-		case CM_CTRL_REINIT:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_reinit,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-		case CM_CTRL_DISABLE_FWD:
-	      if (length == 1)
-		{
-		  proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_disable_fwd,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
-		case CM_CTRL_DS_EVENT:
-	      if (length == 1)
-		     proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
-				       tvb, pos, length, FALSE);
-	      else
-		     dissect_ds_event(tvb, tlv_tree, pos, length);
-	      break;
-		case CM_CTRL_US_EVENT:
-	      if (length == 1)
-		     proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
-				       tvb, pos, length, FALSE);
-	      else
-		     dissect_us_event(tvb, tlv_tree, pos, length);
-	      break;
-		case CM_CTRL_EVENT:
-	      if (length == 2 || length == 1) /* response TLV always with len 1 */
-		{
-		  proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_event,
-				       tvb, pos, length, FALSE);
-		}
-	      else
-		{
-		  THROW (ReportedBoundsError);
-		}
-	      break;
+  while (pos < total_len)
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+        case CM_CTRL_MUTE:
+          if (length == 1)
+            {
+              proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CM_CTRL_MUTE_TIMEOUT:
+          if (length == 4 || length == 1) /* response TLV always with len 1 */
+            {
+              proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute_timeout,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CM_CTRL_REINIT:
+          if (length == 1)
+            {
+              proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_reinit,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CM_CTRL_DISABLE_FWD:
+          if (length == 1)
+            {
+              proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_disable_fwd,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CM_CTRL_DS_EVENT:
+          if (length == 1)
+            proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
+                                 tvb, pos, length, FALSE);
+          else
+            dissect_ds_event(tvb, tlv_tree, pos, length);
+          break;
+        case CM_CTRL_US_EVENT:
+          if (length == 1)
+            proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
+                                 tvb, pos, length, FALSE);
+          else
+            dissect_us_event(tvb, tlv_tree, pos, length);
+          break;
+        case CM_CTRL_EVENT:
+          if (length == 2 || length == 1) /* response TLV always with len 1 */
+            {
+              proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_event,
+                                   tvb, pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
 
-		} /* switch */
-	  pos = pos + length;
-	} /* while */
+        } /* switch */
+      pos = pos + length;
+    } /* while */
 }
 
 /* Register the protocol with Wireshark */
@@ -330,7 +330,7 @@ proto_register_cmctrl_tlv (void)
 
 /* Register the protocol name and description */
   proto_cmctrl_tlv = proto_register_protocol ("DOCSIS CM-CTRL TLV's",
-					      "DOCSIS CM-CTRL TLVs", "cmctrl_tlv");
+                                              "DOCSIS CM-CTRL TLVs", "cmctrl_tlv");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_cmctrl_tlv, hf, array_length (hf));
@@ -346,10 +346,11 @@ proto_register_cmctrl_tlv (void)
 void
 proto_reg_handoff_cmctrl_tlv (void)
 {
+#if 0
   dissector_handle_t cmctrl_tlv_handle;
 
   cmctrl_tlv_handle = find_dissector ("cmctrl_tlv");
 
   dissector_add_uint ("docsis", 0xFE, cmctrl_tlv_handle);
+#endif
 }
-

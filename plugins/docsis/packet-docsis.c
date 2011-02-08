@@ -107,7 +107,9 @@ static dissector_handle_t docsis_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t docsis_mgmt_handle;
+#if 0
 static dissector_table_t docsis_dissector_table;
+#endif
 
 /* Initialize the subtree pointers */
 static gint ett_docsis = -1;
@@ -195,105 +197,105 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
     {
       type = (tvb_get_guint8 (tvb, pos) & 0xF0);
       len = (tvb_get_guint8 (tvb, pos) & 0x0F);
-      if ((((type >> 4) & 0x0F)== 6) && (len == 2)) 
+      if ((((type >> 4) & 0x0F)== 6) && (len == 2))
         {
           item = proto_tree_add_item(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
-		  PROTO_ITEM_SET_HIDDEN(item);
-		  proto_tree_add_text(ehdr_tree, tvb, pos, 1, "0110 ....  = Unsolicited Grant Sync EHDR Sub-Element" );
+          PROTO_ITEM_SET_HIDDEN(item);
+          proto_tree_add_text(ehdr_tree, tvb, pos, 1, "0110 ....  = Unsolicited Grant Sync EHDR Sub-Element" );
         }
       else
         proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
       proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, FALSE);
       switch ((type >> 4) & 0x0F)
-	{
-	case EH_REQUEST:
-	  if (len == 3)
-	    {
-	      mini_slots = tvb_get_guint8 (tvb, pos + 1);
-	      sid = tvb_get_ntohs (tvb, pos + 2);
-	      proto_tree_add_uint (ehdr_tree, hf_docsis_mini_slots, tvb,
-				   pos + 1, 1, mini_slots);
-	      proto_tree_add_uint (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
-				   sid);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	  break;
-	case EH_ACK_REQ:
-	  if (len == 2)
-	    {
-	      sid = tvb_get_ntohs (tvb, pos + 1);
-	      proto_tree_add_uint (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
-				   sid);
-	    }
-	  else
-	    {
-	      THROW (ReportedBoundsError);
-	    }
-	case EH_BP_UP:
-	  proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
-			       1, FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 4,
-			       1, FALSE);
-	  if (isfrag)
-	    {
-	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+5,
-	                          1, FALSE);
-	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_first, tvb, pos+5,
-			          1, FALSE);
-	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+5,
-			          1, FALSE);
-	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_seq, tvb, pos+5,
-			          1, FALSE);
-	    }
-	  break;
-	case EH_BP_DOWN:
-	  proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
-			       1, FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_said, tvb, pos + 2, 2,
-			       FALSE);
-	  proto_tree_add_item (ehdr_tree, hf_docsis_reserved, tvb, pos + 4, 1,
-			       FALSE);
-	  break;
-	case EH_SFLOW_HDR_DOWN:
-	case EH_SFLOW_HDR_UP:
-	  val = tvb_get_guint8 (tvb, pos+1);
-	  if (val == 0)
-	  {
-	    item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
-		PROTO_ITEM_SET_HIDDEN(item);
-	    proto_tree_add_text (ehdr_tree, tvb, pos+1, 1, "0000 0000 = No PHS on current packet" );
-	  }
-	  else
-	    proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+        {
+        case EH_REQUEST:
+          if (len == 3)
+            {
+              mini_slots = tvb_get_guint8 (tvb, pos + 1);
+              sid = tvb_get_ntohs (tvb, pos + 2);
+              proto_tree_add_uint (ehdr_tree, hf_docsis_mini_slots, tvb,
+                                   pos + 1, 1, mini_slots);
+              proto_tree_add_uint (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
+                                   sid);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case EH_ACK_REQ:
+          if (len == 2)
+            {
+              sid = tvb_get_ntohs (tvb, pos + 1);
+              proto_tree_add_uint (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
+                                   sid);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+        case EH_BP_UP:
+          proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
+                               1, FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 4,
+                               1, FALSE);
+          if (isfrag)
+            {
+              proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+5,
+                                  1, FALSE);
+              proto_tree_add_item (ehdr_tree, hf_docsis_frag_first, tvb, pos+5,
+                                  1, FALSE);
+              proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+5,
+                                  1, FALSE);
+              proto_tree_add_item (ehdr_tree, hf_docsis_frag_seq, tvb, pos+5,
+                                  1, FALSE);
+            }
+          break;
+        case EH_BP_DOWN:
+          proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
+                               1, FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_said, tvb, pos + 2, 2,
+                               FALSE);
+          proto_tree_add_item (ehdr_tree, hf_docsis_reserved, tvb, pos + 4, 1,
+                               FALSE);
+          break;
+        case EH_SFLOW_HDR_DOWN:
+        case EH_SFLOW_HDR_UP:
+          val = tvb_get_guint8 (tvb, pos+1);
+          if (val == 0)
+          {
+            item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+                PROTO_ITEM_SET_HIDDEN(item);
+            proto_tree_add_text (ehdr_tree, tvb, pos+1, 1, "0000 0000 = No PHS on current packet" );
+          }
+          else
+            proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
 
-	  if (len == 2) 
-	  {
-	    proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_qind, tvb, pos+2, 1, FALSE);
-	    proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, FALSE);
-	  }
-	  break;
-	default:
-	  if (len > 0)
-	    proto_tree_add_item (ehdr_tree, hf_docsis_eh_val, tvb, pos + 1,
-				  len, FALSE);
-	}
+          if (len == 2)
+          {
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_qind, tvb, pos+2, 1, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, FALSE);
+          }
+          break;
+        default:
+          if (len > 0)
+            proto_tree_add_item (ehdr_tree, hf_docsis_eh_val, tvb, pos + 1,
+                                  len, FALSE);
+        }
       pos += len + 1;
     }
 
@@ -327,13 +329,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   static gint concatpos;
 
 /* Extract important fields */
-  fc = tvb_get_guint8 (tvb, 0);	/* Frame Control Byte */
-  fctype = (fc >> 6) & 0x03;	/* Frame Control Type:  2 MSB Bits */
-  fcparm = (fc >> 1) & 0x1F;	/* Frame Control Parameter: Next 5 Bits */
-  ehdron = (fc & 0x01);		/* Extended Header Bit: LSB */
+  fc = tvb_get_guint8 (tvb, 0); /* Frame Control Byte */
+  fctype = (fc >> 6) & 0x03;    /* Frame Control Type:  2 MSB Bits */
+  fcparm = (fc >> 1) & 0x1F;    /* Frame Control Parameter: Next 5 Bits */
+  ehdron = (fc & 0x01);         /* Extended Header Bit: LSB */
 
-  mac_parm = tvb_get_guint8 (tvb, 1);	/* Mac Parm */
-  len_sid = tvb_get_ntohs (tvb, 2);	/* Length Or SID */
+  mac_parm = tvb_get_guint8 (tvb, 1);   /* Mac Parm */
+  len_sid = tvb_get_ntohs (tvb, 2);     /* Length Or SID */
 
 /* set Header length based on presence of Extended header */
   if (ehdron == 0x00)
@@ -367,122 +369,122 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 /* Make entries in Protocol column and Info column on summary display */
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS");
 
-    col_clear (pinfo->cinfo, COL_INFO);
-    switch (fctype)
-	{
-	case FCTYPE_PACKET:
-	  col_set_str (pinfo->cinfo, COL_INFO, "Packet PDU");
-	  break;
-	case FCTYPE_ATMPDU:
-	  col_set_str (pinfo->cinfo, COL_INFO, "ATM PDU");
-	  break;
-	case FCTYPE_RESRVD:
-	  col_set_str (pinfo->cinfo, COL_INFO, "Reserved PDU");
-	  break;
-	case FCTYPE_MACSPC:
-	  if (fcparm == 0x02)
-	    col_add_fstr (pinfo->cinfo, COL_INFO,
-			  "Request Frame SID = %u Mini Slots = %u", len_sid,
-			  mac_parm);
-	  else if (fcparm == 0x03)
-	    col_set_str (pinfo->cinfo, COL_INFO, "Fragmented Frame");
-	  else
-	    col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
-	  break;
-	}			/* switch */
+  col_clear (pinfo->cinfo, COL_INFO);
+  switch (fctype)
+    {
+    case FCTYPE_PACKET:
+      col_set_str (pinfo->cinfo, COL_INFO, "Packet PDU");
+      break;
+    case FCTYPE_ATMPDU:
+      col_set_str (pinfo->cinfo, COL_INFO, "ATM PDU");
+      break;
+    case FCTYPE_RESRVD:
+      col_set_str (pinfo->cinfo, COL_INFO, "Reserved PDU");
+      break;
+    case FCTYPE_MACSPC:
+      if (fcparm == 0x02)
+        col_add_fstr (pinfo->cinfo, COL_INFO,
+                      "Request Frame SID = %u Mini Slots = %u", len_sid,
+                      mac_parm);
+      else if (fcparm == 0x03)
+        col_set_str (pinfo->cinfo, COL_INFO, "Fragmented Frame");
+      else
+        col_set_str (pinfo->cinfo, COL_INFO, "Mac Specific");
+      break;
+    }  /* switch */
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_docsis, tvb, 0,
-					   hdrlen, "DOCSIS");
+                                           hdrlen, "DOCSIS");
       docsis_tree = proto_item_add_subtree (ti, ett_docsis);
 
 /* add an item to the subtree, see section 1.6 for more information */
       proto_tree_add_item (docsis_tree, hf_docsis_fctype, tvb, 0, 1, FALSE);
       switch (fctype)
-	{
-	case FCTYPE_PACKET:
-	case FCTYPE_ATMPDU:
-	case FCTYPE_RESRVD:
-	  proto_tree_add_item (docsis_tree, hf_docsis_fcparm, tvb, 0, 1,
-			       FALSE);
-	  proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
-			       FALSE);
-	  if (ehdron == 0x01)
-	    {
-	      proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
-				   FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-				   FALSE);
-	      dissect_ehdr (tvb, docsis_tree, isfrag);
-	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
-				   4 + mac_parm, 2, FALSE);
-	    }
-	  else
-	    {
-	      proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
-				   FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-				   FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-				   FALSE);
-	    }
-	  break;
-	case FCTYPE_MACSPC:
-	  proto_tree_add_item (docsis_tree, hf_docsis_machdr_fcparm, tvb, 0,
-			       1, FALSE);
-	  proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
-			       FALSE);
-	  /* Decode for a Request Frame.  No extended header */
-	  if (fcparm == 0x02)
-	    {
-	      proto_tree_add_uint (docsis_tree, hf_docsis_mini_slots, tvb, 1,
-				   1, mac_parm);
-	      proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2,
-				   len_sid);
-	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-				   FALSE);
-	      break;
-	    }
-	  /* Check if this is a fragmentation header */
-	  if (fcparm == 0x03)
-	    {
-	      isfrag = TRUE;
-	    }
-	  /* Decode for a Concatenated Header.  No Extended Header */
-	  if (fcparm == 0x1c)
-	    {
-	      proto_item_append_text (ti, " (Concatenated Header)");
-	      proto_tree_add_item (docsis_tree, hf_docsis_concat_cnt, tvb, 1,
-				   1, FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-				   FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-				   FALSE);
-	      break;
-	    }
-	  /* If Extended header is present then decode it */
-	  if (ehdron == 0x01)
-	    {
-	      proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
-				   FALSE);
-	      proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-				   FALSE);
-	      dissect_ehdr (tvb, docsis_tree, isfrag);
-	      proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
-				   4 + mac_parm, 2, FALSE);
-	      break;
-	    }
-	  /* default case for all other Mac Frame Types */
-	  proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
-			       FALSE);
-	  proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-			       FALSE);
-	  proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2, FALSE);
-	  break;
-	}
+        {
+        case FCTYPE_PACKET:
+        case FCTYPE_ATMPDU:
+        case FCTYPE_RESRVD:
+          proto_tree_add_item (docsis_tree, hf_docsis_fcparm, tvb, 0, 1,
+                               FALSE);
+          proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
+                               FALSE);
+          if (ehdron == 0x01)
+            {
+              proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
+                                   FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                                   FALSE);
+              dissect_ehdr (tvb, docsis_tree, isfrag);
+              proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
+                                   4 + mac_parm, 2, FALSE);
+            }
+          else
+            {
+              proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
+                                   FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                                   FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
+                                   FALSE);
+            }
+          break;
+        case FCTYPE_MACSPC:
+          proto_tree_add_item (docsis_tree, hf_docsis_machdr_fcparm, tvb, 0,
+                               1, FALSE);
+          proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
+                               FALSE);
+          /* Decode for a Request Frame.  No extended header */
+          if (fcparm == 0x02)
+            {
+              proto_tree_add_uint (docsis_tree, hf_docsis_mini_slots, tvb, 1,
+                                   1, mac_parm);
+              proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2,
+                                   len_sid);
+              proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
+                                   FALSE);
+              break;
+            }
+          /* Check if this is a fragmentation header */
+          if (fcparm == 0x03)
+            {
+              isfrag = TRUE;
+            }
+          /* Decode for a Concatenated Header.  No Extended Header */
+          if (fcparm == 0x1c)
+            {
+              proto_item_append_text (ti, " (Concatenated Header)");
+              proto_tree_add_item (docsis_tree, hf_docsis_concat_cnt, tvb, 1,
+                                   1, FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                                   FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
+                                   FALSE);
+              break;
+            }
+          /* If Extended header is present then decode it */
+          if (ehdron == 0x01)
+            {
+              proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
+                                   FALSE);
+              proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                                   FALSE);
+              dissect_ehdr (tvb, docsis_tree, isfrag);
+              proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
+                                   4 + mac_parm, 2, FALSE);
+              break;
+            }
+          /* default case for all other Mac Frame Types */
+          proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
+                               FALSE);
+          proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
+                               FALSE);
+          proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2, FALSE);
+          break;
+        }
     }
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
@@ -490,73 +492,73 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
     case FCTYPE_PACKET:
       if (pdulen >= 0)
-	{
-	  if (pdulen > 0)
-	    {
-	      next_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	      call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, tree);
-	    }
-	  if (concatlen > 0)
-	    {
-	      concatlen = concatlen - framelen;
-	      concatpos += framelen;
-	    }
-	}
+        {
+          if (pdulen > 0)
+            {
+              next_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+              call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, tree);
+            }
+          if (concatlen > 0)
+            {
+              concatlen = concatlen - framelen;
+              concatpos += framelen;
+            }
+        }
       break;
     case FCTYPE_MACSPC:
       switch (fcparm)
-	{
-	case 0x00:
-	case 0x01:
-	  if (pdulen > 0)
-	    {
-	      mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	      call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, tree);
-	    }
-	  if (concatlen > 0)
-	    {
-	      concatlen = concatlen - framelen;
-	      concatpos += framelen;
-	    }
-	  break;
-	case 0x02:
-	  /* Don't do anything for a Request Frame */
-	  break;
-	case 0x03:
-	  /* For Fragmentation Frames simply dissect using the data
-	   * dissector as we don't handle them yet
-	   */
-	  if (pdulen > 0)
-	    {
-	      mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	      call_dissector (data_handle, mgt_tvb, pinfo, tree);
-	    }
-	  if (concatlen > 0)
-	    {
-	      concatlen = concatlen - framelen;
-	      concatpos += framelen;
-	    }
-	  break;
-	case 0x1c:
-	  /* call the docsis dissector on the same frame
-	   * to dissect DOCSIS frames within the concatenated
-	   * frame.  concatpos and concatlen are declared
-	   * static and are decremented and incremented
-	   * respectively when the inner
-	   * docsis frames are dissected. */
-	  while (concatlen > 0)
-	    {
-	      oldconcatlen = concatlen;
-	      next_tvb = tvb_new_subset (tvb, concatpos, -1, concatlen);
-	      call_dissector (docsis_handle, next_tvb, pinfo, tree);
-	      if (oldconcatlen <= concatlen)
-		THROW(ReportedBoundsError);
-	    }
-	  concatlen = 0;
-	  concatpos = 0;
-	  col_set_str(pinfo->cinfo, COL_INFO, "Concatenated Frame");
-	  break;
-	}
+        {
+        case 0x00:
+        case 0x01:
+          if (pdulen > 0)
+            {
+              mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+              call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, tree);
+            }
+          if (concatlen > 0)
+            {
+              concatlen = concatlen - framelen;
+              concatpos += framelen;
+            }
+          break;
+        case 0x02:
+          /* Don't do anything for a Request Frame */
+          break;
+        case 0x03:
+          /* For Fragmentation Frames simply dissect using the data
+           * dissector as we don't handle them yet
+           */
+          if (pdulen > 0)
+            {
+              mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+              call_dissector (data_handle, mgt_tvb, pinfo, tree);
+            }
+          if (concatlen > 0)
+            {
+              concatlen = concatlen - framelen;
+              concatpos += framelen;
+            }
+          break;
+        case 0x1c:
+          /* call the docsis dissector on the same frame
+           * to dissect DOCSIS frames within the concatenated
+           * frame.  concatpos and concatlen are declared
+           * static and are decremented and incremented
+           * respectively when the inner
+           * docsis frames are dissected. */
+          while (concatlen > 0)
+            {
+              oldconcatlen = concatlen;
+              next_tvb = tvb_new_subset (tvb, concatpos, -1, concatlen);
+              call_dissector (docsis_handle, next_tvb, pinfo, tree);
+              if (oldconcatlen <= concatlen)
+                THROW(ReportedBoundsError);
+            }
+          concatlen = 0;
+          concatpos = 0;
+          col_set_str(pinfo->cinfo, COL_INFO, "Concatenated Frame");
+          break;
+        }
       break;
     }
 }
@@ -719,9 +721,11 @@ proto_register_docsis (void)
     &ett_ehdr,
   };
 
+#if 0
   docsis_dissector_table = register_dissector_table ("docsis",
-						     "DOCSIS Encapsulation Type",
-						     FT_UINT8, BASE_DEC);
+                                                     "DOCSIS Encapsulation Type",
+                                                     FT_UINT8, BASE_DEC);
+#endif
 
 /* Register the protocol name and description */
   proto_docsis = proto_register_protocol ("DOCSIS 1.1", "DOCSIS", "docsis");
@@ -741,7 +745,6 @@ proto_register_docsis (void)
 void
 proto_reg_handoff_docsis (void)
 {
-
 
   docsis_handle = find_dissector ("docsis");
   data_handle = find_dissector ("data");

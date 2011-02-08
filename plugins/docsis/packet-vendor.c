@@ -27,13 +27,13 @@
 /* Notes to Adding dissectors for Vendor specific TLV's:
  * 1. Create a dissect_<vendorname> function with the following prototype:
  *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, gint vsif_len)
- * 2. vsif_len will be the *entire* length of the vsif TLV (including the 
+ * 2. vsif_len will be the *entire* length of the vsif TLV (including the
  *   Vendor Id TLV, which is 5 bytes long).
  * 3. Create a new 'case' statement in dissect_vsif, for your specific Vendor
- *   id.  
+ *   id.
  * 4. In that 'case' statement you will make the following calls:
  *   (assume for this example that your vendor id is 0x000054)
- *   #define VENDOR_FOOVENDOR 0x00054 
+ *   #define VENDOR_FOOVENDOR 0x00054
  *   case VENDOR_FOOVENDOR:
  *      proto_item_append_text (it, " (foo vendor)");
  *      dissect_foovendor (tvb, vsif_tree, vsif_len);
@@ -73,15 +73,15 @@ static gint ett_docsis_vsif = -1;
 static gint ett_docsis_vsif_ipprec = -1;
 
 static const value_string vendorid_vals[] = {
-	{VENDOR_CISCO, "Cisco Systems, Inc."},
-	{0, NULL},
+  {VENDOR_CISCO, "Cisco Systems, Inc."},
+  {0, NULL},
 };
 
 
 
 /* Forward Declarations for vendor specific dissectors */
 static void dissect_cisco (tvbuff_t * tvb, proto_tree * tree,
-			   gint vsif_len);
+                           gint vsif_len);
 
 /* Code to actually dissect the packets */
 static void
@@ -117,26 +117,26 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
-					"VSIF Encodings");
+        proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
+                                        "VSIF Encodings");
       vsif_tree = proto_item_add_subtree (it, ett_docsis_vsif);
       proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, FALSE);
 
       /* switch on the Vendor ID */
       switch (value)
-	{
-	case VENDOR_CISCO:
-	  proto_item_append_text (it, " (Cisco)");
-	  dissect_cisco (tvb, vsif_tree, vsif_len);
-	  break;
-	default:
-	  proto_item_append_text (it, " (Unknown)");
-	  proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendor_unknown, tvb,
-			       0, -1, FALSE);
-	  break;
-	}
+        {
+        case VENDOR_CISCO:
+          proto_item_append_text (it, " (Cisco)");
+          dissect_cisco (tvb, vsif_tree, vsif_len);
+          break;
+        default:
+          proto_item_append_text (it, " (Unknown)");
+          proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendor_unknown, tvb,
+                               0, -1, FALSE);
+          break;
+        }
 
-    }				/* if(tree) */
+    }                           /* if(tree) */
 
 
 }
@@ -166,48 +166,48 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
       type = tvb_get_guint8 (tvb, pos++);
       length = tvb_get_guint8 (tvb, pos++);
       switch (type)
-	{
-	case NUM_PHONES:
-	  proto_tree_add_item (tree, hf_docsis_vsif_cisco_numphones, tvb,
-			       pos, length, FALSE);
-	  break;
-	case IP_PREC:
-	  ipprec_it =
-	    proto_tree_add_text (tree, tvb, pos, length, "IP Precedence");
-	  ipprec_tree =
-	    proto_item_add_subtree (ipprec_it, ett_docsis_vsif_ipprec);
-	  /* Handle Sub-TLVs in IP Precedence */
-	  templen = pos + length;
-	  while (pos < templen)
-	    {
-	      type = tvb_get_guint8 (tvb, pos++);
-	      length = tvb_get_guint8 (tvb, pos++);
-	      switch (type)
-		{
-		case IP_PREC_VAL:
-		  if (length != 1)
-		    THROW (ReportedBoundsError);
-		  proto_tree_add_item (ipprec_tree,
-				       hf_docsis_vsif_cisco_ipprec_val, tvb,
-				       pos, length, FALSE);
-		  break;
-		case IP_PREC_BW:
-		  if (length != 4)
-		    THROW (ReportedBoundsError);
-		  proto_tree_add_item (ipprec_tree,
-				       hf_docsis_vsif_cisco_ipprec_bw, tvb,
-				       pos, length, FALSE);
-		  break;
-		default:
-		  THROW (ReportedBoundsError);
-		}
-	      pos += length;
-	    }
-	  break;
-	case IOS_CONFIG_FILE:
-	  proto_tree_add_item (tree, hf_docsis_vsif_cisco_config_file, tvb,
-			       pos, length, FALSE);
-	}
+        {
+        case NUM_PHONES:
+          proto_tree_add_item (tree, hf_docsis_vsif_cisco_numphones, tvb,
+                               pos, length, FALSE);
+          break;
+        case IP_PREC:
+          ipprec_it =
+            proto_tree_add_text (tree, tvb, pos, length, "IP Precedence");
+          ipprec_tree =
+            proto_item_add_subtree (ipprec_it, ett_docsis_vsif_ipprec);
+          /* Handle Sub-TLVs in IP Precedence */
+          templen = pos + length;
+          while (pos < templen)
+            {
+              type = tvb_get_guint8 (tvb, pos++);
+              length = tvb_get_guint8 (tvb, pos++);
+              switch (type)
+                {
+                case IP_PREC_VAL:
+                  if (length != 1)
+                    THROW (ReportedBoundsError);
+                  proto_tree_add_item (ipprec_tree,
+                                       hf_docsis_vsif_cisco_ipprec_val, tvb,
+                                       pos, length, FALSE);
+                  break;
+                case IP_PREC_BW:
+                  if (length != 4)
+                    THROW (ReportedBoundsError);
+                  proto_tree_add_item (ipprec_tree,
+                                       hf_docsis_vsif_cisco_ipprec_bw, tvb,
+                                       pos, length, FALSE);
+                  break;
+                default:
+                  THROW (ReportedBoundsError);
+                }
+              pos += length;
+            }
+          break;
+        case IOS_CONFIG_FILE:
+          proto_tree_add_item (tree, hf_docsis_vsif_cisco_config_file, tvb,
+                               pos, length, FALSE);
+        }
       pos += length;
     }
 
@@ -274,7 +274,7 @@ proto_register_docsis_vsif (void)
 /* Register the protocol name and description */
   proto_docsis_vsif =
     proto_register_protocol ("DOCSIS Vendor Specific Encodings",
-			     "DOCSIS VSIF", "docsis_vsif");
+                             "DOCSIS VSIF", "docsis_vsif");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_docsis_vsif, hf, array_length (hf));
@@ -291,9 +291,10 @@ proto_register_docsis_vsif (void)
 void
 proto_reg_handoff_docsis_vsif (void)
 {
+#if 0
   dissector_handle_t docsis_vsif_handle;
 
   docsis_vsif_handle = find_dissector ("docsis_vsif");
   dissector_add_uint ("docsis", 0xFD, docsis_vsif_handle);
-
+#endif
 }
