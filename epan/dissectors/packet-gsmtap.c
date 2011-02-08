@@ -202,7 +202,17 @@ static const value_string gsmtap_tetra_channels[] = {
 };
 
 /* the mapping is not complete */
-static const int gsmtap_to_tetra[8] = { TETRA_CHAN_BSCH, TETRA_CHAN_AACH, TETRA_CHAN_SCH_HU, 0,TETRA_CHAN_SCH_F, TETRA_CHAN_BNCH, TETRA_CHAN_STCH, 0};
+static const int gsmtap_to_tetra[9] = {
+	0,
+	TETRA_CHAN_BSCH,
+	TETRA_CHAN_AACH,
+	TETRA_CHAN_SCH_HU,
+	0,
+	TETRA_CHAN_SCH_F,
+	TETRA_CHAN_BNCH,
+	TETRA_CHAN_STCH,
+	0
+};
 
 static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_UM,	"GSM Um (MS<->BTS)" },
