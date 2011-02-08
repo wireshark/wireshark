@@ -528,7 +528,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
 	tvb_current_offset = tvb_LBRKT;
 	tvb_transaction_end_offset = megaco_tvb_find_token(tvb, tvb_LBRKT - 1, tvb_len);
-	
+
 	switch ( token_index ){
 		/* errorDescriptor */
 		case ERRORTOKEN:
@@ -1340,14 +1340,16 @@ nextcontext:
 			}
 
 		} while ( tvb_command_end_offset < tvb_transaction_end_offset );
-	tvb_next_offset=megaco_tvb_skip_wsp(tvb, tvb_transaction_end_offset+1);
+	
+		if (keep_persistent_data) {
+			gcp_msg_to_str(msg,keep_persistent_data);
+			gcp_analyze_msg(megaco_tree, tvb, msg, &megaco_ctx_ids );
+		}
+	
+		tvb_next_offset = tvb_transaction_end_offset;
+
 	}
 	while( tvb_transaction_end_offset < tvb_len - 2);
-
-	if (keep_persistent_data) {
-		gcp_msg_to_str(msg,keep_persistent_data);
-		gcp_analyze_msg(megaco_tree, tvb, msg, &megaco_ctx_ids );
-	}
 
 	if(global_megaco_raw_text){
 		tvb_raw_text_add(tvb, megaco_tree);
@@ -3649,6 +3651,7 @@ static gint megaco_tvb_skip_wsp(tvbuff_t* tvb, gint offset ){
 		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter++);
 	return (counter);
 }
+
 static gint megaco_tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 	gint counter = offset;
 	gint end;
@@ -3685,5 +3688,8 @@ static gint megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength){
                 if(counter<0)
                                 return -1;
                 else
-                                return pos;
+                                {
+					pos = megaco_tvb_skip_wsp(tvb,pos+1);
+					return pos;
+				}
 }
