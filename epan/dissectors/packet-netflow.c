@@ -134,6 +134,7 @@
 #include <epan/sminmpec.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
+#include "packet-ntp.h"
 #include <epan/expert.h>
 
 
@@ -1466,42 +1467,6 @@ static int	pen_to_type_hf_list (guint32 pen) {
 	}
 }
 
-/* ------------------------------------ */
-/* NTP <-> nstime conversions */
-/* XXX: ToDo: Put this (and ntp_fmt_ts from packet-ntp.c) in a util lib  */
-
-/* NTP_BASETIME is in fact epoch - ntp_start_time */
-#define NTP_BASETIME 2208988800ul
-#define FLOAT_DENOM  4294967296.0  /* (float) (2**32) */
-
-#if 0
-typedef struct _ntptime_t {
-	long  ntp_sec;      /* since 1900 */
-	long  ntp_frac_sec; /* n/(2**32)  */
-} ntptime_t;
-
-static void
-nstime_to_ntptime(nstime_t *nst, ntptime_t *ntpt) {
-	ntpt->ntp_sec      = nst->secs + NTP_BASETIME;
-	ntpt->ntp_frac_sec = (long) ((nst->nsecs*FLOAT_DENOM)/1000000000.0);
-}
-
-static void
-ntptime_to_nstime(ntptime_t *ntpt, nstime_t *nst) {
-	nst->secs  = ntpt->ntp_sec - NTP_BASETIME;
-	nst->nsecs = (int)((ntpt->ntp_frac_sec*1000000000.0)/FLOAT_DENOM);
-}
-#endif
-
-static void
-ntptime_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime) {
-	nstime->secs  = tvb_get_ntohl(tvb, offset);
-	if (nstime->secs)
-		nstime->secs -= NTP_BASETIME;
-	nstime->nsecs = (int)(1000000000*tvb_get_ntohl(tvb, offset+4)/FLOAT_DENOM);
-}
-/* ------------------------------------ */
-
 static int
 dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2641,28 +2606,28 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 154: /*  flowStartMicroseconds: 64-bit NTP format */
 			offset_s[rev] = offset;
-			ntptime_to_nstime(tvb, offset, &ts_start[rev]);
+			ntp_to_nstime(tvb, offset, &ts_start[rev]);
 			goto timestamp_common;
 			break;
 
 		case 155: /*  flowEndMicroseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                    */
 			offset_e[rev] = offset;
-			ntptime_to_nstime(tvb, offset, &ts_end[rev]);
+			ntp_to_nstime(tvb, offset, &ts_end[rev]);
 			goto timestamp_common;
 			break;
 
 		case 156: /*  flowStartNanoseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                     */
 			offset_s[rev] = offset;
-			ntptime_to_nstime(tvb, offset, &ts_start[rev]);
+			ntp_to_nstime(tvb, offset, &ts_start[rev]);
 			goto timestamp_common;
 			break;
 
 		case 157: /*  flowEndNanoseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                   */
 			offset_e[rev] = offset;
-			ntptime_to_nstime(tvb, offset, &ts_end[rev]);
+			ntp_to_nstime(tvb, offset, &ts_end[rev]);
 			goto timestamp_common;
 			break;
 

@@ -88,28 +88,6 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ieee802154_handle;
 static dissector_handle_t ieee802154_ccfcs_handle;
 
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      ntp_to_nstime
- *  DESCRIPTION
- *      Converts a timestamp from ntp format to nstime format.
- *  PARAMETERS
- *      guint32 ntp_secs;
- *      guint32 ntp_fraction;
- *      struct  *nstime_ptr;
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
-static void ntp_to_nstime(guint32 ntp_secs, guint32 ntp_fraction, nstime_t *nstime_ptr)
-{
-    double temp;
-    nstime_ptr->secs = (ntp_secs >= NTP_BASETIME) ? ntp_secs - NTP_BASETIME : ntp_secs;
-    temp = (double)ntp_fraction / 4.294967296;  /* 4.294967296 = (2<<32 / 10<<9) */
-    nstime_ptr->nsecs = (guint32) temp;
-} /* ntp_to_nstime */
-
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zep
@@ -174,7 +152,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             zep_data.device_id = tvb_get_ntohs(tvb, 5);
             zep_data.lqi_mode = tvb_get_guint8(tvb, 7)?1:0;
             zep_data.lqi = tvb_get_guint8(tvb, 8);
-            ntp_to_nstime(tvb_get_ntohl(tvb, 9), tvb_get_ntohl(tvb, 13), &(zep_data.ntp_time));
+            ntp_to_nstime(tvb, 9, &(zep_data.ntp_time));
             zep_data.seqno = tvb_get_ntohl(tvb, 17);
             ieee_packet_len = (tvb_get_guint8(tvb, ZEP_V2_HEADER_LEN - 1) & ZEP_LENGTH_MASK);
         }

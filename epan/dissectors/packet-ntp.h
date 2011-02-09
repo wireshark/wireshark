@@ -28,10 +28,7 @@
 #ifndef PACKET_NTP_H
 #define PACKET_NTP_H
 
-/* NTP_BASETIME is in fact epoch - ntp_start_time */
-#define NTP_BASETIME 2208988800ul
-#define NTP_TS_SIZE 100
-
 extern const char *tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset);
+extern void ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime);
 
 #endif

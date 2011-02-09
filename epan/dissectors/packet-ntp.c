@@ -566,9 +566,13 @@ static const char *mon_names[12] = {
 static tvbparse_wanted_t* want;
 static tvbparse_wanted_t* want_ignore;
 
+/* NTP_BASETIME is in fact epoch - ntp_start_time */
+#define NTP_BASETIME 2208988800ul
+#define NTP_FLOAT_DENOM 4294967296.0
+#define NTP_TS_SIZE 100
 
-/* ntp_fmt_ts - converts NTP timestamp to human readable string.
- * reftime - 64bit timestamp (IN)
+/* tvb_ntp_fmt_ts - converts NTP timestamp to human readable string.
+ * TVB and an offset (IN).
  * returns pointer to filled buffer.  This buffer will be freed automatically once
  * dissection of the next packet occurs.
  */
@@ -593,7 +597,7 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 		return "Not representable";
 	}
 
-	fractime = bd->tm_sec + tempfrac / 4294967296.0;
+	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
 	buff=ep_alloc(NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
                  "%s %2d, %d %02d:%02d:%09.6f UTC",
@@ -604,6 +608,15 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 		 bd->tm_min,
 		 fractime);
 	return buff;
+}
+
+void
+ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
+{
+	nstime->secs  = tvb_get_ntohl(tvb, offset);
+	if (nstime->secs)
+		nstime->secs -= NTP_BASETIME;
+	nstime->nsecs = (int)(1000000000*tvb_get_ntohl(tvb, offset+4)/NTP_FLOAT_DENOM);
 }
 
 /* dissect_ntp - dissects NTP packet data
