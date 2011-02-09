@@ -1719,11 +1719,27 @@ The type of value this field holds. The current field types are:
 	FT_INT64		A 64-bit signed integer.
 	FT_FLOAT		A single-precision floating point number.
 	FT_DOUBLE		A double-precision floating point number.
-	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
-				of time since January 1, 1970, midnight
-				UTC, displayed as the date, followed by
-				the time, as hours, minutes, and seconds
-				with 9 digits after the decimal point.
+	FT_ABSOLUTE_TIME	An absolute time from some fixed point in time,
+				displayed as the date, followed by the time, as
+				hours, minutes, and seconds with 9 digits after
+				the decimal point.
+
+				Two absolute time encodings may be specified
+				with proto_tree_add_item():
+
+				ENC_TIME_TIMESPEC: Seconds (4 bytes) and
+				nanoseconds (4 bytes) of time since January 1,
+				1970, midnight UTC.
+
+				ENC_TIME_NTP: NTP timestamps are represented as
+				a 64-bit unsigned fixed-point number, in seconds
+				relative to 0h on 1 January 1900. The integer
+				part is in the first 32 bits and the fraction
+				part in the last 32 bits.
+
+				The encoding must be logically ORed with
+				ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN as
+				appropriate.
 	FT_RELATIVE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
 				of time relative to an arbitrary time.
 				displayed as seconds and 9 digits
