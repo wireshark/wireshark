@@ -172,6 +172,7 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /usr/openwin/lib
             /sw/include
             /sw/lib
+            /usr/include/gdk-pixbuf-2.0
             /opt/local/include
             /opt/local/lib
             /opt/local/lib/gtk-2.0/include
