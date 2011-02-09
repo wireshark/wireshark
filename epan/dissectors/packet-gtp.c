@@ -608,10 +608,10 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_CHRG_CHAR             0x1A    /* 3G */
 #define GTP_EXT_TRACE_REF             0x1B    /* 3G */
 #define GTP_EXT_TRACE_TYPE            0x1C    /* 3G */
-#define GTPv1_EXT_MS_REASON           0x1D    /* 3G 29	TV MS Not Reachable Reason 7.7.25A */
-/* 117-126	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+#define GTPv1_EXT_MS_REASON           0x1D    /* 3G 29 TV MS Not Reachable Reason 7.7.25A */
+/* 117-126 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 #define GTP_EXT_TR_COMM               0x7E    /* charging */
-#define GTP_EXT_CHRG_ID               0x7F    /* 127	TV Charging ID 7.7.26 */
+#define GTP_EXT_CHRG_ID               0x7F    /* 127 TV Charging ID 7.7.26 */
 #define GTP_EXT_USER_ADDR             0x80
 #define GTP_EXT_MM_CNTXT              0x81
 #define GTP_EXT_PDP_CNTXT             0x82
@@ -964,7 +964,7 @@ static const value_string cause_type[] = {
      */
     {177, "CDR decoding error"},
 
-	{192, "Non-existent"},
+    {192, "Non-existent"},
     {193, "Invalid message format"},
     {194, "IMSI not known"},
     {195, "MS is GPRS detached"},
@@ -6381,7 +6381,7 @@ static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _
     return 3 + length;
 }
 
-/* CDRs dissector 
+/* CDRs dissector
  * 3GPP TS 32.295 version 9.0.0 Release 9
  */
 
@@ -6424,7 +6424,7 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
      */
     if(format<4){
         proto_item_append_text(fmt_item, " %s", val_to_str_const(format, gtp_cdr_fmt_vals, "Unknown"));
-        /* Octet 6 -7  Data Record Format Version 
+        /* Octet 6 -7  Data Record Format Version
          *    8 7 6 5             4 3 2 1
          * 6 Application Identifier Release Identifier
          * 7 Version Identifier
@@ -6458,14 +6458,14 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
             proto_tree_add_text(cdr_dr_tree, tvb, offset, 2, "Length: %u", cdr_length);
             offset+=2;
             proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-			/* XXX this is for release 6, may not work for higer releases */ 
-			if(format==1){
-				dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
-			}
+            /* XXX this is for release 6, may not work for higer releases */
+            if(format==1){
+                dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+            }
 
-			offset = offset + cdr_length;
+            offset = offset + cdr_length;
         }
 
     }else{
@@ -7392,6 +7392,7 @@ void proto_register_gtp(void)
         &ett_gtp_ext_ps_handover_xid,
         &ett_gtp_target_id,
         &ett_gtp_utran_cont,
+        &ett_gtp_bcm,
         &ett_gtp_cdr_ver,
         &ett_gtp_cdr_dr,
     };
