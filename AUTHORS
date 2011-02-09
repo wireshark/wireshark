@@ -3227,6 +3227,12 @@ Loránd Jakab		<ljakab [AT] ac.upc.edu> {
 	Locator/ID Separation [LISP-data] Protocol
 }
 
+Grzegorz Szczytowski	<Grzegorz.Szczytowski [AT] gmail.com>  {
+	Diameter dictionary RFC 3588 AVP 299
+	GTPv1 Bearer Control Mode dissection
+	E212 dissector MCC 260 upgrade and modification
+}
+
 
 and by:
 
@@ -3409,7 +3415,6 @@ Petr Lautrbach		<plautrba [AT] redhat.com>
 Frank Lahm		<franklahm [AT] googlemail.com>
 Jon Ellch		<jellch [AT] harris.com>
 Alex Badea		<vamposdecampos [AT] gmail.com>
-Grzegorz Szczytowski			<Grzegorz.Szczytowski[AT]gmail.com> 
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.

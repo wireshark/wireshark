@@ -23,6 +23,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+/*
+ * Updates and corrections for Polish networks MCC=260
+ * according to www.uke.gov.pl status from January 2011
+ * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com>
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -1019,16 +1024,36 @@ static const value_string mcc_mnc_codes[] = {
 	{  259010, "Orange Moldova GSM" },
 	{  259020, "Moldcell GSM" },
 	{  259040, "Eventis Mobile GSM" },
-	{  260010, "Plus GSM (Polkomtel S.A.)" },
-	{  260020, "ERA GSM (Polska Telefonia Cyfrowa Sp. Z.o.o.)" },
-	{  260030, "Idea (Polska Telefonia Komorkowa Centertel Sp. Z.o.o)" },
-	{  260040, "Tele2 Polska (Tele2 Polska Sp. Z.o.o.)" },
-	{  260050, "IDEA (UMTS)/PTK Centertel sp. Z.o.o." },
-	{  260060, "Netia Mobile" },
-	{  260070, "Premium internet" },
-	{  260080, "E-Telko" },
-	{  260090, "Telekomunikacja Kolejowa (GSM-R)" },
-	{  260100, "Telefony Opalenickie" },
+	{  260010, "Plus (Polkomtel S.A.)" },
+	{  260020, "Era (Polska Telefonia Cyfrowa Sp. z o.o.)" },
+	{  260030, "Orange (Polska Telefonia Komorkowa Centertel Sp. z o.o)" },
+	{  260040, "CenterNet S.A" },
+	{  260050, "Orange UMTS (Polska Telefonia Komorkowa Centertel Sp. z o.o)" },
+	{  260060, "Play (P4 Sp. z o.o.)" },
+	{  260070, "Netia S.A" },
+	{  260080, "E-Telko Sp. z o.o." },
+	{  260100, "Sferia S.A." },
+	{  260110, "Nordisk Polska Sp. z o.o." },
+	{  260120, "Cyfrowy Polsat S.A." },
+	{  260130, "Sferia S.A." },
+	{  260140, "Sferia S.A." },
+	{  260150, "CenterNet S.A." },
+	{  260160, "Mobyland Sp. z o.o." },
+	{  260170, "Aero 2 Sp. z o.o." },
+	{  260180, "AMD Telecom S.A." },
+	{  260200, "Mobile.Net Sp. z o.o." },
+	{  260210, "Exteri Sp. z o.o." },
+	{  260220, "Arcomm Sp. z o.o." },
+	{  260230, "Amicomm Sp. z o.o." },
+	{  260240, "WideNet Sp. z o.o." },
+	{  260250, "Best Solutions & Technology Sp. z o.o." },
+	{  260260, "ATE-Advanced Technology & Experience Sp. z o.o." },
+	{  260270, "Intertelcom Sp. z o.o." },
+	{  260280, "PhoneNet Sp. z o.o." },
+	{  260290, "Interfonica Sp. z o.o." },
+	{  260300, "GrandTel Sp. z o.o." },
+	{  260310, "Phone IT Sp. z o.o." },
+	{  260980, "Play Testlab (P4 Sp. z o.o.)" },
 	{  262010, "T-Mobile Deutschland GmbH" },
 	{  262020, "Vodafone D2 GmbH" },
 	{  262030, "E-Plus Mobilfunk GmbH & Co. KG" },
