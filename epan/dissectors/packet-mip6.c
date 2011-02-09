@@ -1433,7 +1433,7 @@ dissect_fmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 			len -= 1;
 			proto_tree_add_text(field_tree, tvb,
 					p, len, "Link-layer address: %s",
-					bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+					tvb_bytes_to_str_punct(tvb, p, len, ':'));
 		}
 	}
 }

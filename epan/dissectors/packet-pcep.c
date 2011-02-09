@@ -654,13 +654,13 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
 		    default:
 			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Data: %s",
-					bytestring_to_str(tvb_get_ptr(tvb, (offset) + 4 + j, tlv_length), tlv_length, ' '));
+					tvb_bytes_to_str_punct(tvb, (offset) + 4 + j, tlv_length, ' '));
 		}
 
 		padding = (4 - (tlv_length % 4)) % 4;
 		if (padding != 0){
 			proto_tree_add_text(tlv, tvb, offset+4+j+tlv_length, padding, "Padding: %s",
-				bytestring_to_str(tvb_get_ptr(tvb, (offset) + 4 + j + tlv_length, padding), padding, ' '));
+				tvb_bytes_to_str_punct(tvb, (offset) + 4 + j + tlv_length, padding, ' '));
 		}
 	}
 }
@@ -846,7 +846,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  tvbuff_t *tvb,  int 
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, "Reserved: %u", (u_reserved & 0x7f));
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+3, 1, "C-Type: %u", c_type);
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+4, length-4, "Label: %s",
-				bytestring_to_str(tvb_get_ptr(tvb, offset+4, length-4), length-4, ' '));
+				tvb_bytes_to_str_punct(tvb, offset+4, length-4, ' '));
 		break;
 
 	case PCEP_RECORD_ROUTE_OBJ:
@@ -860,7 +860,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  tvbuff_t *tvb,  int 
 		proto_tree_add_boolean(pcep_subobj_label_flags, pcep_subobj_label_flags_gl, tvb, offset+2, 1, (u_reserved & 0x7f));
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+3, 1, "C-Type: %u", c_type);
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+4, length-4, "Label: %s",
-				bytestring_to_str(tvb_get_ptr(tvb, offset+4, length-4), length-4, ' '));
+				tvb_bytes_to_str_punct(tvb, offset+4, length-4, ' '));
 		break;
 
 	default:
@@ -1680,7 +1680,7 @@ dissect_pcep_svec_obj(proto_tree *pcep_object_tree,
 
 	for ( i=4 ; i<(obj_length-OBJ_HDR_LEN) ; ){
 		proto_tree_add_text(pcep_object_tree, tvb, offset2+i, 4, "Request-ID-Number %u: 0x%s", m,
-			bytestring_to_str(tvb_get_ptr(tvb, offset2+i, 4), 4, ' '));
+			tvb_bytes_to_str_punct(tvb, offset2+i, 4, ' '));
 		i += 4;
 	}
 }
