@@ -238,44 +238,6 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 			offset+16, 4, metric);
 }
 
-static gchar *
-rip_bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
-  gchar  *str=NULL;
-  guint   str_len;
-  gchar        *p;
-  int          i;
-  guint32      octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const gchar hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-  str_len=sizeof(gchar)*len*(punct?3:2);
-  str=ep_alloc(str_len);
-  len--;
-
-  p = &str[str_len];
-  *--p = '\0';
-  i = len;
-  for (;;) {
-    octet = ad[i];
-    *--p = hex_digits[octet&0xF];
-    octet >>= 4;
-    *--p = hex_digits[octet&0xF];
-    if (i == 0)
-      break;
-    if (punct)
-      *--p = punct;
-    i--;
-  }
-  return p;
-}
-
 static gint
 dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -321,9 +283,8 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 	rip_authentication_tree = proto_item_add_subtree(ti, ett_auth_vec );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
 			MD5_AUTH_DATA_LEN, "Authentication Data: %s",
-				rip_bytestring_to_str(
-					tvb_get_ptr( tvb, offset-4+digest_off+4,MD5_AUTH_DATA_LEN),
-					MD5_AUTH_DATA_LEN, ' '));
+			tvb_bytes_to_str_punct(tvb, offset-4+digest_off+4,
+					       MD5_AUTH_DATA_LEN, ' '));
 	break;
     }
     return auth_data_len;
