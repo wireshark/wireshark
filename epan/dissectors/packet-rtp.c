@@ -67,7 +67,6 @@
 
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
-#include "packet-ntp.h"
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
@@ -1626,15 +1625,14 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti            = NULL;
 	proto_tree *pkt_ccc_tree      = NULL;
- 	const guint8 *ptime = tvb_get_ptr(tvb, 4, 8);
 
 	if ( tree ) {
 		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, FALSE);
 		pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
-		proto_tree_add_bytes_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
-					    4, 8, ptime, "NTP timestamp: %s", ntp_fmt_ts(ptime));
+		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_ts, tvb, 4, 8,
+				    ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	}
 
 	dissect_rtp(tvb, pinfo, tree);
@@ -1657,7 +1655,7 @@ proto_register_pkt_ccc(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"CCC_ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1665,11 +1663,11 @@ proto_register_pkt_ccc(void)
 			{
 				"PacketCable CCC Timestamp",
 				"pkt_ccc.ts",
-				FT_BYTES,
-				BASE_NONE,
+				FT_ABSOLUTE_TIME,
+				ABSOLUTE_TIME_UTC,
 				NULL,
 				0x0,
-				"Timestamp", HFILL
+				NULL, HFILL
 			}
 		},
 

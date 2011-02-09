@@ -135,7 +135,6 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-ntp.h>
 
 
 #if 0
@@ -2352,7 +2351,6 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 	int             gen_str_offset = 0;
 
 	proto_item     *ti;
-	const guint8   *reftime;
 	guint16         count;
 	struct v9_v10_template_entry *entries;
 	proto_tree     *fwdstattree;
@@ -3922,9 +3920,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 
 		case 268: /* maxFlowEndMicroseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_microseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_max_flow_end_microseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 269: /* maxFlowEndMilliseconds */
@@ -3935,15 +3932,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 
 		case 270: /* maxFlowEndNanoseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_max_flow_end_nanoseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_max_flow_end_nanoseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 271: /* minFlowStartMicroseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_microseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_min_flow_start_microseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 272: /* minFlowStartMilliseconds */
@@ -3954,9 +3949,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 
 		case 273: /* minFlowStartNanoseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_min_flow_start_nanoseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_min_flow_start_nanoseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 274: /* collectorCertificate */
@@ -4079,15 +4073,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 
 		case 324: /* observationTimeMicroseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_microseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_observation_time_microseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 325: /* observationTimeNanoseconds */
-			reftime = tvb_get_ptr(tvb, offset, 8);
-			ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_observation_time_nanoseconds,
-				tvb, offset, length, reftime, "%s", ntp_fmt_ts(reftime));
+			ti = proto_tree_add_item(pdutree, hf_cflow_observation_time_nanoseconds,
+				tvb, offset, length, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 			break;
 
 		case 326: /* digestHashValue */
@@ -6636,7 +6628,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_max_flow_end_microseconds,
 		 {"Max Flow End Microseconds", "cflow.max_flow_end_microseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_max_flow_end_milliseconds,
@@ -6646,12 +6638,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_max_flow_end_nanoseconds,
 		 {"Max Flow End Nanoseconds", "cflow.max_flow_end_nanoseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_microseconds,
 		 {"Min Flow Start Microseconds", "cflow.min_flow_start_microseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_min_flow_start_milliseconds,
@@ -6661,7 +6653,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_min_flow_start_nanoseconds,
 		 {"Min Flow Start Nanoseconds", "cflow.min_flow_start_nanoseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_collector_certificate,
@@ -6771,12 +6763,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_observation_time_microseconds,
 		 {"Observation Time Microseconds", "cflow.observation_time_microseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_time_nanoseconds,
 		 {"Observation Time Nanoseconds", "cflow.observation_time_nanoseconds",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_digest_hash_value,

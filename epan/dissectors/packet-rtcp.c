@@ -49,7 +49,7 @@
  * See also http://www.iana.org/assignments/rtp-parameters
  *
  * RTCP FB is specified in RFC 4585 and extended by RFC 5104
- * 
+ *
  */
 
 
@@ -767,7 +767,7 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
 
 static int
 dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
-{    
+{
     int i;
     char strbuf[64];
     int nack_num_frames_lost = 0;
@@ -777,11 +777,11 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
     proto_item *ti = (proto_item*) NULL;
 
     proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, FALSE);
-		rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);		
+		rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
     offset += 2;
-	  
+
     ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, FALSE);
-				
+
     proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
 		rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
 		bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
@@ -804,7 +804,7 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
 		  proto_item_set_text(ti, "0 (No additional frames lost)");
 		}
     offset += 2;
-    
+
     if (top_item != NULL) {
 		  proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
 	  }
@@ -1060,16 +1060,17 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				if (code == 103)
 				{
 					const gchar *buff;
+
 					item_len = tvb_get_guint8(tvb, offset);
 					offset += 1;
 					packet_len -= 1;
 					if (item_len != 8) /* SHALL be 8 */
 						return offset;
 
+					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_request_ts,
+					                    tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 					buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset, 8));
-					proto_tree_add_string_format(PoC1_tree, hf_rtcp_app_poc1_request_ts,
-					                             tvb, offset, 8, buff,
-					                             "Request timestamp: %s", buff );
+
 					offset += 8;
 					packet_len -=8;
 
@@ -1719,7 +1720,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		chunk++;
 	}
-	
+
 	return offset;
 }
 
@@ -1750,7 +1751,7 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
 static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int offset, guint block_type, guint block_len, proto_tree *tree)
 {
 	proto_item *ti;
-    
+
 	ti = proto_tree_add_uint(tree, hf_rtcp_xr_block_length, tvb, offset, 2, block_len);
     switch (block_type) {
     case RTCP_XR_REF_TIME:
@@ -2257,7 +2258,6 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 {
 	proto_item* item;
 	guint32 ts_msw, ts_lsw;
-	const gchar *buff;
 	int sr_offset = offset;
 
 	/* NTP timestamp */
@@ -2267,8 +2267,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	ts_lsw = tvb_get_ntohl(tvb, offset+4);
 	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, FALSE);
 
-	buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset, 8 ));
-	item = proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, buff, "MSW and LSW as NTP timestamp: %s", buff );
+	item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_GENERATED(item);
 	offset += 8;
 
@@ -3026,10 +3025,10 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_ntp,
 			{
-				"NTP timestamp",
+				"MSW and LSW as NTP timestamp",
 				"rtcp.timestamp.ntp",
-				FT_STRING,
-				BASE_NONE,
+				FT_ABSOLUTE_TIME,
+				ABSOLUTE_TIME_UTC,
 				NULL,
 				0x0,
 				NULL, HFILL
@@ -3352,8 +3351,8 @@ proto_register_rtcp(void)
 			{
 				"Talk Burst Request Timestamp",
 				"rtcp.app.poc1.request.ts",
-				FT_STRING,
-				BASE_NONE,
+				FT_ABSOLUTE_TIME,
+				ABSOLUTE_TIME_UTC,
 				NULL,
 				0x0,
 				NULL, HFILL
