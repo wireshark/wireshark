@@ -1494,9 +1494,11 @@ ntptime_to_nstime(ntptime_t *ntpt, nstime_t *nst) {
 #endif
 
 static void
-ntptime_buf_to_nstime(const guint8 *ntptime_buf, nstime_t *nstime) {
-	nstime->secs  = pntohl(&ntptime_buf[0])  - NTP_BASETIME;
-	nstime->nsecs = (int)((pntohl(&ntptime_buf[4])*1000000000.0)/FLOAT_DENOM);
+ntptime_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime) {
+	nstime->secs  = tvb_get_ntohl(tvb, offset);
+	if (nstime->secs)
+		nstime->secs -= NTP_BASETIME;
+	nstime->nsecs = (int)(1000000000*tvb_get_ntohl(tvb, offset+4)/FLOAT_DENOM);
 }
 /* ------------------------------------ */
 
@@ -2639,28 +2641,28 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 154: /*  flowStartMicroseconds: 64-bit NTP format */
 			offset_s[rev] = offset;
-			ntptime_buf_to_nstime(tvb_get_ptr(tvb, offset, 8), &ts_start[rev]);
+			ntptime_to_nstime(tvb, offset, &ts_start[rev]);
 			goto timestamp_common;
 			break;
 
 		case 155: /*  flowEndMicroseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                    */
 			offset_e[rev] = offset;
-			ntptime_buf_to_nstime(tvb_get_ptr(tvb, offset, 8), &ts_end[rev]);
+			ntptime_to_nstime(tvb, offset, &ts_end[rev]);
 			goto timestamp_common;
 			break;
 
 		case 156: /*  flowStartNanoseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                     */
 			offset_s[rev] = offset;
-			ntptime_buf_to_nstime(tvb_get_ptr(tvb, offset, 8), &ts_start[rev]);
+			ntptime_to_nstime(tvb, offset, &ts_start[rev]);
 			goto timestamp_common;
 			break;
 
 		case 157: /*  flowEndNanoseconds: 64-bit NTP format */
 			  /*  XXX: Not tested ...                   */
 			offset_e[rev] = offset;
-			ntptime_buf_to_nstime(tvb_get_ptr(tvb, offset, 8), &ts_end[rev]);
+			ntptime_to_nstime(tvb, offset, &ts_end[rev]);
 			goto timestamp_common;
 			break;
 
