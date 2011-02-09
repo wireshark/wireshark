@@ -573,7 +573,7 @@ static tvbparse_wanted_t* want_ignore;
  * dissection of the next packet occurs.
  */
 const char *
-ntp_fmt_ts(const guint8 *reftime)
+tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 {
 	guint32 tempstmp, tempfrac;
 	time_t temptime;
@@ -581,8 +581,8 @@ ntp_fmt_ts(const guint8 *reftime)
 	double fractime;
 	char *buff;
 
-	tempstmp = pntohl(&reftime[0]);
-	tempfrac = pntohl(&reftime[4]);
+	tempstmp = tvb_get_ntohl(tvb, offset);
+	tempfrac = tvb_get_ntohl(tvb, offset+4);
 	if ((tempstmp == 0) && (tempfrac == 0)) {
 		return "NULL";
 	}

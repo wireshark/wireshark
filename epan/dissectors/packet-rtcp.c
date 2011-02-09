@@ -1069,7 +1069,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_request_ts,
 					                    tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-					buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset, 8));
+					buff = tvb_ntp_fmt_ts(tvb, offset);
 
 					offset += 8;
 					packet_len -=8;
