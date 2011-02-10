@@ -33,6 +33,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/sctpppids.h>
 
 
 static int  proto_npmp      = -1;
@@ -40,8 +41,8 @@ static gint ett_npmp        = -1;
 static gint ett_onoffarray  = -1;
 
 
-#define PPID_NETPERFMETER_CONTROL   0x29097605
-#define PPID_NETPERFMETER_DATA      0x29097606
+#define PPID_NETPERFMETER_CONTROL_LEGACY   0x29097605
+#define PPID_NETPERFMETER_DATA_LEGACY      0x29097606
 
 
 /* Initialize the protocol and registered fields */
@@ -49,7 +50,7 @@ static gint ett_onoffarray  = -1;
    static int hf_##variable           = -1;        \
    static const int offset_##variable = offset;    \
    static const int length_##variable = length;
-   
+
 #define NETPERFMETER_ACKNOWLEDGE    0x01
 #define NETPERFMETER_ADD_FLOW       0x02
 #define NETPERFMETER_REMOVE_FLOW    0x03
@@ -251,7 +252,7 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
   proto_tree_add_uint_format_value(message_tree, hf_addflow_retranstrials, message_tvb, offset_addflow_retranstrials, length_addflow_retranstrials,
                                    retranstrials, (retranstrials & (1 << 31)) ? "%u ms" : "%u trials",
                                    retranstrials &~ (1 << 31));
-  
+
   ADD_FIELD(message_tree, addflow_frameraterng);
   ADD_FIELD(message_tree, addflow_framerate1);
   ADD_FIELD(message_tree, addflow_framerate2);
@@ -353,7 +354,7 @@ dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
   }
-  
+
   ADD_FIELD(npmp_tree, message_type);
   ADD_FIELD(npmp_tree, message_flags);
   ADD_FIELD(npmp_tree, message_length);
@@ -437,6 +438,8 @@ proto_reg_handoff_npmp(void)
   dissector_handle_t npmp_handle;
 
   npmp_handle = new_create_dissector_handle(dissect_npmp, proto_npmp);
-  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL, npmp_handle);
-  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA,    npmp_handle);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL_LEGACY, npmp_handle);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA_LEGACY,    npmp_handle);
+  dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npmp_handle);
+  dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npmp_handle);
 }

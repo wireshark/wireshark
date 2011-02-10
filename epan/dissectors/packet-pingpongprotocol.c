@@ -33,9 +33,10 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/sctpppids.h>
 
 
-#define PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID 0x29097602
+#define PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097602
 
 
 /* Initialize the protocol and registered fields */
@@ -202,5 +203,6 @@ proto_reg_handoff_pingpongprotocol(void)
   dissector_handle_t pingpongprotocol_handle;
 
   pingpongprotocol_handle = new_create_dissector_handle(dissect_pingpongprotocol, proto_pingpongprotocol);
-  dissector_add_uint("sctp.ppi", PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID, pingpongprotocol_handle);
+  dissector_add_uint("sctp.ppi", PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, pingpongprotocol_handle);
+  dissector_add_uint("sctp.ppi", PPP_PAYLOAD_PROTOCOL_ID, pingpongprotocol_handle);
 }

@@ -33,9 +33,10 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/sctpppids.h>
 
 
-#define FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID 0x29097601
+#define FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY 0x29097601
 
 
 /* Initialize the protocol and registered fields */
@@ -239,5 +240,6 @@ proto_reg_handoff_fractalgeneratorprotocol(void)
   dissector_handle_t fractalgeneratorprotocol_handle;
 
   fractalgeneratorprotocol_handle = new_create_dissector_handle(dissect_fractalgeneratorprotocol, proto_fractalgeneratorprotocol);
-  dissector_add_uint("sctp.ppi", FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID, fractalgeneratorprotocol_handle);
+  dissector_add_uint("sctp.ppi", FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, fractalgeneratorprotocol_handle);
+  dissector_add_uint("sctp.ppi", FGP_PAYLOAD_PROTOCOL_ID, fractalgeneratorprotocol_handle);
 }

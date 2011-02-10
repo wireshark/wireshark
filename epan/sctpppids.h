@@ -28,7 +28,7 @@
 /*
  * SCTP payload protocol IDs.
  * Based on http://www.iana.org/assignments/sctp-parameters
- * as of November 10th, 2010
+ * as of February 3rd, 2011
  */
 #define NOT_SPECIFIED_PROTOCOL_ID        0
 #define IUA_PAYLOAD_PROTOCOL_ID          1
@@ -62,6 +62,18 @@
 #define LCS_AP_PAYLOAD_PROTOCOL_ID      29
 #define MPICH2_PAYLOAD_PROTOCOL_ID      30
 #define SABP_PAYLOAD_PROTOCOL_ID        31
-
+#define FGP_PAYLOAD_PROTOCOL_ID         32
+#define PPP_PAYLOAD_PROTOCOL_ID         33
+#define CALCAPP_PAYLOAD_PROTOCOL_ID     34
+#define SSP_PAYLOAD_PROTOCOL_ID         35
+#define NPMP_CTRL_PAYLOAD_PROTOCOL_ID   36
+#define NPMP_DATA_PAYLOAD_PROTOCOL_ID   37
+#define ECHO_PAYLOAD_PROTOCOL_ID        38
+#define DISCARD_PAYLOAD_PROTOCOL_ID     39
+#define DAYTIME_PAYLOAD_PROTOCOL_ID     40
+#define CHARGEN_PAYLOAD_PROTOCOL_ID     41
+#define PROTO_3GPP_RNA_PROTOCOL_ID      42
+#define PROTO_3GPP_M2AP_PROTOCOL_ID     43
+#define PROTO_3GPP_M3AP_PROTOCOL_ID     44
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */

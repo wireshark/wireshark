@@ -46,6 +46,8 @@
  * Reassembly added 2006 by Robin Seggelmann
  * TSN Tracking by Luis E. G. Ontanon (Feb 2007)
  * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
+ *
+ * PPID types updated by Thomas Dreibholz (Feb 2011)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -355,12 +357,25 @@ static const value_string sctp_payload_proto_id_values[] = {
   { FORCES_LP_PAYLOAD_PROTOCOL_ID,       "ForCES-LP" },
   { SBC_AP_PAYLOAD_PROTOCOL_ID,          "SBc-AP" },
   { NBAP_PAYLOAD_PROTOCOL_ID,            "NBAP" },
-/* Unassigned 26 */
+  /* Unassigned 26 */
   { X2AP_PAYLOAD_PROTOCOL_ID,            "X2AP" },
   { IRCP_PAYLOAD_PROTOCOL_ID,            "IRCP" },
   { LCS_AP_PAYLOAD_PROTOCOL_ID,          "LCS-AP" },
   { MPICH2_PAYLOAD_PROTOCOL_ID,          "MPICH2" },
   { SABP_PAYLOAD_PROTOCOL_ID,            "SABP" },
+  { FGP_PAYLOAD_PROTOCOL_ID,             "Fractal Generator Protocol" },
+  { PPP_PAYLOAD_PROTOCOL_ID,             "Ping Pong Protocol" },
+  { CALCAPP_PAYLOAD_PROTOCOL_ID,         "CalcApp Protocol" },
+  { SSP_PAYLOAD_PROTOCOL_ID,             "Scripting Service Protocol" },
+  { NPMP_CTRL_PAYLOAD_PROTOCOL_ID,       "NetPerfMeter Control" },
+  { NPMP_DATA_PAYLOAD_PROTOCOL_ID,       "NetPerfMeter Data" },
+  { ECHO_PAYLOAD_PROTOCOL_ID,            "Echo" },
+  { DISCARD_PAYLOAD_PROTOCOL_ID,         "Discard" },
+  { DAYTIME_PAYLOAD_PROTOCOL_ID,         "Daytime" },
+  { CHARGEN_PAYLOAD_PROTOCOL_ID,         "Character Generator" },
+  { PROTO_3GPP_RNA_PROTOCOL_ID,          "3GPP RNA" },
+  { PROTO_3GPP_M2AP_PROTOCOL_ID,         "3GPP M2AP" },
+  { PROTO_3GPP_M3AP_PROTOCOL_ID,         "3GPP M3AP" },
   { 0,                                   NULL } };
 
 
