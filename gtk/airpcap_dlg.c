@@ -947,6 +947,21 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 }
 
 /*
+ * Add key window destroy callback
+ */
+static void
+on_add_key_w_destroy(GtkWidget *button _U_, gpointer data)
+{
+    GtkWidget *airpcap_advanced_w;
+
+    airpcap_advanced_w = GTK_WIDGET(data);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(airpcap_advanced_w),TRUE);
+
+    return;
+}
+
+/*
  * Callback for the 'Add Key' button.
  */
 static void
@@ -1118,21 +1133,6 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
  */
 static void
 on_edit_key_w_destroy(GtkWidget *button _U_, gpointer data)
-{
-    GtkWidget *airpcap_advanced_w;
-
-    airpcap_advanced_w = GTK_WIDGET(data);
-
-    gtk_widget_set_sensitive(GTK_WIDGET(airpcap_advanced_w),TRUE);
-
-    return;
-}
-
-/*
- * Add key window destroy callback
- */
-static void
-on_add_key_w_destroy(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
 
@@ -1393,7 +1393,7 @@ on_move_key_up_bt_clicked(GtkWidget *button _U_, gpointer key_list)
 /*
  * Callback for the 'Move Key Down' button.
  */
-void
+static void
 on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer list_view)
 {
     tree_view_list_store_move_selection(GTK_TREE_VIEW(list_view), FALSE);
@@ -1514,6 +1514,162 @@ update_decryption_mode_list(GtkWidget *cb)
 
     g_free(current_text);
 }
+
+
+/*
+ * Callback for the Wireless Advanced Settings 'Apply' button.
+ */
+static void
+on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
+{
+    /* advenced window */
+    GtkWidget    *airpcap_advanced_w;
+    GtkWidget    *channel_cb, *channel_offset_cb;
+
+    /* widgets in the toolbar */
+    GtkWidget    *toolbar,
+                 *toolbar_if_lb,
+                 *toolbar_channel_cb,
+                 *toolbar_channel_offset_cb,
+                 *toolbar_fcs_filter_cb;
+
+    /* retrieve main window */
+    airpcap_advanced_w = GTK_WIDGET(data);
+    
+    /* Set the channel and offset */
+    channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
+    channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY));
+    airpcap_channel_offset_changed_cb(channel_offset_cb, NULL);
+    airpcap_channel_changed_set_cb(channel_cb, channel_offset_cb);
+
+
+    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
+
+    /* retrieve toolbar info */
+    toolbar_if_lb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
+    toolbar_channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
+    toolbar_channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
+    toolbar_fcs_filter_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+
+    /* Save the configuration (for all ) */
+    airpcap_save_selected_if_configuration(airpcap_if_selected);
+
+    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
+    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
+    {
+        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
+        airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),airpcap_if_selected);
+        airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, toolbar_channel_offset_cb, TRUE);
+        airpcap_validation_type_combo_set_by_type(toolbar_fcs_filter_cb,airpcap_if_selected->CrcValidationOn);
+    }
+}
+
+/*
+ * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
+ */
+static void
+on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
+{
+    PAirpcapHandle ad = NULL;
+    gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+
+    /* Retrieve object data */
+    GtkWidget *airpcap_advanced_w = GTK_WIDGET(data);
+
+    if (airpcap_if_selected == NULL) { /* There's not much we can do. */
+        gtk_widget_destroy(airpcap_advanced_w);
+        return;
+    }
+
+    on_advanced_apply_bt_clicked(button, data);
+
+    /* Stop blinking our LED */
+    ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
+    if (ad)
+    {
+        g_source_remove(airpcap_if_selected->tag);
+        airpcap_if_turn_led_on(ad, 0);
+        airpcap_if_selected->blinking = FALSE;
+        airpcap_if_selected->led = TRUE;
+        airpcap_if_close(ad);
+    }
+
+    /* Remove GLIB timeout */
+    g_source_remove(airpcap_if_selected->tag);
+
+    gtk_widget_destroy(airpcap_advanced_w);
+}
+
+/*
+ * Callback for the CANCEL button 'clicked' in the Advanced Wireless Settings window.
+ */
+static void
+on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
+{
+    PAirpcapHandle ad = NULL;
+    gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+
+    /* Retrieve object data */
+    GtkWidget *airpcap_advanced_w;
+    GtkWidget *channel_combo;
+    GtkWidget *capture_combo;
+    GtkWidget *crc_check;
+    GtkWidget *wrong_crc_combo;
+    GtkWidget *blink_bt;
+    GtkWidget *interface_combo;
+    GtkWidget *cancel_bt;
+    GtkWidget *ok_bt;
+
+    /* widgets in the toolbar */
+    GtkWidget *toolbar,
+              *toolbar_if_lb,
+              *toolbar_channel_cb,
+              *toolbar_wrong_crc_cb,
+              *advanced_bt;
+
+    /* Retrieve the GUI object pointers */
+    airpcap_advanced_w  = GTK_WIDGET(data);
+    interface_combo     = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_INTERFACE_KEY));
+    channel_combo       = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
+    capture_combo       = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_LINK_TYPE_KEY));
+    crc_check           = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_CHECK_KEY));
+    wrong_crc_combo     = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_FILTER_KEY));
+    blink_bt            = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_BLINK_KEY));
+    cancel_bt           = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CANCEL_KEY));
+    ok_bt               = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_OK_KEY));
+    advanced_bt         = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEY));
+
+    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
+
+    /* retrieve toolbar info */
+    toolbar_if_lb           = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
+    toolbar_channel_cb      = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
+    toolbar_wrong_crc_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+
+    /* Stop blinking ALL leds (go through the airpcap_if_list) */
+    if (airpcap_if_selected != NULL)
+    {
+        ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
+        if (ad)
+        {
+            g_source_remove(airpcap_if_selected->tag);
+            airpcap_if_turn_led_on(ad, 0);
+            airpcap_if_selected->blinking = FALSE;
+            airpcap_if_selected->led = TRUE;
+            airpcap_if_close(ad);
+        }
+    }
+
+    /* reload the configuration!!! Configuration has not been saved but
+        the corresponding structure has been modified probably...*/
+    if (!airpcap_if_selected->saved)
+    {
+        airpcap_load_selected_if_configuration(airpcap_if_selected);
+    }
+
+    gtk_widget_destroy(airpcap_advanced_w);
+}
+
 
 /* Called to create the airpcap settings' window */
 void
@@ -1867,157 +2023,56 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 }
 
 /*
- * Callback for the Wireless Advanced Settings 'Apply' button.
+ * Callback for the OK button 'clicked' in the Decryption Key Management window.
  */
 static void
-on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
+on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 {
-    /* advenced window */
-    GtkWidget    *airpcap_advanced_w;
-    GtkWidget    *channel_cb, *channel_offset_cb;
-
-    /* widgets in the toolbar */
-    GtkWidget    *toolbar,
-                 *toolbar_if_lb,
-                 *toolbar_channel_cb,
-                 *toolbar_channel_offset_cb,
-                 *toolbar_fcs_filter_cb;
+    /* advanced window */
+    GtkWidget    *key_management_w;
 
     /* retrieve main window */
-    airpcap_advanced_w = GTK_WIDGET(data);
-    
-    /* Set the channel and offset */
-    channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
-    channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY));
-    airpcap_channel_offset_changed_cb(channel_offset_cb, NULL);
-    airpcap_channel_changed_set_cb(channel_cb, channel_offset_cb);
+    key_management_w      = GTK_WIDGET(data);
 
+    /* Apply the current decryption preferences */
+    on_key_management_apply_bt_clicked(button, data);
 
-    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
+    /* Save the preferences to preferences file!!! */
+    write_prefs_to_file();
 
-    /* retrieve toolbar info */
-    toolbar_if_lb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
-    toolbar_fcs_filter_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
-
-    /* Save the configuration (for all ) */
-    airpcap_save_selected_if_configuration(airpcap_if_selected);
-
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    {
-        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-        airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),airpcap_if_selected);
-        airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, toolbar_channel_offset_cb, TRUE);
-        airpcap_validation_type_combo_set_by_type(toolbar_fcs_filter_cb,airpcap_if_selected->CrcValidationOn);
-    }
+    gtk_widget_destroy(key_management_w);
 }
 
 /*
- * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
+ * Callback for the CANCEL button 'clicked' in the Decryption Key Management window.
  */
 static void
-on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
+on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
-    PAirpcapHandle ad = NULL;
-    gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-
     /* Retrieve object data */
-    GtkWidget *airpcap_advanced_w = GTK_WIDGET(data);
-
-    if (airpcap_if_selected == NULL) { /* There's not much we can do. */
-        gtk_widget_destroy(airpcap_advanced_w);
-        return;
-    }
-
-    on_advanced_apply_bt_clicked(button, data);
-
-    /* Stop blinking our LED */
-    ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
-    if (ad)
-    {
-        g_source_remove(airpcap_if_selected->tag);
-        airpcap_if_turn_led_on(ad, 0);
-        airpcap_if_selected->blinking = FALSE;
-        airpcap_if_selected->led = TRUE;
-        airpcap_if_close(ad);
-    }
-
-    /* Remove GLIB timeout */
-    g_source_remove(airpcap_if_selected->tag);
-
-    gtk_widget_destroy(airpcap_advanced_w);
-}
-
-/*
- * Callback for the CANCEL button 'clicked' in the Advanced Wireless Settings window.
- */
-static void
-on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
-{
-    PAirpcapHandle ad = NULL;
-    gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-
-    /* Retrieve object data */
-    GtkWidget *airpcap_advanced_w;
-    GtkWidget *channel_combo;
-    GtkWidget *capture_combo;
-    GtkWidget *crc_check;
-    GtkWidget *wrong_crc_combo;
-    GtkWidget *blink_bt;
-    GtkWidget *interface_combo;
+    GtkWidget *key_management_w;
     GtkWidget *cancel_bt;
     GtkWidget *ok_bt;
+    GtkListStore *key_list_store;
 
     /* widgets in the toolbar */
     GtkWidget *toolbar,
-              *toolbar_if_lb,
-              *toolbar_channel_cb,
-              *toolbar_wrong_crc_cb,
-              *advanced_bt;
+              *toolbar_decryption_ck,
+              *key_management_bt;
 
     /* Retrieve the GUI object pointers */
-    airpcap_advanced_w  = GTK_WIDGET(data);
-    interface_combo     = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_INTERFACE_KEY));
-    channel_combo       = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
-    capture_combo       = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_LINK_TYPE_KEY));
-    crc_check           = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_CHECK_KEY));
-    wrong_crc_combo     = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_FILTER_KEY));
-    blink_bt            = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_BLINK_KEY));
-    cancel_bt           = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CANCEL_KEY));
-    ok_bt               = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_OK_KEY));
-    advanced_bt         = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEY));
+    key_management_w    = GTK_WIDGET(data);
+    cancel_bt           = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_CANCEL_KEY));
+    ok_bt               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_OK_KEY));
+    key_list_store      = GTK_LIST_STORE(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
+    key_management_bt   = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEY));
 
-    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
+    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
 
     /* retrieve toolbar info */
-    toolbar_if_lb           = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cb      = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_wrong_crc_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+    toolbar_decryption_ck    = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-    /* Stop blinking ALL leds (go through the airpcap_if_list) */
-    if (airpcap_if_selected != NULL)
-    {
-        ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
-        if (ad)
-        {
-            g_source_remove(airpcap_if_selected->tag);
-            airpcap_if_turn_led_on(ad, 0);
-            airpcap_if_selected->blinking = FALSE;
-            airpcap_if_selected->led = TRUE;
-            airpcap_if_close(ad);
-        }
-    }
-
-    /* reload the configuration!!! Configuration has not been saved but
-        the corresponding structure has been modified probably...*/
-    if (!airpcap_if_selected->saved)
-    {
-        airpcap_load_selected_if_configuration(airpcap_if_selected);
-    }
-
-    gtk_widget_destroy(airpcap_advanced_w);
+    gtk_widget_destroy(key_management_w);
 }
 
 /* Called to create the key management window */
@@ -2360,62 +2415,245 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_tree_selection_select_iter(selection, &iter);
 }
 
-/*
- * Callback for the OK button 'clicked' in the Decryption Key Management window.
- */
-static void
-on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
-{
-    /* advanced window */
-    GtkWidget    *key_management_w;
-
-    /* retrieve main window */
-    key_management_w      = GTK_WIDGET(data);
-
-    /* Apply the current decryption preferences */
-    on_key_management_apply_bt_clicked(button, data);
-
-    /* Save the preferences to preferences file!!! */
-    write_prefs_to_file();
-
-    gtk_widget_destroy(key_management_w);
-}
-
-/*
- * Callback for the CANCEL button 'clicked' in the Decryption Key Management window.
- */
-static void
-on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
-{
-    /* Retrieve object data */
-    GtkWidget *key_management_w;
-    GtkWidget *cancel_bt;
-    GtkWidget *ok_bt;
-    GtkListStore *key_list_store;
-
-    /* widgets in the toolbar */
-    GtkWidget *toolbar,
-              *toolbar_decryption_ck,
-              *key_management_bt;
-
-    /* Retrieve the GUI object pointers */
-    key_management_w    = GTK_WIDGET(data);
-    cancel_bt           = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_CANCEL_KEY));
-    ok_bt               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_OK_KEY));
-    key_list_store      = GTK_LIST_STORE(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
-    key_management_bt   = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEY));
-
-    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
-
-    /* retrieve toolbar info */
-    toolbar_decryption_ck    = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
-
-    gtk_widget_destroy(key_management_w);
-}
-
 
 static void
 on_keys_check_cancel_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+    GtkListStore *key_list_store;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
+       and is not NULL if it was called when the Key Management widget has been clicked */
+    if (key_management_w != NULL)
+    {
+        /*  ... */
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
+        gtk_widget_show (key_management_w);
+    }
+
+    gtk_widget_destroy(keys_check_w);
+}
+
+static void
+on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+    GtkListStore *key_list_store;
+
+    guint n_adapters = 0;
+    guint n_wireshark_keys = 0;
+    guint n_driver_keys = 0;
+    guint n_curr_adapter_keys = 0;
+    guint n_total_keys = 0;
+    guint n_merged_keys = 0;
+    guint i = 0;
+
+    GList* wireshark_keys=NULL;
+    GList* driver_keys=NULL;
+    GList* current_adapter_keys=NULL;
+    GList* merged_list = NULL;
+    GList* merged_list_tmp = NULL;
+
+    airpcap_if_info_t* curr_adapter;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+
+    n_adapters = g_list_length(airpcap_if_list);
+
+    /* Retrieve Wireshark keys */
+    wireshark_keys = get_wireshark_keys();
+    n_wireshark_keys = g_list_length(wireshark_keys);
+    n_total_keys += n_wireshark_keys;
+
+    merged_list = merge_key_list(wireshark_keys,NULL);
+
+    /* Retrieve AirPcap driver's keys */
+    driver_keys = get_airpcap_driver_keys();
+    n_driver_keys = g_list_length(driver_keys);
+    n_total_keys += n_driver_keys;
+
+    merged_list = merge_key_list(merged_list,driver_keys);
+
+    /* NOW wireshark_keys and driver_keys ARE no more needed... at the end, we will have to free them! */
+    for (i = 0; i<n_adapters; i++)
+    {
+        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+        current_adapter_keys = get_airpcap_device_keys(curr_adapter);
+        n_curr_adapter_keys = g_list_length(current_adapter_keys);
+
+        merged_list_tmp = merged_list;
+        merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
+        free_key_list(merged_list_tmp);
+
+        n_total_keys += n_curr_adapter_keys;
+    }
+
+    n_merged_keys = g_list_length(merged_list);
+
+    /* Set up this new list as default for Wireshark and Adapters... */
+    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
+
+    /* Write the preferences to the preferences file */
+    write_prefs_to_file();
+
+    free_key_list(wireshark_keys);
+    free_key_list(driver_keys);
+
+    gtk_widget_destroy(keys_check_w);
+
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
+       and is not NULL if it was called when the Key Management widget has been clicked */
+    if (key_management_w != NULL)
+    {
+        /*  ... */
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
+        gtk_widget_show (key_management_w);
+    }
+}
+
+static void
+on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+    GtkListStore *key_list_store=NULL;
+
+    GList* wireshark_keys=NULL;
+    guint n_wireshark_keys = 0;
+
+    GList* merged_keys=NULL;
+    guint n_merged_keys = 0;
+
+    guint n_adapters=0;
+    guint n_total_keys=0;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+
+    n_adapters = g_list_length(airpcap_if_list);
+
+    /* Retrieve Wireshark keys */
+    wireshark_keys = get_wireshark_keys();
+    n_wireshark_keys = g_list_length(wireshark_keys);
+    n_total_keys += n_wireshark_keys;
+
+    merged_keys = merge_key_list(wireshark_keys,NULL);
+    n_merged_keys = g_list_length(merged_keys);
+
+    /* Set up this new list as default for Wireshark and Adapters... */
+    airpcap_save_decryption_keys(merged_keys,airpcap_if_list);
+
+    /* Write the preferences to the preferences file (here is not needed, by the way)*/
+    write_prefs_to_file();
+
+    /* Free the memory */
+    free_key_list(wireshark_keys);
+
+    /* Close the window */
+    gtk_widget_destroy(keys_check_w);
+
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
+       and is not NULL if it was called when the Key Management widget has been clicked */
+    if (key_management_w != NULL)
+    {
+        /*  ... */
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
+        gtk_widget_show (key_management_w);
+    }
+}
+
+static void
+on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+    GtkListStore *key_list_store;
+
+    guint n_adapters = 0;
+    guint n_wireshark_keys = 0;
+    guint n_driver_keys = 0;
+    guint n_curr_adapter_keys = 0;
+    guint n_total_keys = 0;
+    guint n_merged_keys = 0;
+    guint i = 0;
+
+    GList* wireshark_keys=NULL;
+    GList* driver_keys=NULL;
+    GList* current_adapter_keys=NULL;
+    GList* merged_list = NULL;
+    GList* merged_list_tmp = NULL;
+
+    airpcap_if_info_t* curr_adapter;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+
+    n_adapters = g_list_length(airpcap_if_list);
+
+    wireshark_keys = get_wireshark_keys();
+    n_wireshark_keys = g_list_length(wireshark_keys);
+    n_total_keys += n_wireshark_keys;
+
+    /* Retrieve AirPcap driver's keys */
+    driver_keys = get_airpcap_driver_keys();
+    n_driver_keys = g_list_length(driver_keys);
+    n_total_keys += n_driver_keys;
+
+    merged_list = merge_key_list(merged_list,driver_keys);
+
+    /* NOW wireshark_keys IS no more needed... at the end, we will have to free it! */
+    for (i = 0; i<n_adapters; i++)
+    {
+        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+        current_adapter_keys = get_airpcap_device_keys(curr_adapter);
+        n_curr_adapter_keys = g_list_length(current_adapter_keys);
+
+        merged_list_tmp = merged_list;
+        merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
+        free_key_list(merged_list_tmp);
+
+        n_total_keys += n_curr_adapter_keys;
+    }
+
+    n_merged_keys = g_list_length(merged_list);
+
+    /* Set up this new list as default for Wireshark and Adapters... */
+    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
+
+    /* Write the preferences to the preferences file */
+    write_prefs_to_file();
+
+    free_key_list(wireshark_keys);
+    free_key_list(driver_keys);
+
+    gtk_widget_destroy(keys_check_w);
+
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
+       and is not NULL if it was called when the Key Management widget has been clicked */
+    if (key_management_w != NULL)
+    {
+        /*  ... */
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
+        gtk_widget_show (key_management_w);
+    }
+}
+
+static void
+on_ignore_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -2629,242 +2867,6 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
 
     gtk_widget_set_sensitive(top_level,FALSE);
     gtk_widget_show(keys_check_w);
-}
-
-static void
-on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-    GtkListStore *key_list_store=NULL;
-
-    GList* wireshark_keys=NULL;
-    guint n_wireshark_keys = 0;
-
-    GList* merged_keys=NULL;
-    guint n_merged_keys = 0;
-
-    guint n_adapters=0;
-    guint n_total_keys=0;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-
-    n_adapters = g_list_length(airpcap_if_list);
-
-    /* Retrieve Wireshark keys */
-    wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
-
-    merged_keys = merge_key_list(wireshark_keys,NULL);
-    n_merged_keys = g_list_length(merged_keys);
-
-    /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_keys,airpcap_if_list);
-
-    /* Write the preferences to the preferences file (here is not needed, by the way)*/
-    write_prefs_to_file();
-
-    /* Free the memory */
-    free_key_list(wireshark_keys);
-
-    /* Close the window */
-    gtk_widget_destroy(keys_check_w);
-
-    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
-       and is not NULL if it was called when the Key Management widget has been clicked */
-    if (key_management_w != NULL)
-    {
-        /*  ... */
-        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_list_store);
-        gtk_widget_show (key_management_w);
-    }
-}
-
-static void
-on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-    GtkListStore *key_list_store;
-
-    guint n_adapters = 0;
-    guint n_wireshark_keys = 0;
-    guint n_driver_keys = 0;
-    guint n_curr_adapter_keys = 0;
-    guint n_total_keys = 0;
-    guint n_merged_keys = 0;
-    guint i = 0;
-
-    GList* wireshark_keys=NULL;
-    GList* driver_keys=NULL;
-    GList* current_adapter_keys=NULL;
-    GList* merged_list = NULL;
-    GList* merged_list_tmp = NULL;
-
-    airpcap_if_info_t* curr_adapter;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-
-    n_adapters = g_list_length(airpcap_if_list);
-
-    /* Retrieve Wireshark keys */
-    wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
-
-    merged_list = merge_key_list(wireshark_keys,NULL);
-
-    /* Retrieve AirPcap driver's keys */
-    driver_keys = get_airpcap_driver_keys();
-    n_driver_keys = g_list_length(driver_keys);
-    n_total_keys += n_driver_keys;
-
-    merged_list = merge_key_list(merged_list,driver_keys);
-
-    /* NOW wireshark_keys and driver_keys ARE no more needed... at the end, we will have to free them! */
-    for (i = 0; i<n_adapters; i++)
-    {
-        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
-        current_adapter_keys = get_airpcap_device_keys(curr_adapter);
-        n_curr_adapter_keys = g_list_length(current_adapter_keys);
-
-        merged_list_tmp = merged_list;
-        merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
-        free_key_list(merged_list_tmp);
-
-        n_total_keys += n_curr_adapter_keys;
-    }
-
-    n_merged_keys = g_list_length(merged_list);
-
-    /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
-
-    /* Write the preferences to the preferences file */
-    write_prefs_to_file();
-
-    free_key_list(wireshark_keys);
-    free_key_list(driver_keys);
-
-    gtk_widget_destroy(keys_check_w);
-
-    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
-       and is not NULL if it was called when the Key Management widget has been clicked */
-    if (key_management_w != NULL)
-    {
-        /*  ... */
-        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_list_store);
-        gtk_widget_show (key_management_w);
-    }
-}
-
-static void
-on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-    GtkListStore *key_list_store;
-
-    guint n_adapters = 0;
-    guint n_wireshark_keys = 0;
-    guint n_driver_keys = 0;
-    guint n_curr_adapter_keys = 0;
-    guint n_total_keys = 0;
-    guint n_merged_keys = 0;
-    guint i = 0;
-
-    GList* wireshark_keys=NULL;
-    GList* driver_keys=NULL;
-    GList* current_adapter_keys=NULL;
-    GList* merged_list = NULL;
-    GList* merged_list_tmp = NULL;
-
-    airpcap_if_info_t* curr_adapter;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-
-    n_adapters = g_list_length(airpcap_if_list);
-
-    wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
-
-    /* Retrieve AirPcap driver's keys */
-    driver_keys = get_airpcap_driver_keys();
-    n_driver_keys = g_list_length(driver_keys);
-    n_total_keys += n_driver_keys;
-
-    merged_list = merge_key_list(merged_list,driver_keys);
-
-    /* NOW wireshark_keys IS no more needed... at the end, we will have to free it! */
-    for (i = 0; i<n_adapters; i++)
-    {
-        curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
-        current_adapter_keys = get_airpcap_device_keys(curr_adapter);
-        n_curr_adapter_keys = g_list_length(current_adapter_keys);
-
-        merged_list_tmp = merged_list;
-        merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
-        free_key_list(merged_list_tmp);
-
-        n_total_keys += n_curr_adapter_keys;
-    }
-
-    n_merged_keys = g_list_length(merged_list);
-
-    /* Set up this new list as default for Wireshark and Adapters... */
-    airpcap_save_decryption_keys(merged_list,airpcap_if_list);
-
-    /* Write the preferences to the preferences file */
-    write_prefs_to_file();
-
-    free_key_list(wireshark_keys);
-    free_key_list(driver_keys);
-
-    gtk_widget_destroy(keys_check_w);
-
-    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
-       and is not NULL if it was called when the Key Management widget has been clicked */
-    if (key_management_w != NULL)
-    {
-        /*  ... */
-        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_list_store);
-        gtk_widget_show (key_management_w);
-    }
-}
-
-static void
-on_ignore_bt_clicked (GtkWidget* button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-    GtkListStore *key_list_store;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-
-    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
-       and is not NULL if it was called when the Key Management widget has been clicked */
-    if (key_management_w != NULL)
-    {
-        /*  ... */
-        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_list_store);
-        gtk_widget_show (key_management_w);
-    }
-
-    gtk_widget_destroy(keys_check_w);
 }
 
 
