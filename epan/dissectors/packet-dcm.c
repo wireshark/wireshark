@@ -5325,7 +5325,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	/* Array of Bytes, Float or Words. Don't perform any decoding */
 
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    tvb_get_ptr(tvb, offset, vl_max), "%-8.8s%s", "Value:", "(binary)");
+	    NULL, "%-8.8s%s", "Value:", "(binary)");
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
     }
@@ -5367,7 +5367,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	}
 	else {
 	    proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-		tvb_get_ptr(tvb, offset, vl_max), "%-8.8s%s", "Value:", "(binary)");
+		NULL, "%-8.8s%s", "Value:", "(binary)");
 
 	    g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
 	}
@@ -5401,7 +5401,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	else		      valf = tvb_get_ntohieee_float(tvb, offset);
 
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 4,
-	    tvb_get_ptr(tvb, offset, 4), "%-8.8s%f", "Value:", valf);
+	    NULL, "%-8.8s%f", "Value:", valf);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%f", valf);
     }
@@ -5413,7 +5413,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	else		      vald = tvb_get_ntohieee_double(tvb, offset);
 
         proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
-	    tvb_get_ptr(tvb, offset, 8), "%-8.8s%f", "Value:", vald);
+	    NULL, "%-8.8s%f", "Value:", vald);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%f", vald);
     }
@@ -5512,7 +5512,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
     /* Invalid VR, can only occur with Explicit syntax */
     else {
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    tvb_get_ptr(tvb, offset, vl_max), "%-8.8s%s", "Value:", (vl > vl_max ? "" : "(unknown VR)"));
+	    NULL, "%-8.8s%s", "Value:", (vl > vl_max ? "" : "(unknown VR)"));
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "(unknown VR)");
     }
@@ -5978,7 +5978,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gchar *tag_desc;
 
         proto_tree_add_bytes_format(tag_ptree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    tvb_get_ptr(tvb, offset, vl_max), "%-8.8sBytes %d - %d [start]", "Value:", 1, vl_max);
+	    NULL, "%-8.8sBytes %d - %d [start]", "Value:", 1, vl_max);
 
 	g_snprintf(tag_value, MAX_BUF_LEN, "<Bytes %d - %d, start>", 1, vl_max);
 	offset += vl_max;
@@ -6090,9 +6090,8 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (pdv->is_corrupt) {
 	    pitem = proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-		offset, tag_value_fragment_len,
-		tvb_get_ptr(tvb, offset, tag_value_fragment_len), "%s <incomplete>",
-		pdv->prev->open_tag.desc);
+		offset, tag_value_fragment_len, NULL,
+		"%s <incomplete>", pdv->prev->open_tag.desc);
 
 	    expert_add_info_format(pinfo, pitem, PI_MALFORMED, PI_ERROR,
 		"Early termination of tag. Data is missing");
@@ -6100,9 +6099,8 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	else {
 	    proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-		offset, tag_value_fragment_len,
-		tvb_get_ptr(tvb, offset, tag_value_fragment_len), "%s <Bytes %d - %d, %s>",
-		pdv->prev->open_tag.desc,
+		offset, tag_value_fragment_len, NULL,
+		"%s <Bytes %d - %d, %s>", pdv->prev->open_tag.desc,
 		pdv->prev->open_tag.len_total - pdv->prev->open_tag.len_remaining + 1,
 		pdv->prev->open_tag.len_total - pdv->prev->open_tag.len_remaining + tag_value_fragment_len,
 		(pdv->prev->open_tag.len_remaining > tag_value_fragment_len ? "continuation" : "end") );
@@ -6134,7 +6132,7 @@ dissect_dcm_pdv_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Eventually, we will have a syntax detector. Until then, don't decode */
 
 	proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-	    offset, pdv_body_len, tvb_get_ptr(tvb, offset, pdv_body_len),
+	    offset, pdv_body_len, NULL,
 	    "(%04x,%04x) %-8x Unparsed data", 0, 0, pdv_body_len);
 	offset = endpos;
     }

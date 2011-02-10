@@ -2664,8 +2664,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Dissect SDU as raw bytes */
         sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
-                                             tvb_get_ptr(tvb, offset, pdu_lengths[n]),
-                                             "SDU (%s, length=%u bytes): ",
+                                             NULL, "SDU (%s, length=%u bytes): ",
                                              val_to_str_const(lcids[n],
                                                               (direction == DIRECTION_UPLINK) ?
                                                                   ulsch_lcid_vals :

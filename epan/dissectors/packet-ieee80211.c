@@ -2583,7 +2583,7 @@ prism_rate_return(guint32 rate)
     result = ep_alloc(SHORT_STR);
     result[0] = '\0';
     prism_rate_base_custom(result, rate);
-   
+
     return result;
 }
 
@@ -3075,7 +3075,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
 
     case FIELD_ASSOC_ID:
-      proto_tree_add_item(tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2, TRUE); 
+      proto_tree_add_item(tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
@@ -3979,7 +3979,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       offset = dissect_vendor_action_marvell(action_tree, tvb, offset);
                       break;
                     case OUI_WFA:
-                      subtype = tvb_get_guint8(tvb, offset); 
+                      subtype = tvb_get_guint8(tvb, offset);
                       proto_tree_add_text(action_tree, tvb, offset, 1,
                                           "Subtype %u", subtype);
                       offset++;
@@ -4235,7 +4235,7 @@ rsn_pcs_return(guint32 pcs)
     result = ep_alloc(SHORT_STR);
     result[0] = '\0';
     rsn_pcs_base_custom(result, pcs);
-   
+
     return result;
 }
 
@@ -4246,7 +4246,7 @@ rsn_akms_return(guint32 akms)
     result = ep_alloc(SHORT_STR);
     result[0] = '\0';
     rsn_akms_base_custom(result, akms);
-   
+
     return result;
 }
 
@@ -4616,8 +4616,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       byte1 = tvb_get_guint8(tvb, offset);
       byte2 = tvb_get_guint8(tvb, offset + 1);
       txop = tvb_get_letohs(tvb, offset + 2);
-      proto_tree_add_bytes_format(ietree, hf_ieee80211_aironet_ie_qos_val, tvb, offset, 4,
-        tvb_get_ptr(tvb, offset, 4),
+      proto_tree_add_bytes_format(ietree, hf_ieee80211_aironet_ie_qos_val, tvb, offset, 4, NULL,
           "CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
         (byte1 & 0x60) >> 5, match_strval((byte1 & 0x60) >> 5, wme_acs),
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
@@ -4664,7 +4663,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     /* Check if OUI is 00:0F:AC	(ieee80211) */
   if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
   {
-    proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, FALSE); 
+    proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, FALSE);
   } else {
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_type, tvb, offset + 3, 1, FALSE);
   }
@@ -4685,7 +4684,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
     {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, FALSE);
-      proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));  
+      proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));
     } else {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_type, tvb, offset+3, 1, FALSE);
     }
@@ -4749,14 +4748,14 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   {
     return;
   }
-  /* Group Management Cipher Suite (802.11w)*/ 
+  /* Group Management Cipher Suite (802.11w)*/
   rsn_gmcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gmcs, tvb, offset, 4, FALSE);
   rsn_gmcs_tree = proto_item_add_subtree(rsn_gmcs_item, ett_rsn_gmcs_tree);
   proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_oui, tvb, offset, 3, FALSE);
     /* Check if OUI is 00:0F:AC	(ieee80211) */
   if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
   {
-    proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_80211_type, tvb, offset + 3, 1, FALSE); 
+    proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_80211_type, tvb, offset + 3, 1, FALSE);
   } else {
     proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_type, tvb, offset + 3, 1, FALSE);
   }
@@ -9305,14 +9304,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             did = tvb_get_letohl(tvb, offset);
             proto_item_append_text(ti_did, " %s", val_to_str(did, prism_did_vals, "Unknown %x") );
         }
-        offset += 4; 
+        offset += 4;
 
 
         /* Status */
         if(tree) {
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, TRUE);
         }
-        offset += 2; 
+        offset += 2;
 
         /* Length */
         if(tree) {
@@ -9390,7 +9389,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(tree){
                   proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_unknown, tvb, offset, 4, TRUE);
             }
-          break;  
+          break;
         }
         offset += 4;
     }
@@ -14038,7 +14037,7 @@ proto_register_ieee80211 (void)
     &ett_rsn_sub_pcs_tree,
     &ett_rsn_akms_tree,
     &ett_rsn_sub_akms_tree,
-    &ett_rsn_cap_tree,    
+    &ett_rsn_cap_tree,
     &ett_rsn_pmkid_tree,
     &ett_rsn_gmcs_tree,
     &ett_ht_cap_tree,

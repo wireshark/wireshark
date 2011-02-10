@@ -4697,15 +4697,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		default:  /* Unknown Field ID */
 			if ((hdrinfo->vspec == 9) || (pen == REVPEN)) {
 				ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
-								       tvb, offset, length,
-								       tvb_get_ptr(tvb, offset, length),
+								       tvb, offset, length, NULL,
 								       "Type %u: Value (hex bytes): %s",
 								       masked_type,
 								       tvb_bytes_to_str_punct(tvb, offset, length, ' '));
 			} else { /* v10 PEN */
 				ti = proto_tree_add_bytes_format_value(pdutree, hf_ipfix_enterprise_private_entry,
-								  tvb, offset, length,
-								  tvb_get_ptr(tvb, offset, length),
+								  tvb, offset, length, NULL,
 								  "(%s) Type %u: Value (hex bytes): %s",
 								  pen_str,
 								  masked_type,

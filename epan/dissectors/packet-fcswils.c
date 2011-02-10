@@ -797,8 +797,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
 
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
-                                     tvb_get_ptr (tvb, offset, 2),
-                                     "Class 1 Svc Parameters: (%s)", flags);
+                                     NULL, "Class 1 Svc Parameters: (%s)", flags);
         offset += 2;
         if (elp.cls1_svcparm[0] & 0x80) {
             proto_tree_add_item (elp_tree, hf_swils_elp_cls1_rcvsz, tvb, offset, 2, 0);

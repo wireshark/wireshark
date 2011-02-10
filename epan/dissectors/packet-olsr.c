@@ -171,8 +171,8 @@ static double getOlsrTime(guint8 timeval) {
 /*------------------------- TC Dissecting Code-------------------------*/
 static int dissect_olsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end) {
   if (message_end - offset < 4) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Not enough bytes for TC");
+    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset,
+        NULL, "Not enough bytes for TC");
     return message_end;
   }
 
@@ -181,8 +181,8 @@ static int dissect_olsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_t
 
   while (offset < message_end) {
     if (message_end - offset < pinfo->src.len) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-          offset, message_end - offset), "Not enough bytes for last neighbor");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for last neighbor");
       return message_end;
     }
     if (pinfo->src.type == AT_IPv4) {
@@ -201,8 +201,8 @@ static int dissect_olsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_t
 static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end) {
 
   if (message_end - offset < 4) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Not enough bytes for Olsr.org LQ-TC");
+    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset,
+        NULL, "Not enough bytes for Olsr.org LQ-TC");
     return message_end;
   }
   proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, FALSE);
@@ -215,16 +215,15 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if (pinfo->src.type == AT_IPv4) {
       if (message_end - offset < 8) {
-        proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-            offset, message_end - offset), "Not enough bytes for last entry (need 8 bytes)");
+        proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, message_end - offset,
+            NULL, "Not enough bytes for last entry (need 8 bytes)");
         return message_end;
       }
       lq = tvb_get_guint8(tvb, offset + 4);
       nlq = tvb_get_guint8(tvb, offset + 5);
 
       address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
-          tvb_get_ptr(tvb, offset, 8), "Neighbor Address: %s (%d/%d)",
-	  tvb_ip_to_str(tvb, offset), lq, nlq);
+          NULL, "Neighbor Address: %s (%d/%d)", tvb_ip_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -233,15 +232,14 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     } else if (pinfo->src.type == AT_IPv6) {
       if (message_end - offset < 20) {
         proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, message_end - offset,
-            tvb_get_ptr(tvb, offset, message_end - offset), "Not enough bytes for last entry (need 20 bytes)");
+            NULL, "Not enough bytes for last entry (need 20 bytes)");
         return message_end;
       }
       lq = tvb_get_guint8(tvb, offset + 16);
       nlq = tvb_get_guint8(tvb, offset + 17);
 
       address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
-          tvb_get_ptr(tvb, offset, 20), "Neighbor Address: %s (%d/%d)",
-	  tvb_ip6_to_str(tvb, offset), lq, nlq);
+          NULL, "Neighbor Address: %s (%d/%d)", tvb_ip6_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -261,8 +259,8 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int dissect_nrlolsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end) {
   int field1Ptr, field2Ptr, saneEnd;
   if (message_end - offset < 4) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Not enough bytes for NRLOLSR LQ-TC");
+    proto_tree_add_bytes_format(olsr_tree, hf_olsr_ansn, tvb, offset, message_end - offset,
+        NULL, "Not enough bytes for NRLOLSR LQ-TC");
     return message_end;
   }
 
@@ -300,8 +298,8 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   guint16 message_size = 0;
 
   if (message_end - offset < 4) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsr_htime, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Not enough bytes for Hello");
+    proto_tree_add_bytes_format(olsr_tree, hf_olsr_htime, tvb, offset, message_end - offset,
+        NULL, "Not enough bytes for Hello");
     return message_end;
   }
 
@@ -318,8 +316,8 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
 
   while (offset < message_end) {
     if (message_end - offset < 4) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_link_type, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-          offset, message_end - offset), "Not enough bytes for last Hello entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_link_type, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for last Hello entry");
       return message_end;
     }
 
@@ -349,8 +347,8 @@ static int handle_olsr_hello_rfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   /*-------------------Dissect Neighbor Addresses--------------------*/
   while (offset < link_message_end) {
     if (link_message_end - offset < pinfo->src.len) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, link_message_end - offset, tvb_get_ptr(tvb,
-          offset, link_message_end - offset), "Not enough bytes for last Hello entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, link_message_end - offset,
+          NULL, "Not enough bytes for last Hello entry");
       return link_message_end;
     }
     if (pinfo->src.type == AT_IPv4) {
@@ -376,8 +374,8 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint8 lq, nlq;
 
     if (link_message_end - offset < pinfo->src.len + 4) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, link_message_end - offset, tvb_get_ptr(tvb,
-          offset, link_message_end - offset), "Not enough bytes for last Olsr.org LQ-Hello entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, link_message_end - offset,
+          NULL, "Not enough bytes for last Olsr.org LQ-Hello entry");
       return link_message_end;
     }
 
@@ -386,8 +384,7 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
       nlq = tvb_get_guint8(tvb, offset + 5);
 
       address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
-           tvb_get_ptr(tvb, offset, 8), "Neighbor Address: %s (%d/%d)",
-	   tvb_ip_to_str(tvb, offset), lq, nlq);
+           NULL, "Neighbor Address: %s (%d/%d)", tvb_ip_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -398,8 +395,7 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
       nlq = tvb_get_guint8(tvb, offset + 17);
 
       address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
-          tvb_get_ptr(tvb, offset, 20), "Neighbor Address: %s (%d/%d)",
-          tvb_ip6_to_str(tvb, offset), lq, nlq);
+          NULL, "Neighbor Address: %s (%d/%d)", tvb_ip6_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -420,8 +416,8 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static int dissect_olsr_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end) {
   while (offset < message_end) {
     if (message_end - offset < pinfo->src.len) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_interface_addr, tvb, offset, message_end - offset, tvb_get_ptr(
-          tvb, offset, message_end - offset), "Not enough bytes for last MID entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_interface_addr, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for last MID entry");
       return message_end;
     }
     if (pinfo->src.type == AT_IPv4) {
@@ -441,8 +437,8 @@ static int dissect_olsr_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_
 static int dissect_olsr_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset, int message_end) {
   while (offset < message_end) {
     if (message_end - offset < pinfo->src.len * 2) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsr_network_addr, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-          offset, message_end - offset), "Not enough bytes for last HNA entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsr_network_addr, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for last HNA entry");
       return message_end;
     }
 
@@ -472,8 +468,8 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_tree *olsr_ns_tree;
 
   if (message_end - offset < 4) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns_version, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-        offset, message_end - offset), "Not enough bytes for Olsr.org Nameservice message");
+    proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns_version, tvb, offset, message_end - offset,
+        NULL, "Not enough bytes for Olsr.org Nameservice message");
     return message_end;
   }
 
@@ -486,8 +482,8 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
   offset += 4;
 
   if (version != 1) {
-    proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Unkown nameservice protocol version %d", version);
+    proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, offset, message_end - offset,
+        NULL, "Unkown nameservice protocol version %d", version);
     return message_end;
   }
 
@@ -496,8 +492,8 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
     int total_length;
 
     if (message_end - offset < 20) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-          message_end - offset), "Not enough bytes for last nameservice entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for last nameservice entry");
       return message_end;
     }
 
@@ -506,8 +502,8 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     total_length = 4 + 16 + ((length - 1) | 3) + 1;
 
-    olsr_ns_item = proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, total_length, tvb_get_ptr(tvb,
-        offset, total_length), "Nameservice: %s (%d)", val_to_str(type, nameservice_type_vals, "UNKNOWN"), type);
+    olsr_ns_item = proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, total_length,
+        NULL, "Nameservice: %s (%d)", val_to_str(type, nameservice_type_vals, "UNKNOWN"), type);
 
     olsr_ns_tree = proto_item_add_subtree(olsr_ns_item, ett_olsr_message_ns);
 
@@ -523,8 +519,8 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
 
     if (message_end - offset < total_length) {
-      proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-          message_end - offset), "Not enough bytes for content of last nameservice entry");
+      proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, message_end - offset,
+          NULL, "Not enough bytes for content of last nameservice entry");
       return message_end;
     }
     proto_tree_add_item(olsr_ns_tree, hf_olsrorg_ns_content, tvb, offset + 20, length, FALSE);
@@ -591,7 +587,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if (packet_len - offset < 4) {
         proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, packet_len - offset,
-            tvb_get_ptr(tvb, offset, packet_len - offset), "Message too short !");
+            NULL, "Message too short !");
         break;
       }
 
@@ -599,8 +595,8 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       vTime = getOlsrTime(tvb_get_guint8(tvb, offset + 1));
       message_len = tvb_get_ntohs(tvb, offset + 2);
 
-      message_item = proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, message_len, tvb_get_ptr(tvb,
-          offset, message_len), "Message: %s (%d)", val_to_str(message_type, message_type_vals, "UNKNOWN"),
+      message_item = proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, message_len,
+          NULL, "Message: %s (%d)", val_to_str(message_type, message_type_vals, "UNKNOWN"),
           message_type);
       message_tree = proto_item_add_subtree(message_item, ett_olsr_message[message_type]);
 
@@ -681,12 +677,12 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         /*-----------------------------Undefined message types-----------------------------*/
         else {
           if ((message_len - 12) % 4) {
-            proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12, tvb_get_ptr(tvb,
-                offset, message_len - 12), "Data (%u bytes) (must be aligned on 32 bits)", message_len - 12);
+            proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12,
+                NULL, "Data (%u bytes) (must be aligned on 32 bits)", message_len - 12);
             break;
           }
-          proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12, tvb_get_ptr(tvb,
-              offset, message_len - 12), "Data (%u bytes)", message_len - 12);
+          proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12,
+              NULL, "Data (%u bytes)", message_len - 12);
           offset += message_len - 12;
         } /* end if for undefined message types */
       }

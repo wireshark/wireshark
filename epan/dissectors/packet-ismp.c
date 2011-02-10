@@ -414,8 +414,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		if (num_tuples && tvb_reported_length_remaining(tvb, offset) >= 4)
 		{
 			edp_tuples_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_tuples, tvb,
-				offset, tvb_reported_length_remaining(tvb, offset),
-				tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset)), "Tuples");
+				offset, tvb_reported_length_remaining(tvb, offset), NULL, "Tuples");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
 			while ( (tuples_count < num_tuples) && (tvb_reported_length_remaining(tvb, offset) >= 4) )

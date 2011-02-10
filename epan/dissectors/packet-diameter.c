@@ -628,8 +628,7 @@ integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Integer32 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Integer32 Length (%u)", length);
@@ -655,8 +654,7 @@ integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Integer64 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Integer64 Length (%u)", length);
@@ -682,8 +680,7 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned32 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Unsigned32 Length (%u)", length);
@@ -709,8 +706,7 @@ unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned64 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Unsigned64 Length (%u)", length);
@@ -736,8 +732,7 @@ float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Float32 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Float32 Length (%u)", length);
@@ -763,8 +758,7 @@ float64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	}
 	else {
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
-						 tvb, 0, length,
-						 tvb_get_ptr(tvb, 0, length),
+						 tvb, 0, length, NULL,
 						"Error!  Bad Float64 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Float64 Length (%u)", length);

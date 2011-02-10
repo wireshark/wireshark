@@ -2923,7 +2923,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       /* IPSEC */
       if (length < 4) {
         proto_tree_add_bytes_format(tree, hf_isakmp_sa_situation, tvb, offset, length,
-                                    tvb_get_ptr(tvb, offset, length),
+                                    NULL,
                                     "Situation: %s (length is %u, should be >= 4)",
                                     tvb_bytes_to_str(tvb, offset, length), length);
         return;

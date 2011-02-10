@@ -1875,7 +1875,13 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
+	if (start_ptr)
+		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
+					  start_ptr);
+	else
+		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
+					  tvb_get_ptr(tvb, start, length));
+
 	if (pi == NULL)
 		return (NULL);
 
@@ -1899,7 +1905,13 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
+	if (start_ptr)
+		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
+					  start_ptr);
+	else
+		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
+					  tvb_get_ptr(tvb, start, length));
+
 	if (pi == NULL)
 		return (NULL);
 

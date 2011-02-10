@@ -692,8 +692,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 tvb, 0, tvb_reported_length(tvb), FALSE);
 			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 			ti = proto_tree_add_bytes_format(ldss_tree, hf_ldss_file_data,
-							 tvb, 0, tvb_length(tvb),
-							 tvb_get_ptr (tvb, 0, tvb_length(tvb)),
+							 tvb, 0, tvb_length(tvb), NULL,
 							 compression == COMPRESSION_GZIP
 							 ? "Gzip compressed data: %d bytes"
 							 : "File data: %d bytes",
@@ -706,8 +705,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (uncomp_tvb != NULL) {
 					ti = proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
 									       uncomp_tvb, 0, tvb_length(uncomp_tvb),
-									       tvb_get_ptr (uncomp_tvb, 0, tvb_length(uncomp_tvb)),
-									       "Uncompressed data: %d bytes",
+									       NULL, "Uncompressed data: %d bytes",
 									       tvb_length(uncomp_tvb));
 				}
 			}
