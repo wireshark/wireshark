@@ -655,8 +655,54 @@ static const value_string tag_num_vals[] = {
 #define WAVE_IPV6ADDR   0x0020
 #define WAVE_PEERMAC    0x0040
 
+/* ************************************************************************* */
+/*              Supported Rates (7.3.2.2)                                    */
+/* ************************************************************************* */
 
-
+static const value_string ieee80211_supported_rates_vals[] = {
+  { 0x02, "1" },
+  { 0x03, "1.5" },
+  { 0x04, "2" },
+  { 0x05, "2.5" },
+  { 0x06, "3" },
+  { 0x09, "4.5" },
+  { 0x0B, "5.5" },
+  { 0x0C, "6" },
+  { 0x12, "9" },
+  { 0x16, "11" },
+  { 0x18, "12" },
+  { 0x1B, "13.5" },
+  { 0x24, "18" },
+  { 0x2C, "22" },
+  { 0x30, "24" },
+  { 0x36, "27" },
+  { 0x42, "33" },
+  { 0x48, "36" },
+  { 0x60, "48" },
+  { 0x6C, "54" },
+  { 0x82, "1(B)" },
+  { 0x83, "1.5(B)" },
+  { 0x84, "2(B)" },
+  { 0x85, "2.5(B)" },
+  { 0x86, "3(B)" },
+  { 0x89, "4.5(B)" },
+  { 0x8B, "5.5(B)" },
+  { 0x8C, "6(B)" },
+  { 0x92, "9(B)" },
+  { 0x96, "11(B)" },
+  { 0x98, "12(B)" },
+  { 0x9B, "13.5(B)" },
+  { 0xA4, "18(B)" },
+  { 0xAC, "22(B)" },
+  { 0xB0, "24(B)" },
+  { 0xB6, "27(B)" },
+  { 0xC2, "33(B)" },
+  { 0xC8, "36(B)" },
+  { 0xE0, "48(B)" },
+  { 0xEC, "54(B)" },
+  { 0xFF, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)" },
+  { 0,    NULL}
+};
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
@@ -1335,8 +1381,6 @@ static int hf_ieee80211_tag_length = -1;
 static int hf_ieee80211_tag_interpretation = -1;
 static int hf_ieee80211_tag_oui = -1;
 
-static int hf_ieee80211_tag_ds_param_channel = -1;
-
 static int hf_ieee80211_tim_length = -1;
 static int hf_ieee80211_tim_dtim_count = -1;
 static int hf_ieee80211_tim_dtim_period = -1;
@@ -1345,7 +1389,17 @@ static int hf_ieee80211_tim_bmapctl = -1;
 
 static int hf_ieee80211_fixed_parameters = -1;  /* Protocol payload for management frames */
 static int hf_ieee80211_tagged_parameters = -1;  /* Fixed payload item */
-static int hf_ieee80211_tagged_ssid = -1;
+static int hf_ieee80211_tag_ssid = -1;
+static int hf_ieee80211_tag_supp_rates = -1;
+static int hf_ieee80211_tag_fh_dwell_time = -1;
+static int hf_ieee80211_tag_fh_hop_set = -1;
+static int hf_ieee80211_tag_fh_hop_pattern = -1;
+static int hf_ieee80211_tag_fh_hop_index = -1;
+static int hf_ieee80211_tag_ds_param_channel = -1;
+static int hf_ieee80211_tag_cfp_count = -1;
+static int hf_ieee80211_tag_cfp_period = -1;
+static int hf_ieee80211_tag_cfp_max_duration = -1;
+static int hf_ieee80211_tag_cfp_dur_remaining = -1;
 static int hf_ieee80211_wep_iv = -1;
 static int hf_ieee80211_wep_iv_weak = -1;
 static int hf_ieee80211_tkip_extiv = -1;
@@ -5785,7 +5839,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
   proto_tree * orig_tree=tree;
-  proto_item *ti = NULL, *en;
+  proto_item *ti = NULL, *ti_len = NULL;
+  int tag_end;
   guint8 tag_len_len; /* The length of the length parameter in bytes*/
 
   tag_no = tvb_get_guint8(tvb, offset);
@@ -5799,7 +5854,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     tag_len_len = 1;
     tag_len = tvb_get_guint8(tvb, offset + 1);
   }
-
+  tag_end = offset + tag_len;
   if (tree) {
     ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+1+tag_len_len,"%s",
                          val_to_str(tag_no, tag_num_vals,
@@ -5815,145 +5870,122 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                        "Reserved for challenge text" :
                        "Reserved tag number"));
   }
-  proto_tree_add_uint (tree, (tag_no==TAG_TIM ? hf_ieee80211_tim_length : hf_ieee80211_tag_length), tvb, offset + 1, tag_len_len, tag_len);
+  ti_len = proto_tree_add_uint (tree, (tag_no==TAG_TIM ? hf_ieee80211_tim_length : hf_ieee80211_tag_length), tvb, offset + 1, tag_len_len, tag_len);
 
   switch (tag_no)
   {
 
-    case TAG_SSID:
+    case TAG_SSID:  /* 7.3.2.1 SSID element (0) */
       if(beacon_padding == 0) /* padding bug */
       {
         guint8 *ssid; /* The SSID may consist of arbitrary bytes */
+
+        if(tag_len > MAX_SSID_LEN) {
+          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                                 "SSID length (%u) greater than maximum (%u)",
+                                 tag_len, MAX_SSID_LEN);
+        }
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
 #ifdef HAVE_AIRPDCAP
         AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
 #endif
-        ti = proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-                               tag_len, (char *) ssid);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len, FALSE);
         if (tag_len > 0) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=\"%s\"",
-                            format_text(ssid, tag_len));
-        } else {
-          col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
-        }
-        if (tag_len > MAX_SSID_LEN) {
-          expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                 "SSID length (%u) greater than maximum (%u)",
-                                 tag_len, MAX_SSID_LEN);
-        }
-        if (tag_len > 0) {
-          proto_item_append_text(ti, ": \"%s\"",
-                                 format_text(ssid, tag_len));
+          proto_item_append_text(ti, ": %s", ssid);
+
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", ssid );
+
+          /* Wlan Stats */
           memcpy(wlan_stats.ssid, ssid, MIN(tag_len, MAX_SSID_LEN));
           wlan_stats.ssid_len = tag_len;
         } else {
           proto_item_append_text(ti, ": Broadcast");
+
+          col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
         }
-        en = proto_tree_add_string_format (tree, hf_ieee80211_tagged_ssid, tvb, offset + 2,
-                                           tag_len, format_text(ssid, tag_len),
-                                           "SSID: %s", format_text(ssid, tag_len));
-        PROTO_ITEM_SET_HIDDEN (en);
+
         beacon_padding++; /* padding bug */
       }
       break;
 
-    case TAG_SUPP_RATES:
+    case TAG_SUPP_RATES: /* 7.3.2.2 Supported Rates element (1) */
     case TAG_EXT_SUPP_RATES:
-      if (tag_len < 1)
+      if(tag_len < 1)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Tag length %u too short, must be greater than 0", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
         break;
       }
+      offset += 2;
 
-      tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
-      for (ii = 0, n = 0; ii < tag_len && n < SHORT_STR; ii++) {
-        if (tag_data_ptr[ii] == 0xFF){
-          proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2 + ii,
-               1, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)");
-        } else {
-          ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
-                          (tag_data_ptr[ii] & 0x7F) * 0.5,
-                          (tag_data_ptr[ii] & 0x80) ? "(B)" : "");
-          if (ret >= SHORT_STR - n) {
-            /* ret = <buf_size> or greater. means buffer truncated */
-            break;
-          }
-          n += ret;
-        }
+      while(offset <= tag_end+1)
+      {
+        proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1, FALSE);
+        proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
+        offset += 1;
       }
-      g_snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-           tag_len, out_buff);
-      proto_item_append_text(ti, ": %s", print_buff);
+      proto_item_append_text(ti, " [Mbit/sec]");
       break;
 
-    case TAG_FH_PARAMETER:
-      if (tag_len < 5)
+    case TAG_FH_PARAMETER: /* 7.3.2.3 FH Parameter Set element (2) */
+      if(tag_len < 5)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 5",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 5", tag_len);
         break;
       }
-      g_snprintf (out_buff, SHORT_STR,
-          "Dwell time 0x%04X, Hop Set %2d, Hop Pattern %2d, Hop Index %2d",
-          tvb_get_letohs(tvb, offset + 2),
-          tvb_get_guint8(tvb, offset + 4),
-          tvb_get_guint8(tvb, offset + 5),
-          tvb_get_guint8(tvb, offset + 6));
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-                             tag_len, out_buff);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_dwell_time, tvb, offset, 2, TRUE);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_set, tvb, offset, 1, TRUE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_pattern, tvb, offset, 1, TRUE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_index, tvb, offset, 1, TRUE);
+      offset += 1;
       break;
 
-    case TAG_DS_PARAMETER:
-      /* The length of the dot11CurrentChannelNumber parameter is 1 octet */
-      if (tag_len != 1)
+    case TAG_DS_PARAMETER: /* 7.3.2.4 DS Parameter Set element (3) */
+      if(tag_len != 1)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u wrong, must be = 1",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 1", tag_len);
         break;
       }
-      g_snprintf (out_buff, SHORT_STR, "Current Channel: %u",
-                tvb_get_guint8(tvb, offset + 2));
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-                             tag_len, out_buff);
-      proto_item_append_text(ti, ": %s", out_buff);
-      wlan_stats.channel = tvb_get_guint8(tvb, offset + 2);
+      offset += 2;
 
-      proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel, tvb,
-                          offset + 2, 1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel, tvb, offset , 1, FALSE);
+
+      proto_item_append_text(ti, " : Current Channel: %u", tvb_get_guint8(tvb, offset));
+
+      wlan_stats.channel = tvb_get_guint8(tvb, offset);
       break;
 
-    case TAG_CF_PARAMETER:
-      if (tag_len < 6)
+    case TAG_CF_PARAMETER: /* 7.3.2.5 CF Parameter Set element (4) */
+      if(tag_len != 6)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 6",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 6", tag_len);
         break;
       }
-      g_snprintf (out_buff, SHORT_STR, "CFP count: %u",
-                tvb_get_guint8(tvb, offset + 2));
-      proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-                                   1, out_buff, "%s", out_buff);
-      g_snprintf (out_buff, SHORT_STR, "CFP period: %u",
-                tvb_get_guint8(tvb, offset + 3));
-      proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 3,
-                                   1, out_buff, "%s", out_buff);
-      g_snprintf (out_buff, SHORT_STR, "CFP max duration: %u",
-                tvb_get_letohs(tvb, offset + 4));
-      proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 4,
-                                   2, out_buff, "%s", out_buff);
-      g_snprintf (out_buff, SHORT_STR, "CFP Remaining: %u",
-                tvb_get_letohs(tvb, offset + 6));
-      proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 6,
-                                   2, out_buff, "%s", out_buff);
-      proto_item_append_text(ti, ": CFP count %u, CFP period %u, CFP max duration %u, "
-                             "CFP Remaining %u",
-                             tvb_get_guint8(tvb, offset + 2),
-                             tvb_get_guint8(tvb, offset + 3),
-                             tvb_get_letohs(tvb, offset + 4),
-                             tvb_get_letohs(tvb, offset + 6));
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_count, tvb, offset , 1, FALSE);
+      proto_item_append_text(ti, ": CFP count %u", tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_period, tvb, offset , 1, FALSE);
+      proto_item_append_text(ti, ": CFP Period %u", tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_max_duration, tvb, offset , 2, TRUE);
+      proto_item_append_text(ti, ": CFP Max Duration %u", tvb_get_letohs(tvb, offset));
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_dur_remaining, tvb, offset , 2, TRUE);
+      proto_item_append_text(ti, ": CFP Dur Remaining %u", tvb_get_letohs(tvb, offset));
+      offset += 2;
       break;
 
     case TAG_TIM:
@@ -11698,8 +11730,33 @@ proto_register_ieee80211 (void)
      {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tagged_ssid,
+    {&hf_ieee80211_tag_ssid,
      {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0,
+      "Indicates the identity of an ESS or IBSS", HFILL }},
+
+    {&hf_ieee80211_tag_supp_rates,
+     {"Supported Rates", "wlan_mgt.supported_rates",
+      FT_UINT8, BASE_NONE, VALS(ieee80211_supported_rates_vals), 0x0,
+      "In Mbit/sec, (B) for Basic Rates", HFILL }},
+
+    {&hf_ieee80211_tag_fh_dwell_time,
+     {"Dwell Time", "wlan_mgt.fh.dwell_time",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      "In Time Unit (TU)", HFILL }},
+
+    {&hf_ieee80211_tag_fh_hop_set,
+     {"Hop Set", "wlan_mgt.fh.hop_set",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fh_hop_pattern,
+     {"Hop Pattern", "wlan_mgt.fh.hop_pattern",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fh_hop_index,
+     {"Hop Index", "wlan_mgt.fh.hop_index",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_params,
@@ -12417,6 +12474,26 @@ proto_register_ieee80211 (void)
      {"Current Channel", "wlan_mgt.ds.current_channel",
       FT_UINT8, BASE_DEC, NULL, 0,
       "DS Parameter Set - Current Channel", HFILL }},
+
+    {&hf_ieee80211_tag_cfp_count,
+     {"CFP Count", "wlan_mgt.cfp.count",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Indicates how many delivery traffic indication messages (DTIMs)", HFILL }},
+
+    {&hf_ieee80211_tag_cfp_period,
+     {"CFP Period", "wlan_mgt.cfp.period",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Indicates the number of DTIM intervals between the start of CFPs", HFILL }},
+
+    {&hf_ieee80211_tag_cfp_max_duration,
+     {"CFP Max Duration", "wlan_mgt.cfp.max_duration",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Indicates the maximum duration (in TU) of the CFP that may be generated by this PCF", HFILL }},
+
+    {&hf_ieee80211_tag_cfp_dur_remaining,
+     {"CFP Dur Remaining", "wlan_mgt.cfp.dur_remaining",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Indicates the maximum time (in TU) remaining in the present CFP", HFILL }},
 
     {&hf_ieee80211_tag_vendor_oui_type,
      {"Vendor Specific OUI Type", "wlan_mgt.tag.oui.type",
