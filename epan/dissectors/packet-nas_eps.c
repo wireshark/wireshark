@@ -377,25 +377,25 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
     curr_offset = offset;
 
     /* EBI(7)  EBI(6)  EBI(5)  EBI(4)  EBI(3)  EBI(2)  EBI(1) EBI(0) octet 3 */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* EBI(0) - EBI(4): Bits 0 to 4 of octet 3 are spare and shall be coded as zero. */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     /* EBI(15) EBI(14) EBI(13) EBI(12) EBI(11) EBI(10) EBI(9) EBI(8) octet 4 */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi14, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi13, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi14, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi13, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -443,8 +443,8 @@ de_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
      * This field contains the 4 least significant bits of the binary representation of the downlink
      * NAS COUNT value applicable when this information element is sent.
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_dl_nas_cnt, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_dl_nas_cnt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -461,18 +461,18 @@ de_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
     /* NonceMME value (octet 1 to 5)
      * This field is coded as the nonce value in the Nonce information element (see subclause 9.9.3.25).
      */
-    proto_tree_add_item(tree, hf_nas_eps_emm_nounce_mme, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_nounce_mme, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset+=4;
     /* type of ciphering algorithm (octet 6, bit 5 to 7)
      * These fields are coded as the type of integrity protection algorithm and type of ciphering algorithm
      * in the NAS security algorithms information element (see subclause 9.9.3.23).
      * Bit 4 and 8 of octet 6 are spare and shall be coded as zero.
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* Type of integrity protection algorithm (octet 6, bit 1 to 3)*/
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     /*
      * NAS key set identifier (octet 7, bit 1 to 3) and
@@ -481,11 +481,11 @@ de_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
      * NAS key set identifier information element (see subclause 9.9.3.21).
      * Bit 5 to 8 of octet 7 are spare and shall be coded as zero.
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
     /* Type of security context flag (TSC)  V   1/2 */
-    proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, (curr_offset<<3)+4, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
     /* NAS key set identifier */
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, (curr_offset<<3)+5, 3, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
     curr_offset++;
     return len;
 }
@@ -650,9 +650,9 @@ de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	curr_offset = offset;
 	bit_offset = (curr_offset<<3)+4;
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset += 2;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_res, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_res, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return (curr_offset - offset);
@@ -673,9 +673,9 @@ de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	curr_offset = offset;
 	bit_offset = (curr_offset<<3)+4;
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset += 3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_type, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return (curr_offset - offset);
@@ -703,7 +703,7 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -735,9 +735,9 @@ de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
     /* bit 4 Spare */
     bit_offset = curr_offset<<3;
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset+4, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset+4, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return(curr_offset-offset);
@@ -837,7 +837,7 @@ de_emm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return curr_offset-offset;}
@@ -943,8 +943,8 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
     octet = tvb_get_guint8(tvb,offset);
     /* Type of identity (octet 3) */
-    proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     switch (octet&0x7){
         case 1:
             /* IMSI */
@@ -963,13 +963,13 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 			curr_offset++;
 			curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
 			/* MME Group ID octet 7 - 8 */
-			proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			/* MME Code Octet 9 */
-			proto_tree_add_item(tree, hf_nas_eps_emm_mme_code, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_emm_mme_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			/* M-TMSI Octet 10 - 13 */
-			proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 			curr_offset+=4;
 			break;
 		default:
@@ -1010,15 +1010,15 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	curr_offset = offset;
 	bit_offset = curr_offset << 3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset += 3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_cs_lcs_type, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_cs_lcs_type, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset += 2;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_epc_lcs_type, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_epc_lcs_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset += 1;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_emc_bs_type, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_emc_bs_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset += 1;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops_type, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset += 1;
 
 	return len;
@@ -1066,7 +1066,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	curr_offset = offset;
 
 
-	item = proto_tree_add_item(tree, hf_nas_eps_esm_msg_cont, tvb, curr_offset, len, FALSE);
+	item = proto_tree_add_item(tree, hf_nas_eps_esm_msg_cont, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(item, ett_nas_eps_esm_msg_cont);
 
 	/* This IE can contain any ESM PDU as defined in subclause 8.3. */
@@ -1119,8 +1119,8 @@ de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	bit_offset = curr_offset<<3;
 	bit_offset+=4;
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_esm_imeisv_req, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_nas_eps_esm_imeisv_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -1137,9 +1137,9 @@ de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset = offset;
 	bit_offset = curr_offset<<3;
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset += 3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_seq_no_short, tvb, bit_offset, 5, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_seq_no_short, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -1182,10 +1182,10 @@ de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, 
 	proto_item *item;
 
 	/* Type of security context flag (TSC) (octet 1)	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	/* NAS key set identifier (octet 1) */
-	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	if(add_string){
 		proto_item_append_text(item, "%s", add_string);
 	}
@@ -1206,10 +1206,10 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	bit_offset+=4;
 
 	/* Type of security context flag (TSC) (octet 1)	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	/* NAS key set identifier (octet 1) */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 	curr_offset++;
 
@@ -1278,14 +1278,14 @@ de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	bit_offset = offset<<3;
 	/* Bit 4 and 8 of octet 2 are spare and shall be coded as zero. */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	/* Type of ciphering algorithm (octet 2, bit 5 to 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Bit 4 and 8 of octet 2 are spare and shall be coded as zero. */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	/* Type of integrity protection algorithm (octet 2, bit 1 to 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -1353,7 +1353,7 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	curr_offset = offset;
 
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_short_mac, tvb, curr_offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_short_mac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
 
 	return(curr_offset-offset);
@@ -1382,7 +1382,7 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	curr_offset = offset;
 
 	curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
 
 	return(curr_offset-offset);
@@ -1410,14 +1410,14 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
 	/* Type of list (octet 1) Bits 7 6 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tol, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tol, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* Number of elements (octet 1) Bits 5 4 3 2 1 */
 	octet = tvb_get_guint8(tvb,curr_offset)& 0x7f;
 	tol = octet >> 5;
 	n_elem = (octet & 0x1f)+1;
-	item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, FALSE);
+	item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	if(n_elem<16)
 		proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
 
@@ -1447,7 +1447,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				return len;
 			}
 			for (i=0; i < n_elem; i++, curr_offset+=2)
-				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case 1:
 
@@ -1457,7 +1457,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			 * MNC digit 2 MNC digit 1 octet 4
 			 */
 			curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
-			proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			break;
 		case 2:
@@ -1473,7 +1473,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				 * MNC digit 2 MNC digit 1 octet 4
 				 */
 				curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset, TRUE);
-				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				curr_offset+=2;
 			}
 			break;
@@ -1513,41 +1513,41 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	/* EPS encryption algorithms supported (octet 3) */
 	/* EPS encryption algorithm EEA0 supported (octet 3, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 
 	/* EPS integrity algorithms supported (octet 4) */
 	/* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA3 supported (octet 4, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 
@@ -1559,21 +1559,21 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
 	 */
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-UEA0 supported (octet 5, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	if ((curr_offset - offset) >= len)
@@ -1583,32 +1583,32 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	 * This information field indicates the likely treatment of UCS2 encoded character strings
 	 * by the UE.
 	 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_ucs2_supp, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ucs2_supp, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithms supported (octet 6) */
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	if ((curr_offset - offset) >= len)
 		return (len);
 
 	/* Bits 8 to 3 and bit 1 of octet 7 are spare and shall be coded as zero. */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 6, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 6, ENC_BIG_ENDIAN);
 	/* 1xSRVCC capability (octet 7, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_1xsrvcc_cap, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_1xsrvcc_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -1629,7 +1629,7 @@ de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -1645,41 +1645,41 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	curr_offset = offset;
 
 	/* EPS encryption algorithm EEA0 supported (octet 3, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 
 	/* EPS integrity algorithms supported (octet 4) */
 	/* EPS integrity algorithm EIA0 supported (octet 4, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA3 supported (octet 4, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 
@@ -1693,59 +1693,59 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
 	 */
 	/* UMTS encryption algorithm UEA0 supported (octet 5, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA1 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA2 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA3 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* EPS encryption algorithm UEA4 supported (octet 5, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA5 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA6 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS encryption algorithm UEA7 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* UMTS integrity algorithm UIA0 supported (octet 6, bit ) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA2 supported (octet 6, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA3 supported (octet 6, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA4 supported (octet 6, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA5 supported (octet 6, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA6 supported (octet 6, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UMTS integrity algorithm UIA7 supported (octet 6, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	if(len==4)
 		return(len);
 	/* Bit 8 of octet 7 is spare and shall be coded as zero. */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA1 supported (octet 7, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA2 supported (octet 7, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA3 supported (octet 7, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA4 supported (octet 7, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA5 supported (octet 7, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA6 supported (octet 7, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* GPRS encryption algorithm GEA7 supported (octet 7, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_gea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_gea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(len);
@@ -1781,7 +1781,7 @@ de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	 * The coding of the SS Code value is given in subclause 17.7.5 of 3GPP TS 29.002 [15B].
 	 * value string imported from gsm map
 	 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_ss_code, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ss_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -1805,7 +1805,7 @@ de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	curr_offset = offset;
 
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_lcs_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_lcs_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -2039,7 +2039,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	curr_offset = offset;
 
 	/* QCI octet 3 */
-	proto_tree_add_item(tree, hf_nas_eps_qci, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_qci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 	if ((curr_offset - offset) >= len)
 		return(len);
@@ -2196,7 +2196,7 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -2217,8 +2217,8 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	curr_offset = offset;
 
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_esm_eit, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_nas_eps_esm_eit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 	return(curr_offset-offset);
 }
@@ -2258,7 +2258,7 @@ de_esm_lnkd_eps_bearer_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_esm_lnkd_eps_bearer_id, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_esm_lnkd_eps_bearer_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -2283,14 +2283,14 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 
 	pdn_type  = tvb_get_guint8(tvb, offset) & 0x7;
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 5, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_esm_pdn_type, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 5, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_nas_eps_esm_pdn_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	switch(pdn_type){
 		case 1:
 			/* IPv4 */
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 			curr_offset+=4;
 			break;
 		case 2:
@@ -2299,7 +2299,7 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 			 * contains an IPv6 interface identifier. Bit 8 of octet 4 represents the most significant bit
 			 * of the IPv6 interface identifier and bit 1 of octet 11 the least significant bit.
 			 */
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_BIG_ENDIAN);
 			offset+=8;
 			break;
 		case 3:
@@ -2310,9 +2310,9 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 			 * significant bit. Bit 8 of octet 12 represents the most significant bit of the IPv4 address
 			 * and bit 1 of octet 15 the least significant bit.
 			 */
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_BIG_ENDIAN);
 			curr_offset+=8;
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 			curr_offset+=4;
 			break;
 		default:
@@ -2509,12 +2509,12 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* 	EPS attach result	EPS attach result 9.9.3.10	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 	/* Fix up the lengths */
 	curr_len--;
@@ -2611,9 +2611,9 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* EPS attach type	EPS attach type 9.9.3.11	M	V	1/2
 	 * Inline:
 	 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 
 	/* Fix the lengths */
@@ -2694,7 +2694,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	bit_offset = curr_offset<<3;
 	/* H1 */
 	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* H0 */
 	/*
@@ -2797,9 +2797,9 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
 	bit_offset+=4;
 	/* Detach type	Detach type 9.9.3.6	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 
 	/* Fix the lengths */
@@ -2827,13 +2827,13 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	proto_tree_add_text(tree, tvb, curr_offset, len,"Down link");
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Detach type	Detach type 9.9.3.6	M	V	1/2 */
 	/* In the network to UE direction bit 4 is spare. The network shall set this bit to zero. */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 
 	/* Fix the lengths */
@@ -2963,7 +2963,7 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
 	bit_offset+=4;
 	/* Service type	Service type 9.9.3.27	M	V	1/2 Service type*/
-	proto_tree_add_bits_item(tree, hf_nas_eps_service_type, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_service_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Fix up the lengths */
 	curr_len--;
@@ -3022,11 +3022,11 @@ nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	bit_offset=curr_offset<<3;
 
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 
 	/* Identity type	Identity type 2 9.9.3.17	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_id_type2, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_id_type2, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	consumed = 1;
 
@@ -3076,7 +3076,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	bit_offset = curr_offset<<3;
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* 	NAS key set identifierASME	NAS key set identifier 9.9.3.21	M	V	1/2 */
 	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
@@ -3152,14 +3152,14 @@ nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* Security header type Security header type 9.3.1 M V 1/2 */
 	security_header_type = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
 	offset++;
 	/* Message authentication code	Message authentication code 9.5	M	V	4 */
 	if (security_header_type !=0){
 		/* Message authentication code */
-		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
 			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
@@ -3171,7 +3171,7 @@ nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		return offset;
 	}
 	/* Sequence number	Sequence number 9.6	M	V	1 */
-	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	/* NAS message	NAS message 9.7	M	V	1-n  */
 	return offset;
@@ -3244,12 +3244,12 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* 	EPS update result	EPS update result 9.9.3.13	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_result_value, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_result_value, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 	/* Fix up the lengths */
 	curr_len--;
@@ -3329,9 +3329,9 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	bit_offset+=4;
 
 	/* 	EPS update type	EPS update type 9.9.3.14	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_active_flg, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_active_flg, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_type_value, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_type_value, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset+=3;
 
 	/* Fix the lengths */
@@ -3513,10 +3513,10 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 
 	/* Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -3675,10 +3675,10 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* 	Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -3734,10 +3734,10 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -4002,7 +4002,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	/* PDN type PDN type 9.9.4.10 M V 1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
 
 	/* Request type 9.9.4.14 M V 1/2 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE);
@@ -4062,10 +4062,10 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -4196,15 +4196,15 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	/*
 	 * EPS bearer identity 9.3.2
 	 */
-	proto_tree_add_item(tree, hf_nas_eps_bearer_id, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_bearer_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* Protocol discriminator 9.2 */
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Procedure transaction identity 9.4
 	 * The procedure transaction identity and its use are defined in 3GPP TS 24.007
 	 */
-	proto_tree_add_item(tree, hf_nas_eps_esm_proc_trans_id, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_esm_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/*messge type IE*/
@@ -4226,7 +4226,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	/*
 	 * Add NAS message name
 	 */
-	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 
@@ -4264,21 +4264,21 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	/* 9.3.1	Security header type */
 	if(second_header){
 		security_header_type = tvb_get_guint8(tvb,offset)>>4;
-		proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		if (security_header_type !=0){
 			/* Message authentication code */
-			proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
 			/* Sequence number */
-			proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			if ((security_header_type==2)||(security_header_type==4))
 				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
 				return;
-			proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}
 	}
@@ -4292,9 +4292,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
 	if(msg_str){
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
 	}else{
 		proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
 		return;
@@ -4303,7 +4301,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	/*
 	 * Add NAS message name
 	 */
-	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 
@@ -4371,21 +4369,21 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* make entry in the Protocol column on summary display */
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
-	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
+	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_BIG_ENDIAN);
 	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
 	/* Security header type Security header type 9.3.1 M V 1/2 */
 	security_header_type = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
-	proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
 	pd = tvb_get_guint8(tvb,offset)&0x0f;
 	offset++;
 	/* Message authentication code	Message authentication code 9.5	M	V	4 */
 	if (security_header_type == 0){
 		if(pd==7){
 			/* Plain EPS mobility management messages. */
-			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
+			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, ENC_BIG_ENDIAN);
 			return;
 		}else{
 			proto_tree_add_text(tree, tvb, offset, len, "All ESM messages should be integrity protected");
@@ -4394,18 +4392,19 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}else{
 		/* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
 		if (security_header_type == 12){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " SERVICE REQUEST ");
 			nas_emm_service_req(tvb, nas_eps_tree, offset, len-offset);
 			return;
 		}
 		/* Message authentication code */
-		proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 		msg_auth_code = tvb_get_ntohl(tvb, offset);
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
 			/* Possible ciphered message */
 			if(msg_auth_code!=0){
 				/* Sequence number	Sequence number 9.6	M	V	1 */
-				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
 				pd = tvb_get_guint8(tvb,offset)&0x0f;
@@ -4417,12 +4416,12 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}else{
 				/* msg_auth_code == 0, probably not ciphered */
 				/* Sequence number	Sequence number 9.6	M	V	1 */
-				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 			}
 		}else{
 			/* Sequence number	Sequence number 9.6	M	V	1 */
-			proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}
 	}
@@ -4475,7 +4474,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* make entry in the Protocol column on summary display */
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
-	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
+	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_BIG_ENDIAN);
 	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
 	pd = tvb_get_guint8(tvb,offset)&0x0f;
