@@ -357,18 +357,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		offset += 2;
 		if (num_neighbors > 0)
 		{
-			tvb_ensure_bytes_exist(tvb, offset, num_neighbors*10);
-			if (tvb_reported_length_remaining(tvb, offset) >= (num_neighbors *10))
-			{
-				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
-					offset, num_neighbors*10, tvb_get_ptr(tvb, offset, (num_neighbors*10)), "Neighbors:");
-			}
-			else
-			{
-				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
-					offset, num_neighbors *10,
-					tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset)), "Neighbors:");
-			}
+			edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
+								       offset, num_neighbors*10, NULL, "Neighbors:");
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
 			while ( neighbors_count < num_neighbors && tvb_reported_length_remaining(tvb, offset) >= 10)
 			{
@@ -377,9 +367,9 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				edp_neighbors_leaf_tree = proto_item_add_subtree(edp_neighbors_leaf_ti, ett_ismp_edp_neighbors_leaf);
 
 				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 6,
-					"MAC Address: %s", ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+					"MAC Address: %s", tvb_ether_to_str(tvb, offset));
 				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 4,
-					"Assigned Neighbor State 0x%04x",tvb_get_ntohl(tvb, offset));
+					"Assigned Neighbor State 0x%04x", tvb_get_ntohl(tvb, offset));
 				offset += 10;
 				neighbors_count++;
 			}
