@@ -2436,6 +2436,10 @@ any more.
 For proto_tree_add_bytes(), the 'value_ptr' argument is a pointer to a
 sequence of bytes.
 
+For proto_tree_add_bytes_format() and proto_tree_add_bytes_format_value(), the
+'value_ptr' argument is a pointer to a sequence of bytes or NULL if the bytes
+should be taken from the given TVB using the given offset and length.
+
 For proto_tree_add_time(), the 'value_ptr' argument is a pointer to an
 "nstime_t", which is a structure containing the time to be added; it has
 'secs' and 'nsecs' members, giving the integral part and the fractional
