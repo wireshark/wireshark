@@ -250,7 +250,11 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid)
+airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid
+#ifdef HAVE_AIRPDCAP
+                        _U_
+#endif
+                        )
 {
     GtkTreeIter iter;
 
