@@ -5707,7 +5707,7 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	case 4:
             offset4 = offset3 + 6;
-            str = ether_to_str(tvb_get_ptr(tvb, offset3, 6));
+            str = tvb_ether_to_str(tvb, offset3);
             proto_tree_add_text(rsvp_object_tree, tvb, offset3, 6,
                                 "Source Transport Network addr: %s", str);
             break;

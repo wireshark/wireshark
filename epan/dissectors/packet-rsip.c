@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -303,8 +303,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv4, tvb,
 				    off + 4, paramlen - 1, FALSE);
 				proto_item_append_text(pti, ": %s",
-				    ip_to_str(tvb_get_ptr(tvb, off + 4,
-				    paramlen - 1)));
+				    tvb_ip_to_str(tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv4 Address");
@@ -315,8 +314,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv4_netmask,
 				    tvb, off + 4, paramlen - 1, FALSE);
 				proto_item_append_text(pti, "(netmask): %s",
-				    ip_to_str(tvb_get_ptr(tvb, off + 4,
-				    paramlen - 1)));
+				    tvb_ip_to_str(tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv4 Netmask");
@@ -1078,12 +1076,12 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_rsip(void)
-{                 
+{
 
 	static hf_register_info hf[] = {
 		{ &hf_rsip_version,
 			{ "Protocol version",	"rsip.version",
-			  FT_UINT8, BASE_DEC, NULL, 0x0,          
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_rsip_message_type,
@@ -1255,14 +1253,14 @@ proto_reg_handoff_rsip(void)
 {
 	static gboolean initialized = FALSE;
 	dissector_handle_t rsip_handle;
-        
+
 	if (!initialized) {
 
 		rsip_handle = create_dissector_handle(dissect_rsip,
 		    proto_rsip);
 		dissector_add_uint("udp.port", UDP_PORT_RSIP, rsip_handle);
 		dissector_add_uint("tcp.port", TCP_PORT_RSIP, rsip_handle);
-        
+
 		initialized = TRUE;
 	}
 }
