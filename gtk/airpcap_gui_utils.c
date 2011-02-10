@@ -270,7 +270,6 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
         KL_COL_SSID, ssid,
 #endif
         -1);
-
 }
 
 /*
@@ -283,7 +282,6 @@ void
 airpcap_fill_key_list(GtkListStore *key_list_store)
 {
     gchar*         s = NULL;
-    gchar*         s2 = NULL;
     unsigned int i,n;
     airpcap_if_info_t* fake_if_info;
     GList*         wireshark_key_list=NULL;
@@ -320,9 +318,9 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
         else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
         {
             if(curr_key->ssid != NULL)
-                s2 = format_uri(curr_key->ssid, ":");
+                s = format_uri(curr_key->ssid, ":");
             else
-                s2 = "";
+                s = "";
 
 #if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
@@ -333,7 +331,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
                 KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
 #ifdef HAVE_AIRPDCAP
-                KL_COL_SSID, s2,
+                KL_COL_SSID, s,
 #endif
                 -1);
 
@@ -720,95 +718,6 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
         change_airpcap_settings = TRUE;
         gtk_widget_set_sensitive(GTK_WIDGET(channel_cb), TRUE);
     }
-}
-
-
-/*
- * Takes the keys from the GtkList widget, and add them to the interface list
- */
-static void
-airpcap_add_keys_from_list(GtkListStore *key_list_store, airpcap_if_info_t *if_info _U_)
-{
-    GtkTreePath *path;
-    GtkTreeIter iter;
-    GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
-
-    /* airpcap stuff */
-    guint i, j;
-    gchar s[3];
-    PAirpcapKeysCollection KeysCollection;
-    guint KeysCollectionSize;
-    guint8 KeyByte;
-
-    guint keys_in_list = 0;
-
-    gchar *row_type, *row_key; /* SSID not needed for AirPcap */
-    size_t key_len;
-
-    keys_in_list = gtk_tree_model_iter_n_children(model, NULL);
-
-    /*
-     * Calculate the size of the keys collection
-     */
-    KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
-
-    /*
-     * Allocate the collection
-     */
-    KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
-
-    /*
-     * Populate the key collection
-     */
-    KeysCollection->nKeys = keys_in_list;
-
-    for(i = 0; i < keys_in_list; i++)
-    {
-        path = gtk_tree_path_new_from_indices(i, -1);
-        gtk_tree_model_get_iter(model, &iter, path);
-        gtk_tree_path_free(path);
-        gtk_tree_model_get(model, &iter,
-                           KL_COL_TYPE, &row_type,
-                           KL_COL_KEY, &row_key,
-                           -1);
-
-        if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
-        else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_TKIP;
-        else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
-            KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_CCMP;
-
-        /* Retrieve the Item corresponding to the i-th key */
-        key_len = strlen(row_key);
-        KeysCollection->Keys[i].KeyLen = (guint) key_len / 2;
-        memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
-
-        for(j = 0 ; j < key_len; j += 2)
-        {
-            s[0] = row_key[j];
-            s[1] = row_key[j+1];
-            s[2] = '\0';
-            KeyByte = (guint8)strtol(s, NULL, 16);
-            KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
-        }
-        g_free(row_type);
-        g_free(row_key);
-    }
-
-    /*
-     * Free the old adapter key collection!
-     */
-    if(airpcap_if_selected->keysCollection != NULL)
-        g_free(airpcap_if_selected->keysCollection);
-
-    /*
-     * Set this collection ad the new one
-     */
-    airpcap_if_selected->keysCollection = KeysCollection;
-    airpcap_if_selected->keysCollectionSize = KeysCollectionSize;
-
-    return;
 }
 
 /*
