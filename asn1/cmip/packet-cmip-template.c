@@ -63,6 +63,9 @@ static gint ett_cmip = -1;
 
 static guint32 opcode;
 
+/* Dissector table */
+static dissector_table_t attribute_id_dissector_table;
+
 #include "packet-cmip-table.c"
 
 static int opcode_type;
@@ -74,6 +77,7 @@ static int opcode_type;
 static int attributeform;
 #define ATTRIBUTE_LOCAL_FORM  0
 #define ATTRIBUTE_GLOBAL_FORM 1
+static int attribute_local_id;
 static const char *attribute_identifier_id;
 
 static const char *attributevalueassertion_id;
@@ -197,6 +201,8 @@ void proto_register_cmip(void) {
   proto_register_subtree_array(ett, array_length(ett));
 #include "packet-cmip-dis-tab.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
+
+  attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC);
 
 }
 
