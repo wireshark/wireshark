@@ -933,11 +933,11 @@ my %deprecatedGtkFunctions = (
 		'GTK_WIDGET_VISIBLE',						'W', # gtk_widget_getvisible()			(avail since 2.18)
 ## Deprecated as of GTK+ 2.22 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_dialog_get_has_separator',				'E', # This function will be removed in GTK+ 3 
+		'gtk_dialog_get_has_separator',				'E', # This function will be removed in GTK+ 3
 		'gtk_dialog_set_has_separator',				'E', # This function will be removed in GTK+ 3
 		'gtk_icon_view_get_orientation',			'E', # gtk_icon_view_get_item_orientation()
 		'gtk_icon_view_set_orientation',			'E', # gtk_icon_view_set_item_orientation()
-		'gtk_item_deselect',						'E', # gtk_menu_item_deselect() 
+		'gtk_item_deselect',						'E', # gtk_menu_item_deselect()
 		'gtk_item_select',							'E', # gtk_menu_item_select()
 		'gtk_item_toggle',							'E', #
 		'gtk_recent_manager_get_limit',				'E', # Use GtkRecentChooser
@@ -976,9 +976,44 @@ sub findAPIinFile($$$)
 	}
 }
 
+my @TvbPtrAPIs = (
+	# Use NULL for the value_ptr instead of tvb_get_ptr()
+	# (Only if the given offset and length are equal) with these:
+	'proto_tree_add_bytes_format',
+	'proto_tree_add_bytes_format_value',
+	# Use the tvb_* version of these:
+	'ether_to_str',
+	'ip_to_str',
+	'ip6_to_str',
+	'fc_to_str',
+	'fcwwn_to_str'
+);
+
+sub checkAPIsCalledWithTvbGetPtr($$$)
+{
+	my ($APIs, $fileContentsRef, $foundAPIsRef) = @_;
+
+	for my $api (@{$APIs}) {
+		my @items;
+		my $cnt = 0;
+
+		@items = (${$fileContentsRef} =~ m/($api[^;]*;)/sg);
+		while (@items) {
+			my ($item) = @items;
+			shift @items;
+			if ($item =~ /tvb_get_ptr/xos) {
+				$cnt += 1;
+			}
+		}
+
+		if ($cnt > 0) {
+			push @{$foundAPIsRef}, $api;
+		}
+	}
+}
+
 # Given the file contents and a file name, check all of the hf entries for
 # various problems (such as those checked for in proto.c).
-
 sub check_hf_entries($$)
 {
 	my ($fileContentsRef, $filename) = @_;
@@ -1193,6 +1228,12 @@ while ($_ = $ARGV[0])
 		print STDERR "Error: Found C++ style comments in " .$filename."\n";
 		$errorCount++;
 	}
+
+	#checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
+
+	#if (@foundAPIs) {
+	#	print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
+	#}
 
 	# Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
 	if ($check_value_string_array_null_termination) {
