@@ -1267,9 +1267,7 @@ dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		if (identifier_len != 0) {
 			proto_tree_add_text(tree, tvb, identifier_offset,
 			    identifier_len, "Interface identifier: %s",
-			    bytes_to_str(
-			      tvb_get_ptr(tvb, identifier_offset, identifier_len),
-			      identifier_len));
+			    tvb_bytes_to_str(tvb, identifier_offset, identifier_len));
 		}
 	}
 
@@ -2152,9 +2150,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(ie_tree, tvb,
 				    offset + 2, info_element_len,
 				    "Data: %s",
-				    bytes_to_str(
-				      tvb_get_ptr(tvb, offset + 2,
-				          info_element_len),
+				    tvb_bytes_to_str(tvb, offset + 2,
 					  info_element_len));
 				break;
 			}

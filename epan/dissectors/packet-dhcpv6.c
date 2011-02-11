@@ -821,7 +821,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 opt_len = tlv_len;
                 if (tlv_len == 3) {
                     proto_item_append_text(ti, "%s",
-                        bytes_to_str_punct(tvb_get_ptr(tvb, sub_off, 3), 3, ':'));
+                        tvb_bytes_to_str_punct(tvb, sub_off, 3, ':'));
                 } else if (tlv_len == 6) {
                     proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
                 } else {
@@ -943,8 +943,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 }
                 else {
                     /*proto_item_append_text(ti, "CM MAC Address Option = %s", */
-                    proto_item_append_text(ti, "%s",
-                                           bytes_to_str_punct(tvb_get_ptr(tvb, sub_off, opt_len), opt_len, ':'));
+                    proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(tvb, sub_off, opt_len, ':'));
                     /* tvb_bytes_to_str(tvb, sub_off, opt_len)); */
                 }
                 sub_off += field_len;

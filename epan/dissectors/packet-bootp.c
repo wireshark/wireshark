@@ -1698,7 +1698,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		} else if ((optlen < 69)) { /* CableLabs DSS_ID */
 			s_option = tvb_get_guint8(tvb, optoff);
 			s_len = tvb_get_guint8(tvb, optoff+1);
-			
+
 			if (s_option == 1) { /*First DSS_ID*/
 				proto_tree_add_text(v_tree, tvb, optoff+2, s_len, "Suboption 1: Primary DSS_ID = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff+2, s_len));
@@ -1708,7 +1708,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, s_len, "Unknown");
 			}
-			
+
 			if (optlen > s_len+2) { /* Second DSS_ID*/
 				s_option = tvb_get_guint8(tvb, optoff+2+s_len);
 				s_len = tvb_get_guint8(tvb, optoff+1+2+s_len);
@@ -1721,7 +1721,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				} else {
 					proto_tree_add_text(v_tree, tvb, optoff+s_len+2, s_len, "Unknown");
 				}
-			} 
+			}
 		} else {
 			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
 		}
@@ -2601,7 +2601,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				if (subopt_len == 3) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 						"Suboption %d: Organization Unique Identifier = %s", subopt,
-						bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 3), 3, ':'));
+						tvb_bytes_to_str_punct(tvb, suboptoff, 3, ':'));
 				} else if (subopt_len == 6) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 						"Suboption %d: Organization Unique Identifier =  \"%s\"", subopt,
@@ -2631,7 +2631,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s = %s",
 					subopt,  o43cablelabs_opt[subopt].text,
-					bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 6), 6, ':'));
+					tvb_bytes_to_str_punct(tvb, suboptoff, 6, ':'));
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s (%d byte%s)" ,

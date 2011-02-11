@@ -3213,9 +3213,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 						proto_tree_add_text(ie_tree, tvb,
 							offset + 2, info_element_len,
 							"Data: %s",
-							bytes_to_str(
-							  tvb_get_ptr(tvb, offset + 2,
-								  info_element_len),
+							tvb_bytes_to_str(tvb, offset + 2,
 							  info_element_len));
 					}
 					break;

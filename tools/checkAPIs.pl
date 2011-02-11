@@ -976,9 +976,10 @@ sub findAPIinFile($$$)
 	}
 }
 
+# APIs which (generally) should not be called with an argument of tvb_get_ptr()
 my @TvbPtrAPIs = (
-	# Use NULL for the value_ptr instead of tvb_get_ptr()
-	# (Only if the given offset and length are equal) with these:
+	# Use NULL for the value_ptr instead of tvb_get_ptr() (only if the
+	# given offset and length are equal) with these:
 	'proto_tree_add_bytes_format',
 	'proto_tree_add_bytes_format_value',
 	# Use the tvb_* version of these:
@@ -986,7 +987,10 @@ my @TvbPtrAPIs = (
 	'ip_to_str',
 	'ip6_to_str',
 	'fc_to_str',
-	'fcwwn_to_str'
+	'fcwwn_to_str',
+	# Use tvb_bytes_to_str[_punct] instead of:
+	'bytes_to_str',
+	'bytes_to_str_punct',
 );
 
 sub checkAPIsCalledWithTvbGetPtr($$$)
