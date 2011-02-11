@@ -25,6 +25,50 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Information about VINES can be found in
+ *
+ * VINES Protocol Definition
+ * Order Number: DA254-00
+ * Banyan Systems incorporated
+ * February 1990
+ * Part Number: 092093-000
+ *
+ * Some information can also be found in
+ *
+ *	http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/vines.htm
+ *
+ * and at
+ *
+ *	http://www.synapse.de/ban/HTML/P_VINES/Eng/P_vines.html
+ *
+ * The document at
+ *
+ *	http://www.watersprings.org/pub/id/draft-ietf-rmonmib-rmonprot-v2-00.txt
+ *
+ * lists a bunch of values of protocol identifier fields for various
+ * protocols.  It speaks of the Vines Fragmentation Protocol,
+ * the "Vines Token Ring Protocol" which appears to be the same as the
+ * "Vines LLC" protocol here, the Vines echo protocol, Vines IP, and
+ * protocols running atop Vines IP.
+ *
+ * The LLC values it describes are:
+ *
+ *	0xbc	(SAP_VINES2) Vines Token Ring a/k/a Vines LLC
+ *
+ * It doesn't mention 0xba (SAP_VINES1).
+ *
+ * The Vines Token Ring/Vines LLC protocol identifier values it
+ * describes are:
+ *
+ *	0xba	Vines IP
+ *	0xbb	Vines Echo
+ *
+ * The Ethernet type values it describes are:
+ *
+ *	0x0bad	(ETHERTYPE_VINES) Vines IP
+ *	0x0baf	Vines Echo
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -38,6 +82,7 @@
 #include <epan/ipproto.h>
 #include <epan/arcnet_pids.h>
 #include <epan/llcsaps.h>
+#include <epan/to_str.h>
 
 #define UDP_PORT_VINES	573
 
@@ -85,6 +130,60 @@ static gint ett_vines_rtp_flags = -1;
 static int proto_vines_icp = -1;
 
 static gint ett_vines_icp = -1;
+
+/* VINES IP structs and definitions */
+
+enum {
+  VIP_PROTO_IPC = 1,	 /* Interprocess Communications Protocol (IPC) */
+  VIP_PROTO_SPP = 2,	/* Sequenced Packet Protcol (SPP) */
+  VIP_PROTO_ARP = 4,	/* Address Resolution Protocol (ARP) */
+  VIP_PROTO_RTP = 5,	/* Routing Update Protocol (RTP) / SRTP (Sequenced RTP) */
+  VIP_PROTO_ICP = 6	/* Internet Control Protocol (ICP) */
+};
+
+typedef struct _e_vip {
+  guint16 vip_chksum;
+  guint16 vip_pktlen;
+  guint8  vip_tctl;	/* Transport Control */
+  guint8  vip_proto;
+  guint8  vip_dst[VINES_ADDR_LEN];
+  guint8  vip_src[VINES_ADDR_LEN];
+} e_vip;
+
+/* VINES SPP and IPC structs and definitions */
+
+enum {
+  PKTTYPE_DGRAM = 0,	/* Unreliable datagram */
+  PKTTYPE_DATA = 1,	/* User Data */
+  PKTTYPE_ERR = 2,	/* Error */
+  PKTTYPE_DISC = 3,	/* Diconnect Request */
+  PKTTYPE_PROBE = 4,	/* Probe (retransmit) */
+  PKTTYPE_ACK = 5	/* Acknowledgement */
+};
+
+typedef struct _e_vspp {
+  guint16 vspp_sport;
+  guint16 vspp_dport;
+  guint8  vspp_pkttype;
+  guint8  vspp_control;
+  guint16 vspp_lclid;	/* Local Connection ID */
+  guint16 vspp_rmtid;	/* Remote Connection ID */
+  guint16 vspp_seqno;	/* Sequence Number */
+  guint16 vspp_ack;	/* Acknowledgement Number */
+  guint16 vspp_win;
+} e_vspp;
+
+typedef struct _e_vipc {
+  guint16 vipc_sport;
+  guint16 vipc_dport;
+  guint8  vipc_pkttype;
+  guint8  vipc_control;
+  guint16 vipc_lclid;	/* Local Connection ID */
+  guint16 vipc_rmtid;	/* Remote Connection ID */
+  guint16 vipc_seqno;	/* Sequence Number */
+  guint16 vipc_ack;	/* Acknowledgement Number */
+  guint16 vipc_err_len;
+} e_vipc;
 
 void
 capture_vines(packet_counts *ld)
@@ -314,7 +413,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, src_addr);
 	SET_ADDRESS(&pinfo->src, AT_VINES, VINES_ADDR_LEN, src_addr);
 	dst_addr = tvb_get_ptr(tvb, offset+6, VINES_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN,dst_addr);
+	SET_ADDRESS(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 	SET_ADDRESS(&pinfo->dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 
  	/* helpers to transport control */
@@ -376,11 +475,11 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(vip_tree, tvb, offset +  6,
 				    VINES_ADDR_LEN,
 				    "Destination: %s",
-				    vines_addr_to_str(dst_addr));
+				    tvb_vines_addr_to_str(tvb, offset + 6));
 		proto_tree_add_text(vip_tree, tvb, offset +  12,
 				    VINES_ADDR_LEN,
 				    "Source: %s",
-				    vines_addr_to_str(src_addr));
+				    tvb_vines_addr_to_str(tvb, offset + 12));
 	}
 
 	offset += 18;
@@ -896,13 +995,13 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+					    tvb_vines_addr_to_str(tvb, 2));
 			}
 			if (tree) {
 				proto_tree_add_text(vines_arp_tree, tvb, 2,
 						    VINES_ADDR_LEN,
 						    "Address: %s",
-						    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+						    tvb_vines_addr_to_str(tvb, 2));
 			}
 		}
 		if (tree) {
@@ -938,13 +1037,13 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
-					    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+					    tvb_vines_addr_to_str(tvb, 2));
 			}
 			if (tree) {
 				proto_tree_add_text(vines_arp_tree, tvb, 2,
 						    VINES_ADDR_LEN,
 						    "Address: %s",
-						    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+						    tvb_vines_addr_to_str(tvb, 2));
 			}
 		}
 	}
@@ -1315,7 +1414,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, VINES_ADDR_LEN,
 						    "Destination: %s",
-						    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
+						    tvb_vines_addr_to_str(tvb, offset));
 				offset += VINES_ADDR_LEN;
 				metric = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1343,7 +1442,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, VINES_ADDR_LEN,
 						    "Preferred Gateway: %s",
-						    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
+						    tvb_vines_addr_to_str(tvb, offset));
 				offset += VINES_ADDR_LEN;
 				metric = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1447,7 +1546,7 @@ srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, const char *
 
 	proto_tree_add_text(tree, tvb, offset, VINES_ADDR_LEN,
 	    "%s: %s", tag,
-	    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
+	    tvb_vines_addr_to_str(tvb, offset));
 	offset += VINES_ADDR_LEN;
 	metric = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 2,

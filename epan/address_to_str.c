@@ -203,13 +203,13 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 }
 
 gchar *
-vines_addr_to_str(const guint8 *addrp)
+tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset)
 {
   gchar	*buf;
 
   buf=ep_alloc(214); /* XXX, 14 here? */
 
-  vines_addr_to_str_buf(addrp, buf, 214);
+  vines_addr_to_str_buf(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN), buf, 214);
   return buf;
 }
 
