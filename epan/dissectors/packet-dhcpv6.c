@@ -1143,7 +1143,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             if (optlen > 8) {
                 proto_tree_add_text(subtree, tvb, off + 8,
                                     optlen - 8, "Link-layer address: %s",
-                                    arphrdaddr_to_str(tvb_get_ptr(tvb, off+8, optlen-8), optlen-8, hwtype));
+                                    tvb_arphrdaddr_to_str(tvb, off+8, optlen-8, hwtype));
             }
             break;
         case DUID_EN:
@@ -1174,7 +1174,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             if (optlen > 4) {
                 proto_tree_add_text(subtree, tvb, off + 4,
                                     optlen - 4, "Link-layer address: %s",
-                                    arphrdaddr_to_str(tvb_get_ptr(tvb, off+4, optlen-4), optlen-4, hwtype));
+                                    tvb_arphrdaddr_to_str(tvb, off+4, optlen-4, hwtype));
             }
             break;
         }
@@ -1192,8 +1192,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_text(subtree, tvb, off, 4,
             "IAID: %s",
-            arphrdaddr_to_str(tvb_get_ptr(tvb, off, 4),
-            4, opttype));
+            tvb_arphrdaddr_to_str(tvb, off, 4, opttype));
         if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
             proto_tree_add_text(subtree, tvb, off+4, 4,
                                 "T1: infinity");
@@ -1228,8 +1227,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_text(subtree, tvb, off, 4,
             "IAID: %s",
-            arphrdaddr_to_str(tvb_get_ptr(tvb, off, 4),
-            4, opttype));
+            tvb_arphrdaddr_to_str(tvb, off, 4, opttype));
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
@@ -1447,7 +1445,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             if (temp_optlen >= 6)
                 proto_tree_add_text(subtree, tvb, off,
                                     temp_optlen, "Link-layer address: %s",
-                                    arphrdaddr_to_str(tvb_get_ptr(tvb, off, 6), 6, ARPHRD_ETHER));
+                                    tvb_arphrdaddr_to_str(tvb, off, 6, ARPHRD_ETHER));
         }
     }
     break;

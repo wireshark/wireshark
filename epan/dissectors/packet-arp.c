@@ -188,16 +188,16 @@ static const value_string atmop_vals[] = {
   ((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
 
 const gchar *
-arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
+tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
   if (ARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or IEEE 802.x address, which is the same type of
        address). */
-    return ether_to_str(ad);
+    return tvb_ether_to_str(tvb, offset);
   }
-  return bytes_to_str(ad, ad_len);
+  return tvb_bytes_to_str(tvb, offset, ad_len);
 }
 
 static const gchar *
@@ -873,7 +873,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti, *item;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
+  const guint8      *spa_val, *tpa_val;
   gboolean    is_gratuitous;
   gboolean    duplicate_detected = FALSE;
   guint32     duplicate_ip = 0;
@@ -997,9 +997,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
   spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
 
   /* ARP requests/replies with the same sender and target protocol
@@ -1032,22 +1030,22 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
           col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
                        arpproaddr_to_str(spa_val, ar_pln, ar_pro),
-                       arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
+                       tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
         break;
       case ARPOP_RREQUEST:
       case ARPOP_IREQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
-                     arphrdaddr_to_str(tha_val, ar_hln, ar_hrd),
-                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd));
+                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
         break;
       case ARPOP_RREPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     arphrdaddr_to_str(tha_val, ar_hln, ar_hrd),
+                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
                      arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
         break;
       case ARPOP_IREPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd),
+                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
         break;
       default:

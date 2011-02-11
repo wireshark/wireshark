@@ -26,7 +26,7 @@
 #ifndef __PACKET_ARP_H__
 #define __PACKET_ARP_H__
 
-const gchar *arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type);
+const gchar *tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type);
 const gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
 
 void dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree);

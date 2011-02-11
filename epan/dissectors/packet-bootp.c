@@ -1212,8 +1212,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
-					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
-					6, byte));
+					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
@@ -1232,8 +1231,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				an opaque 32-bit quantity	*/
 			proto_tree_add_text(v_tree, tvb, optoff+1, 4,
 				"IAID: %s",
-				arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 4),
-				4, byte));
+				tvb_arphrdaddr_to_str(tvb, optoff+1, 4, byte));
 			optoff = optoff + 5;
 			duidtype = tvb_get_ntohs(tvb, optoff);
 			proto_tree_add_text(v_tree, tvb, optoff, 2,
@@ -1258,7 +1256,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				if (optlen > 8) {
 					proto_tree_add_text(v_tree, tvb, optoff + 8,
 						optlen - 13, "Link-layer address: %s",
-						arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+8, optlen-13), optlen-13, hwtype));
+						tvb_arphrdaddr_to_str(tvb, optoff+8, optlen-13, hwtype));
 				}
 				break;
 			case DUID_EN:
@@ -1292,7 +1290,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				if (optlen > 4) {
 					proto_tree_add_text(v_tree, tvb, optoff + 4,
 						optlen - 9, "Link-layer address: %s",
-						arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+4, optlen-9), optlen-9, hwtype));
+						tvb_arphrdaddr_to_str(tvb, optoff+4, optlen-9, hwtype));
 				}
 				break;
 			}
@@ -1328,8 +1326,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
-					arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
-					6, byte));
+					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
@@ -4472,7 +4469,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*fi, *hidden_item;
 	guint8		op;
 	guint8		htype, hlen;
-	const guint8	*haddr;
 	int		voff, eoff, tmpvoff; /* vendor offset, end offset */
 	guint32		ip_addr;
 	gboolean	at_end;
@@ -4498,16 +4494,14 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    && hlen == 6) {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
-					     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-							       hlen, htype),
+					     tvb_arphrdaddr_to_str(tvb, 28, hlen, htype),
 					     get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
 			}
 		}
 		else {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
-					     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-							       hlen, htype));
+					     tvb_arphrdaddr_to_str(tvb, 28, hlen, htype));
 			}
 		}
 		break;
@@ -4621,7 +4615,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    24, 4, FALSE);
 
 	if (hlen > 0 && hlen <= 16) {
-		haddr = tvb_get_ptr(tvb, 28, hlen);
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
 		    && hlen == 6)
 			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, FALSE);
@@ -4629,8 +4622,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* The chaddr element is 16 bytes in length,
 			   although only the first hlen bytes are used */
 			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb, 28, 16,
-					   haddr,
-					   "%s", arphrdaddr_to_str(haddr, hlen, htype));
+					   NULL, "%s", tvb_arphrdaddr_to_str(tvb, 28, hlen, htype));
 		if ((16 - hlen) > 0)
 			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, FALSE);
 	} else {
