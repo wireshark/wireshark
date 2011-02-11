@@ -45,7 +45,7 @@ static gboolean implicit = FALSE;
 static int hf_h248_pkg_BCP = -1;
 static int hf_h248_pkg_BCP_BNCChar = -1;
 
-static int ett_h248_pkg_BCP = -1;
+static gint ett_h248_pkg_BCP = -1;
 
 static const value_string h248_pkg_BCP_parameters[] _U_ = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
@@ -83,7 +83,7 @@ static int hf_h248_pkg_BNCCT = -1;
 
 static int hf_h248_pkg_BNCCT_prop = -1;
 
-static int ett_h248_pkg_BNCCT = -1;
+static gint ett_h248_pkg_BNCCT = -1;
 
 static const value_string h248_pkg_BNCCT_parameters[] _U_ = {
 	{   0x0001, "BNC Cut Through Capability" },
@@ -127,7 +127,7 @@ static int hf_h248_pkg_RI = -1;
 
 static int hf_h248_pkg_RII= -1;
 
-static int ett_h248_pkg_RI= -1;
+static gint ett_h248_pkg_RI= -1;
 
 static const value_string h248_pkg_RI_parameters[] = {
 	{   0x0001, "Reuse Idle Indication" },
@@ -164,7 +164,7 @@ static h248_package_t h248_pkg_RI = {
 
 /* A.5 Bearer Reuse Idle Package  */
 
-/* A.6 Generic bearer connection package 
+/* A.6 Generic bearer connection package
 	Package Name: GB
 	Package ID: 0x0021
  */
@@ -287,20 +287,20 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	
+
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
-	
+
 	/* XXX: is this enough to guess it? */
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &bctp_tvb);
-		
+
 		if (bctp_tvb) {
 			call_dissector(bctp_dissector,bctp_tvb,pinfo,tree);
 		}
 	} else {
 		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
 	}
-	
+
 }
 
 
@@ -382,8 +382,8 @@ static int hf_h248_pkg_bcg_sig_bcw = -1;
 static int hf_h248_pkg_bcg_sig_bcr = -1;
 static int hf_h248_pkg_bcg_sig_bpy = -1;
 
-static int ett_h248_pkg_bcg = -1;
-static int ett_h248_pkg_bcg_sig_bdt = -1;
+static gint ett_h248_pkg_bcg = -1;
+static gint ett_h248_pkg_bcg_sig_bdt = -1;
 
 static const value_string h248_pkg_bcg_sig_bdt_par_btd_vals[] = {
 	{   0x0001, "ext (External)" },
@@ -430,7 +430,7 @@ static h248_package_t h248_pkg_bcg = {
 
 void proto_reg_handoff_q1950(void) {
 	bctp_dissector = find_dissector("bctp");
-	
+
 }
 
 /* Register dissector */
@@ -438,136 +438,136 @@ void proto_register_q1950(void) {
 	static hf_register_info hf[] = {
 		/* A.3 Bearer characteristics package */
 		{ &hf_h248_pkg_BCP,
-			{ "BCP (Bearer characteristics package)", "h248.pkg.BCP", 
+			{ "BCP (Bearer characteristics package)", "h248.pkg.BCP",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_BCP_BNCChar,
-			{ "BNCChar (BNC Characteristics)", "h248.pkg.bcp.bncchar", 
+			{ "BNCChar (BNC Characteristics)", "h248.pkg.bcp.bncchar",
 			FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bearer_network_connection_characteristics_vals_ext, 0, "BNC Characteristics", HFILL }
 		},
-		
+
 		/* A.4 Bearer Network connection cut-through package */
 		{ &hf_h248_pkg_BNCCT,
-			{ "BNCCT (Bearer network connection cut-through package)", "h248.pkg.BNCCT", 
+			{ "BNCCT (Bearer network connection cut-through package)", "h248.pkg.BNCCT",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_BNCCT_prop,
-			{ "Bearer network connection cut-through capability", "h248.pkg.bcp.bncct", 
+			{ "Bearer network connection cut-through capability", "h248.pkg.bcp.bncct",
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_BNCCT_prop_vals), 0, "This property allows the MGC to ask the MG when the cut through of a bearer will occur, early or late.", HFILL }
 		},
-		
+
 		{ &hf_h248_pkg_GB,
-			{ "GB (Generic bearer connection)", "h248.pkg.GB", 
+			{ "GB (Generic bearer connection)", "h248.pkg.GB",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_GB_BNCChange,
-			{ "BNCChange", "h248.pkg.GB.BNCChang", 
+			{ "BNCChange", "h248.pkg.GB.BNCChang",
 			FT_BYTES, BASE_NONE, NULL, 0, "This event occurs whenever a change to a Bearer Network connection occurs", HFILL }
 		},
 		{ &hf_h248_pkg_GB_BNCChange_type,
-			{ "Type", "h248.pkg.GB.BNCChang.Type", 
+			{ "Type", "h248.pkg.GB.BNCChang.Type",
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_GB_BNCChange_type_vals), 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_GB_EstBNC,
-			{ "Type", "h248.pkg.GB.BNCChang.EstBNC", 
+			{ "Type", "h248.pkg.GB.BNCChang.EstBNC",
 			FT_BYTES, BASE_NONE, NULL, 0, "This signal triggers the bearer control function to send bearer establishment signalling", HFILL }
 		},
 		{ &hf_h248_pkg_GB_ModBNC,
-			{ "Type", "h248.pkg.GB.BNCChang.Type", 
+			{ "Type", "h248.pkg.GB.BNCChang.Type",
 			FT_BYTES, BASE_NONE, NULL, 0, "This signal triggers the bearer control function to send bearer modification", HFILL }
 		},
 		{ &hf_h248_pkg_GB_RelBNC,
-			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC", 
+			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC",
 			FT_BYTES, BASE_NONE, NULL, 0, "This signal triggers the bearer control function to send bearer release", HFILL }
 		},
 		{ &hf_h248_pkg_GB_RelBNC_Generalcause,
-			{ "Generalcause", "h248.pkg.GB.BNCChang.RelBNC.Generalcause", 
+			{ "Generalcause", "h248.pkg.GB.BNCChang.RelBNC.Generalcause",
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_GB_RelBNC_Generalcause_vals), 0, "This indicates the general reason for the Release", HFILL }
 		},
 		{ &hf_h248_pkg_GB_RelBNC_Failurecause,
-			{ "Failurecause", "h248.pkg.GB.BNCChang.RelBNC.Failurecause", 
+			{ "Failurecause", "h248.pkg.GB.BNCChang.RelBNC.Failurecause",
 			FT_BYTES, BASE_NONE, NULL, 0, "The Release Cause is the value generated by the Released equipment", HFILL }
 		},
 		{ &hf_h248_pkg_GB_RelBNC_Reset,
-			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC", 
+			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0, "This signal triggers the bearer control function to send bearer release", HFILL }
 		},
 
 		/* A.5 Bearer Network connection cut-through package */
 		{ &hf_h248_pkg_RI,
-			{ "RI (Reuse idle package)", "h248.pkg.RI", 
+			{ "RI (Reuse idle package)", "h248.pkg.RI",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_RII,
-			{ "Reuse Idle Indication", "h248.pkg.bcp.rii", 
+			{ "Reuse Idle Indication", "h248.pkg.bcp.rii",
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_RII_vals), 0, "This property indicates that the provided bearer network connection relates to an Idle Bearer.", HFILL }
 		},
 
 		{ &hf_h248_pkg_bt,
-			{ "BT (Bearer control Tunneling)", "h248.pkg.BT", 
+			{ "BT (Bearer control Tunneling)", "h248.pkg.BT",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bt_tunopt,
-			{ "Tunnelling Options", "h248.pkg.BT.TunOpt", 
+			{ "Tunnelling Options", "h248.pkg.BT.TunOpt",
 				FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bt_tind,
-			{ "tind (Tunnel INDication)", "h248.pkg.BT.TIND", 
+			{ "tind (Tunnel INDication)", "h248.pkg.BT.TIND",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bt_bit,
-			{ "Bearer Information Transport", "h248.pkg.BT.BIT", 
+			{ "Bearer Information Transport", "h248.pkg.BT.BIT",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
-		
-		
+
+
 		/* A.8 Basic call progress tones generator with directionality */
 		{ &hf_h248_pkg_bcg,
-			{ "bcg (Basic call progress tones generator with directionality)", "h248.pkg.bcg", 
+			{ "bcg (Basic call progress tones generator with directionality)", "h248.pkg.bcg",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bdt_par_btd,
-			{ "btd (Tone Direction)", "h248.pkg.bcp.btd", 
+			{ "btd (Tone Direction)", "h248.pkg.bcp.btd",
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_bcg_sig_bdt_par_btd_vals), 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bdt,
-			{ "bdt (Dial Tone)", "h248.pkg.bcg.bdt", 
+			{ "bdt (Dial Tone)", "h248.pkg.bcg.bdt",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_brt,
-			{ "brt (Ringing tone)", "h248.pkg.bcg.brt", 
+			{ "brt (Ringing tone)", "h248.pkg.bcg.brt",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bbt,
-			{ "bbt (Busy tone)", "h248.pkg.bcg.bbt", 
+			{ "bbt (Busy tone)", "h248.pkg.bcg.bbt",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bct,
-			{ "bct (Congestion tone)", "h248.pkg.bcg.bct", 
+			{ "bct (Congestion tone)", "h248.pkg.bcg.bct",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bsit,
-			{ "bsit (Special information tone)", "h248.pkg.bcg.bsit", 
+			{ "bsit (Special information tone)", "h248.pkg.bcg.bsit",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bwt,
-			{ "bwt (Warning tone)", "h248.pkg.bcg.bwt", 
+			{ "bwt (Warning tone)", "h248.pkg.bcg.bwt",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bpt,
-			{ "bpt (Payphone recognition tone)", "h248.pkg.bcg.bpt", 
+			{ "bpt (Payphone recognition tone)", "h248.pkg.bcg.bpt",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bcw,
-			{ "bcw (Call waiting tone)", "h248.pkg.bcg.bcw", 
+			{ "bcw (Call waiting tone)", "h248.pkg.bcg.bcw",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bcr,
-			{ "bcr (Call ringing tone)", "h248.pkg.bcg.bcr", 
+			{ "bcr (Call ringing tone)", "h248.pkg.bcg.bcr",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bcg_sig_bpy,
-			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy", 
+			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 	};
@@ -577,16 +577,23 @@ void proto_register_q1950(void) {
 		&ett_h248_pkg_bt,
 		&ett_h248_pkg_bt_tind,
 		&ett_h248_pkg_bt_bit,
+		&ett_h248_pkg_bcg,
+		&ett_h248_pkg_bcg_sig_bdt,
 		&ett_h248_pkg_BNCCT,
 		&ett_h248_pkg_RI,
+		&ett_h248_pkg_GB,
+		&ett_h248_pkg_GB_EstBNC,
+		&ett_h248_pkg_GB_ModBNC,
+		&ett_h248_pkg_GB_RelBNC,
+		&ett_h248_pkg_GB_BNCChange
 	};
-	
+
 	proto_q1950 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 	proto_register_field_array(proto_q1950, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 	/* Register the packages */
 	h248_register_package(&h248_pkg_BCP);
 	h248_register_package(&h248_pkg_BNCCT);

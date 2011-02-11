@@ -36,7 +36,7 @@
 
 #include "packet-isup.h"
 
-/* 
+/*
  * 3GUP Package
  * 3GPP TS 29.232 -- 15.1.1
  */
@@ -139,7 +139,7 @@ static const h248_package_t h248_package_3GUP = {
 };
 
 
-/* 
+/*
  * Circuit Switched Data package
  * 3GPP TS 29.232 -- 15.2.1
  */
@@ -260,7 +260,7 @@ static const h248_package_t h248_package_3GCSD = {
 };
 
 
-/* 
+/*
  * TFO package
  * 3GPP TS 29.232 -- 15.2.2
  */
@@ -291,13 +291,13 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	
+
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
-	
+
 	/* XXX: is this enough to guess it? */
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
-		
+
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item, ett_h248_3GTFO_codec);
 			dissect_codec_mode(pt, sub_tvb, 0, tvb_length(tvb));
@@ -305,7 +305,7 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 	} else {
 		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
 	}
-	
+
 }
 
 static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* ignored _U_) {
@@ -316,12 +316,12 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	
+
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
-	
+
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
-		
+
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item,ett_h248_3GTFO_codec_list);
 			int len = tvb_length(sub_tvb);
@@ -415,35 +415,35 @@ static const h248_package_t h248_package_3GTFO = {
 	h248_package_3GTFO_evts,
 	NULL};
 
-/* 
+/*
  * 3G Expanded Call Progress Tones Generator Package
  * 3GPP TS 29.232 -- 15.2.3
  */
-/* 
+/*
  * Modification Of Link Characteristics Bearer Capability
  * 3GPP TS 29.232 -- 15.2.4
  */
-/* 
+/*
  * Enhanced Circuit Switched Data package
  * 3GPP TS 29.232 -- 15.2.5
  */
-/* 
+/*
  * Cellular Text telephone Modem Text Transport
  * 3GPP TS 29.232 -- 15.2.6
  */
-/* 
+/*
  * IP transport package
  * 3GPP TS 29.232 -- 15.2.7
  */
-/* 
+/*
  * Flexible Tone Generator Package
  * 3GPP TS 29.232 -- 15.2.8
  */
-/* 
+/*
  * Trace Package
  * 3GPP TS 29.232 -- 15.2.9
  */
-/* 
+/*
  * ASCI Group call package
  * 3GPP TS 29.232 -- 15.2.10
  */
@@ -471,8 +471,8 @@ void proto_register_h248_3gpp(void) {
 		{ "Initialisation Direction", "h248.package_3GUP.initdir",
 			FT_UINT32, BASE_DEC, VALS(h248_3GUP_initdir_vals), 0,
 			NULL, HFILL }},
-		
-		
+
+
 		{ &hf_h248_package_3GCSD,
 		{ "CSD Package", "h248.package_3GCSD",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -513,7 +513,7 @@ void proto_register_h248_3gpp(void) {
 		{ "Local Peer Role", "h248.package_3GCSD.actprot.localpeer",
 			FT_UINT32, BASE_DEC, VALS(h248_3GCSD_actprot_sig_localpeer_vals), 0,
 			"It is used to inform the modem whether it should act as originating or terminating peer", HFILL }},
-		
+
 
 		{ &hf_h248_package_3GTFO,
 		{ "Tandem Free Operation", "h248.package_3GTFO",
@@ -527,7 +527,7 @@ void proto_register_h248_3gpp(void) {
 		{ "TFO Codec List", "h248.package_3GTFO.codeclist",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"List of codecs for use in TFO protocol", HFILL }},
-		
+
 		{ &hf_h248_pkg_3GTFO_evt_codec_modify,
 		{ "Optimal Codec Event", "h248.package_3GTFO.codec_modify",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -536,17 +536,17 @@ void proto_register_h248_3gpp(void) {
 		{ "Optimal Codec Type", "h248.package_3GTFO.codec_modify.optimalcodec",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"indicates which is the proposed codec type for TFO", HFILL }},
-		
+
 		{ &hf_h248_pkg_3GTFO_evt_distant_codec_list,
 		{ "Codec List Event", "h248.package_3GTFO.distant_codec_list",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"The event is used to notify the MGC of the distant TFO partner's supported codec list", HFILL }},
-		
+
 		{ &hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist,
 		{ "Distant Codec List", "h248.package_3GTFO.distant_codec_list.distlist",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"indicates the codec list for TFO", HFILL }},
-		
+
 		{ &hf_h248_pkg_3GTFO_evt_status,
 		{ "TFO Status Event", "h248.package_3GTFO.status",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -556,7 +556,7 @@ void proto_register_h248_3gpp(void) {
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"reports whether TFO has been established or broken", HFILL }},
 	};
-	
+
 	static gint *ett[] = {
 		&ett_h248_package_3GUP,
 		&ett_h248_package_3GCSD,
@@ -567,15 +567,16 @@ void proto_register_h248_3gpp(void) {
 		&ett_h248_3GTFO_evt_distant_codec_list,
 		&ett_h248_3GTFO_evt_codec_modify,
 		&ett_h248_3GTFO_codec_list,
-		&ett_h248_3GTFO_codec
+		&ett_h248_3GTFO_codec,
+		&ett_pkg_3GCSD_sig_actprot
 	};
-	
+
 	hf_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	
+
 	proto_register_field_array(hf_h248_package_3GUP, hf, array_length(hf));
-	
+
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 	h248_register_package(&h248_package_3GUP);
 	h248_register_package(&h248_package_3GCSD);
 	h248_register_package(&h248_package_3GTFO);
