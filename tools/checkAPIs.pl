@@ -1016,6 +1016,100 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
 	}
 }
 
+# Verify that all declared ett_ variables are registered.
+# Don't bother trying to check usage (for now)...
+sub check_ett_registration($$)
+{
+	my ($fileContentsRef, $filename) = @_;
+	my @ett_declarations;
+	my @ett_registrations;
+	my @unRegisteredEtts;
+
+	# Remove macro lines
+	my $fileContents = ${$fileContentsRef};
+	$fileContents =~ s { ^\s*\#.*$} []xogm;
+
+	# Find all the ett_ variables declared in the file
+	@ett_declarations = ($fileContents =~ m{
+		static
+		\s+
+		g?int			# could be int or gint
+		\s+
+		(ett_[a-z0-9_]+)	# variable name
+		\s*=\s*
+		-1\s*;
+	}xgios);
+
+	if (!@ett_declarations) {
+		print "Found no etts in ".$filename."\n";
+		return;
+	}
+
+	#print "Found these etts in ".$filename.": ".join(',', @ett_declarations)."\n\n";
+
+	# Find the array used for registering the etts
+	# Save off the block of code containing just the variables
+	my @reg_blocks;
+	@reg_blocks = ($fileContents =~ m{
+		static
+		\s+
+		g?int
+		\s*\*\s*		# it's an array of pointers
+		[a-z0-9_]+		# array name; usually (always?) "ett"
+		\s*\[\s*\]\s*		# array brackets
+		=
+		\s*\{
+		((?:\s*&\s*		# address of the following variable
+		ett_[a-z0-9_]+		# variable name
+		\s*,?			# the comma is optional (for the last entry)
+		\s*)+)			# match one or more variable names
+		\}
+		\s*
+		;
+	}xgios);
+	#print "Found this ett registration block in ".$filename.": ".join(',', @reg_blocks)."\n";
+
+	if (@reg_blocks == 0) {
+		print "Hmm, found ".@reg_blocks." ett registration blocks in ".$filename."\n";
+		# For now...
+		return;
+	}
+
+	while (<@reg_blocks>) {
+		push @ett_registrations, ($_ =~ m{
+			\s*&\s*			# address of the following variable
+			(ett_[a-z0-9_]+)	# variable name
+			\s*,?			# the comma is optional (for the last entry)
+		}xgios);
+	}
+	#print "Found these ett registrations in ".$filename.": ".join(',', @ett_registrations)."\n";
+
+	# Find which declared etts are not registered
+	# There has to be an easier way to do this...
+	my $foundit = 0;
+	while (@ett_declarations) {
+		my ($ett_var) = @ett_declarations;
+		shift @ett_declarations;
+
+		$foundit = 0;
+		foreach $_ (@ett_registrations) {
+			if ($_ eq $ett_var) {
+				$foundit = 1;
+				last;
+			}
+		}
+
+		if (!$foundit) {
+			push @unRegisteredEtts, $ett_var;
+		}
+	}
+
+	if (@unRegisteredEtts) {
+		print STDERR "Error: found these unregistered ett variables in ".$filename.": ".join(',', @unRegisteredEtts)."\n";
+	}
+
+}
+
 # Given the file contents and a file name, check all of the hf entries for
 # various problems (such as those checked for in proto.c).
 sub check_hf_entries($$)
@@ -1045,7 +1139,7 @@ sub check_hf_entries($$)
 				  (NULL|"[A-Z0-9 '\./\(\)\?_:-]+")	# blurb	(NULL or a string)
 				  \s*,\s*
 				  HFILL				# HFILL
-				}xgios);
+	}xgios);
 
 	#print "Found @items items\n";
 	while (@items) {
@@ -1221,11 +1315,13 @@ while ($_ = $ARGV[0])
 
 	# optionally check the hf entries
 	if ($check_hf) {
-		$errorCount += check_hf_entries(\$fileContents, $filename)
+		$errorCount += check_hf_entries(\$fileContents, $filename);
 	}
 
 	# Remove all the C-comments and strings
 	$fileContents =~ s {$commentAndStringRegex} []xog;
+
+	#check_ett_registration(\$fileContents, $filename);
 
 	if ($fileContents =~ m{ // }xo)
 	{
@@ -1282,7 +1378,7 @@ while ($_ = $ARGV[0])
 		}
 
 		if (@foundAPIs && ! $machine_readable_output) {
-			print STDERR $pfx . ": Found " . $apiGroup . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n"
+			print STDERR $pfx . ": Found " . $apiGroup . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n";
 		}
 		if (@foundAPIs && $machine_readable_output) {
 			for my $api (@foundAPIs) {
