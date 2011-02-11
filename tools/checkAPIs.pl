@@ -198,7 +198,7 @@ my %APIs = (
 ## 2.10		'g_mem_chunk_new',				# "use slice allocator" (avail since 2.10)
 		'g_mem_chunk_print',				# "use slice allocator" (avail since 2.10)
 		'g_mem_chunk_reset',				# "use slice allocator" (avail since 2.10)
-		'g_blow_chunks'					# "use slice allocator" (avail since 2.10,2.14)
+		'g_blow_chunks',				# "use slice allocator" (avail since 2.10,2.14)
 ## 2.10		'g_chunk_free',					# g_slice_free (avail since 2.10)
 ## 2.10		'g_chunk_new',					# g_slice_new  (avail since 2.10)
 		'g_chunk_new0',					# g_slice_new0 (avail since 2.10)
