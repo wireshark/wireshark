@@ -72,17 +72,16 @@ static int hf_fmp_cookie = -1;
 static int hf_fmp_firstLogBlk = -1;
 static int hf_fmp_numBlksReq = -1;
 static int hf_fmp_status = -1;
-
-static int ett_fmp_notify = -1;
-static int ett_fmp_notify_hlist = -1;
-
-static gint ett_fmp_extList = -1;
 static int hf_fmp_extentList_len = -1;
-static gint ett_fmp_ext = -1;
 static int hf_fmp_numBlks = -1;
 static int hf_fmp_volID = -1;
 static int hf_fmp_startOffset = -1;
 static int hf_fmp_extent_state = -1;
+
+static gint ett_fmp_notify = -1;
+static gint ett_fmp_notify_hlist = -1;
+static gint ett_fmp_extList = -1;
+static gint ett_fmp_ext = -1;
 
 
 static int dissect_fmp_notify_extentList(tvbuff_t *, int, packet_info *, proto_tree *);
@@ -560,6 +559,8 @@ proto_register_fmp_notify(void)
 	static gint *ett[] = {
 		&ett_fmp_notify,
 		&ett_fmp_notify_hlist,
+		&ett_fmp_extList,
+		&ett_fmp_ext
 	};
 
 	proto_fmp_notify =
