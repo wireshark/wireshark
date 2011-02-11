@@ -85,10 +85,15 @@ static int hf_gtpv2_oi = -1;
 static int hf_gtpv2_isrsi = -1;
 static int hf_gtpv2_israi = -1;
 static int hf_gtpv2_sgwci = -1;
+static int hf_gtpv2_sqci = -1;
+static int hf_gtpv2_uimsi = -1;
+static int hf_gtpv2_cfsi = -1;
+static int hf_gtpv2_crsi = -1;
 static int hf_gtpv2_pt = -1;
-static int hf_gtpv2_tdi = -1;
+static int hf_gtpv2_ps = -1;
 static int hf_gtpv2_si = -1;
 static int hf_gtpv2_msv = -1;
+static int hf_gtpv2_ccrsi = -1;
 static int hf_gtpv2_pdn_type = -1;
 static int hf_gtpv2_pdn_ipv4 = -1;
 static int hf_gtpv2_pdn_ipv6_len = -1;
@@ -1015,6 +1020,7 @@ static void
 dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset = 0;
+	/* Octet 5 DAF DTF HI DFI OI ISRSI ISRAI SGWCI */
     proto_tree_add_item(tree, hf_gtpv2_daf,         tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_dtf,         tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_hi,          tvb, offset, 1, FALSE);
@@ -1029,10 +1035,22 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         return;
     }
     offset++;
-    proto_tree_add_item(tree, hf_gtpv2_pt,          tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gtpv2_tdi,         tvb, offset, 1, FALSE);
+	/* Octet 6 SQCI UIMSI CFSI CRSI P PT SI MSV 
+	 * 3GPP TS 29.274 version 9.4.0 Release 9
+	 */
+    proto_tree_add_item(tree, hf_gtpv2_sqci,          tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_uimsi,          tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_cfsi,          tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_crsi,          tvb, offset, 1, FALSE);
+
+    proto_tree_add_item(tree, hf_gtpv2_ps,          tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_pt,          tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_si,          tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_msv,         tvb, offset, 1, FALSE);
+	 offset++;
+	/* Octet 7 Spare Spare Spare Spare Spare Spare Spare CCRSI */
+    proto_tree_add_item(tree, hf_gtpv2_ccrsi,         tvb, offset, 1, FALSE);
+
 }
 
 /*
@@ -3490,51 +3508,71 @@ void proto_register_gtpv2(void)
 		},
         {&hf_gtpv2_daf,
         {"DAF (Dual Address Bearer Flag)", "gtpv2.daf",
-        FT_BOOLEAN, 8, NULL, 0x80, "DAF", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
         },
         {&hf_gtpv2_dtf,
         {"DTF (Direct Tunnel Flag)","gtpv2.dtf",
-        FT_BOOLEAN, 8, NULL, 0x40, "DTF", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
         },
         {&hf_gtpv2_hi,
         {"HI (Handover Indication)", "gtpv2.hi",
-        FT_BOOLEAN, 8, NULL, 0x20, "HI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
         },
         {&hf_gtpv2_dfi,
         {"DFI (Direct Forwarding Indication)", "gtpv2.dfi",
-        FT_BOOLEAN, 8, NULL, 0x10, "DFI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         {&hf_gtpv2_oi,
         {"OI (Operation Indication)","gtpv2.oi",
-        FT_BOOLEAN, 8, NULL, 0x08, "OI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_isrsi,
         {"ISRSI (Idle mode Signalling Reduction Supported Indication)", "gtpv2.isrsi",
-        FT_BOOLEAN, 8, NULL, 0x04, "ISRSI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
         },
         {&hf_gtpv2_israi,
         {"ISRAI (Idle mode Signalling Reduction Activation Indication)",    "gtpv2.israi",
-        FT_BOOLEAN, 8, NULL, 0x02, "ISRAI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_sgwci,
         {"SGWCI (SGW Change Indication)", "gtpv2.sgwci",
-        FT_BOOLEAN, 8, NULL, 0x01, "SGWCI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        {&hf_gtpv2_sqci,
+        {"SQCI (Subscribed QoS Change Indication", "gtpv2.sqci",
+        FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_gtpv2_uimsi,
+        {"UIMSI (Unauthenticated IMSI)", "gtpv2.uimsi",
+        FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        {&hf_gtpv2_cfsi,
+        {"CFSI (Change F-TEID support indication)", "gtpv2.cfsi",
+        FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        {&hf_gtpv2_crsi,
+        {"CRSI (Change Reporting support indication):", "gtpv2.crsi",
+        FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_gtpv2_ps,
+        {"PS (Piggybacking Supported).)", "gtpv2.ps",
+        FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_pt,
         {"PT (Protocol Type)", "gtpv2.pt",
-        FT_BOOLEAN, 8, NULL, 0x08, "PT", HFILL}
-        },
-        {&hf_gtpv2_tdi,
-        {"TDI (Teardown Indication)", "gtpv2.tdi",
-        FT_BOOLEAN, 8, NULL, 0x04, "TDI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
         },
         {&hf_gtpv2_si,
         {"SI (Scope Indication)", "gtpv2.si",
-        FT_BOOLEAN, 8, NULL, 0x02, "SI", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_msv,
         {"MSV (MS Validated)", "gtpv2.msv",
-        FT_BOOLEAN, 8, NULL, 0x01, "MSV", HFILL}
+        FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+		{&hf_gtpv2_ccrsi,
+        {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
+        FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_pdn_type,
         {"PDN Type", "gtpv2.pdn_type",
