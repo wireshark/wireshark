@@ -32,6 +32,7 @@
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
+ * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -1847,6 +1848,50 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		break;
 	}
 
+	case 212: {	/* 6RD option (RFC 5969) */
+		struct e_in6_addr prefix;
+		if (optlen >= 22) {
+
+			/* IPv4 Mask Len */
+			byte = tvb_get_guint8(tvb, optoff);
+			proto_tree_add_text(v_tree, tvb, optoff, 1,
+				"IPv4 Mask Len: %u", byte);
+   
+			/* 6RD Prefix Len */
+			byte = tvb_get_guint8(tvb, optoff + 1);
+			proto_tree_add_text(v_tree, tvb, optoff + 1, 1,
+				"6RD Prefix Len: %u", byte);
+   
+			/* 6RD Prefix */
+			memset(&prefix, 0, sizeof(prefix));
+			tvb_get_ipv6(tvb, optoff + 2, &prefix);
+			proto_tree_add_text(v_tree, tvb, optoff + 2, 16,
+				"6RD Prefix: %s", ip6_to_str(&prefix));
+   
+			/* Add first Border Relay IPv4 address */
+			proto_tree_add_text(v_tree, tvb, optoff + 18, 4,
+				"Border Relay Address: %s", tvb_ip_to_str(tvb, optoff + 18 ));
+   
+			/* More Border Relay IPv4 addresses included */
+			if (optlen > 22) {
+				optoff += 22;
+				for (i = optoff, optleft = optlen - 22; optleft > 0; i += 4, optleft -= 4) {
+					if (optleft < 4) {
+						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
+							"Border Relay length isn't a multiple of 4");
+						break;
+					}
+					proto_tree_add_text(v_tree, tvb, i, 4, "Border Relay Address: %s",
+						tvb_ip_to_str(tvb, i));
+				}
+			}
+		} else {
+			proto_tree_add_text(v_tree, tvb, optoff,
+				optlen, "6RD: malformed option");
+		}
+		break;
+	}
+           
 	default:	/* not special */
 		/* The PacketCable CCC option number can vary.  If this is a CCC option,
 		   handle it as a special.
