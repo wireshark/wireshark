@@ -710,5 +710,6 @@ proto_reg_handoff_ipp(void)
 	 */
 	ipp_handle = create_dissector_handle(dissect_ipp, proto_ipp);
 	http_dissector_add(631, ipp_handle);
+	dissector_add_string("media_type", "application/ipp", ipp_handle);
         data_handle = find_dissector("data");
 }
