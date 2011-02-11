@@ -107,34 +107,6 @@ static int hf_gtpv2_uli_sai_flg = -1;
 static int hf_gtpv2_uli_cgi_flg = -1;
 static int hf_gtpv2_cng_rep_act = -1;
 
-static gint ett_gtpv2 = -1;
-static gint ett_gtpv2_flags = -1;
-static gint ett_gtpv2_ie = -1;
-static gint ett_gtpv2_uli_flags = -1;
-static gint ett_gtpv2_uli_field = -1;
-static gint ett_gtpv2_bearer_ctx = -1;
-static gint ett_gtpv2_PDN_conn = -1;
-static gint ett_gtpv2_mm_context_flag = -1;
-static gint ett_gtpv2_pdn_numbers_nsapi = -1;
-static gint ett_gtpv2_tra_info_trigg = -1;
-static gint ett_gtpv2_tra_info_trigg_msc_server = -1;
-static gint ett_gtpv2_tra_info_trigg_mgw = -1;
-static gint ett_gtpv2_tra_info_trigg_sgsn = -1;
-static gint ett_gtpv2_tra_info_trigg_ggsn = -1;
-static gint ett_gtpv2_tra_info_trigg_bm_sc = -1;
-static gint ett_gtpv2_tra_info_trigg_sgw_mme = -1;
-static gint ett_gtpv2_tra_info_interfaces = -1;
-static gint ett_gtpv2_tra_info_interfaces_imsc_server = -1;
-static gint ett_gtpv2_tra_info_interfaces_lmgw = -1;
-static gint ett_gtpv2_tra_info_interfaces_lsgsn = -1;
-static gint ett_gtpv2_tra_info_interfaces_lggsn = -1;
-static gint ett_gtpv2_tra_info_interfaces_lrnc = -1;
-static gint ett_gtpv2_tra_info_interfaces_lbm_sc = -1;
-static gint ett_gtpv2_tra_info_interfaces_lmme = -1;
-static gint ett_gtpv2_tra_info_interfaces_lsgw = -1;
-static gint ett_gtpv2_tra_info_interfaces_lpdn_gw = -1;
-static gint ett_gtpv2_tra_info_interfaces_lpdn_lenb = -1;
-
 static int hf_gtpv2_selec_mode = -1;
 static int hf_gtpv2_source_type = -1;
 static int hf_gtpv2_f_teid_v4 = -1;
@@ -180,7 +152,6 @@ static int hf_gtpv2_tra_info_bm_sc = -1;
 static int hf_gtpv2_tra_info_mme_sgw_ss = -1;
 static int hf_gtpv2_tra_info_mme_sgw_sr = -1;
 static int hf_gtpv2_tra_info_mme_sgw_iataud = -1;
-static int ett_gtpv2_tra_info_ne_types = -1;
 static int hf_gtpv2_tra_info_lne_msc_s = -1;
 static int hf_gtpv2_tra_info_lne_mgw = -1;
 static int hf_gtpv2_tra_info_lne_sgsn = -1;
@@ -316,6 +287,37 @@ static int hf_gtpv2_uli_lai_lac = -1;
 static int hf_gtpv2_uli_ecgi_eci_spare= -1;
 static int hf_gtpv2_nsapi = -1;
 static int hf_gtpv2_bearer_control_mode= -1;
+
+
+static gint ett_gtpv2 = -1;
+static gint ett_gtpv2_flags = -1;
+static gint ett_gtpv2_ie = -1;
+static gint ett_gtpv2_uli_flags = -1;
+static gint ett_gtpv2_uli_field = -1;
+static gint ett_gtpv2_bearer_ctx = -1;
+static gint ett_gtpv2_PDN_conn = -1;
+static gint ett_gtpv2_mm_context_flag = -1;
+static gint ett_gtpv2_pdn_numbers_nsapi = -1;
+static gint ett_gtpv2_tra_info_trigg = -1;
+static gint ett_gtpv2_tra_info_trigg_msc_server = -1;
+static gint ett_gtpv2_tra_info_trigg_mgw = -1;
+static gint ett_gtpv2_tra_info_trigg_sgsn = -1;
+static gint ett_gtpv2_tra_info_trigg_ggsn = -1;
+static gint ett_gtpv2_tra_info_trigg_bm_sc = -1;
+static gint ett_gtpv2_tra_info_trigg_sgw_mme = -1;
+static gint ett_gtpv2_tra_info_interfaces = -1;
+static gint ett_gtpv2_tra_info_interfaces_imsc_server = -1;
+static gint ett_gtpv2_tra_info_interfaces_lmgw = -1;
+static gint ett_gtpv2_tra_info_interfaces_lsgsn = -1;
+static gint ett_gtpv2_tra_info_interfaces_lggsn = -1;
+static gint ett_gtpv2_tra_info_interfaces_lrnc = -1;
+static gint ett_gtpv2_tra_info_interfaces_lbm_sc = -1;
+static gint ett_gtpv2_tra_info_interfaces_lmme = -1;
+static gint ett_gtpv2_tra_info_interfaces_lsgw = -1;
+static gint ett_gtpv2_tra_info_interfaces_lpdn_gw = -1;
+static gint ett_gtpv2_tra_info_interfaces_lpdn_lenb = -1;
+static gint ett_gtpv2_tra_info_ne_types = -1;
+
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK			0x01
@@ -4425,29 +4427,31 @@ void proto_register_gtpv2(void)
         &ett_gtpv2,
         &ett_gtpv2_flags,
         &ett_gtpv2_ie,
-		&ett_gtpv2_uli_flags,
-		&ett_gtpv2_uli_field,
+	&ett_gtpv2_uli_flags,
+	&ett_gtpv2_uli_field,
         &ett_gtpv2_bearer_ctx,
-		&ett_gtpv2_PDN_conn,
-		&ett_gtpv2_mm_context_flag,
+	&ett_gtpv2_PDN_conn,
+	&ett_gtpv2_mm_context_flag,
         &ett_gtpv2_pdn_numbers_nsapi,
+	&ett_gtpv2_tra_info_trigg,
         &ett_gtpv2_tra_info_trigg_msc_server,
         &ett_gtpv2_tra_info_trigg_mgw,
         &ett_gtpv2_tra_info_trigg_sgsn,
         &ett_gtpv2_tra_info_trigg_ggsn,
         &ett_gtpv2_tra_info_trigg_bm_sc,
-		&ett_gtpv2_tra_info_trigg_sgw_mme,
-		&ett_gtpv2_tra_info_interfaces,
-		&ett_gtpv2_tra_info_interfaces_imsc_server,
-		&ett_gtpv2_tra_info_interfaces_lmgw,
-		&ett_gtpv2_tra_info_interfaces_lsgsn,
-		&ett_gtpv2_tra_info_interfaces_lggsn,
-		&ett_gtpv2_tra_info_interfaces_lrnc,
-		&ett_gtpv2_tra_info_interfaces_lbm_sc,
-		&ett_gtpv2_tra_info_interfaces_lmme,
-		&ett_gtpv2_tra_info_interfaces_lsgw,
-		&ett_gtpv2_tra_info_interfaces_lpdn_gw,
-		&ett_gtpv2_tra_info_interfaces_lpdn_lenb,
+	&ett_gtpv2_tra_info_trigg_sgw_mme,
+	&ett_gtpv2_tra_info_interfaces,
+	&ett_gtpv2_tra_info_interfaces_imsc_server,
+	&ett_gtpv2_tra_info_interfaces_lmgw,
+	&ett_gtpv2_tra_info_interfaces_lsgsn,
+	&ett_gtpv2_tra_info_interfaces_lggsn,
+	&ett_gtpv2_tra_info_interfaces_lrnc,
+	&ett_gtpv2_tra_info_interfaces_lbm_sc,
+	&ett_gtpv2_tra_info_interfaces_lmme,
+	&ett_gtpv2_tra_info_interfaces_lsgw,
+	&ett_gtpv2_tra_info_interfaces_lpdn_gw,
+	&ett_gtpv2_tra_info_interfaces_lpdn_lenb,
+	&ett_gtpv2_tra_info_ne_types
 
     };
 
