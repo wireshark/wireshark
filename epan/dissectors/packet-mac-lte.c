@@ -2262,12 +2262,25 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         switch (pdu_lengths[number_of_headers]) {
             case -1:
                 proto_item_append_text(pdu_subheader_ti, ", length is remainder)");
+                proto_item_append_text(pdu_header_ti, " (%s:remainder)",
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
+                                                        "Unknown"));
                 break;
             case 0:
                 proto_item_append_text(pdu_subheader_ti, ")");
+                proto_item_append_text(pdu_header_ti, " (%s)",
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
+                                                        "Unknown"));
                 break;
             default:
                 proto_item_append_text(pdu_subheader_ti, ", length=%u)",
+                                       pdu_lengths[number_of_headers]);
+                proto_item_append_text(pdu_header_ti, " (%s:%u)", 
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
+                                                        "Unknown"),
                                        pdu_lengths[number_of_headers]);
                 break;
         }
