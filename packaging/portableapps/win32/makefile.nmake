@@ -97,7 +97,7 @@ source:  WiresharkPortable.ini
 
 findprocdll:
 	if not exist $(FINDPROCDLL) \
-	@$(SH) $(TOPDIR)\tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) ../../../tools/win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		$(NSIS_PLUGINS) FindProc.zip
 
 
