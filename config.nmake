@@ -601,18 +601,21 @@ POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
 # Command for native Windows Python (recommended)
-# V2.4 to V2.6 should work
+# V2.4 to V2.7 should work
 
 # If you want to specify your Python settings, uncomment the lines below.
-#PYTHON="C:\Python26\python.exe"
-#PATH=c:\Python26;$(PATH)
+#PYTHON="C:\Python27\python.exe"
+#PATH=c:\Python27;$(PATH)
 
 # Command for Cygwin's Python (not recommended)
 #PYTHON=env python
 
 # Otherwise, find Python automatically.
 !IF !DEFINED(PYTHON)
-!IF EXIST(c:\Python26\python.exe)
+!IF EXIST(c:\Python27\python.exe)
+PYTHON="C:\Python27\python.exe"
+PATH=c:\Python27;$(PATH)
+!ELSE IF EXIST(c:\Python26\python.exe)
 PYTHON="C:\Python26\python.exe"
 PATH=c:\Python26;$(PATH)
 !ELSE IF EXIST(c:\Python25\python.exe)
