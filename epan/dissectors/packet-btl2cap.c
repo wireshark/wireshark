@@ -1095,7 +1095,25 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void* pd_save;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
-	col_set_str(pinfo->cinfo, COL_INFO, pinfo->p2p_dir == P2P_DIR_SENT ? "Sent " : "Rcvd ");
+	switch (pinfo->p2p_dir) {
+
+	case P2P_DIR_SENT:
+		col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+		break;
+
+	case P2P_DIR_RECV:
+		col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+		break;
+
+	case P2P_DIR_UNKNOWN:
+		col_clear(pinfo->cinfo, COL_INFO);
+		break;
+
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+		    pinfo->p2p_dir);
+		break;
+	}
 
 	if(tree){
 		ti=proto_tree_add_item(tree, proto_btl2cap, tvb, offset, -1, FALSE);

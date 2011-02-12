@@ -138,7 +138,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 		*err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
 		return -1;
 	case KHciLoggerDatalinkTypeH4:
-		file_encap=WTAP_ENCAP_BLUETOOTH_H4;
+		file_encap=WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 		break;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
@@ -209,7 +209,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.nsecs = (guint)((ts % 1000000) * 1000);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
-	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4)
+	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
 	{
 		wth->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 	}
@@ -261,7 +261,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 	if (!snoop_read_rec_data(wth->random_fh, pd, length, err))
 		return FALSE;	/* failed */
 
-	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4)
+	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
 	{
 		pseudo_header->p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 	}

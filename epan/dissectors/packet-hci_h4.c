@@ -69,7 +69,24 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *hci_h4_tree=NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI H4");
-	col_clear(pinfo->cinfo, COL_INFO);
+	switch (pinfo->p2p_dir) {
+
+	case P2P_DIR_SENT:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Sent ");
+		break;
+
+	case P2P_DIR_RECV:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd ");
+		break;
+
+	case P2P_DIR_UNKNOWN:
+		break;
+
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+		    pinfo->p2p_dir);
+		break;
+	}
 
 	type = tvb_get_guint8(tvb, 0);
 
@@ -83,13 +100,11 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(hci_h4_tree, hf_hci_h4_type,
 		tvb, 0, 1, TRUE);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+			val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	if(!dissector_try_uint(hci_h4_table, type, next_tvb, pinfo, tree)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-						pinfo->p2p_dir==P2P_DIR_SENT ? "Sent" : "Rcvd",
-						val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
-
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
