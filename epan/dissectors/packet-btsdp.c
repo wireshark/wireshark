@@ -80,6 +80,12 @@ static const value_string vs_pduid[] = {
 	{0, NULL}
 };
 
+#define ATTR_ID_SERVICE_CLASS_ID_LIST			0x0001
+#define ATTR_ID_PROTOCOL_DESCRIPTOR_LIST		0x0004
+#define ATTR_ID_BT_PROFILE_DESCRIPTOR_LIST		0x0009
+#define ATTR_ID_ADDITIONAL_PROTOCOL_DESCRIPTOR_LISTS	0x000d
+#define ATTR_ID_GOEP_L2CAP_PSM_GROUP_ID_IP_SUBNET	0x0200
+
 static const value_string vs_general_attribute_id[] = {
 	{0x0000, "Service Record Handle"},
 	{0x0001, "Service Class ID List"},
@@ -255,7 +261,7 @@ dissect_sdp_error_response(proto_tree *t, tvbuff_t *tvb, int offset) {
 }
 
 static int
-get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, guint32 *service, guint32 *service_val)
+get_sdp_data_element(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, guint32 *service, guint32 *service_val)
 {
 	int size, start_offset, type_size;
 	guint8 byte0;
@@ -320,7 +326,7 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 		guint32 value = 0;
 
 		while(bytes_to_go > 0) {
-			size = get_sdp_type(tvb, offset, id, type, val, service, service_val);
+			size = get_sdp_data_element(tvb, offset, id, type, val, service, service_val);
 			if (size < 1 || *val == NULL) {
 				break;
 			}
@@ -547,8 +553,12 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 		service_item=se_tree_lookup32(service_table, token);
 
 		if(service_item != NULL) {
-			if(id == 4 || (id == 9) || (id == 0xd)) { /* profile/protocol discriptor list/additional protocol list */
-				get_sdp_type(tvb, offset+ 3, id, &type, &val,  &service, &service_val);
+			switch(id) {
+
+			case ATTR_ID_PROTOCOL_DESCRIPTOR_LIST:
+			case ATTR_ID_BT_PROFILE_DESCRIPTOR_LIST:
+			case ATTR_ID_ADDITIONAL_PROTOCOL_DESCRIPTOR_LISTS:
+				get_sdp_data_element(tvb, offset+ 3, id, &type, &val,  &service, &service_val);
 
 				if( (service == BTSDP_L2CAP_PROTOCOL_UUID)
 					|| (service == BTSDP_RFCOMM_PROTOCOL_UUID) ) {
@@ -560,24 +570,30 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 				}
 
 				service_item->flags = 0;
-				if(id == 0xd) {
+				if(id == ATTR_ID_ADDITIONAL_PROTOCOL_DESCRIPTOR_LISTS) {
 					service_item->flags = BTSDP_SECONDARY_CHANNEL_FLAG_MASK;
 				}
-			}
-			else if( id == 1) { /* service class id list */
-				get_sdp_type(tvb, offset+ 3, id, &type, &val,  &service, &service_val);
+				break;
+
+			case ATTR_ID_SERVICE_CLASS_ID_LIST:
+				get_sdp_data_element(tvb, offset+ 3, id, &type, &val,  &service, &service_val);
 				service_item->service = service;
-			}
-			else if(id == 0x200) { /* GOEP L2CAP PSM? */
+				break;
+
+			case ATTR_ID_GOEP_L2CAP_PSM_GROUP_ID_IP_SUBNET:
+				/* GOEP L2CAP PSM? */
+				{
 				guint8 *psm;
 
-				get_sdp_type(tvb, offset+ 3, id, &type, &psm,  &service, &service_val);
+				get_sdp_data_element(tvb, offset+ 3, id, &type, &psm,  &service, &service_val);
 
 				if( (type == 1) && (*psm & 0x1) ) {
 					service_item->channel = *psm;
 					service_item->protocol = BTSDP_L2CAP_PROTOCOL_UUID;
 					service_item->flags = 0;
 				}
+				}
+				break;
 			}
 
 			if( service_item->service != 0 && service_item->channel != 0 ) {
@@ -772,7 +788,7 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
 			service_item->channel = 0;
 			service_item->service = 0;
 
-			get_sdp_type(tvb, offset, 4, &type, &val,  &service, &service_val);
+			get_sdp_data_element(tvb, offset, 4, &type, &val,  &service, &service_val);
 
 			if( type==3 && val != NULL)
 				service_item->service = *((guint32 *) val);
@@ -853,9 +869,26 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pdu = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(st, hf_pduid, tvb, offset, 1, FALSE);
 	pdu_name = val_to_str(pdu, vs_pduid, "Unknown");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s ",pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", pdu_name);
+	switch (pinfo->p2p_dir) {
+
+	case P2P_DIR_SENT:
+		col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+		break;
+
+	case P2P_DIR_RECV:
+		col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+		break;
+
+	case P2P_DIR_UNKNOWN:
+		col_clear(pinfo->cinfo, COL_INFO);
+		break;
+
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+		    pinfo->p2p_dir);
+		break;
 	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", pdu_name);
 	proto_item_append_text(ti, ": %s (0x%x)", pdu_name, pdu);
 	offset++;
 
