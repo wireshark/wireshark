@@ -5479,6 +5479,7 @@ proto_register_ipv6cp(void)
     &ett_ipv6cp_options,
     &ett_ipv6cp_if_id_opt,
     &ett_ipv6cp_compress_opt,
+    &ett_ipcp_iphc_disableprot_opt
   };
 
   proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol",
