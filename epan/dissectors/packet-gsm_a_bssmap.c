@@ -523,6 +523,9 @@ static int hf_gsm_a_bssmap_tf = -1;
 static int hf_gsm_a_bssmap_pi = -1;
 static int hf_gsm_a_bssmap_pt = -1;
 static int hf_gsm_a_bssap_speech_codec = -1;
+static int hf_gsm_a_bssap_extended_codec = -1;
+static int hf_gsm_a_bssap_extended_codec_r2 = -1;
+static int hf_gsm_a_bssap_extended_codec_r3 = -1;
 static int hf_gsm_a_bssmap_fi2 = -1;
 static int hf_gsm_a_bssmap_tf2 = -1;
 static int hf_gsm_a_bssmap_pi2 = -1;
@@ -3649,8 +3652,17 @@ static const value_string bssap_speech_codec_values[] = {
     { 0x0b,     "OHR_AMR" },
     { 0x0c,     "OFR_AMR-WB" },
     { 0x0d,     "OHR_AMR-WB" },
+    { 0x0e,     "Reserved" },
+	{ 0x0f,     "Codec Extension" },
     { 0,        NULL }
 };
+static value_string_ext bssap_speech_codec_values_ext = VALUE_STRING_EXT_INIT(bssap_speech_codec_values);
+
+static const value_string bssap_extended_codec_values[] = {
+    { 0x0d,     "(CSData" },
+    { 0,        NULL }
+};
+
 static guint16
 be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3668,18 +3680,6 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
         item = proto_tree_add_text(tree, tvb, curr_offset, 1, "Speech Codec Element %u",number);
         subtree = proto_item_add_subtree(item, ett_codec_lst);
         codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
-        /* FI indicates Full IP */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* PI indicates PCMoIP */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* PT indicates PCMoTDM */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* TF indicates TFO support */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* Codec Type */
-        proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
-        consumed++;
         switch(codec){
             case 3:
                 /* fall through */
@@ -3690,6 +3690,18 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
                  * HR_AMR is coded '100'
                  * OHR_AMR is coded '1011'
                  */
+				/* FI indicates Full IP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* TF indicates TFO support */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
                 consumed+=2;
@@ -3703,10 +3715,40 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
                  * OFR_AMR-WB is coded '1100'
                  * OHR_AMR-WB is coded '1101'
                  */
+				/* FI indicates Full IP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* TF indicates TFO support */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
                 curr_offset++;
                 consumed++;
                 break;
+			case 0xf:
+				/* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
+				/* Codec Extension */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
             default:
                 break;
         }
@@ -3750,18 +3792,6 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
         item = proto_tree_add_text(tree, tvb, curr_offset, 1, "Speech Codec Element %u",number);
         subtree = proto_item_add_subtree(item, ett_codec_lst);
         codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
-        /* FI indicates Full IP */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* PI indicates PCMoIP */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* PT indicates PCMoTDM */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* TF indicates TFO support */
-        proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        /* Codec Type */
-        proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
-        consumed++;
         switch(codec){
             case 3:
                 /* fall through */
@@ -3772,6 +3802,18 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
                  * HR_AMR is coded '100'
                  * OHR_AMR is coded '1011'
                  */
+				/* FI indicates Full IP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* TF indicates TFO support */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
                 consumed+=2;
@@ -3785,10 +3827,40 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
                  * OFR_AMR-WB is coded '1100'
                  * OHR_AMR-WB is coded '1101'
                  */
+				/* FI indicates Full IP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* TF indicates TFO support */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
                 curr_offset++;
                 consumed++;
                 break;
+			case 0xf:
+				/* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
+				/* PI indicates PCMoIP */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* PT indicates PCMoTDM */
+				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				/* Codec Type */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
+				/* Codec Extension */
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				curr_offset++;
+				consumed++;
             default:
                 break;
         }
@@ -6785,7 +6857,22 @@ proto_register_gsm_a_bssmap(void)
     },
     { &hf_gsm_a_bssap_speech_codec,
         { "Codec Type","gsm_a_bssmap.speech_codec",
-        FT_UINT8, BASE_DEC,VALS(bssap_speech_codec_values), 0x0f,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssap_speech_codec_values_ext, 0x0f,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssap_extended_codec,
+        { "Extended Codec Type","gsm_a_bssmap.extended_codec",
+        FT_UINT8, BASE_DEC, VALS(bssap_extended_codec_values), 0x0,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssap_extended_codec_r2,
+        { "Redundancy Level 2","gsm_a_bssmap.r2",
+        FT_BOOLEAN,8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssap_extended_codec_r3,
+        { "Redundancy Level 3","gsm_a_bssmap.r3",
+        FT_BOOLEAN,8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_fi2,
