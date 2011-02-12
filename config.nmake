@@ -697,7 +697,9 @@ UPX=$(WIRESHARK_LIBS)\upx303w\upx.exe
 
 # Find native Python automatically if PYTHON(_DIR) wasn't defined
 !IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
-!IF EXIST(c:\Python26\python.exe)
+!IF EXIST(c:\Python27\python.exe)
+PYTHON_VER=27
+!ELSE IF EXIST(c:\Python26\python.exe)
 PYTHON_VER=26
 !ELSE IF EXIST(c:\Python25\python.exe)
 PYTHON_VER=25
