@@ -1022,8 +1022,12 @@ sub check_ett_registration($$)
 {
 	my ($fileContentsRef, $filename) = @_;
 	my @ett_declarations;
-	my @ett_registrations;
+	my %ett_registrations;
 	my @unRegisteredEtts;
+
+	# A pattern to match ett variable names.  Obviously this assumes that
+	# they start with ett_
+	my $EttVarName = qr{ (?: ett_[a-z0-9_]+ (?:\[[0-9]+\])? ) }xi;
 
 	# Remove macro lines
 	my $fileContents = ${$fileContentsRef};
@@ -1031,14 +1035,14 @@ sub check_ett_registration($$)
 
 	# Find all the ett_ variables declared in the file
 	@ett_declarations = ($fileContents =~ m{
-		static
+		^\s*static		# assume declarations are on their own line
 		\s+
 		g?int			# could be int or gint
 		\s+
-		(ett_[a-z0-9_]+)	# variable name
+		($EttVarName)		# variable name
 		\s*=\s*
 		-1\s*;
-	}xgios);
+	}xgiom);
 
 	if (!@ett_declarations) {
 		print "Found no etts in ".$filename."\n";
@@ -1060,7 +1064,7 @@ sub check_ett_registration($$)
 		=
 		\s*\{
 		((?:\s*&\s*		# address of the following variable
-		ett_[a-z0-9_]+		# variable name
+		$EttVarName		# variable name
 		\s*,?			# the comma is optional (for the last entry)
 		\s*)+)			# match one or more variable names
 		\}
@@ -1075,33 +1079,33 @@ sub check_ett_registration($$)
 		return;
 	}
 
-	while (<@reg_blocks>) {
-		push @ett_registrations, ($_ =~ m{
-			\s*&\s*			# address of the following variable
-			(ett_[a-z0-9_]+)	# variable name
-			\s*,?			# the comma is optional (for the last entry)
-		}xgios);
-	}
-	#print "Found these ett registrations in ".$filename.": ".join(',', @ett_registrations)."\n";
+	while (@reg_blocks) {
+		my ($block) = @reg_blocks;
+		shift @reg_blocks;
 
-	# Find which declared etts are not registered
-	# There has to be an easier way to do this...
-	my $foundit = 0;
+		# Convert the list returned by the match into a hash of the
+		# form ett_variable_name -> 1.  Then combine this new hash with
+		# the hash from the last registration block.
+		# (Of course) using hashes makes the lookups much faster.
+		%ett_registrations = map { $_ => 1 } ($block =~ m{
+			\s*&\s*			# address of the following variable
+			($EttVarName)		# variable name
+			\s*,?			# the comma is optional (for the last entry)
+		}xgios, %ett_registrations);
+	}
+	#print "Found these ett registrations in ".$filename.": ";
+	#while( my ($k, $v) = each %ett_registrations ) {
+	#          print "$k\n";
+	#}
+
+	# Find which declared etts are not registered.
+	# XXX - using <@ett_declarations> and $_ instead of $ett_var makes this
+	# MUCH slower...  Why?
 	while (@ett_declarations) {
 		my ($ett_var) = @ett_declarations;
 		shift @ett_declarations;
 
-		$foundit = 0;
-		foreach $_ (@ett_registrations) {
-			if ($_ eq $ett_var) {
-				$foundit = 1;
-				last;
-			}
-		}
-
-		if (!$foundit) {
-			push @unRegisteredEtts, $ett_var;
-		}
+		push(@unRegisteredEtts, $ett_var) if (!$ett_registrations{$ett_var});
 	}
 
 	if (@unRegisteredEtts) {
