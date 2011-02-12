@@ -456,7 +456,9 @@ file_open_cmd(GtkWidget *w)
 #else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
+#if !GTK_CHECK_VERSION(2,14,0)
   GtkTooltips *tooltips = gtk_tooltips_new();
+#endif
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -522,8 +524,12 @@ file_open_cmd(GtkWidget *w)
                    G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
+#if GTK_CHECK_VERSION(2,14,0)
+  gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog, to edit/apply filters");
+#else
   gtk_tooltips_set_tip(tooltips, filter_bt,
     "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
+#endif
 
   filter_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
@@ -535,7 +541,11 @@ file_open_cmd(GtkWidget *w)
   g_signal_connect(file_open_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
+#if GTK_CHECK_VERSION(2,14,0)
+  gtk_widget_set_tooltip_text(filter_te, "Enter a display filter.");
+#else
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
+#endif
 
   g_object_set_data(G_OBJECT(file_open_w), E_RFILTER_TE_KEY, filter_te);
 
