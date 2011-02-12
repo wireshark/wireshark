@@ -55,8 +55,9 @@ static const value_string hci_h4_type_vals[] = {
 	{0, NULL }
 };
 static const value_string hci_h4_direction_vals[] = {
-	{0,	"Sent"},
-	{1,	"Rcvd"},
+	{P2P_DIR_SENT,		"Sent"},
+	{P2P_DIR_RECV,		"Rcvd"},
+	{P2P_DIR_UNKNOWN,	"Unspecified"},
 	{0, NULL}
 };
 
