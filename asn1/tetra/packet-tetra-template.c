@@ -85,8 +85,6 @@ static gint hf_tetra_bits = -1;
 #include "packet-tetra-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_umac = -1;
-
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_tetra = -1;
 static gint ett_tetra_header = -1;

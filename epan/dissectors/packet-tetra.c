@@ -698,8 +698,6 @@ static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selec
 #line 86 "packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
-static int ett_umac = -1;
-
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_tetra = -1;
 static gint ett_tetra_header = -1;
@@ -984,7 +982,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 98 "packet-tetra-template.c"
+#line 96 "packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
@@ -8908,7 +8906,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 100 "packet-tetra-template.c"
+#line 98 "packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -11822,7 +11820,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 609 "packet-tetra-template.c"
+#line 607 "packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12109,7 +12107,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 619 "packet-tetra-template.c"
+#line 617 "packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */
