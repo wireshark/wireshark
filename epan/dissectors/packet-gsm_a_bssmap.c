@@ -3750,6 +3750,9 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 				curr_offset++;
 				consumed++;
             default:
+				proto_tree_add_text(subtree, tvb, curr_offset, 2,"Unknown codec - the rest of the dissection my be suspect");
+				curr_offset+=2;
+				consumed+=2;
                 break;
         }
     }
@@ -3862,6 +3865,9 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 				curr_offset++;
 				consumed++;
             default:
+				proto_tree_add_text(subtree, tvb, curr_offset, 2, "Unknown codec - the rest of the dissection my be suspect");
+				curr_offset+=2;
+				consumed+=2;
                 break;
         }
     }
