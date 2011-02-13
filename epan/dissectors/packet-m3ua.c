@@ -5,6 +5,7 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt (expired)
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-07.txt (expired)
  * http://www.ietf.org/rfc/rfc3332.txt
+ * http://datatracker.ietf.org/doc/rfc4666/
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
@@ -1153,6 +1154,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     if(mtp3_tap->addr_opc.ni == 0)
     {
         q708_tree = proto_item_add_subtree(item,ett_q708_opc);
+		/*  Q.708 (1984-10)  Numbering of International Signalling Point Codes  */
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_OPC_OFFSET, DATA_OPC_LENGTH, mtp3_tap->addr_opc.pc);
     }
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, ENC_BIG_ENDIAN);
@@ -1189,7 +1191,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
 
-  }
+  }/* parameter_tree */
 
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
   if (!dissector_try_uint(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
