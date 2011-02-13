@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-02-05)
+(last updated 2011-02-13)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -115934,8 +115934,8 @@ Decentralization / Helenic Public Administra
       cramon&roullier.net
 29088
   SpinVox Ltd.
-    Kit Ruparel
-      oid.admin&spinvox.com
+    Jeremy Spykerman
+      oid.admin&nuance.com
 29089
   Intec Software Solutions
     Michael Gargan
@@ -134660,8 +134660,8 @@ Decentralization / Helenic Public Administra
       webmaster&leadal.com
 33769
   Universidad de La Habana
-    Yoanis Gil Delgado
-      fred&uh.cu
+    Abel Marrero Santos
+      marrero&uh.cu
 33770
   Telcom Research
     Brian Weppler
@@ -136099,9 +136099,9 @@ Decentralization / Helenic Public Administra
     Alexander Stanley
       alexanderwstanley&gmail.com
 34129
-  TUBITAK BTE
+  TUBITAK BILGEM BTE
     Bulent CANDAN
-      bulent.candan&bte.mam.gov.tr
+      bulent.candan&bte.tubitak.gov.tr
 34130
   ALCEA
     M VO-QUI BRUNO
@@ -148953,14 +148953,14 @@ Decentralization / Helenic Public Administra
       ephraim.dobbins&plexxi.com
 37342
   uCIRRUS Corp
-    Joel Thompson
-      joel.thompson&ucirrus.com
+    Dave Cracknell
+      Dave.Cracknell&ucirrus.com
 37343
   InterScot Network
     Chris Maxwell
       cmaxwell&interscot.net
 37344
-  Express TeleCom LLC
+  Express TeleCom JSC
     Andrey A. Konovalov
       noc&extel.ru
 37345
@@ -149016,13 +149016,193 @@ Decentralization / Helenic Public Administra
     Boleslav Bobcik
       bbobcik&gmail.com
 37358
-  RMA AG
+  Regionalmedien Austria AG
     Kurt Stieger
       it-services&regionalmedien.at
 37359
   PaperlinX Europe
     Chris Wynia
       chris.wynia&paperlinxeu.com
+37360
+  Hypace Technology Co.,Ltd
+    Grant Lee
+      grantlee&hypace.com
+37361
+  EquiVox Inc.
+    Adeel Nazir
+      adeel.nazir&equivox.net
+37362
+  Center Information Technologies of Amur Region
+    Oleg Yakovlev
+      ca&amur-cit.ru
+37363
+  Viishanke Oy
+    Mika Mähönen
+      mika.mahonen&viishanke.fi
+37364
+  Likewise Software
+    Glenn Curtis
+      glennc&likewise.com
+37365
+  AeCS Aeroclub Saar e.V.
+    Christian Zeitz
+      christian.zeitz&aeroclub-saar.de
+37366
+  Network Application Engineering Laboratories LTD.
+    Minoru Okazaki
+      okazaki-rd&nalab.jp
+37367
+  UNIVISION SRL
+    Giacomo Colombo
+      giacomo.colombo&univision.it
+37368
+  AND Technology Research Ltd.
+    Steven Kear
+      steven.kear&andtr.com
+37369
+  CyberCité
+    DUVERGIER Claude
+      iana.pen-net&cybercite.fr
+37370
+  Mark White
+    Mark White
+      scoooby&campus.ie
+37371
+  Idibri
+    Russell Reid
+      rreid&idibri.com
+37372
+  University of San Diego
+    Tim Weichel
+      identitysupport&sandiego.edu
+37373
+  MitraStar Technology Corporation
+    Becker Lu
+      Becker.Lu&mitrastar.com.tw
+37374
+  Brainstorm Mobile Solutions Ltd
+    Richard Frith-Macdonald
+      richard.fm&brainstorm.co.uk
+37375
+  DATA 5 Ingenieurbuero fuer Datentechnik GmbH
+    Karl Zuern
+      Karl.Zuern&DATA5.de
+37376
+  Gerhard Messer
+    Gerhard Messer
+      register&gerhardmesser.com
+37377
+  Chaos Creations
+    Søren P. Skou
+      sps&mud.dk
+37378
+  Dansk Kabel TV
+    Søren P. Skou
+      sps&danskkabeltv.dk
+37379
+  Charles Schwab & Co., Inc.
+    Darren Mar-Elia
+      darren.marelia&schwab.com
+37380
+  Computer Output Print & Internet (COPI)
+    Andy Plata
+      ap&888999COPI.com
+37381
+  Balidev.com
+    Yogi Triana
+      yogi.triana&gmail.com
+37382
+  Danateq PTE Ltd
+    Ian Langman
+      ian.langman&danateq.com
+37383
+  Infocom Network Limited
+    Rajesh Kumar Mallah, CTO
+      mallah&tradeindia.com
+37384
+  Onze Lieve Vrouw Ziekenhuis Aalst
+    Anthony Van der Vennet
+      anthony.van.der.vennet&econocom.be
+37385
+  Centrum Informatyki ZETO S.A. w Białymstoku
+    Waldemar Buraczewski
+      Waldemar.Buraczewski&zeto.bialystok.pl
+37386
+  CEGES/SOMA
+    Steven Langenaken
+      steven.langenaken&cegesoma.be
+37387
+  NAVUM GmbH
+    Alexander Schneider
+      Alexander.Schneider&navum.de
+37388
+  Lietuvos Respublikos Seimo kanceliarija
+    Rimas Paliusis
+      ripali&lrs.lt
+37389
+  BYO NETWORKS
+    Olivier Tirat
+      olivier.tirat&byo-networks.com
+37390
+  Adyton Systems AG
+    Franco Fichtner
+      franco.fichtner&adytonsystems.com
+37391
+  Ministry of health Republic of Macedonia
+    Zaklina Cagoroska
+      zaklina&izismk.org
+37392
+  PROBE Inc.
+    Dong Hyun Kim
+      dhkim&probedigital.com
+37393
+  Tazarv Afzar Co.
+    Jalal Abedinejad
+      abedi&tazarv.com
+37394
+  Farsinet
+    Mohsen Saeedi
+      iana&farsinetco.com
+37395
+  kaspian sanat co.
+    aflatounian ali
+      aflatounianali&live.com
+37396
+  Usługi Informatyczne ITS Mariusz Kryński
+    Mariusz Kryński
+      mrk&sed.pl
+37397
+  MMB Research Inc.
+    Mark Borins
+      domain.admin&mmbresearch.com
+37398
+  ThreatMetrix
+    Joel Heenan
+      operations&threatmetrix.com
+37399
+  Oceans Edge Inc
+    Avis Ng
+      avis.ng&oceansedge.biz
+37400
+  Topsoft ZRt
+    Ferenc Lendvai
+      lendvai&topsoft.hu
+37401
+  FancyFon Software
+    Konrad Kehrer
+      konrad.kehrer&fancyfon.com
+37402
+  neverpanic.de
+    Clemens Lang
+      clemens&neverpanic.de
+37403
+  Marmiko IT-Solutions GmbH
+    Th. Meier-Brook
+      penmaster&marmiko.de
+37404
+  Rischioto Corp
+    Carlos L L Rischioto
+      carlos&rischioto.com.br
 
 
 End of Document
