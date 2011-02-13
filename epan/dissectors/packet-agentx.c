@@ -622,6 +622,7 @@ dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char 
 
 	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
+	len += PDU_HDR_LEN;
 	if(len > offset) {
 		/* Upper bound (opt) */
 		proto_tree_add_item(subtree, hf_reg_ubound, tvb, offset, 4, little_endian);
@@ -653,6 +654,7 @@ dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, cha
 	/* Region */
 	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
+	len += PDU_HDR_LEN;
 	if(len > offset) {
 		/* Upper bound (opt) */
 		proto_tree_add_item(subtree, hf_unreg_ubound, tvb, offset, 4, little_endian);
