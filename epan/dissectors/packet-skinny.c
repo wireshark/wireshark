@@ -1486,7 +1486,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
-      if((!pinfo->fd->flags.visited) && rtp_handle){
+      if(rtp_handle){
 	    address src_addr;
 	    guint32 ipv4_address;
 
@@ -1907,7 +1907,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, TRUE);
-      if((!pinfo->fd->flags.visited) && rtp_handle){
+      if(rtp_handle){
 	    address src_addr;
 	    guint32 ipv4_address;
 
