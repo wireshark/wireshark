@@ -73,6 +73,16 @@ static const true_false_string softKeyMapValues = {
   "Do Not Show"
 };
 
+#define BASIC_MSG_TYPE 0x00
+#define CM7_MSG_TYPE_A 0x12
+#define CM7_MSG_TYPE_B 0x11
+
+static const value_string header_version[] = {
+  { BASIC_MSG_TYPE, "Basic message type" },
+  { CM7_MSG_TYPE_A, "CM7 message type A" },
+  { CM7_MSG_TYPE_B, "CM7 message type B" },
+  { 0             , NULL }
+};
 
 /* I will probably need this again when I change things
  * to function pointers, but let me use the existing
@@ -223,6 +233,7 @@ static const value_string  message_id[] = {
   {0x013C, "AuditConferenceReqMessage"},
   {0x013D, "AuditParticipantReqMessage"},
   {0x013F, "UserToDeviceDataVersion1Message"},
+  {0x014A, "CM5CallInfoMessage"},
   {0x015A, "XMLAlarmMessage"},
 
   {0     , NULL}	/* terminator */
@@ -951,7 +962,7 @@ static const value_string cast_callSecurityStatusTypes[] = {
 /* Initialize the protocol and registered fields */
 static int proto_skinny          = -1;
 static int hf_skinny_data_length = -1;
-static int hf_skinny_reserved    = -1;
+static int hf_skinny_hdr_version = -1;
 static int hf_skinny_messageid   = -1;
 static int hf_skinny_deviceName  = -1;
 static int hf_skinny_stationUserId = -1;
@@ -1255,7 +1266,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Header fields */
   guint32 hdr_data_length;
-  guint32 hdr_reserved;
+  guint32 hdr_version;
   guint32 data_messageid;
   /*  guint32 data_size; */
 
@@ -1282,7 +1293,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *skm_tree = NULL;
 
   hdr_data_length = tvb_get_letohl(tvb, offset);
-  hdr_reserved    = tvb_get_letohl(tvb, offset+4);
+  hdr_version     = tvb_get_letohl(tvb, offset+4);
   data_messageid  = tvb_get_letohl(tvb, offset+8);
 
   /* Initialise stat info for passing to tap */
@@ -1310,7 +1321,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, FALSE);
     skinny_tree = proto_item_add_subtree(ti, ett_skinny);
     proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);
-    proto_tree_add_uint(skinny_tree, hf_skinny_reserved, tvb, offset+4, 4, hdr_reserved);
+    proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1322,7 +1333,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,offset+8, 4, data_messageid );
   }
 
-  if (tree) {
+  {
     switch(data_messageid) {
 
     /* cases that do not need to be decoded */
@@ -1482,21 +1493,41 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x22 : /* stationOpenReceiveChannelAck */
-      proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, FALSE);
-      proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
-      if(rtp_handle){
-	    address src_addr;
-	    guint32 ipv4_address;
+      if (hdr_version == BASIC_MSG_TYPE) {
+        proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, FALSE);
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
+        if (rtp_handle) {
+          address src_addr;
+          guint32 ipv4_address;
 
-	    src_addr.type=AT_IPv4;
-	    src_addr.len=4;
-	    src_addr.data=(guint8 *)&ipv4_address;
-	    ipv4_address = tvb_get_ipv4(tvb, offset+16);
-	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+          src_addr.type = AT_IPv4;
+          src_addr.len = 4;
+          src_addr.data = (guint8 *)&ipv4_address;
+          ipv4_address = tvb_get_ipv4(tvb, offset+16);
+          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+        }
+        si->passThruId = tvb_get_letohl(tvb, offset+24);
+      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B) {
+        proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
+        /* unknown uint32_t stuff */
+        proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+20, 4, FALSE);
+        /* 3x unknown uint32_t stuff, space for IPv6 maybe */
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+36, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+40, 4, TRUE);
+        if (rtp_handle) {
+          address src_addr;
+          guint32 ipv4_address;
+
+          src_addr.type = AT_IPv4;
+          src_addr.len = 4;
+          src_addr.data = (guint8 *)&ipv4_address;
+          ipv4_address = tvb_get_ipv4(tvb, offset+20);
+          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+36), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+        }
+        si->passThruId = tvb_get_letohl(tvb, offset+40);
       }
-      si->passThruId = tvb_get_letohl(tvb, offset+24);
       break;
 
     case 0x23    :  /* stationConnectionStatisticsRes */
@@ -1896,32 +1927,60 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_microphoneMode, tvb, offset+12, 4, TRUE);
       break;
 
-    case 0x8a : /* startMediaTransmistion */
-      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, FALSE);
-      proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+24, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+32, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+36, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, TRUE);
-      if(rtp_handle){
-	    address src_addr;
-	    guint32 ipv4_address;
+    case 0x8a : /* startMediaTransmission */
+      if (hdr_version == BASIC_MSG_TYPE) {
+        proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, FALSE);
+        proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+24, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+32, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+36, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, TRUE);
+        if (rtp_handle) {
+          address src_addr;
+          guint32 ipv4_address;
 
-	    src_addr.type=AT_IPv4;
-	    src_addr.len=4;
-	    src_addr.data=(char *)&ipv4_address;
-	    ipv4_address = tvb_get_ipv4(tvb, offset+20);
-	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+          src_addr.type = AT_IPv4;
+          src_addr.len = 4;
+          src_addr.data = (char *)&ipv4_address;
+          ipv4_address = tvb_get_ipv4(tvb, offset+20);
+          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+        }
+        si->passThruId = tvb_get_letohl(tvb, offset+16);
       }
-      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B)
+      {
+        proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
+        /* unknown uint32_t stuff */
+        proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+24, 4, FALSE);
+        /* 3x unknown uint32_t stuff, space for IPv6 maybe */
+        proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+40, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+44, 4, TRUE);
+        proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+48, 4, TRUE);
+        /* There is some more... */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+52, 4, TRUE); */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+56, 4, TRUE); */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+60, 2, TRUE); */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+62, 4, TRUE); */
+        if (rtp_handle) {
+          address src_addr;
+          guint32 ipv4_address;
+
+          src_addr.type = AT_IPv4;
+          src_addr.len = 4;
+          src_addr.data = (char *)&ipv4_address;
+          ipv4_address = tvb_get_ipv4(tvb, offset+24);
+          rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+40), 0, "Skinny", pinfo->fd->num, is_video, NULL);
+        }
+        si->passThruId = tvb_get_letohl(tvb, offset+16);
+      }
       break;
 
     case 0x8b :  /* stopMediaTransmission */
-
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       si->passThruId = tvb_get_letohl(tvb, offset+16);
@@ -2741,6 +2800,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+12, hdr_data_length-4);
       break;
 
+    case 0x14A : /* CM5CallInfoMessage */
+      /* unknown uint32_t stuff */
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, offset+20, 4, TRUE);
+      /* 5x unknown uint32_t stuff */
+      break;
 
     default:
       break;
@@ -2769,8 +2834,13 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
 
-  if (hdr_data_length < 4 || (hdr_version != 0 && hdr_version != 0x11)) {
-    /* Not an SKINNY packet, just happened to use the same port */
+  if ((hdr_data_length < 4) ||
+      ((hdr_version != BASIC_MSG_TYPE) &&
+       (hdr_version != CM7_MSG_TYPE_A) &&
+       (hdr_version != CM7_MSG_TYPE_B))
+     ) 
+  {
+      /* Not an SKINNY packet, just happened to use the same port */
     return FALSE;
   }
 
@@ -2798,10 +2868,10 @@ proto_register_skinny(void)
 	"Number of bytes in the data portion.",
 	HFILL }
     },
-    { &hf_skinny_reserved,
-      { "Reserved", "skinny.reserved",
-	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"Reserved for future(?) use.",
+    { &hf_skinny_hdr_version,
+      { "Header version", "skinny.hdr_version",
+	FT_UINT32, BASE_HEX, VALS(header_version), 0x0,
+	"Header version.",
 	HFILL }
     },
     /* FIXME: Enable use of message name ???  */
