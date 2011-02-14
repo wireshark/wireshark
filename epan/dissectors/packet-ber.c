@@ -4205,6 +4205,8 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	guint32 len, i, n;
 	int hoffset;
 	proto_item *cause;
+	proto_tree *error_tree;
+	gchar *error_str = NULL;
 
 	if(!implicit_tag){
 		hoffset = offset;
@@ -4230,7 +4232,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	}
 
 	if (len < 10 || len > 19) {
-		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: UTCTime invalid length: %u", len);
+		error_str = g_strdup_printf("BER Error: UTCTime invalid length: %u", len);
 		instr = tvb_get_ephemeral_string(tvb, offset, len > 19 ? 19 : len);
 		goto malformed;
 	}
@@ -4240,8 +4242,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	/* YYMMDDhhmm */
 	for(i=0;i<10;i++) {
 		if(instr[i] < '0' || instr[i] > '9') {
-			cause = proto_tree_add_text(tree, tvb, offset, len,
-					"BER Error: malformed UTCTime encoding, "
+			error_str = g_strdup("BER Error: malformed UTCTime encoding, "
 					"first 10 octets have to contain YYMMDDhhmm in digits");
 			goto malformed;
 		}
@@ -4258,8 +4259,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 				g_snprintf(outstrptr, 4, ":%.2s", instr+10);
 				outstrptr+=3;
 			} else {
-				cause = proto_tree_add_text(tree, tvb, offset, len,
-						"BER Error: malformed UTCTime encoding, "
+				error_str = g_strdup("BER Error: malformed UTCTime encoding, "
 						"if 11th octet is a digit for seconds, "
 						"the 12th octet has to be a digit, too");
 				goto malformed;
@@ -4271,8 +4271,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	switch (instr[i]) {
 		case 'Z':
 			if(len!=i+1) {
-				cause = proto_tree_add_text(tree, tvb, offset, len,
-						"BER Error: malformed UTCTime encoding, "
+				error_str = g_strdup("BER Error: malformed UTCTime encoding, "
 						"there must be no further octets after \'Z\'");
 				goto malformed;
 			}
@@ -4282,15 +4281,13 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 		case '-':
 		case '+':
 			if(len!=i+5) {
-				cause = proto_tree_add_text(tree, tvb, offset, len,
-						"BER Error: malformed UTCTime encoding, "
+				error_str = g_strdup("BER Error: malformed UTCTime encoding, "
 						"4 digits must follow on \'+\' resp. \'-\'");
 				goto malformed;
 			}
 			for(n=i+1;n<i+5;n++) {
 				if(instr[n] < '0' || instr[n] > '9') {
-					cause = proto_tree_add_text(tree, tvb, offset, len,
-							"BER Error: malformed UTCTime encoding, "
+					error_str = g_strdup("BER Error: malformed UTCTime encoding, "
 							"4 digits must follow on \'+\' resp. \'-\'");
 					goto malformed;
 				}
@@ -4299,8 +4296,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 			i+=5;
 			break;
 		default:
-			cause = proto_tree_add_text(tree, tvb, offset, len,
-					"BER Error: malformed UTCTime encoding, "
+			error_str = g_strdup_printf("BER Error: malformed UTCTime encoding, "
 					"unexpected character in %dth octet, "
 					"must be \'Z\', \'+\' or \'-\'", i+1);
 			goto malformed;
@@ -4308,8 +4304,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	}
 
 	if(len!=i) {
-		cause = proto_tree_add_text(tree, tvb, offset, len,
-				"BER Error: malformed UTCTime encoding, "
+		error_str = g_strdup_printf("BER Error: malformed UTCTime encoding, "
 				"%d unexpected character%s after %dth octet",
 				len-i, (len==i-1?"s":""), i);
 		goto malformed;
@@ -4321,10 +4316,17 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
 	return offset+len;
 malformed:
-	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
 	if(hf_id >= 0){
-		proto_tree_add_string(tree, hf_id, tvb, offset, len, instr);
-	}
+ 		cause = proto_tree_add_string(tree, hf_id, tvb, offset, len, instr);
+ 		error_tree = proto_item_add_subtree(cause, ett_ber_unknown);
+ 	} else {
+ 		error_tree = tree;
+ 	}
+ 	
+ 	cause = proto_tree_add_text(error_tree, tvb, offset, len, "%s", error_str);
+	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+	g_free (error_str);
+
 	return offset+len;
 }
 
