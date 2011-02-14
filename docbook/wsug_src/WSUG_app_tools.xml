@@ -941,7 +941,7 @@ Miscellaneous:
 	<listitem>
 	  <para>
 	    To write the C code to stdout.
-	    <programlisting>idl2wrs  &lt;your file.idl&gt;</programlisting>
+	    <programlisting>idl2wrs  &lt;your_file.idl&gt;</programlisting>
 	    e.g.: <programlisting>idl2wrs echo.idl</programlisting>
 	  </para>
 	</listitem>

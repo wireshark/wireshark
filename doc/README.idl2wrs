@@ -63,7 +63,7 @@ Procedure
 
 1.  To write the C code to stdout.  
 
-    idl2wrs  <your file.idl>
+    idl2wrs  <your_file.idl>
 
     eg: idl2wrs echo.idl
 
@@ -81,7 +81,7 @@ steps 3 or 4 instead.
 
 3.  To write the C code to stdout.  
 
-    Usage: omniidl  -p ./ -b wireshark_be <your file.idl>
+    Usage: omniidl  -p ./ -b wireshark_be <your_file.idl>
 
     eg: omniidl  -p ./ -b wireshark_be echo.idl
 
