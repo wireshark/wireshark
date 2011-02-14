@@ -826,8 +826,8 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 # Optional: Static analysis. Only supported in the full-frontal MSVC editions.
 # http://msdn.microsoft.com/en-us/library/ms182025.aspx
 
-#!IF    "$(MSVC_VARIANT)" == "MSVC2010" && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-#LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze
+#!IFDEF ENABLE_CODE_ANALYSIS
+LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 #!ENDIF
 
 #STANDARD_CFLAGS is used only for Wireshark source compiles
