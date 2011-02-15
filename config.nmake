@@ -772,7 +772,8 @@ MANIFEST_INFO_REQUIRED=1
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load
 #                                     a second copy of the CRT.
 #
-##Note: LOCAL_CFLAGS is used used for *all* compilations
+##Note: LOCAL_CFLAGS are flags used for *all* compilations
+##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
 !IF     "$(MSVC_VARIANT)" == "MSVC6"      || \
         "$(MSVC_VARIANT)" == "MSVC2002"   || \
         "$(MSVC_VARIANT)" == "DOTNET10"   || \
@@ -830,9 +831,10 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
-#STANDARD_CFLAGS is used only for Wireshark source compiles
+#STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
 STANDARD_CFLAGS=-DHAVE_CONFIG_H -D_U_="" $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
+#Comment out the following if warnings are not to be treated as errors
 WARNINGS_ARE_ERRORS=-WX
 
 ## XXX: _MT and _DLL are defined when /MD is used so CVARSDLL is apparently unneeded
