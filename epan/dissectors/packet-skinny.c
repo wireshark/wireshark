@@ -2828,6 +2828,10 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
+  if (tvb_length_remaining(tvb, 0) < 8)
+  {
+    return FALSE;
+  }
   /* get relevant header information */
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_version     = tvb_get_letohl(tvb, 4);
