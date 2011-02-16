@@ -5580,7 +5580,7 @@ void proto_register_x420(void) {
         "GraphicString", HFILL }},
     { &hf_x420_compression_algorithm_id,
       { "compression-algorithm-id", "x420.compression_algorithm_id",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x420_compression_algorithm_param,
       { "compression-algorithm-param", "x420.compression_algorithm_param",

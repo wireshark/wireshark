@@ -143,9 +143,9 @@ COMPRESSION-ALGORITHM ::= TYPE-IDENTIFIER
 
 CompressionParameter ::= SEQUENCE {
   compression-algorithm-id
-    [0]  COMPRESSION-ALGORITHM.&id({CompressionAlgorithmTable}),
+    [0]  TYPE-IDENTIFIER.&id({CompressionAlgorithmTable}),
   compression-algorithm-param
-    [1]  COMPRESSION-ALGORITHM.&Type
+    [1]  TYPE-IDENTIFIER.&Type
            ({CompressionAlgorithmTable}{@compression-algorithm-id})
 }
 
