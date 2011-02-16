@@ -995,6 +995,7 @@ AirPDcapRsnaMng(
 {
     INT ret_value=1;
     UCHAR *try_data;
+    guint try_data_len = *decrypt_len;
 
     if (sa->key==NULL) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "No key associated", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1006,10 +1007,15 @@ AirPDcapRsnaMng(
     }
 
     /* allocate a temp buffer for the decryption loop */
-    try_data=(UCHAR *)ep_alloc(*decrypt_len);
+    try_data=(UCHAR *)ep_alloc(try_data_len);
 
     /* start of loop added by GCS */
     for(/* sa */; sa != NULL ;sa=sa->next) {
+
+        if (*decrypt_len > try_data_len) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_UNSUCCESS;
+        }
 
        /* copy the encrypted data into a temp buffer */
        memcpy(try_data, decrypt_data, *decrypt_len);
@@ -1050,6 +1056,11 @@ AirPDcapRsnaMng(
     if(sa == NULL)
         return ret_value;
 
+    if (*decrypt_len > try_data_len || *decrypt_len < 8) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+
     /* copy the decrypted data into the decrypt buffer GCS*/
     memcpy(decrypt_data, try_data, *decrypt_len);
 
@@ -1089,7 +1100,10 @@ AirPDcapWepMng(
     INT key_index;
     AIRPDCAP_KEY_ITEM *tmp_key;
     UINT8 useCache=FALSE;
-    UCHAR *try_data = (UCHAR *)ep_alloc(*decrypt_len);
+    UCHAR *try_data;
+    guint try_data_len = *decrypt_len;
+    
+    try_data = (UCHAR *)ep_alloc(try_data_len);
 
     if (sa->key!=NULL)
         useCache=TRUE;
@@ -1158,6 +1172,11 @@ AirPDcapWepMng(
 
     /* remove ICV (4bytes) from the end of packet */
     *decrypt_len-=4;
+
+    if (*decrypt_len < 4) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapWepMng", "Decryption length too short", AIRPDCAP_DEBUG_LEVEL_3);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
 
     /* remove protection bit */
     decrypt_data[1]&=0xBF;
@@ -1701,6 +1720,9 @@ AirPDcapRsnaPwd2PskStep(
 {
     UCHAR digest[36], digest1[AIRPDCAP_SHA_DIGEST_LEN];
     INT i, j;
+
+    if (ssidLength > 36 - 4)
+        return AIRPDCAP_RET_UNSUCCESS;
 
     /* U1 = PRF(P, S || INT(i)) */
     memcpy(digest, ssid, ssidLength);
