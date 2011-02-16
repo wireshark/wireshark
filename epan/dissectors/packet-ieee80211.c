@@ -7668,7 +7668,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   whdr= &whdrs[0];
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "802.11");
   col_clear(pinfo->cinfo, COL_INFO);
 
   fcf = FETCH_FCF(0);
