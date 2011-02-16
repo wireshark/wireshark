@@ -331,11 +331,9 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	const guint8  *hna_addr;
 	guint32 hna;
 	guint8 hna_netmask;
 
-	hna_addr = tvb_get_ptr(tvb, 0, 4);
 	hna = tvb_get_ipv4(tvb, 0);
 	hna_netmask = tvb_get_guint8(tvb, 4);
 
@@ -348,7 +346,7 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 5,
 							    "B.A.T.M.A.N. HNA: %s/%d",
-							    ip_to_str(hna_addr), hna_netmask);
+							    tvb_ip_to_str(tvb, 0), hna_netmask);
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 5, FALSE);
 		}
@@ -363,7 +361,6 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct gw_packet *gw_packeth;
-	const guint8  *ip_addr;
 	guint32 ip;
 	int ip_pos;
 
@@ -382,7 +379,6 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ip_pos = 1;
 	}
 	ip = tvb_get_ipv4(tvb, ip_pos);
-	ip_addr = tvb_get_ptr(tvb, ip_pos, 4);
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
@@ -393,7 +389,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 		if (ip != 0) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
-					get_hostname(ip), ip_to_str(ip_addr));
+					get_hostname(ip), tvb_ip_to_str(tvb, ip_pos));
 		}
 	}
 
