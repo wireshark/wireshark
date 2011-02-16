@@ -162,6 +162,12 @@ static int hf_radiotap_ven_subns = -1;
 static int hf_radiotap_ven_skip = -1;
 static int hf_radiotap_ven_data = -1;
 static int hf_radiotap_mcs = -1;
+static int hf_radiotap_mcs_known = -1;
+static int hf_radiotap_mcs_have_bw = -1;
+static int hf_radiotap_mcs_have_index = -1;
+static int hf_radiotap_mcs_have_gi = -1;
+static int hf_radiotap_mcs_have_format = -1;
+static int hf_radiotap_mcs_have_fec = -1;
 static int hf_radiotap_mcs_bw = -1;
 static int hf_radiotap_mcs_index = -1;
 static int hf_radiotap_mcs_gi = -1;
@@ -214,6 +220,7 @@ static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
 static gint ett_radiotap_vendor = -1;
 static gint ett_radiotap_mcs = -1;
+static gint ett_radiotap_mcs_known = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -821,16 +828,40 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_mcs,
 		 {"MCS information", "radiotap.mcs",
 		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_mcs_known,
+		 {"Known MCS information", "radiotap.mcs.known",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		  "Bit mask indicating what MCS information is present", HFILL}},
+		{&hf_radiotap_mcs_have_bw,
+		 {"Bandwidth", "radiotap.mcs.have_bw",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_BW,
+		  "Bandwidth information present", HFILL}},
+		{&hf_radiotap_mcs_have_gi,
+		 {"Guard interval", "radiotap.mcs.have_gi",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_GI,
+		  "Sent/Received guard interval information present", HFILL}},
+		{&hf_radiotap_mcs_have_format,
+		 {"Format", "radiotap.mcs.have_format",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FMT,
+		  "Format information present", HFILL}},
+		{&hf_radiotap_mcs_have_fec,
+		 {"FEC", "radiotap.mcs.have_fec",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
+		  "Forward error correction information present", HFILL}},
+		{&hf_radiotap_mcs_have_index,
+		 {"MCS index", "radiotap.mcs.have_index",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
+		  "MCS index information present", HFILL}},
 		{&hf_radiotap_mcs_bw,
-		 {"bandwidth", "radiotap.mcs.bw",
+		 {"Bandwidth", "radiotap.mcs.bw",
 		  FT_UINT8, BASE_DEC, VALS(mcs_bandwidth),
 		  IEEE80211_RADIOTAP_MCS_BW_MASK, NULL, HFILL}},
 		{&hf_radiotap_mcs_gi,
-		 {"guard interval", "radiotap.mcs.gi",
+		 {"Guard interval", "radiotap.mcs.gi",
 		  FT_UINT8, BASE_DEC, VALS(mcs_gi), IEEE80211_RADIOTAP_MCS_SGI,
 		  "Sent/Received guard interval", HFILL}},
 		{&hf_radiotap_mcs_format,
-		 {"format", "radiotap.mcs.format",
+		 {"Format", "radiotap.mcs.format",
 		  FT_UINT8, BASE_DEC, VALS(mcs_format), IEEE80211_RADIOTAP_MCS_FMT_GF,
 		  NULL, HFILL}},
 		{&hf_radiotap_mcs_fec,
@@ -883,6 +914,7 @@ void proto_register_radiotap(void)
 		&ett_radiotap_xchannel_flags,
 		&ett_radiotap_vendor,
 		&ett_radiotap_mcs,
+		&ett_radiotap_mcs_known,
 	};
 	module_t *radiotap_module;
 
@@ -1485,7 +1517,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		case IEEE80211_RADIOTAP_MCS: {
 			proto_item *it;
-			proto_tree *mcs_tree;
+			proto_tree *mcs_tree, *mcs_known_tree;
 			guint8 mcs_known, mcs_flags;
 			guint8 mcs;
 
@@ -1499,6 +1531,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			it = proto_tree_add_item(radiotap_tree, hf_radiotap_mcs,
 						 tvb, offset, 3, FALSE);
 			mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
+			it = proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_known,
+						 tvb, offset, 1, mcs_known);
+			mcs_known_tree = proto_item_add_subtree(it, ett_radiotap_mcs_known);
+			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_bw,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_index,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_gi,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_format,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_fec,
+					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW)
 				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_bw,
 						    tvb, offset + 1, 1, mcs_flags);
