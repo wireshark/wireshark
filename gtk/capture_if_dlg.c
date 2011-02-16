@@ -859,7 +859,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef _WIN32
       if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
 #if GTK_CHECK_VERSION(2,12,0)
-      gtk_widget_set_tooltip-text(if_dlg_data->details_bt, "Open the capture details dialog of this interface.");
+      gtk_widget_set_tooltip_text(if_dlg_data->details_bt, "Open the capture details dialog of this interface.");
 #else
       gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
           "Open the capture details dialog of this interface.", NULL);

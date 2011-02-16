@@ -1171,13 +1171,23 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_remote_ok_cb), remote_w);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(ok_bt,
+                       "Accept remote host parameters and lookup "
+                       "remote interfaces.");
+#else
   gtk_tooltips_set_tip(tooltips, ok_bt,
                        "Accept remote host parameters and lookup "
                        "remote interfaces.", NULL);
+#endif
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog.");
+#else
   gtk_tooltips_set_tip(tooltips, cancel_bt,
                        "Cancel and exit dialog.", NULL);
+#endif
   window_set_cancel_button(remote_w, cancel_bt, capture_remote_cancel_cb);
 
   if (focus_username) {
@@ -2111,7 +2121,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_PCAP_REMOTE
   remote_bt = gtk_button_new_with_label("Remote Settings");
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(remote_bt, "Various settings for remote capture.");
+#else
   gtk_tooltips_set_tip(tooltips, remote_bt, "Various settings for remote capture.", NULL);
+#endif
 
   /* Both the callback and the data are global */
   g_signal_connect(remote_bt,"clicked", G_CALLBACK(options_remote_cb),NULL);
