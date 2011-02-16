@@ -687,14 +687,14 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	proto_item	*eaps_item;
 	proto_tree	*eaps_tree;
 	guint16		ctrlvlanid;
-	const guint8	*sysmac;
+	const gchar	*sysmac_str;
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 1 + 1 + 4);
-	sysmac = tvb_get_ptr(tvb, offset + 12, 6);
+	sysmac_str = tvb_ether_to_str(tvb, offset + 12);
 
 	eaps_item = proto_tree_add_protocol_format(tree, hf_edp_eaps,
 		tvb, offset, length, "EAPS: Ctrlvlan %d, Sysmac %s",
-			ctrlvlanid, ether_to_str(sysmac));
+			ctrlvlanid, sysmac_str);
 
 	eaps_tree = proto_item_add_subtree(eaps_item, ett_edp_eaps);
 
@@ -748,7 +748,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
-			ctrlvlanid, ether_to_str(sysmac));
+			ctrlvlanid, sysmac_str);
 }
 
 static void
@@ -758,14 +758,14 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	proto_tree	*esl_tree;
 	guint16		ctrlvlanid;
 	guint16		numlinks;
-	const guint8	*sysmac;
+	const gchar	*sysmac_str;
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
-	sysmac = tvb_get_ptr(tvb, offset + 12, 6);
+	sysmac_str = tvb_ether_to_str(tvb, offset + 12);
 
 	esl_item = proto_tree_add_protocol_format(tree, hf_edp_esl,
 		tvb, offset, length, "ESL: Ctrlvlan %d, Sysmac %s",
-			ctrlvlanid, ether_to_str(sysmac));
+			ctrlvlanid, sysmac_str);
 
 	esl_tree = proto_item_add_subtree(esl_item, ett_edp_esl);
 
@@ -864,7 +864,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESL");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
-			ctrlvlanid, ether_to_str(sysmac));
+			ctrlvlanid, sysmac_str);
 }
 
 static void
