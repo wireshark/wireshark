@@ -1276,7 +1276,6 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 	proto_tree *field_tree = NULL;
 	proto_item *tf;
 	int ptr, i;
-	const guint8  *addr;
 
 	ptr = tvb_get_guint8(tvb, offset);
 	if (ptr < 1 || ptr > BAT_RR_LEN)
@@ -1289,9 +1288,8 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 	ptr--;
 	offset++;
 	for (i = 0; i < BAT_RR_LEN; i++) {
-		addr = tvb_get_ptr(tvb, offset, 6);
 		proto_tree_add_text(field_tree, tvb, offset, 6, "%s%s",
-				    (i > ptr) ? "-" : ether_to_str(addr),
+				    (i > ptr) ? "-" : tvb_ether_to_str(tvb, offset),
 				    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;
