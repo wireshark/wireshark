@@ -174,11 +174,9 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 
 	case TYPE_NEIGHBOR:
 		if (length == 6) {
-	                const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
-
 			proto_item_set_text(ti, "Neighbor: %s",
-				ether_to_str(macptr));	/* XXX - resolve? */
-            		proto_tree_add_ether(tree, hf_dtp_some_mac, tvb, offset,length,macptr);
+				tvb_ether_to_str(tvb, offset));	/* XXX - resolve? */
+            		proto_tree_add_item(tree, hf_dtp_some_mac, tvb, offset, length, ENC_NA);
 		} else {
 			proto_item_set_text(ti,
 			    "Neighbor: Bad length %u",
