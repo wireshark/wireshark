@@ -59,7 +59,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti = NULL;
   proto_tree *aruba_adp_tree = NULL;
   guint16 type;
-  const guint8 *src_mac;
+  const gchar *mac_str;
   const gchar *switchip;
 
 
@@ -85,12 +85,12 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ADP_REQUEST:
 
       proto_tree_add_item(aruba_adp_tree, hf_adp_mac, tvb, 6, 6, FALSE);
-      src_mac = tvb_get_ptr(tvb, 6, 6);
+      mac_str = tvb_ether_to_str(tvb, 6);
 
       if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Request Src MAC: %s", ether_to_str(src_mac));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Request Src MAC: %s", mac_str);
 
-      proto_item_append_text(ti, ", Request Src MAC: %s", ether_to_str(src_mac));
+      proto_item_append_text(ti, ", Request Src MAC: %s", mac_str);
       break;
 
     case ADP_RESPONSE:
