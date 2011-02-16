@@ -360,7 +360,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                 strlen(protocol_name)+1 +    /* Protocol name */
                                 1 +                          /* direction */
                                 1 +                          /* encap */
-                                is_comment ? data_chars : (data_chars/2));
+                                (is_comment ? data_chars : (data_chars/2)));
             frame_buffer = buffer_start_ptr(wth->frame_buffer);
 
 

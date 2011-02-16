@@ -377,7 +377,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 	int	yy, mm, dd, hr, min, sec, csec, pkt_len;
 	int	pro, off, pri, rm, error;
 	guint	code1, code2;
-	char	if_name[COSINE_MAX_IF_NAME_LEN], direction[6];
+	char	if_name[COSINE_MAX_IF_NAME_LEN] = "", direction[6] = "";
 	struct	tm tm;
 
 	if (sscanf(line, "%d-%d-%d,%d:%d:%d.%d:",

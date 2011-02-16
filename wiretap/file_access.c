@@ -785,7 +785,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 			return NULL;	/* compress won't work on stdout */
 		}
 #ifdef _WIN32
-		setmode(fileno(stdout), O_BINARY);
+		_setmode(fileno(stdout), O_BINARY);
 #endif
 		wdh->fh = stdout;
 	} else {
@@ -832,7 +832,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 
 #ifdef _WIN32
 	if(fd == 1) {
-		setmode(fileno(stdout), O_BINARY);
+		_setmode(fileno(stdout), O_BINARY);
 	}
 #endif
 

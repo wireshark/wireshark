@@ -1200,7 +1200,7 @@ found:
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
 	 */
-	t = (((guint64)time_high)<<32) | (((guint32)time_med) << 16) | time_low;
+	t = (((guint64)time_high)<<32) | (((guint64)time_med) << 16) | time_low;
 
 	/*
 	 * timeunit is always < 2^(64-40), so t * timeunit fits in 64
@@ -2463,6 +2463,8 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 	    if (is_random) {
 		/* Move to the next blob in the list. */
 		ngsniffer->current_blob = g_list_next(ngsniffer->current_blob);
+		if (!ngsniffer->current_blob)
+			return -1;
 		blob = ngsniffer->current_blob->data;
 	    } else {
 		/* If we also have a random stream open, add a new element,

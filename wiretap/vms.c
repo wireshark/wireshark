@@ -392,7 +392,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
         }
 	line[VMS_LINE_LENGTH] = '\0';
 
-	if ((csec == 101) && (p = strstr(line, "packet "))
+	if ((csec == 101) && (p = strstr(line, "packet ")) != NULL
 	    && (! strstr(line, "could not save "))) {
 	    /* Find text in line starting with "packet ". */
 

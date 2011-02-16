@@ -1091,7 +1091,8 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 		/* populate the record */
 		sig10.phd.ph_RecordType = htoles(NSPR_SIGNATURE_V10);
 		sig10.phd.ph_RecordSize = htoles(nspr_signature_v10_s);
-		memcpy(sig10.sig_Signature, NSPR_SIGSTR_V10, NSPR_SIGSIZE_V10);
+		memset(sig10.sig_Signature, 0, NSPR_SIGSIZE_V10);
+		strcpy(sig10.sig_Signature, NSPR_SIGSTR_V10);
 
 		/* Write the record into the file */
 		if (!wtap_dump_file_write(wdh, &sig10, nspr_signature_v10_s,
