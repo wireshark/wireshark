@@ -513,11 +513,11 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 					pkt->esc = FALSE;
 				}
 
-				pkt->buf[pkt->cnt++] = c;
 				if (pkt->cnt >= PPPD_BUF_SIZE) {
 					*err = WTAP_ERR_UNC_OVERFLOW;
 					return -1;
 				}
+				pkt->buf[pkt->cnt++] = c;
 				break;
 		}
 	}
