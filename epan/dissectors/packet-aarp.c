@@ -28,7 +28,6 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
@@ -103,33 +102,36 @@ static const value_string hrd_vals[] = {
 	((ar_pro) == ETHERTYPE_ATALK && (ar_pln) == 4)
 
 static gchar *
-atalkid_to_str(const guint8 *ad) {
+tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
+{
   gint node;
   gchar *cur;
 
   cur=ep_alloc(16);
-  node=ad[1]<<8|ad[2];
-  g_snprintf(cur, 16, "%d.%d",node,ad[3]);
+  node=tvb_get_guint8(tvb, offset)<<8|tvb_get_guint8(tvb, offset+1);
+  g_snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+2));
   return cur;
 }
 
 static gchar *
-aarphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
+tvb_aarphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+{
   if (AARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or Token Ring address, which is the same type
        of address). */
-    return ether_to_str(ad);
+    return tvb_ether_to_str(tvb, offset);
   }
-  return bytes_to_str(ad, ad_len);
+  return tvb_bytes_to_str(tvb, offset, ad_len);
 }
 
 static gchar *
-aarpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
+tvb_aarpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+{
   if (AARP_PRO_IS_ATALK(type, ad_len)) {
     /* Appletalk address.  */
-    return atalkid_to_str(ad);
+    return tvb_atalkid_to_str(tvb, offset);
   }
-  return bytes_to_str(ad, ad_len);
+  return tvb_bytes_to_str(tvb, offset, ad_len);
 }
 
 /* Offsets of fields within an AARP packet. */
@@ -151,7 +153,6 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item  *ti;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
@@ -170,17 +171,10 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tpa_offset = tha_offset + ar_hln;
 
   /* Extract the addresses.  */
-  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
-  sha_str = aarphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
-
-  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  spa_str = aarpproaddr_to_str(spa_val, ar_pln, ar_pro);
-
-  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
-  tha_str = aarphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
-
-  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
-  tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
+  sha_str = tvb_aarphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd);
+  spa_str = tvb_aarpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
+  tha_str = tvb_aarphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd);
+  tpa_str = tvb_aarpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
 
   switch (ar_op) {
     case AARP_REQUEST:
@@ -230,13 +224,11 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (ar_pln != 0) {
       if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
         proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_src_proto_id, tvb,
-					  spa_offset, ar_pln,
-					  spa_val,
+					  spa_offset, ar_pln, NULL,
 					  "%s", spa_str);
       } else {
         proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_src_proto, tvb,
-					  spa_offset, ar_pln,
-					  spa_val,
+					  spa_offset, ar_pln, NULL,
 					  "%s", spa_str);
       }
     }
@@ -251,13 +243,11 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       if (AARP_PRO_IS_ATALK(ar_pro, ar_pln)) {
         proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_dst_proto_id, tvb,
 					  tpa_offset, ar_pln,
-					  tpa_val,
-					  "%s", tpa_str);
+					  NULL, "%s", tpa_str);
       } else {
         proto_tree_add_bytes_format_value(aarp_tree, hf_aarp_dst_proto, tvb,
 					  tpa_offset, ar_pln,
-					  tpa_val,
-					  "%s", tpa_str);
+					  NULL, "%s", tpa_str);
       }
     }
   }
