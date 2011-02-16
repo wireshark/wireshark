@@ -2463,8 +2463,14 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 	    if (is_random) {
 		/* Move to the next blob in the list. */
 		ngsniffer->current_blob = g_list_next(ngsniffer->current_blob);
-		if (!ngsniffer->current_blob)
+		if (!ngsniffer->current_blob) {
+			/*
+			 * XXX - this "can't happen"; we should have a
+			 * blob for every byte in the file.
+			 */
+			*err = WTAP_ERR_CANT_SEEK;
 			return -1;
+		}
 		blob = ngsniffer->current_blob->data;
 	    } else {
 		/* If we also have a random stream open, add a new element,
