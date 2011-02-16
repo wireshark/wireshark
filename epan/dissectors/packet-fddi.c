@@ -137,12 +137,12 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t data_handle;
 
 static void
-swap_mac_addr(guint8 *swapped_addr, const guint8 *orig_addr)
+swap_mac_addr(guint8 *swapped_addr, tvbuff_t *tvb, gint offset)
 {
 	int i;
 
 	for (i = 0; i < 6; i++) {
-		swapped_addr[i] = BIT_SWAP(orig_addr[i]);
+		swapped_addr[i] = BIT_SWAP(tvb_get_guint8(tvb, offset+i));
 	}
 }
 
@@ -318,10 +318,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the destination address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(dst, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
+    swap_mac_addr(dst, tvb, FDDI_P_DHOST + FDDI_PADDING);
   else
     tvb_memcpy(tvb, dst, FDDI_P_DHOST + FDDI_PADDING, sizeof(dst));
-  swap_mac_addr(dst_swapped, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
+  swap_mac_addr(dst_swapped, tvb, FDDI_P_DHOST + FDDI_PADDING);
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
@@ -343,10 +343,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the source address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(src, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
+    swap_mac_addr(src, tvb, FDDI_P_SHOST + FDDI_PADDING);
   else
     tvb_memcpy(tvb, src, FDDI_P_SHOST + FDDI_PADDING, sizeof(src));
-  swap_mac_addr(src_swapped, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
+  swap_mac_addr(src_swapped, tvb, FDDI_P_SHOST + FDDI_PADDING);
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */
