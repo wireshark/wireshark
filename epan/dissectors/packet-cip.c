@@ -1793,7 +1793,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    /* Special handling for Unconnected send response. If successful, embedded service code is sent.
     * If failed, it can be either an Unconnected send response or the embedded service code response. */
    preq_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
-   if (  preq_info && ( tvb_get_guint8( tvb, offset ) & 0x80 )
+   if (  preq_info != NULL && ( tvb_get_guint8( tvb, offset ) & 0x80 )
       && preq_info->bService == SC_CM_UNCON_SEND
       )
    {

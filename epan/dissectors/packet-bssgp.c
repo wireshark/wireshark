@@ -81,7 +81,7 @@ static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
 static packet_info *gpinfo;
-static proto_tree *parent_tree;
+static proto_tree *gparent_tree;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
@@ -403,7 +403,7 @@ static const value_string tab_bssgp_pdu_types[] = {
 /* 0x55 */  { BSSGP_PDU_MODIFY_BSS_PFC_ACK,           "MODIFY-BSS-PFC-ACK" },
 /* 0x56 */  { BSSGP_PDU_DELETE_BSS_PFC,               "DELETE-BSS-PFC" },
 /* 0x57 */  { BSSGP_PDU_DELETE_BSS_PFC_ACK,           "DELETE-BSS-PFC-ACK" },
-/* 0x58 */  { BSSGP_PDU_DELETE_BSS_PFC_REQ,           "DELETE-BSS-PFC-REQ" }, 
+/* 0x58 */  { BSSGP_PDU_DELETE_BSS_PFC_REQ,           "DELETE-BSS-PFC-REQ" },
 /* 0x59 */  { BSSGP_PDU_PS_HANDOVER_REQUIRED,          "PS-HANDOVER-REQUIRED" },
 /* 0x5a */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK,      "PS-HANDOVER-REQUIRED-ACK" },
 /* 0x5b */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK,     "PS-HANDOVER-REQUIRED-NACK" },
@@ -6246,7 +6246,7 @@ de_bssgp_aligment_octets(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len, "%u Spare octet(s)",len);
-	
+
 	return(len);
 }
 
@@ -6262,7 +6262,7 @@ de_bssgp_bmax_default_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	proto_tree_add_item(tree, hf_bssgp_bmax, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
-	
+
 	return(curr_offset-offset);
 }
 /*
@@ -6277,7 +6277,7 @@ de_bssgp_bss_area_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	proto_tree_add_item(tree, hf_bssgp_bss_area_ind, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset++;
-	
+
 	return(curr_offset-offset);
 }
 /*
@@ -6292,7 +6292,7 @@ de_bssgp_bucket_leak_rate(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	proto_tree_add_item(tree, hf_bssgp_r, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
-	
+
 	return(curr_offset-offset);
 }
 /*
@@ -6307,7 +6307,7 @@ de_bssgp_bvc_bucket_size(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	proto_tree_add_item(tree, hf_bssgp_bucket_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
-	
+
 	return(curr_offset-offset);
 }
 /*
@@ -6368,7 +6368,7 @@ static const value_string bssgp_cause_vals[] = {
   { 0x0a, "PFC create failure" },
   { 0x0b, "PFC preempted" },
   { 0x0c, "ABQP no more supported" },
-	
+
   { 0x0d, "Undefined - protocol error - unspecified" },
   { 0x0e, "Undefined - protocol error - unspecified" },
   { 0x0f, "Undefined - protocol error - unspecified" },
@@ -6474,7 +6474,7 @@ de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	curr_offset = offset;
 
 	curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
-	/*Why doesn't this work? ( add_string will not contain RAI + CI ) 
+	/*Why doesn't this work? ( add_string will not contain RAI + CI )
 	 * curr_offset = curr_offset + de_cell_id(tvb, tree, curr_offset , 2, add_string, string_len);
 	 */
 	ci = tvb_get_ntohs(tvb, offset);
@@ -6582,10 +6582,10 @@ de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
   if(next_tvb){
     if (llc_handle) {
-      call_dissector(llc_handle, next_tvb, gpinfo, parent_tree);
+      call_dissector(llc_handle, next_tvb, gpinfo, gparent_tree);
     }
     else if (data_handle) {
-      call_dissector(data_handle, next_tvb, gpinfo, parent_tree);
+      call_dissector(data_handle, next_tvb, gpinfo, gparent_tree);
     }
   }
 
@@ -6815,12 +6815,12 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	curr_offset+=2;
 
 	/* octet 5 Peak Bit Rate Granularity C/R T A Precedence */
-	/* If the Gigabit Interface feature has not been negotiated, the "Peak bit rate" 
+	/* If the Gigabit Interface feature has not been negotiated, the "Peak bit rate"
 	 * field is the binary encoding of the peak bit rate information expressed in 100 bits/s
 	 * increments, starting from 0 x 100 bits/s until 65 535 x 100 bits/s (6 Mbps).
 	 *
-	 * If the Gigabit Interface feature has been negotiated, the "Peak bit rate" field is the 
-	 * binary encoding of the peak bit rate information expressed in increments as defined by 
+	 * If the Gigabit Interface feature has been negotiated, the "Peak bit rate" field is the
+	 * binary encoding of the peak bit rate information expressed in increments as defined by
 	 * the Peak Bit Rate Granularity field.
 	 */
 	proto_tree_add_item(tree, hf_bssgp_peak_rate_gran, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -6834,7 +6834,7 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	}else{
 		proto_item_append_text(pre_item, " %s", val_to_str_const((guint32)precedence, bssgp_precedence_ul, "Priority Unknown(Low priority)"));
 	}
-	
+
 	curr_offset++;
 
 	return(curr_offset-offset);
@@ -6908,7 +6908,7 @@ de_bssgp_r_default_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	proto_tree_add_item(tree, hf_bssgp_r_default_ms, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
-	
+
 	return(curr_offset-offset);
 }
 
@@ -7114,7 +7114,7 @@ de_bssgp_feature_bitmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	proto_tree_add_item(tree, hf_bssgp_pfcfc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* RIM */
 	proto_tree_add_item(tree, hf_bssgp_rim, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	/* LCS */ 
+	/* LCS */
 	proto_tree_add_item(tree, hf_bssgp_lcs, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* INR */
 	proto_tree_add_item(tree, hf_bssgp_inr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -7195,7 +7195,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	nsei = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_bssgp_nsei, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
-	
+
 	col_append_sep_fstr(gpinfo->cinfo, COL_INFO, BSSGP_SEP, "NSEI %u", nsei);
 
 
@@ -7303,7 +7303,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 11.3.64.2	Application Error Container for the SI3 application
  * 11.3.64.3	Application Error Container for the MBMS data channel application
  * 11.3.64.4	Application Error Container for the SON Transfer Application
- * 11.3.65	RIM PDU Indications	
+ * 11.3.65	RIM PDU Indications
  * 11.3.65.0	General
  * 11.3.65.1	RAN-INFORMATION-REQUEST RIM PDU Indications
  * 11.3.65.2	RAN-INFORMATION RIM PDU Indications
@@ -7314,7 +7314,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 11.3.68	PFC Flow Control parameters
  */
- 
+
 static guint16
 de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -7338,7 +7338,7 @@ de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		return (curr_offset-offset);
 	}
 	curr_offset++;
-	if (num_pfc == 0) 
+	if (num_pfc == 0)
 		return (curr_offset-offset);
 
 	pfc_len = (len - 1) / num_pfc;
@@ -7464,7 +7464,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		return (len);
 	}
 	curr_offset++;
-	if (num_pfc == 0) 
+	if (num_pfc == 0)
 		return (curr_offset-offset);
 
 	pfc_len = (len - 1) / num_pfc;
@@ -7478,7 +7478,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		bssgp_pi_append_pfi(pi, tvb, curr_offset);
 		curr_offset++;
 
-		/* PFT: Packet Flow Timer. Coded as the GPRS Timer information element, 
+		/* PFT: Packet Flow Timer. Coded as the GPRS Timer information element,
 		 * see sub-clause 11.3.44.
 		 */
 		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Packet Flow Timer(PFT)");
@@ -7487,7 +7487,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 		curr_offset += 3;
 
-		/* ABQP: Aggregate BSS QoS Profile. 
+		/* ABQP: Aggregate BSS QoS Profile.
 		 * Coded as the Aggregate BSS QoS Profile information element, see sub-clause 11.3.43.
 		 */
 		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
@@ -7495,8 +7495,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		/* Unsure about length 16 */
 		curr_offset = curr_offset + de_sm_qos(tvb, tree, curr_offset, 16, NULL, 0);
 
-		/* Allocation/Retention Priority: Allocation Retention Priority. 
-		 * Coded as the Priority information element, see subclause 11.3.27. 
+		/* Allocation/Retention Priority: Allocation Retention Priority.
+		 * Coded as the Priority information element, see subclause 11.3.27.
 		 * This information element is optionally included.
 		 */
 		if(pfc_len>17){
@@ -7504,7 +7504,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 			arp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_arp);
 			curr_offset = curr_offset + be_prio(tvb, arp_tree, curr_offset, 1, NULL, 0);
 		}
-		/* T10: T10. 
+		/* T10: T10.
 		 * Coded as the GPRS Timer information element, see sub-clause 11.3.44.
 		 * This information element shall be present for a PFC if the Allocation/Retention Priority
 		 * is present and if queuing is allowed for the PFC.
@@ -7544,7 +7544,7 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 		return (curr_offset-offset);
 	}
 	curr_offset++;
-	if (num_pfc == 0) 
+	if (num_pfc == 0)
 		return (curr_offset-offset);
 
 	for (i = 0; i < num_pfc; i++) {
@@ -7642,7 +7642,7 @@ de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	if (add_string)
 		g_snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
- 
+
 	return(curr_offset-offset);
 
 }
@@ -7715,14 +7715,14 @@ de_bssgp_global_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	 */
 	if(gtfi == 0){
 		/* UPLINK_TFI (5 bit field)
-		 * This field identifies an uplink TBF. This field is coded the same as the 
+		 * This field identifies an uplink TBF. This field is coded the same as the
 		 * TFI field defined in sub-clause 12.15.
 		 * This field is encoded as a binary number. Range 0 to 31
 		 */
 		proto_tree_add_bits_item(tree, hf_bssgp_ul_tfi, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	}else{
 		/* DOWNLINK_TFI (5 bit field)
-		 * This field identifies an uplink TBF. This field is coded the same as the 
+		 * This field identifies an uplink TBF. This field is coded the same as the
 		 * TFI field defined in sub-clause 12.15.
 		 * This field is encoded as a binary number. Range 0 to 31
 		 */
@@ -7867,7 +7867,7 @@ de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 		return (curr_offset-offset);
 	}
 	curr_offset++;
-	if (num_pfc == 0) 
+	if (num_pfc == 0)
 		return (curr_offset-offset);
 
 	for (i = 0; i < num_pfc; i++) {
@@ -7928,7 +7928,7 @@ de_bssgp_cs_indication(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	curr_offset = offset;
 
-	/* CS Indication Contents 
+	/* CS Indication Contents
 	 * CS Indication Contents: This identifies a particular handover attempt for this MS. This shall be identical to the PS
 	 * Indication Contents value in the corresponding PS Indication IE included in the Old BSS to New BSS Information IE
 	 * (see 3GPP TS 48.008). The choice of the value of this field is implementation specific, with the requirement that
@@ -8038,8 +8038,8 @@ de_bssgp_sub_prof_id_f_rat_freq_prio(tvbuff_t *tvb, proto_tree *tree, guint32 of
 
 	curr_offset = offset;
 
-	/* Octet 3 contains a number in binary representation ranging from 0 to 255. 
-	 * The Subscriber Profile ID for RAT/Frequency priority is given by 
+	/* Octet 3 contains a number in binary representation ranging from 0 to 255.
+	 * The Subscriber Profile ID for RAT/Frequency priority is given by
 	 * the indicated value +1.
 	 */
 	value = tvb_get_guint8(tvb,curr_offset) + 1;
@@ -8144,7 +8144,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x1a, "RA-Cap-UPD-Cause" },									/* 11.3.30	RA-Cap-UPD-Cause */
 	{ 0x1b, "Routeing Area" },										/* 11.3.31	Routeing Area */
  	{ 0x1c, "R_default_MS" },										/* 11.3.32	R_default_MS */
-	{ 0x1d, "Suspend Reference Number" },							/* 11.3.33	Suspend Reference Number */ 
+	{ 0x1d, "Suspend Reference Number" },							/* 11.3.33	Suspend Reference Number */
     { 0x1e, "Tag" },												/* 11.3.34	Tag */
  	{ 0x1f, "Temporary logical link Identity (TLLI)" },				/* 11.3.35	Temporary logical link Identity (TLLI) GSM_A_PDU_TYPE_RR, DE_RR_TLLI*/
 	{ 0x20, "Temporary Mobile Subscriber Identity (TMSI)" },		/* 11.3.36	Temporary Mobile Subscriber Identity (TMSI)GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI */
@@ -8156,7 +8156,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x26, "LSA Identifier List" },								/* 11.3.18	LSA Identifier List */
 	{ 0x27, "LSA Information" },									/* 11.3.19	LSA Information */
 	{ 0x28, "Packet Flow Identifier (PFI)" },						/* 11.3.42	Packet Flow Identifier (PFI) GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID*/
-																	/* 11.3.42a	(void) */ 
+																	/* 11.3.42a	(void) */
 	{ 0x29, "GPRS Timer" },											/* 11.3.44	GPRS Timer */
 	{ 0x3a, "Aggregate BSS QoS Profile" },							/* 11.3.43	Aggregate BSS QoS Profile GSM_A_PDU_TYPE_GM, DE_QOS*/
 	{ 0x3b, "Feature Bitmap" },										/* 11.3.45	Feature Bitmap */
@@ -8201,7 +8201,7 @@ const value_string bssgp_elem_strings[] = {
  /* 11.3.64.2	Application Error Container for the SI3 application */
  /* 11.3.64.3	Application Error Container for the MBMS data channel application */
  /* 11.3.64.4	Application Error Container for the SON Transfer Application */
- /* 11.3.65	RIM PDU Indications */	
+ /* 11.3.65	RIM PDU Indications */
  /* 11.3.65.0	General */
  /* 11.3.65.1	RAN-INFORMATION-REQUEST RIM PDU Indications */
  /* 11.3.65.2	RAN-INFORMATION RIM PDU Indications */
@@ -8250,11 +8250,11 @@ const value_string bssgp_elem_strings[] = {
  	{ 0x00, "E-UTRAN Inter RAT Handover Info" },					/* 11.3.104 	E-UTRAN Inter RAT Handover Info */
 	{ 0x00, "Subscriber Profile ID for RAT/Frequency priority" },	/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
 /* 11.3.106 Request for Inter-RAT Handover Info */
-	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.107 Reliable Inter-RAT Handover Info */ 
+	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.107 Reliable Inter-RAT Handover Info */
 /* 11.3.108 SON Transfer Application Identity */
 	{ 0x00, "CSG Identifier" },										/* 11.3.109 CSG Identifier */
-/* 11.3.110 Tracking Area Code */	
-	
+/* 11.3.110 Tracking Area Code */
+
 	{ 0, NULL }
 };
 
@@ -8293,7 +8293,7 @@ typedef enum
 	DE_BSSGP_RA_CAP_UPD_CAUSE,									/* 11.3.30	0x1a RA-Cap-UPD-Cause */
 	DE_BSSGP_RAI,												/* 11.3.31	0x1b Routeing Area GSM_A_PDU_TYPE_GM, DE_RAI*/
 	DE_BSSGP_R_DEFAULT_MS,										/* 11.3.32	0x1c R_default_MS */
-	DE_BBSGP_SUSPEND_REF_NO,									/* 11.3.33	0x1d Suspend Reference Number */ 
+	DE_BBSGP_SUSPEND_REF_NO,									/* 11.3.33	0x1d Suspend Reference Number */
 	DE_BSSGP_TAG,												/* 11.3.34	0x1e Tag */
 	DE_BSSGP_TLLI,												/* 11.3.35	0x1f Temporary logical link Identity (TLLI) GSM_A_PDU_TYPE_RR, DE_RR_TLLI*/
 	DE_BSSGP_TMSI_PTMSI,										/* 11.3.36	0x20 Temporary Mobile Subscriber Identity (TMSI) GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI*/
@@ -8340,7 +8340,7 @@ typedef enum
 	DE_BSSGP_ENB_ID,											/* 11.3.103 	eNB Identifier */
 	DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
  	DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO,						/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
-	DE_BSSGP_RELIABLE_INTER_RAT_HO_INF,							/* 11.3.107 Reliable Inter-RAT Handover Info */ 
+	DE_BSSGP_RELIABLE_INTER_RAT_HO_INF,							/* 11.3.107 Reliable Inter-RAT Handover Info */
 	DE_BSSGP_CSG_ID,											/* 11.3.109 CSG Identifier */
 	DE_BSSGP_NONE												/* NONE */
 }
@@ -8376,7 +8376,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_ra_cap_upd_cause,									/* 11.3.30	0x1a RA-Cap-UPD-Cause */
 	NULL,														/* 11.3.31	0x1b Routeing Area */
 	de_bssgp_r_default_ms,										/* 11.3.32	0x1c R_default_MS */
-	de_bssgp_suspend_ref_no,									/* 11.3.33	0x1d Suspend Reference Number */ 
+	de_bssgp_suspend_ref_no,									/* 11.3.33	0x1d Suspend Reference Number */
 	de_bssgp_tag,												/* 11.3.34	0x1e Tag */
 	NULL,														/* 11.3.35	0x1f Temporary logical link Identity (TLLI) */
 	NULL,														/* 11.3.36	0x20 Temporary Mobile Subscriber Identity (TMSI) */
@@ -8421,7 +8421,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_enb_id,											/* 11.3.103 	eNB Identifier */
 	de_bssgp_e_utran_inter_rat_ho_info,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
 	de_bssgp_sub_prof_id_f_rat_freq_prio,						/* 11.3.105	Subscriber Profile ID for RAT/Frequency priority */
-	de_bssgp_reliable_inter_rat_ho_inf,							/* 11.3.107 Reliable Inter-RAT Handover Info */ 
+	de_bssgp_reliable_inter_rat_ho_inf,							/* 11.3.107 Reliable Inter-RAT Handover Info */
 	de_bssgp_csg_id,											/* 11.3.109 CSG Identifier */
 
 	NULL,	/* NONE */
@@ -8493,7 +8493,7 @@ de_bssgp_target_BSS_to_source_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, g
 
 /* MESSAGE FUNCTIONS */
 
-/* 
+/*
  * 10.2	PDU functional definitions and contents at RL and BSSGP SAPs
  * 10.2.1 DL-UNITDATA
  */
@@ -8533,7 +8533,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(0x27, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_INFO, NULL);
 	/* Service UTRAN CCO Service UTRAN CCO/11.3.47 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_SERVICE_UTRAN_CCO, BSSGP_PDU_TYPE, DE_BSSGP_SERV_UTRAN_CCO, NULL);
-	
+
 	/* Subscriber Profile ID for RAT/Frequency priority (note 5)
 	 * Subscriber Profile ID for RAT/Frequency priority/11.3.105 O TLV 3
 	 */
@@ -8546,7 +8546,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
 /*
- * 10.2.2	UL-UNITDATA	
+ * 10.2.2	UL-UNITDATA
  */
 static void
 bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8620,7 +8620,7 @@ bssgp_dl_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_len = len;
 
 	/* This PDU is sent to the BSS to transfer an LLC-PDU across the radio interface.
-	 * Direction: SGSN to BSS 
+	 * Direction: SGSN to BSS
 	 */
 	gpinfo->link_dir = P2P_DIR_DL;
 
@@ -8696,7 +8696,7 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(0x10,GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 	/* Routeing Area (note) Routeing Area/11.3.31 C TLV 8 */
 	ELEM_OPT_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
-	/* BSS Area Indication (note) BSS Area Indication/11.3.3 C TLV 3 */ 
+	/* BSS Area Indication (note) BSS Area Indication/11.3.3 C TLV 3 */
 	ELEM_OPT_TELV(0x02,BSSGP_PDU_TYPE, DE_BSSGP_BSS_AREA_IND, NULL);
 	/* PFI PFI/11.3.42 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
@@ -8836,7 +8836,7 @@ bssgp_ra_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(BSSGP_IEI_TMSI,GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, NULL);
 	/* IMSI (note) IMSI/11.3.14 C TLV 5-10 */
 	ELEM_OPT_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
-	/* Radio Cause Radio Cause/11.3.29 M TLV 3 */ 
+	/* Radio Cause Radio Cause/11.3.29 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_RADIO_CAUSE, BSSGP_PDU_TYPE, DE_BSSGP_RA_CAUSE , NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
@@ -8914,7 +8914,7 @@ bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Routeing Area Routeing Area/11.3.31 M TLV 8 */
 	ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
-	/* Cause Cause/11.3.8 O TLV 3 */ 
+	/* Cause Cause/11.3.8 O TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
@@ -9101,7 +9101,7 @@ bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU informs the flow control mechanism at an SGSN of the status of a 
+	/* This PDU informs the flow control mechanism at an SGSN of the status of a
 	 * BVC's maximum acceptable SGSN to BSS throughput on the Gb interface.
 	 */
 	/* Direction: BSS to SGSN */
@@ -9109,7 +9109,7 @@ bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	/* Tag Tag/11.3.34 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG , NULL);
-	/* BVC Bucket Size BVC Bucket Size/11.3.5 M TLV 4 */ 
+	/* BVC Bucket Size BVC Bucket Size/11.3.5 M TLV 4 */
 	ELEM_MAND_TELV(0x05, BSSGP_PDU_TYPE, DE_BSSGP_BVC_BUCKET_SIZE , NULL);
 	/* Bucket Leak Rate Bucket Leak Rate/11.3.4 M TLV 4 */
 	ELEM_MAND_TELV(BSSGP_IEI_BUCKET_LEAK_RATE, BSSGP_PDU_TYPE, DE_BSSGP_BUCKET_LEAK_RATE , NULL);
@@ -9121,7 +9121,7 @@ bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	ELEM_OPT_TELV(BSSGP_IEI_BUCKET_FULL_RATIO, BSSGP_PDU_TYPE, DE_BSSGP_BUCKET_FULL_RATIO , NULL);
 	/* BVC Measurement BVC Measurement/11.3.7 O TLV 4  */
 	ELEM_OPT_TELV(0x06, BSSGP_PDU_TYPE, DE_BSSGP_BVC_MEAS , NULL);
-	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */ 
+	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */
 	ELEM_OPT_TELV(0x7e, BSSGP_PDU_TYPE, DE_BSSGP_FLOW_CONTROL_GRAN , NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
@@ -9140,8 +9140,8 @@ bssgp_flow_control_bvc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU informs the flow control mechanism at the BSS that the SGSN has received 
-	 * the FLOW-CONTROL-BVC PDU indicated by the Tag. 
+	/* This PDU informs the flow control mechanism at the BSS that the SGSN has received
+	 * the FLOW-CONTROL-BVC PDU indicated by the Tag.
 	 */
 
 	/* Direction: SGSN to BSS */
@@ -9166,7 +9166,7 @@ bssgp_flow_control_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU informs the flow control mechanism at an SGSN of the status of an MS's  
+	/* This PDU informs the flow control mechanism at an SGSN of the status of an MS's
 	 * maximum acceptable SGSN to BSS throughput on the Gb interface.
 	 */
 
@@ -9201,7 +9201,7 @@ bssgp_flow_control_ms_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU informs the flow control mechanism at the BSS that the SGSN has received 
+	/* This PDU informs the flow control mechanism at the BSS that the SGSN has received
 	 * the FLOW-CONTROL-MS PDU indicated by the TLLI and the Tag. */
 	/* Direction: SGSN to BSS */
 	gpinfo->link_dir = P2P_DIR_DL;
@@ -9288,7 +9288,7 @@ bssgp_bvc_un_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 10.4.11	BVC-UNBLOCK-ACK
  */
- 
+
 static void
 bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
@@ -9312,7 +9312,7 @@ bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 /*
  * 10.4.12	BVC-RESET
  */
- 
+
 static void
 bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
@@ -9343,7 +9343,7 @@ bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 10.4.13	BVC-RESET-ACK
  */
- 
+
 static void
 bssgp_bvc_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
@@ -9492,7 +9492,7 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(0x73, BSSGP_PDU_TYPE, DE_BSSGP_INTER_RAT_HO_INFO, NULL);
 	/* E-UTRAN Inter RAT Handover Info E-UTRAN Inter RAT Handover Info/11.3.104 O (note 3) TLV 3-? */
 	ELEM_OPT_TELV(0x80, BSSGP_PDU_TYPE, DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO, NULL);
-	/* Subscriber Profile ID for RAT/Frequency priority (note 5) 
+	/* Subscriber Profile ID for RAT/Frequency priority (note 5)
 	 * Subscriber Profile ID for RAT/Frequency priority/11.3.105 O TLV 3
 	 */
 	ELEM_OPT_TELV(0x81, BSSGP_PDU_TYPE, DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO, NULL);
@@ -9543,7 +9543,7 @@ bssgp_create_bss_pfc_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU allows the BSS to Nack a request from the SGSN for the 
+	/* This PDU allows the BSS to Nack a request from the SGSN for the
 	 * creation of a BSS Packet Flow Context
 	 */
 	/* Direction: BSS to SGSN */
@@ -9689,7 +9689,7 @@ bssgp_flow_cntrl_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(0x3b, BSSGP_PDU_TYPE, DE_BSSGP_FEATURE_BITMAP , NULL);
 	/* Bucket_Full Ratio Bucket_Full Ratio/11.3.46 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_BUCKET_FULL_RATIO, BSSGP_PDU_TYPE, DE_BSSGP_BUCKET_FULL_RATIO , NULL);
-	/* PFC flow control parameters PFC flow control parameters/11.3.68 M TLV */ 
+	/* PFC flow control parameters PFC flow control parameters/11.3.68 M TLV */
 	ELEM_MAND_TELV(0x52, BSSGP_PDU_TYPE, DE_BSSGP_PFC_FLOW_CTRL , NULL);
 	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */
 	ELEM_OPT_TELV(0x7e, BSSGP_PDU_TYPE, DE_BSSGP_FLOW_CONTROL_GRAN , NULL);
@@ -9773,21 +9773,21 @@ bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Source");
 	/* Target Cell Identifier (note 2) Cell Identifier/11.3.9 C TLV 10 */
 	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Target");
-	/* Source BSS to Target BSS Transparent Container (note 1) 
-	 * Source BSS to Target BSS Transparent Container/11.3.79 C TLV 10-? 
+	/* Source BSS to Target BSS Transparent Container (note 1)
+	 * Source BSS to Target BSS Transparent Container/11.3.79 C TLV 10-?
 	 */
 	ELEM_OPT_TELV(0x64,BSSGP_PDU_TYPE, DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT, NULL);
 	/* Target RNC Identifier (note 2) (note 3) RNC Identifier/11.3.87 C TLV 10 */
 	ELEM_OPT_TELV(0x6c,BSSGP_PDU_TYPE, BE_BSSGP_RNC_ID, " - Target");
 	/* Source to Target Transparent Container (note 1)
-	 * Source to Target Transparent Container/11.3.85 C TLV 3-? 
+	 * Source to Target Transparent Container/11.3.85 C TLV 3-?
 	 */
 	ELEM_OPT_TELV(0x6a,BSSGP_PDU_TYPE, DE_BSSGP_SRC_TO_TRG_TRANSP_CONT, NULL);
 	/* Active PFCs List Active PFCs List/11.3.95c M TLV 3-? */
 	ELEM_OPT_TELV(0x77,BSSGP_PDU_TYPE, DE_BSSGP_ACTIVE_PFCS_LIST, NULL);
 	/* Target eNB identifier (note 2) (note 3) eNB Identifier/11.3.103 C TLV 3-n */
 	ELEM_OPT_TELV(0x7f,BSSGP_PDU_TYPE, DE_BSSGP_ENB_ID, NULL);
-	/* Reliable Inter RAT Handover Info (note 4) 
+	/* Reliable Inter RAT Handover Info (note 4)
 	 * Reliable Inter RAT Handover Info/11.3.107 C TLV 3
 	 */
 	ELEM_OPT_TELV(0x83,BSSGP_PDU_TYPE, DE_BSSGP_RELIABLE_INTER_RAT_HO_INF, NULL);
@@ -10086,7 +10086,7 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x0e */  { BSSGP_PDU_RESUME,                       "RESUME" },						/* 10.3.9 RESUME */
 /* 0x0f */  { BSSGP_PDU_RESUME_ACK,                   "RESUME-ACK" },					/* 10.3.10 RESUME-ACK */
 /* 0x10 */  { BSSGP_PDU_RESUME_NACK,                  "RESUME-NACK" },					/* 10.3.11 RESUME-NACK */
-  /* 0x11 to 0x1f Reserved */	
+  /* 0x11 to 0x1f Reserved */
 /* 0x11 */  { BSSGP_PDU_RESERVED_0X11,                 "Reserved" },					/*  */
 /* 0x12 */  { BSSGP_PDU_RESERVED_0X12,                 "Reserved" },					/*  */
 /* 0x13 */  { BSSGP_PDU_RESERVED_0X13,                 "Reserved" },					/*  */
@@ -10102,7 +10102,7 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x1d */  { BSSGP_PDU_RESERVED_0X1D,                 "Reserved" },					/*  */
 /* 0x1e */  { BSSGP_PDU_RESERVED_0X1E,                 "Reserved" },					/*  */
 /* 0x1f */  { BSSGP_PDU_RESERVED_0X1F,                 "Reserved" },					/*  */
-	
+
 /* 0x20 */  { BSSGP_PDU_BVC_BLOCK,                    "BVC-BLOCK" },					/* 10.4.8 BVC-BLOCK */
 /* 0x21 */  { BSSGP_PDU_BVC_BLOCK_ACK,                "BVC-BLOCK-ACK" },				/* 10.4.9 BVC-BLOCK-ACK */
 /* 0x22 */  { BSSGP_PDU_BVC_RESET,                    "BVC-RESET" },					/* 10.4.12 BVC-RESET */
@@ -10118,7 +10118,7 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x2c */  { BSSGP_PDU_LLC_DISCARDED,                "LLC-DISCARDED" },				/* 10.4.3 LLC-DISCARDED */
 /* 0x2d */  { BSSGP_PDU_FLOW_CONTROL_PFC,             "FLOW-CONTROL-PFC" },				/* 10.4.24 FLOW-CONTROL-PFC */
 /* 0x2e */  { BSSGP_PDU_FLOW_CONTROL_PFC_ACK,         "FLOW-CONTROL-PFC-ACK" },			/* 10.4.25 FLOW-CONTROL-PFC-ACK */
-  /* 0x2f to 0x3f Reserved */	
+  /* 0x2f to 0x3f Reserved */
 /* 0x2f */  { BSSGP_PDU_RESERVED_0X2F,                 "Reserved" },					/*  */
 /* 0x30 */  { BSSGP_PDU_RESERVED_0X30,                 "Reserved" },					/*  */
 /* 0x31 */  { BSSGP_PDU_RESERVED_0X31,                 "Reserved" },					/*  */
@@ -10205,21 +10205,21 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     bssgp_resume_nack,               /* 10.3.11 RESUME-NACK */
 
 /* 0x11 to 0x1f Reserved */
-    NULL,                            /* 0x11 */  
-    NULL,                            /* 0x12 */  
-    NULL,                            /* 0x13 */  
-    NULL,                            /* 0x14 */  
-    NULL,                            /* 0x15 */  
-    NULL,                            /* 0x16 */  
-    NULL,                            /* 0x17 */  
-    NULL,                            /* 0x18 */  
-    NULL,                            /* 0x19 */  
-    NULL,                            /* 0x1A */  
-    NULL,                            /* 0x1B */  
-    NULL,                            /* 0x1C */  
-    NULL,                            /* 0x1D */  
-    NULL,                            /* 0x1E */  
-    NULL,                            /* 0x1F */  
+    NULL,                            /* 0x11 */
+    NULL,                            /* 0x12 */
+    NULL,                            /* 0x13 */
+    NULL,                            /* 0x14 */
+    NULL,                            /* 0x15 */
+    NULL,                            /* 0x16 */
+    NULL,                            /* 0x17 */
+    NULL,                            /* 0x18 */
+    NULL,                            /* 0x19 */
+    NULL,                            /* 0x1A */
+    NULL,                            /* 0x1B */
+    NULL,                            /* 0x1C */
+    NULL,                            /* 0x1D */
+    NULL,                            /* 0x1E */
+    NULL,                            /* 0x1F */
 
 /* 0x20 to 0x2e */
     bssgp_bvc_block,                 /* 10.4.8 BVC-BLOCK */
@@ -10239,42 +10239,42 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     bssgp_flow_cntrl_pfc_ack,        /* 10.4.25 FLOW-CONTROL-PFC-ACK */
 
 /* 0x2f to 0x3f Reserved */
-    NULL,                            /* 0x2f */  
-    NULL,                            /* 0x30 */  
-    NULL,                            /* 0x31 */  
-    NULL,                            /* 0x32 */  
-    NULL,                            /* 0x33 */  
-    NULL,                            /* 0x34 */  
-    NULL,                            /* 0x35 */  
-    NULL,                            /* 0x36 */  
-    NULL,                            /* 0x37 */  
-    NULL,                            /* 0x38 */  
-    NULL,                            /* 0x39 */  
-    NULL,                            /* 0x3A */  
-    NULL,                            /* 0x3B */  
-    NULL,                            /* 0x3C */  
-    NULL,                            /* 0x3D */  
-    NULL,                            /* 0x3E */  
-    NULL,                            /* 0x3F */  
+    NULL,                            /* 0x2f */
+    NULL,                            /* 0x30 */
+    NULL,                            /* 0x31 */
+    NULL,                            /* 0x32 */
+    NULL,                            /* 0x33 */
+    NULL,                            /* 0x34 */
+    NULL,                            /* 0x35 */
+    NULL,                            /* 0x36 */
+    NULL,                            /* 0x37 */
+    NULL,                            /* 0x38 */
+    NULL,                            /* 0x39 */
+    NULL,                            /* 0x3A */
+    NULL,                            /* 0x3B */
+    NULL,                            /* 0x3C */
+    NULL,                            /* 0x3D */
+    NULL,                            /* 0x3E */
+    NULL,                            /* 0x3F */
 
 /* 0x40 to 0x41 */
     bssgp_sgsn_invoke_trace,         /* 10.4.15 SGSN-INVOKE-TRACE */
     bssgp_status,                    /* 10.4.14 STATUS */
 
 /* 0x42 to 0x4f Reserved */
-    NULL,                            /* 0x42 */  
-    NULL,                            /* 0x43 */  
-    NULL,                            /* 0x44 */  
-    NULL,                            /* 0x45 */  
-    NULL,                            /* 0x46 */  
-    NULL,                            /* 0x47 */  
-    NULL,                            /* 0x48 */  
-    NULL,                            /* 0x49 */  
-    NULL,                            /* 0x4A */  
-    NULL,                            /* 0x4B */  
-    NULL,                            /* 0x4C */  
-    NULL,                            /* 0x4D */  
-    NULL,                            /* 0x4E */  
+    NULL,                            /* 0x42 */
+    NULL,                            /* 0x43 */
+    NULL,                            /* 0x44 */
+    NULL,                            /* 0x45 */
+    NULL,                            /* 0x46 */
+    NULL,                            /* 0x47 */
+    NULL,                            /* 0x48 */
+    NULL,                            /* 0x49 */
+    NULL,                            /* 0x4A */
+    NULL,                            /* 0x4B */
+    NULL,                            /* 0x4C */
+    NULL,                            /* 0x4D */
+    NULL,                            /* 0x4E */
     NULL,                            /* 0x4F */
 
 /* 0x50 to 0x5e */
@@ -10333,7 +10333,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Save pinfo */
   gpinfo = pinfo;
-  parent_tree = tree;
+  gparent_tree = tree;
   len = tvb_length(tvb);
 
 
@@ -10875,7 +10875,7 @@ proto_register_bssgp(void)
 	ett[48] = &ett_bssgp_pfcs_to_be_set_up_list_arp;
 	ett[49] = &ett_bssgp_pfcs_to_be_set_up_list_t10;
 	ett[50] = &ett_bssgp_list_of_setup_pfcs;
-  
+
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
 	for (i=0; i < NUM_BSSGP_ELEM; i++, last_offset++)

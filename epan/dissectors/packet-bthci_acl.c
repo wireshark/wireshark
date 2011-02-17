@@ -183,7 +183,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			} else {
 				mfp=se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
 			}
-			if(mfp && mfp->last_frame){
+			if(mfp != NULL && mfp->last_frame){
 				proto_item *item;
 				item=proto_tree_add_uint(btacl_tree, hf_btacl_reassembled_in, tvb, 0, 0, mfp->last_frame);
 				PROTO_ITEM_SET_GENERATED(item);
@@ -196,7 +196,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			mfp=se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
 			if(!pinfo->fd->flags.visited){
 				len = tvb_length_remaining(tvb, offset);
-				if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+len)){
+				if(mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+len)){
 					tvb_memcpy(tvb, (guint8*)mfp->reassembled+mfp->cur_off, offset, len);
 					mfp->cur_off+=len;
 					if(mfp->cur_off==mfp->tot_len){
@@ -212,7 +212,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
 				}
 			}
-			if(mfp && mfp->last_frame==pinfo->fd->num){
+			if(mfp != NULL && mfp->last_frame==pinfo->fd->num){
 				next_tvb = tvb_new_child_real_data(tvb, (guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
 				add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ACL");
 

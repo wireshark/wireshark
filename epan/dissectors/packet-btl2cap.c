@@ -878,7 +878,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		/* call next dissector */
 		if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
 			/* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-			if(service && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
+			if(service != NULL && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
 				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 			}
@@ -945,7 +945,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
 	/*Segmented frames with SAR = start have an extra SDU length header field*/
 	if(segment == 0x01) {
-		proto_item *pi;;
+		proto_item *pi;
 		sdulen = tvb_get_letohs(tvb, offset);
 		pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, TRUE);
 		offset += 2;
@@ -970,7 +970,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		} else {
 			mfp=se_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
 		}
-		if(mfp && mfp->last_frame){
+		if(mfp != NULL && mfp->last_frame){
 			proto_item *item;
 			item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_reassembled_in, tvb, 0, 0, mfp->last_frame);
 			PROTO_ITEM_SET_GENERATED(item);
@@ -982,7 +982,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 	if(segment == 0x02 || segment == 0x03) {
 		mfp=se_tree_lookup32_le(config_data->start_fragments, pinfo->fd->num);
 		if(!pinfo->fd->flags.visited){
-			if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+length)){
+			if(mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+length)){
 				tvb_memcpy(tvb, mfp->reassembled+mfp->cur_off, offset, length);
 				mfp->cur_off+=length;
 				if(segment == 0x02){
@@ -997,7 +997,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 			col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
 		}
 	}
-	if(segment == 0x02 && mfp && mfp->last_frame==pinfo->fd->num){
+	if(segment == 0x02 && mfp != NULL && mfp->last_frame==pinfo->fd->num){
 		next_tvb = tvb_new_child_real_data(tvb, (guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
 		add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
 	}
@@ -1023,10 +1023,10 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 			/* call next dissector */
 			if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
 				/* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-				if(service && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
-				/* unknown protocol. declare as data */
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
-			}
+				if(service != NULL && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
+					/* unknown protocol. declare as data */
+					proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
+				}
 			}
 		}
 		else {

@@ -457,7 +457,8 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
   /* XXX - is this still "Dangerous" now that we don't copy to the
      last byte of "int_buff[]"? */
-  sscanf((gchar*)int_buff, "%d", &ival);
+  if (sscanf((gchar*)int_buff, "%d", &ival) != 1)
+    ival = 0; /* Should we signal an error? */
 
   if (tree) {
     proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
@@ -926,7 +927,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * We also depend on the first frame in a group having a pl_size of 0.
    */
 
-  if (beep_frame_data && beep_frame_data->pl_left > 0) {
+  if (beep_frame_data != NULL && beep_frame_data->pl_left > 0) {
 
     int pl_left = beep_frame_data->pl_left;
 

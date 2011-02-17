@@ -1743,7 +1743,7 @@ dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
-	guint32 val_length, end_offset;
+	guint32 val_length = 0, end_offset;
 	double val = 0;
 
 	if(!implicit_tag){
@@ -4149,7 +4149,15 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
 	first_delim[0]=0;
 	second_delim[0]=0;
-	sscanf( tmpstr, "%*14d%1[.,+-Z]%4d%1[+-Z]%4d", first_delim, &first_digits, second_delim, &second_digits);
+	if (sscanf( tmpstr, "%*14d%1[.,+-Z]%4d%1[+-Z]%4d", first_delim, &first_digits, second_delim, &second_digits) != 4) {
+		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: GeneralizedTime invalid format: %s", tmpstr);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid length");
+		if (decode_unexpected) {
+			proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
+			dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
+		}
+		return end_offset;
+	}
 
 	switch (first_delim[0]) {
 		case '.':
