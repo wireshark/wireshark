@@ -122,7 +122,7 @@ static TCHAR *build_file_type_list(gboolean save, int *item_to_select);
 static int file_type_from_list_index(gboolean save, int index);
 
 static int            filetype;
-static packet_range_t range;
+static packet_range_t g_range;
 static merge_action_e merge_action;
 static print_args_t   print_args;
 /* XXX - The reason g_sf_hwnd exists is so that we can call
@@ -334,7 +334,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
             g_free(str);
             goto AGAIN;
         }
-        if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
+        if (cf_save(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
         AGAIN:
             g_string_free(file_name8, TRUE /* free_segment */);
@@ -392,7 +392,7 @@ win32_merge_file (HWND h_wnd) {
     OPENFILENAME *ofn;
     TCHAR       file_name[MAX_PATH] = _T("");
     char       *dirname;
-    cf_status_t merge_status;
+    cf_status_t merge_status = CF_ERROR;
     char       *in_filenames[2];
     int         err;
     char       *tmpname;
@@ -1292,7 +1292,7 @@ file_type_from_list_index(gboolean save, int index) {
     /* Check all file types. */
     curr_index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+        if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
                 continue;       /* We can't. */
@@ -1346,7 +1346,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
     /* Check all file types. */
     index = 1;  /* the index is one based! */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+        if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
                 continue;       /* We can't. */
@@ -1400,7 +1400,7 @@ build_file_format_list(HWND sf_hwnd) {
     /* Check all file types. */
     index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (!packet_range_process_all(&range) || ft != cfile.cd_t) {
+        if (!packet_range_process_all(&g_range) || ft != cfile.cd_t) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
                 continue;       /* We can't. */
@@ -1445,12 +1445,12 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             filetype = cfile.cd_t;
 
             /* init the packet range */
-            packet_range_init(&range);
+            packet_range_init(&g_range);
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
 
-            range_handle_wm_initdialog(sf_hwnd, &range);
+            range_handle_wm_initdialog(sf_hwnd, &g_range);
 
             break;
         case WM_COMMAND:
@@ -1483,7 +1483,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     break;
 #endif
                 default:
-                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &range);
+                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &g_range);
                     break;
             }
             break;
@@ -1528,13 +1528,13 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 
-
+#define STATIC_LABEL_CHARS 100
 /* For each range static control, fill in its value and enable/disable it. */
 static void
 range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
     gboolean filtered_active = FALSE;
-    TCHAR    static_val[100];
+    TCHAR    static_val[STATIC_LABEL_CHARS];
     gint     selected_num;
     guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
 
@@ -1546,18 +1546,18 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count - range->ignored_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.count - range->ignored_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.count);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.count);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_DISP);
     EnableWindow(cur_ctrl, filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt - range->displayed_ignored_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_cnt - range->displayed_ignored_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1566,18 +1566,18 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
     EnableWindow(cur_ctrl, selected_num && !filtered_active);
     if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("0"));
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
     EnableWindow(cur_ctrl, selected_num && filtered_active);
     if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("0"));
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), selected_num ? 1 : 0);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1588,18 +1588,18 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_CAP);
     EnableWindow(cur_ctrl, cfile.marked_count && !filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count - range->ignored_marked_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.marked_count - range->ignored_marked_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), cfile.marked_count);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.marked_count);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_DISP);
     EnableWindow(cur_ctrl, cfile.marked_count && filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt - range->displayed_ignored_marked_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_marked_cnt - range->displayed_ignored_marked_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_marked_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_marked_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1610,18 +1610,18 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_CAP);
     EnableWindow(cur_ctrl, range->mark_range_cnt && !filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt - range->ignored_mark_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->mark_range_cnt - range->ignored_mark_range_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->mark_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->mark_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_DISP);
     EnableWindow(cur_ctrl, range->displayed_mark_range_cnt && filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_mark_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_mark_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1629,18 +1629,18 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt - range->ignored_user_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt - range->ignored_user_range_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->user_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
     EnableWindow(cur_ctrl, filtered_active);
     if (range->remove_ignored) {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
     } else {
-        _snwprintf(static_val, sizeof(static_val), _T("%u"), range->displayed_user_range_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1675,12 +1675,12 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_CAP);
     EnableWindow(cur_ctrl, ignored_cnt && !filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), ignored_cnt);
+    _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_IGNORED_DISP);
     EnableWindow(cur_ctrl, displayed_ignored_cnt && filtered_active);
-    _snwprintf(static_val, sizeof(static_val), _T("%u"), displayed_ignored_cnt);
+    _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), displayed_ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
 }
 
@@ -1934,13 +1934,13 @@ static UINT_PTR CALLBACK
 export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
-    TCHAR         raw_msg[100];
+    TCHAR         raw_msg[STATIC_LABEL_CHARS];
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
 
     switch(msg) {
         case WM_INITDIALOG:
-            _snwprintf(raw_msg, sizeof(raw_msg), _T("%d byte%s of raw binary data will be written"),
-                    ofnp->lCustData, plurality(ofnp->lCustData, "", "s"));
+            _snwprintf(raw_msg, STATIC_LABEL_CHARS, _T("%d byte%s of raw binary data will be written"),
+                    ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
             cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
             SetWindowText(cur_ctrl, raw_msg);
             break;

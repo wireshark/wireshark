@@ -1767,6 +1767,10 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
     return NULL;
   cbc_block_size = (guint32) gcry_cipher_get_algo_blklen(gcry_cipher_algo);
+  if (cbc_block_size > MAX_DIGEST_SIZE) {
+    /* This shouldn't happen but we pass cbc_block_size to memcpy size below. */
+    return NULL;
+  }
 
   switch(decr->hash_alg) {
     case HMAC_MD5:

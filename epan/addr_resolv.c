@@ -1213,7 +1213,7 @@ get_ethbyname(const gchar *name)
 
   set_ethent(g_pethers_path);
 
-  while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
+  while (((eth = get_ethent(NULL, FALSE)) != NULL) && strncmp(name, eth->name, MAXNAMELEN) != 0)
     ;
 
   if (eth == NULL) {
@@ -1221,7 +1221,7 @@ get_ethbyname(const gchar *name)
 
     set_ethent(g_ethers_path);
 
-    while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
+    while (((eth = get_ethent(NULL, FALSE)) != NULL) && strncmp(name, eth->name, MAXNAMELEN) != 0)
       ;
 
     end_ethent();
@@ -1239,7 +1239,7 @@ get_ethbyaddr(const guint8 *addr)
 
   set_ethent(g_pethers_path);
 
-  while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
+  while (((eth = get_ethent(NULL, FALSE)) != NULL) && memcmp(addr, eth->addr, 6) != 0)
     ;
 
   if (eth == NULL) {
@@ -1247,7 +1247,7 @@ get_ethbyaddr(const guint8 *addr)
 
     set_ethent(g_ethers_path);
 
-    while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
+    while (((eth = get_ethent(NULL, FALSE)) != NULL) && memcmp(addr, eth->addr, 6) != 0)
       ;
 
     end_ethent();
@@ -1332,7 +1332,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
   hashmanuf_t *mtp;
   hashwka_t   *(*wka_tp)[HASHETHSIZE], *wtp;
 
-  if (mask == 48) {
+  if (mask >= 48) {
     /* This is a well-known MAC address; just add this to the Ethernet
        hash table */
     add_eth_name(addr, name);
@@ -1832,7 +1832,7 @@ get_ipxnetbyname(const gchar *name)
 
   set_ipxnetent(g_ipxnets_path);
 
-  while ((ipxnet = get_ipxnetent()) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
+  while (((ipxnet = get_ipxnetent()) != NULL) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
     ;
 
   if (ipxnet == NULL) {
@@ -1840,7 +1840,7 @@ get_ipxnetbyname(const gchar *name)
 
     set_ipxnetent(g_pipxnets_path);
 
-    while ((ipxnet = get_ipxnetent()) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
+    while (((ipxnet = get_ipxnetent()) != NULL) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
       ;
 
     end_ipxnetent();
@@ -1857,14 +1857,14 @@ get_ipxnetbyaddr(guint32 addr)
 
   set_ipxnetent(g_ipxnets_path);
 
-  while ((ipxnet = get_ipxnetent()) && (addr != ipxnet->addr) ) ;
+  while (((ipxnet = get_ipxnetent()) != NULL) && (addr != ipxnet->addr) ) ;
 
   if (ipxnet == NULL) {
     end_ipxnetent();
 
     set_ipxnetent(g_pipxnets_path);
 
-    while ((ipxnet = get_ipxnetent()) && (addr != ipxnet->addr) )
+    while (((ipxnet = get_ipxnetent()) != NULL) && (addr != ipxnet->addr) )
       ;
 
     end_ipxnetent();
@@ -2466,7 +2466,7 @@ host_name_lookup_process(gpointer data _U_) {
 
   async_dns_queue_head = g_list_first(async_dns_queue_head);
 
-  while (async_dns_queue_head && async_dns_in_flight <= prefs.name_resolve_concurrency) {
+  while (async_dns_queue_head != NULL && async_dns_in_flight <= prefs.name_resolve_concurrency) {
     caqm = (async_dns_queue_msg_t *) async_dns_queue_head->data;
     async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {

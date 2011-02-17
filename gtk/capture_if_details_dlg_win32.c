@@ -305,7 +305,7 @@ typedef struct _NDIS_802_11_FIXED_IEs
 #define NDIS_ESSID_MAX_SIZE 32
 struct ndis_essid {
 	ULONG length;
-	UCHAR essid[NDIS_ESSID_MAX_SIZE];
+	UCHAR essid[NDIS_ESSID_MAX_SIZE+1];
 };
 
 

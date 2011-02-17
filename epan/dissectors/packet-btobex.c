@@ -514,7 +514,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if( (code < BTOBEX_CODE_VALS_CONTINUE) || (code == BTOBEX_CODE_VALS_ABORT)) {
 			proto_tree_add_item(st, hf_opcode, next_tvb, offset, 1, FALSE);
-			last_opcode[pinfo->p2p_dir] = code;
+			if (pinfo->p2p_dir == P2P_DIR_SENT || pinfo->p2p_dir == P2P_DIR_RECV) {
+				last_opcode[pinfo->p2p_dir] = code;
+			}
         	}
 		else	{
 			proto_tree_add_item(st, hf_response_code, next_tvb, offset, 1, FALSE);
