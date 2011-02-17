@@ -193,6 +193,7 @@ static int hf_isakmp_vid_cp_features   = -1;
 static int hf_isakmp_vid_cisco_unity_major = -1;
 static int hf_isakmp_vid_cisco_unity_minor = -1;
 static int hf_isakmp_vid_ms_nt5_isakmpoakley = -1;
+static int hf_isakmp_vid_aruba_via_auth_profile = -1;
 static int hf_isakmp_ts_number_of_ts = -1;
 static int hf_isakmp_ts_type = -1;
 static int hf_isakmp_ts_protoid = -1;
@@ -349,8 +350,11 @@ static gint ett_isakmp_fragment = -1;
 static gint ett_isakmp_fragments = -1;
 static gint ett_isakmp_sa = -1;
 static gint ett_isakmp_tf_attr = -1;
+static gint ett_isakmp_tf_ike_attr = -1;
+static gint ett_isakmp_tf_ike2_attr = -1;
 static gint ett_isakmp_id = -1;
 static gint ett_isakmp_cfg_attr = -1;
+static gint ett_isakmp_rohc_attr = -1;
 #ifdef HAVE_LIBGCRYPT
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
@@ -2382,6 +2386,30 @@ static const guint8 VID_DWR[] = { /* DWR: Delete with reason */
 	0xE1, 0x34, 0x27, 0x39, 0xE9, 0xCF, 0xBB, 0xD5
 };
 
+static const guint8 VID_ARUBA_RAP[] = { /* Remote AP (Aruba Networks)  */
+	0xca, 0x3e, 0x2b, 0x85, 0x4b, 0xa8, 0x03, 0x00,
+	0x17, 0xdc, 0x10, 0x23, 0xa4, 0xfd, 0xe2, 0x04,
+	0x1f, 0x9f, 0x74, 0x63
+};
+
+static const guint8 VID_ARUBA_CONTROLLER[] = { /* Controller (Aruba Networks)  */
+	0x3c, 0x8e, 0x70, 0xbd, 0xf9, 0xc7, 0xd7, 0x4a,
+	0xdd, 0x53, 0xe4, 0x10, 0x09, 0x15, 0xdc, 0x2e,
+	0x4b, 0xb5, 0x12, 0x74
+};
+
+static const guint8 VID_ARUBA_VIA_CLIENT[] = { /* VIA Client (Aruba Networks)  */
+	0x88, 0xf0, 0xe3, 0x14, 0x9b, 0x3f, 0xa4, 0x8b,
+	0x05, 0xaa, 0x7f, 0x68, 0x5f, 0x0b, 0x76, 0x6b,
+	0xe1, 0x86, 0xcc, 0xb8
+};
+
+static const guint8 VID_ARUBA_VIA_AUTH_PROFILE[] = { /* VIA Auth Profile (Aruba Networks)  */
+	0x56, 0x49, 0x41, 0x20, 0x41, 0x75, 0x74, 0x68,
+	0x20, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65,
+	0x20, 0x3a, 0x20
+};
+
 /* Based from value_string.c/h */
 static const byte_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
@@ -2478,6 +2506,10 @@ static const byte_string vendor_id[] = {
   { VID_SONICWALL, sizeof(VID_SONICWALL), "SonicWALL" },
   { VID_HEARTBEAT_NOTIFY, sizeof(VID_HEARTBEAT_NOTIFY), "Heartbeat Notify" },
   { VID_DWR, sizeof(VID_DWR), "DWR: Delete with reason" },
+  { VID_ARUBA_RAP, sizeof(VID_ARUBA_RAP), "Remote AP (Aruba Networks)" },
+  { VID_ARUBA_CONTROLLER, sizeof(VID_ARUBA_CONTROLLER), "Controller (Aruba Networks)" },
+  { VID_ARUBA_VIA_CLIENT, sizeof(VID_ARUBA_VIA_CLIENT), "VIA Client (Aruba Networks)" },
+  { VID_ARUBA_VIA_AUTH_PROFILE, sizeof(VID_ARUBA_VIA_AUTH_PROFILE), "VIA Auth Profile (Aruba Networks)" },
   { 0, 0, NULL }
 };
 
@@ -3043,7 +3075,7 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
 
 	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, FALSE);
         proto_item_append_text(rohc_item," (t=%d,l=%d) %s",rohc, optlen, val_to_str(rohc, rohc_attr_type, "Unknown Attribute Type (%02d)") );
-	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_tf_attr);
+	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_rohc_attr);
 	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, FALSE);
 	proto_tree_add_uint(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_type, tvb, offset, 2, rohc);
 
@@ -3206,7 +3238,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
 
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, FALSE);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike_attr_type,"Unknown Attribute Type (%02d)") );
-	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
+	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, FALSE);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike_attr_type, tvb, offset, 2, transform_attr_type);
 
@@ -3321,7 +3353,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
 
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, FALSE);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike2_attr_type,"Unknown Attribute Type (%02d)") );
-	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
+	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike2_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, FALSE);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_type, tvb, offset, 2, transform_attr_type);
 
@@ -3874,7 +3906,6 @@ static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
 {
   guint8		spi_size;
-  guint16		num_spis;
 
   if (isakmp_version == 1) {
 
@@ -3900,7 +3931,6 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
   offset += 1;
   length -= 1;
 
-  num_spis = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tree, hf_isakmp_num_spis, tvb, offset, 2, FALSE);
   offset += 2;
   length -= 2;
@@ -3960,6 +3990,14 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   {
     offset += 16;
     proto_tree_add_item(tree, hf_isakmp_vid_ms_nt5_isakmpoakley, tvb, offset, 4, FALSE);
+    offset += 4;
+  }
+
+  /* VID_ARUBA_VIA_AUTH_PROFILE */
+  if (length >= 19 && memcmp(pVID, VID_ARUBA_VIA_AUTH_PROFILE, 19) == 0)
+  {
+    offset += 19;
+    proto_tree_add_item(tree, hf_isakmp_vid_aruba_via_auth_profile, tvb, offset, length-19, FALSE);
     offset += 4;
   }
 }
@@ -5272,6 +5310,11 @@ proto_register_isakmp(void)
         FT_UINT32, BASE_DEC, VALS(ms_nt5_isakmpoakley_type), 0x0,
         NULL, HFILL }},
 
+    { &hf_isakmp_vid_aruba_via_auth_profile,
+      { "Auth Profile", "isakmp.vid.aruba_via_auth_profile",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Aruba Networks Auth Profile for VIA Client", HFILL }},
+
     { &hf_isakmp_ts_number_of_ts,
       { "Number of Traffic Selector", "isakmp.ts.number",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5868,8 +5911,11 @@ proto_register_isakmp(void)
     &ett_isakmp_fragments,
     &ett_isakmp_sa,
     &ett_isakmp_tf_attr,
+    &ett_isakmp_tf_ike_attr,
+    &ett_isakmp_tf_ike2_attr,
     &ett_isakmp_id,
     &ett_isakmp_cfg_attr,
+    &ett_isakmp_rohc_attr,
 #ifdef HAVE_LIBGCRYPT
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
