@@ -41,11 +41,13 @@
 
 /*
  * Called when the program starts, to save whatever credential information
- * we'll need later.
+ * we'll need later, and to do whatever other specialized platform-dependent
+ * initialization we want.
  */
 void
 init_process_policies(void)
 {
+	HMODULE kernel32Handle;
 	typedef BOOL (*SetProcessDEPPolicyHandler)(DWORD);
 	SetProcessDEPPolicyHandler PSetProcessDEPPolicy;
 
@@ -53,8 +55,24 @@ init_process_policies(void)
 #define PROCESS_DEP_ENABLE 1
 #endif
 
-	if (PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetProcessDEPPolicy")) {
-		PSetProcessDEPPolicy(PROCESS_DEP_ENABLE);
+	/*
+	 * If we have SetProcessDEPPolicy(), turn "data execution
+	 * prevention" on - i.e., if the MMU lets you set execute
+	 * permission on a per-page basis, turn execute permission
+	 * off on most data pages.  PSetProcessDEPPolicy() fails on
+	 * 64-bit Windows (it's *always* on there), but if it fails,
+	 * we don't care (we did our best), so we don't check for
+	 * errors.
+	 *
+	 * XXX - if the GetModuleHandle() call fails, should we report
+	 * an error?  That "shouldn't happen" - it's the equivalent
+	 * of libc.{so,sl,a} or libSystem.dylib being missing on UN*X.
+	 */
+	kernel32Handle = GetModuleHandle(_T("kernel32.dll"));
+	if (kernel32Handle != NULL) {
+		if (PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(kernel32Handle, "SetProcessDEPPolicy")) {
+			PSetProcessDEPPolicy(PROCESS_DEP_ENABLE);
+		}
 	}
 
 	npf_sys_is_running();
@@ -164,8 +182,14 @@ static gboolean init_process_policies_called = FALSE;
 
 /*
  * Called when the program starts, to save whatever credential information
- * we'll need later.
- * That'd be the real and effective UID and GID on UNIX.
+ * we'll need later, and to do whatever other specialized platform-dependent
+ * initialization we want.
+ *
+ * The credential information we'll need later on UNIX is the real and
+ * effective UID and GID.
+ *
+ * XXX - do any UN*Xes have opt-in "no execute on data pages by default"
+ * permission?  This would be the place to request it.
  */
 void
 init_process_policies(void)
