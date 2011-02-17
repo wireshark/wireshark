@@ -223,7 +223,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 	g_assert(dfp);
 
-	if (!text) {
+	if (text == NULL) {
 		*dfp = NULL;
 		return FALSE;
 	}
