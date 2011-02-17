@@ -657,7 +657,6 @@ static int proto_a_dtap = -1;
 const ext_value_string_t *ansi_a_bsmap_strings = NULL;
 const ext_value_string_t *ansi_a_dtap_strings = NULL;
 const ext_value_string_t *ansi_a_elem_1_strings = NULL;
-static gint ansi_a_elem_1_max = 0;
 
 static int ansi_a_tap = -1;
 
@@ -8612,6 +8611,7 @@ typedef enum
     ANSI_A_E_NONE       /* NONE */
 }
 elem_idx_t;
+static elem_idx_t ansi_a_elem_1_max = 0;
 
 #define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
 #define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
@@ -8729,7 +8729,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx >= ansi_a_elem_1_max-1)
+    if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8812,7 +8812,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx >= ansi_a_elem_1_max-1)
+    if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8886,7 +8886,7 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx >= ansi_a_elem_1_max-1)
+    if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8924,7 +8924,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx >= ansi_a_elem_1_max-1)
+    if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8992,7 +8992,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx >= ansi_a_elem_1_max-1)
+    if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -11614,7 +11614,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
     guint32     curr_offset;
     guint32     consumed;
     guint       curr_len;
-    gint        idx;
+    elem_idx_t  idx;
     guint8      oct;
 
     curr_offset = offset;
