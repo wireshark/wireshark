@@ -90,6 +90,11 @@ extern void except_setup_try(struct except_stacknode *,
 	struct except_catch *, const except_id_t [], size_t);
 extern struct except_stacknode *except_pop(void);
 
+/*
+ * XXX - is there some way to annotate the G_GNUC_NORETURN functions
+ * usint the Standard Annotation Language so that Microsoft's static
+ * code analyzer knows they never return?
+ */
 /* public interface functions */
 extern int except_init(void);
 extern void except_deinit(void);
