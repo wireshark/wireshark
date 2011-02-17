@@ -1332,6 +1332,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
   hashmanuf_t *mtp;
   hashwka_t   *(*wka_tp)[HASHETHSIZE], *wtp;
 
+  /*
+   * XXX - can we use Standard Annotation Language annotations to
+   * note that mask, as returned by parse_ether_address() (and thus
+   * by the routines that call it, and thus passed to us) cannot be > 48,
+   * or is SAL too weak to express that?
+   */
   if (mask >= 48) {
     /* This is a well-known MAC address; just add this to the Ethernet
        hash table */
