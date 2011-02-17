@@ -26,6 +26,10 @@
  * not freeing that).
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -182,7 +186,7 @@ static int match(const volatile except_id_t *thrown, const except_id_t *caught)
     return group_match && code_match;
 }
 
-G_GNUC_NORETURN static void do_throw(except_t *except)
+G_GNUC_NORETURN WS_MSVC_NORETURN static void do_throw(except_t *except)
 {
     struct except_stacknode *top;
 
@@ -263,7 +267,7 @@ struct except_stacknode *except_pop(void)
     return top;
 }
 
-G_GNUC_NORETURN void except_rethrow(except_t *except)
+G_GNUC_NORETURN WS_MSVC_NORETURN void except_rethrow(except_t *except)
 {
     struct except_stacknode *top = get_top();
     assert (top != 0);
@@ -273,7 +277,7 @@ G_GNUC_NORETURN void except_rethrow(except_t *except)
     do_throw(except);
 }
 
-G_GNUC_NORETURN void except_throw(long group, long code, const char *msg)
+G_GNUC_NORETURN WS_MSVC_NORETURN void except_throw(long group, long code, const char *msg)
 {
     except_t except;
 
@@ -291,7 +295,7 @@ G_GNUC_NORETURN void except_throw(long group, long code, const char *msg)
     do_throw(&except);
 }
 
-G_GNUC_NORETURN void except_throwd(long group, long code, const char *msg, void *data)
+G_GNUC_NORETURN WS_MSVC_NORETURN void except_throwd(long group, long code, const char *msg, void *data)
 {
     except_t except;
 
@@ -308,7 +312,7 @@ G_GNUC_NORETURN void except_throwd(long group, long code, const char *msg, void 
  * XCEPT_BUFFER_SIZE?  We could then just use this to generate formatted
  * messages.
  */
-G_GNUC_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
+G_GNUC_NORETURN WS_MSVC_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
 {
     char *buf = except_alloc(XCEPT_BUFFER_SIZE);
     va_list vl;

@@ -85,6 +85,17 @@
 #  define WS_VAR_IMPORT extern
 #endif
 
+/*
+ * Define WS_MSVC_NORETURN appropriately for declarations of routines that
+ * never return (just like Charlie on the MTA).
+ *
+ * Note that MSVC++ expects __declspec(noreturn) to precede the function
+ * name and GCC, as far as I know, expects __attribute__((noreturn)) to
+ * follow the function name, so we need two different flavors of
+ * noreturn tag.
+ */
+#define WS_MSVC_NORETURN	__declspec(noreturn)
+
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
 

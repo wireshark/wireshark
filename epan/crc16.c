@@ -33,6 +33,10 @@
  *      DCEs using asynchronous-to-synchronous conversion", Para. 8.1.1.6.1
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <glib.h>
 #include <epan/tvbuff.h>
 #include <epan/crc16.h>

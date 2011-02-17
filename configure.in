@@ -1584,6 +1584,17 @@ AC_SUBST(pythondir)
 #
 AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
 
+#
+# Define WS_MSVC_NORETURN appropriately for declarations of routines that
+# never return (just like Charlie on the MTA).
+#
+# Note that MSVC++ expects __declspec(noreturn) to precede the function
+# name and GCC, as far as I know, expects __attribute__((noreturn)) to
+# follow the function name, so we need two different flavors of
+# noreturn tag.
+#
+AC_DEFINE(WS_MSVC_NORETURN,, [Define as the string to precede declarations of routines that never return])
+
 AC_ARG_ENABLE(airpcap,
   AC_HELP_STRING( [--enable-airpcap],
                   [use airpcap in wireshark.  @<:@default=yes@:>@]),

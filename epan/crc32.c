@@ -29,6 +29,10 @@
  * Routine from Chris Waters
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <glib.h>
 #include <epan/tvbuff.h>
 #include <epan/crc32.h>
