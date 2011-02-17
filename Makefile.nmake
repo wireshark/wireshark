@@ -893,7 +893,7 @@ clean_setup:
     rm -r -f upx303w
     rm -r -f GeoIP-1.4.5ws
     rm -r -f GeoIP-1.4.6-win??ws
-    cd $(MAKEDIR)
+    cd "$(MAKEDIR)"
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.
