@@ -203,19 +203,19 @@ get_interface_descriptive_name(const char *if_name)
 static if_info_t *
 search_info(GList *if_list, gchar *if_name)
 {
-    GList *if_entry;
-    if_info_t *if_info;
+  GList *if_entry;
+  if_info_t *if_info;
 
 
-    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-        if_info = if_entry->data;
+  for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+    if_info = if_entry->data;
 
-        if(strcmp(if_name, if_info->name) == 0) {
-            return if_info;
-        }
+    if(strcmp(if_name, if_info->name) == 0) {
+      return if_info;
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 
@@ -223,32 +223,31 @@ search_info(GList *if_list, gchar *if_name)
 char *
 build_capture_combo_name(GList *if_list, gchar *if_name)
 {
-    gchar *descr;
-    char *if_string;
-    if_info_t *if_info;
+  gchar *descr;
+  char *if_string;
+  if_info_t *if_info;
 
+  /* Do we have a user-supplied description? */
+  descr = capture_dev_user_descr_find(if_name);
+  if (descr != NULL) {
+    /* Yes, we have a user-supplied description; use it. */
+    if_string = g_strdup_printf("%s: %s", descr, if_name);
+    g_free(descr);
+  } else {
+    /* No, we don't have a user-supplied description; did we get
+     one from the OS or libpcap? */
+    if_info = search_info(if_list, if_name);
+    if (if_info != NULL && if_info->description != NULL) {
+      /* Yes - use it. */
+      if_string = g_strdup_printf("%s: %s", if_info->description,
+                                  if_info->name);
+    } else {
+      /* No. */
+      if_string = g_strdup(if_name);
+    }
+  }
 
-	/* Do we have a user-supplied description? */
-	descr = capture_dev_user_descr_find(if_name);
-	if (descr != NULL) {
-	  /* Yes, we have a user-supplied description; use it. */
-	  if_string = g_strdup_printf("%s: %s", descr, if_name);
-	  g_free(descr);
-	} else {
-	  /* No, we don't have a user-supplied description; did we get
-	     one from the OS or libpcap? */
-      if_info = search_info(if_list, if_name);
-	  if (if_info && if_info->description != NULL) {
-	    /* Yes - use it. */
-	    if_string = g_strdup_printf("%s: %s", if_info->description,
-					if_info->name);
-	  } else {
-	    /* No. */
-	    if_string = g_strdup(if_name);
-	  }
-	}
-
-    return if_string;
+  return if_string;
 }
 
 
