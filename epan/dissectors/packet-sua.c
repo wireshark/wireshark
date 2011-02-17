@@ -383,7 +383,8 @@ static emem_tree_t* assocs = NULL;
 sua_assoc_info_t* assoc;
 sua_assoc_info_t no_sua_assoc = {
 	0,		/* assoc_id */
-	0,      /* routing_ind */
+	0,		/* calling_routing_ind */
+	0,		/* called_routing_ind */
 	0,		/* calling_dpc */
 	0,		/* called_dpc */
 	0,		/* calling_ssn */
