@@ -239,26 +239,17 @@ typedef struct ajp13_frame_data {
  *
  * XXX - is there a tvbuff routine to handle this?
  */
-static guint16
-get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
+static const gchar *
+ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
 {
   guint16 len;
-  size_t copylen;
 
   len = tvb_get_ntohs(tvb, offset);
-
-  if (len == 0xffff || cbuflen < 1) {
-    cbuf[0] = '\0';
-    len = 0;
-  } else {
-    copylen = len;
-    if (copylen > cbuflen - 1)
-      copylen = cbuflen - 1;
-    tvb_memcpy(tvb, cbuf, offset+2, (gint) copylen);
-    cbuf[copylen] = '\0';
-    len++;
-  }
-  return len;
+  
+  if (ret_len)
+    *ret_len = len;
+    
+  return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
 
 
@@ -304,7 +295,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
   } else if (mcode == 4) {
 
-    guint8 rsmsg_bytes[8*1024]; /* DANGER WILL ROBINSON */
+    const gchar *rsmsg;
     guint16 rsmsg_len;
     guint16 nhdr;
     guint16 rcode_num;
@@ -320,14 +311,13 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
     /* HTTP RESPONSE STATUS MESSAGE
      */
-    rsmsg_len = get_nstring(tvb, pos, rsmsg_bytes, sizeof rsmsg_bytes);
+    rsmsg = ajp13_get_nstring(tvb, pos, &rsmsg_len);
     pos+=2;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len, 0);
     pos+=rsmsg_len;
-    /* dangerous assumption that we can just %s out raw bytes */
     if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg_bytes);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg);
 
     /* NUMBER OF HEADERS
      */
@@ -342,13 +332,12 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
       guint8 hcd;
       guint8 hid;
-      guint8 hval[8192];
-      guint16 hval_len;
+      const gchar *hval;
+      guint16 hval_len, hname_len;
       int orig_pos = pos;
       const gchar* hname = NULL;
       int dp = 0;
       int cl = 0;
-      guint8 hname_bytes[1024];
 
       /* HEADER CODE/NAME
        */
@@ -364,10 +353,9 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         if (hid == 0x08)
           cl = 1;
       } else {
-        int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
+        hname = ajp13_get_nstring(tvb, pos, &hname_len);
 
         pos+=hname_len+2;
-        hname = (gchar*)hname_bytes; /* VERY EVIL */
       }
 
       dp = pos-orig_pos;
@@ -375,15 +363,12 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       /* HEADER VALUE
        */
       orig_pos = pos;
-      hval_len = get_nstring(tvb, pos, hval, sizeof hval);
+      hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
       pos+=hval_len+2;
       dp = pos - orig_pos;
       if (ajp13_tree) {
-        gchar *hname_value;
-        hname_value=ep_alloc(512);
-        g_snprintf(hname_value, 512, "%s : %s", hname, hval);
-        proto_tree_add_string(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, hname_value);
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, "%s : %s", hname, hval);
       }
     }
 
@@ -422,9 +407,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
     guint16 content_length;
     guint16 packet_length;
 
-    guint8 body_bytes[128*1024]; /* DANGER WILL ROBINSON */
     int pos = 0;
-    guint16 body_len;
 
     /* MAGIC
      */
@@ -452,8 +435,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
      */
     content_length = tvb_get_ntohs( tvb, pos);
     cd->content_length -= content_length;
-    body_len = get_nstring(tvb, pos, body_bytes, sizeof body_bytes);
-    proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, body_len-1, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, 0);
 }
 
 
@@ -474,15 +456,15 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   int pos = 0;
   guint8 meth;
   guint8 cod;
-  guint8 ver[1024];
+  const gchar *ver;
   guint16 ver_len;
-  guint8 uri[4096];
+  const gchar *uri;
   guint16 uri_len;
-  guint8 raddr[4096];
+  const gchar *raddr;
   guint16 raddr_len;
-  guint8 rhost[4096];
+  const gchar *rhost;
   guint16 rhost_len;
-  guint8 srv[4096];
+  const gchar *srv;
   guint16 srv_len;
   guint nhdr;
   guint i;
@@ -528,7 +510,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* HTTP VERSION STRING
    */
-  ver_len = get_nstring(tvb, pos, ver, sizeof ver);
+  ver = ajp13_get_nstring(tvb, pos, &ver_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len, 0);
@@ -536,7 +518,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* URI
    */
-  uri_len = get_nstring(tvb, pos, uri, sizeof uri);
+  uri = ajp13_get_nstring(tvb, pos, &uri_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len, 0);
@@ -549,7 +531,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE ADDRESS
    */
-  raddr_len = get_nstring(tvb, pos, raddr, sizeof raddr);
+  raddr = ajp13_get_nstring(tvb, pos, &raddr_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, 0);
@@ -557,7 +539,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE HOST
    */
-  rhost_len = get_nstring(tvb, pos, rhost, sizeof rhost);
+  rhost = ajp13_get_nstring(tvb, pos, &rhost_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, 0);
@@ -565,7 +547,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* SERVER NAME
    */
-  srv_len = get_nstring(tvb, pos, srv, sizeof srv);
+  srv = ajp13_get_nstring(tvb, pos, &srv_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, 0);
@@ -602,8 +584,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     const gchar* hname = NULL;
     int dp = 0;
     int cl = 0;
-    guint8 *hval;
-    guint16 hval_len;
+    const gchar *hval;
+    guint16 hval_len, hname_len;
 
     /* HEADER CODE/NAME
      */
@@ -618,13 +600,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (hid == 0x08)
         cl = 1;
     } else {
-      guint8 *hname_bytes;
-      int hname_len;
-
-      hname_bytes=ep_alloc(1024);
-      hname_len = get_nstring(tvb, pos, hname_bytes, 1024);
+      hname = ajp13_get_nstring(tvb, pos, &hname_len);
       pos+=hname_len+2;
-      hname = (gchar*)hname_bytes;
     }
 
     dp = pos-orig_pos;
@@ -632,8 +609,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     /* HEADER VALUE
      */
     orig_pos = pos;
-    hval=ep_alloc(8192);
-    hval_len = get_nstring(tvb, pos, hval, 8192);
+    hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
     pos+=hval_len+2;
     dp = pos - orig_pos;
