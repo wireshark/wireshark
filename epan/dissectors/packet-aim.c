@@ -703,7 +703,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset += 4;
 
 
-	if( aim_tree )
+	if( aim_tree && subtype != NULL )
 	{
 		offset = orig_offset;
 		ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10,
@@ -755,7 +755,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (family)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
 
-	if(subtype && family)
+	if(subtype != NULL && family != NULL)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, family->name);
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", subtype->name);
@@ -770,7 +770,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype_id);
 	}
 
-	if(aim_tree && family)
+	if(aim_tree && family != NULL)
 	{
 		proto_item *ti = proto_tree_add_item(root_tree, family->proto_id, subtvb, 0, -1, FALSE);
 		family_tree = proto_item_add_subtree(ti, family->ett);
@@ -778,7 +778,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			proto_item_append_text(ti, ", %s", subtype->name);
 	}
 
-	if(tvb_length_remaining(tvb, offset) > 0 && subtype && subtype->dissector)
+	if(tvb_length_remaining(tvb, offset) > 0 && subtype != NULL && subtype->dissector)
 	{
 		subtype->dissector(subtvb, pinfo, family_tree);
 	}

@@ -1375,7 +1375,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item   *ti;
-    proto_tree   *a11_tree;
+    proto_tree   *a11_tree = NULL;
     proto_item   *tf;
     proto_tree   *flags_tree;
     guint8        type;
@@ -1673,7 +1673,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     } /* End switch */
 
-    if (tree) {
+    if (tree && a11_tree) {
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             dissect_a11_extensions(tvb, offset, a11_tree);
     }

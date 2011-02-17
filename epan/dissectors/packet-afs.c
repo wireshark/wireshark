@@ -1702,7 +1702,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	int old_offset;
 	gint32 bytes;
 	int i, n, pos, neg, acl;
-	char user[128]; /* Be sure to adjust sscanf()s below if length is changed... */
+	char user[128] = "[Unknown]"; /* Be sure to adjust sscanf()s below if length is changed... */
 
 	old_offset = offset;
 	bytes = tvb_get_ntohl(tvb, offset);

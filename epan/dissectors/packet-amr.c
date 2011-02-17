@@ -601,8 +601,8 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 	amr_capability_t *ftr = NULL; 
 
 	actx = get_asn1_ctx(pinfo->private_data);
-	DISSECTOR_ASSERT(actx);
-	if (tree) {
+	DISSECTOR_ASSERT(actx != NULL);
+	if (tree && actx != NULL) {
 		ftr = find_cap(pinfo->match_string);
 		if (ftr) {
 			proto_item_append_text(actx->created_item, " - %s", ftr->name);

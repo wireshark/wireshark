@@ -305,7 +305,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
     }
   } else {
     proto_tree_add_item(tree, hf_aoe_astatus, tvb, offset, 1, FALSE);
-    if(ata_info && ata_info->request_frame){
+    if(ata_info != NULL && ata_info->request_frame){
       /* we dont know what command it was unless we saw the request_frame */
       tmp_item=proto_tree_add_uint(tree, hf_aoe_acmd, tvb, 0, 0, ata_info->cmd);
       PROTO_ITEM_SET_GENERATED(tmp_item);
