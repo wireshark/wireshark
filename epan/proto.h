@@ -108,6 +108,17 @@ typedef struct _protocol protocol_t;
     abort() : \
     THROW_MESSAGE(DissectorError, message))
 
+/** Macro used to provide a hint to static analysis tools.
+ * (Currently only Visual C++.)
+ */
+#if _MSC_VER >= 1400
+/* XXX - Is there a way to say "quit checking at this point"? */
+#define __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression) \
+  ; __analysis_assume(expression);
+#else
+#define __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+#endif
+
 /** Macro used for assertions in dissectors; it doesn't abort, it just
  * throws a DissectorError exception, with the assertion failure
  * message as a parameter, so that it can show up in the protocol tree.
@@ -118,9 +129,11 @@ typedef struct _protocol protocol_t;
  *
  * @param expression expression to test in the assertion
  */
+
 #define DISSECTOR_ASSERT(expression)  \
   ((void) ((expression) ? (void)0 : \
-   __DISSECTOR_ASSERT (expression, __FILE__, __LINE__)))
+   __DISSECTOR_ASSERT (expression, __FILE__, __LINE__))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
 
 #if 0
 /* win32: using a debug breakpoint (int 3) can be very handy while debugging,
