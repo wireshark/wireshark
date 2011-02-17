@@ -170,8 +170,9 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 	}
 
 	if (!m) {
-		if (fvt_cache && (e = g_hash_table_lookup(fvt_cache,name) )) {
-			if(e->usable != NULL) {
+		if (fvt_cache &&
+		    (e = g_hash_table_lookup(fvt_cache,name)) != NULL) {
+			if(e->usable) {
 				return e->repr;
 			} else {
 				*error = ep_strdup_printf("macro '%s' is unusable", name);
