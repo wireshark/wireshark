@@ -383,7 +383,7 @@ void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissect
 
 void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* current_attr) {
 	radius_attr_info_t* a;
-	radius_attr_info_t* s = g_malloc(sizeof(radius_attr_info_t));
+	radius_attr_info_t* s;
 	guint32 code;
 
 	a = g_hash_table_lookup(dict->attrs_by_name, current_attr);
