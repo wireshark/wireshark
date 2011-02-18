@@ -2,7 +2,7 @@
  * Routines for PCEP packet disassembly
  * draft-ietf-pce-pcep-09
  * draft-ietf-pce-pcep-xro-02
- * See also RFC 4655, RFC 4657, RFC 5520 and RFC 5541
+ * See also RFC 4655, RFC 4657, RFC 5520, RFC 5440 and RFC 5541
  *
  * (c) Copyright 2007 Silvia Cristina Tejedor <silviacristina.tejedor@gmail.com>
  *
@@ -169,7 +169,8 @@
 #define Mask_L				0x80
 #define Mask_Type			0x7f
 
-#define TCP_PORT_PCEP			1010
+/* RFC 5440 */
+#define TCP_PORT_PCEP			4189
 
 #define IPv4				1
 #define IPv6				2
