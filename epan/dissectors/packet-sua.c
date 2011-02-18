@@ -2145,15 +2145,15 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 		  case MESSAGE_TYPE_COAK:
 			   break;
 		  default:
-			  if( (assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
+			  if( (assoc && assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
 				  dest_ssn = assoc->called_ssn;
 			  }
-			  if( (assoc->calling_ssn != INVALID_SSN)&& (source_ssn != INVALID_SSN)){
+			  if( (assoc && assoc->calling_ssn != INVALID_SSN)&& (source_ssn != INVALID_SSN)){
 				  source_ssn = assoc->calling_ssn;
 			  }
 
 	  }
-	  if (assoc->assoc_id !=0){
+	  if (assoc && assoc->assoc_id !=0){
 		  assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
 		  PROTO_ITEM_SET_GENERATED(assoc_item);
 		  assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);

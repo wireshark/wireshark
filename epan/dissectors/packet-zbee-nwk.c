@@ -551,7 +551,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             offset += 8;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->flags.visited && nwk_hints) {
                 /* Provide hints to upper layers */
                 nwk_hints->src_pan = ieee_packet->src_pan;
 
@@ -564,7 +564,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else {
             /* See if extended source info was previously sniffed */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->flags.visited && nwk_hints) {
                 nwk_hints->src_pan = ieee_packet->src_pan;
                 addr16.addr = packet.src;
 

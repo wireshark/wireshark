@@ -1166,6 +1166,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     channel_key.channelType = p_rlc_lte_info->channelType;
     channel_key.channelId = p_rlc_lte_info->channelId;
     channel_key.direction = p_rlc_lte_info->direction;
+    memset(repeatedNACKs, 0, sizeof(repeatedNACKs));
 
     /* Do the table lookup */
     p_channel_status = (rlc_channel_repeated_nack_status*)g_hash_table_lookup(rlc_lte_repeated_nack_channel_hash, &channel_key);

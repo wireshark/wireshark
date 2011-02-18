@@ -1841,7 +1841,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
                   keysym = syms[0];
       }
       else if (!(bitmask & LockMask) || !lockmod_is_capslock) {
-            int lsym, usym;
+            int lsym, usym = 0;
 
             if (keysyms_per_keycode == 1
                 || (keysyms_per_keycode > 1 && (usym = syms[1]) == NoSymbol))
@@ -1849,7 +1849,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
             keysym = usym;
       }
       else {
-            int lsym, usym;
+            int lsym, usym = 0;
 
             if (keysyms_per_keycode == 1
                 || (keysyms_per_keycode > 1 && syms[1] == NoSymbol))
