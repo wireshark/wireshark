@@ -309,7 +309,8 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset+=4;
 
 		/* read the parameter */
-		sscanf(tvb_get_ptr(tvb, offset, 8), "%08x", &parameter);
+		if (sscanf(tvb_get_ptr(tvb, offset, 8), "%08x", &parameter) != 1)
+			return;
 		offset+=8;
 
 		if(!strncmp(token, "DIST", 4)){

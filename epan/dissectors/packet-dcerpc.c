@@ -2870,6 +2870,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
 
+        memset(&trans_id, 0, sizeof(trans_id));
         for (j = 0; j < num_trans_items; j++) {
             proto_tree *trans_tree = NULL;
             proto_item *trans_item = NULL;
