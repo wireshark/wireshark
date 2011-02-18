@@ -93,10 +93,10 @@ extern struct except_stacknode *except_pop(void);
 /* public interface functions */
 extern int except_init(void);
 extern void except_deinit(void);
-extern void except_rethrow(except_t *) G_GNUC_NORETURN;
-extern void except_throw(long, long, const char *) G_GNUC_NORETURN;
-extern void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
-extern void except_throwf(long, long, const char *, ...) G_GNUC_NORETURN;
+extern WS_MSVC_NORETURN void except_rethrow(except_t *) G_GNUC_NORETURN;
+extern WS_MSVC_NORETURN void except_throw(long, long, const char *) G_GNUC_NORETURN;
+extern WS_MSVC_NORETURN void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
+extern WS_MSVC_NORETURN void except_throwf(long, long, const char *, ...) G_GNUC_NORETURN;
 extern void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
 extern unsigned long except_code(except_t *);
 extern unsigned long except_group(except_t *);
