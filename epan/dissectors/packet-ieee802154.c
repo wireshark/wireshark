@@ -1333,7 +1333,7 @@ dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         /*  Add Beacon Order to the superframe spec. */
         proto_tree_add_uint(field_tree, hf_ieee802154_beacon_order, tvb, *offset, 2, superframe & IEEE802154_BEACON_ORDER_MASK);
         proto_tree_add_uint(field_tree, hf_ieee802154_superframe_order, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_ORDER_MASK);
-        proto_tree_add_uint(field_tree, hf_ieee802154_cap, tvb, *offset, 2, (superframe & IEEE802154_SUPERFRAME_CAP_MASK) >> IEEE802154_SUPERFRAME_CAP_SHIFT);
+        proto_tree_add_uint(field_tree, hf_ieee802154_cap, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_CAP_MASK);
         proto_tree_add_boolean(field_tree, hf_ieee802154_superframe_battery_ext, tvb, *offset, 2, superframe & IEEE802154_BATT_EXTENSION_MASK);
         proto_tree_add_boolean(field_tree, hf_ieee802154_superframe_coord, tvb, *offset, 2, superframe & IEEE802154_SUPERFRAME_COORD_MASK);
         proto_tree_add_boolean(field_tree, hf_ieee802154_assoc_permit, tvb, *offset, 2, superframe & IEEE802154_ASSOC_PERMIT_MASK);
