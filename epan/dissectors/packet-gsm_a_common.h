@@ -952,10 +952,10 @@ typedef enum
 {
 	/* Mobility Management Information Elements [3] 10.5.3 */
 	DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
-	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
+	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS and EPS authentication challenge) */
 	DE_AUTH_RESP_PARAM,				/* Authentication Response Parameter */
 	DE_AUTH_RESP_PARAM_EXT,			/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
-	DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS authentication challenge only) */
+	DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS and EPS authentication challenge) */
 	DE_CM_SRVC_TYPE,				/* CM Service Type */
 	DE_ID_TYPE,						/* Identity Type */
 	DE_LOC_UPD_TYPE,				/* Location Updating Type */

@@ -232,10 +232,10 @@ const value_string gsm_a_dtap_msg_tp_strings[] = {
 const value_string gsm_dtap_elem_strings[] = {
 	/* Mobility Management Information Elements 10.5.3 */
 	{ 0x00,	"Authentication Parameter RAND" },
-	{ 0x00,	"Authentication Parameter AUTN (UMTS authentication challenge only)" },
+	{ 0x00,	"Authentication Parameter AUTN (UMTS and EPS authentication challenge)" },
 	{ 0x00,	"Authentication Response Parameter" },
 	{ 0x00,	"Authentication Response Parameter (extension) (UMTS authentication challenge only)" },
-	{ 0x00,	"Authentication Failure Parameter (UMTS authentication challenge only)" },
+	{ 0x00,	"Authentication Failure Parameter (UMTS and EPS authentication challenge)" },
 	{ 0x00,	"CM Service Type" },
 	{ 0x00,	"Identity Type" },
 	{ 0x00,	"Location Updating Type" },
@@ -4059,10 +4059,10 @@ de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
 	de_auth_param_rand,	/* Authentication Parameter RAND */
-	de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS authentication challenge only) */
+	de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS and EPS authentication challenge) */
 	de_auth_resp_param,	/* Authentication Response Parameter */
 	de_auth_resp_param_ext,	/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
-	de_auth_fail_param,	/* Authentication Failure Parameter (UMTS authentication challenge only) */
+	de_auth_fail_param,	/* Authentication Failure Parameter (UMTS and EPS authentication challenge) */
 	NULL /* handled inline */,	/* CM Service Type */
 	NULL /* handled inline */,	/* Identity Type */
 	NULL /* handled inline */,	/* Location Updating Type */
