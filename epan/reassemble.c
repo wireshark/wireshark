@@ -946,6 +946,9 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 					g_warning("Reassemble error in frame %u: dfpos %u - offset %u > len %u",
 						pinfo->fd->num, dfpos, fd_i->offset,
 						fd_i->len);
+				else if (!fd_head->data)
+					g_warning("Reassemble error in frame %u: no data",
+						pinfo->fd->num);
 				else {
 					if (fd_i->offset < dfpos) {
 						fd_i->flags    |= FD_OVERLAP;

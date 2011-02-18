@@ -679,7 +679,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
         statusbar_push_temporary_msg("No packet contained that string in its dissected display.");
         return;
       }
-    } else if (cfile.packet_data) {
+    } else if (cfile.packet_data && string) {
       /* String in the ASCII-converted packet data */
       found_packet = cf_find_packet_data(&cfile, string, strlen(string), cfile.dir);
       g_free(string);

@@ -713,7 +713,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		case COL_8021Q_VLAN_ID:
 		case COL_EXPERT:
 		case COL_FREQ_CHAN:
-			if (cinfo->col_data[col] != cinfo->col_buf[col]) {
+			if (cinfo->col_data[col] && cinfo->col_data[col] != cinfo->col_buf[col]) {
 				/* This is a constant string, so we don't have to copy it */
 				record->fdata->col_text[col] = (gchar *) cinfo->col_data[col];
 				record->fdata->col_text_len[col] = (guint) strlen(record->fdata->col_text[col]);
