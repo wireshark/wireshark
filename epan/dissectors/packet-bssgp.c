@@ -7430,6 +7430,7 @@ static const true_false_string  bssgp_si_psi_type_vals = {
     "PSI messages as specified for PBCCH (3GPP TS 44.060) follow",
     "SI messages as specified for BCCH (3GPP TS 44.018) follow"
 };
+#if 0
 static guint16
 de_bssgp_app_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -7473,6 +7474,7 @@ de_bssgp_app_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	return(curr_offset-offset);
 }
+#endif
 
 /*
  * 11.3.63.2	RAN-INFORMATION Application Container Unit
@@ -8788,6 +8790,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,	/* NONE */
 };
 
+#if 0
 /*
  * 11.3.62a	RIM Container
  * 11.3.62a.0	General
@@ -8818,6 +8821,7 @@ de_bssgp_ran_inf_request_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 
 	return(curr_offset-offset);
 }
+#endif
 
 /* 11.3.79	Source BSS to Target BSS Transparent Container */
 static guint16
@@ -10527,6 +10531,7 @@ bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
 
+#if 0
 /*
  * 10.6	PDU functional definitions and contents at RIM SAP
  * 10.6.1	RAN-INFORMATION-REQUEST
@@ -10552,6 +10557,7 @@ bssgp_ran_inf_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
+#endif
 
 /*
  * 10.6.2	RAN-INFORMATION
