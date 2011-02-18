@@ -2465,6 +2465,10 @@ define_module(GNode *p, GNode *q)
 	module->type = TBLTYPE_Module;
 
 	p = g_node_first_child(p);
+	
+	if (!p) {
+		return;
+	}
 
 	module->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
@@ -2643,16 +2647,22 @@ get_values(void)		/* collect values from ASN.1 tree */
 	p = g_node_first_child(asn1_nodes); /* top of the data tree */
 
 	p = g_node_first_child(p);
+	if (!p) return;
 	TT.totalNumModules = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+	if (!p) return;
 	TT.totalNumTypeDefs = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+	if (!p) return;
 	TT.totalNumTypes = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+	if (!p) return;
 	TT.totalNumTags = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+	if (!p) return;
 	TT.totalNumStrings = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+	if (!p) return;
 	TT.totalLenStrings = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
@@ -4661,7 +4671,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		info = getinfo(pos.node);
 
 		/* pos now points to the prospective current node, go check it ********************/
-		if (asn1_verbose) g_message("  candidate %s '%s'%s%s, %c%d", TBLTYPE(pos.type), ret,
+		if (asn1_verbose && info) g_message("  candidate %s '%s'%s%s, %c%d", TBLTYPE(pos.type), ret,
 				(ISOPTIONAL)?", optional":empty,
 				(ISIMPLICIT)?", implicit":empty,
 				tag_class[info->tclass], info->tag );
