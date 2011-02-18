@@ -263,4 +263,10 @@
 #error Your MSVC_VARIANT setting in config.nmake doesn't match the MS compiler version!
 #endif
 
+/* Disable Code Analysis warnings that result in too many false positives. */
+/* http://msdn.microsoft.com/en-US/library/zyhb0b82.aspx */
+#if _MSC_VER >= 1400
+#pragma warning ( disable : 6011 )
+#endif
+
 typedef int ssize_t;
