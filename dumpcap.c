@@ -2487,7 +2487,6 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #ifndef USE_THREADS
     sel_ret = cap_pipe_select(ld->cap_pipe_fd);
     if (sel_ret <= 0) {
-      inpkts = 0;
       if (sel_ret < 0 && errno != EINTR) {
         g_snprintf(errmsg, errmsg_len,
           "Unexpected error from select: %s", strerror(errno));
@@ -2659,9 +2658,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   gchar *capfile_name;
   gchar *prefix;
   gboolean is_tempfile;
-#ifndef _WIN32
-  int ret;
-#endif
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
       (capture_opts->save_file) ? capture_opts->save_file : "");
@@ -2753,9 +2749,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   capture_opts->save_file = capfile_name;
   /* capture_opts.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
-#ifndef _WIN32
-  ret = fchown(*save_file_fd, capture_opts->owner, capture_opts->group);
-#endif
 
   return TRUE;
 }
@@ -2787,9 +2780,6 @@ do_file_switch_or_stop(capture_options *capture_opts,
     if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                             &global_ld.save_file_fd, &global_ld.err)) {
       gboolean successful;
-#ifndef _WIN32
-      int ret;
-#endif
 
       /* File switch succeeded: reset the conditions */
       global_ld.bytes_written = 0;
@@ -2818,10 +2808,6 @@ do_file_switch_or_stop(capture_options *capture_opts,
         report_packet_count(global_ld.inpkts_to_sync_pipe);
       global_ld.inpkts_to_sync_pipe = 0;
       report_new_capture_file(capture_opts->save_file);
-
-#ifndef _WIN32
-      ret = fchown(global_ld.save_file_fd, capture_opts->owner, capture_opts->group);
-#endif
     } else {
       /* File switch failed: stop here */
       global_ld.go = FALSE;
@@ -2841,7 +2827,6 @@ static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
   time_t      upd_time, cur_time;
-  time_t      start_time;
   int         err_close;
   int         inpkts;
   condition  *cnd_file_duration = NULL;
@@ -2967,7 +2952,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the time values */
-  start_time = TIME_GET();
   upd_time = TIME_GET();
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running!");

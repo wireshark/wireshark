@@ -72,7 +72,7 @@ print_nsap_net_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
     cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "[%02x]",
                     ad[ RFC1237_FULLAREA_LEN + RFC1237_SYSTEMID_LEN ] );
     if ( length == RFC1237_NSAP_LEN + 1 ) {
-      cur += g_snprintf(cur, (int) (buf_len-(cur-buf)), "-%02x", ad[ length -1 ] );
+      g_snprintf(cur, (int) (buf_len-(cur-buf)), "-%02x", ad[ length -1 ] );
     }
   }
   else {    /* probably format as standard */
@@ -112,7 +112,7 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
         cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), ".%02x", ad[6] );
     }
     if ( 8 == length ) {
-        cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[7] );
+        g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[7] );
     }
   }
   else {

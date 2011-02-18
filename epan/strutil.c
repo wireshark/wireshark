@@ -866,19 +866,12 @@ convert_string_to_hex(const char *string, size_t *nbytes)
 char *
 convert_string_case(const char *string, gboolean case_insensitive)
 {
-  char *out_string;
-  const char *p;
-  char c;
-  char *q;
 
   if (case_insensitive) {
-    out_string = g_malloc(strlen(string) + 1);
-    for (p = &string[0], q = &out_string[0]; (c = *p) != '\0'; p++, q++)
-      *q = toupper((unsigned char)*p);
-    *q = '\0';
-  } else
-    out_string = g_strdup(string);
-  return out_string;
+    return g_utf8_strup(string, -1);
+  } else {
+    return g_strdup(string);
+  }
 }
 
 char *
@@ -1044,7 +1037,7 @@ ws_strdup_escape_underscore (const gchar *str)
 
 		*q++ = *p++;
 	}
-	*q++ = '\0';
+	*q = '\0';
 
 	return new_str;
 }
@@ -1073,7 +1066,7 @@ ws_strdup_unescape_underscore (const gchar *str)
 		else
 			p++;
 	}
-	*q++ = '\0';
+	*q = '\0';
 
 	return new_str;
 }

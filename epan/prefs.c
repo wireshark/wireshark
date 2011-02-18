@@ -338,7 +338,6 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 	module_t   *subtree_module;
 	module_t   *new_module;
 	char       *sep = NULL, *ptr = NULL;
-	char       *csubtree = NULL;
 
 	/*
 	 * Have we yet created the "Protocols" subtree?
@@ -354,7 +353,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
 	if(subtree) {
 		/* take a copy of the buffer */
-		ptr = csubtree = g_strdup(subtree);
+		ptr = g_strdup(subtree);
 
 		while(ptr && *ptr) {
 
@@ -370,9 +369,6 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 			ptr = sep;
 
 		}
-
-		/* g_free(csubtree); */
-
 	}
 
 	protocol = find_protocol_by_id(id);

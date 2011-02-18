@@ -268,7 +268,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	} 
 
 
-	if (type == ENTTEC_DATA_TYPE_DMX || type == ENTTEC_DATA_TYPE_RLE) {
+	if ((type == ENTTEC_DATA_TYPE_DMX || type == ENTTEC_DATA_TYPE_RLE) && global_disp_col_count > 0) {
 		hi = proto_tree_add_item(tree,
 					hf_enttec_dmx_data_data,
 					tvb,

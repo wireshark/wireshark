@@ -626,7 +626,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
             vumeter->b_colors[index].green = vumeter->b_colors[index - 1].green;
             vumeter->b_colors[index].blue = 0;     
         }
-        if (vumeter->scaling == GTK_VUMETER_SCALING_LOG) {
+        if (vumeter->scaling == GTK_VUMETER_SCALING_LOG && (vumeter->colors - second) > 0) {
             /* Allocate from Green to Dark Green */
             f_step = vumeter->f_brightness / 2 / (vumeter->colors - second);
             b_step = vumeter->b_brightness / 2 / (vumeter->colors - second);     

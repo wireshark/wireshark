@@ -1817,7 +1817,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
   int         selected_frame_num, preceding_frame_num, following_frame_num, prev_frame_num;
   gboolean    selected_frame_seen;
-  int         frame_num;
   float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
@@ -1906,7 +1905,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   g_get_current_time(&start_time);
 
   /* no previous row yet */
-  frame_num = -1;
   prev_frame_num = -1;
   prev_frame = NULL;
 
@@ -3881,7 +3879,6 @@ find_packet(capture_file *cf,
     stop_flag = FALSE;
     g_get_current_time(&start_time);
 
-    fdata = start_fd;
     title = cf->sfilter?cf->sfilter:"";
     for (;;) {
       /* Create the progress bar if necessary.
@@ -4029,7 +4026,9 @@ gboolean
 cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
+#ifndef NEW_PACKET_LIST
   int row;
+#endif
 
   for (fdata = cf->plist_start; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
@@ -4047,7 +4046,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
   }
 
 #ifdef NEW_PACKET_LIST
-  row = new_packet_list_find_row_from_data(fdata, TRUE);
+  new_packet_list_find_row_from_data(fdata, TRUE);
 #else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */

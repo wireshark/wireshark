@@ -600,7 +600,6 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 			offset++;
 			if (offset < size) {
 				*(guint8*)(buf+offset) = (scrubbed_value >> 8) & 0xFF;
-				offset++;
 			}
 		}
 	}
