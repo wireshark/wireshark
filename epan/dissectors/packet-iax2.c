@@ -150,7 +150,8 @@ static int hf_iax2_reassembled_length = -1;
  * appropriate entry to hf[] in proto_register_iax2(); dissect_ies() will then
  * pick it up automatically.
  */
-static int hf_iax2_ies[256];
+#define NUM_HF_IAX2_IES 256
+static int hf_iax2_ies[NUM_HF_IAX2_IES];
 static int hf_iax2_ie_datetime = -1;
 static int hf_IAX_IE_APPARENTADDR_SINFAMILY = -1;
 static int hf_IAX_IE_APPARENTADDR_SINPORT = -1;
@@ -285,7 +286,7 @@ static const voip_call_state tap_cmd_voip_state[] = {
   VOIP_UNKNOWN,   /*TKOFFHK*/
   VOIP_UNKNOWN    /*OFFHOOK*/
 };
-
+#define NUM_TAP_CMD_VOIP_STATES (sizeof tap_cmd_voip_state / sizeof tap_cmd_voip_state[0])
 
 /* Subclassess for Modem packets */
 static const value_string iax_modem_subclasses[] = {
@@ -1199,7 +1200,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 
     /* the rest of this stuff only needs doing if we have an iax_tree */
 
-    if( iax_tree ) {
+    if( iax_tree && ies_type < NUM_HF_IAX2_IES ) {
       proto_item *ti, *ie_item = NULL;
       proto_tree *ies_tree;
       int ie_hf = hf_iax2_ies[ies_type];
@@ -1608,7 +1609,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
                        val_to_str (csub, iax_cmd_subclasses, "unknown (0x%02x)"));
     iax2_info->messageName = val_to_str (csub, iax_cmd_subclasses, "unknown (0x%02x)");
-    if (csub <= 8) iax2_info->callState = tap_cmd_voip_state[csub];
+    if (csub < NUM_TAP_CMD_VOIP_STATES) iax2_info->callState = tap_cmd_voip_state[csub];
     break;
 
   case AST_FRAME_VOICE:

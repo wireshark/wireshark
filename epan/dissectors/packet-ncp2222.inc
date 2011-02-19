@@ -2195,7 +2195,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 
     if (rec->sub_ptvc_rec) {
         /* Repeat this? */
-        if (rec->repeat_index == NO_REPEAT) {
+        if (rec->repeat_index >= NO_REPEAT) {
             if (rec->hf_ptr == PTVC_STRUCT) {
                 process_struct_sub_ptvc_record(ptvc, rec,
                                                req_cond_results, really_decode,

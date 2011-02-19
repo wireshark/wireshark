@@ -4859,13 +4859,13 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			proto_tree_add_item(field_tree, hf_cflow_template_ipfix_pen_provided,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			if ( !(type & 0x8000) || (pen == REVPEN)) {
-				proto_item *ti;
-				ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type],
+				proto_item *rp_ti;
+				rp_ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type],
 							 tvb, offset, 2, ENC_BIG_ENDIAN);
 				proto_item_append_text(field_item, ": %s",
 						       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type], "Unknown(%d)"));
 				if (pen == REVPEN) {
-					proto_item_append_text(ti, " [Reverse]");
+					proto_item_append_text(rp_ti, " [Reverse]");
 					proto_item_append_text(field_item, " [Reverse]");
 				}
 			} else {
@@ -4876,10 +4876,10 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 					proto_item_append_text(field_item, ": %s",
 							       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type_pen], "Unknown(%d)"));
 				} else { /* Private Enterprise */
-					proto_item *ti;
-					ti = proto_tree_add_item(field_tree, hf_cflow_template_ipfix_field_type_enterprise,
+					proto_item *pen_ti;
+					pen_ti = proto_tree_add_item(field_tree, hf_cflow_template_ipfix_field_type_enterprise,
 								 tvb, offset, 2, ENC_BIG_ENDIAN);
-					proto_item_append_text(ti, " [pen: %s]", pen_str);
+					proto_item_append_text(pen_ti, " [pen: %s]", pen_str);
 					proto_item_append_text(field_item, ": %3u [pen: %s]", type&0x7fff, pen_str);
 				}
 			}
