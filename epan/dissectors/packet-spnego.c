@@ -1961,7 +1961,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1399 "packet-spnego-template.c"
+#line 1395 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1983,7 +1983,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1409 "packet-spnego-template.c"
+#line 1405 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */
