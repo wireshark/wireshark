@@ -1,12 +1,4 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* packet-s4406.h                                                             */
-/* ../../tools/asn2wrs.py -b -e -C -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
-
-/* Input file: packet-s4406-template.h */
-
-#line 1 "packet-s4406-template.h"
-/* packet-s4406.h
+/* packet-p3.h
  * Routines for X.411 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
@@ -31,9 +23,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_S4406_H
-#define PACKET_S4406_H
+#ifndef PACKET_P1_H
+#define PACKET_P1_H
 
-/* #include "packet-s4406-exp.h" */
+#include "packet-p1-val.h"
 
-#endif  /* PACKET_S4406_H */
+char* p1_get_last_oraddress(void);
+void dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
+#include "packet-p1-exp.h"
+
+void proto_reg_handoff_p1(void);
+void proto_register_p1(void);
+
+#endif  /* PACKET_P1_H */

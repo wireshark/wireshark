@@ -1870,7 +1870,10 @@ AC_OUTPUT(
   asn1/nbap/Makefile
   asn1/ns_cert_exts/Makefile
   asn1/ocsp/Makefile
+  asn1/p1/Makefile
+  asn1/p22/Makefile
   asn1/p7/Makefile
+  asn1/p772/Makefile
   asn1/pcap/Makefile
   asn1/pkcs1/Makefile
   asn1/pkcs12/Makefile
@@ -1893,7 +1896,6 @@ AC_OUTPUT(
   asn1/rtse/Makefile
   asn1/rua/Makefile
   asn1/s1ap/Makefile
-  asn1/s4406/Makefile
   asn1/sabp/Makefile
   asn1/smrse/Makefile
   asn1/snmp/Makefile
@@ -1906,8 +1908,6 @@ AC_OUTPUT(
   asn1/ulp/Makefile
   asn1/wlancertextn/Makefile
   asn1/x2ap/Makefile
-  asn1/x411/Makefile
-  asn1/x420/Makefile
   asn1/x509af/Makefile
   asn1/x509ce/Makefile
   asn1/x509if/Makefile

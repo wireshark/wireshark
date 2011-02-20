@@ -50,8 +50,8 @@
 #include <epan/crc16.h>
 #include <epan/asn1.h>
 
-#include "packet-x411.h"
-#include "packet-x420.h"
+#include "packet-p1.h"
+#include "packet-p22.h"
 
 #define PNAME  "Direct Message Profile"
 #define PSNAME "DMP"
@@ -556,13 +556,13 @@ static const value_string addr_type_str [] = {
 
 static const value_string addr_form [] = {
   { 0x0, "P1 Direct"                       },
-  { 0x1, "P22/P722 Direct"                 },
+  { 0x1, "P22/P772 Direct"                 },
   { 0x2, "P1 Extended"                     },
-  { 0x3, "P22/P722 Extended"               },
-  { 0x4, "P1 and P22/P722 Direct"          },
-  { 0x5, "P1 Direct and P22/P722 Extended" },
-  { 0x6, "P1 Extended and P22/P722 Direct" },
-  { 0x7, "P1 and P22/P722 Extended"        },
+  { 0x3, "P22/P772 Extended"               },
+  { 0x4, "P1 and P22/P772 Direct"          },
+  { 0x5, "P1 Direct and P22/P772 Extended" },
+  { 0x6, "P1 Extended and P22/P772 Direct" },
+  { 0x7, "P1 and P22/P772 Extended"        },
   { 0,   NULL } };
 
 static const value_string addr_form_orig [] = {
@@ -880,8 +880,8 @@ static const gchar *msg_type_to_str (void)
 static const gchar *non_del_reason_str (guint32 value)
 {
   if (value < 0x3D) {
-    /* Standard values according to X.411 */
-    return val_to_str (value, x411_NonDeliveryReasonCode_vals, "Unknown");
+    /* Standard values according to P1 */
+    return val_to_str (value, p1_NonDeliveryReasonCode_vals, "Unknown");
   } else {
     return val_to_str (value, non_del_reason, "Unknown");
   }
@@ -890,8 +890,8 @@ static const gchar *non_del_reason_str (guint32 value)
 static const gchar *non_del_diagn_str (guint32 value)
 {
   if (value < 0x7C) {
-    /* Standard values according to X.411 */
-    return val_to_str (value, x411_NonDeliveryDiagnosticCode_vals, "Unknown");
+    /* Standard values according to P1 */
+    return val_to_str (value, p1_NonDeliveryDiagnosticCode_vals, "Unknown");
   } else {
     return val_to_str (value, non_del_diagn, "Unknown");
   }
@@ -899,15 +899,15 @@ static const gchar *non_del_diagn_str (guint32 value)
 
 static const gchar *nrn_reason_str (guint32 value)
 {
-  /* Standard values according to X.420 */
-  return val_to_str (value, x420_NonReceiptReasonField_vals, "Reserved");
+  /* Standard values according to P22 */
+  return val_to_str (value, p22_NonReceiptReasonField_vals, "Reserved");
 }
 
 static const gchar *discard_reason_str (guint32 value)
 {
   if (value < 0xFE) {
-    /* Standard values according to X.420 */
-    return val_to_str (value, x420_DiscardReasonField_vals, "Reserved");
+    /* Standard values according to P22 */
+    return val_to_str (value, p22_DiscardReasonField_vals, "Reserved");
   } else {
     return val_to_str (value, discard_reason, "Unknown");
   }
@@ -1826,7 +1826,7 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
   if (type == ASN1_BER) {
     tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, length);
 
-    dissect_x411_ORName (FALSE, next_tvb, 0, &asn1_ctx, ext_tree,
+    dissect_p1_ORName (FALSE, next_tvb, 0, &asn1_ctx, ext_tree,
                          hf_addr_ext_asn1_ber);
   } else if (type == ASN1_PER) {
     proto_tree_add_item (ext_tree, hf_addr_ext_asn1_per, tvb, offset,
@@ -2875,7 +2875,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_uint_format (report_tree, hf_report_reason,
                                      tvb, offset, 1, report,
                                      "Reason%s: %s (%d)",
-                                     ((report & 0x3F) < 0x3D) ? " (X.411)":"",
+                                     ((report & 0x3F) < 0x3D) ? " (P1)":"",
                                      non_del_reason_str (report & 0x3F),
                                      report & 0x3F);
     field_tree = proto_item_add_subtree (tf, ett_report_reason);
@@ -2898,7 +2898,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_uint_format (report_tree, hf_report_diagn,
                                      tvb, offset, 1, report,
                                      "Diagnostic%s: %s (%d)",
-                                     ((report & 0x7F) < 0x7C) ? " (X.411)":"",
+                                     ((report & 0x7F) < 0x7C) ? " (P1)":"",
                                      non_del_diagn_str (report & 0x7F),
                                      report & 0x7F);
     field_tree = proto_item_add_subtree (tf, ett_report_diagn);
@@ -3024,7 +3024,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_uint_format (notif_tree, hf_notif_non_rec_reason,
                                 tvb, offset, 1, notif,
                                 "Non-Receipt Reason%s: %s (%d)",
-                                (notif < 0x10) ? " (X.420)" : "",
+                                (notif < 0x10) ? " (P22)" : "",
                                 nrn_reason_str (notif), notif);
     offset += 1;
 
@@ -3033,7 +3033,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_uint_format (notif_tree, hf_notif_discard_reason,
                                 tvb, offset, 1, notif,
                                 "Discard Reason%s: %s (%d)",
-                                (notif < 0x10) ? " (X.420)" : "",
+                                (notif < 0x10) ? " (P22)" : "",
                                 discard_reason_str (notif), notif);
     offset += 1;
   }
@@ -4026,15 +4026,15 @@ void proto_register_dmp (void)
       { "Address Encoding", "dmp.addr_encoding", FT_BOOLEAN, 8,
         TFS (&addr_enc), 0x40, NULL, HFILL } },
     { &hf_report_reason,
-      { "Reason (X.411)", "dmp.report_reason", FT_UINT8, BASE_DEC,
-        VALS (x411_NonDeliveryReasonCode_vals), 0x3F,
+      { "Reason (P1)", "dmp.report_reason", FT_UINT8, BASE_DEC,
+        VALS (p1_NonDeliveryReasonCode_vals), 0x3F,
         "Reason", HFILL } },
     { &hf_report_info_present_ndr,
       { "Info Present", "dmp.info_present", FT_BOOLEAN, 8,
         TFS (&tfs_present_absent), 0x80, NULL, HFILL } },
     { &hf_report_diagn,
-      { "Diagnostic (X.411)", "dmp.report_diagnostic", FT_UINT8, BASE_DEC,
-        VALS (x411_NonDeliveryDiagnosticCode_vals), 0x7F,
+      { "Diagnostic (P1)", "dmp.report_diagnostic", FT_UINT8, BASE_DEC,
+        VALS (p1_NonDeliveryDiagnosticCode_vals), 0x7F,
         "Diagnostic", HFILL } },
     { &hf_report_suppl_info_len,
       { "Supplementary Information", "dmp.suppl_info_len", FT_UINT8,
@@ -4075,11 +4075,11 @@ void proto_register_dmp (void)
         HFILL } },
     { &hf_notif_non_rec_reason,
       { "Non-Receipt Reason", "dmp.notif_non_rec_reason",
-        FT_UINT8, BASE_DEC, VALS (x420_NonReceiptReasonField_vals), 0x0,
+        FT_UINT8, BASE_DEC, VALS (p22_NonReceiptReasonField_vals), 0x0,
         NULL, HFILL } },
     { &hf_notif_discard_reason,
       { "Discard Reason", "dmp.notif_discard_reason", FT_UINT8,
-        BASE_DEC, VALS (x420_DiscardReasonField_vals), 0x0,
+        BASE_DEC, VALS (p22_DiscardReasonField_vals), 0x0,
         NULL, HFILL } },
     { &hf_notif_on_type,
       { "ON Type", "dmp.notif_on_type", FT_UINT8, BASE_DEC,

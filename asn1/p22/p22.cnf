@@ -1,4 +1,4 @@
-# x411.cnf
+# p22.cnf
 # X.420 (InterPersonal Messaging) conformance file
 # $Id$
 
@@ -10,7 +10,7 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 Permitted-Actions-Attribute TYPE = FT_BYTES   DISPLAY = BASE_NONE   STRINGS = NULL  BITMASK = 0
 
 #.IMPORT ../ftam/ftam-exp.cnf
-#.IMPORT ../x411/x411-exp.cnf
+#.IMPORT ../p1/p1-exp.cnf
 #.IMPORT ../p7/p7-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
@@ -124,7 +124,7 @@ GeneralTextData				B "2.6.1.4.11"	"id-et-general-text"
 FileTransferParameters		B "2.6.1.11.12"	"id-ep-file-transfer"
 FileTransferData			B "2.6.1.4.12"	"id-et-file-transfer"
 # {id-et 13} is no longer defined
-# ForwardedReportBodyPart {id-et 14} defined in x411.cnf
+# ForwardedReportBodyPart {id-et 14} defined in p1.cnf
 MessageParameters 			B "2.6.1.11.15" "id-ep-notification"
 IPN							B "2.6.1.4.15" 	"id-et-notification"
 VoiceParameters 			B "2.6.1.11.16" "id-ep-voice"
@@ -183,7 +183,7 @@ ManualHandlingInstruction	B	"2.6.1.7.32"	"id-hat-manual-handling-instructions"
 OriginatorsReference		B	"2.6.1.7.33"	"id-hat-originators-reference"
 PrecedencePolicyIdentifier	B	"2.6.1.7.34"	"id-hat-precedence-policy-id"
 ForwardedContentToken		B	"2.6.1.7.35"	"id-hat-forwarded-content-token"
-#MessageToken				B	"2.6.1.7.36"	"id-hat-forwarded-token" - see x411.cnf
+#MessageToken				B	"2.6.1.7.36"	"id-hat-forwarded-token" - see p1.cnf
 Precedence					B	"2.6.1.7.37"	"id-hat-precedence"
 BodyPartSignatureVerification	B	"2.6.1.7.38"	"id-hat-body-part-signature-verification-status"
 

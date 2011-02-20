@@ -1,5 +1,5 @@
-/* packet-x420.h
- * Routines for X.420 (X.400 Message Transfer) packet dissection
+/* packet-p772.h
+ * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
  *
  * $Id$
@@ -23,12 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_X420_H
-#define PACKET_X420_H
+#ifndef PACKET_P772_H
+#define PACKET_P772_H
 
-#include "packet-x420-exp.h"
+/* #include "packet-p772-exp.h" */
 
-void proto_reg_handoff_x420(void);
-void proto_register_x420(void);
-
-#endif  /* PACKET_X420_H */
+#endif  /* PACKET_P772_H */

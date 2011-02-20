@@ -69,7 +69,10 @@ SUBDIRS = 		\
 	nbap		\
 	ns_cert_exts	\
 	ocsp		\
+	p1		\
+	p22		\
 	p7		\
+	p772		\
 	pcap		\
 	pkcs1		\
 	pkcs12		\
@@ -92,7 +95,6 @@ SUBDIRS = 		\
 	rtse		\
 	rua		\
 	s1ap		\
-	s4406		\
 	sabp		\
 	smrse		\
 	snmp		\
@@ -105,8 +107,6 @@ SUBDIRS = 		\
 	ulp		\
 	wlancertextn	\
 	x2ap		\
-	x411		\
-	x420		\
 	x509af		\
 	x509ce		\
 	x509if		\

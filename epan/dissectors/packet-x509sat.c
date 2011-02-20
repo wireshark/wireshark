@@ -41,7 +41,7 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
-#include "packet-x411.h"
+#include "packet-p1.h"
 #include "packet-x509sat.h"
 #include "packet-x509if.h"
 
@@ -560,7 +560,7 @@ dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static const ber_sequence_t FacsimileTelephoneNumber_sequence[] = {
   { &hf_x509sat_telephoneNumber, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x509sat_TelephoneNumber },
-  { &hf_x509sat_parameters  , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_G3FacsimileNonBasicParameters },
+  { &hf_x509sat_parameters  , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_p1_G3FacsimileNonBasicParameters },
   { NULL, 0, 0, 0, NULL }
 };
 

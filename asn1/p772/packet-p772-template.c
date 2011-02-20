@@ -1,4 +1,4 @@
-/* packet-s4406.c
+/* packet-p772.c
  * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
  *
@@ -35,33 +35,33 @@
 
 #include "packet-x509if.h"
 
-#include "packet-s4406.h"
-#include "packet-x411.h" 
-#include "packet-x420.h" 
+#include "packet-p772.h"
+#include "packet-p1.h" 
+#include "packet-p22.h" 
 
 #define PNAME  "STANAG 4406 Message"
-#define PSNAME "STANAG 4406"
-#define PFNAME "s4406"
+#define PSNAME "P772"
+#define PFNAME "p772"
 
 /* Initialize the protocol and registered fields */
-static int proto_s4406 = -1;
+static int proto_p772 = -1;
 
-#include "packet-s4406-val.h"
+#include "packet-p772-val.h"
 
-#include "packet-s4406-hf.c"
+#include "packet-p772-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_s4406 = -1;
-#include "packet-s4406-ett.c"
+static gint ett_p772 = -1;
+#include "packet-p772-ett.c"
 
-#include "packet-s4406-fn.c"
+#include "packet-p772-fn.c"
 
 
 /*
 * Dissect STANAG 4406 PDUs inside a PPDU.
 */
 static void
-dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	proto_item *item=NULL;
@@ -70,48 +70,48 @@ dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_s4406, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_s4406);
+		item = proto_tree_add_item(parent_tree, proto_p772, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_p772);
 	}
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4406");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P772");
 	col_set_str(pinfo->cinfo, COL_INFO, "Military");
 
-	dissect_s4406_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	dissect_p772_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }
 
 
 
-/*--- proto_register_s4406 -------------------------------------------*/
-void proto_register_s4406(void) {
+/*--- proto_register_p772 -------------------------------------------*/
+void proto_register_p772(void) {
 
   /* List of fields */
   static hf_register_info hf[] =
   {
-#include "packet-s4406-hfarr.c"
+#include "packet-p772-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_s4406,
-#include "packet-s4406-ettarr.c"
+    &ett_p772,
+#include "packet-p772-ettarr.c"
   };
 
   /* Register protocol */
-  proto_s4406 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_p772 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_s4406, hf, array_length(hf));
+  proto_register_field_array(proto_p772, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_ber_syntax_dissector("STANAG 4406", proto_s4406, dissect_s4406); 
+  register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772); 
   register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 }
 
 
-/*--- proto_reg_handoff_s4406 --- */
-void proto_reg_handoff_s4406(void) {
-#include "packet-s4406-dis-tab.c"
+/*--- proto_reg_handoff_p772 --- */
+void proto_reg_handoff_p772(void) {
+#include "packet-p772-dis-tab.c"
 
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "STANAG 4406");
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }

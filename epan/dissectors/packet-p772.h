@@ -1,5 +1,13 @@
-/* packet-s4406.h
- * Routines for X.411 (X.400 Message Transfer) packet dissection
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* packet-p772.h                                                              */
+/* ../../tools/asn2wrs.py -b -e -C -p p772 -c ./p772.cnf -s ./packet-p772-template -D . MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
+
+/* Input file: packet-p772-template.h */
+
+#line 1 "packet-p772-template.h"
+/* packet-p772.h
+ * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
  *
  * $Id$
@@ -23,9 +31,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_S4406_H
-#define PACKET_S4406_H
+#ifndef PACKET_P772_H
+#define PACKET_P772_H
 
-/* #include "packet-s4406-exp.h" */
+/* #include "packet-p772-exp.h" */
 
-#endif  /* PACKET_S4406_H */
+#endif  /* PACKET_P772_H */

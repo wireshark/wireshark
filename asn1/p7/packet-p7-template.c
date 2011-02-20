@@ -38,7 +38,7 @@
 #include "packet-ros.h"
 #include "packet-rtse.h"
 
-#include "packet-x411.h"
+#include "packet-p1.h"
 #include <epan/strutil.h>
 
 #define PNAME  "X.413 Message Store Service"

@@ -1,4 +1,4 @@
-/* packet-x420.c
+/* packet-p22.c
  * Routines for X.420 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
  *
@@ -39,17 +39,17 @@
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-ftam.h"
-#include "packet-x411.h"
+#include "packet-p1.h"
 #include "packet-p7.h"
 
-#include "packet-x420.h"
+#include "packet-p22.h"
 
 #define PNAME  "X.420 Information Object"
-#define PSNAME "X420"
-#define PFNAME "x420"
+#define PSNAME "P22"
+#define PFNAME "p22"
 
 /* Initialize the protocol and registered fields */
-static int proto_x420 = -1;
+static int proto_p22 = -1;
 
 static const char *object_identifier_id; /* content type identifier */
 
@@ -82,21 +82,21 @@ static const value_string charsetreg_vals [] = {
   { 0, NULL}
 };
 
-#include "packet-x420-val.h"
+#include "packet-p22-val.h"
 
-#include "packet-x420-hf.c"
+#include "packet-p22-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_x420 = -1;
-#include "packet-x420-ett.c"
+static gint ett_p22 = -1;
+#include "packet-p22-ett.c"
 
-#include "packet-x420-fn.c"
+#include "packet-p22-fn.c"
 
 /*
-* Dissect X420 PDUs inside a PPDU.
+* Dissect P22 PDUs inside a PPDU.
 */
 static void
-dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	proto_item *item=NULL;
@@ -105,49 +105,49 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_x420, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_x420);
+		item = proto_tree_add_item(parent_tree, proto_p22, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_p22);
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
-	dissect_x420_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	dissect_p22_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }
 
 
-/*--- proto_register_x420 -------------------------------------------*/
-void proto_register_x420(void) {
+/*--- proto_register_p22 -------------------------------------------*/
+void proto_register_p22(void) {
 
   /* List of fields */
   static hf_register_info hf[] =
   {
-#include "packet-x420-hfarr.c"
+#include "packet-p22-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_x420,
-#include "packet-x420-ettarr.c"
+    &ett_p22,
+#include "packet-p22-ettarr.c"
   };
 
   /* Register protocol */
-  proto_x420 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("x420", dissect_x420, proto_x420);
+  proto_p22 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("p22", dissect_p22, proto_p22);
   /* Register fields and subtrees */
-  proto_register_field_array(proto_x420, hf, array_length(hf));
+  proto_register_field_array(proto_p22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
 }
 
 
-/*--- proto_reg_handoff_x420 --- */
-void proto_reg_handoff_x420(void) {
+/*--- proto_reg_handoff_p22 --- */
+void proto_reg_handoff_p22(void) {
 
-#include "packet-x420-dis-tab.c" 
+#include "packet-p22-dis-tab.c" 
 
-  register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
-  register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");
+  register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
+  register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");
 
 
 }

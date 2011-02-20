@@ -73,7 +73,10 @@ BER_LIST= \
 	mms			\
 	ns_cert_exts		\
 	ocsp			\
+	p1			\
+	p22			\
 	p7			\
+	p772			\
 	pkcs1			\
 	pkcs12			\
 	pkinit			\
@@ -89,7 +92,6 @@ BER_LIST= \
 	qsig			\
 	ros			\
 	rtse			\
-	s4406			\
 	smrse			\
 	snmp			\
 	spnego			\
@@ -97,8 +99,6 @@ BER_LIST= \
 	t125			\
 	tcap			\
 	wlancertextn		\
-	x411			\
-	x420			\
 	x509af			\
 	x509ce			\
 	x509if			\

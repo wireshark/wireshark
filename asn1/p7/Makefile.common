@@ -53,12 +53,12 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -L -C
 
 EXTRA_CNF= \
-	../x411/x411-exp.cnf \
+	../p1/p1-exp.cnf \
 	../ros/ros-exp.cnf \
 	../rtse/rtse.cnf
 
-../x411/x411-exp.cnf:
-	(cd ../x411 && $(MAKE_CNF_EXPORT))
+../p1/p1-exp.cnf:
+	(cd ../p1 && $(MAKE_CNF_EXPORT))
 
 ../ros/ros-exp.cnf:
 	(cd ../ros && $(MAKE_CNF_EXPORT))

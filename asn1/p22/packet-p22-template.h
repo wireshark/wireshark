@@ -1,5 +1,5 @@
-/* packet-x411.h
- * Routines forX.411 (X.400 Message Transfer) packet dissection
+/* packet-p22.h
+ * Routines for X.420 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
  * $Id$
@@ -23,16 +23,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_X411_H
-#define PACKET_X411_H
+#ifndef PACKET_P22_H
+#define PACKET_P22_H
 
-#include "packet-x411-val.h"
+#include "packet-p22-exp.h"
 
-char* x411_get_last_oraddress(void);
-void dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
-#include "packet-x411-exp.h"
+void proto_reg_handoff_p22(void);
+void proto_register_p22(void);
 
-void proto_reg_handoff_x411(void);
-void proto_register_x411(void);
-
-#endif  /* PACKET_X411_H */
+#endif  /* PACKET_P22_H */

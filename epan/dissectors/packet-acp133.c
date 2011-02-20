@@ -45,7 +45,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-x509ce.h"
-#include "packet-x411.h"
+#include "packet-p1.h"
 
 #include "packet-acp133.h"
 
@@ -566,7 +566,7 @@ dissect_acp133_MLReceiptPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_acp133_ORNamePattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x411_ORName(implicit_tag, tvb, offset, actx, tree, hf_index);
+  offset = dissect_p1_ORName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -581,8 +581,8 @@ static const value_string acp133_DLSubmitPermission_vals[] = {
 };
 
 static const ber_choice_t DLSubmitPermission_choice[] = {
-  {   0, &hf_acp133_individual   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_ORName },
-  {   1, &hf_acp133_member_of_dl , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x411_ORName },
+  {   0, &hf_acp133_individual   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_p1_ORName },
+  {   1, &hf_acp133_member_of_dl , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_p1_ORName },
   {   2, &hf_acp133_pattern_match, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acp133_ORNamePattern },
   {   3, &hf_acp133_member_of_group, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x509if_Name },
   { 0, NULL, 0, 0, 0, NULL }
@@ -781,7 +781,7 @@ static const value_string acp133_T_requested_delivery_method_vals[] = {
 static const ber_choice_t T_requested_delivery_method_choice[] = {
   {   0, &hf_acp133_unchanged    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acp133_NULL },
   {   1, &hf_acp133_removed      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acp133_NULL },
-  {   2, &hf_acp133_replaced     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x411_RequestedDeliveryMethod },
+  {   2, &hf_acp133_replaced     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p1_RequestedDeliveryMethod },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -864,7 +864,7 @@ dissect_acp133_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static const ber_sequence_t SET_OF_ExtendedContentType_set_of[1] = {
-  { &hf_acp133_content_types_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x411_ExtendedContentType },
+  { &hf_acp133_content_types_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p1_ExtendedContentType },
 };
 
 static int
@@ -878,9 +878,9 @@ dissect_acp133_SET_OF_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *t
 
 static const ber_sequence_t Capability_set[] = {
   { &hf_acp133_content_types, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_SET_OF_ExtendedContentType },
-  { &hf_acp133_maximum_content_length, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_ContentLength },
-  { &hf_acp133_encoded_information_types_constraints, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_EncodedInformationTypesConstraints },
-  { &hf_acp133_security_labels, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_SecurityContext },
+  { &hf_acp133_maximum_content_length, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_p1_ContentLength },
+  { &hf_acp133_encoded_information_types_constraints, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_p1_EncodedInformationTypesConstraints },
+  { &hf_acp133_security_labels, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_p1_SecurityContext },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -908,7 +908,7 @@ dissect_acp133_SET_OF_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const ber_sequence_t AddressCapabilities_sequence[] = {
   { &hf_acp133_description  , BER_CLASS_UNI, BER_UNI_TAG_GeneralString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_acp133_GeneralString },
-  { &hf_acp133_address      , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x411_ORAddress },
+  { &hf_acp133_address      , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p1_ORAddress },
   { &hf_acp133_capabilities , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_acp133_SET_OF_Capability },
   { NULL, 0, 0, 0, NULL }
 };

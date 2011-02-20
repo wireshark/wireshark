@@ -223,6 +223,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-ocsp.c
 	dissectors/packet-opsi.c
 	dissectors/packet-p7.c
+	dissectors/packet-p772.c
 	dissectors/packet-pkcs1.c
 	dissectors/packet-pkinit.c
 	dissectors/packet-pkix1explicit.c
@@ -239,7 +240,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-rtse.c
 	dissectors/packet-rua.c
 	dissectors/packet-s1ap.c
-	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
@@ -265,6 +265,8 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ldap.c
 	dissectors/packet-lte-rrc.c
 	dissectors/packet-nbap.c
+	dissectors/packet-p1.c
+	dissectors/packet-p22.c
 	dissectors/packet-pcap.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-pres.c
@@ -275,8 +277,6 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-t125.c
 	dissectors/packet-tcap.c
 	dissectors/packet-tetra.c
-	dissectors/packet-x411.c
-	dissectors/packet-x420.c
 )
 
 set(DISSECTOR_SRC

@@ -45,7 +45,7 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
-#include "packet-x411.h"
+#include "packet-p1.h"
 
 #include "packet-cdt.h"
 
@@ -281,7 +281,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
      dissect_unknown_ber (actx->pinfo, next_tvb, 0, top_tree);
      break;
    case CDT_P1:
-     dissect_x411_mts_apdu (next_tvb, actx->pinfo, top_tree);
+     dissect_p1_mts_apdu (next_tvb, actx->pinfo, top_tree);
      break;
    default:
      call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);

@@ -130,6 +130,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ocsp.c \
 	packet-opsi.c \
 	packet-p7.c \
+	packet-p772.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
 	packet-pkix1explicit.c \
@@ -146,7 +147,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-rtse.c \
 	packet-rua.c \
 	packet-s1ap.c		\
-	packet-s4406.c \
 	packet-sabp.c \
 	packet-smrse.c \
 	packet-spnego.c \
@@ -175,6 +175,8 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ldap.c \
 	packet-lte-rrc.c \
 	packet-nbap.c \
+	packet-p1.c \
+	packet-p22.c \
 	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
@@ -184,9 +186,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-snmp.c \
 	packet-t125.c \
 	packet-tcap.c \
-	packet-tetra.c \
-	packet-x411.c \
-	packet-x420.c
+	packet-tetra.c
 
 #
 # Dissectors without warnings.
@@ -1206,7 +1206,10 @@ DISSECTOR_INCLUDES =	\
 	packet-ocsp.h	\
 	packet-osi.h	\
 	packet-osi-options.h	\
+	packet-p1.h	\
+	packet-p22.h	\
 	packet-p7.h \
+	packet-p772.h	\
 	packet-pcnfsd.h	\
 	packet-pdcp-lte.h	\
 	packet-per.h	\
@@ -1264,7 +1267,6 @@ DISSECTOR_INCLUDES =	\
 	packet-rwall.h	\
 	packet-rx.h		\
 	packet-s1ap.h	\
-	packet-s4406.h	\
 	packet-sccp.h \
 	packet-scsi.h	\
 	packet-scsi-mmc.h	\
@@ -1330,8 +1332,6 @@ DISSECTOR_INCLUDES =	\
 	x11-extension-errors.h	\
 	x11-glx-render-enum.h	\
 	x11-enum.h	\
-	packet-x411.h	\
-	packet-x420.h	\
 	packet-x509af.h	\
 	packet-x509ce.h	\
 	packet-x509if.h	\

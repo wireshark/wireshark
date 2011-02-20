@@ -1,4 +1,4 @@
-/* packet-x411.c
+/* packet-p1.c
  * Routines for X.411 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
  *
@@ -44,19 +44,19 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 
-#include "packet-x411.h"
+#include "packet-p1.h"
 #include <epan/strutil.h>
 
 #define PNAME  "X.411 Message Transfer Service"
-#define PSNAME "X411"
-#define PFNAME "x411"
+#define PSNAME "P1"
+#define PFNAME "p1"
 
-static guint global_x411_tcp_port = 102;
+static guint global_p1_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-static void prefs_register_x411(void); /* forward declaration for use in preferences registration */
+static void prefs_register_p1(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
-static int proto_x411 = -1;
+static int proto_p1 = -1;
 static int proto_p3 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
@@ -73,35 +73,35 @@ static proto_item *address_item = NULL;
 
 static proto_tree *top_tree=NULL;
 
-static int hf_x411_MTS_APDU_PDU = -1;
-static int hf_x411_MTABindArgument_PDU = -1;
-static int hf_x411_MTABindResult_PDU = -1;
-static int hf_x411_MTABindError_PDU = -1;
+static int hf_p1_MTS_APDU_PDU = -1;
+static int hf_p1_MTABindArgument_PDU = -1;
+static int hf_p1_MTABindResult_PDU = -1;
+static int hf_p1_MTABindError_PDU = -1;
 
-#include "packet-x411-hf.c"
+#include "packet-p1-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_x411 = -1;
+static gint ett_p1 = -1;
 static gint ett_p3 = -1;
-static gint ett_x411_content_unknown = -1;
-static gint ett_x411_bilateral_information = -1;
-static gint ett_x411_additional_information = -1;
-static gint ett_x411_unknown_standard_extension = -1;
-static gint ett_x411_unknown_extension_attribute_type = -1;
-static gint ett_x411_unknown_tokendata_type = -1;
-#include "packet-x411-ett.c"
+static gint ett_p1_content_unknown = -1;
+static gint ett_p1_bilateral_information = -1;
+static gint ett_p1_additional_information = -1;
+static gint ett_p1_unknown_standard_extension = -1;
+static gint ett_p1_unknown_extension_attribute_type = -1;
+static gint ett_p1_unknown_tokendata_type = -1;
+#include "packet-p1-ett.c"
 
 /* Dissector tables */
-static dissector_table_t x411_extension_dissector_table;
-static dissector_table_t x411_extension_attribute_dissector_table;
-static dissector_table_t x411_tokendata_dissector_table;
+static dissector_table_t p1_extension_dissector_table;
+static dissector_table_t p1_extension_attribute_dissector_table;
+static dissector_table_t p1_tokendata_dissector_table;
 
-#include "packet-x411-table.c"   /* operation and error codes */
+#include "packet-p1-table.c"   /* operation and error codes */
 
-#include "packet-x411-fn.c"
+#include "packet-p1-fn.c"
 
-#include "packet-x411-table11.c" /* operation argument/result dissectors */
-#include "packet-x411-table21.c" /* error dissector */
+#include "packet-p1-table11.c" /* operation argument/result dissectors */
+#include "packet-p1-table21.c" /* error dissector */
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -114,13 +114,13 @@ static const ros_info_t p3_ros_info = {
 };
 
 
-char* x411_get_last_oraddress() { return oraddress; }
+char* p1_get_last_oraddress() { return oraddress; }
 
 /*
- * Dissect X411 MTS APDU
+ * Dissect P1 MTS APDU
  */
 void
-dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -131,29 +131,29 @@ dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	top_tree=parent_tree;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_x411, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_x411);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_p1);
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
-	dissect_x411_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_MTS_APDU_PDU);
+	dissect_p1_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
 }
 
 /*
-* Dissect X411 PDUs inside a PPDU.
+* Dissect P1 PDUs inside a PPDU.
 */
 static void
-dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
-	char *x411_op_name;
-	int hf_x411_index = -1;
+	int (*p1_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
+	char *p1_op_name;
+	int hf_p1_index = -1;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -172,46 +172,46 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_x411, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_x411);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_p1);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	col_clear(pinfo->cinfo, COL_INFO);
 
 	switch(session->ros_op & ROS_OP_MASK) {
 	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
-	  x411_dissector = dissect_x411_MTABindArgument;
-	  x411_op_name = "Bind-Argument";
-	  hf_x411_index = hf_x411_MTABindArgument_PDU;
+	  p1_dissector = dissect_p1_MTABindArgument;
+	  p1_op_name = "Bind-Argument";
+	  hf_p1_index = hf_p1_MTABindArgument_PDU;
 	  break;
 	case (ROS_OP_BIND | ROS_OP_RESULT):	/*  BindResult */
-	  x411_dissector = dissect_x411_MTABindResult;
-	  x411_op_name = "Bind-Result";
-	  hf_x411_index = hf_x411_MTABindResult_PDU;
+	  p1_dissector = dissect_p1_MTABindResult;
+	  p1_op_name = "Bind-Result";
+	  hf_p1_index = hf_p1_MTABindResult_PDU;
 	  break;
 	case (ROS_OP_BIND | ROS_OP_ERROR):	/*  BindError */
-	  x411_dissector = dissect_x411_MTABindError;
-	  x411_op_name = "Bind-Error";
-	  hf_x411_index = hf_x411_MTABindError_PDU;
+	  p1_dissector = dissect_p1_MTABindError;
+	  p1_op_name = "Bind-Error";
+	  hf_p1_index = hf_p1_MTABindError_PDU;
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
-	  x411_dissector = dissect_x411_MTS_APDU;
-	  x411_op_name = "Transfer";
-	  hf_x411_index = hf_x411_MTS_APDU_PDU;
+	  p1_dissector = dissect_p1_MTS_APDU;
+	  p1_op_name = "Transfer";
+	  hf_p1_index = hf_p1_MTS_APDU_PDU;
 	  break;
 	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported X411 PDU");
+	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P1 PDU");
 	  return;
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_set_str(pinfo->cinfo, COL_INFO, x411_op_name);
+	  col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=(*x411_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_x411_index);
+		offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte X411 PDU");
+			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte P1 PDU");
 			offset = tvb_length(tvb);
 			break;
 		}
@@ -219,80 +219,80 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 
-/*--- proto_register_x411 -------------------------------------------*/
-void proto_register_x411(void) {
+/*--- proto_register_p1 -------------------------------------------*/
+void proto_register_p1(void) {
 
   /* List of fields */
   static hf_register_info hf[] =
   {
 	  /* "Created by defining PDU in .cnf */
-    { &hf_x411_MTABindArgument_PDU,
-      { "MTABindArgument", "x411.MTABindArgument",
-        FT_UINT32, BASE_DEC, VALS(x411_MTABindArgument_vals), 0,
-        "x411.MTABindArgument", HFILL }},
-    { &hf_x411_MTABindResult_PDU,
-      { "MTABindResult", "x411.MTABindResult",
-        FT_UINT32, BASE_DEC, VALS(x411_MTABindResult_vals), 0,
-        "x411.MTABindResult", HFILL }},
-    { &hf_x411_MTABindError_PDU,
-      { "MTABindError", "x411.MTABindError",
-        FT_UINT32, BASE_DEC, VALS(x411_MTABindError_vals), 0,
-        "x411.MTABindError", HFILL }},
-    { &hf_x411_MTS_APDU_PDU,
-      { "MTS-APDU", "x411.MTS_APDU",
-        FT_UINT32, BASE_DEC, VALS(x411_MTS_APDU_vals), 0,
-        "x411.MTS_APDU", HFILL }},
+    { &hf_p1_MTABindArgument_PDU,
+      { "MTABindArgument", "p1.MTABindArgument",
+        FT_UINT32, BASE_DEC, VALS(p1_MTABindArgument_vals), 0,
+        "p1.MTABindArgument", HFILL }},
+    { &hf_p1_MTABindResult_PDU,
+      { "MTABindResult", "p1.MTABindResult",
+        FT_UINT32, BASE_DEC, VALS(p1_MTABindResult_vals), 0,
+        "p1.MTABindResult", HFILL }},
+    { &hf_p1_MTABindError_PDU,
+      { "MTABindError", "p1.MTABindError",
+        FT_UINT32, BASE_DEC, VALS(p1_MTABindError_vals), 0,
+        "p1.MTABindError", HFILL }},
+    { &hf_p1_MTS_APDU_PDU,
+      { "MTS-APDU", "p1.MTS_APDU",
+        FT_UINT32, BASE_DEC, VALS(p1_MTS_APDU_vals), 0,
+        "p1.MTS_APDU", HFILL }},
 
-#include "packet-x411-hfarr.c"
+#include "packet-p1-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_x411,
+    &ett_p1,
     &ett_p3,
-    &ett_x411_content_unknown,
-    &ett_x411_bilateral_information,
-    &ett_x411_additional_information,
-    &ett_x411_unknown_standard_extension,
-    &ett_x411_unknown_extension_attribute_type,
-    &ett_x411_unknown_tokendata_type,
-#include "packet-x411-ettarr.c"
+    &ett_p1_content_unknown,
+    &ett_p1_bilateral_information,
+    &ett_p1_additional_information,
+    &ett_p1_unknown_standard_extension,
+    &ett_p1_unknown_extension_attribute_type,
+    &ett_p1_unknown_tokendata_type,
+#include "packet-p1-ettarr.c"
   };
 
-  module_t *x411_module;
+  module_t *p1_module;
 
   /* Register protocol */
-  proto_x411 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("x411", dissect_x411, proto_x411);
+  proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_x411, hf, array_length(hf));
+  proto_register_field_array(proto_p1, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  x411_extension_dissector_table = register_dissector_table("x411.extension", "X411-EXTENSION", FT_UINT32, BASE_DEC);
-  x411_extension_attribute_dissector_table = register_dissector_table("x411.extension-attribute", "X411-EXTENSION-ATTRIBUTE", FT_UINT32, BASE_DEC);
-  x411_tokendata_dissector_table = register_dissector_table("x411.tokendata", "X411-TOKENDATA", FT_UINT32, BASE_DEC);
+  p1_extension_dissector_table = register_dissector_table("p1.extension", "P1-EXTENSION", FT_UINT32, BASE_DEC);
+  p1_extension_attribute_dissector_table = register_dissector_table("p1.extension-attribute", "P1-EXTENSION-ATTRIBUTE", FT_UINT32, BASE_DEC);
+  p1_tokendata_dissector_table = register_dissector_table("p1.tokendata", "P1-TOKENDATA", FT_UINT32, BASE_DEC);
 
-  /* Register our configuration options for X411, particularly our port */
+  /* Register our configuration options for P1, particularly our port */
 
-  x411_module = prefs_register_protocol_subtree("OSI/X.400", proto_x411, prefs_register_x411);
+  p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, prefs_register_p1);
 
-  prefs_register_uint_preference(x411_module, "tcp.port", "X.411 TCP Port",
+  prefs_register_uint_preference(p1_module, "tcp.port", "P1 TCP Port",
 				 "Set the port for P1 operations (if other"
 				 " than the default of 102)",
-				 10, &global_x411_tcp_port);
+				 10, &global_p1_tcp_port);
 
-  register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
+  register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
 }
 
 
-/*--- proto_reg_handoff_x411 --- */
-void proto_reg_handoff_x411(void) {
-  dissector_handle_t x411_handle;
+/*--- proto_reg_handoff_p1 --- */
+void proto_reg_handoff_p1(void) {
+  dissector_handle_t p1_handle;
 
-#include "packet-x411-dis-tab.c"
+#include "packet-p1-dis-tab.c"
 
   /* APPLICATION CONTEXT */
 
@@ -300,12 +300,12 @@ void proto_reg_handoff_x411(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  x411_handle = find_dissector("x411");
-  register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE);
-  register_rtse_oid_dissector_handle("2.6.0.2.7", x411_handle, 0, "id-as-mtse", FALSE);
+  p1_handle = find_dissector("p1");
+  register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
+  register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
 
-  register_rtse_oid_dissector_handle("applicationProtocol.1", x411_handle, 0, "mts-transfer-protocol-1984", FALSE);
-  register_rtse_oid_dissector_handle("applicationProtocol.12", x411_handle, 0, "mta-transfer-protocol", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", FALSE);
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
@@ -332,7 +332,7 @@ void proto_reg_handoff_x411(void) {
 }
 
 static void
-prefs_register_x411(void)
+prefs_register_p1(void)
 {
   static guint tcp_port = 0;
 
@@ -342,7 +342,7 @@ prefs_register_x411(void)
     dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
-  tcp_port = global_x411_tcp_port;
+  tcp_port = global_p1_tcp_port;
 
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_add_uint("tcp.port", tcp_port, tpkt_handle);

@@ -7,7 +7,7 @@
 GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.IMPORT ../x509if/x509if-exp.cnf
-#.IMPORT ../x411/x411-exp.cnf
+#.IMPORT ../p1/p1-exp.cnf
 
 #.CLASS CONTEXT
 &Type       
@@ -320,7 +320,7 @@ Integer B "1.2.826.0.1063.7.0.0.0" "unknown-UK-organisation-defined-extension"
 # NEXOR Originating UA
 SyntaxIA5String			B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
 
-# X.420 Message Store Attributes - see x420.cnf
+# X.420 Message Store Attributes - see p22.cnf
 Boolean		B	"2.6.1.6.3"	"id-sat-ipm-auto-discarded"
 
 # RFC 4530

@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=x420
+PROTOCOL_NAME=p22
 
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
@@ -61,7 +61,7 @@ EXTRA_CNF= \
 	../acse/acse-exp.cnf \
 	../ftam/ftam-exp.cnf \
 	../p7/p7-exp.cnf \
-	../x411/x411-exp.cnf \
+	../p1/p1-exp.cnf \
 	../x509af/x509af-exp.cnf \
 	../x509ce/x509ce-exp.cnf
 
@@ -74,8 +74,8 @@ EXTRA_CNF= \
 ../p7/p7-exp.cnf:
 	(cd ../p7 && $(MAKE_CNF_EXPORT))
 
-../x411/x411-exp.cnf:
-	(cd ../x411 && $(MAKE_CNF_EXPORT))
+../p1/p1-exp.cnf:
+	(cd ../p1 && $(MAKE_CNF_EXPORT))
 
 ../x509af/x509af-exp.cnf:
 	(cd ../x509af && $(MAKE_CNF_EXPORT))

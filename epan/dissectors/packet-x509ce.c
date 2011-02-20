@@ -44,7 +44,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
-#include "packet-x411.h"
+#include "packet-p1.h"
 
 #define PNAME  "X.509 Certificate Extensions"
 #define PSNAME "X509CE"
@@ -455,7 +455,7 @@ static const ber_choice_t GeneralName_choice[] = {
   {   0, &hf_x509ce_otherName    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x509ce_OtherName },
   {   1, &hf_x509ce_rfc822Name   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x509ce_IA5String },
   {   2, &hf_x509ce_dNSName      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_x509ce_IA5String },
-  {   3, &hf_x509ce_x400Address  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x411_ORAddress },
+  {   3, &hf_x509ce_x400Address  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_p1_ORAddress },
   {   4, &hf_x509ce_directoryName, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_x509if_Name },
   {   5, &hf_x509ce_ediPartyName , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_x509ce_EDIPartyName },
   {   6, &hf_x509ce_uniformResourceIdentifier, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_x509ce_T_uniformResourceIdentifier },

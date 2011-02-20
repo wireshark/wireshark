@@ -50,11 +50,11 @@ A2W_FLAGS= -b -e -r Syntax
 
 EXTRA_CNF= \
 	../x509if/x509if-exp.cnf \
-	../x411/x411-exp.cnf 
+	../p1/p1-exp.cnf 
 
 ../x509if/x509if-exp.cnf:
 	(cd ../x509if && $(MAKE_CNF_EXPORT))
 
-../x411/x411-exp.cnf:
-	(cd ../x411 && $(MAKE_CNF_EXPORT))
+../p1/p1-exp.cnf:
+	(cd ../p1 && $(MAKE_CNF_EXPORT))
 

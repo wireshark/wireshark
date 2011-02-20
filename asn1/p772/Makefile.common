@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=s4406
+PROTOCOL_NAME=p772
 
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
@@ -50,12 +50,12 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -C
 
 EXTRA_CNF= \
-	../x411/x411-exp.cnf \
-	../x420/x420-exp.cnf
+	../p1/p1-exp.cnf \
+	../p22/p22-exp.cnf
 
-../x411/x411-exp.cnf:
-	(cd ../x411 && $(MAKE_CNF_EXPORT))
+../p1/p1-exp.cnf:
+	(cd ../p1 && $(MAKE_CNF_EXPORT))
 
-../x420/x420-exp.cnf:
-	(cd ../x420 && $(MAKE_CNF_EXPORT))
+../p22/p22-exp.cnf:
+	(cd ../p22 && $(MAKE_CNF_EXPORT))
 
