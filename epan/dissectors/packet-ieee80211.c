@@ -53,6 +53,8 @@
  *
  * 04/21/2008 - Added dissection for 802.11p
  * Arada Systems <http://www.aradasystems.com>
+ *
+ * Enhance 802.11 dissector by Alexis La Goutte
  */
 
 #ifdef HAVE_CONFIG_H
@@ -480,6 +482,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_TCLAS                    0x0E
 #define TAG_SCHEDULE                 0x0F
 #define TAG_CHALLENGE_TEXT           0x10
+
 #define TAG_POWER_CONSTRAINT         0x20
 #define TAG_POWER_CAPABILITY         0x21
 #define TAG_TPC_REQUEST              0x22
@@ -551,86 +554,87 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_MESH_PERR             70  /* 55 */
 #endif /* MESH_OVERRIDES */
 
-static const value_string tag_num_vals[] = {
-  { TAG_SSID,                 "SSID parameter set" },
-  { TAG_SUPP_RATES,           "Supported Rates" },
-  { TAG_FH_PARAMETER,         "FH Parameter set" },
-  { TAG_DS_PARAMETER,         "DS Parameter set" },
-  { TAG_CF_PARAMETER,         "CF Parameter set" },
-  { TAG_TIM,                  "Traffic Indication Map (TIM)" },
-  { TAG_IBSS_PARAMETER,       "IBSS Parameter set" },
-  { TAG_COUNTRY_INFO,         "Country Information" },
-  { TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
-  { TAG_CHALLENGE_TEXT,       "Challenge text" },
-  { TAG_ERP_INFO,             "ERP Information" },
-  { TAG_ERP_INFO_OLD,         "ERP Information" },
-  { TAG_RSN_IE,               "RSN Information" },
-  { TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
-  { TAG_AP_CHANNEL_REPORT,    "AP Channel Report" },
-  { TAG_CISCO_CCX1_CKIP,      "Cisco CCX1 CKIP + Device Name" },
-  { TAG_CISCO_UNKNOWN_88,     "Cisco Unknown 88" },
-  { TAG_CISCO_UNKNOWN_95,     "Cisco Unknown 95" },
-  { TAG_CISCO_UNKNOWN_96,     "Cisco Unknown 96" },
-  { TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
-  { TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
-  { TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
-  { TAG_REQUEST,              "Request"},
-  { TAG_QBSS_LOAD,            "QBSS Load Element"},
-  { TAG_EDCA_PARAM_SET,       "EDCA Parameter Set"},
-  { TAG_TSPEC,                "Traffic Specification"},
-  { TAG_TCLAS,                "Traffic Classification"},
-  { TAG_SCHEDULE,             "Schedule"},
-  { TAG_TS_DELAY,             "TS Delay"},
-  { TAG_TCLAS_PROCESS,        "TCLAS Processing"},
-  { TAG_HT_CAPABILITY,        "HT Capabilities (802.11n D1.10)"},
+static const range_string tag_num_vals[] = {
+  { TAG_SSID, TAG_SSID, "SSID parameter set" },
+  { TAG_SUPP_RATES, TAG_SUPP_RATES, "Supported Rates" },
+  { TAG_FH_PARAMETER, TAG_FH_PARAMETER, "FH Parameter set" },
+  { TAG_DS_PARAMETER, TAG_DS_PARAMETER, "DS Parameter set" },
+  { TAG_CF_PARAMETER, TAG_CF_PARAMETER, "CF Parameter set" },
+  { TAG_TIM, TAG_TIM, "Traffic Indication Map (TIM)" },
+  { TAG_IBSS_PARAMETER, TAG_IBSS_PARAMETER, "IBSS Parameter set" },
+  { TAG_COUNTRY_INFO, TAG_COUNTRY_INFO, "Country Information" },
+  { TAG_FH_HOPPING_PARAMETER, TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
+  { TAG_CHALLENGE_TEXT, TAG_CHALLENGE_TEXT,"Challenge text" },
+  { 17, 31, "Reserved" },
+  { TAG_ERP_INFO, TAG_ERP_INFO, "ERP Information" },
+  { TAG_ERP_INFO_OLD, TAG_ERP_INFO_OLD, "ERP Information" },
+  { TAG_RSN_IE, TAG_RSN_IE, "RSN Information" },
+  { TAG_EXT_SUPP_RATES, TAG_EXT_SUPP_RATES, "Extended Supported Rates" },
+  { TAG_AP_CHANNEL_REPORT, TAG_AP_CHANNEL_REPORT, "AP Channel Report" },
+  { TAG_CISCO_CCX1_CKIP, TAG_CISCO_CCX1_CKIP, "Cisco CCX1 CKIP + Device Name" },
+  { TAG_CISCO_UNKNOWN_88, TAG_CISCO_UNKNOWN_88, "Cisco Unknown 88" },
+  { TAG_CISCO_UNKNOWN_95, TAG_CISCO_UNKNOWN_95, "Cisco Unknown 95" },
+  { TAG_CISCO_UNKNOWN_96, TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
+  { TAG_VENDOR_SPECIFIC_IE, TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
+  { TAG_SYMBOL_PROPRIETARY, TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
+  { TAG_AGERE_PROPRIETARY, TAG_AGERE_PROPRIETARY, "Agere Proprietary" },
+  { TAG_REQUEST, TAG_REQUEST, "Request" },
+  { TAG_QBSS_LOAD, TAG_QBSS_LOAD, "QBSS Load Element" },
+  { TAG_EDCA_PARAM_SET, TAG_EDCA_PARAM_SET, "EDCA Parameter Set" },
+  { TAG_TSPEC, TAG_TSPEC, "Traffic Specification" },
+  { TAG_TCLAS, TAG_TCLAS, "Traffic Classification" },
+  { TAG_SCHEDULE, TAG_SCHEDULE, "Schedule" },
+  { TAG_TS_DELAY, TAG_TS_DELAY, "TS Delay" },
+  { TAG_TCLAS_PROCESS, TAG_TCLAS_PROCESS, "TCLAS Processing" },
+  { TAG_HT_CAPABILITY, TAG_HT_CAPABILITY, "HT Capabilities (802.11n D1.10)" },
 #ifndef MESH_OVERRIDES
-  { TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
+  { TAG_NEIGHBOR_REPORT, TAG_NEIGHBOR_REPORT, "Neighbor Report" },
 #endif
-  { TAG_HT_INFO,              "HT Information (802.11n D1.10)"},
-  { TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
+  { TAG_HT_INFO, TAG_HT_INFO, "HT Information (802.11n D1.10)" },
+  { TAG_SECONDARY_CHANNEL_OFFSET, TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)" },
 #ifndef MESH_OVERRIDES
-  { TAG_WSIE,                     "Wave Service Information"}, /* www.aradasystems.com */
+  { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
 #endif
-  { TAG_20_40_BSS_CO_EX,          "20/40 BSS Coexistence"},
-  { TAG_20_40_BSS_INTOL_CH_REP,   "20/40 BSS Intolerant Channel Report"},   /* IEEE P802.11n/D6.0 */
-  { TAG_OVERLAP_BSS_SCAN_PAR,     "Overlapping BSS Scan Parameters"},       /* IEEE P802.11n/D6.0 */
-  { TAG_QOS_CAPABILITY,           "QoS Capability"},
-  { TAG_POWER_CONSTRAINT,         "Power Constraint"},
-  { TAG_POWER_CAPABILITY,         "Power Capability"},
-  { TAG_TPC_REQUEST,              "TPC Request"},
-  { TAG_TPC_REPORT,               "TPC Report"},
-  { TAG_SUPPORTED_CHANNELS,       "Supported Channels"},
-  { TAG_CHANNEL_SWITCH_ANN,       "Channel Switch Announcement"},
-  { TAG_MEASURE_REQ,              "Measurement Request"},
-  { TAG_MEASURE_REP,              "Measurement Report"},
-  { TAG_QUIET,                    "Quiet"},
-  { TAG_IBSS_DFS,                 "IBSS DFS"},
-  { TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
-  { TAG_MOBILITY_DOMAIN,          "Mobility Domain"},
+  { TAG_20_40_BSS_CO_EX, TAG_20_40_BSS_CO_EX, "20/40 BSS Coexistence" },
+  { TAG_20_40_BSS_INTOL_CH_REP, TAG_20_40_BSS_INTOL_CH_REP, "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
+  { TAG_OVERLAP_BSS_SCAN_PAR, TAG_OVERLAP_BSS_SCAN_PAR, "Overlapping BSS Scan Parameters" },       /* IEEE P802.11n/D6.0 */
+  { TAG_QOS_CAPABILITY, TAG_QOS_CAPABILITY, "QoS Capability" },
+  { TAG_POWER_CONSTRAINT, TAG_POWER_CONSTRAINT, "Power Constraint" },
+  { TAG_POWER_CAPABILITY, TAG_POWER_CAPABILITY,"Power Capability" },
+  { TAG_TPC_REQUEST, TAG_TPC_REQUEST, "TPC Request" },
+  { TAG_TPC_REPORT, TAG_TPC_REPORT, "TPC Report" },
+  { TAG_SUPPORTED_CHANNELS, TAG_SUPPORTED_CHANNELS, "Supported Channels" },
+  { TAG_CHANNEL_SWITCH_ANN, TAG_CHANNEL_SWITCH_ANN, "Channel Switch Announcement" },
+  { TAG_MEASURE_REQ, TAG_MEASURE_REQ, "Measurement Request" },
+  { TAG_MEASURE_REP, TAG_MEASURE_REP, "Measurement Report" },
+  { TAG_QUIET, TAG_QUIET, "Quiet" },
+  { TAG_IBSS_DFS, TAG_IBSS_DFS, "IBSS DFS" },
+  { TAG_EXTENDED_CAPABILITIES, TAG_EXTENDED_CAPABILITIES, "Extended Capabilities" },
+  { TAG_MOBILITY_DOMAIN, TAG_MOBILITY_DOMAIN, "Mobility Domain" },
 #ifndef MESH_OVERRIDES
-  { TAG_FAST_BSS_TRANSITION,      "Fast BSS Transition"},
+  { TAG_FAST_BSS_TRANSITION, TAG_FAST_BSS_TRANSITION, "Fast BSS Transition" },
 #endif
-  { TAG_TIMEOUT_INTERVAL,         "Timeout Interval"},
-  { TAG_RIC_DATA,                 "RIC Data"},
-  { TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
-  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
-  { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
-  { TAG_MMIE,                     "Management MIC"},
-  { TAG_LINK_IDENTIFIER,          "Link Identifier"},
-  { TAG_WAKEUP_SCHEDULE,          "Wakeup Schedule"},
-  { TAG_CHANNEL_SWITCH_TIMING,    "Channel Switch Timing"},
-  { TAG_PTI_CONTROL,              "PTI Control"},
-  { TAG_PU_BUFFER_STATUS,         "PU Buffer Status"},
-  { TAG_ADVERTISEMENT_PROTOCOL,   "Advertisement Protocol"},
+  { TAG_TIMEOUT_INTERVAL, TAG_TIMEOUT_INTERVAL,"Timeout Interval" },
+  { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" },
+  { TAG_SUPPORTED_REGULATORY_CLASSES, TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes" },
+  { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
+  { TAG_RIC_DESCRIPTOR, TAG_RIC_DESCRIPTOR, "RIC Descriptor" },
+  { TAG_MMIE, TAG_MMIE, "Management MIC" },
+  { TAG_LINK_IDENTIFIER, TAG_LINK_IDENTIFIER, "Link Identifier" },
+  { TAG_WAKEUP_SCHEDULE, TAG_WAKEUP_SCHEDULE, "Wakeup Schedule" },
+  { TAG_CHANNEL_SWITCH_TIMING, TAG_CHANNEL_SWITCH_TIMING, "Channel Switch Timing" },
+  { TAG_PTI_CONTROL, TAG_PTI_CONTROL, "PTI Control" },
+  { TAG_PU_BUFFER_STATUS, TAG_PU_BUFFER_STATUS, "PU Buffer Status" },
+  { TAG_ADVERTISEMENT_PROTOCOL, TAG_ADVERTISEMENT_PROTOCOL, "Advertisement Protocol"},
 #ifdef MESH_OVERRIDES
-  { TAG_MESH_ID,                 "Mesh ID"},
-  { TAG_MESH_CONFIGURATION,      "Mesh Configuration"},
-  { TAG_MESH_PEER_LINK_MGMT,     "Mesh Peer Link Management"},
-  { TAG_MESH_PREQ,               "Mesh Path Request"},
-  { TAG_MESH_PREP,               "Mesh Path Response"},
-  { TAG_MESH_PERR,               "Mesh Path Error"},
+  { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
+  { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
+  { TAG_MESH_PEER_LINK_MGMT, TAG_MESH_PEER_LINK_MGMT, "Mesh Peer Link Management" },
+  { TAG_MESH_PREQ, TAG_MESH_PREQ, "Mesh Path Request" },
+  { TAG_MESH_PREP, TAG_MESH_PREP, "Mesh Path Response" },
+  { TAG_MESH_PERR, TAG_MESH_PERR, "Mesh Path Error" },
 #endif /* MESH_OVERRIDES */
-  { 0,                        NULL }
+  { 0, 0, NULL }
 };
 
 #define WPA_OUI     (const guint8 *) "\x00\x50\xF2"
@@ -1158,6 +1162,8 @@ static int hf_ieee80211_mesh_ae3 = -1;
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
+static int hf_ieee80211_fixed_parameters = -1;  /* Protocol payload for management frames */
+
 static int hf_ieee80211_ff_auth_alg = -1;            /* Authentication algorithm field            */
 static int hf_ieee80211_ff_auth_seq = -1;            /* Authentication transaction sequence       */
 static int hf_ieee80211_ff_current_ap = -1;          /* Current AP MAC address                    */
@@ -1376,19 +1382,12 @@ static int hf_ieee80211_amsdu_msdu_header_text = -1;
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
 /* ************************************************************************* */
+static int hf_ieee80211_tagged_parameters = -1;  /* Fixed payload item */
+static int hf_ieee80211_tag = -1;
 static int hf_ieee80211_tag_number = -1;
 static int hf_ieee80211_tag_length = -1;
 static int hf_ieee80211_tag_interpretation = -1;
 static int hf_ieee80211_tag_oui = -1;
-
-static int hf_ieee80211_tim_length = -1;
-static int hf_ieee80211_tim_dtim_count = -1;
-static int hf_ieee80211_tim_dtim_period = -1;
-static int hf_ieee80211_tim_bmapctl = -1;
-
-
-static int hf_ieee80211_fixed_parameters = -1;  /* Protocol payload for management frames */
-static int hf_ieee80211_tagged_parameters = -1;  /* Fixed payload item */
 static int hf_ieee80211_tag_ssid = -1;
 static int hf_ieee80211_tag_supp_rates = -1;
 static int hf_ieee80211_tag_fh_dwell_time = -1;
@@ -1400,6 +1399,25 @@ static int hf_ieee80211_tag_cfp_count = -1;
 static int hf_ieee80211_tag_cfp_period = -1;
 static int hf_ieee80211_tag_cfp_max_duration = -1;
 static int hf_ieee80211_tag_cfp_dur_remaining = -1;
+static int hf_ieee80211_tim_dtim_count = -1;
+static int hf_ieee80211_tim_dtim_period = -1;
+static int hf_ieee80211_tim_bmapctl = -1;
+static int hf_ieee80211_tim_bmapctl_mcast = -1;
+static int hf_ieee80211_tim_bmapctl_offset = -1;
+static int hf_ieee80211_tim_partial_virtual_bitmap = -1;
+static int hf_ieee80211_tag_ibss_atim_window = -1;
+static int hf_ieee80211_tag_country_info_code = -1;
+static int hf_ieee80211_tag_country_info_env = -1;
+static int hf_ieee80211_tag_country_info_fnm = -1;
+static int hf_ieee80211_tag_country_info_fnm_fcn = -1;
+static int hf_ieee80211_tag_country_info_fnm_nc = -1;
+static int hf_ieee80211_tag_country_info_fnm_mtpl = -1;
+static int hf_ieee80211_tag_country_info_rrc = -1;
+static int hf_ieee80211_tag_country_info_rrc_rei = -1;
+static int hf_ieee80211_tag_country_info_rrc_rc = -1;
+static int hf_ieee80211_tag_country_info_rrc_cc = -1;
+static int hf_ieee80211_tag_fh_hopping_parameter_prime_radix = -1;
+static int hf_ieee80211_tag_fh_hopping_parameter_nb_channels = -1;
 static int hf_ieee80211_wep_iv = -1;
 static int hf_ieee80211_wep_iv_weak = -1;
 static int hf_ieee80211_tkip_extiv = -1;
@@ -1869,6 +1887,9 @@ static gint ett_block_ack = -1;
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
+static gint ett_tag_bmapctl_tree = -1;
+static gint ett_tag_country_fnm_tree = -1;
+static gint ett_tag_country_rcc_tree = -1;
 static gint ett_qos_parameters = -1;
 static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
@@ -2830,10 +2851,8 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   if (anqp)
     *anqp = FALSE;
   tag_no = tvb_get_guint8(tvb, offset);
-  item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_number, tvb, offset, 1, tag_no,
-                                    "Tag Number: %u (%s)", tag_no,
-                                    val_to_str(tag_no, tag_num_vals,
-                                               "Unknown (%d)"));
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, TRUE);
+
   tag_len = tvb_get_guint8(tvb, offset + 1);
   if (tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
     expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
@@ -4249,7 +4268,7 @@ oui_base_custom(gchar *result, guint32 oui)
   }
   else {
       /* Found an address string. */
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", manuf_name );
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name );
   }
 }
 static void
@@ -4806,7 +4825,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   rsn_gmcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gmcs, tvb, offset, 4, FALSE);
   rsn_gmcs_tree = proto_item_add_subtree(rsn_gmcs_item, ett_rsn_gmcs_tree);
   proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_oui, tvb, offset, 3, FALSE);
-    /* Check if OUI is 00:0F:AC	(ieee80211) */
+  /* Check if OUI is 00:0F:AC (ieee80211) */
   if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
   {
     proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_80211_type, tvb, offset + 3, 1, FALSE);
@@ -5828,13 +5847,12 @@ static const value_string environment_vals[] = {
 
 static int beacon_padding = 0; /* beacon padding bug */
 static int
-add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
+add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
   guint32 oui;
   tvbuff_t *tag_tvb;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
-  unsigned int ii;
   int n, ret;
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
@@ -5856,21 +5874,15 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   }
   tag_end = offset + tag_len;
   if (tree) {
-    ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+1+tag_len_len,"%s",
-                         val_to_str(tag_no, tag_num_vals,
-                         (tag_no >= 17 && tag_no <= 31) ?
-                         "Reserved for challenge text" : "Reserved tag number" ));
-    tree=proto_item_add_subtree(ti,ett_80211_mgt_ie);
+    ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len , FALSE);
+    proto_item_append_text(ti, ": %s", rval_to_str(tag_no, tag_num_vals, "Reserved tag Number"));
 
-    proto_tree_add_uint_format (tree, hf_ieee80211_tag_number, tvb, offset, 1, tag_no,
-            "Tag Number: %u (%s)",
-            tag_no,
-            val_to_str(tag_no, tag_num_vals,
-                       (tag_no >= 17 && tag_no <= 31) ?
-                       "Reserved for challenge text" :
-                       "Reserved tag number"));
+    tree = proto_item_add_subtree(ti, ett_80211_mgt_ie);
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, FALSE);
+
   }
-  ti_len = proto_tree_add_uint (tree, (tag_no==TAG_TIM ? hf_ieee80211_tim_length : hf_ieee80211_tag_length), tvb, offset + 1, tag_len_len, tag_len);
+  ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, tag_len_len, tag_len);
 
   switch (tag_no)
   {
@@ -5918,7 +5930,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       offset += 2;
 
-      while(offset <= tag_end+1)
+      while(offset <= tag_end + 1)
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1, FALSE);
         proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
@@ -5988,160 +6000,156 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       offset += 2;
       break;
 
-    case TAG_TIM:
+    case TAG_TIM: /* 7.3.2.6 TIM (5) */
+      {
+      proto_tree *bmapctl_tree;
+      proto_item *bmapctl_item;
       if (tag_len < 4)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 4",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 4", tag_len);
         break;
       }
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tim_dtim_count, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, ": DTIM %u of", tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tim_dtim_period, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, " %u bitmap", tvb_get_guint8(tvb, offset + 1));
+      offset += 1;
+
+      bmapctl_item = proto_tree_add_item(tree, hf_ieee80211_tim_bmapctl, tvb, offset, 1, TRUE);
+      bmapctl_tree = proto_item_add_subtree(bmapctl_item, ett_tag_bmapctl_tree);
+      proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_mcast, tvb, offset, 1, TRUE);
+      proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_offset, tvb, offset, 1, TRUE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tim_partial_virtual_bitmap, tvb, offset, tag_len - 3, TRUE);
+
+    break;
+    }
+    case TAG_IBSS_PARAMETER: /* 7.3.2.7 IBSS Parameter Set element (6) */
+      if(tag_len != 2)
       {
-        guint8 bmapctl;
-        guint8 bmapoff;
-        guint8 bmaplen;
-        const guint8* bmap;
-
-        proto_tree_add_item(tree, hf_ieee80211_tim_dtim_count, tvb,
-                            offset + 2, 1, TRUE);
-        proto_tree_add_item(tree, hf_ieee80211_tim_dtim_period, tvb,
-                            offset + 3, 1, TRUE);
-        proto_item_append_text(ti, ": DTIM %u of %u bitmap",
-                               tvb_get_guint8(tvb, offset + 2),
-                               tvb_get_guint8(tvb, offset + 3));
-
-        bmapctl = tvb_get_guint8(tvb, offset + 4);
-        bmapoff = bmapctl>>1;
-        proto_tree_add_uint_format(tree, hf_ieee80211_tim_bmapctl, tvb,
-                            offset + 4, 1, bmapctl,
-                            "Bitmap Control: 0x%02X (mcast:%u, bitmap offset %u)",
-                            bmapctl, bmapctl&1, bmapoff);
-
-        bmaplen = tag_len - 3;
-        bmap = tvb_get_ptr(tvb, offset + 5, bmaplen);
-        if (bmaplen==1 && 0==bmap[0] && !(bmapctl&1)) {
-          proto_item_append_text(ti, " empty");
-        } else {
-          if (bmapctl&1) {
-            proto_item_append_text(ti, " mcast");
-          }
-        }
-        if (bmaplen>1 || bmap[0]) {
-          int len=g_snprintf (out_buff, SHORT_STR,
-                            "Bitmap: traffic for AID's:");
-          int i=0;
-          for (i=0;i<bmaplen*8;i++) {
-            if (bmap[i/8] & (1<<(i%8))) {
-              int aid=i+2*bmapoff*8;
-              len+=g_snprintf (out_buff+len, SHORT_STR-len," %u", aid);
-              proto_item_append_text(ti, " %u", aid);
-              if (len>=SHORT_STR) {
-                break;
-              }
-            }
-          }
-          proto_tree_add_string_format (tree, hf_ieee80211_tag_interpretation, tvb, offset + 5,
-               bmaplen, out_buff, "%s", out_buff);
-        }
-      }
-      break;
-
-    case TAG_IBSS_PARAMETER:
-      if (tag_len < 2)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 2",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 2", tag_len);
         break;
       }
-      g_snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
-                tvb_get_letohs(tvb, offset + 2));
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-           tag_len, out_buff);
-      proto_item_append_text(ti, ": %s", out_buff);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_ibss_atim_window, tvb, offset, 2, TRUE);
+      proto_item_append_text(ti, ": ATIM window 0x%x", tvb_get_letohs(tvb, offset));
+
       break;
-
-    case TAG_COUNTRY_INFO: /* IEEE 802.11d-2001 and IEEE 802.11j-2004 */
+    case TAG_COUNTRY_INFO: /* 7.3.2.9 Country information element (7) */
       {
-        guint8 ccode[2+1];
-
-        if (tag_len < 3)
+        proto_tree *sub_tree;
+        proto_item *sub_item;
+        if (tag_len < 6)
         {
-          proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 3",
-                               tag_len);
+          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
           break;
         }
-        tvb_memcpy(tvb, ccode, offset + 2, 2);
-        ccode[2] = '\0';
-        g_snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
-                 format_text(ccode, 2),
-                 val_to_str(tvb_get_guint8(tvb, offset + 4), environment_vals,"Unknown (0x%02x)"));
-        proto_item_append_text(ti, ": %s", out_buff);
-        proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,3, out_buff);
+        offset += 2;
 
-        for (ii = 3; (ii + 3) <= tag_len; ii += 3)
+        proto_tree_add_item(tree, hf_ieee80211_tag_country_info_code, tvb, offset, 2, FALSE);
+        proto_item_append_text(ti, ": Country Code %s", tvb_get_ephemeral_string(tvb, offset, 2));
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env, tvb, offset, 1, FALSE);
+        proto_item_append_text(ti, ", Environment %s", val_to_str(tvb_get_guint8(tvb, offset), environment_vals,"Unknown (0x%02x)"));
+        offset += 1;
+
+        while(offset <= tag_end + 1)
         {
-          guint8 val1, val2, val3;
-          val1 = tvb_get_guint8(tvb, offset + 2 + ii);
-          val2 = tvb_get_guint8(tvb, offset + 3 + ii);
-          val3 = tvb_get_guint8(tvb, offset + 4 + ii);
+          if(tvb_get_guint8(tvb, offset) <= 200) { /* 802.11d */
+            sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_fnm, tvb, offset, 3, FALSE);
+            sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_fnm_tree);
 
-          if (val1 <= 200) {  /* 802.11d */
-            proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 2+ii,3, out_buff,
-                                       "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
-                                       val1, val2, (gint) val3);
-          } else {  /* 802.11j */
-            proto_tree_add_string_format(tree, hf_ieee80211_tag_interpretation, tvb, offset + 2+ii,3, out_buff,
-                                       "  Reg Extension Id: %u, Regulatory Class: %u, Coverage Class: %u",
-                                       val1, val2, val3);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_fcn, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ": First Channel Number: %d", tvb_get_guint8(tvb, offset));
+            offset += 1;
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_nc, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ", Number of Channels: %d", tvb_get_guint8(tvb, offset));
+            offset += 1;
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_mtpl, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ", Maximum Transmit Power Level: %d dBm", tvb_get_guint8(tvb, offset));
+            offset += 1;
+          } else { /* 802.11j */
+            sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_rrc, tvb, offset, 3, FALSE);
+            sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_rcc_tree);
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rei, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ": Regulatory Extension Identifier: %d", tvb_get_guint8(tvb, offset));
+            offset += 1;
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rc, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ", Regulatory Class: %d", tvb_get_guint8(tvb, offset));
+            offset += 1;
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_cc, tvb, offset, 1, FALSE);
+            proto_item_append_text(sub_item, ", Coverage Class: %d", tvb_get_guint8(tvb, offset));
+            offset += 1;
           }
+          
         }
+
       }
       break;
 
-    case TAG_QBSS_LOAD:
+    case TAG_FH_HOPPING_PARAMETER: /* 7.3.2.10 Hopping Pattern Parameters information element (8) */
+      if (tag_len < 2)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 2", tag_len);
+        break;
+      }
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_prime_radix, tvb, offset, 1, FALSE);
+      proto_item_append_text(ti, ": Prime Radix: %u", tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_nb_channels, tvb, offset, 1, FALSE);
+      proto_item_append_text(ti, ", Number of Channels: %u", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      break;
+
+    case TAG_FH_HOPPING_TABLE: /* 7.3.2.11 Hopping Pattern Table information element (9) */
+      if (tag_len < 4)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 4", tag_len);
+        break;
+      }
+      /* TODO */
+      break;
+
+    case TAG_QBSS_LOAD: /* 7.3.2.28 BSS Load element (11) */
       if (tag_len < 4 || tag_len >5)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Wrong QBSS Tag Length %u", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Wrong QBSS Tag Length %u", tag_len);
         break;
       }
 
       if (tag_len == 4)
       {
         /* QBSS Version 1 */
-        proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 1,
-          tag_len, "Cisco QBSS Version 1 - non CCA");
+        proto_item_append_text(ti, " Cisco QBSS Version 1 - non CCA");
 
         /* Extract Values */
-        proto_tree_add_uint (tree, hf_ieee80211_qbss_version, tvb, offset + 2, tag_len, 1);
-        proto_tree_add_item (tree, hf_ieee80211_qbss_scount, tvb, offset + 2, 2, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_qbss_cu, tvb, offset + 4, 1, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_qbss_adc, tvb, offset + 5, 1, FALSE);
+        proto_tree_add_uint(tree, hf_ieee80211_qbss_version, tvb, offset + 2, tag_len, 1);
+        proto_tree_add_item(tree, hf_ieee80211_qbss_scount, tvb, offset + 2, 2, TRUE);
+        proto_tree_add_item(tree, hf_ieee80211_qbss_cu, tvb, offset + 4, 1, FALSE);
+        proto_tree_add_item(tree, hf_ieee80211_qbss_adc, tvb, offset + 5, 1, FALSE);
       }
       else if (tag_len == 5)
       {
          /* QBSS Version 2 */
-         proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-           tag_len, "802.11e CCA Version");
+         proto_item_append_text(ti, " 802.11e CCA Version");
 
          /* Extract Values */
-         proto_tree_add_uint (tree, hf_ieee80211_qbss_version, tvb, offset + 2, tag_len, 2);
-         proto_tree_add_item (tree, hf_ieee80211_qbss_scount, tvb, offset + 2, 2, TRUE);
-         proto_tree_add_item (tree, hf_ieee80211_qbss_cu, tvb, offset + 4, 1, FALSE);
-         proto_tree_add_item (tree, hf_ieee80211_qbss_adc, tvb, offset + 5, 2, TRUE);
+         proto_tree_add_uint(tree, hf_ieee80211_qbss_version, tvb, offset + 2, tag_len, 2);
+         proto_tree_add_item(tree, hf_ieee80211_qbss_scount, tvb, offset + 2, 2, TRUE);
+         proto_tree_add_item(tree, hf_ieee80211_qbss_cu, tvb, offset + 4, 1, FALSE);
+         proto_tree_add_item(tree, hf_ieee80211_qbss_adc, tvb, offset + 5, 2, TRUE);
       }
-      break;
-
-    case TAG_FH_HOPPING_PARAMETER:
-      if (tag_len < 2)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 2",
-                             tag_len);
-        break;
-      }
-      g_snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u",
-                tvb_get_guint8(tvb, offset + 2),
-                tvb_get_guint8(tvb, offset + 3));
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2, tag_len, out_buff);
-      proto_item_append_text(ti, ": %s", out_buff);
       break;
 
     case TAG_TSPEC:
@@ -12453,9 +12461,14 @@ proto_register_ieee80211 (void)
      {"Transaction Id", "wlan_mgt.fixed.transaction_id",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag,
+     {"Tag", "wlan_mgt.tag",
+      FT_NONE, BASE_NONE, 0x0, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_number,
-     {"Tag", "wlan_mgt.tag.number",
-      FT_UINT8, BASE_DEC, VALS(tag_num_vals), 0,
+     {"Tag Number", "wlan_mgt.tag.number",
+      FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(tag_num_vals), 0,
       "Element ID", HFILL }},
 
     {&hf_ieee80211_tag_length,
@@ -12499,24 +12512,99 @@ proto_register_ieee80211 (void)
      {"Vendor Specific OUI Type", "wlan_mgt.tag.oui.type",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tim_length,
-     {"TIM length", "wlan_mgt.tim.length",
-      FT_UINT8, BASE_DEC, NULL, 0,
-      "Traffic Indication Map length", HFILL }},
-
     {&hf_ieee80211_tim_dtim_count,
      {"DTIM count", "wlan_mgt.tim.dtim_count",
       FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
+      "Indicates how many Beacon frames (including the current frame) appear before the next DTIM", HFILL }},
 
     {&hf_ieee80211_tim_dtim_period,
      {"DTIM period", "wlan_mgt.tim.dtim_period",
       FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
+      "Indicates the number of beacon intervals between successive DTIMs", HFILL }},
 
     {&hf_ieee80211_tim_bmapctl,
      {"Bitmap control", "wlan_mgt.tim.bmapctl",
       FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tim_bmapctl_mcast,
+     {"Multicast", "wlan_mgt.tim.bmapctl.multicast",
+      FT_BOOLEAN, 8, NULL, 0x1,
+      "Contains the Traffic Indicator bit associated with Association ID 0", HFILL }},
+
+    {&hf_ieee80211_tim_bmapctl_offset,
+     {"Bitmap Offset", "wlan_mgt.tim.bmapctl.offset",
+      FT_UINT8, BASE_HEX, NULL, 0xFE,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tim_partial_virtual_bitmap,
+     {"Partial Virtual Bitmap", "wlan_mgt.tim.partial_virtual_bitmap",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ibss_atim_window,
+     {"Atim Windows", "wlan_mgt.ibss.atim_windows",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      "Contains the ATIM Window length in TU", HFILL }},
+
+    {&hf_ieee80211_tag_country_info_code,
+     {"Code", "wlan_mgt.country_info.code",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_env,
+     {"Environment", "wlan_mgt.country_info.environment",
+      FT_UINT8, BASE_HEX, VALS(environment_vals), 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_fnm,
+     {"Country Info", "wlan_mgt.country_info.fnm",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_fnm_fcn,
+     {"First Channel Number", "wlan_mgt.country_info.fnm.fcn",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_fnm_nc,
+     {"Number of Channels", "wlan_mgt.country_info.fnm.nc",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_fnm_mtpl,
+     {"Maximum Transmit Power Level (in dBm)", "wlan_mgt.country_info.fnm.mtpl",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_rrc,
+     {"Country Info", "wlan_mgt.country_info.rrc",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_rrc_rei,
+     {"Regulatory Extension Identifier", "wlan_mgt.country_info.rrc.rei",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_rrc_rc,
+     {"Regulatory Class", "wlan_mgt.country_info.rrc.rc",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_rrc_cc,
+     {"Coverage Class", "wlan_mgt.country_info.rrc.cc",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_parameter_prime_radix,
+     {"Prime Radix", "wlan_mgt.fh_hopping.parameter.prime_radix",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_parameter_nb_channels,
+     {"Number of Channels", "wlan_mgt.fh_hopping.parameter.nb_channels",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_version,
@@ -14101,6 +14189,9 @@ proto_register_ieee80211 (void)
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
+    &ett_tag_bmapctl_tree,
+    &ett_tag_country_fnm_tree,
+    &ett_tag_country_rcc_tree,
     &ett_qos_parameters,
     &ett_qos_ps_buf_state,
     &ett_wep_parameters,
