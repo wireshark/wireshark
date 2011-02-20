@@ -1045,7 +1045,7 @@ void proto_register_packetbb(void) {
   }
 
   /* name, short name, abbrev */
-  proto_packetbb = proto_register_protocol("packetbb Protocol", "packetbb",
+  proto_packetbb = proto_register_protocol("PacketBB Protocol", "PacketBB",
       "packetbb");
 
   /* Required function calls to register the header fields and subtrees used */
