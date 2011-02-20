@@ -61,6 +61,8 @@ static const value_string nwmtp_data_type_vals[] = {
 	{18,	    "Retrieved MSU Prio 0" },
 	{32,	    "Retrieval complete"   },
 	{33,	    "Retrieval impossible" },
+	{34,	    "Link in service"      },
+	{35,	    "Link out of service"  },
 	{ 0,	    NULL },
 };
 
@@ -72,10 +74,16 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		const gchar *type;
 		proto_item *ti;
 		proto_item *nwmtp_tree;
 		guint32 len;
 		tvbuff_t *next_tvb;
+
+		/* update the info column */
+		type = val_to_str_const(tvb_get_guint8(tvb, offset + 1),
+					nwmtp_data_type_vals, "Unknown");
+		col_set_str(pinfo->cinfo, COL_INFO, type);
 
 		len = tvb_get_ntohl(tvb, offset + 8);
 
@@ -98,7 +106,8 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		next_tvb = tvb_new_subset(tvb, offset + 12, len, len);
-		call_dissector(mtp_handle, next_tvb, pinfo, tree);
+		if (tvb_length(next_tvb) > 0)
+			call_dissector(mtp_handle, next_tvb, pinfo, tree);
 		offset += len + 12;
 	}
 }
