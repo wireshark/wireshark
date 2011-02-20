@@ -119,7 +119,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
     /* compare our computed hash with what we have received */
 
     if(tvb_bytes_exist(tvb, offset, buffer_size) &&
-       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) {
+       (tvb_memeql(tvb, offset, digest_buf, buffer_size) != 0)) {
       proto_item_append_text(pi, " [incorrect, should be ");
       for(i = 0; i < buffer_size; i++)
 	proto_item_append_text(pi, "%02X", digest_buf[i]);
