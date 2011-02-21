@@ -151,7 +151,7 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # PYTHON_EMBED isn't defined.
 #
 # NOTE: The Python library must have been compiled with the same
-# compiler (MSVC_VARIANT) as Wireshark. Kown python.org Python
+# compiler (MSVC_VARIANT) as Wireshark. Known python.org Python
 # CRT versions:
 #
 # Python version    CRT (32-bit)    CRT (64-bit)
