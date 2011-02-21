@@ -101,26 +101,11 @@ Wireshark Info
           5614</ulink>)
         </para></listitem>
 
-        <listitem>
-          <para>
-            NTLMSSP dissector may fail to compile due to space embedded in C comment delimiters.
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5614">
-              Bug
-              5614
-            </ulink>)
-          </para>
-
-        </listitem>
-        <listitem>
-          <para>
-            Corrections to ANSI MAP ASN.1 specifications.
-            (<ulink url=https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5584>
-              Bug
-              5614
-            </ulink>)
-          </para>
-        </listitem>
-
+        <listitem><para>
+        Corrections to ANSI MAP ASN.1 specifications.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5584">Bug
+          5614</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
