@@ -191,7 +191,9 @@ typedef enum {
 	VNC_ENCODING_TYPE_FTP_PROTO_VER	    = 0xFFFF8002,
 	VNC_ENCODING_TYPE_POINTER_CHANGE    = -257,
 	VNC_ENCODING_TYPE_EXT_KEY_EVENT     = -258,
-	VNC_ENCODING_TYPE_AUDIO             =  259
+	VNC_ENCODING_TYPE_AUDIO             =  259,
+	VNC_ENCODING_TYPE_DESKTOP_NAME      = -307,
+	VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE= -308
 } vnc_encoding_type_e;
 
 static const value_string encoding_types_vs[] = {
@@ -245,6 +247,8 @@ static const value_string encoding_types_vs[] = {
 */	{ VNC_ENCODING_TYPE_SERVER_STATE, 	"Server State"	       },
 	{ VNC_ENCODING_TYPE_ENABLE_KEEP_ALIVE, 	"Enable Keep Alive"    },
 	{ VNC_ENCODING_TYPE_FTP_PROTO_VER, 	"FTP protocol version" },
+	{ VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE,	"Extended Desktop Size"},
+	{ VNC_ENCODING_TYPE_DESKTOP_NAME,	"Desktop Name"         },
 	{ 0,				NULL                   }
 };
 
@@ -377,7 +381,7 @@ static guint vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
 static void vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel);
 static void vnc_set_depth(const packet_info *pinfo, const guint8 depth);
 static guint8 vnc_get_bytes_per_pixel(const packet_info *pinfo);
-
+static guint32 vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree);
 
 #define DEST_PORT_VNC pinfo->destport == 5500 || pinfo->destport == 5501 || \
 		pinfo->destport == 5900 || pinfo->destport == 5901 ||	\
@@ -421,7 +425,12 @@ static int hf_vnc_server_green_shift = -1;
 static int hf_vnc_server_blue_shift = -1;
 static int hf_vnc_desktop_name = -1;
 static int hf_vnc_desktop_name_len = -1;
-
+static int hf_vnc_desktop_screen_id = -1;
+static int hf_vnc_desktop_screen_x = -1;
+static int hf_vnc_desktop_screen_y = -1;
+static int hf_vnc_desktop_screen_width = -1;
+static int hf_vnc_desktop_screen_height = -1;
+static int hf_vnc_desktop_screen_flags = -1;
 static int hf_vnc_num_server_message_types = -1;
 static int hf_vnc_num_client_message_types = -1;
 static int hf_vnc_num_encoding_types = -1;
@@ -597,6 +606,7 @@ static gint ett_vnc_hextile_subrect = -1;
 static gint ett_vnc_zrle_subencoding = -1;
 static gint ett_vnc_colormap_num_groups = -1;
 static gint ett_vnc_colormap_color_group = -1;
+static gint ett_vnc_desktop_screen = -1;
 
 /* Global so they keep their value between packets */
 guint8 vnc_bytes_per_pixel;
@@ -1713,6 +1723,10 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			bytes_needed = 0;
 			break;
 
+		case VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE :
+			bytes_needed = vnc_extended_desktop_size(tvb, offset, vnc_encoding_type_tree);
+			break;
+
 		}
 
 		/* Check if the routines above requested more bytes to
@@ -1724,6 +1738,40 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	return 0;
 }
 
+static guint32
+vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+{
+
+	guint8 i, num_of_screens;
+	proto_item *ti;
+	proto_tree *screen_tree;
+	
+	num_of_screens = tvb_get_guint8(tvb, *offset);
+	proto_tree_add_text(tree, tvb, *offset, 1, "Number of screens: %d", num_of_screens);
+	*offset += 1;
+	proto_tree_add_text(tree, tvb, *offset, 3, "Padding");
+	VNC_BYTES_NEEDED((guint32)(3 + (num_of_screens * 16)));
+	*offset += 3;
+	for(i = 1; i <= num_of_screens; i++) {
+		ti = proto_tree_add_text(tree, tvb, *offset, 16, "Screen #%u", i);
+		screen_tree = proto_item_add_subtree(ti, ett_vnc_desktop_screen);
+
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_id, tvb, *offset, 4, FALSE);
+		*offset += 4;
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_x, tvb, *offset, 2, FALSE);
+		*offset += 2;
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_y, tvb, *offset, 2, FALSE);
+		*offset += 2;
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_width, tvb, *offset, 2, FALSE);
+		*offset += 2;
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_height, tvb, *offset, 2, FALSE);
+		*offset += 2;
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_flags, tvb, *offset, 4, FALSE);
+		*offset += 4;
+	}
+	
+	return 0;
+}
 
 static guint
 vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
@@ -2724,6 +2772,36 @@ proto_register_vnc(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Length of desktop name in bytes", HFILL }
 		},
+		{ &hf_vnc_desktop_screen_id,
+		  { "Screen ID", "vnc.screen_id",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "ID of screen", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_x,
+		  { "Screen X position", "vnc.screen_x",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "X coordinate of screen", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_y,
+		  { "Screen Y position", "vnc.screen_y",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Y coordinate of screen", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_width,
+		  { "Screen width", "vnc.screen_width",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Width of screen", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_height,
+		  { "Screen height", "vnc.screen_height",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Height of screen", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_flags,
+		  { "Screen flags", "vnc.screen_flags",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Flags of screen", HFILL }
+		},
 		{ &hf_vnc_desktop_name,
 		  { "Desktop name", "vnc.desktop_name",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3222,6 +3300,7 @@ proto_register_vnc(void)
 		&ett_vnc_hextile_subrect,
 		&ett_vnc_zrle_subencoding,
 		&ett_vnc_colormap_num_groups,
+		&ett_vnc_desktop_screen,
 		&ett_vnc_colormap_color_group
 	};
 
