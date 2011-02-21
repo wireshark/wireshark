@@ -354,6 +354,15 @@
    dynamically-linked libraries */
 #define WS_VAR_IMPORT @WS_VAR_IMPORT@
 
+/* Define WS_MSVC_NORETURN appropriately for declarations of routines that
+   never return (just like Charlie on the MTA).
+  
+   Note that MSVC++ expects __declspec(noreturn) to precede the function
+   name and GCC, as far as I know, expects __attribute__((noreturn)) to
+   follow the function name, so we need two different flavors of
+   noreturn tag.  */
+#define WS_MSVC_NORETURN @WS_MSVC_NORETURN@
+
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 /* Note: not use in the code */

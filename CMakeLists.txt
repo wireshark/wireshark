@@ -434,11 +434,14 @@ endif()
 if(WIN32)
 	add_definitions(-D_NEED_VAR_IMPORT_)
 	set(WS_VAR_IMPORT "__declspec(dllimport) extern")
+	set(WS_MSVC_NORETURN "__declspec(noreturn)")
 
 	# Disable deprecation
 	if(MSVC80 OR MSVC90)
 		add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
 	endif()
+else()
+	set(WS_MSVC_NORETURN " ")
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
