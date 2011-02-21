@@ -1760,8 +1760,10 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         gint total_gap = (seconds_between_packets*1000) +
                                          ((nseconds_between_packets+500000) / 1000000);
 
-                        /* Should be 8 ms apart for FDD, TDD has more spread */
-                        if ((total_gap >= 7) && (total_gap <= 9)) {
+                        /* Should be 8 or 16 ms apart for FDD, TDD has more spread */
+                        if (((total_gap >= 7) && (total_gap <= 9)) ||
+                            ((total_gap >= 15) && (total_gap <= 17))) {
+
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
                             result->previousFrameNum = lastData->framenum;
