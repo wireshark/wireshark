@@ -658,7 +658,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			break;
 		}
 		flags = tvb_get_guint8(tvb, offset);
-		*enclosure_item_flags = flags;
+		*enclosure_item_flags = (guint8) flags;
 		if (tree)
 		{
 			tf = proto_tree_add_uint(param_tree,
