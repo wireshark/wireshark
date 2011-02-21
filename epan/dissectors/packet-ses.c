@@ -30,9 +30,13 @@
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
 
+#include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
+#include <epan/reassemble.h>
+
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-frame.h"
@@ -49,9 +53,24 @@ static int hf_ses_length      = -1;
 static int hf_ses_version     = -1;
 static int hf_ses_reserved    = -1;
 
+static int hf_ses_segment_data = -1;
+static int hf_ses_segments = -1;
+static int hf_ses_segment = -1;
+static int hf_ses_segment_overlap = -1;
+static int hf_ses_segment_overlap_conflicts = -1;
+static int hf_ses_segment_multiple_tails = -1;
+static int hf_ses_segment_too_long_segment = -1;
+static int hf_ses_segment_error = -1;
+static int hf_ses_segment_count = -1;
+static int hf_ses_reassembled_in = -1;
+static int hf_ses_reassembled_length = -1;
+
 /* ses fields defining a sub tree */
 static gint ett_ses           = -1;
 static gint ett_ses_param     = -1;
+
+static gint ett_ses_segment = -1;
+static gint ett_ses_segments = -1;
 
 
 /* flags */
@@ -165,7 +184,29 @@ static int proto_clses          = -1;
 
 static dissector_handle_t pres_handle = NULL;
 
+static GHashTable *ses_fragment_table = NULL;
+static GHashTable *ses_reassembled_table = NULL;
 
+static const fragment_items ses_frag_items = {
+  /* Segment subtrees */
+  &ett_ses_segment,
+  &ett_ses_segments,
+  /* Segment fields */
+  &hf_ses_segments,
+  &hf_ses_segment,
+  &hf_ses_segment_overlap,
+  &hf_ses_segment_overlap_conflicts,
+  &hf_ses_segment_multiple_tails,
+  &hf_ses_segment_too_long_segment,
+  &hf_ses_segment_error,
+  &hf_ses_segment_count,
+  /* Reassembled in field */
+  &hf_ses_reassembled_in,
+  /* Reassembled length field */
+  &hf_ses_reassembled_length,
+  /* Tag */
+  "SES segments"
+};
 
 
 const value_string ses_vals[] =
@@ -268,7 +309,7 @@ static const value_string reason_vals[] =
 };
 
 /* desegmentation of OSI over ses  */
-/*static gboolean ses_desegment = TRUE;*/
+static gboolean ses_desegment = TRUE;
 
 /* RTSE reassembly data */
 static guint ses_pres_ctx_id = 0;
@@ -339,7 +380,8 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 static gboolean
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	          proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
-	          guint16 param_len, struct SESSION_DATA_STRUCTURE *session)
+	          guint16 param_len, guint8 *enclosure_item_flags,
+		  struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	guint16       flags;
@@ -616,6 +658,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			break;
 		}
 		flags = tvb_get_guint8(tvb, offset);
+		*enclosure_item_flags = flags;
 		if (tree)
 		{
 			tf = proto_tree_add_uint(param_tree,
@@ -813,7 +856,7 @@ PICS.    */
 static gboolean
 dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 		        proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len,
-		        struct SESSION_DATA_STRUCTURE *session)
+		        guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -874,7 +917,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
 				    param_tree, pinfo, param_type, param_len,
-				    session))
+				    enclosure_item_flags, session))
 					has_user_information = FALSE;
 				break;
 			}
@@ -892,7 +935,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 static gboolean
 dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	           proto_tree *ses_tree, packet_info *pinfo,
-	           struct SESSION_DATA_STRUCTURE *session)
+	           guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -955,7 +998,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			case Linking_Information:
 				/* Yes. */
 				if (!dissect_parameter_group(tvb, offset, tree,
-				    param_tree, pinfo, param_len, session))
+				    param_tree, pinfo, param_len, enclosure_item_flags, session))
 					has_user_information = FALSE;
 				break;
 
@@ -963,7 +1006,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
 				    param_tree, pinfo, param_type, param_len,
-				    session))
+				    enclosure_item_flags, session))
 					has_user_information = FALSE;
 				break;
 			}
@@ -987,9 +1030,10 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	proto_tree *ses_tree = NULL;
 	int len_len;
 	guint16 parameters_len;
-	tvbuff_t *next_tvb;
+	tvbuff_t *next_tvb = NULL;
 	void *save_private_data;
 	guint32 *pres_ctx_id = NULL;
+	guint8 enclosure_item_flags = BEGINNING_SPDU|END_SPDU;
 	struct SESSION_DATA_STRUCTURE session;
 
 	/*
@@ -1071,40 +1115,68 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect parameters. */
 	if (!dissect_parameters(tvb, offset, parameters_len, tree, ses_tree,
-	    pinfo, &session))
+				pinfo, &enclosure_item_flags, &session))
 		has_user_information = FALSE;
 	offset += parameters_len;
 
 	proto_item_set_end(ti, tvb, offset);
 
 	/* Dissect user information, if present */
-	if (has_user_information) {
-		if (tvb_reported_length_remaining(tvb, offset) > 0 || type == SES_MAJOR_SYNC_POINT) {
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			if(!pres_handle)
-			{
-				call_dissector(data_handle, next_tvb, pinfo,
-					tree);
+	if (!ses_desegment || enclosure_item_flags == (BEGINNING_SPDU|END_SPDU)) {
+		if (has_user_information) {
+			/* Not desegment or only one segment */
+			if (tvb_reported_length_remaining(tvb, offset) > 0 || type == SES_MAJOR_SYNC_POINT) {
+				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
-			else
-			{
-				/*   save type of session pdu. We'll need it in the presentation dissector  */
-				save_private_data = pinfo->private_data;
-				pinfo->private_data = &session;
-				call_dissector(pres_handle, next_tvb, pinfo,
-					tree);
-				pinfo->private_data = save_private_data;
-			}
+		}
+	} else {
+		conversation_t *conversation = NULL;
+		fragment_data *frag_msg = NULL;
+		gint fragment_len;
+		guint32 ses_id = 0;
 
-			/*
-			 * No more SPDUs to dissect.  Set the offset to the
-			 * end of the tvbuff.
-			 */
-			offset = tvb_length(tvb);
-			if (session.rtse_reassemble && type == SES_DATA_TRANSFER) {
-				ses_pres_ctx_id = session.pres_ctx_id;
-				ses_rtse_reassemble = TRUE;
-			}
+		/* Use conversation index as segment id */
+		conversation  = find_conversation (pinfo->fd->num, 
+						   &pinfo->src, &pinfo->dst, pinfo->ptype, 
+						   pinfo->srcport, pinfo->destport, 0);
+		if (conversation != NULL) {
+			ses_id = conversation->index;
+		}
+		fragment_len = tvb_reported_length_remaining (tvb, offset);
+		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset, 
+					  fragment_len, FALSE);
+		proto_item_append_text (ti, " (%d byte%s)", fragment_len, plurality (fragment_len, "", "s"));
+		frag_msg = fragment_add_seq_next (tvb, offset, pinfo, 
+						  ses_id, ses_fragment_table,
+						  ses_reassembled_table, fragment_len,
+						  (enclosure_item_flags & END_SPDU) ? FALSE : TRUE);
+		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled SES", 
+						     frag_msg, &ses_frag_items, NULL, 
+						     (enclosure_item_flags & END_SPDU) ? tree : ses_tree);
+
+		has_user_information = TRUE;
+		offset += fragment_len;
+	}
+
+	if (has_user_information && next_tvb) {
+		if (!pres_handle) {
+			call_dissector(data_handle, next_tvb, pinfo, tree);
+		} else {
+			/* save type of session pdu. We'll need it in the presentation dissector */
+			save_private_data = pinfo->private_data;
+			pinfo->private_data = &session;
+			call_dissector(pres_handle, next_tvb, pinfo, tree);
+			pinfo->private_data = save_private_data;
+		}
+
+		/*
+		 * No more SPDUs to dissect.  Set the offset to the
+		 * end of the tvbuff.
+		 */
+		offset = tvb_length(tvb);
+		if (session.rtse_reassemble && type == SES_DATA_TRANSFER) {
+			ses_pres_ctx_id = session.pres_ctx_id;
+			ses_rtse_reassemble = TRUE;
 		}
 	}
 	return offset;
@@ -1143,6 +1215,12 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Dissect the remaining SPDUs. */
 	while (tvb_reported_length_remaining(tvb, offset) > 0)
 		offset = dissect_spdu(tvb, offset, pinfo, tree, NON_TOKENS_SPDU, is_clsp);
+}
+
+static void ses_reassemble_init (void)
+{
+	fragment_table_init (&ses_fragment_table);
+	reassembled_table_init (&ses_reassembled_table);
 }
 
 void
@@ -1787,6 +1865,42 @@ proto_register_ses(void)
 				HFILL
 			}
 		},
+
+		{ &hf_ses_segment_data,
+		  { "SES segment data", "ses.segment.data", FT_NONE, BASE_NONE,
+		    NULL, 0x00, NULL, HFILL } },
+		{ &hf_ses_segments,
+		  { "SES segments", "ses.segments", FT_NONE, BASE_NONE,
+		    NULL, 0x00, NULL, HFILL } },
+		{ &hf_ses_segment,
+		  { "SES segment", "ses.segment", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x00, NULL, HFILL } },
+		{ &hf_ses_segment_overlap,
+		  { "SES segment overlap", "ses.segment.overlap", FT_BOOLEAN,
+		    BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_ses_segment_overlap_conflicts,
+		  { "SES segment overlapping with conflicting data",
+		    "ses.segment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL } },
+		{ &hf_ses_segment_multiple_tails,
+		  { "SES has multiple tail segments",
+		    "ses.segment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL } },
+		{ &hf_ses_segment_too_long_segment,
+		  { "SES segment too long", "ses.segment.too_long_segment",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_ses_segment_error,
+		  { "SES desegmentation error", "ses.segment.error", FT_FRAMENUM,
+		    BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{ &hf_ses_segment_count,
+		  { "SES segment count", "ses.segment.count", FT_UINT32, BASE_DEC,
+		    NULL, 0x00, NULL, HFILL } },
+		{ &hf_ses_reassembled_in,
+		  { "Reassembled SES in frame", "ses.reassembled.in", FT_FRAMENUM, BASE_NONE,
+		    NULL, 0x00, "This SES packet is reassembled in this frame", HFILL } },
+		{ &hf_ses_reassembled_length,
+		  { "Reassembled SES length", "ses.reassembled.length", FT_UINT32, BASE_DEC,
+		    NULL, 0x00, "The total length of the reassembled payload", HFILL } }
 	};
 
 	static gint *ett[] =
@@ -1798,22 +1912,23 @@ proto_register_ses(void)
 		&ett_enclosure_item_flags,
 		&ett_token_item_flags,
 		&ett_ses_req_options_flags,
+		&ett_ses_segment,
+		&ett_ses_segments
 	};
-/* 	module_t *ses_module; */
-
+	module_t *ses_module;
 
 	proto_ses = proto_register_protocol(PROTO_STRING_SES, "SES", "ses");
 	proto_register_field_array(proto_ses, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	register_init_routine (&ses_reassemble_init);
 
-/*
 	ses_module = prefs_register_protocol(proto_ses, NULL);
 
 	prefs_register_bool_preference(ses_module, "desegment",
 	    "Reassemble session packets ",
 	    "Whether the session dissector should reassemble messages spanning multiple SES segments",
-	    &ses_desegment);  */
+	    &ses_desegment);
 
 	/*
 	 * Register the dissector by name, so other dissectors can
