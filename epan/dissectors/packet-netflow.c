@@ -398,8 +398,8 @@ static const value_string v9_v10_template_types[] = {
 	{  96, "APPLICATION_NAME" },
 	{  98, "postIpDiffServCodePoint" },
 	{  99, "multicastReplicationFactor" },
-	{ 128, "SRC_AS_PEER" },
-	{ 129, "DST_AS_PEER" },
+	{ 128, "DST_AS_PEER" },
+	{ 129, "SRC_AS_PEER" },
 	{ 130, "exporterIPv4Address" },
 	{ 131, "exporterIPv6Address" },
 	{ 132, "DROPPED_BYTES" },
@@ -3092,13 +3092,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 				tvb, offset, length, ENC_NA);
 			break;
 
-		case 128: /* source AS Peer */
-			ti = proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
+		case 128: /* dest AS Peer */
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
 			    tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 
-		case 129: /* dest AS Peer*/
-			ti = proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
+		case 129: /* source AS Peer*/
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
 			    tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 
