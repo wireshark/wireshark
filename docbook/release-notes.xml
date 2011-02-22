@@ -104,7 +104,7 @@ Wireshark Info
         <listitem><para>
         Corrections to ANSI MAP ASN.1 specifications.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5584">Bug
-          5614</ulink>)
+          5584</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -133,6 +133,7 @@ There are no new protocols in this release.
     <para>
 
 NTLMSSP
+ANSI MAP
 
     </para>
     </section>
