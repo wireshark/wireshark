@@ -174,6 +174,7 @@
 /*--- End of included file: packet-p1-val.h ---*/
 #line 30 "packet-p1-template.h"
 
+void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_cont_type);
 char* p1_get_last_oraddress(void);
 void dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 
@@ -231,7 +232,7 @@ int dissect_p1_TeletexNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tv
 int dissect_p1_SecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-p1-exp.h ---*/
-#line 34 "packet-p1-template.h"
+#line 35 "packet-p1-template.h"
 
 void proto_reg_handoff_p1(void);
 void proto_register_p1(void);

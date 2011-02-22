@@ -63,6 +63,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = -1; /* integer extension id */
 static const char *object_identifier_id = NULL; /* extensions identifier */
 static const char *content_type_id = NULL; /* content type identifier */
+static gboolean report_unknown_content_type = FALSE;
 
 #define MAX_ORA_STR_LEN     256
 static char *oraddress = NULL;
@@ -113,6 +114,12 @@ static const ros_info_t p3_ros_info = {
   p3_err_tab
 };
 
+void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_cont_type)
+{
+	top_tree = tree;
+	content_type_id = NULL;
+	report_unknown_content_type = report_unknown_cont_type;
+}
 
 char* p1_get_last_oraddress() { return oraddress; }
 
@@ -128,7 +135,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
+	p1_initialize_content_globals (parent_tree, TRUE);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
@@ -139,6 +146,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   	col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
 	dissect_p1_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
+	p1_initialize_content_globals (NULL, FALSE);
 }
 
 /*
@@ -158,7 +166,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
+	p1_initialize_content_globals (parent_tree, TRUE);
 
 	/* do we have operation information from the ROS dissector?  */
 	if( !pinfo->private_data ){
@@ -216,6 +224,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
+	p1_initialize_content_globals (NULL, FALSE);
 }
 
 

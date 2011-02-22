@@ -402,3 +402,17 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
 	}
 
+#.FN_BODY	MSMessageSubmissionArgument
+	p1_initialize_content_globals (tree, TRUE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals (NULL, FALSE);
+
+#.FN_BODY	EntryInformation
+	p1_initialize_content_globals (NULL, FALSE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals (NULL, FALSE);
+
+#.FN_BODY	EntryModification
+	p1_initialize_content_globals (NULL, FALSE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals (NULL, FALSE);

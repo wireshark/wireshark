@@ -659,7 +659,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   if (next_tvb) {
     if (content_type_id) {
       (void) call_ber_oid_callback(content_type_id, next_tvb, 0, actx->pinfo, top_tree ? top_tree : tree);
-    } else {
+    } else if (report_unknown_content_type) {
       proto_item *item = NULL;
       proto_tree *next_tree = NULL;
 
@@ -669,6 +669,8 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
         next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
       }
       dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
+    } else {
+      proto_item_append_text (actx->created_item, " (unknown content-type)");
     }
   }
 
@@ -1289,6 +1291,21 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_ReportType_vals[report].strptr);
 		}
 	}
+
+#.FN_BODY MessageSubmissionArgument
+	p1_initialize_content_globals(tree, TRUE);
+  	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(NULL, FALSE);
+
+#.FN_BODY MessageDeliveryArgument
+	p1_initialize_content_globals(tree, TRUE);
+  	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(NULL, FALSE);
+
+#.FN_BODY ReportDeliveryArgument
+	p1_initialize_content_globals(tree, TRUE);
+  	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(NULL, FALSE);
 
 #.END
 
