@@ -383,7 +383,7 @@ extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset);
+extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Short Value (V_SHORT) element dissector
@@ -576,9 +576,9 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	if ((signed)curr_len <= 0) return;      \
 }
 
-#define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx) \
+#define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx, EMV_elem_name_addition) \
 {\
-	if ((consumed = elem_v(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
+	if ((consumed = elem_v(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset, EMV_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \

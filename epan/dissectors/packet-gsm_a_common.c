@@ -1715,7 +1715,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset)
+guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
 	guint16		consumed;
 	guint32		curr_offset;
@@ -1747,8 +1747,9 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 		item =
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 0,
-				"%s",
-				elem_names[idx].strptr);
+				"%s%s",
+				elem_names[idx].strptr,
+				(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 		subtree = proto_item_add_subtree(item, elem_ett[idx]);
 

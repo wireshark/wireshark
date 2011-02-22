@@ -8906,9 +8906,9 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gpinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI (current) TLLI/11.3.35 M V 4 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, " - current");
 	/* QoS Profile (note 1) QoS Profile/11.3.28 M V 3 */
-	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE);
+	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL);
 
 	/* PDU Lifetime PDU Lifetime/11.3.25 M TLV 4 */
 	ELEM_MAND_TELV(0x16, BSSGP_PDU_TYPE, DE_BSSGP_PDU_LIFETIME, NULL);
@@ -8958,9 +8958,9 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 	gpinfo->link_dir = P2P_DIR_UL;
 	/* TLLI TLLI/11.3.35 M V 4 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
 	/* QoS Profile QoS Profile/11.3.28 M V 3 */
-	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE);
+	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL);
 	/* Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
 	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , NULL);
 	/* PFI PFI/11.3.42 O TLV 3 */

@@ -7796,7 +7796,7 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Channel Description  10.5.2.5  M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
 
     /* Mobile Allocation  10.5.2.21  C TLV 3-10 */
     ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
@@ -7821,10 +7821,10 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Channel Description 2	10.5.2.5a	M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, " - Description of the First Channel, after time");
 
     /* Power Command			10.5.2.28	M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD, NULL);
 
     /* 05 Frequency List		10.5.2.13	C TLV 4-132 */
     ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, after time");
@@ -7915,7 +7915,7 @@ dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -7935,7 +7935,7 @@ dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -7955,10 +7955,10 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Channel Description 2	10.5.2.5a	M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, NULL);
 
     /* Channel Mode				10.5.2.6	M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
 
     /* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
     ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
@@ -7984,10 +7984,10 @@ dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     curr_len = len;
 
     /* Channel Description 2	10.5.2.5a	M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, NULL);
 
     /* Channel Mode				10.5.2.6	M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -8007,7 +8007,7 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     /* 73 BA Range BA Range 10.5.2.1a O TLV 6-7 */
     ELEM_OPT_TLV(0x73, GSM_A_PDU_TYPE_RR, DE_RR_BA_RANGE, NULL);
@@ -8208,7 +8208,7 @@ dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     curr_len = len;
 
     /* RR Cause  10.5.2.31  M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8228,7 +8228,7 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Channel Description  10.5.2.5  M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
 
     /* Mobile Allocation  10.5.2.21  M LV 1-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
@@ -8264,12 +8264,12 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* TLLI								10.5.2.41a	M V 4 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
 
     /* Routeing Area Identification		10.5.5.15	M V 6 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
     /* Suspension cause					10.5.2.47	M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SUS_CAU);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SUS_CAU, NULL);
 
     /* 01 Service Support					10.5.2.57	O TV 2 */
     ELEM_OPT_TV_SHORT(0x01,GSM_A_PDU_TYPE_RR, DE_RR_SERV_SUP,NULL);
@@ -8298,18 +8298,18 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* Mandatory Elemets
      * Cell description 10.5.2.2
      */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_DSC, NULL);
 
     /* Description of the first channel,after time
      * Channel Description 2 10.5.2.5a
      */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, " - Description of the first channel, after time");
 
     /* Handover Reference 10.5.2.15 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_HO_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_HO_REF, NULL);
 
     /* Power Command and Access type 10.5.2.28a */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD_AND_ACC_TYPE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD_AND_ACC_TYPE, NULL);
 
     /* optional elements */
 
@@ -8445,7 +8445,7 @@ dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     /* 77 Mobile Observed Time Difference	Mobile Time Difference 10.5.2.21a */
     ELEM_OPT_TLV(0x77,GSM_A_PDU_TYPE_RR, DE_RR_MOB_TIME_DIFF, " - Mobile Observed Time Difference");
@@ -8468,7 +8468,7 @@ dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -8506,7 +8506,7 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     if((oct&0x10) == 0){
 	/* Channel Description			10.5.2.5	C V 3m */
-        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
     }else{
 	/* Packet Channel Description	10.5.2.25a	C V 3
 	 * If the Dedicated mode or TBF IE indicates that the message assigns a Temporary Block Flow (TBF),
@@ -8516,21 +8516,21 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 * of this information element and regard it as an unnecessary IE.
 	 */
         if((oct&0x04) == 0){
-            ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PACKET_CH_DESC);
+            ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PACKET_CH_DESC, NULL);
         }
     }
     /* Request Reference			10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, NULL);
 
     /* Timing Advance				10.5.2.40	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
     /* Mobile Allocation			10.5.2.21	M LV 1-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
     /* 7C Starting Time				10.5.2.38	O TV 3	*/
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IA Rest Octets				10.5.2.16	M V 0-11 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
-        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT, NULL);
 
 }
 
@@ -8554,24 +8554,24 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* Spare Half Octet						10.5.1.8	M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
     /* Channel Description 1	Channel Description		10.5.2.5	M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 1");
     /* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1");
     /* Timing Advance 1	Timing Advance				10.5.2.40	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, " - Timing Advance 1");
     /* Channel Description 2	Channel Description		10.5.2.5	M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 2");
     /* Request Reference 2	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 2");
     /* Timing Advance 2	Timing Advance				10.5.2.40	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, " - Timing Advance 2");
     /* Mobile Allocation					10.5.2.21	M LV 1-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
     /* 7C Starting Time						10.5.2.38	O TV 3	*/
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IAX Rest Octets						10.5.2.18	M V 0-4 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
-        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAX_REST_OCT);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAX_REST_OCT, NULL);
 
 }
 
@@ -8595,24 +8595,24 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* Spare Half Octet		10.5.1.8	M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
     /* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1");
     /* Wait Indication 1	Wait Indication			10.5.2.43	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 1");
     /* Request Reference 2	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 2");
     /* Wait Indication 2	Wait Indication			10.5.2.43	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 2");
     /* Request Reference 3	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 3");
     /* Wait Indication 3	Wait Indication			10.5.2.43	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 3");
     /* Request Reference 4	Request Reference		10.5.2.30	M V 3	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 4");
     /* Wait Indication 4	Wait Indication			10.5.2.43	M V 1	*/
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 4");
     /* IAR Rest Octets				10.5.2.19	M V 3 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
-        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAR_REST_OCT);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAR_REST_OCT, NULL);
 
 }
 
@@ -8630,11 +8630,11 @@ dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Measurement Results 10.5.2.20 M V 16 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_MEAS_RES);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_MEAS_RES, NULL);
 }
 
 /*
- * 9.1.7 Paging Request Type 1
+ * 9.1.22 Paging Request Type 1
  */
 static void
 dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8660,12 +8660,12 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 2");
 
     /* RR P1 Rest Octets 10.5.2.23 M V 0-17 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P1_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P1_REST_OCT, NULL);
 
 }
 
 /*
- * 9.1.8 Paging Request Type 2
+ * 9.1.23 Paging Request Type 2
  */
 static void
 dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8685,23 +8685,21 @@ dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 1");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 1");
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 2");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 2");
 
     /* RR Mobile Identity 10.5.1.4 O TLV 3-10 */
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 3");
 
     /* RR P2 Rest Octets 10.5.2.24 M V 1-11 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P2_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P2_REST_OCT, NULL);
 
 }
 
 /*
- * 9.1.9 Paging Request Type 3
+ * 9.1.24 Paging Request Type 3
  */
 static void
 dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8721,23 +8719,19 @@ dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 1");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 1");
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 2");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 2");
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 3");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 3");
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
-    proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 4");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 4");
 
     /* RR P3 Rest Octets 10.5.2.25 M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P3_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P3_REST_OCT, NULL);
 
 }
 
@@ -8827,7 +8821,7 @@ dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Channel Description  10.5.2.5  M V 3 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8838,7 +8832,7 @@ dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /* empty message */
 
 /*
- * [4] 9.1.29 Physical Information
+ * [4] 9.1.28 Physical Information
  */
 static void
 dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8850,7 +8844,7 @@ dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8868,7 +8862,7 @@ dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -8886,11 +8880,11 @@ dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI1_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI1_REST_OCT, NULL);
 }
 
 /*
@@ -8906,12 +8900,11 @@ dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC, " - BCCH Frequency List");
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NCC_PERM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NCC_PERM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM, NULL);
 }
 
 /*
@@ -8927,10 +8920,9 @@ dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC, " - Extended BCCH Frequency List");
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM, NULL);
 }
 
 /*
@@ -8946,10 +8938,9 @@ dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC2, " - Extended BCCH Frequency List");
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2TER_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2TER_REST_OCT, NULL);
 }
 
 /*
@@ -8965,7 +8956,7 @@ dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2QUATER_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2QUATER_REST_OCT, NULL);
 }
 
 /*
@@ -8981,19 +8972,19 @@ dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CELL_ID);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CTRL_CH_DESC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CTRL_CH_DESC, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_OPT_BCCH);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_OPT_BCCH, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_SEL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_SEL_PARAM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI3_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI3_REST_OCT, NULL);
 }
 
 /*
@@ -9009,17 +9000,17 @@ dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_SEL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_SEL_PARAM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM, NULL);
 
     ELEM_OPT_TV(0x64, GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - CBCH");
 
     ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - CBCH");
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI4_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI4_REST_OCT, NULL);
 }
 
 /*
@@ -9035,8 +9026,7 @@ dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC, " - BCCH Frequency List");
 }
 
 /*
@@ -9052,8 +9042,7 @@ dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC, " - Extended BCCH Frequency List");
 }
 
 /*
@@ -9069,8 +9058,7 @@ dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     curr_offset = offset;
     curr_len = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC2);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC2, " - Extended BCCH Frequency List");
 }
 
 /*
@@ -9086,15 +9074,15 @@ dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CELL_ID);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_OPT_SACCH);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_OPT_SACCH, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NCC_PERM);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NCC_PERM, NULL);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI6_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI6_REST_OCT, NULL);
 }
 
 /*
@@ -9110,7 +9098,7 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI13_REST_OCT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI13_REST_OCT, NULL);
 }
 
 /*
@@ -9127,7 +9115,7 @@ dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     curr_len = len;
 
     /* Extended Measurement Frequency List  10.5.2.46  M V 16 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_FREQ_LIST);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_FREQ_LIST, NULL);
 }
 
 /*
@@ -9144,7 +9132,7 @@ dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     curr_len = len;
 
     /* Extended Measurement Result  10.5.2.45  M V 16 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_RESULT);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_RESULT, NULL);
 }
 
 /*
@@ -9160,8 +9148,8 @@ dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS, NULL);
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_APDU_DATA, NULL);
 }
 
@@ -9878,7 +9866,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     saved_tree = tree;
     tree = ccch_tree;
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN, NULL);
     tree = saved_tree;
     offset = saved_offset;
     len = curr_len;

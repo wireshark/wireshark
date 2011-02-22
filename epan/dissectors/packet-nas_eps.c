@@ -2520,7 +2520,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len--;
 	curr_offset++;
 	/* 	T3412 value	GPRS timer 9.9.3.16	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3412 value");
 	/* 	Tracking area identity list 9.9.3.33	M	LV	7-97 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - TAI list");
 	/* 	ESM message container 9.9.3.15	M	LV-E	2-n */
@@ -2582,7 +2582,7 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* * EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 	/* 78 ESM message container	ESM message container 9.9.3.15	O	TLV-E	4-n */
 	ELEM_OPT_TLV_E(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
 
@@ -2667,7 +2667,7 @@ nas_emm_attach_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	 /* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 	/* 30 Authentication failure parameter	Authentication failure parameter 9.9.3.1	O	TLV	1 */
 	ELEM_OPT_TLV(0x30, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, NULL);
 
@@ -2710,7 +2710,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/*
 	 * Authentication parameter RAND (EPS challenge) 9.9.3.3	M	V	16
 	 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - EPS challenge");
 	/*
 	 * Authentication parameter AUTN (EPS challenge) 9.9.3.2	M	LV	17
 	 */
@@ -2757,7 +2757,7 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	consumed = 0;
 
 	/* Paging identity	Paging identity 9.9.3.25A	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID, NULL);
 	/* 60	CLI	CLI 9.9.3.38	O	TLV	3-12 */
 	ELEM_OPT_TLV(0x60, GSM_A_PDU_TYPE_DTAP, DE_CLD_PARTY_BCD_NUM, " - CLI");
 	/* 61	SS Code	SS Code 9.9.3.39	O	TV	2 */
@@ -2939,7 +2939,7 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3072,7 +3072,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* 	Selected NAS security algorithms	NAS security algorithms 9.9.3.23	M	V	1  */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS, " - Selected NAS security algorithms");
 
 	bit_offset = curr_offset<<3;
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
@@ -3132,7 +3132,7 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3191,7 +3191,7 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
 	/* 5B	T3442 value	GPRS timer 9.9.3.16	C	TV	2 */
 	ELEM_OPT_TV(0x5b, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3442 value");
@@ -3221,10 +3221,10 @@ nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* KSI and sequence number 9.9.3.19 M V 1	*/
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_KSI_AND_SEQ_NO);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_KSI_AND_SEQ_NO, NULL);
 
 	/* Short MAC 9.9.3.28 M V 2 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_SHORT_MAC);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_SHORT_MAC, " - Message authentication code (short)");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3304,7 +3304,7 @@ nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3415,7 +3415,7 @@ nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_len = len;
 
 	/* Generic message container type Generic message container type 9.9.3.42 M V 1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
 	/* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
 	ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM,  DE_EMM_GEN_MSG_CONT, NULL)
 	/* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
@@ -3435,7 +3435,7 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_len = len;
 
 	/* Generic message container type Generic message container type 9.9.3.42 M V 1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
 	/* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
 	ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM,  DE_EMM_GEN_MSG_CONT, NULL)
 	/* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
@@ -3488,7 +3488,7 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.2	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3584,7 +3584,7 @@ nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3650,7 +3650,7 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3710,7 +3710,7 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3794,7 +3794,7 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3856,7 +3856,7 @@ nas_esm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3901,7 +3901,7 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -3978,7 +3978,7 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 
@@ -4005,7 +4005,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
 
 	/* Request type 9.9.4.14 M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
 
 	/* Lengths already fixed by the call to ELEM_MAND_V macro */
 
@@ -4038,7 +4038,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
-	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
 

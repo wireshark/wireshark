@@ -4455,18 +4455,18 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* Included in attach type
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, NULL);
 	curr_offset--;
 	curr_len++;
 	*/
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ATTACH_TYPE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ATTACH_TYPE, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DRX_PARAM );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, NULL);
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
@@ -4496,21 +4496,21 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 	curr_len++;
 	curr_offset--;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ATTACH_RES );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ATTACH_RES, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO_2 );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO_2, " - Radio priority for TOM8");
 	curr_len++;
 	curr_offset--;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, " - Radio priority for SMS");
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, NULL);
 
@@ -4569,7 +4569,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x2A , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
@@ -4591,12 +4591,12 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 	/* Force to standy might be wrong - To decode it correct, we need the direction */
 	curr_len++;
 	curr_offset--;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, NULL);
 
 	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , NULL);
 
@@ -4624,11 +4624,11 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	if ( curr_len != 0 )
 	{
-		ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE );
+		ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
 		curr_len++;
 		curr_offset--;
 
-		ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
+		ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 	}
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
@@ -4651,13 +4651,13 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , " - Allocated P-TMSI" );
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
 	curr_len++;
 	curr_offset--;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI Signature" );
 
@@ -4698,17 +4698,17 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ, NULL);
 	curr_offset--;
 	curr_len++;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_CIPH_ALG );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_CIPH_ALG, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM_H );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM_H, NULL);
 	curr_offset--;
 	curr_len++;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 
 	ELEM_OPT_TV( 0x21 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND , NULL);
 
@@ -4758,11 +4758,11 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
 	curr_offset--;
 	curr_len++;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM, NULL);
 
 	ELEM_OPT_TV( 0x22 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM , NULL);
 
@@ -4805,7 +4805,7 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , NULL);
 
@@ -4828,14 +4828,14 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*  If the half octect that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
 #if 0
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2 );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, NULL);
 	curr_offset--;
 	curr_len++;
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 #endif
 
-	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset);
-	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, curr_offset);
+	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset, NULL);
+	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, curr_offset, NULL);
 
 	curr_offset+=1;
 	curr_len-=1;
@@ -4879,14 +4879,14 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* is included in update type
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, NULL);
 	curr_offset--;
 	curr_len++;
 	*/
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_UPD_TYPE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_UPD_TYPE, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
@@ -4924,15 +4924,15 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_UPD_RES );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_UPD_RES, NULL);
 	curr_offset--;
 	curr_len++;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - Periodic RA update timer");
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
 
@@ -4999,13 +4999,13 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
 	curr_offset--;
 	curr_len++;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
@@ -5027,7 +5027,7 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
@@ -5078,12 +5078,12 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* Is included in SRVC TYPE
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, NULL);
 	curr_offset--;
 	curr_len++;
 	*/
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SRVC_TYPE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SRVC_TYPE, NULL);
 
 	/* P-TMSI Mobile station identity 10.5.1.4 M LV 6 */
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
@@ -5134,7 +5134,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
@@ -5157,9 +5157,9 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* MS to network */
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Requested QoS" );
 
@@ -5192,18 +5192,18 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Network to MS*/
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
 	curr_offset--;
 	curr_len++;
 #endif
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
 
 	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , NULL);
 
@@ -5234,7 +5234,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Network to MS*/
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5259,9 +5259,9 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* MS to Network */
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Requested QoS" );
 
@@ -5293,15 +5293,15 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Network to MS*/
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
 
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
 	curr_offset--;
 	curr_len++;
 #endif
@@ -5331,7 +5331,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Network to MS*/
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5383,7 +5383,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* MS to  Network */
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5408,15 +5408,15 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Network to MS */
 	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM,DE_RAD_PRIO);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM,DE_RAD_PRIO, NULL);
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
 	curr_offset--;
 	curr_len++;
 #endif
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - New QoS" );
 
@@ -5531,7 +5531,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
@@ -5555,7 +5555,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM , DE_TEAR_DOWN_IND , NULL);
 
@@ -5609,7 +5609,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
@@ -5631,10 +5631,10 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.16 M V */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI, " - Requested MBMS NSAPI");
 
 	/* Requested LLC SAPI LLC service access point identifier 10.5.6.9 M V 1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
 
 	/* Supported MBMS bearer capabilities MBMS bearer capabilities 10.5.6.14 M LV 2 - 3 */
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MBMS_BEARER_CAP , NULL );
@@ -5669,7 +5669,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
@@ -5692,7 +5692,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
@@ -5715,7 +5715,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Linked NSAPI");
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Offered multicast address" );
 
@@ -5742,7 +5742,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 

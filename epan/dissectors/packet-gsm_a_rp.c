@@ -275,7 +275,7 @@ rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_ORIG_ADDR, NULL);
 
@@ -301,7 +301,7 @@ rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_ORIG_ADDR, NULL);
 
@@ -325,7 +325,7 @@ rp_smma(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -345,7 +345,7 @@ rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
@@ -367,7 +367,7 @@ rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
@@ -389,7 +389,7 @@ rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_CAUSE, NULL);
 
@@ -413,7 +413,7 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_CAUSE, NULL);
 
