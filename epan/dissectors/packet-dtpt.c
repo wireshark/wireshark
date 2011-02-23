@@ -733,11 +733,8 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (message_type == LookupBeginRequest) {
 		conversation_t *c;
-		c = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_TCP, pinfo->srcport,
-			pinfo->destport, 0);
-		if (c) {
-			conversation_set_dissector(c, dtpt_conversation_handle);
-		}
+		c = find_or_create_conversation(pinfo);
+		conversation_set_dissector(c, dtpt_conversation_handle);
 	}
 
 	if (tree) {

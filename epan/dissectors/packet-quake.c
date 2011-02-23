@@ -220,11 +220,9 @@ dissect_quake_CCREP_ACCEPT
 	conversation_t *c;
 
 	port = tvb_get_letohl(tvb, 0);
-	c = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP, port,
-	    pinfo->destport, 0);
-	if (c) {
-		conversation_set_dissector(c, quake_handle);
-	}
+	c = find_or_create_conversation(pinfo);
+	conversation_set_dissector(c, quake_handle);
+
 	if (tree) {
 		proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,
 			tvb, 0, 4, port);

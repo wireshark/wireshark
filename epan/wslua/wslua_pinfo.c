@@ -409,7 +409,7 @@ WSLUA_METHOD Column_set(lua_State *L) {
 
     if (!s) WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
 
-    col_set_str(c->cinfo, c->col, s);
+    col_add_str(c->cinfo, c->col, s);
 
     return 0;
 }
@@ -502,7 +502,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            col_set_str(cols->cinfo, cn->id, text);
+            col_add_str(cols->cinfo, cn->id, text);
             return 0;
         }
     }
