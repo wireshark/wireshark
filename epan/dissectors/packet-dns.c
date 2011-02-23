@@ -656,7 +656,7 @@ dns_class_name(int class)
  * it will be automatically free()d when the packet has been dissected.
  */
 int
-get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const guchar **name)
 {
   int start_offset = offset;
@@ -818,14 +818,25 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
      set the length, so set it. */
   if (len < 0)
     len = offset - start_offset;
-  /* Zero-length name means "root server" */
-  if (**name == '\0')
-    *name="<Root>";
   if (len < min_len)
     THROW(ReportedBoundsError);
   return len;
 }
 
+int
+get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+    const guchar **name)
+{
+  int len;
+
+  len = expand_dns_name(tvb, offset, max_len, dns_data_offset, name);
+
+  /* Zero-length name means "root server" */
+  if (**name == '\0')
+    *name="<Root>";
+
+  return len;
+}
 
 static int
 get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,

@@ -36,6 +36,8 @@
 #include <epan/strutil.h>
 #include "packet-smb-common.h"
 
+#include "packet-dns.h"
+
 /*
  * Share type values - used in LANMAN and in SRVSVC.
  *
@@ -124,84 +126,23 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 	return 	offset+len;
 }
 
-static int dissect_ms_compressed_string_internal(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
-{
-	guint8 len;
-
-	len=tvb_get_guint8(tvb, offset);
-	offset+=1;
-	*str=0;
-
-	/* XXX: Reserve 4 chars for "...\0" */
-	while(len){
-		/* add potential field separation dot */
-		if(prepend_dot){
-			if(maxlen<=4){
-				*str=0;
-				return offset;
-			}
-			maxlen--;
-			*str++='.';
-			*str=0;
-		}
-
-		if(len==0xc0){
-			int new_offset;
-			/* ops its a mscldap compressed string */
-
-			new_offset=tvb_get_guint8(tvb, offset);
-			if (new_offset == offset - 1)
-				THROW(ReportedBoundsError);
-			offset+=1;
-
-			dissect_ms_compressed_string_internal(tvb, new_offset, str, maxlen, FALSE);
-
-			return offset;
-		}
-
-		prepend_dot=TRUE;
-
-		if(len>(maxlen-4)){
-			*str++='.';
-			*str++='.';
-			*str++='.';
-			*str=0;
-			return offset; /* will mess up offset in caller, is unlikely */
-		}
-		tvb_memcpy(tvb, str, offset, len);
-		str+=len;
-		*str=0;
-		maxlen-=len;
-		offset+=len;
-
-
-		len=tvb_get_guint8(tvb, offset);
-		offset+=1;
-	}
-	*str=0;
-	return offset;
-}
-
 /* Max string length for displaying Unicode strings.  */
 #define	MAX_UNICODE_STR_LEN	256
 
 int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
-				 gboolean prepend_dot, char **data)
+				 char **data)
 {
-	int old_offset=offset;
-	char *str;
-	int len;
+	int compr_len;
+	const guchar *str = NULL;
 
-	len = MAX_UNICODE_STR_LEN+3+1;
-	str=ep_alloc(len);
-
-	offset=dissect_ms_compressed_string_internal(tvb, offset, str, len, prepend_dot);
-	proto_tree_add_string(tree, hf_index, tvb, old_offset, offset-old_offset, str);
+	/* The name data MUST start at offset 0 of the tvb */
+	compr_len = expand_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str);
+	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, str);
 
 	if (data)
-		*data = str;
+		*data = (char*) str;
 
-	return offset;
+	return offset + compr_len;
 }
 
 /* Turn a little-endian Unicode '\0'-terminated string into a string we

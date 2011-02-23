@@ -111,6 +111,7 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-dns.h"
 
 #define PNAME  "Lightweight Directory Access Protocol"
 #define PSNAME "LDAP"
@@ -1112,64 +1113,19 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     }
 }
 
-int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
+/*
+ * prepend_dot is no longer used, but is being left in place in order to
+ * maintain ABI compatibility.
+ */
+int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_)
 {
-  guint8 len;
+  int compr_len;
+  const guchar *name;
 
-  len=tvb_get_guint8(tvb, offset);
-  offset+=1;
-  *str=0;
-  attributedesc_string=NULL;
-
-  while(len){
-    /* add potential field separation dot */
-    if(prepend_dot){
-      if(!maxlen){
-        *str=0;
-        return offset;
-      }
-      maxlen--;
-      *str++='.';
-      *str=0;
-    }
-
-    if(len==0xc0){
-      int new_offset;
-      /* ops its a mscldap compressed string */
-
-      new_offset=tvb_get_guint8(tvb, offset);
-      if (new_offset == offset - 1)
-        THROW(ReportedBoundsError);
-      offset+=1;
-
-      dissect_mscldap_string(tvb, new_offset, str, maxlen, FALSE);
-
-      return offset;
-    }
-
-    prepend_dot=TRUE;
-
-    if(maxlen<=len){
-      if(maxlen>3){
-        *str++='.';
-        *str++='.';
-        *str++='.';
-      }
-      *str=0;
-      return offset; /* will mess up offset in caller, is unlikely */
-    }
-    tvb_memcpy(tvb, str, offset, len);
-    str+=len;
-    *str=0;
-    maxlen-=len;
-    offset+=len;
-
-
-    len=tvb_get_guint8(tvb, offset);
-    offset+=1;
-  }
-  *str=0;
-  return offset;
+  /* The name data MUST start at offset 0 of the tvb */
+  compr_len = expand_dns_name(tvb, offset, max_len, 0, &name);
+  g_strlcpy(str, name, max_len);
+  return offset + compr_len;
 }
 
 
