@@ -1111,7 +1111,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
 
         /* Construct the next header for the UDP datagram. */
         offset = BITS_TO_BYTE_LEN(0, bit_offset);
-        length = tvb_length_remaining(tvb, offset);
+        length = (gint)tvb_ensure_length_remaining(tvb, offset);
         nhdr_list = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = IP_PROTO_UDP;
@@ -1127,11 +1127,13 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
      *=====================================================
      */
     else {
+        gint length;
         offset = BITS_TO_BYTE_LEN(0, bit_offset);
-        nhdr_list = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + tvb_length_remaining(tvb, offset));
+        length = (gint)tvb_ensure_length_remaining(tvb, offset);
+        nhdr_list = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = ipv6.ip6_nxt;
-        nhdr_list->length = tvb_length_remaining(tvb, offset);
+        nhdr_list->length = length;
         if (dgram_size < 0) {
             nhdr_list->reported = tvb_reported_length_remaining(tvb, offset);
         }
@@ -1498,10 +1500,11 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
     /* Create an extension header for the remaining payload. */
     else {
-        nhdr_list = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + tvb_length_remaining(tvb, offset));
+        length = (gint)tvb_ensure_length_remaining(tvb, offset);
+        nhdr_list = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + length);
         nhdr_list->next = NULL;
         nhdr_list->proto = ipv6.ip6_nxt;
-        nhdr_list->length = tvb_length_remaining(tvb, offset);
+        nhdr_list->length = length;
         if (dgram_size < 0) {
             nhdr_list->reported = tvb_reported_length_remaining(tvb, offset);
         }
@@ -1639,10 +1642,11 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         }
         else {
             /* Create another next header structure for the remaining payload. */
-            nhdr->next = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + tvb_length_remaining(tvb, offset));
+            length = (gint)tvb_ensure_length_remaining(tvb, offset);
+            nhdr->next = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + length);
             nhdr->next->next = NULL;
             nhdr->next->proto = ipv6_ext.ip6e_nxt;
-            nhdr->next->length = tvb_length_remaining(tvb, offset);
+            nhdr->next->length = length;
             if (dgram_size < 0) {
                 nhdr->next->reported = tvb_reported_length_remaining(tvb, offset);
             }
@@ -1792,10 +1796,11 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 #endif
 
         /* Create the next header structure for the UDP datagram. */
-        nhdr = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + tvb_length_remaining(tvb, offset));
+        length = (gint)tvb_ensure_length_remaining(tvb, offset);
+        nhdr = (struct lowpan_nhdr *)ep_alloc(sizeof(struct lowpan_nhdr) + sizeof(struct udp_hdr) + length);
         nhdr->next = NULL;
         nhdr->proto = IP_PROTO_UDP;
-        nhdr->length = tvb_length_remaining(tvb, offset) + sizeof(struct udp_hdr);
+        nhdr->length = length + sizeof(struct udp_hdr);
         nhdr->reported = g_ntohs(udp.length);
 
         /* Copy the UDP header and payload into the buffer. */
