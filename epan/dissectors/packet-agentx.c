@@ -307,7 +307,8 @@ dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 	p_noct = PADDING(n_oct);
 	if (n_oct >= 1024)
 		THROW(ReportedBoundsError);
-	tvb_get_nstringz(tvb, offset + 4, n_oct, context);
+	if (n_oct > 0)
+		tvb_get_nstringz(tvb, offset + 4, n_oct, context);
 	context[n_oct]='\0';
 
 	proto_tree_add_uint(tree, hf_ostring_len, tvb, offset, 4, n_oct);
