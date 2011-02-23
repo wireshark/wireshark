@@ -37,7 +37,6 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include "packet-ip.h"
-#include "packet-ipv6.h"
 #include "packet-pflog.h"
 
 #ifndef offsetof

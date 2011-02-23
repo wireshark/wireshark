@@ -56,8 +56,8 @@
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
-#include "epan/dissectors/packet-ipv6.h"
-#include "epan/dissectors/packet-ieee802154.h"
+#include "packet-ipv6.h"
+#include "packet-ieee802154.h"
 
 /* Definitions for 6lowpan packet disassembly structures and routines */
 

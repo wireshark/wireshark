@@ -34,7 +34,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ipv6.h"
 
 #define UDP_PORT_SAP	9875
 

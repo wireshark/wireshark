@@ -32,7 +32,6 @@
 #include <epan/ipv4.h>
 #include <epan/packet.h>
 #include "packet-osi.h"
-#include "packet-ipv6.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"

@@ -8,12 +8,6 @@
  *
  * Copyright 1998 Gerald Combs
  *
- * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
- *
- * HMIPv6 support added by Martti Kuparinen <martti.kuparinen@iki.fi>
- *
- * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2

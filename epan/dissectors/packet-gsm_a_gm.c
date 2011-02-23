@@ -73,7 +73,6 @@
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_a_common.h"
-#include "packet-ipv6.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
 

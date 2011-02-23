@@ -55,7 +55,6 @@
 #include <epan/sminmpec.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
-#include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "packet-radius.h"
 #include "packet-bssap.h"

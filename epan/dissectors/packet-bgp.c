@@ -55,7 +55,6 @@
 #include <epan/packet.h>
 #include <epan/addr_and_mask.h>
 #include "packet-bgp.h"
-#include "packet-ipv6.h"
 #include "packet-frame.h"
 #include <epan/afn.h>
 #include <epan/prefs.h>
