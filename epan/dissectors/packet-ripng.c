@@ -9,6 +9,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Enhance RIPng by Alexis La Goutte
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -22,26 +24,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * References:
+ * RFC2080: RIPng for IPv6
  */
 
 #include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ripng.h"
-
-#ifndef offsetof
-#define	offsetof(type, member)	((size_t)(&((type *)0)->member))
-#endif
 
 static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;
 static int hf_ripng_version = -1;
+static int hf_ripng_reserved = -1;
+
+static int hf_ripng_rte = -1;
+static int hf_ripng_rte_ipv6_prefix = -1;
+static int hf_ripng_rte_route_tag = -1;
+static int hf_ripng_rte_prefix_length = -1;
+static int hf_ripng_rte_metric = -1;
 
 static gint ett_ripng = -1;
-static gint ett_ripng_addr = -1;
+static gint ett_ripng_rte = -1;
 
 #define UDP_PORT_RIPNG  521
+
+#define	RIP6_REQUEST	1
+#define	RIP6_RESPONSE	2
 
 static const value_string cmdvals[] = {
     { RIP6_REQUEST, "Request" },
@@ -52,69 +62,57 @@ static const value_string cmdvals[] = {
 static void
 dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
-    struct rip6 rip6;
-    struct netinfo6 ni6;
-    proto_tree *ripng_tree = NULL;
-    proto_tree *subtree = NULL;
-    proto_item *ti;
+    proto_tree *ripng_tree = NULL, *rte_tree = NULL;
+    proto_item *ti, *rte_ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    /* avoid alignment problem */
-    tvb_memcpy(tvb, (guint8 *)&rip6, offset, sizeof(rip6));
-
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)"));
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO," Command %s, Version %u",
+		     val_to_str(tvb_get_guint8(tvb, offset), cmdvals, "Unknown (%u)"),
+		     tvb_get_guint8(tvb, offset +1));
+    }
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, tvb, offset, -1, FALSE);
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
-	proto_tree_add_uint(ripng_tree, hf_ripng_cmd, tvb, offset, 1,
-	    rip6.rip6_cmd);
-	proto_tree_add_uint(ripng_tree, hf_ripng_version, tvb, offset + 1, 1,
-	    rip6.rip6_vers);
+	/* Command */
+	proto_tree_add_item(ripng_tree, hf_ripng_cmd, tvb, offset, 1, FALSE);
+	offset += 1;
 
-	offset += 4;
+	/* Version */
+	proto_tree_add_item(ripng_tree, hf_ripng_version, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* Reserved */
+	proto_tree_add_item(ripng_tree, hf_ripng_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	/* Route Table Entry */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		    tvb_memcpy(tvb, (guint8 *)&ni6, offset, sizeof(ni6));
-		    if (ni6.rip6_tag) {
-			ti = proto_tree_add_text(ripng_tree, tvb, offset,
-					sizeof(ni6), "IP Address: %s/%u, Metric: %u, tag: 0x%04x",
-					ip6_to_str(&ni6.rip6_dest),
-					ni6.rip6_plen,
-					ni6.rip6_metric,
-					g_ntohs(ni6.rip6_tag));
-		    } else {
-			ti = proto_tree_add_text(ripng_tree, tvb, offset,
-					sizeof(ni6), "IP Address: %s/%u, Metric: %u",
-					ip6_to_str(&ni6.rip6_dest),
-					ni6.rip6_plen,
-					ni6.rip6_metric);
-		    }
-		    subtree = proto_item_add_subtree(ti, ett_ripng_addr);
-		    proto_tree_add_text(subtree, tvb,
-				offset + offsetof(struct netinfo6, rip6_dest),
-				sizeof(ni6.rip6_dest), "IP Address: %s",
-				ip6_to_str(&ni6.rip6_dest));
-		    proto_tree_add_text(subtree, tvb,
-				offset + offsetof(struct netinfo6, rip6_tag),
-				sizeof(ni6.rip6_tag), "Tag: 0x%04x",
-				g_ntohs(ni6.rip6_tag));
-		    proto_tree_add_text(subtree, tvb,
-				offset + offsetof(struct netinfo6, rip6_plen),
-				sizeof(ni6.rip6_plen), "Prefix length: %u",
-				ni6.rip6_plen);
-		    proto_tree_add_text(subtree, tvb,
-				offset + offsetof(struct netinfo6, rip6_metric),
-				sizeof(ni6.rip6_metric), "Metric: %u",
-				ni6.rip6_metric);
 
-		    offset += sizeof(ni6);
+		rte_ti = proto_tree_add_item(ripng_tree, hf_ripng_rte, tvb, offset, 16 + 2 + 1 + 1, FALSE);
+		rte_tree = proto_item_add_subtree(rte_ti, ett_ripng_rte);
+
+		/* IPv6 Prefix */
+		proto_tree_add_item(rte_tree, hf_ripng_rte_ipv6_prefix, tvb, offset, 16, FALSE);
+		proto_item_append_text(rte_ti, ": IPv6 Prefix: %s", tvb_ip6_to_str(tvb, offset));
+		offset += 16;
+
+		/* Route Tag */
+		proto_tree_add_item(rte_tree, hf_ripng_rte_route_tag, tvb, offset, 2, FALSE);
+		offset += 2;
+
+		/* Prefix Length */
+		proto_tree_add_item(rte_tree, hf_ripng_rte_prefix_length, tvb, offset, 1, FALSE);
+		proto_item_append_text(rte_ti, "/%u", tvb_get_guint8(tvb, offset));
+		offset += 1;
+
+		/* Metric */
+		proto_tree_add_item(rte_tree, hf_ripng_rte_metric, tvb, offset, 1, FALSE);
+		proto_item_append_text(rte_ti, " Metric: %u", tvb_get_guint8(tvb, offset));
+		offset += 1;
 	}
     }
 }
@@ -125,16 +123,43 @@ proto_register_ripng(void)
     static hf_register_info hf[] = {
       { &hf_ripng_cmd,
 	{ "Command",		"ripng.cmd",
-				FT_UINT8, BASE_DEC, VALS(cmdvals),
-				0x0, NULL, HFILL }},
+	FT_UINT8, BASE_DEC, VALS(cmdvals), 0x0,
+	"Used to specify the purpose of this message", HFILL }},
       { &hf_ripng_version,
 	{ "Version",		"ripng.version",
-				FT_UINT8, BASE_DEC, NULL,
-				0x0, NULL, HFILL }},
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Version of RIPng", HFILL }},
+      { &hf_ripng_reserved,
+	{ "Reserved",		"ripng.reserved",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"Must be Zero", HFILL }},
+      { &hf_ripng_rte,
+	{ "Route Table Entry",		"ripng.rte",
+	FT_NONE, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+      { &hf_ripng_rte_ipv6_prefix,
+	{ "IPv6 Prefix",		"ripng.rte.ipv6_prefix",
+	FT_IPv6, BASE_NONE, NULL, 0x0,
+	"Destination", HFILL }},
+      { &hf_ripng_rte_route_tag,
+	{ "Route Tag",		"ripng.rte.route_tag",
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"Provides a method of separating internal RIPng routes (routes for networks within the RIPng routing domain) from external RIPng routes, which may have been imported from an EGP or another IGP", HFILL }},
+
+      { &hf_ripng_rte_prefix_length,
+	{ "Prefix Length",		"ripng.rte.prefix_length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"The length in bits of the significant part of the prefix starting from the left of the prefix", HFILL }},
+
+      { &hf_ripng_rte_metric,
+	{ "Metric",		"ripng.rte.metric",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"The current metric for the destination; the value 16 (infinity) indicates that the destination is not reachable", HFILL }},
     };
+
     static gint *ett[] = {
       &ett_ripng,
-      &ett_ripng_addr,
+      &ett_ripng_rte,
     };
 
     proto_ripng = proto_register_protocol("RIPng", "RIPng", "ripng");

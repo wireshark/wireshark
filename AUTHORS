@@ -2957,8 +2957,10 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	PAPI dissector
 	MONGO dissector
 	Miscellaneous ISAKMP enhancements
+	Miscellaneous ICMPv6 enhancements
+	Miscellaneous 802.11 enhancements
 	Packet TCP Mood Option (RFC5841) support
-	ICMPv6, PPTP, GRE, PPP PAP dissector enhancements (Rework)
+	PPTP, GRE, PPP PAP, RIPng dissector enhancements (Rework)
 }
 
 Varun Notibala		<nbvarun [AT] gmail.com> {
