@@ -89,9 +89,9 @@ Wireshark Info
 
         <listitem>
           <para>
-            Paul Makowski discovered that Wireshark on 32 bit systems could
-            crash while reading a malformed 6LoWPAN packet.
-            <!-- Fixed in trunk: r????? -->
+            Paul Makowski working for SEI/CERT discovered that Wireshark on 32
+            bit systems could crash while reading a malformed 6LoWPAN packet.
+            <!-- Fixed in trunk: r36037 -->
             <!-- Fixed in trunk-1.4: r36036 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
             5661</ulink>)
