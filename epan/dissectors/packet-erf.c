@@ -216,6 +216,18 @@ static dissector_handle_t atm_untruncated_handle;
 static gboolean erf_ethfcs = TRUE;
 static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 
+/* ERF Header */
+#define ERF_HDR_TYPES_MASK 0xff
+#define ERF_HDR_TYPE_MASK 0x7f
+#define ERF_HDR_EHDR_MASK 0x80
+#define ERF_HDR_FLAGS_MASK 0xff
+#define ERF_HDR_CAP_MASK 0x03
+#define ERF_HDR_VLEN_MASK 0x04
+#define ERF_HDR_TRUNC_MASK 0x08
+#define ERF_HDR_RXE_MASK 0x10
+#define ERF_HDR_DSE_MASK 0x20
+#define ERF_HDR_RES_MASK 0xC0
+
 /* Classification */
 #define EHDR_CLASS_SH_MASK  0x800000
 #define EHDR_CLASS_SHM_MASK 0x400000
@@ -578,6 +590,7 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
   proto_item *mc_hdlc_item = NULL;
   proto_tree *mc_hdlc_tree = NULL;
   struct erf_mc_hdlc_hdrx * mc_hdlc;
+  proto_item *pi;
 
   if (tree) {
     mc_hdlc_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel HDLC Header");
@@ -585,17 +598,36 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(mc_hdlc_item);
     mc_hdlc = (struct erf_mc_hdlc_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01); 
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_FCSE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC FCS Error");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_SRE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Short Record Error, <5 bytes");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_LRE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Long Record Error, >2047 bytes");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_AFE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Aborted Frame Error");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_OE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc->byte3);
+    if (mc_hdlc->byte3 & MC_HDLC_LBE_MASK)
+	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Lost Byte Error");
+
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
+
   }
 }
 
@@ -798,8 +830,17 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_cap, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_vlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK)
+	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Truncation Error");
+
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK)
+	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Rx Error");
+
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK)
+	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF DS Error");
+
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
 
   pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
@@ -1159,16 +1200,16 @@ proto_register_erf(void)
   static hf_register_info hf[] = {
     /* ERF Header */
     { &hf_erf_ts, { "Timestamp", "erf.ts", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_erf_types, { "types", "erf.types", FT_UINT8, BASE_DEC,  NULL, 0xFF, NULL, HFILL } },
-    { &hf_erf_type, { "type", "erf.types.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), 0x7F, NULL, HFILL } },
-    { &hf_erf_ehdr, { "Extension header present", "erf.types.ext_header", FT_UINT8, BASE_DEC,  NULL, 0x80, NULL, HFILL } },
-    { &hf_erf_flags,{ "flags", "erf.flags", FT_UINT8, BASE_DEC, NULL, 0xFF, NULL, HFILL } },
-    { &hf_erf_flags_cap,{ "capture interface", "erf.flags.cap", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL } },
-    { &hf_erf_flags_vlen,{ "varying record length", "erf.flags.vlen", FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL } },
-    { &hf_erf_flags_trunc,{ "truncated", "erf.flags.trunc", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
-    { &hf_erf_flags_rxe,{ "rx error", "erf.flags.rxe", FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL } },
-    { &hf_erf_flags_dse,{ "ds error", "erf.flags.dse", FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL } },
-    { &hf_erf_flags_res,{ "reserved", "erf.flags.res", FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL } },
+    { &hf_erf_types, { "types", "erf.types", FT_UINT8, BASE_DEC,  NULL, ERF_HDR_TYPES_MASK, NULL, HFILL } },
+    { &hf_erf_type, { "type", "erf.types.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), ERF_HDR_TYPE_MASK, NULL, HFILL } },
+    { &hf_erf_ehdr, { "Extension header present", "erf.types.ext_header", FT_UINT8, BASE_DEC,  NULL, ERF_HDR_EHDR_MASK, NULL, HFILL } },
+    { &hf_erf_flags,{ "flags", "erf.flags", FT_UINT8, BASE_DEC, NULL, ERF_HDR_FLAGS_MASK, NULL, HFILL } },
+    { &hf_erf_flags_cap,{ "capture interface", "erf.flags.cap", FT_UINT8, BASE_DEC, NULL, ERF_HDR_CAP_MASK, NULL, HFILL } },
+    { &hf_erf_flags_vlen,{ "varying record length", "erf.flags.vlen", FT_UINT8, BASE_DEC, NULL, ERF_HDR_VLEN_MASK, NULL, HFILL } },
+    { &hf_erf_flags_trunc,{ "truncated", "erf.flags.trunc", FT_UINT8, BASE_DEC, NULL, ERF_HDR_TRUNC_MASK, NULL, HFILL } },
+    { &hf_erf_flags_rxe,{ "rx error", "erf.flags.rxe", FT_UINT8, BASE_DEC, NULL, ERF_HDR_RXE_MASK, NULL, HFILL } },
+    { &hf_erf_flags_dse,{ "ds error", "erf.flags.dse", FT_UINT8, BASE_DEC, NULL, ERF_HDR_DSE_MASK, NULL, HFILL } },
+    { &hf_erf_flags_res,{ "reserved", "erf.flags.res", FT_UINT8, BASE_DEC, NULL, ERF_HDR_RES_MASK, NULL, HFILL } },
     { &hf_erf_rlen, { "record length", "erf.rlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_lctr, { "loss counter", "erf.lctr", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_wlen, { "wire length", "erf.wlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
