@@ -27,13 +27,11 @@
 # include "config.h"
 #endif
 
-#include <stddef.h>  /* For offsetof */
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/afn.h>
-#include "packet-ipv6.h"
 #include <epan/in_cksum.h>
 #include "packet-pim.h"
 
@@ -287,19 +285,16 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     "Group: %s",
                                     tvb_ip_to_str(tvb, offset + 16));
             } else if (pinfo->src.type == AT_IPv6) {
-                struct ip6_hdr ip6_hdr;
-                tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
-                           sizeof ip6_hdr);
                 proto_tree_add_text(pimopt_tree, tvb, offset, -1,
                                     "IPv6 dummy header");
                 proto_tree_add_text(pimopt_tree, tvb,
-                                    offset + offsetof(struct ip6_hdr, ip6_src), 16,
+                                    offset + 8, 16,
                                     "Source: %s",
-                                    ip6_to_str(&ip6_hdr.ip6_src));
+                                    tvb_ip6_to_str(tvb, offset + 8));
                 proto_tree_add_text(pimopt_tree, tvb,
-                                    offset + offsetof(struct ip6_hdr, ip6_dst), 16,
+                                    offset + 8 + 16, 16,
                                     "Group: %s",
-                                    ip6_to_str(&ip6_hdr.ip6_dst));
+                                    tvb_ip6_to_str(tvb, offset + 8));
             } else
                 proto_tree_add_text(pimopt_tree, tvb, offset, -1,
                                     "Dummy header for an unknown protocol");
@@ -901,19 +896,16 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                     "Group: %s",
                                     tvb_ip_to_str(tvb, offset + 16));
             } else if (pinfo->src.type == AT_IPv6) {
-                struct ip6_hdr ip6_hdr;
-                tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
-                           sizeof ip6_hdr);
                 proto_tree_add_text(pimopt_tree, tvb, offset, -1,
                                     "IPv6 dummy header");
                 proto_tree_add_text(pimopt_tree, tvb,
-                                    offset + offsetof(struct ip6_hdr, ip6_src), 16,
+                                    offset + 8, 16,
                                     "Source: %s",
-                                    ip6_to_str(&ip6_hdr.ip6_src));
+                                    tvb_ip6_to_str(tvb, offset + 8));
                 proto_tree_add_text(pimopt_tree, tvb,
-                                    offset + offsetof(struct ip6_hdr, ip6_dst), 16,
+                                    offset + 8 + 16, 16,
                                     "Group: %s",
-                                    ip6_to_str(&ip6_hdr.ip6_dst));
+                                    tvb_ip6_to_str(tvb, offset + 8 + 16));
             } else
                 proto_tree_add_text(pimopt_tree, tvb, offset, -1,
                                     "Dummy header for an unknown protocol");
