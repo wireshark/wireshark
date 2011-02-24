@@ -95,6 +95,8 @@ proto_register_sercosiii(void)
   proto_siii = proto_register_protocol("SERCOS III V1.1",
       "SERCOS III V1.1", "sercosiii");
 
+  register_dissector("sercosiii", dissect_siii, proto_siii);
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_subtree_array(ett, array_length(ett));
 
