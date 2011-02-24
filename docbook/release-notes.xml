@@ -179,6 +179,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Malformed Packet: ULP reported when dissecting ULP SessionID PDU.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5593">Bug
+          5593</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong IEI in container of decode_gtp_mm_cntxt.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5598">Bug
           5598</ulink>)
@@ -221,9 +227,45 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Display "Day of Year" for January 1 as 1, not 0.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5653">Bug
+          5653</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Accommodate the CMake build on Ubuntu 10.10.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5665">Bug
           5665</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          E.212 MCC 260 Poland update according to local national regulatory.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5668">Bug
+          5668</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IPP on ports other than 631 not recognized.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5677">Bug
+          5677</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IEEE 802.15.4 Superframe Specification - Final CAP Slot always 0.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5700">Bug
+          5700</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Peer SRC and DST AS numbers are swapped for cflow.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5702">Bug
+          5702</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          dumpcap: -q option behavior doesn't match documentation.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5716">Bug
+          5716</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -250,22 +292,30 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
+
 <!-- Sort alphabetically -->
 ANSI MAP,
 BitTorrent,
 DCM,
 DHCPv6,
+DTAP,
 DTPT,
+E.212,
 GSM Management,
 GTP,
 HIP,
+IEEE 802.15.4,
+IPP,
 LDAP,
 LLDP,
+Netflow,
 NTLMSSP,
 P_Mul,
 Quake,
+Skinny,
 SMB,
 SNMP,
+ULP
 
     </para>
     </section>

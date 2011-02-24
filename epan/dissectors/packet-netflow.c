@@ -2181,13 +2181,13 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 				tvb, offset, length, FALSE);
 			break;
 
-		case 128: /* source AS Peer */
-			ti = proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
+		case 128: /* dest AS Peer */
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 129: /* dest AS Peer*/
-			ti = proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
+		case 129: /* source AS Peer*/
+			ti = proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
 			    tvb, offset, length, FALSE);
 			break;
 
@@ -3774,8 +3774,8 @@ static const value_string v9_template_types[] = {
 	{ 96, "APPLICATION_NAME" },
 	{ 98, "postIpDiffServCodePoint" },
 	{ 99, "multicastReplicationFactor" },
-	{ 128, "SRC_AS_PEER" },
-	{ 129, "DST_AS_PEER" },
+	{ 128, "DST_AS_PEER" },
+	{ 129, "SRC_AS_PEER" },
 	{ 130, "exporterIPv4Address" },
 	{ 131, "exporterIPv6Address" },
 	{ 132, "DROPPED_BYTES" },

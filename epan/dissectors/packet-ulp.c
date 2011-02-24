@@ -358,10 +358,10 @@ static int hf_ulp_setSessionID = -1;              /* SetSessionID */
 static int hf_ulp_slpSessionID = -1;              /* SlpSessionID */
 static int hf_ulp_sessionId = -1;                 /* INTEGER_0_65535 */
 static int hf_ulp_setId = -1;                     /* SETId */
-static int hf_ulp_msisdn = -1;                    /* T_msisdn */
+static int hf_ulp_msisdn = -1;                    /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_mdn = -1;                       /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
-static int hf_ulp_imsi = -1;                      /* T_imsi */
+static int hf_ulp_imsi = -1;                      /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
 static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
@@ -612,7 +612,6 @@ static int hf_ulp_rAND = -1;                      /* BIT_STRING_SIZE_128 */
 static int hf_ulp_slpFQDN = -1;                   /* FQDN */
 static int hf_ulp_ThirdParty_item = -1;           /* ThirdPartyID */
 static int hf_ulp_logicalName = -1;               /* IA5String_SIZE_1_1000 */
-static int hf_ulp_msisdn_01 = -1;                 /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_emailaddr = -1;                 /* IA5String_SIZE_1_1000 */
 static int hf_ulp_sip_uri = -1;                   /* T_sip_uri */
 static int hf_ulp_ims_public_identity = -1;       /* T_ims_public_identity */
@@ -940,31 +939,6 @@ dissect_ulp_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
-dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "ulp.cnf"
- tvbuff_t *parameter_tvb;
- asn1_ctx_t		asn1_ctx;
-
- /* "Hide" the first dissection to avoid double tree entries */
- hf_index = -1;
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       8, 8, FALSE, &parameter_tvb);
-
-
-if(!parameter_tvb)
-	return offset;
-/* msisdn is ISDN-addressstring */
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
-	dissect_gsm_map_ISDN_AddressString(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_msisdn);
-
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, NULL);
@@ -978,31 +952,6 @@ static int
 dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      34, 34, FALSE, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "ulp.cnf"
- tvbuff_t *parameter_tvb;
- asn1_ctx_t		asn1_ctx;
-
- /* "Hide" the first dissection to avoid double tree entries */
- hf_index = -1;
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       8, 8, FALSE, &parameter_tvb);
-
-
-if(!parameter_tvb)
-	return offset;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
-	dissect_gsm_map_IMSI(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_imsi);
-
-
-
 
   return offset;
 }
@@ -1071,10 +1020,10 @@ static const value_string ulp_SETId_vals[] = {
 };
 
 static const per_choice_t SETId_choice[] = {
-  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_msisdn },
+  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   2, &hf_ulp_minsi           , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
-  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_T_imsi },
+  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
   { 0, NULL, 0, NULL }
@@ -3502,7 +3451,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "ulp.cnf"
+#line 59 "ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3515,7 +3464,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "ulp.cnf"
+#line 64 "ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3528,7 +3477,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "ulp.cnf"
+#line 69 "ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -3554,7 +3503,7 @@ static const value_string ulp_ThirdPartyID_vals[] = {
 
 static const per_choice_t ThirdPartyID_choice[] = {
   {   0, &hf_ulp_logicalName     , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
-  {   1, &hf_ulp_msisdn_01       , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   1, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   2, &hf_ulp_emailaddr       , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   3, &hf_ulp_sip_uri         , ASN1_EXTENSION_ROOT    , dissect_ulp_T_sip_uri },
   {   4, &hf_ulp_ims_public_identity, ASN1_EXTENSION_ROOT    , dissect_ulp_T_ims_public_identity },
@@ -4486,6 +4435,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   if (rrlp_tvb && rrlp_handle) {
 	call_dissector(rrlp_handle, rrlp_tvb, actx->pinfo, tree);
   }
+
 
 
 
@@ -7408,7 +7358,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_msisdn,
       { "msisdn", "ulp.msisdn",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "OCTET_STRING_SIZE_8", HFILL }},
     { &hf_ulp_mdn,
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -7420,7 +7370,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_imsi,
       { "imsi", "ulp.imsi",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "OCTET_STRING_SIZE_8", HFILL }},
     { &hf_ulp_nai,
       { "nai", "ulp.nai",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -8421,10 +8371,6 @@ void proto_register_ulp(void) {
       { "logicalName", "ulp.logicalName",
         FT_STRING, BASE_NONE, NULL, 0,
         "IA5String_SIZE_1_1000", HFILL }},
-    { &hf_ulp_msisdn_01,
-      { "msisdn", "ulp.msisdn",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_8", HFILL }},
     { &hf_ulp_emailaddr,
       { "emailaddr", "ulp.emailaddr",
         FT_STRING, BASE_NONE, NULL, 0,

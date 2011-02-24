@@ -3088,6 +3088,12 @@ Herbert Lischka		<herbert [AT] lischka-berlin.de> {
 	BACNET dissector fixes and enhancements
 }
 
+Grzegorz Szczytowski	<Grzegorz.Szczytowski [AT] gmail.com>  {
+	Diameter dictionary RFC 3588 AVP 299
+	GTPv1 Bearer Control Mode dissection
+	E212 dissector MCC 260 upgrade and modification
+}
+
 
 and by:
 
