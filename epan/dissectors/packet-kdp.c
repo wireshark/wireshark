@@ -51,6 +51,14 @@ static int hf_kdp_optionnumber = -1;
 static int hf_kdp_optionlen = -1;
 static int hf_kdp_option1 = -1;
 static int hf_kdp_option2 = -1;
+static int hf_kdp_option3 = -1;
+static int hf_kdp_option4 = -1;
+static int hf_kdp_option5 = -1;
+static int hf_kdp_option6 = -1;
+static int hf_kdp_option7 = -1;
+static int hf_kdp_option8 = -1;
+static int hf_kdp_option9 = -1;
+static int hf_kdp_option_unknown = -1;
 static int hf_kdp_fragment = -1;
 static int hf_kdp_fragtotal = -1;
 static int hf_kdp_body = -1;
@@ -147,22 +155,20 @@ static void dissect_kdp(tvbuff_t *tvb,
 	  offset = offset + 4;
 	}
 	if (packet_flags & KDP_SYN_FLAG) {
-	  proto_tree_add_item(kdp_tree,
-			      hf_kdp_maxsegmentsize, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(kdp_tree, hf_kdp_maxsegmentsize, tvb, offset, 4, FALSE);
 	  offset = offset + 4;
 	}
 
 	while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
-	  guint8 option_number;
+	  guint8 option_number, option_len;
 
 	  option_number = tvb_get_guint8(tvb, offset);
       
-	  proto_tree_add_item(kdp_tree,
-			      hf_kdp_optionnumber, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, FALSE);
 	  offset = offset + 1;
 	  if (option_number > 0) {
-	    proto_tree_add_item(kdp_tree,
-				hf_kdp_optionlen, tvb, offset, 1, FALSE);
+	    option_len = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, FALSE);
 	    offset = offset + 1;
 	  }
 
@@ -177,7 +183,37 @@ static void dissect_kdp(tvbuff_t *tvb,
 	    proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, FALSE);
 	    offset = offset + 2;
 	    break;
-	  default: body_len = 0; /* Invalid option - ignore rest of packet */
+
+	  case 3:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, FALSE);
+	    offset = offset + 2;
+	    break;
+	  case 4:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, FALSE);
+	    break;
+	  case 5:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, FALSE);
+	    break;
+	  case 6:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, FALSE);
+	    offset = offset + option_len - 2;
+	    break;
+	  case 7:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option7, tvb, offset, 2, FALSE);
+	    offset = offset + 2;
+	    break;
+	  case 8:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option8, tvb, offset, 2, FALSE);
+	    offset = offset + 2;
+	    break;
+	  case 9:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option9, tvb, offset, 2, FALSE);
+	    offset = offset + 2;
+	    break;
+	  default:
+	    proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, FALSE);
+	    offset = offset + option_len - 2;
+	    break;
 	  }
 	}
       
@@ -309,6 +345,38 @@ void proto_register_kdp(void) {
     },
     { &hf_kdp_option2,
       { "Option2 - TCP Fraction", "kdp.option2",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option3,
+      { "Option3 - KDP Version", "kdp.option3",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option4,
+      { "Option4 - Enable Reliable", "kdp.option4",
+	FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option5,
+      { "Option5 - Disable Reliable", "kdp.option5",
+	FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option6,
+      { "Option6 - SACK", "kdp.option6",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option7,
+      { "Option7 - COS", "kdp.option7",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option8,
+      { "Option8 - BWMIN", "kdp.option8",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option9,
+      { "Option9 - INT", "kdp.option9",
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+    },
+    { &hf_kdp_option_unknown,
+      { "Unknown option", "kdp.option_unknown",
 	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragment,
