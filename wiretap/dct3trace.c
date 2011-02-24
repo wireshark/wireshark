@@ -392,6 +392,13 @@ static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
+	if( buf_len > MAX_PACKET_LEN)
+	{
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("dct3trace: record length %d too long", buf_len);
+		return FALSE;
+	}
+
 	memcpy( pd, buf, buf_len );
 	return TRUE;
 }

@@ -76,12 +76,12 @@ Wireshark Info
             Wireshark could overflow a buffer while reading a Nokia DCT3
             trace file.
             <!-- Fixed in trunk: r35953 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.4: r36050 -->
+            <!-- Fixed in trunk-1.2: r36051 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
             5661</ulink>)
           </para>
-          <para>Versions affected: ? to 1.4.3.</para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-0713">CVE-2011-0713</ulink>
           </para>
@@ -211,7 +211,7 @@ SNMP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Pcap-ng
+Nokia DCT3, Pcap-ng
 
     </para>
     </section>
