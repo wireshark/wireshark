@@ -5950,9 +5950,9 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 	offset += count;
 	if (nEntries)
 	{
-		sub_tree = proto_tree_add_text(tree, tvb, offset - count, 0,
+		ti = proto_tree_add_text(tree, tvb, offset - count, 0,
 					"Multipart body");
-		proto_item_add_subtree(sub_tree, ett_mpartlist);
+		sub_tree = proto_item_add_subtree(ti, ett_mpartlist);
 	}
 	while (nEntries--)
 	{
@@ -6016,7 +6016,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 
 				pinfo->match_string = contentTypeStr;
 				pinfo->private_data = NULL; /* TODO: parameters */
-				call_dissector(media_handle, tmp_tvb, pinfo, tree);
+				call_dissector(media_handle, tmp_tvb, pinfo, mpart_tree);
 				pinfo->private_data = save_private_data;
 #if 0
 				if (tree) /* Only display if needed */
