@@ -147,6 +147,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark Crashing by pressing 2 Buttons.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4645">Bug
+          4645</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           A crash can occur in the NTLMSSP dissector.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5157">Bug
           5157</ulink>)
@@ -170,6 +176,12 @@ Wireshark Info
           When searching in packet bytes, the field and bytes are not immediately shown.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5585">Bug
           5585</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong IEI in container of decode_gtp_mm_cntxt.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5598">Bug
+          5598</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -244,6 +256,8 @@ BitTorrent,
 DCM,
 DHCPv6,
 DTPT,
+GSM Management,
+GTP,
 HIP,
 LDAP,
 LLDP,
