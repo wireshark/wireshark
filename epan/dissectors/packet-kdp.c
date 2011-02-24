@@ -184,7 +184,6 @@ static void dissect_kdp(tvbuff_t *tvb,
 	    proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, FALSE);
 	    offset = offset + 2;
 	    break;
-
 	  case 3:
 	    proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, FALSE);
 	    offset = offset + 2;
@@ -362,7 +361,7 @@ void proto_register_kdp(void) {
     },
     { &hf_kdp_option6,
       { "Option6 - SACK", "kdp.option6",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option7,
       { "Option7 - COS", "kdp.option7",
@@ -378,7 +377,7 @@ void proto_register_kdp(void) {
     },
     { &hf_kdp_option_unknown,
       { "Unknown option", "kdp.option_unknown",
-	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragment,
       { "Fragment", "kdp.fragment",
