@@ -190,6 +190,30 @@ Wireshark Info
           5615</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          DHCPv6 dissector formats DUID_LLT time incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5627">Bug
+          5627</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Allow for IEEE 802.3bc-2009 style PoE TLVs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5639">Bug
+          5639</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Various fixes to the HIP packet dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5646">Bug
+          5646</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Accommodate the CMake build on Ubuntu 10.10.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5665">Bug
+          5665</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -217,8 +241,12 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 ANSI MAP,
 BitTorrent,
+DCM,
+DHCPv6,
 DTPT,
+HIP,
 LDAP,
+LLDP,
 NTLMSSP,
 P_Mul,
 Quake,

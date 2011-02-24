@@ -1138,10 +1138,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_text(subtree, tvb, off + 2, 2,
                                 "Hardware type: %s (%u)", arphrdtype_to_str(hwtype, "Unknown"),
                                 hwtype);
-            /* XXX seconds since Jan 1 2000 */
+            /* Packet specifies seconds since Jan 1 2000, so add 946684800U (30 years) to get back to epoch */
             proto_tree_add_text(subtree, tvb, off + 4, 4,
                 "Time: %s",
-                abs_time_secs_to_str(tvb_get_ntohl(tvb, off + 4)+630822816U, ABSOLUTE_TIME_LOCAL, TRUE));
+                abs_time_secs_to_str(tvb_get_ntohl(tvb, off + 4)+946684800U, ABSOLUTE_TIME_LOCAL, TRUE));
             if (optlen > 8) {
                 proto_tree_add_text(subtree, tvb, off + 8,
                                     optlen - 8, "Link-layer address: %s",
