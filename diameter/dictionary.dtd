@@ -18,7 +18,7 @@
 -->
 <!ELEMENT dictionary (base, application*)>
 <!ELEMENT base (command*, vendor*, typedefn+, avp+)>
-<!ATTLIST base 
+<!ATTLIST base
 	uri CDATA #IMPLIED
 >
 
@@ -48,7 +48,7 @@
 >
 <!ELEMENT avp ((type | grouped), (enum*))>
 <!ATTLIST avp
-	name ID #REQUIRED
+	name IDREF #REQUIRED
 	description CDATA #IMPLIED
 	code CDATA #REQUIRED
 	may-encrypt (yes | no) "yes"
