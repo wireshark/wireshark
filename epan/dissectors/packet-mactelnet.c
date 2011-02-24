@@ -80,6 +80,8 @@ static const value_string packettypenames[] = {
 	{ 0, "Start session" },
 	{ 1, "Data" },
 	{ 2, "Acknowledge" },
+	{ 4, "Ping request" },
+	{ 5, "Ping response" },
 	{ 255, "End session" },
 	{ 0, NULL }
 };
@@ -112,10 +114,13 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *mactelnet_tree;
 	proto_item *mactelnet_control_item;
 	proto_tree *mactelnet_control_tree;
+	int foundping = -1;
+	int foundclient = -1;
+	int foundserver = -1;
 	guint16 type;
 
 	/* Check that there's enough data */
-	if (tvb_length(tvb) < 22)
+	if (tvb_length(tvb) < 18)
 		return 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
@@ -124,13 +129,36 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*  Get the type byte */
 	type = tvb_get_guint8(tvb, 1);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s Type: %s",
+	if ((type == 4 || type == 5)) { /* Ping */
+		foundping = 1;
+	} else {
+		int i = 0;
+		while (clienttypenames[i].strptr != NULL) {
+			if (tvb_get_ntohs(tvb, 14) == clienttypenames[i].value) {
+				foundserver = i;
+				break;
+			}
+			if (tvb_get_ntohs(tvb, 16) == clienttypenames[i].value) {
+				foundclient = i;
+				break;
+			}
+			i++;
+		}
+	}
+
+	/* Not a mactelnet packet */
+	if (foundping < 0 && foundclient < 0 && foundserver < 0) {
+		return 0;
+	}
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s Direction: %s Type: %s",
 		     tvb_ether_to_str(tvb, 2),
 		     tvb_ether_to_str(tvb, 8),
-		     val_to_str(type, packettypenames, "Unknown Type:0x%02x"));
+		     (foundclient >= 0 || type == 4 ? "Client->Server" : "Server->Client" ),
+		     val_to_str(type, packettypenames, "Unknown Type:0x%02x")
+	);
 
 	if (tree) {
-		guint8 no_ip[4] = {0,0,0,0};
 		guint32 offset = 0;
 
 		/* create display subtree for the protocol */
@@ -153,7 +181,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(mactelnet_tree, hf_mactelnet_destination_mac, tvb, offset, 6, ENC_NA);
 		offset += 6;
 
-		if (memcmp(pinfo->src.data, &no_ip, 4) == 0) {
+		if (foundserver >= 0) {
 			/* Server to client */
 
 			/* sessionid(2) */
@@ -163,7 +191,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* clienttype(2) */
 			proto_tree_add_item(mactelnet_tree, hf_mactelnet_client_type, tvb, offset-2, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-		} else {
+		} else if (foundclient >= 0) {
 			/* Client to server */
 
 			/* sessionid(2) */
@@ -173,11 +201,16 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* clienttype(2) */
 			proto_tree_add_item(mactelnet_tree, hf_mactelnet_client_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
+		} else if (foundping >= 0) {
+			/* Skip empty data */
+			offset += 4;
 		}
 
-		/* counter(4) */
-		proto_tree_add_item(mactelnet_tree, hf_mactelnet_databytes, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
+		if (foundping < 0) {
+			/* counter(4) */
+			proto_tree_add_item(mactelnet_tree, hf_mactelnet_databytes, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
 
 		/* Data packets only */
 		if (type == 1) {
@@ -239,6 +272,10 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
 				}
 			}
+		} else if (type == 4 || type == 5) {
+			/* Data packet, let wireshark handle it */
+			tvbuff_t *next_client = tvb_new_subset(tvb, offset, -1, -1);
+			return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
 		}
 
 
