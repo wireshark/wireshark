@@ -87,8 +87,8 @@ static void dissect_kdp(tvbuff_t *tvb,
   guint8 packet_flags = 0;
   guint8 packet_errors = 0;
   guint32 sequence_number = G_MAXUINT32;
-  guint32 ack_number = G_MAXUINT32; 
-  guint32 src_flowid = G_MAXUINT32; 
+  guint32 ack_number = G_MAXUINT32;
+  guint32 src_flowid = G_MAXUINT32;
   int offset;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
@@ -130,7 +130,7 @@ static void dissect_kdp(tvbuff_t *tvb,
       proto_tree_add_item(flags_tree, hf_kdp_bcst_flag, tvb, 2, 1, FALSE);
       proto_tree_add_item(flags_tree, hf_kdp_dup_flag, tvb, 2, 1, FALSE);
 
-      proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, FALSE);  
+      proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, FALSE);
 
       if (header_len > 4) {
 	offset = 4;
@@ -160,10 +160,11 @@ static void dissect_kdp(tvbuff_t *tvb,
 	}
 
 	while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
-	  guint8 option_number, option_len;
+	  guint8 option_number;
+	  guint8 option_len = 0;
 
 	  option_number = tvb_get_guint8(tvb, offset);
-      
+
 	  proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, FALSE);
 	  offset = offset + 1;
 	  if (option_number > 0) {
@@ -216,7 +217,7 @@ static void dissect_kdp(tvbuff_t *tvb,
 	    break;
 	  }
 	}
-      
+
 	if (body_len > 0) {
 	  proto_tree_add_item(kdp_tree, hf_kdp_fragment, tvb, offset, 2, FALSE);
 	  offset = offset + 2;
