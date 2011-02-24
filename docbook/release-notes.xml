@@ -104,6 +104,24 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            joernchen of Phenoelit discovered that the LDAP and SMB dissectors
+            could overflow the stack.
+            <!-- Fixed in trunk: r36029 -->
+            <!-- Fixed in trunk-1.4: r36053 -->
+            <!-- Fixed in trunk-1.2: r36054 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717">Bug
+            5717</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -200,9 +218,11 @@ There are no new protocols in this release.
 ANSI MAP,
 BitTorrent,
 DTPT,
+LDAP,
 NTLMSSP,
 P_Mul,
 Quake,
+SMB,
 SNMP,
 
     </para>

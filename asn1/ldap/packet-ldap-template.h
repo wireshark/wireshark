@@ -103,7 +103,7 @@ typedef struct ldap_call_response {
 void register_ldap_name_dissector_handle(const char *attr_type, dissector_handle_t dissector);
 void register_ldap_name_dissector(const char *attr_type, dissector_t dissector, int proto);
 
-int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot);
+int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_);
 
 /*#include "packet-ldap-exp.h" */
 

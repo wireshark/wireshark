@@ -119,6 +119,7 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-dns.h"
 
 #define PNAME  "Lightweight Directory Access Protocol"
 #define PSNAME "LDAP"
@@ -338,7 +339,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 186 "packet-ldap-template.c"
+#line 187 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -410,7 +411,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 197 "packet-ldap-template.c"
+#line 198 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */
@@ -3592,7 +3593,7 @@ static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 713 "packet-ldap-template.c"
+#line 714 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3971,64 +3972,19 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     }
 }
 
-int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
+/*
+ * prepend_dot is no longer used, but is being left in place in order to
+ * maintain ABI compatibility.
+ */
+int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_)
 {
-  guint8 len;
+  int compr_len;
+  const guchar *name;
 
-  len=tvb_get_guint8(tvb, offset);
-  offset+=1;
-  *str=0;
-  attributedesc_string=NULL;
-
-  while(len){
-    /* add potential field separation dot */
-    if(prepend_dot){
-      if(!maxlen){
-        *str=0;
-        return offset;
-      }
-      maxlen--;
-      *str++='.';
-      *str=0;
-    }
-
-    if(len==0xc0){
-      int new_offset;
-      /* ops its a mscldap compressed string */
-
-      new_offset=tvb_get_guint8(tvb, offset);
-      if (new_offset == offset - 1)
-        THROW(ReportedBoundsError);
-      offset+=1;
-
-      dissect_mscldap_string(tvb, new_offset, str, maxlen, FALSE);
-
-      return offset;
-    }
-
-    prepend_dot=TRUE;
-
-    if(maxlen<=len){
-      if(maxlen>3){
-        *str++='.';
-        *str++='.';
-        *str++='.';
-      }
-      *str=0;
-      return offset; /* will mess up offset in caller, is unlikely */
-    }
-    tvb_memcpy(tvb, str, offset, len);
-    str+=len;
-    *str=0;
-    maxlen-=len;
-    offset+=len;
-
-
-    len=tvb_get_guint8(tvb, offset);
-    offset+=1;
-  }
-  *str=0;
-  return offset;
+  /* The name data MUST start at offset 0 of the tvb */
+  compr_len = expand_dns_name(tvb, offset, max_len, 0, &name);
+  g_strlcpy(str, name, max_len);
+  return offset + compr_len;
 }
 
 
@@ -5527,7 +5483,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2071 "packet-ldap-template.c"
+#line 2027 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5601,7 +5557,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2084 "packet-ldap-template.c"
+#line 2040 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -5732,7 +5688,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2198 "packet-ldap-template.c"
+#line 2154 "packet-ldap-template.c"
 
 
 }
