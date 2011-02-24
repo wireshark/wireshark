@@ -141,7 +141,7 @@ Wireshark Info
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5630">Bug
           5630</ulink>)
         </para></listitem>
-        
+
         <listitem><para>
           Corrections to ANSI MAP ASN.1 specifications.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5584">Bug
@@ -149,9 +149,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          When searching in packet bytes, the field and bytes are not immediately shown.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5585">Bug
+          5585</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Display filter does not work for expressions of type BASE_DEC, BASE_DEC_HEX and BASE_HEX_DEC.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5606">Bug
+          5606</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           NTLMSSP dissector may fail to compile due to space embedded in C comment delimiters.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5614">Bug
           5614</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Allow for name resolution of link-scope and multicast IPv6 addresses from local host file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5615">Bug
+          5615</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -183,7 +201,9 @@ ANSI MAP,
 BitTorrent,
 DTPT,
 NTLMSSP,
+P_Mul,
 Quake,
+SNMP,
 
     </para>
     </section>

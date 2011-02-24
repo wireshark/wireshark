@@ -230,7 +230,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 				hfinfo->abbrev);
 		return NULL;
 	}
-	else if (hfinfo->display & BASE_CUSTOM) {
+	else if (hfinfo->display == BASE_CUSTOM) {
 		/*  If a user wants to match against a custom string, we would
 		 *  somehow have to have the integer value here to pass it in
 		 *  to the custom-display function.  But we don't have an
