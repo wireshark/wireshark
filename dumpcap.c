@@ -173,7 +173,7 @@ static void capture_loop_stop(void);
  * blocked in the select() when the signal arrives, and can just bail
  * out of the loop at that point.
  *
- * However, we don't want to that on BSD (because "select()" doesn't work
+ * However, we don't want to do that on BSD (because "select()" doesn't work
  * correctly on BPF devices on at least some releases of some flavors of
  * BSD), and we don't want to do it on Windows (because "select()" is
  * something for sockets, not for arbitrary handles).  (Note that "Windows"
@@ -317,7 +317,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 /* capture related options */
 static capture_options global_capture_opts;
-static gboolean quiet;
+static gboolean quiet = FALSE;
 
 static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd);
@@ -1354,19 +1354,27 @@ capture_cleanup_handler(int signum _U_)
 #endif
 
 
-#ifdef SIGINFO
 static void
-report_counts(void)
+report_capture_count(void)
 {
   /* Don't print this if we're a capture child. */
   if (!capture_child) {
     if (quiet) {
       /* Report the count only if we aren't printing a packet count
          as packets arrive. */
-      fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
-              plurality(global_ld.packet_count, "", "s"));
+        fprintf(stderr, "Packets captured: %u\n", global_ld.packet_count);
+      /* stderr could be line buffered */
+      fflush(stderr);
     }
   }
+}
+
+
+#ifdef SIGINFO
+static void
+report_counts_for_siginfo(void)
+{
+  report_capture_count();
   infoprint = FALSE; /* we just reported it */
 }
 
@@ -1381,7 +1389,7 @@ report_counts_siginfo(int signum _U_)
   if (infodelay)
     infoprint = TRUE;
   else
-    report_counts();
+    report_counts_for_siginfo();
   errno = sav_errno;
 }
 #endif /* SIGINFO */
@@ -3129,6 +3137,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
    * mode, cap_pipe_open_live() will say "End of file on pipe during open".
    */
 
+  report_capture_count();  /* print final capture count only if (quiet && !capture_child) */
+
   /* get packet drop statistics from pcap */
   if(global_ld.pcap_h != NULL) {
     g_assert(!global_ld.from_cap_pipe);
@@ -4024,7 +4034,7 @@ report_new_capture_file(const char *filename)
          * If a SIGINFO handler asked us to write out capture counts, do so.
          */
         if (infoprint)
-          report_counts();
+          report_counts_for_siginfo();
 #endif /* SIGINFO */
     }
 }
