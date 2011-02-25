@@ -251,6 +251,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Potential access violation when writing to LANalyzer files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5698">Bug
+          5698</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           IEEE 802.15.4 Superframe Specification - Final CAP Slot always 0.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5700">Bug
           5700</ulink>)
@@ -323,7 +329,7 @@ ULP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Nokia DCT3, Pcap-ng
+LANalyzer, Nokia DCT3, Pcap-ng
 
     </para>
     </section>
