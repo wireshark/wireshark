@@ -1,5 +1,6 @@
 #!/bin/bash
-#
+(set -o igncr) 2>/dev/null && set -o igncr;  # hack to force this file to be processed by cygwin bash with -o igncr
+                                             # needed when this file is exec'd from win64-setup.sh
 # $Id$
 
 # This MUST be in the form

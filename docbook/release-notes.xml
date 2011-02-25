@@ -122,6 +122,18 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark Crashing by pressing 2 Buttons.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4645">Bug
+          4645</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Potential access violation when writing to LANalyzer files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5698">Bug
+          5698</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
