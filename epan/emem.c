@@ -87,6 +87,16 @@ static int dev_zero_fd;
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE (10 * 1024 * 1024)
 
+/* The Canary between allocations is 8 bytes, all but the last byte of which is
+ * randomly generated.  The 8th byte is (usually) NULL as a separator between
+ * the canary and the pointer to the next canary (which takes up to 8 bytes).
+ *   |0|1|2|3|4|5|6|7||0|1|2|3|4|5|6|7|
+ *   |c|c|c|c|c|c|c|0||p|p|p|p|p|p|p|p| (64-bit), or:
+ *   |c|c|c|c|c|c|c|0||p|p|p|p|         (32-bit)
+ *
+ * If the pointer is not there (e.g., it's the last one) then all *15* bytes
+ * are used as a canary.
+ */
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
 
