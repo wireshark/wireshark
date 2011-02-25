@@ -45,6 +45,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
+#include "gtk/recent.h"
 
 
 #define E_PROF_PROFILE_L_KEY        "profile_profile_l"
@@ -994,6 +995,9 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
 		  "The profile already exists:\n%s.", new_name);
     return;
   }
+
+  /* Write recent file for profile we are leaving */
+  write_profile_recent();
 
   switch (operation) {
   case PROF_OPERATION_NEW:
