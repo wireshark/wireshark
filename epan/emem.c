@@ -87,15 +87,20 @@ static int dev_zero_fd;
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE (10 * 1024 * 1024)
 
-/* The Canary between allocations is 8 bytes, all but the last byte of which is
- * randomly generated.  The 8th byte is (usually) NULL as a separator between
- * the canary and the pointer to the next canary (which takes up to 8 bytes).
+/* The canary between allocations is at least 8 bytes and up to 16 bytes to
+ * allow future allocations to be 4- or 8-byte aligned.
+ * All but the last byte of the canary are randomly generated; the last byte is
+ * NULL to separate the canary and the pointer to the next canary.
+ *
+ * For example, if the allocation is a multiple of 8 bytes, the canary and
+ * pointer would look like:
  *   |0|1|2|3|4|5|6|7||0|1|2|3|4|5|6|7|
  *   |c|c|c|c|c|c|c|0||p|p|p|p|p|p|p|p| (64-bit), or:
  *   |c|c|c|c|c|c|c|0||p|p|p|p|         (32-bit)
  *
- * If the pointer is not there (e.g., it's the last one) then all *15* bytes
- * are used as a canary.
+ * If the allocation was, for example, 12 bytes, the canary would look like:
+ *        |0|1|2|3|4|5|6|7||0|1|2|3|4|5|6|7|
+ *   [...]|a|a|a|a|c|c|c|c||c|c|c|c|c|c|c|0| (followed by the pointer)
  */
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
@@ -216,8 +221,9 @@ emem_canary_next(guint8 *mem_canary, guint8 *canary, int *len)
 }
 
 /*
- * Given an allocation size, return the amount of padding needed for
- * the canary value.
+ * Given an allocation size, return the amount of room needed for the canary
+ * (with a minimum of 8 bytes) while using the canary to pad to an 8-byte
+ * boundary.
  */
 static guint8
 emem_canary_pad (size_t allocation)
@@ -714,8 +720,9 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	guint8 pad;
 	emem_chunk_t *free_list;
 
-	/* Round up to an 8 byte boundary. Make sure we have at least
-	 * 8 pad bytes for our canary.
+	/* Allocate room for at least 8 bytes of canary plus some padding
+	 * so the canary ends on an 8-byte boundary.
+	 * Then add the room needed for the pointer to the next canary.
 	 */
 	 if (use_canary) {
 		pad = emem_canary_pad(asize);
