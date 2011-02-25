@@ -296,12 +296,19 @@ static const value_string rtmpt_tag_vals[] = {
   { 0, NULL }
 };
 
+/* [Spec] http://www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf       */
+/* [DevG] http://help.adobe.com/en_US/flashmediaserver/devguide/index.html "working with Live Video" */
 static const value_string rtmpt_audio_codecs[] = {
-  { 0,                                "Uncompressed" },
-  { 1,                                "ADPCM" },
-  { 2,                                "MP3" },
-  { 5,                                "Nellymoser 8kHz Mono" },
-  { 6,                                "Nellymoser 8kHz Stereo" },
+  {  0,                               "Uncompressed" },             /* [DevG] */
+  {  1,                               "ADPCM" },                    /* [DevG] */
+  {  2,                               "MP3" },                      /* [DevG] */
+  {  5,                               "Nellymoser 8kHz Mono" },     /* [DevG] */
+  {  6,                               "Nellymoser 8kHz Stereo" },   /* [DevG] */
+  {  7,                               "G711A" },                    /* [Spec] */
+  {  8,                               "G711U" },                    /* [Spec] */
+  {  9,                               "Nellymoser 16kHz" },         /* [Spec] */
+  { 10,                               "HE-AAC" },                   /* [DevG] */
+  { 11,                               "SPEEX" },                    /* [DevG] */
   { 0, NULL }
 };
 
