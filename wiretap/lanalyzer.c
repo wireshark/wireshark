@@ -653,7 +653,8 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 {
       LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->priv);
-      struct tm  *fT     = localtime( (time_t *) &(itmp->start.tv_sec));
+      time_t start_time  = (time_t)itmp->start.tv_sec;
+      struct tm  *fT     = localtime(&start_time); /* XXX: OK to assume start_time is valid so fT won't be NULL ? */
       guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
                               ? BOARD_325TR     /* LANalyzer Board Type */
                               : BOARD_325;      /* LANalyzer Board Type */
