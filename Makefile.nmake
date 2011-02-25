@@ -725,7 +725,7 @@ REQUIRED_TOOLS=\
 	wget
 
 verify_tools:
-	# As win-setup.sh assumes the dir exists create it if it doesn't
+# As win-setup.sh assumes the dir exists create it if it doesn't
 	@if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 	@$(SH) $(WIN_SETUP) --appverify $(REQUIRED_TOOLS)
 
