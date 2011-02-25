@@ -653,10 +653,22 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 {
       LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->priv);
-      struct tm  *fT     = localtime( (time_t *) &(itmp->start.tv_sec));
       guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
                               ? BOARD_325TR     /* LANalyzer Board Type */
                               : BOARD_325;      /* LANalyzer Board Type */
+      time_t secs;
+      struct tm *fT;
+
+      /* The secs variable is needed to work around 32/64-bit time_t issues.
+         itmp->start is a timeval struct, which declares its tv_sec field
+         (itmp->start.tv_sec) as a long (typically 32 bits). time_t can be 32
+         or 64 bits, depending on the platform. Invoking as follows could
+         pass a pointer to a 32-bit long where a pointer to a 64-bit time_t
+         is expected: localtime((time_t*) &(itmp->start.tv_sec)) */
+      secs = itmp->start.tv_sec;
+      fT = localtime(&secs);
+      if (fT == NULL)
+            return FALSE;
 
       fseek(wdh->fh, 0, SEEK_SET);
 
