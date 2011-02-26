@@ -912,6 +912,34 @@ is_default_profile(void)
 	return (!persconfprofile || strcmp(persconfprofile, DEFAULT_PROFILE) == 0) ? TRUE : FALSE;
 }
 
+gboolean
+has_global_profiles(void)
+{
+	WS_DIR *dir;
+	WS_DIRENT *file;
+	const gchar *global_dir = get_global_profiles_dir();
+	gchar *filename;
+	gboolean has_global = FALSE;
+
+	if ((test_for_directory(global_dir) == EISDIR) &&
+		((dir = ws_dir_open(global_dir, 0, NULL)) != NULL))
+    {
+		while ((file = ws_dir_read_name(dir)) != NULL) {
+			filename = g_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
+										ws_dir_get_name(file));
+			if (test_for_directory(filename) == EISDIR) {
+				has_global = TRUE;
+				g_free (filename);
+				break;
+			}
+			g_free (filename);
+		}
+		ws_dir_close(dir);
+	}
+
+	return has_global;
+}
+
 void
 profile_store_persconffiles(gboolean store)
 {
@@ -1027,6 +1055,19 @@ get_profiles_dir(void)
 	return profiles_dir;
 }
 
+const char *
+get_global_profiles_dir(void)
+{
+	static char *global_profiles_dir = NULL;
+
+	if (!global_profiles_dir) {
+		global_profiles_dir = g_strdup_printf ("%s%s%s", get_datafile_dir(), 
+											   G_DIR_SEPARATOR_S, PROFILES_DIR);
+	}
+
+	return global_profiles_dir;
+}
+
 static const char *
 get_persconffile_dir(const gchar *profilename)
 {
@@ -1046,10 +1087,20 @@ get_persconffile_dir(const gchar *profilename)
 }
 
 gboolean
-profile_exists(const gchar *profilename)
+profile_exists(const gchar *profilename, gboolean global)
 {
-	if (test_for_directory (get_persconffile_dir (profilename)) == EISDIR) {
-		return TRUE;
+	if (global) {
+		gchar *path = g_strdup_printf ("%s%s%s", get_global_profiles_dir(),
+									   G_DIR_SEPARATOR_S, profilename);
+		if (test_for_directory (path) == EISDIR) {
+			g_free (path);
+			return TRUE;
+		}
+		g_free (path);
+	} else {
+		if (test_for_directory (get_persconffile_dir (profilename)) == EISDIR) {
+			return TRUE;
+		}
 	}
 
 	return FALSE;
@@ -1222,13 +1273,23 @@ hash_table_get_keys(gpointer key, gpointer value _U_, gpointer user_data)
 #endif
 
 int
-copy_persconffile_profile(const char *toname, const char *fromname, char **pf_filename_return,
-			    char **pf_to_dir_path_return, char **pf_from_dir_path_return)
+copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_global,
+						  char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
-	gchar *from_dir = g_strdup (get_persconffile_dir(fromname));
+	gchar *from_dir;
 	gchar *to_dir = g_strdup (get_persconffile_dir(toname));
 	gchar *filename, *from_file, *to_file;
 	GList *files, *file;
+
+	if (from_global) {
+	    if (strcmp(fromname, DEFAULT_PROFILE) == 0) {
+			from_dir = g_strdup (get_global_profiles_dir());
+		} else {
+			from_dir = g_strdup_printf ("%s%s%s", get_global_profiles_dir(), G_DIR_SEPARATOR_S, fromname);
+		}
+	} else {
+		from_dir = g_strdup (get_persconffile_dir(fromname));
+	}
 
 #if GLIB_CHECK_VERSION(2,14,0)
 	files = g_hash_table_get_keys(profile_files);

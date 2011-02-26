@@ -496,7 +496,7 @@ read_set_recent_common_pair_static(gchar *key, gchar *value,
     recent.gui_geometry_status_pane_left = num;
     recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
-    if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value)) {
+    if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, FALSE)) {
       set_profile_name (value);
     }
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE) == 0) {

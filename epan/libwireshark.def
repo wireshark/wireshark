@@ -544,6 +544,7 @@ get_dissector_table_selector_type
 get_dissector_table_ui_name
 get_dissector_table_base
 get_ether_name
+get_global_profiles_dir
 get_host_ipaddr
 get_host_ipaddr6
 get_hostname
@@ -592,6 +593,7 @@ h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
 h248_param_ber_integer
 h248_register_package
+has_global_profiles
 have_custom_cols
 have_filtering_tap_listeners
 have_tap_listeners

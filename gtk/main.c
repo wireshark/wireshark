@@ -2218,7 +2218,7 @@ main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
       case 'C':        /* Configuration Profile */
-	if (profile_exists (optarg)) {
+	if (profile_exists (optarg, FALSE)) {
 	  set_profile_name (optarg);
 	} else {
 	  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
@@ -3703,6 +3703,29 @@ prefs_to_capture_opts(void)
     gbl_resolv_flags = prefs.name_resolve;
 }
 
+static void copy_global_profile (const gchar *profile_name)
+{
+   char  *pf_dir_path, *pf_dir_path2, *pf_filename;
+
+   if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		   "Can't create directory\n\"%s\":\n%s.",
+		   pf_dir_path, strerror(errno));
+     
+     g_free(pf_dir_path);
+   }
+
+   if (copy_persconffile_profile(profile_name, profile_name, TRUE, &pf_filename,
+				 &pf_dir_path, &pf_dir_path2) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		   "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+		   pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+	 
+     g_free(pf_filename);
+     g_free(pf_dir_path);
+     g_free(pf_dir_path2);
+   }
+}
 
 /* Change configuration profile */
 void change_configuration_profile (const gchar *profile_name)
@@ -3712,14 +3735,20 @@ void change_configuration_profile (const gchar *profile_name)
    int    rf_open_errno;
 
    /* First check if profile exists */
-   if (!profile_exists(profile_name)) {
-     return;
+   if (!profile_exists(profile_name, FALSE)) {
+     if (profile_exists(profile_name, TRUE)) {
+       /* Copy from global profile */
+       copy_global_profile (profile_name);
+     } else {
+       /* No personal and no global profile exists */
+       return;
+     }
    }
 
    /* Get the current geometry, before writing it to disk */
    main_save_window_geometry(top_level);
 
-   if (profile_exists(get_profile_name())) {
+   if (profile_exists(get_profile_name(), FALSE)) {
      /* Write recent file for profile we are leaving, if it still exists */
      write_profile_recent();
    }

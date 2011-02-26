@@ -883,7 +883,7 @@ main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
     case 'C':        /* Configuration Profile */
-      if (profile_exists (optarg)) {
+      if (profile_exists (optarg, FALSE)) {
         set_profile_name (optarg);
       } else {
         cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);

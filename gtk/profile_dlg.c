@@ -47,6 +47,12 @@
 #include "gtk/help_dlg.h"
 #include "gtk/recent.h"
 
+enum {
+  NAME_COLUMN,
+  GLOBAL_COLUMN,
+  DATA_COLUMN,
+  NUM_COLUMNS
+};
 
 #define E_PROF_PROFILE_L_KEY        "profile_profile_l"
 #define E_PROF_DEL_BT_KEY           "profile_del_bt"
@@ -70,10 +76,13 @@ typedef struct {
   char *name;           /* profile name */
   char *reference;      /* profile reference */
   int   status;
+  gboolean is_global;
+  gboolean from_global;
 } profile_def;
 
 static GList *
-add_profile_entry(GList *fl, const char *profilename, const char *reference, int status)
+add_profile_entry(GList *fl, const char *profilename, const char *reference, int status, 
+		  gboolean is_global, gboolean from_global)
 {
     profile_def *profile;
 
@@ -81,6 +90,8 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
     profile->name = g_strdup(profilename);
     profile->reference = g_strdup(reference);
     profile->status = status;
+    profile->is_global = is_global;
+    profile->from_global = from_global;
     return g_list_append(fl, profile);
 }
 
@@ -129,9 +140,11 @@ get_profile_parent (const gchar *profilename)
 }
 
 static GList *
-add_to_profile_list(const char *name, const char *expression, int status)
+add_to_profile_list(const char *name, const char *expression, int status, 
+		    gboolean is_global, gboolean from_global)
 {
-  edited_profiles = add_profile_entry(edited_profiles, name, expression, status);
+  edited_profiles = add_profile_entry(edited_profiles, name, expression, status,
+				      is_global, from_global);
 
   return g_list_last(edited_profiles);
 }
@@ -182,7 +195,8 @@ copy_profile_list(void)
         profile = (flp_src)->data;
 
         current_profiles = add_profile_entry(current_profiles, profile->name,
-					     profile->reference, profile->status);
+					     profile->reference, profile->status, 
+					     profile->is_global, profile->from_global);
         flp_src = g_list_next(flp_src);
     }
 }
@@ -205,9 +219,9 @@ fill_list(GtkWidget *main_w)
   profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
 
-  fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT);
+  fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, fl_entry, -1);
+  gtk_list_store_set(store, &iter, NAME_COLUMN, DEFAULT_PROFILE, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
   if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
     l_select = g_memdup(&iter, sizeof(iter));
   }
@@ -220,10 +234,10 @@ fill_list(GtkWidget *main_w)
       filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
       if (test_for_directory(filename) == EISDIR) {
-	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS);
-	profile    = (profile_def *) fl_entry->data;
+	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
+	profile = (profile_def *) fl_entry->data;
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, profile->name, 1, fl_entry, -1);
+	gtk_list_store_set(store, &iter, NAME_COLUMN, profile->name, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
 
 	if (profile->name) {
 	  if (strcmp(profile_name, profile->name) == 0) {
@@ -235,6 +249,23 @@ fill_list(GtkWidget *main_w)
 	    l_select = g_memdup(&iter, sizeof(iter));
 	  }
 	}
+      }
+      g_free (filename);
+    }
+    ws_dir_close (dir);
+  }
+
+  profiles_dir = get_global_profiles_dir();
+  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+    while ((file = ws_dir_read_name(dir)) != NULL) {
+      name = ws_dir_get_name(file);
+      filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
+
+      if (test_for_directory(filename) == EISDIR) {
+	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
+	profile = (profile_def *) fl_entry->data;
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter, NAME_COLUMN, profile->name, GLOBAL_COLUMN, TRUE, DATA_COLUMN, fl_entry, -1);
       }
       g_free (filename);
     }
@@ -299,13 +330,13 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &fl_entry, -1);
     if (fl_entry) {
       profile = (profile_def *) fl_entry->data;
-      if (profile_exists (profile->name)) {
+      if (profile_exists (profile->name, FALSE) || profile_exists (profile->name, TRUE)) {
 	/* The new profile exists, change */
 	change_configuration_profile (profile->name);
-      } else if (!profile_exists (get_profile_name())) {
+      } else if (!profile_exists (get_profile_name(), FALSE)) {
 	/* The new profile does not exist, and the previous profile has
 	   been deleted.  Change to the default profile */
 	change_configuration_profile (NULL);
@@ -357,8 +388,8 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
       profile1->status = PROF_STAT_EXISTS;
 
       if (profile1->reference) {
-        if (copy_persconffile_profile(profile1->name, profile1->reference, &pf_filename,
-                                      &pf_dir_path, &pf_dir_path2) == -1) {
+        if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_global,
+				      &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
           simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                         "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
                         pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
@@ -424,12 +455,14 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
     fl2 = g_list_first(edited_profiles);
     while (fl2) {
       profile2 = (profile_def *) fl2->data;
-      if (strcmp(profile1->name, profile2->name)==0) {
-	/* Profile exists in both lists */
-	found = TRUE;
-      } else if (strcmp(profile1->name, profile2->reference)==0) {
-	/* Profile has been renamed */
-	found = TRUE;
+      if (!profile2->is_global) {
+	if (strcmp(profile1->name, profile2->name)==0) {
+	  /* Profile exists in both lists */
+	  found = TRUE;
+	} else if (strcmp(profile1->name, profile2->reference)==0) {
+	  /* Profile has been renamed */
+	  found = TRUE;
+	}
       }
       fl2 = fl2->next;
     }
@@ -539,11 +572,11 @@ profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
   gint          sensitivity = FALSE;
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &fl_entry, -1);
     if (fl_entry) {
-      profile= (profile_def *) fl_entry->data;
-      name   = g_strdup(profile->name);
-      if (profile->status!=PROF_STAT_DEFAULT) {
+      profile = (profile_def *) fl_entry->data;
+      name = g_strdup(profile->name);
+      if ((profile->status != PROF_STAT_DEFAULT) && !profile->is_global) {
 	sensitivity = TRUE;
       }
     }
@@ -588,11 +621,11 @@ profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   const gchar  *name = "New profile";
 
   /* Add a new entry to the profile list. */
-  fl_entry = add_to_profile_list(name, "", PROF_STAT_NEW);
+  fl_entry = add_to_profile_list(name, "", PROF_STAT_NEW, FALSE, FALSE);
 
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, name, 1, fl_entry, -1);
+  gtk_list_store_set(store, &iter, NAME_COLUMN, name, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
   /* Select the item. */
   gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
 
@@ -610,16 +643,39 @@ profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   GtkTreeIter   iter;
   GList        *fl_entry;
   const gchar  *name = gtk_entry_get_text(GTK_ENTRY(name_te));
+  const gchar  *parent = NULL;
   gchar        *new_name;
 
-  new_name = g_strdup_printf ("%s (copy)", name);
+  GtkTreeSelection *sel;
+  GtkTreeModel     *model;
+  profile_def   *profile = NULL;
+
+  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
+  if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &fl_entry, -1);
+    if (fl_entry) {
+      profile = (profile_def *) fl_entry->data;
+    }
+  }
+
+  if (profile && profile->is_global) {
+    parent = profile->name;
+  } else {
+    parent = get_profile_parent (name);
+  }
+
+  if (profile && profile->is_global && !profile_exists (parent, FALSE)) {
+    new_name = g_strdup (name);
+  } else {
+    new_name = g_strdup_printf ("%s (copy)", name);
+  }
 
   /* Add a new entry to the profile list. */
-  fl_entry = add_to_profile_list(new_name, get_profile_parent(name), PROF_STAT_COPY);
+  fl_entry = add_to_profile_list(new_name, parent, PROF_STAT_COPY, FALSE, profile ? profile->from_global : FALSE);
 
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, new_name, 1, fl_entry, -1);
+  gtk_list_store_set(store, &iter, NAME_COLUMN, new_name, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
   /* Select the item. */
   gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
 
@@ -648,11 +704,11 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
 
   /* if something was selected */
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &fl_entry, -1);
     if (fl_entry != NULL) {
       profile = (profile_def *) fl_entry->data;
 
-      if (strlen(name) > 0 && profile) {
+      if (strlen(name) > 0 && profile && !profile->is_global) {
 	if (profile->status != PROF_STAT_DEFAULT) {
 	  g_free(profile->name);
 	  profile->name = g_strdup(name);
@@ -660,7 +716,7 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
 	      (profile->status != PROF_STAT_COPY)) {
 	    profile->status = PROF_STAT_CHANGED;
 	  }
-	  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, name, -1);
+	  gtk_list_store_set(GTK_LIST_STORE(model), &iter, NAME_COLUMN, name, -1);
 	}
       }
     }
@@ -681,7 +737,7 @@ profile_del_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
   /* If something was selected */
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &fl_entry, -1);
 
     if (fl_entry != NULL) {
       remove_from_profile_list (fl_entry);
@@ -725,7 +781,8 @@ profile_dialog_new(void)
   GtkTreeViewColumn *column;
   GtkTreeSelection  *sel;
   GtkTreeIter       *l_select;
-
+  gboolean           has_global = has_global_profiles();
+  
   /* Get a pointer to a static variable holding the type of profile on
      which we're working, so we can pass that pointer to callback
      routines. */
@@ -794,13 +851,23 @@ profile_dialog_new(void)
   gtk_container_add(GTK_CONTAINER(profile_fr), profile_sc);
   gtk_widget_show(profile_sc);
 
-  store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+  store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
   profile_l = tree_view_new(GTK_TREE_MODEL(store));
-  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(profile_l), FALSE);
+  /* Only show headers if having more than one column */
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(profile_l), has_global);
+
   renderer = gtk_cell_renderer_text_new();
-  column = gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL);
-  gtk_tree_view_column_set_sort_column_id(column, 0);
+  column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text", NAME_COLUMN, NULL);
+  gtk_tree_view_column_set_expand(column, TRUE);
+  gtk_tree_view_column_set_sort_column_id(column, NAME_COLUMN);
   gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
+
+  renderer = gtk_cell_renderer_toggle_new();
+  column = gtk_tree_view_column_new_with_attributes("Global", renderer, "active", GLOBAL_COLUMN, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
+  gtk_tooltips_set_tip(tooltips, column->button, "Global profiles will be copied to users profiles when used", NULL);
+  gtk_tree_view_column_set_visible(column, has_global);
+
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
   g_signal_connect(sel, "changed", G_CALLBACK(profile_sel_list_cb), profile_vb);
@@ -945,7 +1012,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
     while ((file = ws_dir_read_name(dir)) != NULL) {
       name = ws_dir_get_name(file);
 
-      if (profile_exists(name)) {
+      if (profile_exists(name, FALSE)) {
 	menu_item = gtk_check_menu_item_new_with_label (name);
 	if (strcmp (name, profile_name)==0) {
 	  /* Check current profile */
@@ -954,6 +1021,42 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
 	g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
 	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
 	gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+	gtk_widget_show (menu_item);
+      }
+    }
+    ws_dir_close (dir);
+  }
+
+  profiles_dir = get_global_profiles_dir();
+  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+    GtkWidget *sub_menu = NULL;
+    gboolean   added_submenu = FALSE;
+  
+    while ((file = ws_dir_read_name(dir)) != NULL) {
+      name = ws_dir_get_name(file);
+
+      if (profile_exists(name, TRUE)) {
+	if (!added_submenu) {
+	  menu_item =  gtk_separator_menu_item_new ();
+	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+	  gtk_widget_show (menu_item);
+	  
+	  menu_item = gtk_menu_item_new_with_label ("Copy from Global");
+	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+	  gtk_widget_show (menu_item);
+
+	  sub_menu = gtk_menu_new ();
+	  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
+
+	  added_submenu = TRUE;
+	}
+
+	menu_item = gtk_menu_item_new_with_label (name);
+	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
+	if (profile_exists(name, FALSE)) {
+	  gtk_widget_set_sensitive(menu_item, FALSE);
+	}
+	gtk_menu_shell_append  (GTK_MENU_SHELL (sub_menu), menu_item);
 	gtk_widget_show (menu_item);
       }
     }
@@ -990,7 +1093,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
     return;
   }
 
-  if (profile_exists (new_name)) {
+  if (profile_exists (new_name, FALSE)) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "The profile already exists:\n%s.", new_name);
     return;
@@ -1019,7 +1122,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
       
       g_free(pf_dir_path);
     } else {
-      if (copy_persconffile_profile(new_name, profile_name, &pf_filename,
+      if (copy_persconffile_profile(new_name, profile_name, FALSE, &pf_filename,
 				    &pf_dir_path, &pf_dir_path2) == -1) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -1163,7 +1266,7 @@ profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
   const gchar *name = get_profile_name();
   char        *pf_dir_path;
 
-  if (profile_exists(name) && strcmp (name, DEFAULT_PROFILE) != 0) {
+  if (profile_exists(name, FALSE) && strcmp (name, DEFAULT_PROFILE) != 0) {
     if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't delete profile directory\n\"%s\":\n%s.",
