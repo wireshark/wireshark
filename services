@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-02-16)
+(last updated 2011-02-24)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -13238,7 +13238,10 @@ max		6074/udp   Microsoft Max
 dpm-acm         6075/tcp   Microsoft DPM Access Control Manager
 #                          Prabu Ambravaneswaran <prambrav&microsoft.com> 29 October 2009
 #               6075/udp   Reserved
-#               6076-6083  Unassigned
+#               6076-6082  Unassigned
+#               6083/tcp   Reserved
+miami-bcast     6083/udp   telecomsoftware miami broadcast
+#                          Peter Steiner <steiner&telecomsoftware.com> 22 February 2011
 p2p-sip         6084/tcp   Peer to Peer Infrastructure Protocol
 #                          Cullen Jennings <fluffy&cisco.com> 29 January 2009
 #               6084/udp   Reserved
@@ -14009,7 +14012,13 @@ dlip            7201/udp    DLIP
 ramp            7227/tcp    Registry A & M Protocol
 ramp            7227/udp    Registry A $ M Protocol 
 #                           John Havard <jh&hxe.us> November 2003
-#               7228-7261   Unassigned
+citrixupp       7228/tcp    Citrix Universal Printing Port
+#                           Gary Barton <gary.barton&citrix.com> 24 February 2011
+#               7228/udp    Reserved
+citrixuppg      7229/tcp    Citrix UPP Gateway
+#                           Gary Barton <gary.barton&citrix.com> 24 February 2011
+#               7229/udp    Reserved
+#               7230-7261   Unassigned
 cnap            7262/tcp    Calypso Network Access Protocol
 cnap            7262/udp    Calypso Network Access Protocol
 #                           Scott Halberg <eng&calypsosystems.com> 02 June 2009
