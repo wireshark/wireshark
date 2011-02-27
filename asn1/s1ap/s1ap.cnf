@@ -24,6 +24,9 @@ CauseMisc
 ENB-StatusTransfer-TransparentContainer_PDU
 Global-ENB-ID_PDU
 SONtransferApplicationIdentity_PDU
+SONtransferRequestContainer_PDU
+SONtransferResponseContainer_PDU
+SONtransferCause_PDU
 
 #.PDU_NEW
 S1AP-PDU
@@ -35,6 +38,9 @@ SourceBSS-ToTargetBSS-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
 ENB-StatusTransfer-TransparentContainer
 SONtransferApplicationIdentity
+SONtransferRequestContainer
+SONtransferResponseContainer
+SONtransferCause
 
 #.MAKE_ENUM
 ProcedureCode
