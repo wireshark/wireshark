@@ -9,17 +9,19 @@ ALIGNED
 #.END
 
 #.EXPORTS
+EncryptionInformation
+IntegrityProtectionInformation
+Service-Handover
+SourceCellID_PDU
+SourceRNC-ToTargetRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
-Service-Handover
-IntegrityProtectionInformation
-EncryptionInformation
-SourceRNC-ToTargetRNC-TransparentContainer_PDU
 
 #.PDU_NEW
-TargetRNC-ID
 RANAP-PDU
+SourceCellID
 SourceRNC-ToTargetRNC-TransparentContainer
+TargetRNC-ID
 
 #.MAKE_ENUM
 ProcedureCode
