@@ -1,0 +1,187 @@
+-- $Id$
+-- 3GPP TS 36.413 V10.0.1 (2011-01)
+-- B.2	ASN.1 definition
+-- **************************************************************
+--
+-- IE definitions for the SON Transfer application
+-- The IEs in this ASN.1 module shall be defined and encoded
+-- using the same rules as applicable for the S1AP-IEs module.
+-- 
+-- **************************************************************
+
+SonTransfer-IEs
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+--
+-- Generic IEs for the SON Transfer application
+--
+
+SONtransferApplicationIdentity ::= ENUMERATED {
+	cell-load-reporting,
+	...,
+	multi-cell-load-reporting,
+	event-triggered-cell-load-reporting,
+	ho-reporting
+}
+
+SONtransferRequestContainer ::= CHOICE{
+	cellLoadReporting					NULL,
+	...,
+	multiCellLoadReporting				MultiCellLoadReportingRequest,
+	eventTriggeredCellLoadReporting		EventTriggeredCellLoadReportingRequest,
+	hOReporting							HOReport
+}
+
+SONtransferResponseContainer ::= CHOICE{
+	cellLoadReporting					CellLoadReportingResponse,
+	...,
+	multiCellLoadReporting				MultiCellLoadReportingResponse,
+	eventTriggeredCellLoadReporting		EventTriggeredCellLoadReportingResponse,
+	hOReporting							NULL
+}
+
+SONtransferCause ::= CHOICE {
+	cellLoadReporting					CellLoadReportingCause,
+	...,
+	multiCellLoadReporting				CellLoadReportingCause,
+	eventTriggeredCellLoadReporting		CellLoadReportingCause,
+	hOReporting							HOReportingCause
+}
+
+
+CellLoadReportingCause ::= ENUMERATED {
+	application-container-syntax-error,
+	inconsistent-reporting-cell-identifier,
+	unspecified,
+	...
+}
+
+HOReportingCause ::= ENUMERATED {
+	application-container-syntax-error,
+	inconsistent-reporting-cell-identifier,
+	unspecified,
+	...
+}
+
+--
+-- IEs for Cell Load Reporting application
+--
+
+CellLoadReportingResponse::= CHOICE{
+	eUTRAN			EUTRANcellLoadReportingResponse,
+	uTRAN			OCTET STRING,
+	gERAN			OCTET STRING,
+	...
+}
+
+CompositeAvailableCapacityGroup ::= OCTET STRING
+
+EUTRANcellLoadReportingResponse ::= SEQUENCE {
+	compositeAvailableCapacityGroup					CompositeAvailableCapacityGroup,
+	...
+}
+
+--
+-- IEs for Multi-Cell Load Reporting application
+--
+-- WS Allready in S1AP
+-- EUTRAN-CGI ::= OCTET STRING
+
+IRAT-Cell-ID ::= CHOICE{
+	eUTRAN			EUTRAN-CGI,
+	uTRAN			OCTET STRING,
+	gERAN			OCTET STRING,
+	...
+}
+
+RequestedCellList ::= SEQUENCE (SIZE(1.. maxIRATReportingCells)) OF IRAT-Cell-ID
+
+MultiCellLoadReportingRequest::= SEQUENCE {
+	requestedCellList					RequestedCellList,
+	...
+}
+
+ReportingCellList-Item ::= SEQUENCE {
+	cell-ID								IRAT-Cell-ID,
+	...
+}
+
+ReportingCellList ::= SEQUENCE (SIZE(1.. maxIRATReportingCells)) OF ReportingCellList-Item
+
+MultiCellLoadReportingResponse ::= SEQUENCE {
+	reportingCellList								ReportingCellList,
+	cellLoadReportingResponse						CellLoadReportingResponse,
+	...
+}
+
+-- **************************************************************
+--
+-- Constants
+--
+-- **************************************************************
+
+maxIRATReportingCells						INTEGER ::= 128		-- Value is FFS
+
+--
+-- IEs for Event-triggered Cell Load Reporting application
+--
+
+NumberOfMeasurementReportingLevels ::= ENUMERATED {
+	rl2,
+	rl3,
+	rl4,
+	rl5,
+	rl10,
+	...
+}
+
+EventTriggeredCellLoadReportingRequest ::= SEQUENCE {
+	numberOfMeasurementReportingLevels		NumberOfMeasurementReportingLevels,
+	...
+}
+
+OverloadFlag ::= ENUMERATED {
+	overload,
+	...
+}
+
+EventTriggeredCellLoadReportingResponse ::= SEQUENCE {
+	cellLoadReportingResponse				CellLoadReportingResponse,
+	overloadFlag							OverloadFlag						OPTIONAL,
+	...
+}
+
+--
+-- IEs for HO Reporting application
+--
+
+
+
+HOReport::= SEQUENCE {
+	hoType					HoType,
+	hoReportType			HoReportType,
+	hosourceID				IRAT-Cell-ID,
+	hoTargetID				IRAT-Cell-ID,
+	candidateCellList		CandidateCellList,
+	...
+}
+
+HoType ::= ENUMERATED {
+	ltetoutran,
+	ltetogeran,
+	...
+}
+
+HoReportType ::= ENUMERATED {
+	unnecessaryhotoanotherrat,
+	...
+}
+
+maxnoofcandidateCells							INTEGER ::= 16
+
+CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
+
+END

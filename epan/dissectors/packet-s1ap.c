@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s1ap.c                                                              */
-/* ../../tools/asn2wrs.py -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn S1AP-SonTransfer-IEs.asn */
 
 /* Input file: packet-s1ap-template.c */
 
@@ -96,6 +96,8 @@ static dissector_handle_t nas_eps_handle;
 #define maxnoofRATs                    8
 #define maxnoofGroupIDs                65535
 #define maxnoofMMECs                   256
+#define maxIRATReportingCells          128
+#define maxnoofcandidateCells          16
 
 typedef enum _ProcedureCode_enum {
   id_HandoverPreparation =   0,
@@ -506,6 +508,7 @@ static int hf_s1ap_UplinkUEAssociatedLPPaTransport_PDU = -1;  /* UplinkUEAssocia
 static int hf_s1ap_DownlinkNonUEAssociatedLPPaTransport_PDU = -1;  /* DownlinkNonUEAssociatedLPPaTransport */
 static int hf_s1ap_UplinkNonUEAssociatedLPPaTransport_PDU = -1;  /* UplinkNonUEAssociatedLPPaTransport */
 static int hf_s1ap_S1AP_PDU_PDU = -1;             /* S1AP_PDU */
+static int hf_s1ap_s1ap_SONtransferApplicationIdentity_PDU = -1;  /* SONtransferApplicationIdentity */
 static int hf_s1ap_local = -1;                    /* INTEGER_0_65535 */
 static int hf_s1ap_global = -1;                   /* OBJECT_IDENTIFIER */
 static int hf_s1ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
@@ -709,6 +712,37 @@ static int hf_s1ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
 static int hf_s1ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_s1ap_cellLoadReporting = -1;        /* NULL */
+static int hf_s1ap_multiCellLoadReporting = -1;   /* MultiCellLoadReportingRequest */
+static int hf_s1ap_eventTriggeredCellLoadReporting = -1;  /* EventTriggeredCellLoadReportingRequest */
+static int hf_s1ap_hOReporting = -1;              /* HOReport */
+static int hf_s1ap_cellLoadReporting_01 = -1;     /* CellLoadReportingResponse */
+static int hf_s1ap_multiCellLoadReporting_01 = -1;  /* MultiCellLoadReportingResponse */
+static int hf_s1ap_eventTriggeredCellLoadReporting_01 = -1;  /* EventTriggeredCellLoadReportingResponse */
+static int hf_s1ap_hOReporting_01 = -1;           /* NULL */
+static int hf_s1ap_cellLoadReporting_02 = -1;     /* CellLoadReportingCause */
+static int hf_s1ap_multiCellLoadReporting_02 = -1;  /* CellLoadReportingCause */
+static int hf_s1ap_eventTriggeredCellLoadReporting_02 = -1;  /* CellLoadReportingCause */
+static int hf_s1ap_hOReporting_02 = -1;           /* HOReportingCause */
+static int hf_s1ap_eUTRAN = -1;                   /* EUTRANcellLoadReportingResponse */
+static int hf_s1ap_uTRAN = -1;                    /* OCTET_STRING */
+static int hf_s1ap_gERAN = -1;                    /* OCTET_STRING */
+static int hf_s1ap_compositeAvailableCapacityGroup = -1;  /* CompositeAvailableCapacityGroup */
+static int hf_s1ap_eUTRAN_01 = -1;                /* EUTRAN_CGI */
+static int hf_s1ap_RequestedCellList_item = -1;   /* IRAT_Cell_ID */
+static int hf_s1ap_requestedCellList = -1;        /* RequestedCellList */
+static int hf_s1ap_cell_ID_01 = -1;               /* IRAT_Cell_ID */
+static int hf_s1ap_ReportingCellList_item = -1;   /* ReportingCellList_Item */
+static int hf_s1ap_reportingCellList = -1;        /* ReportingCellList */
+static int hf_s1ap_cellLoadReportingResponse = -1;  /* CellLoadReportingResponse */
+static int hf_s1ap_numberOfMeasurementReportingLevels = -1;  /* NumberOfMeasurementReportingLevels */
+static int hf_s1ap_overloadFlag = -1;             /* OverloadFlag */
+static int hf_s1ap_hoType = -1;                   /* HoType */
+static int hf_s1ap_hoReportType = -1;             /* HoReportType */
+static int hf_s1ap_hosourceID = -1;               /* IRAT_Cell_ID */
+static int hf_s1ap_hoTargetID = -1;               /* IRAT_Cell_ID */
+static int hf_s1ap_candidateCellList = -1;        /* CandidateCellList */
+static int hf_s1ap_CandidateCellList_item = -1;   /* IRAT_Cell_ID */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
 #line 71 "packet-s1ap-template.c"
@@ -932,6 +966,21 @@ static gint ett_s1ap_S1AP_PDU = -1;
 static gint ett_s1ap_InitiatingMessage = -1;
 static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
+static gint ett_s1ap_SONtransferRequestContainer = -1;
+static gint ett_s1ap_SONtransferResponseContainer = -1;
+static gint ett_s1ap_SONtransferCause = -1;
+static gint ett_s1ap_CellLoadReportingResponse = -1;
+static gint ett_s1ap_EUTRANcellLoadReportingResponse = -1;
+static gint ett_s1ap_IRAT_Cell_ID = -1;
+static gint ett_s1ap_RequestedCellList = -1;
+static gint ett_s1ap_MultiCellLoadReportingRequest = -1;
+static gint ett_s1ap_ReportingCellList_Item = -1;
+static gint ett_s1ap_ReportingCellList = -1;
+static gint ett_s1ap_MultiCellLoadReportingResponse = -1;
+static gint ett_s1ap_EventTriggeredCellLoadReportingRequest = -1;
+static gint ett_s1ap_EventTriggeredCellLoadReportingResponse = -1;
+static gint ett_s1ap_HOReport = -1;
+static gint ett_s1ap_CandidateCellList = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
 #line 81 "packet-s1ap-template.c"
@@ -1098,7 +1147,7 @@ dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 95 "s1ap.cnf"
+#line 97 "s1ap.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str_ext(ProcedureCode, &s1ap_ProcedureCode_vals_ext,
                             "unknown message"));
@@ -1280,7 +1329,7 @@ dissect_s1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 78 "s1ap.cnf"
+#line 80 "s1ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &s1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
@@ -1360,7 +1409,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "s1ap.cnf"
+#line 122 "s1ap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1623,7 +1672,7 @@ dissect_s1ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 182 "s1ap.cnf"
+#line 184 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2819,7 +2868,7 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 195 "s1ap.cnf"
+#line 197 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2853,7 +2902,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 230 "s1ap.cnf"
+#line 232 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -3257,7 +3306,7 @@ static const value_string s1ap_HandoverType_vals[] = {
 
 static int
 dissect_s1ap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 265 "s1ap.cnf"
+#line 267 "s1ap.cnf"
 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      5, &handover_type_value, TRUE, 0, NULL);
@@ -3462,7 +3511,7 @@ dissect_s1ap_MSClassmark3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "s1ap.cnf"
+#line 223 "s1ap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
   
@@ -3709,7 +3758,7 @@ dissect_s1ap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 395 "s1ap.cnf"
+#line 397 "s1ap.cnf"
 
 
  gint32 start_offset;
@@ -3942,7 +3991,7 @@ dissect_s1ap_SONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 284 "s1ap.cnf"
+#line 286 "s1ap.cnf"
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
@@ -4313,7 +4362,7 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 338 "s1ap.cnf"
+#line 340 "s1ap.cnf"
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
@@ -4567,7 +4616,7 @@ dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 455 "s1ap.cnf"
+#line 457 "s1ap.cnf"
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
@@ -4663,7 +4712,7 @@ dissect_s1ap_WarningMessageContents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_s1ap_E_RAB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "s1ap.cnf"
+#line 149 "s1ap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfE_RABs);
@@ -4683,7 +4732,7 @@ static const per_sequence_t HandoverRequired_sequence[] = {
 
 static int
 dissect_s1ap_HandoverRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 270 "s1ap.cnf"
+#line 272 "s1ap.cnf"
 	handover_type_value = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4700,7 +4749,7 @@ static const per_sequence_t HandoverCommand_sequence[] = {
 
 static int
 dissect_s1ap_HandoverCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 272 "s1ap.cnf"
+#line 274 "s1ap.cnf"
 	handover_type_value = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4759,7 +4808,7 @@ static const per_sequence_t HandoverRequest_sequence[] = {
 
 static int
 dissect_s1ap_HandoverRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 274 "s1ap.cnf"
+#line 276 "s1ap.cnf"
 	handover_type_value = 0;
 	
 
@@ -5507,7 +5556,7 @@ static const per_sequence_t DownlinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_DownlinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "s1ap.cnf"
+#line 259 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_DL;
 
@@ -5526,7 +5575,7 @@ static const per_sequence_t InitialUEMessage_sequence[] = {
 
 static int
 dissect_s1ap_InitialUEMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 253 "s1ap.cnf"
+#line 255 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -5545,7 +5594,7 @@ static const per_sequence_t UplinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "s1ap.cnf"
+#line 263 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -6205,7 +6254,7 @@ dissect_s1ap_UplinkNonUEAssociatedLPPaTransport(tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_s1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "s1ap.cnf"
+#line 104 "s1ap.cnf"
 	message_type = INITIATING_MESSAGE;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
@@ -6233,7 +6282,7 @@ dissect_s1ap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "s1ap.cnf"
+#line 107 "s1ap.cnf"
 	message_type = SUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
@@ -6261,7 +6310,7 @@ dissect_s1ap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "s1ap.cnf"
+#line 110 "s1ap.cnf"
 	message_type = UNSUCCESSFUL_OUTCOME;
 
 
@@ -6307,6 +6356,415 @@ static int
 dissect_s1ap_S1AP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_s1ap_S1AP_PDU, S1AP_PDU_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SONtransferApplicationIdentity_vals[] = {
+  {   0, "cell-load-reporting" },
+  {   1, "multi-cell-load-reporting" },
+  {   2, "event-triggered-cell-load-reporting" },
+  {   3, "ho-reporting" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_SONtransferApplicationIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 3, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_IRAT_Cell_ID_vals[] = {
+  {   0, "eUTRAN" },
+  {   1, "uTRAN" },
+  {   2, "gERAN" },
+  { 0, NULL }
+};
+
+static const per_choice_t IRAT_Cell_ID_choice[] = {
+  {   0, &hf_s1ap_eUTRAN_01      , ASN1_EXTENSION_ROOT    , dissect_s1ap_EUTRAN_CGI },
+  {   1, &hf_s1ap_uTRAN          , ASN1_EXTENSION_ROOT    , dissect_s1ap_OCTET_STRING },
+  {   2, &hf_s1ap_gERAN          , ASN1_EXTENSION_ROOT    , dissect_s1ap_OCTET_STRING },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_IRAT_Cell_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_IRAT_Cell_ID, IRAT_Cell_ID_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t RequestedCellList_sequence_of[1] = {
+  { &hf_s1ap_RequestedCellList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_IRAT_Cell_ID },
+};
+
+static int
+dissect_s1ap_RequestedCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_s1ap_RequestedCellList, RequestedCellList_sequence_of,
+                                                  1, maxIRATReportingCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultiCellLoadReportingRequest_sequence[] = {
+  { &hf_s1ap_requestedCellList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_RequestedCellList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_MultiCellLoadReportingRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_MultiCellLoadReportingRequest, MultiCellLoadReportingRequest_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_NumberOfMeasurementReportingLevels_vals[] = {
+  {   0, "rl2" },
+  {   1, "rl3" },
+  {   2, "rl4" },
+  {   3, "rl5" },
+  {   4, "rl10" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_NumberOfMeasurementReportingLevels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t EventTriggeredCellLoadReportingRequest_sequence[] = {
+  { &hf_s1ap_numberOfMeasurementReportingLevels, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_NumberOfMeasurementReportingLevels },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_EventTriggeredCellLoadReportingRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_EventTriggeredCellLoadReportingRequest, EventTriggeredCellLoadReportingRequest_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_HoType_vals[] = {
+  {   0, "ltetoutran" },
+  {   1, "ltetogeran" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_HoType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_HoReportType_vals[] = {
+  {   0, "unnecessaryhotoanotherrat" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_HoReportType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CandidateCellList_sequence_of[1] = {
+  { &hf_s1ap_CandidateCellList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_IRAT_Cell_ID },
+};
+
+static int
+dissect_s1ap_CandidateCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_s1ap_CandidateCellList, CandidateCellList_sequence_of,
+                                                  1, maxnoofcandidateCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t HOReport_sequence[] = {
+  { &hf_s1ap_hoType         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_HoType },
+  { &hf_s1ap_hoReportType   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_HoReportType },
+  { &hf_s1ap_hosourceID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_IRAT_Cell_ID },
+  { &hf_s1ap_hoTargetID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_IRAT_Cell_ID },
+  { &hf_s1ap_candidateCellList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_CandidateCellList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_HOReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_HOReport, HOReport_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SONtransferRequestContainer_vals[] = {
+  {   0, "cellLoadReporting" },
+  {   1, "multiCellLoadReporting" },
+  {   2, "eventTriggeredCellLoadReporting" },
+  {   3, "hOReporting" },
+  { 0, NULL }
+};
+
+static const per_choice_t SONtransferRequestContainer_choice[] = {
+  {   0, &hf_s1ap_cellLoadReporting, ASN1_EXTENSION_ROOT    , dissect_s1ap_NULL },
+  {   1, &hf_s1ap_multiCellLoadReporting, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_MultiCellLoadReportingRequest },
+  {   2, &hf_s1ap_eventTriggeredCellLoadReporting, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_EventTriggeredCellLoadReportingRequest },
+  {   3, &hf_s1ap_hOReporting    , ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_HOReport },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_SONtransferRequestContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_SONtransferRequestContainer, SONtransferRequestContainer_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_CompositeAvailableCapacityGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t EUTRANcellLoadReportingResponse_sequence[] = {
+  { &hf_s1ap_compositeAvailableCapacityGroup, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_CompositeAvailableCapacityGroup },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_EUTRANcellLoadReportingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_EUTRANcellLoadReportingResponse, EUTRANcellLoadReportingResponse_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_CellLoadReportingResponse_vals[] = {
+  {   0, "eUTRAN" },
+  {   1, "uTRAN" },
+  {   2, "gERAN" },
+  { 0, NULL }
+};
+
+static const per_choice_t CellLoadReportingResponse_choice[] = {
+  {   0, &hf_s1ap_eUTRAN         , ASN1_EXTENSION_ROOT    , dissect_s1ap_EUTRANcellLoadReportingResponse },
+  {   1, &hf_s1ap_uTRAN          , ASN1_EXTENSION_ROOT    , dissect_s1ap_OCTET_STRING },
+  {   2, &hf_s1ap_gERAN          , ASN1_EXTENSION_ROOT    , dissect_s1ap_OCTET_STRING },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_CellLoadReportingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_CellLoadReportingResponse, CellLoadReportingResponse_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ReportingCellList_Item_sequence[] = {
+  { &hf_s1ap_cell_ID_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_IRAT_Cell_ID },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_ReportingCellList_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_ReportingCellList_Item, ReportingCellList_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ReportingCellList_sequence_of[1] = {
+  { &hf_s1ap_ReportingCellList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ReportingCellList_Item },
+};
+
+static int
+dissect_s1ap_ReportingCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_s1ap_ReportingCellList, ReportingCellList_sequence_of,
+                                                  1, maxIRATReportingCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultiCellLoadReportingResponse_sequence[] = {
+  { &hf_s1ap_reportingCellList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ReportingCellList },
+  { &hf_s1ap_cellLoadReportingResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_CellLoadReportingResponse },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_MultiCellLoadReportingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_MultiCellLoadReportingResponse, MultiCellLoadReportingResponse_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_OverloadFlag_vals[] = {
+  {   0, "overload" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_OverloadFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t EventTriggeredCellLoadReportingResponse_sequence[] = {
+  { &hf_s1ap_cellLoadReportingResponse, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_CellLoadReportingResponse },
+  { &hf_s1ap_overloadFlag   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_OverloadFlag },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_EventTriggeredCellLoadReportingResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_EventTriggeredCellLoadReportingResponse, EventTriggeredCellLoadReportingResponse_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SONtransferResponseContainer_vals[] = {
+  {   0, "cellLoadReporting" },
+  {   1, "multiCellLoadReporting" },
+  {   2, "eventTriggeredCellLoadReporting" },
+  {   3, "hOReporting" },
+  { 0, NULL }
+};
+
+static const per_choice_t SONtransferResponseContainer_choice[] = {
+  {   0, &hf_s1ap_cellLoadReporting_01, ASN1_EXTENSION_ROOT    , dissect_s1ap_CellLoadReportingResponse },
+  {   1, &hf_s1ap_multiCellLoadReporting_01, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_MultiCellLoadReportingResponse },
+  {   2, &hf_s1ap_eventTriggeredCellLoadReporting_01, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_EventTriggeredCellLoadReportingResponse },
+  {   3, &hf_s1ap_hOReporting_01 , ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_SONtransferResponseContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_SONtransferResponseContainer, SONtransferResponseContainer_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_CellLoadReportingCause_vals[] = {
+  {   0, "application-container-syntax-error" },
+  {   1, "inconsistent-reporting-cell-identifier" },
+  {   2, "unspecified" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_CellLoadReportingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_HOReportingCause_vals[] = {
+  {   0, "application-container-syntax-error" },
+  {   1, "inconsistent-reporting-cell-identifier" },
+  {   2, "unspecified" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_HOReportingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SONtransferCause_vals[] = {
+  {   0, "cellLoadReporting" },
+  {   1, "multiCellLoadReporting" },
+  {   2, "eventTriggeredCellLoadReporting" },
+  {   3, "hOReporting" },
+  { 0, NULL }
+};
+
+static const per_choice_t SONtransferCause_choice[] = {
+  {   0, &hf_s1ap_cellLoadReporting_02, ASN1_EXTENSION_ROOT    , dissect_s1ap_CellLoadReportingCause },
+  {   1, &hf_s1ap_multiCellLoadReporting_02, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_CellLoadReportingCause },
+  {   2, &hf_s1ap_eventTriggeredCellLoadReporting_02, ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_CellLoadReportingCause },
+  {   3, &hf_s1ap_hOReporting_02 , ASN1_NOT_EXTENSION_ROOT, dissect_s1ap_HOReportingCause },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_SONtransferCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_SONtransferCause, SONtransferCause_choice,
                                  NULL);
 
   return offset;
@@ -7858,6 +8316,14 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_s1ap_SONtransferApplicationIdentity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_SONtransferApplicationIdentity(tvb, offset, &asn1_ctx, tree, hf_s1ap_s1ap_SONtransferApplicationIdentity_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
@@ -8938,6 +9404,10 @@ void proto_register_s1ap(void) {
       { "S1AP-PDU", "s1ap.S1AP_PDU",
         FT_UINT32, BASE_DEC, VALS(s1ap_S1AP_PDU_vals), 0,
         NULL, HFILL }},
+    { &hf_s1ap_s1ap_SONtransferApplicationIdentity_PDU,
+      { "SONtransferApplicationIdentity", "s1ap.SONtransferApplicationIdentity",
+        FT_UINT32, BASE_DEC, VALS(s1ap_SONtransferApplicationIdentity_vals), 0,
+        NULL, HFILL }},
     { &hf_s1ap_local,
       { "local", "s1ap.local",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9750,6 +10220,130 @@ void proto_register_s1ap(void) {
       { "value", "s1ap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
+    { &hf_s1ap_cellLoadReporting,
+      { "cellLoadReporting", "s1ap.cellLoadReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_multiCellLoadReporting,
+      { "multiCellLoadReporting", "s1ap.multiCellLoadReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MultiCellLoadReportingRequest", HFILL }},
+    { &hf_s1ap_eventTriggeredCellLoadReporting,
+      { "eventTriggeredCellLoadReporting", "s1ap.eventTriggeredCellLoadReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventTriggeredCellLoadReportingRequest", HFILL }},
+    { &hf_s1ap_hOReporting,
+      { "hOReporting", "s1ap.hOReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HOReport", HFILL }},
+    { &hf_s1ap_cellLoadReporting_01,
+      { "cellLoadReporting", "s1ap.cellLoadReporting",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CellLoadReportingResponse_vals), 0,
+        "CellLoadReportingResponse", HFILL }},
+    { &hf_s1ap_multiCellLoadReporting_01,
+      { "multiCellLoadReporting", "s1ap.multiCellLoadReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MultiCellLoadReportingResponse", HFILL }},
+    { &hf_s1ap_eventTriggeredCellLoadReporting_01,
+      { "eventTriggeredCellLoadReporting", "s1ap.eventTriggeredCellLoadReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EventTriggeredCellLoadReportingResponse", HFILL }},
+    { &hf_s1ap_hOReporting_01,
+      { "hOReporting", "s1ap.hOReporting",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_cellLoadReporting_02,
+      { "cellLoadReporting", "s1ap.cellLoadReporting",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CellLoadReportingCause_vals), 0,
+        "CellLoadReportingCause", HFILL }},
+    { &hf_s1ap_multiCellLoadReporting_02,
+      { "multiCellLoadReporting", "s1ap.multiCellLoadReporting",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CellLoadReportingCause_vals), 0,
+        "CellLoadReportingCause", HFILL }},
+    { &hf_s1ap_eventTriggeredCellLoadReporting_02,
+      { "eventTriggeredCellLoadReporting", "s1ap.eventTriggeredCellLoadReporting",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CellLoadReportingCause_vals), 0,
+        "CellLoadReportingCause", HFILL }},
+    { &hf_s1ap_hOReporting_02,
+      { "hOReporting", "s1ap.hOReporting",
+        FT_UINT32, BASE_DEC, VALS(s1ap_HOReportingCause_vals), 0,
+        "HOReportingCause", HFILL }},
+    { &hf_s1ap_eUTRAN,
+      { "eUTRAN", "s1ap.eUTRAN",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EUTRANcellLoadReportingResponse", HFILL }},
+    { &hf_s1ap_uTRAN,
+      { "uTRAN", "s1ap.uTRAN",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_s1ap_gERAN,
+      { "gERAN", "s1ap.gERAN",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_s1ap_compositeAvailableCapacityGroup,
+      { "compositeAvailableCapacityGroup", "s1ap.compositeAvailableCapacityGroup",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_eUTRAN_01,
+      { "eUTRAN", "s1ap.eUTRAN",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EUTRAN_CGI", HFILL }},
+    { &hf_s1ap_RequestedCellList_item,
+      { "IRAT-Cell-ID", "s1ap.IRAT_Cell_ID",
+        FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_requestedCellList,
+      { "requestedCellList", "s1ap.requestedCellList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_cell_ID_01,
+      { "cell-ID", "s1ap.cell_ID",
+        FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
+        "IRAT_Cell_ID", HFILL }},
+    { &hf_s1ap_ReportingCellList_item,
+      { "ReportingCellList-Item", "s1ap.ReportingCellList_Item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_reportingCellList,
+      { "reportingCellList", "s1ap.reportingCellList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_cellLoadReportingResponse,
+      { "cellLoadReportingResponse", "s1ap.cellLoadReportingResponse",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CellLoadReportingResponse_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_numberOfMeasurementReportingLevels,
+      { "numberOfMeasurementReportingLevels", "s1ap.numberOfMeasurementReportingLevels",
+        FT_UINT32, BASE_DEC, VALS(s1ap_NumberOfMeasurementReportingLevels_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_overloadFlag,
+      { "overloadFlag", "s1ap.overloadFlag",
+        FT_UINT32, BASE_DEC, VALS(s1ap_OverloadFlag_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_hoType,
+      { "hoType", "s1ap.hoType",
+        FT_UINT32, BASE_DEC, VALS(s1ap_HoType_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_hoReportType,
+      { "hoReportType", "s1ap.hoReportType",
+        FT_UINT32, BASE_DEC, VALS(s1ap_HoReportType_vals), 0,
+        NULL, HFILL }},
+    { &hf_s1ap_hosourceID,
+      { "hosourceID", "s1ap.hosourceID",
+        FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
+        "IRAT_Cell_ID", HFILL }},
+    { &hf_s1ap_hoTargetID,
+      { "hoTargetID", "s1ap.hoTargetID",
+        FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
+        "IRAT_Cell_ID", HFILL }},
+    { &hf_s1ap_candidateCellList,
+      { "candidateCellList", "s1ap.candidateCellList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_CandidateCellList_item,
+      { "IRAT-Cell-ID", "s1ap.IRAT_Cell_ID",
+        FT_UINT32, BASE_DEC, VALS(s1ap_IRAT_Cell_ID_vals), 0,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
 #line 221 "packet-s1ap-template.c"
@@ -9974,6 +10568,21 @@ void proto_register_s1ap(void) {
     &ett_s1ap_InitiatingMessage,
     &ett_s1ap_SuccessfulOutcome,
     &ett_s1ap_UnsuccessfulOutcome,
+    &ett_s1ap_SONtransferRequestContainer,
+    &ett_s1ap_SONtransferResponseContainer,
+    &ett_s1ap_SONtransferCause,
+    &ett_s1ap_CellLoadReportingResponse,
+    &ett_s1ap_EUTRANcellLoadReportingResponse,
+    &ett_s1ap_IRAT_Cell_ID,
+    &ett_s1ap_RequestedCellList,
+    &ett_s1ap_MultiCellLoadReportingRequest,
+    &ett_s1ap_ReportingCellList_Item,
+    &ett_s1ap_ReportingCellList,
+    &ett_s1ap_MultiCellLoadReportingResponse,
+    &ett_s1ap_EventTriggeredCellLoadReportingRequest,
+    &ett_s1ap_EventTriggeredCellLoadReportingResponse,
+    &ett_s1ap_HOReport,
+    &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
 #line 232 "packet-s1ap-template.c"
