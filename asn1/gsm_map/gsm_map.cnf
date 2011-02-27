@@ -50,6 +50,7 @@ SS-InfoList
 #.END
 #.PDU_NEW
 LCS-ClientID
+ISDN-AddressString
 
 #.EXPORTS
 AddressString
@@ -90,6 +91,7 @@ IMEI
 IMSI
 InterrogateSS-Res
 ISDN-AddressString
+ISDN-AddressString_PDU
 ISDN-SubaddressString
 LAIFixedLength
 LCSClientExternalID
