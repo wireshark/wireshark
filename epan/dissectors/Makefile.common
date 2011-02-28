@@ -319,6 +319,7 @@ DISSECTOR_SRC = \
 	packet-cpfi.c		\
 	packet-cpha.c		\
 	packet-csm-encaps.c	\
+	packet-csn1.c		\
 	packet-ctdb.c		\
 	packet-cups.c		\
 	packet-daap.c		\
@@ -503,6 +504,7 @@ DISSECTOR_SRC = \
 	packet-gsm_bsslap.c	\
 	packet-gsm_bssmap_le.c	\
 	packet-gsm_ipa.c	\
+	packet-gsm_rlcmac.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
 	packet-gsm_um.c		\
@@ -1049,6 +1051,7 @@ DISSECTOR_INCLUDES =	\
 	packet-cmp.h	\
 	packet-cms.h	\
 	packet-crmf.h	\
+	packet-csn1.h	\
 	packet-dap.h	\
 	packet-data.h	\
 	packet-dcc.h	\
@@ -1124,6 +1127,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gre.h	\
 	packet-gsm_a_common.h	\
 	packet-gsm_map.h	\
+	packet-gsm_rlcmac.h	\
 	packet-gsm_sms.h	\
 	packet-gssapi.h	\
 	packet-gtp.h	\
