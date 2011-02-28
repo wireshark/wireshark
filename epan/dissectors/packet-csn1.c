@@ -28,10 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-csn1.h"
@@ -42,17 +38,18 @@
 #define pui32DATA(_pv, _offset) ((guint32*) pvDATA(_pv, _offset))
 
 /* used to tag existence of next element in variable length lists */
-#define STANDARD_TAG 1 
+#define STANDARD_TAG 1
 #define REVERSED_TAG 0
 
-const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
+static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
 static guint8 Tag = STANDARD_TAG;
 
 
 
 /* Returns no_of_bits (up to 8) masked with 0x2B */
-guint8 tvb_get_masked_bits8(tvbuff_t *tvb, gint bit_offset,  const gint no_of_bits)
+static guint8
+tvb_get_masked_bits8(tvbuff_t *tvb, gint bit_offset,  const gint no_of_bits)
 {
   static const guint8 maskBits[] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
   gint byte_offset = bit_offset >> 3;          /* divide by 8 */
@@ -80,7 +77,8 @@ guint8 tvb_get_masked_bits8(tvbuff_t *tvb, gint bit_offset,  const gint no_of_bi
  * set initial/start values in help data structure used for packing/unpacking operation
  * ================================================================================================
  */
-void csnStreamInit(csnStream_t* ar, gint bit_offset, gint remaining_bits_len)
+void
+csnStreamInit(csnStream_t* ar, gint bit_offset, gint remaining_bits_len)
 {
   ar->remaining_bits_len  = remaining_bits_len;
   ar->bit_offset          = bit_offset;
@@ -100,7 +98,8 @@ static const char* ErrCodes[] =
   "MESSAGE_TOO_LONG"
 };
 
-gint16 ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
+static gint16
+ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
 {
   gint16 i = MIN(-err, ((gint16) ElementsOf(ErrCodes)-1));
   proto_item *ti;
@@ -116,7 +115,7 @@ gint16 ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned c
 
     }
   }
-  
+
   return err;
 }
 
@@ -167,10 +166,11 @@ static const char* CSN_DESCR_type[]=
  * ================================================================================================
  */
 
-static gboolean existNextElement(tvbuff_t *tvb, gint bit_offset, guint8 Tag_v)
+static gboolean
+existNextElement(tvbuff_t *tvb, gint bit_offset, guint8 Tag_v)
 {
   guint8 res = tvb_get_bits8(tvb, bit_offset, 1);
-  if (Tag_v == STANDARD_TAG) 
+  if (Tag_v == STANDARD_TAG)
   {
     return (res > 0);
   }
@@ -178,7 +178,8 @@ static gboolean existNextElement(tvbuff_t *tvb, gint bit_offset, guint8 Tag_v)
 }
 
 
-gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, tvbuff_t *tvb, void* data, int ett_csn1)
+gint16
+csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, tvbuff_t *tvb, void* data, int ett_csn1)
 {
   gint  remaining_bits_len = ar->remaining_bits_len;
   gint  bit_offset         = ar->bit_offset;
@@ -192,7 +193,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
   {
     return 0;
   }
-  
+
   do
   {
     switch (pDescr->type)
@@ -204,11 +205,11 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           pui8  = pui8DATA(data, pDescr->offset);
           pDescr++;
 
-          *pui8 = tvb_get_bits8(tvb, bit_offset, 1);	
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s", 
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+          *pui8 = tvb_get_bits8(tvb, bit_offset, 1);
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
-	  
+
           /* end add the bit value to protocol tree */
         }
 
@@ -234,9 +235,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-			
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, *pui8), 
+
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d",
+                                       decode_bits_in_field(bit_offset, no_of_bits, *pui8),
                                        pDescr->sz,
                                        *pui8);
           }
@@ -246,8 +247,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, *pui16), 
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d",
+                                       decode_bits_in_field(bit_offset, no_of_bits, *pui16),
                                        pDescr->sz,
                                        *pui16);
           }
@@ -257,8 +258,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, *pui32), 
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s: %d",
+                                       decode_bits_in_field(bit_offset, no_of_bits, *pui32),
                                        pDescr->sz,
                                        *pui32);
           }
@@ -289,20 +290,20 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8 + (guint8)pDescr->descr.value;
-            
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui8), 
+
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                       decode_bits_in_field(bit_offset, no_of_bits, ui8),
                                        pDescr->sz);
-            
+
           }
           else if (no_of_bits <= 16)
           {
             guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16 + (guint16)pDescr->descr.value;
-            
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui16), 
+
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                       decode_bits_in_field(bit_offset, no_of_bits, ui16),
                                        pDescr->sz);
           }
           else if (no_of_bits <= 32)
@@ -310,9 +311,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32 + (guint16)pDescr->descr.value;
-            
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, ui32), 
+
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                       decode_bits_in_field(bit_offset, no_of_bits, ui32),
                                        pDescr->sz);
           }
           else
@@ -334,7 +335,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
       case CSN_UINT_LH:
       {
         guint8 no_of_bits = (guint8) pDescr->i;
-        
+
         if (remaining_bits_len >= no_of_bits)
         {
           remaining_bits_len -= no_of_bits;
@@ -343,9 +344,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-            
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
+
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                       decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                        pDescr->sz);
           }
           else
@@ -374,7 +375,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
           nCount = *pui16DATA(data, nCount);
         }
-        
+
         if (remaining_bits_len >= no_of_bits)
         {
           remaining_bits_len -= (no_of_bits*nCount);
@@ -384,9 +385,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             do
             {
               *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-              
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
+
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                          pDescr->sz,
                                          i++);
               bit_offset += no_of_bits;
@@ -426,7 +427,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         pui8 = pui8DATA(data, pDescr->offset);
         if (pDescr->type == CSN_VARIABLE_TARRAY)
         { /* Count specified in field */
-          nCount = *pui8DATA(data, pDescr->i);          
+          nCount = *pui8DATA(data, pDescr->i);
         }
         else if (pDescr->type == CSN_VARIABLE_TARRAY_OFFSET)
         { /* Count specified in field */
@@ -435,7 +436,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         }
 
         while (nCount > 0)
-        { /* resulting array of length 0 is possible 
+        { /* resulting array of length 0 is possible
            * but no bits shall be read from bitstream
            */
           proto_item   *ti;
@@ -471,8 +472,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         if (no_of_bits > 0)
         {
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE)), 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE)),
                                      pDescr->sz);
           remaining_bits_len -= no_of_bits;
           DISSECTOR_ASSERT(remaining_bits_len >= 0);
@@ -493,7 +494,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
         test_tree = proto_item_add_subtree(ti, ett_csn1);
-	
+
         csnStreamInit(&arT, bit_offset, remaining_bits_len);
         Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
@@ -536,13 +537,13 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             descr[1].type = CSN_END;
             pui8          = pui8DATA(data, pDescr->offset);
             *pui8         = i;
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s", 
-                                       decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s",
+                                       decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                        pDescr->sz);
 
             bit_offset += no_of_bits;
             remaining_bits_len -= no_of_bits;
-			
+
             ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
             test_tree = proto_item_add_subtree(ti, ett_csn1);
 
@@ -566,7 +567,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           pChoice++;
           i++;
         }
-        
+
         pDescr++;
         break;
       }
@@ -579,13 +580,13 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         proto_item   *ti;
         proto_tree   *test_tree;
 
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s length", 
-                                   decode_bits_in_field(bit_offset, 7, tvb_get_bits8(tvb, bit_offset, 7)), 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s length",
+                                   decode_bits_in_field(bit_offset, 7, tvb_get_bits8(tvb, bit_offset, 7)),
                                    pDescr->sz);
 
         bit_offset += 7;
         remaining_bits_len -= 7;
-		
+
         ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
         test_tree = proto_item_add_subtree(ti, ett_csn1);
 
@@ -624,8 +625,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         /* Now get the bits to extract the index */
         Bits = ixBitsTab[count];
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (Bits>>3)+1, "%s Union:%s", 
-                                   decode_bits_in_field(bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits)), 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (Bits>>3)+1, "%s Union:%s",
+                                   decode_bits_in_field(bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits)),
                                    pDescr->sz);
         index = 0;
 
@@ -651,9 +652,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         pui8  = pui8DATA(data, pDescr->offset);
         *pui8 = index;
 
-		
+
         /* script index to continue on, limited in case we do not have a power of 2 */
-        pDescr += (MIN(index + 1, count)); 
+        pDescr += (MIN(index + 1, count));
 
 
         switch (pDescr->type)
@@ -664,8 +665,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             pui8  = pui8DATA(data, pDescr->offset);
             pDescr++;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s", 
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
             *pui8 = 0x00;
@@ -699,10 +700,10 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               pui8      = pui8DATA(data, pDescr->offset);
               *pui8     = ui8;
 
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, *pui8), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, *pui8),
                                          pDescr->sz);
-				
+
             }
             else if (no_of_bits <= 16)
             {
@@ -710,8 +711,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               pui16       = pui16DATA(data, pDescr->offset);
               *pui16      = ui16;
 
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, *pui16), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, *pui16),
                                          pDescr->sz);
             }
             else if (no_of_bits <= 32)
@@ -720,10 +721,10 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               pui32       = pui32DATA(data, pDescr->offset);
               *pui32      = ui32;
 
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, *pui32), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, *pui32),
                                          pDescr->sz);
-				
+
               }
               else
               {
@@ -751,8 +752,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
               pui8      = pui8DATA(data, pDescr->offset);
               *pui8     = ui8 + (guint8)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui8), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, ui8),
                                          pDescr->sz);
             }
             else if (no_of_bits <= 16)
@@ -760,8 +761,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
               pui16       = pui16DATA(data, pDescr->offset);
               *pui16      = ui16 + (guint16)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui16), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, ui16),
                                          pDescr->sz);
             }
               else if (no_of_bits <= 32)
@@ -769,8 +770,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
               pui32       = pui32DATA(data, pDescr->offset);
               *pui32      = ui32 + (guint16)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, ui32), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, ui32),
                                          pDescr->sz);
               }
               else
@@ -799,8 +800,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
                 guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
                 pui8      = pui8DATA(data, pDescr->offset);
                 *pui8     = ui8;
-                item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                           decode_bits_in_field(bit_offset, no_of_bits, *pui8), 
+                item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                           decode_bits_in_field(bit_offset, no_of_bits, *pui8),
                                            pDescr->sz);
               }
               else
@@ -835,12 +836,12 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               if (no_of_bits <= 8)
               {
                 pui8 = pui8DATA(data, pDescr->offset);
-                
+
                 while (nCount > 0)
                 {
                   *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]", 
-                                             decode_bits_in_field(bit_offset, no_of_bits, *pui8), 
+                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+                                             decode_bits_in_field(bit_offset, no_of_bits, *pui8),
                                              pDescr->sz,
                                              i++);
                   pui8++;
@@ -851,12 +852,12 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               else if (no_of_bits <= 16)
               {
                 pui16 = pui16DATA(data, pDescr->offset);
-                
+
                 while (nCount > 0)
                 {
                   *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
-                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]", 
-                                             decode_bits_in_field(bit_offset, no_of_bits, *pui16), 
+                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+                                             decode_bits_in_field(bit_offset, no_of_bits, *pui16),
                                              pDescr->sz,
                                              i++);
                   bit_offset += no_of_bits;
@@ -892,7 +893,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             gint i = 0;
 
             pui8  = pui8DATA(data, pDescr->offset);
-            
+
             if (CSN_VARIABLE_TARRAY == pDescr->type)
             { /* Count specified in field */
               nCount = *pui8DATA(data, pDescr->i);
@@ -902,12 +903,12 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
               nCount = *pui8DATA(data, pDescr->i);
               nCount--; /* Offset 1 */
             }
-            
+
             while (nCount--)    /* Changed to handle length = 0.  */
             {
               proto_item   *ti;
               proto_tree   *test_tree;
-			  
+
               ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s[%d]",pDescr->sz, i++);
               test_tree = proto_item_add_subtree(ti, ett_csn1);
 
@@ -936,8 +937,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
             if (no_of_bits > 0)
             { /* a non empty bitmap */
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
+              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                         decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                          pDescr->sz);
               remaining_bits_len -= no_of_bits;
               if (remaining_bits_len < 0)
@@ -978,7 +979,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
             break;
           }
-          
+
           default:
           { /* descriptions of union elements other than above are illegal */
             return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_IN_SCRIPT, pDescr);
@@ -1018,7 +1019,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           ar->bit_offset          = bit_offset;
           return remaining_bits_len;
         }
-        
+
         break;
       }
 
@@ -1031,24 +1032,24 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         /* this if-statement represents the M_NEXT_EXIST_OR_NULL description element */
         if ((pDescr->descr.ptr != NULL) && (remaining_bits_len == 0))
         { /* no more bits to decode is fine here - end of message detected and allowed */
- 
+
           /* Skip i entries + this entry */
           pDescr += pDescr->i + 1;
-          
+
           /* pDescr now must be pointing to a CSN_END entry, if not this is an error */
           if ( pDescr->type != CSN_END )
           { /* Substract one more bit from remaining_bits_len to make the "not enough bits" error to be triggered */
             remaining_bits_len--;
           }
-          
+
           /* Set the data member to "not exist" */
           *pui8 = 0;
           break;
         }
-        
+
         /* the "regular" M_NEXT_EXIST description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s", 
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s",
+                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
         fExist = 0x00;
@@ -1079,7 +1080,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         /* this if-statement represents the M_NEXT_EXIST_OR_NULL_LH description element */
         if ((pDescr->descr.ptr != NULL) && (remaining_bits_len == 0))
         { /* no more bits to decode is fine here - end of message detected and allowed */
-         
+
           /* skip 'i' entries + this entry */
           pDescr += pDescr->i + 1;
 
@@ -1088,15 +1089,15 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           { /* substract one more bit from remaining_bits_len to make the "not enough bits" error to be triggered */
             remaining_bits_len--;
           }
-          
+
           /* set the data member to "not exist" */
           *pui8 = 0;
           break;
         }
 
         /* the "regular" M_NEXT_EXIST_LH description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s", 
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s",
+                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
         fExist = tvb_get_masked_bits8(tvb, bit_offset, 1);
@@ -1117,10 +1118,10 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
       case CSN_VARIABLE_BITMAP_1:
       { /* Bitmap from here and to the end of message */
-       
+
         *pui8DATA(data, (gint16)pDescr->descr.value) = (guint8) remaining_bits_len; /* length of bitmap == remaining bits */
 
-        /*no break - 
+        /*no break -
          * with a length set we have a regular variable length bitmap so we continue */
       }
 
@@ -1136,7 +1137,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         if (no_of_bits > 0)
         {
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)));
           remaining_bits_len -= no_of_bits;
 
@@ -1149,7 +1150,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             guint8* pui8 = pui8DATA(data, pDescr->offset);
             gint16 nB1  = no_of_bits & 0x07;/* no_of_bits Mod 8 */
 
-            if (nB1 > 0) 
+            if (nB1 > 0)
             { /* take care of the first byte - it will be right aligned */
               *pui8++ = tvb_get_bits8(tvb, bit_offset, nB1);
               no_of_bits  -= nB1;
@@ -1172,8 +1173,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
       { /* Bitmap from here and to the end of message */
 
         *pui8DATA(data, (gint16)pDescr->descr.value) = (guint8) remaining_bits_len; /* length of bitmap == remaining bits */
-      
-        /* no break - 
+
+        /* no break -
          * with a length set we have a regular left aligned variable length bitmap so we continue
          */
       }
@@ -1189,8 +1190,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         if (no_of_bits > 0)
         { /* a non empty bitmap */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                      pDescr->sz);
           remaining_bits_len -= no_of_bits;
 
@@ -1229,9 +1230,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
           while (count > 0)
           {
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s", 
-                                       decode_bits_in_field(bit_offset, 8, tvb_get_bits8(tvb, bit_offset, 8)), 
-                                       pDescr->sz); 
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+                                       decode_bits_in_field(bit_offset, 8, tvb_get_bits8(tvb, bit_offset, 8)),
+                                       pDescr->sz);
             *pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
             bit_offset += 8;
             count--;
@@ -1243,7 +1244,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
       }
 
       case CSN_RECURSIVE_ARRAY:
-      { /* Recursive way to specify an array: <list> ::= {1 <number: bit (4)> <list> | 0} 
+      { /* Recursive way to specify an array: <list> ::= {1 <number: bit (4)> <list> | 0}
          *  or more generally:                <list> ::= { <tag> <element> <list> | <EndTag> }
          *  where <element> ::= bit(value)
          *        <tag>     ::= 0 | 1
@@ -1258,8 +1259,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s", 
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
           bit_offset++;
           remaining_bits_len--;
@@ -1274,14 +1275,14 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
             return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
           }
 
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
-                                     pDescr->sz); 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
+                                     pDescr->sz);
           bit_offset += no_of_bits;
         }
 
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s", 
-                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+                                   decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
         /* existNextElement() returned FALSE, 1 bit consumed */
@@ -1304,8 +1305,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s", 
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
 
           /* existNextElement() returned TRUE, 1 bit consumed */
@@ -1343,7 +1344,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           {
             return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
           }
-		  }
+        }
 
         /* Store the counted number of elements of the array */
         *pui8DATA(data, (gint16)(gint32)pDescr->i) = ElementCount;
@@ -1352,17 +1353,17 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         break;
       }
 
-      case CSN_RECURSIVE_TARRAY_2: 
+      case CSN_RECURSIVE_TARRAY_2:
       { /* Recursive way to specify an array of type: <list> ::= <type> { 0 <type> } ** 1 ; */
 
         Tag = REVERSED_TAG;
 
-        /* NO break - 
+        /* NO break -
          * handling is exactly the same as for CSN_RECURSIVE_TARRAY_1 so we continue
          */
       }
 
-      case CSN_RECURSIVE_TARRAY_1: 
+      case CSN_RECURSIVE_TARRAY_1:
       { /* Recursive way to specify an array of type: <lists> ::= <type> { 1 <type> } ** 0 ;
          * M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
@@ -1382,7 +1383,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
           ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "%s",pDescr->sz);
           test_tree = proto_item_add_subtree(ti, ett_csn1);
-          
+
           csnStreamInit(&arT, bit_offset, remaining_bits_len);
           Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
@@ -1404,8 +1405,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
           }
 
           /* control of next element's tag */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s", 
-                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)), 
+          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+                                     decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
           EndOfList         = !(existNextElement(tvb, bit_offset, Tag));
 
@@ -1446,9 +1447,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         {
           return ProcessError(tree, tvb, bit_offset,"csnStreamDissector FIXED value does not match", -1, pDescr);
         }
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s", 
-                                   decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)), 
-                                   pDescr->sz); 
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                   decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
+                                   pDescr->sz);
 
         remaining_bits_len   -= no_of_bits;
         bit_offset += no_of_bits;
