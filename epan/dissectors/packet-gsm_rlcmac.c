@@ -29,10 +29,11 @@
 # include "config.h"
 #endif
 
+#include <glib.h>
+#include <epan/packet.h>
+
 #include "packet-csn1.h"
 #include "packet-gsm_rlcmac.h"
-#include "string.h"
-#include "stdio.h"
 
 /* Initialize the protocol and registered fields
 */

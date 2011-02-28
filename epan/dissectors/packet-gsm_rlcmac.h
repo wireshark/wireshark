@@ -28,11 +28,6 @@
 #ifndef __PACKET_GSM_RLCMAC_H__
 #define __PACKET_GSM_RLCMAC_H__
 
-#include <stdio.h>
-#include <string.h>
-#include <glib.h>
-#include <epan/packet.h>
-
 #ifndef PRE_PACKED
 #define PRE_PACKED
 #endif
