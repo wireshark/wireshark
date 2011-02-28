@@ -176,14 +176,14 @@ static const value_string mode_types[] = {
 };
 
 static const value_string info_mode_types[] = {
-	{ NTP_MODE_RSV,		"NTP reserved" },
-	{ NTP_MODE_SYMACT,	"NTP symmetric active" },
-	{ NTP_MODE_SYMPAS,	"NTP symmetric passive" },
-	{ NTP_MODE_CLIENT,	"NTP client" },
-	{ NTP_MODE_SERVER,	"NTP server" },
-	{ NTP_MODE_BCAST,	"NTP broadcast" },
-	{ NTP_MODE_CTRL,	"NTP control"},
-	{ NTP_MODE_PRIV,	"NTP private" },
+	{ NTP_MODE_RSV,		"reserved" },
+	{ NTP_MODE_SYMACT,	"symmetric active" },
+	{ NTP_MODE_SYMPAS,	"symmetric passive" },
+	{ NTP_MODE_CLIENT,	"client" },
+	{ NTP_MODE_SERVER,	"server" },
+	{ NTP_MODE_BCAST,	"broadcast" },
+	{ NTP_MODE_CTRL,	"control"},
+	{ NTP_MODE_PRIV,	"private" },
 	{ 0,		NULL}
 };
 
@@ -649,7 +649,9 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
-	col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
+		val_to_str((flags & NTP_VN_MASK) >> 3, ver_nums,
+			   "Unknown version"),
 		val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	if (tree) {
