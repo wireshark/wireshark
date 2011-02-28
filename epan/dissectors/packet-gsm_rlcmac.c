@@ -2775,7 +2775,7 @@ CSN_DESCR_END  (RepeatedEUTRAN_NeighbourCells_t)
 const
 CSN_DESCR_BEGIN(PCID_Pattern_t)
   M_UINT       (PCID_Pattern_t, PCID_Pattern_length, 3),
-  M_VAR_BITMAP (PCID_Pattern_t, PCID_Pattern, PCID_Pattern_length, 1), /* offset 1, 44.060 12.57 */
+  M_VAR_BITMAP (PCID_Pattern_t, PCID_Pattern, PCID_Pattern_length, 1), // offset 1, 44.060 12.57
   M_UINT       (PCID_Pattern_t, PCID_Pattern_sense, 1),
 CSN_DESCR_END  (PCID_Pattern_t)
 
@@ -3830,7 +3830,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   proto_item   *ti;
   proto_tree *rlcmac_tree = NULL;
   guint8 payload_type = tvb_get_bits8(tvb, 0, 2);
-  RlcMacUplink_t * data = (RlcMacUplink_t *)ep_alloc(sizeof(RlcMacUplink_t));
+  RlcMacUplink_t * data = (RlcMacUplink_t *)malloc(sizeof(RlcMacUplink_t));
 
   if (payload_type == PAYLOAD_TYPE_DATA)
   {
@@ -3850,7 +3850,10 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   ti = proto_tree_add_text(tree, tvb, 0, 1, "%s (Uplink)", MT_UL_TextGet(data->u.MESSAGE_TYPE_v));
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-  col_add_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE_v));
+  if (check_col(pinfo->cinfo, COL_INFO))
+  {
+    col_add_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE_v));
+  }
 
   switch (data->u.MESSAGE_TYPE_v)
   {
@@ -3934,6 +3937,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
       ret = -1; 
       break;
   }
+  free(data);
 }
 
 static void
@@ -3942,7 +3946,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   csnStream_t  ar;
   proto_item   *ti;
   proto_tree *rlcmac_tree = NULL;
-  RlcMacDownlink_t * data =(RlcMacDownlink_t *) ep_alloc(sizeof(RlcMacDownlink_t));
+  RlcMacDownlink_t * data =(RlcMacDownlink_t *) malloc(sizeof(RlcMacDownlink_t));
   MSGGPRS_Status_t ret;
 
   /* See RLC/MAC downlink control block structure in TS 44.060 / 10.3.1 */
@@ -3984,7 +3988,10 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     ti = proto_tree_add_text(tree, tvb, 0, 1, "%s (downlink)", MT_DL_TextGet(data->u.MESSAGE_TYPE_v));
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-    col_add_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE_v));
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+      col_add_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE_v));
+    }
     
     /* Dissect the MAC header */
     proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_payload_type, tvb, 0, 2, FALSE);
@@ -4126,6 +4133,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     default: ret = -1; 
       break;
   }
+  free(data);
 }
 
 
@@ -4142,98 +4150,98 @@ proto_register_gsm_rlcmac(void)
       { "Payload Type", 
 	"gsm_rlcmac_dl.pt", 
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	NULL, HFILL 
+	"Payload Type", HFILL 
       }
     },
     { &hf_dl_ctrl_rrbp, 
       { "RRBP",
 	"gsm_rlcmac_dl.rrbp", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"RRBP", HFILL 
       }
     },
     { &hf_dl_ctrl_s_p,
       { "S/P", 
 	"gsm_rlcmac_dl.s_p", 
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	NULL, HFILL 
+	"S/P", HFILL 
       }
     },
     { &hf_dl_ctrl_usf, 
       { "USF",
 	"gsm_rlcmac_dl.usf", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"USF", HFILL 
       }
     },
     { &hf_dl_ctrl_rbsn,
       { "RBSN", 
 	"gsm_rlcmac_dl.rbsn", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0,
-	NULL, HFILL 
+	"RBSN", HFILL 
       }
     },
     { &hf_dl_ctrl_rti, 
       { "RTI",
 	"gsm_rlcmac_dl.rti", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"RTI", HFILL 
       }
     },
     { &hf_dl_ctrl_fs,
       { "FS", 
 	"gsm_rlcmac_dl.fs", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0,
-	NULL, HFILL 
+	"FS", HFILL 
       }
     },
     { &hf_dl_ctrl_ac, 
       { "AC",
 	"gsm_rlcmac_dl.ac", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	NULL, HFILL 
+	"AC", HFILL 
       }
     },
     { &hf_dl_ctrl_pr, 
       { "PR",
 	"gsm_rlcmac_dl.pr", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"PR", HFILL 
       }
     },
     { &hf_dl_ctrl_tfi, 
       { "TFI",
 	"gsm_rlcmac_dl.tfi", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"TFI", HFILL 
       }
     },
     { &hf_dl_ctrl_d, 
       { "D",
 	"gsm_rlcmac_dl.d", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	NULL, HFILL 
+	"D", HFILL 
       }
     },
     { &hf_dl_ctrl_rbsn_e, 
       { "RBSNe",
 	"gsm_rlcmac_dl.rbsn_e", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"RBSNe", HFILL 
       }
     },
     { &hf_dl_ctrl_fs_e, 
       { "FSe",
 	"gsm_rlcmac_dl.fs_e", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	NULL, HFILL 
+	"FSe", HFILL 
       }
     },
     { &hf_dl_ctrl_spare, 
       { "spare",
 	"gsm_rlcmac_dl.spare", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	NULL, HFILL 
+	"spare", HFILL 
       }
     },
   };

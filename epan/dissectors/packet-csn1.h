@@ -76,43 +76,6 @@ typedef struct
 
 typedef gint16 (*StreamSerializeFcn_t)(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1);
 
-typedef struct
-{
-  gint16      type;
-  gint16      i;
-  void*       descr;
-  size_t      offset;
-  const char* sz;
-  StreamSerializeFcn_t serialize;
-} CSN_DESCR;
-
-typedef struct
-{
-  guint8     bits;
-  guint8     value;
-  CSN_DESCR descr;
-} CSN_ChoiceElement_t;
-
-void csnStreamInit(csnStream_t* ar,gint BitOffset,gint BitCount);
-
-/******************************************************************************
-* FUNCTION:  csnStreamDissector
-* DESCRIPTION: 
-*            UnPacks data from bit stream. According to CSN description.
-* ARGS:
-*   ar        stream will hold the parameters to the pack function
-*            ar->remaining_bits_len    [IN] Number of bits to unpack [OUT] number of bits left to unpack.
-*            ar->bit_offset            [IN/OUT] is the current bit where to proceed with the next bit to unpack.
-
-*   pDescr    CSN description.
-*   tvb       buffer containing the bit stream to unpack.
-*   data      unpacked data.
-*   ett_csn1  tree
-*
-* RETURNS:  int  Number of bits left to be unpacked. Negative Error code if failed to unpack all bits
-******************************************************************************/
-gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, tvbuff_t *tvb, void* data, int ett_csn1);
-
 enum
 {
   CSN_END = 0, 
@@ -148,6 +111,103 @@ enum
   CSN_SERIALIZE,
   CSN_TRAP_ERROR
 };
+
+/******************************************************************************************
+ * CSN_DESCR structure:
+ * 
+ * type: 
+ *       This is the CSN type. All existing types are specified in the section above.
+ * 
+ * i:    
+ *       Depending on the contents of the type parameter,  the parameter "i" may have following meaning:
+ *       - specifies the number of bits for the CSN_UINT type
+ *       - the offset for an array size by which the size is incremented
+ *         for the CSN_VAR_ARRAY type
+ *       - the length of each element of an array for the CSN_REC_ARRAY type
+ *       - the number of the elements in an array for the CSN_TYPE_ARRAY type
+ *       - the offset to the variable keeping the number of elements of an array for in the CSN_VAR_TARRAY type
+ *       - the number of different data types in a union for the CSN_UNION, CSN_UNION_LH, and  for the CSN_CHOICE types 
+ *       - the length in bits of the fixed number defined for  the CSN_FIXED type
+ *       - the number of lines to skip in the CSN_DESCR type specified  for  the  CSN_NEXT_EXIST, CSN_NEXT_EXIST_LH, 
+ *         CSN_NEXT_EXIST_OR_NULL, and CSN_NEXT_EXIST_OR_NULL_LH types
+ *       - the number of bits in a bitmap for the CSN_BITMAP type 
+ *       - the value by which the number of bits in a bitmap has to be incremented or decremented for the CSN_VAR_BITMAP, CSN_LEFT_VAR_BMP, and CSN_LEFT_BMP_1 types 
+ *       - the offset to param1 for the CSN_CALLBACK type
+ *       - ERRORCODE  used by the CSN_ERROR type
+ *
+ * descr  
+ *       This parameter has different meaning depending on the value of the type parameter:
+ *       - the offset for  the CSN_UINT_OFFSET type
+ *       - the number of the elements in an array of the CSN_UINT_ARRAY type
+ *       - the offset to the parameter where the size of the array has to be stored for the CSN_REC_ARRAY type 
+ *       - the address of the internal structure, describing the member type (by means of the CSN_DESCR type) in the CSN_TYPE_ARRAY, CSN_VAR_TARRAY, and CSN_TYPE types 
+ *       - the address of the variable of type CSN_ChoiceElement_t describing all elements in the CSN_CHOICE type union
+ *       - the offset to the variable where the number of bits has to be or is stored for the CSN_VAR_BITMAP, CSN_LEFT_VAR_BMP, and CSN_LEFT_BMP_1 types
+ *       - the function number (case number) for the CSN_CALLBACK and CSN_CALLBACK_NO_ARGS types 
+ *       - the free text used by the CSN_TRAP_ERROR
+ *
+ * offset  
+ *         This is an offset  to the _MEMBER parameter counting from the beginning of struct 
+ *         where the unpacked or packed value shall be stored or fetched. The meaning of the _MEMBER parameter 
+ *         varies depending on the type which is specified  and so is the meaning of the offset parameter. 
+ *         Some types (and corresponding macros) do not have the _MEMBER parameter and then the offset parameter is not used 
+ *         or is different from the offset to the _MEMBER. 
+ *         - the fixed value for the CSN_FIXED  type
+ *         - an offset to the variable UnionType  for CSN_UNION and CSN_UNION_LH types
+ *         - an offset to the variable Exist  for CSN_NEXT_EXIST and CSN_NEXT_EXIST_LH types 
+ *         - an offset to param2 in the CSN_CALLBACK  type 
+ *
+ * sz 
+ *    - is the name of the parameter within the descr where their unpacked or packed value shall be stored or fetched. 
+ *    This paramater is pointed out by the offset parameter in the same CSN_DESCR variable as the sz.
+ *    - the free text used by the CSN_TRAP_ERROR (the same as parameter "i")
+ *
+ * serialize 
+ *    - stores the size of _MEMBER type in case of the  M_TYPE_ARRAY and M_VAR_TARRAY, 
+ *    - the address of the function which is provided by the M_SERIALIZE type.
+ ******************************************************************************************/
+
+ 
+typedef struct
+{
+  gint16      type;
+  gint16      i;
+  union
+  {
+    void*     ptr;
+    guint32   value;
+  } descr;
+  size_t      offset;
+  const char* sz;
+  StreamSerializeFcn_t serialize;
+} CSN_DESCR;
+
+typedef struct
+{
+  guint8     bits;
+  guint8     value;
+  CSN_DESCR descr;
+} CSN_ChoiceElement_t;
+
+void csnStreamInit(csnStream_t* ar,gint BitOffset,gint BitCount);
+
+/******************************************************************************
+* FUNCTION:  csnStreamDissector
+* DESCRIPTION: 
+*            UnPacks data from bit stream. According to CSN description.
+* ARGS:
+*   ar        stream will hold the parameters to the pack function
+*            ar->remaining_bits_len    [IN] Number of bits to unpack [OUT] number of bits left to unpack.
+*            ar->bit_offset            [IN/OUT] is the current bit where to proceed with the next bit to unpack.
+
+*   pDescr    CSN description.
+*   tvb       buffer containing the bit stream to unpack.
+*   data      unpacked data.
+*   ett_csn1  tree
+*
+* RETURNS:  int  Number of bits left to be unpacked. Negative Error code if failed to unpack all bits
+******************************************************************************/
+gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, tvbuff_t *tvb, void* data, int ett_csn1);
 
 /* CSN struct macro's */
 #define  CSN_DESCR_BEGIN(_STRUCT)\
