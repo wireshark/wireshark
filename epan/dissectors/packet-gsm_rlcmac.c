@@ -704,7 +704,7 @@ CSN_DESCR_BEGIN(Receive_N_PDU_Number_t)
   M_UINT       (Receive_N_PDU_Number_t, value, 8),
 CSN_DESCR_END  (Receive_N_PDU_Number_t)
 
-gint16 Receive_N_PDU_Number_list_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1)
+gint16 Receive_N_PDU_Number_list_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
 {
   return csnStreamDissector(tree, ar, CSNDESCR(Receive_N_PDU_Number_t), tvb, data, ett_gsm_rlcmac);
 }
@@ -808,7 +808,7 @@ CSN_DESCR_BEGIN       (Content_t)
   M_UINT              (Content_t, PS_HandoverCapability, 1),
 CSN_DESCR_END         (Content_t)
 
-gint16 Content_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1)
+gint16 Content_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
 {
   return csnStreamDissector(tree, ar, CSNDESCR(Content_t), tvb, data, ett_gsm_rlcmac);
 }
@@ -825,7 +825,7 @@ CSN_DESCR_BEGIN       (Additional_access_technologies_t)
   M_REC_TARRAY        (Additional_access_technologies_t, Additional_access_technologies[0], Additional_access_technologies_struct_t, Count_additional_access_technologies),
 CSN_DESCR_END         (Additional_access_technologies_t)
 
-gint16 Additional_access_technologies_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1)
+gint16 Additional_access_technologies_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
 {
   return csnStreamDissector(tree, ar, CSNDESCR(Additional_access_technologies_t), tvb, data, ett_gsm_rlcmac);
 }
@@ -2775,7 +2775,7 @@ CSN_DESCR_END  (RepeatedEUTRAN_NeighbourCells_t)
 const
 CSN_DESCR_BEGIN(PCID_Pattern_t)
   M_UINT       (PCID_Pattern_t, PCID_Pattern_length, 3),
-  M_VAR_BITMAP (PCID_Pattern_t, PCID_Pattern, PCID_Pattern_length, 1), // offset 1, 44.060 12.57
+  M_VAR_BITMAP (PCID_Pattern_t, PCID_Pattern, PCID_Pattern_length, 1), /* offset 1, 44.060 12.57 */
   M_UINT       (PCID_Pattern_t, PCID_Pattern_sense, 1),
 CSN_DESCR_END  (PCID_Pattern_t)
 
@@ -3830,7 +3830,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   proto_item   *ti;
   proto_tree *rlcmac_tree = NULL;
   guint8 payload_type = tvb_get_bits8(tvb, 0, 2);
-  RlcMacUplink_t * data = (RlcMacUplink_t *)malloc(sizeof(RlcMacUplink_t));
+  RlcMacUplink_t * data = (RlcMacUplink_t *)ep_alloc(sizeof(RlcMacUplink_t));
 
   if (payload_type == PAYLOAD_TYPE_DATA)
   {
@@ -3937,7 +3937,6 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
       ret = -1; 
       break;
   }
-  free(data);
 }
 
 static void
@@ -3946,7 +3945,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   csnStream_t  ar;
   proto_item   *ti;
   proto_tree *rlcmac_tree = NULL;
-  RlcMacDownlink_t * data =(RlcMacDownlink_t *) malloc(sizeof(RlcMacDownlink_t));
+  RlcMacDownlink_t * data =(RlcMacDownlink_t *) ep_alloc(sizeof(RlcMacDownlink_t));
   MSGGPRS_Status_t ret;
 
   /* See RLC/MAC downlink control block structure in TS 44.060 / 10.3.1 */
@@ -4133,7 +4132,6 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     default: ret = -1; 
       break;
   }
-  free(data);
 }
 
 
@@ -4148,100 +4146,100 @@ proto_register_gsm_rlcmac(void)
   static hf_register_info hf[] = {
     { &hf_dl_ctrl_payload_type,
       { "Payload Type", 
-	"gsm_rlcmac_dl.pt", 
+	"gsm_rlcmac_dl.ctrl_payload_type", 
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Payload Type", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_rrbp, 
       { "RRBP",
 	"gsm_rlcmac_dl.rrbp", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"RRBP", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_s_p,
       { "S/P", 
 	"gsm_rlcmac_dl.s_p", 
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"S/P", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_usf, 
       { "USF",
 	"gsm_rlcmac_dl.usf", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"USF", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_rbsn,
       { "RBSN", 
 	"gsm_rlcmac_dl.rbsn", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0,
-	"RBSN", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_rti, 
       { "RTI",
 	"gsm_rlcmac_dl.rti", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"RTI", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_fs,
       { "FS", 
 	"gsm_rlcmac_dl.fs", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0,
-	"FS", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_ac, 
       { "AC",
 	"gsm_rlcmac_dl.ac", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	"AC", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_pr, 
       { "PR",
 	"gsm_rlcmac_dl.pr", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"PR", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_tfi, 
       { "TFI",
 	"gsm_rlcmac_dl.tfi", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"TFI", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_d, 
       { "D",
 	"gsm_rlcmac_dl.d", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	"D", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_rbsn_e, 
       { "RBSNe",
 	"gsm_rlcmac_dl.rbsn_e", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"RBSNe", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_fs_e, 
       { "FSe",
 	"gsm_rlcmac_dl.fs_e", 
 	FT_BOOLEAN,BASE_NONE, NULL, 0x0, 
-	"FSe", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_dl_ctrl_spare, 
       { "spare",
 	"gsm_rlcmac_dl.spare", 
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"spare", HFILL 
+	NULL, HFILL 
       }
     },
   };

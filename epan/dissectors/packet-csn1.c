@@ -112,7 +112,7 @@ gint16 ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned c
     }
     else
     {
-      ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR (%s)", sz, pDescr?pDescr->sz:"-");
+      ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s (%s)", sz, pDescr?pDescr->sz:"-");
 
     }
   }
