@@ -1,6 +1,6 @@
 /* packet-gsm_rlcmac.h
  * Definitions for GSM RLC MAC control plane message dissection in wireshark.
- * TS 44.060 and 24.008 
+ * TS 44.060 and 24.008
  * By Vincent Helfre
  * Copyright (c) 2011 ST-Ericsson
  *
@@ -27,7 +27,7 @@
 
 #ifndef __PACKET_GSM_RLCMAC_H__
 #define __PACKET_GSM_RLCMAC_H__
-	
+
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
@@ -187,13 +187,13 @@ typedef PRE_PACKED struct
 
 typedef  struct
 {
-	guint8 MCC1:4;
-	guint8 MCC2:4;
-	guint8 MCC3:4;
-	guint8 MNC3:4;
-	guint8 MNC1:4;
-	guint8 MNC2:4;
-} PLMN_t;          
+  guint8 MCC1:4;
+  guint8 MCC2:4;
+  guint8 MCC3:4;
+  guint8 MNC3:4;
+  guint8 MNC1:4;
+  guint8 MNC2:4;
+} PLMN_t;
 
 
 /** This type is used to describe LAI codes */
@@ -259,7 +259,7 @@ typedef enum
   LAI_PRIORITY_FORCED
 }LAI_Priority_t;
 
-typedef enum 
+typedef enum
 {
   NOM_I,
   NOM_II,
@@ -295,14 +295,14 @@ typedef struct
   PLMN_t   Element[MAX_ELEMENTS_IN_EQPLMN_LIST];
 }EqPLMN_List_t;
 
-#define MAX_PCCCH 16
-#define MAX_RFL_LENGTH 16         /* length of RFL in PSI2 */
-#define MAX_RFLS        4         /* Max number of RFLs */
-#define MAX_MA_LISTS_IN_PSI2    8         /* MAX MA lists = 8 */
+#define MAX_PCCCH                       16
+#define MAX_RFL_LENGTH                  16 /* length of RFL in PSI2 */
+#define MAX_RFLS                         4 /* Max number of RFLs */
+#define MAX_MA_LISTS_IN_PSI2             8 /* MAX MA lists = 8 */
 #define MAX_ALLOCATION_BITMAP_LENGTH   128 /* max length of Fixed Allocation bitmap in BITS (2^7) */
 #define MAX_VAR_LENGTH_BITMAP_LENGTH   176 /* max length ever possible for variable length fixed allocation bitmap */
-#define MAX_RRC_CONTAINER_LENGTH  255
-#define MAX_NAS_CONTAINER_LENGTH  127
+#define MAX_RRC_CONTAINER_LENGTH       255
+#define MAX_NAS_CONTAINER_LENGTH       127
 
 
 typedef struct
@@ -508,7 +508,7 @@ typedef struct
 } EGPRS_TwoPhaseAccess_t;
 
 typedef struct
-{ 
+{
   guint8 TFI_ASSIGNMENT_v;
   guint8 POLLING_v;
 
@@ -518,7 +518,7 @@ typedef struct
     DynamicAllocation_t DynamicAllocation;
     guint8               FixedAllocationDummy;   /* Fixed Allocation was removed */
   } Allocation;
-  
+
   guint8   EGPRS_CHANNEL_CODING_COMMAND_v;
   guint8   TLLI_BLOCK_CHANNEL_CODING_v;
 
@@ -532,7 +532,7 @@ typedef struct
   guint8   ALPHA_v;
 
   guint8   GAMMA_v;
-  
+
   gboolean Exist_TIMING_ADVANCE_INDEX_v;
   guint8   TIMING_ADVANCE_INDEX_v;
 
@@ -640,7 +640,7 @@ typedef struct
 {
   guint8   EGPRS_WindowSize;
   guint8   LINK_QUALITY_MEASUREMENT_MODE_v;
-  
+
   gboolean Exist_BEP_PERIOD2_v;
   guint8   BEP_PERIOD2_v;
 } PD_IA_AdditionsR99_t;
@@ -1011,7 +1011,7 @@ typedef struct
 
   guint8 Exist_A5_bits;
   A5_bits_t A5_bits;
-  /*-- zero means that the same values apply for parameters as in the immediately preceeding Access capabilities field within this IE 
+  /*-- zero means that the same values apply for parameters as in the immediately preceeding Access capabilities field within this IE
   *-- The presence of the A5 bits is mandatory in the 1st Access capabilies struct within this IE.
   */
 
@@ -1048,7 +1048,7 @@ typedef struct
   /* -------- R5 additions */
   guint8 Exist_HighMultislotCapability;
   guint8 HighMultislotCapability;
-  
+
   guint8 Exist_GERAN_lu_ModeCapability;
   guint8 GERAN_lu_ModeCapability;
 
@@ -1129,7 +1129,7 @@ typedef struct
   guint8   EDGE_RF_PwrCap2;
 } EDGE_RF_Pwr_t;
 
-typedef struct 
+typedef struct
 {
   guint8 A5_Bits;
   guint8 Arc2_Spare;
@@ -1139,7 +1139,7 @@ typedef struct
 typedef struct
 {
   guint8   Multiband_v;
-  union 
+  union
   {
     guint8 A5_Bits;
     ARC_t ARC;
@@ -1150,7 +1150,7 @@ typedef struct              /* MS classmark 3 R99 */
 {
   guint8         Spare1;
   Multiband_t   Multiband;
- 
+
   guint8         Exist_R_Support;
   guint8         R_GSM_Arc;
 
@@ -1192,7 +1192,7 @@ typedef struct              /* MS classmark 3 R99 */
   guint8         DTM_GPRS_multislot_class;
   guint8         Single_Slot_DTM;
   DTM_EGPRS_t   DTM_EGPRS_Params;
-  
+
   /* -------- R4 additions */
   guint8         Exist_SingleBandSupport;
   guint8         GSM_Band;
@@ -1210,7 +1210,7 @@ typedef struct              /* MS classmark 3 R99 */
   /* -------- R5 additions */
   guint8         Exist_HighMultislotCapability;
   guint8         HighMultislotCapability;
-  
+
   guint8         Exist_GERAN_lu_ModeCapability;
   guint8         GERAN_lu_ModeCapability;
 
@@ -1319,7 +1319,7 @@ typedef struct
   MS_Radio_Access_capability_t MS_Radio_Access_capability;
 
   Channel_Request_Description_t Channel_Request_Description;
-  
+
   guint8 Exist_CHANGE_MARK_v;
   guint8 CHANGE_MARK_v;
 
@@ -1457,7 +1457,7 @@ typedef struct
   guint16 ARFCN_v;
   guint8 BSIC_v;
   guint8 CAUSE_v;
-  gboolean Exist_AdditionsR99;  
+  gboolean Exist_AdditionsR99;
   PCCF_AdditionsR99_t AdditionsR99;
 } Packet_Cell_Change_Failure_t;
 
@@ -1499,7 +1499,7 @@ typedef struct
 {
   guint8   MESSAGE_TYPE_v;
   guint8   PayloadType;
-  guint8   spare; 
+  guint8   spare;
   guint8   R;
 
   guint8   DOWNLINK_TFI_v;
@@ -1565,8 +1565,8 @@ typedef struct
 
 typedef struct
 {
-  guint8   EGPRS_ChannelCodingCommand; 
-  guint8   RESEGMENT_v; 
+  guint8   EGPRS_ChannelCodingCommand;
+  guint8   RESEGMENT_v;
   guint8   PRE_EMPTIVE_TRANSMISSION_v;
   guint8   PRR_RETRANSMISSION_REQUEST_v;
   guint8   ARAC_RETRANSMISSION_REQUEST_v;
@@ -1813,7 +1813,7 @@ typedef struct
 
   gboolean                 Exist_ALPHA_GAMMA_TN_v;
   guint8                   ALPHA_v;
-  guint8                   GAMMA_TN_v; 
+  guint8                   GAMMA_TN_v;
 
   gboolean                 Exist_P0_BTS_PWR_CTRL_PR_MODE;
   guint8                   P0_v;
@@ -1935,7 +1935,7 @@ typedef struct
   gboolean                                 Exist_PFI_v;
   guint8                                   PFI_v;
 }DTM_Channel_Request_Description_t;
-                                                         
+
 /* < Packet Downlink Assignment message content > */
 typedef struct
 {
@@ -1959,7 +1959,7 @@ typedef struct
   gboolean Exist_EGPRS_Params; /* if Exist_EGPRS_Params == FALSE then none of the following 4 vars exist */
   guint8   EGPRS_WindowSize;
   guint8   LINK_QUALITY_MEASUREMENT_MODE_v;
-  gboolean Exist_BEP_PERIOD2_v; 
+  gboolean Exist_BEP_PERIOD2_v;
   guint8   BEP_PERIOD2_v;
 
   gboolean Exist_Packet_Extended_Timing_Advance;
@@ -2072,7 +2072,7 @@ typedef struct
     TMSI_t TMSI_v;
     struct MobileId Mobile_Identity;
   } u;
-  
+
   guint8 CHANNEL_NEEDED_v;
 
   guint8 Exist_eMLPP_PRIORITY;
@@ -2137,7 +2137,7 @@ typedef struct
   {
     Global_Packet_Timing_Advance_t Global_Packet_Timing_Advance;
     Power_Control_Parameters_t Power_Control_Parameters;
-  } u;  
+  } u;
 } GlobalTimingOrPower_t;
 
 typedef struct
@@ -2585,7 +2585,7 @@ typedef struct
     guint16 ARFCN_v;
     h_CG_t h_CG;
   } u;
-  
+
   guint8 TIMESLOT_ALLOCATION_v;
 } Channel_Group_t;
 
@@ -2688,26 +2688,26 @@ typedef struct
 /* < Packet Cell Change Order message content > */
 typedef struct
 {
-	guint8 CELL_BAR_ACCESS_2_v;
-	guint8 EXC_ACC_v;
-	guint8 SAME_RA_AS_SERVING_CELL_v;
+  guint8 CELL_BAR_ACCESS_2_v;
+  guint8 EXC_ACC_v;
+  guint8 SAME_RA_AS_SERVING_CELL_v;
 
-	guint8 Exist_RXLEV_and_TXPWR;
-	guint8 GPRS_RXLEV_ACCESS_MIN_v;
-	guint8 GPRS_MS_TXPWR_MAX_CCH_v;
+  guint8 Exist_RXLEV_and_TXPWR;
+  guint8 GPRS_RXLEV_ACCESS_MIN_v;
+  guint8 GPRS_MS_TXPWR_MAX_CCH_v;
 
-	guint8 Exist_OFFSET_and_TIME;
-	guint8 GPRS_TEMPORARY_OFFSET_v;
-	guint8 GPRS_PENALTY_TIME_v;
+  guint8 Exist_OFFSET_and_TIME;
+  guint8 GPRS_TEMPORARY_OFFSET_v;
+  guint8 GPRS_PENALTY_TIME_v;
 
-	guint8 Exist_GPRS_RESELECT_OFFSET_v;
-	guint8 GPRS_RESELECT_OFFSET_v;
+  guint8 Exist_GPRS_RESELECT_OFFSET_v;
+  guint8 GPRS_RESELECT_OFFSET_v;
 
-	guint8 Exist_HCS;
-	HCS_t HCS;
+  guint8 Exist_HCS;
+  HCS_t HCS;
 
-	guint8 Exist_SI13_PBCCH_Location;
-	SI13_PBCCH_Location_t SI13_PBCCH_Location;
+  guint8 Exist_SI13_PBCCH_Location;
+  SI13_PBCCH_Location_t SI13_PBCCH_Location;
 } Cell_Selection_2_t;
 
 typedef struct
@@ -2737,8 +2737,8 @@ typedef struct
 
   guint8 NR_OF_FREQUENCIES_v;
   guint8 FREQ_DIFF_LENGTH_v;
- 
- 
+
+
   CellSelectionParamsWithFreqDiff_t CellSelectionParamsWithFreqDiff[32];
 } Add_Frequency_list_t;
 
@@ -2826,7 +2826,7 @@ typedef struct
 
   guint8 NUMBER_OF_NC_MEASUREMENTS_v;
   NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS_v))
-                                           Max 7 NC Measurements in one PACKET MEASUREMENT REPORT, 
+                                           Max 7 NC Measurements in one PACKET MEASUREMENT REPORT,
                                            but only 6 cells are updated in PACKET IDLE. */
 } NC_Measurement_Report_t;
 
@@ -2907,7 +2907,7 @@ typedef struct
     BA_USED_t BA_USED;
     guint8 PSI3_CHANGE_MARK_v;
   } u;
-  
+
   guint8 PMO_USED_v;
   guint8 BSIC_Seen;
   guint8 SCALE_v;
@@ -2920,7 +2920,7 @@ typedef struct
 
   guint8 Exist_ReportBitmap;
   guint8 Count_REPORTING_QUANTITY_Instances;
-  REPORTING_QUANTITY_Instance_t REPORTING_QUANTITY_Instances[REPORT_QUANTITY_LIST_LEN]; 
+  REPORTING_QUANTITY_Instance_t REPORTING_QUANTITY_Instances[REPORT_QUANTITY_LIST_LEN];
 
 } ENH_NC_Measurement_Report_t;
 
@@ -2942,14 +2942,14 @@ typedef struct
 
   guint8 NUMBER_OF_NC_MEASUREMENTS_v;
   NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS_v))
-                                           Max 7 NC Measurements in one PACKET MEASUREMENT REPORT, 
+                                           Max 7 NC Measurements in one PACKET MEASUREMENT REPORT,
                                            but only 6 cells are updated in PACKET IDLE. */
 } CCN_Measurement_Report_t;
 
 typedef struct
 {
   guint16 ARFCN_v;
-  guint8 BSIC_v; 
+  guint8 BSIC_v;
 } Target_Cell_GSM_Notif_t;
 
 typedef struct
@@ -2997,9 +2997,9 @@ typedef struct
   guint8 R;
 
   Global_TFI_t Global_TFI;
-  
+
   Target_Cell_t Target_Cell;
-  
+
   guint8 UnionType;
   union
   {
@@ -3009,7 +3009,7 @@ typedef struct
   guint8 PMO_USED_v;
   guint8 PCCN_SENDING;
   CCN_Measurement_Report_t CCN_Measurement_Report;
-  
+
   gboolean Exist_AdditionsR6;
   PCCN_AdditionsR6_t AdditionsR6;
 } Packet_Cell_Change_Notification_t;
@@ -3092,7 +3092,7 @@ typedef struct
   guint8             MULTI_BAND_REPORTING_v;
 
   guint8             Exist_SERVING_BAND_REPORTING;
-  guint8             SERVING_BAND_REPORTING_v; 
+  guint8             SERVING_BAND_REPORTING_v;
 
   /* Warning:
    *
@@ -3120,7 +3120,7 @@ typedef struct
 
   guint8             Exist_OffsetThreshold850;
   OffsetThreshold_t OffsetThreshold850;
-  
+
 } MeasurementParams_t;
 
 typedef MeasurementParams_t GPRSMeasurementParams_PMO_PCCO_t;
@@ -3168,7 +3168,7 @@ typedef struct
 
 typedef struct
 {
-  guint8 Qsearch_p; 
+  guint8 Qsearch_p;
   guint8 SearchPrio3G;
 
   guint8 existRepParamsFDD;
@@ -3176,7 +3176,7 @@ typedef struct
   guint8 MultiratReportingFDD;
 
   guint8 existReportingParamsFDD;
-  guint8 ReportingOffsetFDD; 
+  guint8 ReportingOffsetFDD;
   guint8 ReportingThresholdFDD;
 
   guint8 existMultiratReportingTDD;
@@ -3199,7 +3199,7 @@ typedef struct
   guint8 N2_Count;
   N2_t N2s[32];
 } N1_t;
-               
+
 typedef struct
 {
   guint8 N1_Count;
@@ -3223,7 +3223,7 @@ typedef struct {
 typedef struct {
   gboolean                        existBandwidth;
   guint8                          Bandwidth;
-  guint8                          NrOfFrequencies; 
+  guint8                          NrOfFrequencies;
   UTRAN_FDD_NeighbourCells_t     CellParams[8];
 } UTRAN_FDD_Description_t;
 
@@ -3250,9 +3250,9 @@ typedef struct
   guint8 Exist_Absolute_Index_Start_EMR_v;
   guint8 Absolute_Index_Start_EMR_v;
   guint8 Exist_UTRAN_FDD_Description;
-  UTRAN_FDD_Description_t UTRAN_FDD_Description; 
+  UTRAN_FDD_Description_t UTRAN_FDD_Description;
   guint8 Exist_UTRAN_TDD_Description;
-  UTRAN_TDD_Description_t UTRAN_TDD_Description; 
+  UTRAN_TDD_Description_t UTRAN_TDD_Description;
   guint8 Exist_CDMA2000_Description;
   CDMA2000_Description_t CDMA2000_Description;
   guint8 Exist_Removed3GCellDescription;
@@ -3266,9 +3266,9 @@ typedef struct
   guint8 Exist_Absolute_Index_Start_EMR_v;
   guint8 Absolute_Index_Start_EMR_v;
   guint8 Exist_UTRAN_FDD_Description;
-  UTRAN_FDD_Description_t UTRAN_FDD_Description; 
+  UTRAN_FDD_Description_t UTRAN_FDD_Description;
   guint8 Exist_UTRAN_TDD_Description;
-  UTRAN_TDD_Description_t UTRAN_TDD_Description; 
+  UTRAN_TDD_Description_t UTRAN_TDD_Description;
   guint8 Exist_Removed3GCellDescription;
   Removed3GCellDescription_t Removed3GCellDescription;
 } NeighbourCellDescription3G_PCCO_t;
@@ -3281,16 +3281,16 @@ typedef struct
     BA_IND_t BA_IND;
     guint8 PSI3_CHANGE_MARK_v;
   } u;
-  
+
   guint8   PMO_IND_v;
-         
+
   guint8   REPORT_TYPE_v;
   guint8   REPORTING_RATE_v;
   guint8   INVALID_BSIC_REPORTING_v;
-  
+
   gboolean Exist_NeighbourCellDescription3G;
   NeighbourCellDescription3G_PMO_t NeighbourCellDescription3G;
-  
+
   gboolean Exist_GPRSReportPriority;
   GPRSReportPriority_t GPRSReportPriority;
 
@@ -3308,16 +3308,16 @@ typedef struct
     BA_IND_t BA_IND;
     guint8 PSI3_CHANGE_MARK_v;
   } u;
-  
+
   guint8   PMO_IND_v;
-         
+
   guint8   REPORT_TYPE_v;
   guint8   REPORTING_RATE_v;
   guint8   INVALID_BSIC_REPORTING_v;
-  
+
   gboolean Exist_NeighbourCellDescription3G;
   NeighbourCellDescription3G_PCCO_t NeighbourCellDescription3G;
-  
+
   gboolean Exist_GPRSReportPriority;
   GPRSReportPriority_t GPRSReportPriority;
 
@@ -3427,14 +3427,14 @@ typedef struct
   guint8                   NumberOfFrequencyIndexes;
   guint8                   UTRAN_FREQUENCY_INDEX_a[18];
 
-  gboolean                 existUTRAN_PRIORITY; 
+  gboolean                 existUTRAN_PRIORITY;
   guint8                   UTRAN_PRIORITY;
-  
+
   guint8                   THRESH_UTRAN_high;
-  
+
   gboolean                 existTHRESH_UTRAN_low;
   guint8                   THRESH_UTRAN_low;
-  
+
   gboolean                 existUTRAN_QRXLEVMIN;
   guint8                   UTRAN_QRXLEVMIN;
 } RepeatedUTRAN_PriorityParameters_t;
@@ -3714,7 +3714,7 @@ typedef struct
 {
   guint8 Exist_LSA_Parameters;
   LSA_Parameters_t LSA_Parameters;
-  
+
   guint8 Exist_AdditionsR99;
   PMO_AdditionsR99_t AdditionsR99;
 } PMO_AdditionsR98_t;
@@ -3723,7 +3723,7 @@ typedef struct
 {
   guint8 Exist_LSA_Parameters;
   LSA_Parameters_t LSA_Parameters;
-  
+
   guint8 Exist_AdditionsR99;
   PCCO_AdditionsR99_t AdditionsR99;
 } PCCO_AdditionsR98_t;
@@ -3734,7 +3734,7 @@ typedef struct
   guint16 ARFCN_v;
   guint8 BSIC_v;
   NC_Measurement_Parameters_with_Frequency_List_t NC_Measurement_Parameters;
-  
+
   guint8 Exist_AdditionsR98;
   PCCO_AdditionsR98_t AdditionsR98;
 } Target_Cell_GSM_t;
@@ -3765,7 +3765,7 @@ typedef struct
     Target_Cell_GSM_t Target_Cell_GSM;
     Target_Cell_3G_t Target_Cell_3G;
   } u;
-  
+
 } Packet_Cell_Change_Order_t;
 
 /* < Packet Cell Change Continue message contents > */
@@ -3889,17 +3889,17 @@ typedef struct
 
 typedef struct
 {
-  guint8		NC_MODE;
+  guint8                NC_MODE;
   guint8 UnionType;
   union
   {
-    BA_USED_t		BA_USED;  
-    guint8		    PSI3_CHANGE_MARK;
+    BA_USED_t           BA_USED;
+    guint8              PSI3_CHANGE_MARK;
   } u;
   guint8 PMO_USED;
   guint8 SCALE;
   guint8 Exist_ServingCellData;
-  ServingCellData_t   ServingCellData; 
+  ServingCellData_t   ServingCellData;
   guint8   Count_Repeated_Invalid_BSIC_Info;
   Repeated_Invalid_BSIC_Info_t Repeated_Invalid_BSIC_Info[32];
 
@@ -3924,7 +3924,7 @@ typedef struct
 {
   guint8 TimeslotAllocation;
   guint8 PFI;
-  guint8 RLC_Mode; 
+  guint8 RLC_Mode;
   guint8 TFI_Assignment;
   guint8 ControlACK;
   guint8 Exist_EGPRS_WindowSize;
@@ -3954,8 +3954,8 @@ typedef struct
   guint8 Exist_EGPRS_ChannelCodingCommand;
   guint8 EGPRS_ChannelCodingCommand;
   guint8 Exist_EGPRS_WindowSize;
-  guint8 EGPRS_WindowSize; 
-  guint8 USF_Granularity; 
+  guint8 EGPRS_WindowSize;
+  guint8 USF_Granularity;
   guint8 Exist_TBF_TimeslotAllocation;
   guint8 TBF_TimeslotAllocation;
   guint8 UnionType;
@@ -4020,19 +4020,19 @@ typedef struct
   Global_Packet_Timing_Advance_t    GlobalPacketTimingAdvance;
   guint8 Exist_PacketExtendedTimingAdvance;
   guint8 PacketExtendedTimingAdvance;
-} PHO_TimingAdvance_t; 
+} PHO_TimingAdvance_t;
 
 typedef struct
 {
   guint8 NAS_ContainerLength;
   guint8 NAS_Container[MAX_NAS_CONTAINER_LENGTH];
-} NAS_Container_t; 
+} NAS_Container_t;
 
 typedef struct
 {
   guint8 RRC_ContainerLength;
   guint8 RRC_Container[MAX_RRC_CONTAINER_LENGTH];
-} PS_HandoverTo_UTRAN_Payload_t; 
+} PS_HandoverTo_UTRAN_Payload_t;
 
 
 typedef struct
@@ -4074,7 +4074,7 @@ typedef struct
   guint8 Exist_NAS_Container;
   NAS_Container_t NAS_Container;
 } PS_HandoverTo_A_GB_ModePayload_t;
-    
+
 typedef struct
 {
   guint8 MessageType;
@@ -4228,7 +4228,7 @@ typedef struct
    * 2. after successful unpacking it will hold the number of bits unpacked from a message.
    *   This will be needed for some EGPRS messages to compute the length of included variable bitmap
    */
-  gint16 NrOfBits; 
+  gint16 NrOfBits;
 } RlcMacDownlink_t;
 
 typedef gint16 MSGGPRS_Status_t;
@@ -4288,7 +4288,7 @@ typedef struct
 
   guint8 Exist_WHERE_v;
   guint8 WHERE_v;
-  
+
   guint8 Exist_GPRS_Indicator;
   guint8 RA_COLOUR_v;
   guint8 SI13_POSITION_v;
@@ -4339,7 +4339,7 @@ typedef struct
    * FALSE => DTM is not supported in the serving cell, RAC and MAX_LAPDm are absent in bitstream
    * TRUE  => DTM is supported in the serving cell, RAC and MAX_LAPDm are present in bitstream
    */
-  gboolean            Exist_DTM_Support; 
+  gboolean            Exist_DTM_Support;
   guint8              RAC_v;
   guint8              MAX_LAPDm_v;
 
@@ -4350,14 +4350,14 @@ typedef struct
  * Enhanced Measurement Report. TS 04.18 9.1.55. *
  *************************************************/
 
-typedef struct  
+typedef struct
 {
-  guint8	DTX_USED;
-  guint8	RXLEV_VAL;
-  guint8	RX_QUAL_FULL;
-  guint8	MEAN_BEP;
-  guint8	CV_BEP;
-  guint8	NBR_RCVD_BLOCKS;
+  guint8        DTX_USED;
+  guint8        RXLEV_VAL;
+  guint8        RX_QUAL_FULL;
+  guint8        MEAN_BEP;
+  guint8        CV_BEP;
+  guint8        NBR_RCVD_BLOCKS;
 } EMR_ServingCell_t;
 
 typedef struct
@@ -4379,8 +4379,8 @@ typedef struct
 
   guint8 Exist_ReportBitmap;
   guint8 Count_REPORTING_QUANTITY_Instances; /* Number of instances */
-  REPORTING_QUANTITY_Instance_t REPORTING_QUANTITY_Instances[REPORT_QUANTITY_LIST_LEN]; 
-  
+  REPORTING_QUANTITY_Instance_t REPORTING_QUANTITY_Instances[REPORT_QUANTITY_LIST_LEN];
+
 } EnhancedMeasurementReport_t;
 
 #endif /* __PACKET_GSM_RLCMAC_H__ */
