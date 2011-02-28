@@ -941,14 +941,20 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
                 /* Frames are not missing if we get an earlier sequence number again */
                 else if (((snLimit + expectedSequenceNumber - sequenceNumber) % snLimit) > 40) {
-                    p_report_in_frame->state = SN_Missing;
-                    tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
-                    p_report_in_frame->firstSN = expectedSequenceNumber;
-                    p_report_in_frame->lastSN = (snLimit + sequenceNumber - 1) % snLimit;
+                    if (!createdChannel) {
+                        p_report_in_frame->state = SN_Missing;
+                        tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
+                        p_report_in_frame->firstSN = expectedSequenceNumber;
+                        p_report_in_frame->lastSN = (snLimit + sequenceNumber - 1) % snLimit;
 
-                    p_report_in_frame->sequenceExpected = expectedSequenceNumber;
-                    p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
-                    p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
+                        p_report_in_frame->sequenceExpected = expectedSequenceNumber;
+                        p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
+                        p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
+                    }
+                    else {
+                        /* The log may not contain the very first SNs for this channel, so be forgiving... */
+                        p_report_in_frame->state = SN_OK;
+                    }
 
                     /* Update channel status to remember *this* frame */
                     p_channel_status->previousFrameNum = pinfo->fd->num;
@@ -1049,11 +1055,17 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 else {
-                    /* Ahead of expected SN. Assume frames have been missed */
-                    p_report_in_frame->state = SN_Missing;
-
-                    p_report_in_frame->firstSN = expectedSequenceNumber;
-                    p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
+                    if (!createdChannel) {
+                        /* Ahead of expected SN. Assume frames have been missed */
+                        p_report_in_frame->state = SN_Missing;
+    
+                        p_report_in_frame->firstSN = expectedSequenceNumber;
+                        p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
+                    }
+                    else {
+                        /* The log may not contain the very first SNs for this channel, so be forgiving... */
+                        p_report_in_frame->state = SN_OK;
+                    }
 
                     /* Update channel state - forget about missed SNs */
                     p_report_in_frame->sequenceExpected = expectedSequenceNumber;
