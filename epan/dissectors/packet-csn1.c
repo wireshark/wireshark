@@ -120,6 +120,7 @@ gint16 ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned c
   return err;
 }
 
+#if 0
 static const char* CSN_DESCR_type[]=
 {
   "CSN_END",
@@ -156,7 +157,7 @@ static const char* CSN_DESCR_type[]=
   "CSN_TRAP_ERROR"
   "CSN_???"
 };
-
+#endif
 
 /**
  * ================================================================================================
@@ -858,7 +859,6 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
                                              decode_bits_in_field(bit_offset, no_of_bits, *pui16), 
                                              pDescr->sz,
                                              i++);
-                  *pui16++;
                   bit_offset += no_of_bits;
                   nCount--;
                 }
@@ -1437,6 +1437,10 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         else if (no_of_bits <= 32)
         {
           ui32  = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
+        }
+        else
+        {
+          return ProcessError(tree, tvb, bit_offset,"no_of_bits > 32", -1, pDescr);
         }
         if (ui32 != (unsigned)(gint32)pDescr->offset)
         {
