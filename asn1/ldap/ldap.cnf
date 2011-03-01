@@ -678,6 +678,16 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	proto_item *it=NULL;
 	attributedesc_string=NULL;
 
+	if (Filter_length++ > MAX_FILTER_LEN) {
+		expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_ERROR, "Filter length exceeds %%u. Giving up.", MAX_FILTER_LEN);
+		THROW(ReportedBoundsError);
+	}
+
+	if (Filter_elements++ > MAX_FILTER_ELEMENTS) {
+		expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_ERROR, "Found more than %%u filter elements. Giving up.", MAX_FILTER_ELEMENTS);
+		THROW(ReportedBoundsError);
+	}
+
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
