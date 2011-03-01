@@ -103,6 +103,7 @@
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
@@ -575,6 +576,12 @@ static const char *substring_item_any=NULL;
 static const char *substring_item_final=NULL;
 static const char *matching_rule_string=NULL;
 static gboolean matching_rule_dnattr=FALSE;
+
+#define MAX_FILTER_LEN 4096
+static gint Filter_length;
+
+#define MAX_FILTER_ELEMENTS 200
+static gint Filter_elements;
 
 /* Global variables */
 char *mechanism = NULL;
