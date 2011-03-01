@@ -2785,7 +2785,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                 subframes[n].number_of_mac_is_sdus[pdu_no]++;
 
                 offset++;
-            } while (F);
+            } while (F == 0);
         }
     }
 
@@ -2857,6 +2857,8 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
             proto_item_append_text(macis_pdu_ti, " - SS=%u TSN=%u (%u bytes in %u SDUs)",
                                    ss, tsn, subframe_bytes, subframes[n].number_of_mac_is_sdus[pdu_no]);
+
+            proto_item_set_len(macis_pdu_ti, 1+subframe_bytes);
             total_bytes += subframe_bytes;
         }
     }
