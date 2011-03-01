@@ -1,4 +1,4 @@
-Wireshark 1.4.3 Release Notes
+Wireshark 1.4.4 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,82 +15,102 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o FRAsse discovered that the MAC-LTE dissector could overflow a
-       buffer. (Bug 5530)
+     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
+       discovered that Wireshark could free an uninitialized pointer
+       while reading a malformed pcap-ng file. (Bug 5652)
 
-       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
+       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
 
-     o FRAsse discovered that the ENTTEC dissector could overflow a
-       buffer. (Bug 5539)
+       CVE-2011-0538
 
-       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
+     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
+       discovered that a large packet length in a pcap-ng file could
+       crash Wireshark. (Bug 5661)
 
-       CVE-2010-4538
+       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
 
-     o The ASN.1 BER dissector could assert and make Wireshark exit
-       prematurely. (Bug 5537)
+     o Wireshark could overflow a buffer while reading a Nokia DCT3
+       trace file. (Bug 5661)
 
-       Versions affected: 1.4.0 to 1.4.2.
+       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
+
+       CVE-2011-0713
+
+     o Paul Makowski working for SEI/CERT discovered that Wireshark
+       on 32 bit systems could crash while reading a malformed
+       6LoWPAN packet. (Bug 5661)
+
+       Versions affected: 1.4.0 to 1.4.3.
+
+     o joernchen of Phenoelit discovered that the LDAP and SMB
+       dissectors could overflow the stack. (Bug 5717)
+
+       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
+       versions including 1.0.x are also affected.)
+
+     o Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that
+       large LDAP Filter strings can consume excessive amounts of
+       memory. (Bug 5732)
+
+       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
+       versions including 1.0.x are also affected.)
 
    The following bugs have been fixed:
 
-     o AMQP failed assertion. (Bug 4048)
+     o A TCP stream would not always be recognized as the same
+       stream. (Bug 2907)
 
-     o Reassemble.c leaks memory for GLIB > 2.8. (Bug 4141)
+     o Wireshark Crashing by pressing 2 Buttons. (Bug 4645)
 
-     o Fuzz testing reports possible dissector bug: TCP. (Bug 4211)
+     o A crash can occur in the NTLMSSP dissector. (Bug 5157)
 
-     o Wrong length calculation in new_octet_aligned_subset_bits()
-       (PER dissector). (Bug 5393)
+     o The column texts from a Lua dissector could be mangled. (Bug
+       5326) (Bug 5630)
 
-     o Function dissect_per_bit_string_display might read more bytes
-       than available (PER dissector). (Bug 5394)
+     o Corrections to ANSI MAP ASN.1 specifications. (Bug 5584)
 
-     o Cannot load wpcap.dll & packet.dll from Wireshark program
-       directory. (Bug 5420)
+     o When searching in packet bytes, the field and bytes are not
+       immediately shown. (Bug 5585)
 
-     o Wireshark crashes with Copy -> Description on date/time
-       fields. (Bug 5421)
+     o Malformed Packet: ULP reported when dissecting ULP SessionID
+       PDU. (Bug 5593)
 
-     o DHCPv6 OPTION_CLIENT_FQDN parse error. (Bug 5426)
+     o Wrong IEI in container of decode_gtp_mm_cntxt. (Bug 5598)
 
-     o Information element Error for supported channels. (Bug 5430)
+     o Display filter does not work for expressions of type BASE_DEC,
+       BASE_DEC_HEX and BASE_HEX_DEC. (Bug 5606)
 
-     o Assert when using ASN.1 dissector with loading a 'type table'.
-       (Bug 5447)
+     o NTLMSSP dissector may fail to compile due to space embedded in
+       C comment delimiters. (Bug 5614)
 
-     o Bug with RWH parsing in Infiniband dissector. (Bug 5444)
+     o Allow for name resolution of link-scope and multicast IPv6
+       addresses from local host file. (Bug 5615)
 
-     o Help->About Wireshark mis-reports OS. (Bug 5453)
+     o DHCPv6 dissector formats DUID_LLT time incorrectly. (Bug 5627)
 
-     o Delegated-IPv6-Prefix(123) is shown incorrect as
-       X-Ascend-Call-Attempt-Limit(123). (Bug 5455)
+     o Allow for IEEE 802.3bc-2009 style PoE TLVs. (Bug 5639)
 
-     o "tshark -r file -T fields" is truncating exported data. (Bug
-       5463)
+     o Various fixes to the HIP packet dissector. (Bug 5646)
 
-     o gsm_a_dtap: incorrect "Extraneous Data" when decoding Packet
-       Flow Identifier. (Bug 5475)
+     o Display "Day of Year" for January 1 as 1, not 0. (Bug 5653)
 
-     o Improper decode of TLS 1.2 packet containing both
-       CertificateRequest and ServerHelloDone messages. (Bug 5485)
+     o Accommodate the CMake build on Ubuntu 10.10. (Bug 5665)
 
-     o LTE-PDCP UL and DL problem. (Bug 5505)
+     o E.212 MCC 260 Poland update according to local national
+       regulatory. (Bug 5668)
 
-     o CIGI 3.2/3.3 support broken. (Bug 5510)
+     o IPP on ports other than 631 not recognized. (Bug 5677)
 
-     o Prepare Filter in RTP Streams dialog does not work correctly.
-       (Bug 5513)
+     o Potential access violation when writing to LANalyzer files.
+       (Bug 5698)
 
-     o Wrong decode at ethernet OAM Y.1731 ETH-CC. (Bug 5517)
+     o IEEE 802.15.4 Superframe Specification - Final CAP Slot always
+       0. (Bug 5700)
 
-     o WPS: RF bands decryption. (Bug 5523)
+     o Peer SRC and DST AS numbers are swapped for cflow. (Bug 5702)
 
-     o Incorrect LTP SDNV value handling. (Bug 5521)
-
-     o LTP bug found by randpkt. (Bug 5323)
-
-     o Buffer overflow in SNMP EngineID preferences. (Bug 5530)
+     o dumpcap: -q option behavior doesn't match documentation. (Bug
+       5716)
 
   New and Updated Features
 
@@ -102,13 +122,13 @@ What's New
 
   Updated Protocol Support
 
-   AMQP, ASN.1 BER, ASN.1 PER, CFM, CIGI, DHCPv6, Diameter, ENTTEC,
-   GSM A GM, IEEE 802.11, InfiniBand, LTE-PDCP, LTP, MAC-LTE, MP2T,
-   RADIUS, SAMR, SCCP, SIP, SNMP, TCP, TLS, TN3270, UNISTIM, WPS
+   ANSI MAP, BitTorrent, DCM, DHCPv6, DTAP, DTPT, E.212, GSM
+   Management, GTP, HIP, IEEE 802.15.4, IPP, LDAP, LLDP, Netflow,
+   NTLMSSP, P_Mul, Quake, Skinny, SMB, SNMP, ULP
 
   New and Updated Capture File Support
 
-   Endace ERF, Microsoft Network Monitor, VMS TCPtrace.
+   LANalyzer, Nokia DCT3, Pcap-ng
 
 Getting Wireshark
 
@@ -161,8 +181,6 @@ Getting Help
    wireshark-users mailing list. Subscription information and
    archives for all of Wireshark's mailing lists can be found on the
    web site.
-
-   Commercial support is available from CACE Technologies.
 
    Training is available from Wireshark University.
 
