@@ -1308,13 +1308,15 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
                             (!received  && (node_type == 1)));
 
     /* Division type introduced for R7 */
-    if (p_fp_info->release == 7) {
+    if ((p_fp_info->release == 7) ||
+        (p_fp_info->release == 8)) {
         p_fp_info->division = outhdr_values[i++];
     }
 
     /* HS-DSCH config */
     if (p_fp_info->channel == CHANNEL_HSDSCH) {
-        if (p_fp_info->release == 7) {
+        if ((p_fp_info->release == 7) ||
+            (p_fp_info->release == 8)) {
             /* Entity (MAC-hs or MAC-ehs) used */
             if (outhdr_values[i++]) {
                 p_fp_info->hsdsch_entity = ehs;
@@ -1348,6 +1350,11 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
 
     /* Number of channels (for coordinated channels) */
     p_fp_info->num_chans = outhdr_values[i++];
+
+    /* EDCH-Common is always T2 */
+    if (p_fp_info->channel == CHANNEL_EDCH_COMMON) {
+        p_fp_info->edch_type = 1;
+    }
 
     if (p_fp_info->channel != CHANNEL_EDCH) {
         /* TF size for each channel */
