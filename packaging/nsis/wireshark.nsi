@@ -34,6 +34,20 @@ InstType "un.All (remove all)"
 
 Name "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 
+; 
+VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
+VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"
+VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
+; NSIS handles the copyright symbol correctly using CP-1252 but not UTF-8.
+VIAddVersionKey "LegalCopyright" "© Gerald Combs and many others"
+VIAddVersionKey "LegalTrademarks" "Wireshark and the 'fin' logo are registered trademarks of the Wireshark Foundation"
+VIAddVersionKey "FileDescription" "${PROGRAM_NAME} installer for ${BITS}-bit Windows"
+VIAddVersionKey "Language" "English"
+VIAddVersionKey "ProductVersion" "${PRODUCT_VERSION}"
+VIAddVersionKey "FileVersion" "${PRODUCT_VERSION}"
+VIProductVersion "${PRODUCT_VERSION}"
+
+
 ; The file to write
 OutFile "wireshark-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 
