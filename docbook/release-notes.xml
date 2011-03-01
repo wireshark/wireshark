@@ -13,7 +13,7 @@ DOCUMENT SECTION
 Wireshark Info
 -->
 
-  <!ENTITY WiresharkCurrentVersion "1.2.15">
+  <!ENTITY WiresharkCurrentVersion "1.2.16">
 
 ]>
 
@@ -79,8 +79,6 @@ Wireshark Info
             <!-- Fixed in trunk: r35953 -->
             <!-- Fixed in trunk-1.4: r36050 -->
             <!-- Fixed in trunk-1.2: r36051 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
-            5661</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
           <para>
@@ -105,7 +103,7 @@ Wireshark Info
           </para>
           -->
         </listitem>
-  
+
         <listitem>
           <para>
             Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that large
@@ -125,7 +123,7 @@ Wireshark Info
         </listitem>
 
       </itemizedlist>
-      
+
     </para>
 
     <para>
