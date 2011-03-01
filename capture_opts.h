@@ -57,7 +57,7 @@ typedef enum {
     CAPTURE_AUTH_NULL,      /**< No authentication */
     CAPTURE_AUTH_PWD        /**< User/password authentication */
 } capture_auth;
-
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
 /**
  * Method of packet sampling (dropping some captured packets),
@@ -72,7 +72,6 @@ typedef enum {
                                  in N milliseconds */
 } capture_sampling;
 #endif
-#endif
 
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
@@ -81,17 +80,17 @@ typedef struct capture_options_tag {
     gboolean has_cfilter;           /**< TRUE if capture filter specified on command line */
     gchar    *cfilter;              /**< Capture filter string */
     gchar    *iface;                /**< the network interface to capture from */
-    gchar    *iface_descr;	    /**< A human readable description of iface.
-				      *< NOTE: capture_opts.c is not able to
-				      *< set this field because doing so
-				      *< requires too many dependencies.
-				      *< Readers of this field should use
-				      *< get_iface_description() from
-				      *< "capture_ui_utils.h" to access it. */
+    gchar    *iface_descr;          /**< A human readable description of iface.
+                                      *< NOTE: capture_opts.c is not able to
+                                      *< set this field because doing so
+                                      *< requires too many dependencies.
+                                      *< Readers of this field should use
+                                      *< get_iface_description() from
+                                      *< "capture_ui_utils.h" to access it. */
 #ifdef HAVE_PCAP_REMOTE
     capture_source src_type;        /**< Capturing on remote interface */
     gchar    *remote_host;          /**< Host name or network address
-				      *< for remote capturing */
+                                      *< for remote capturing */
     gchar    *remote_port;          /**< TCP port of remote RPCAP server */
 
     capture_auth  auth_type;
@@ -101,10 +100,10 @@ typedef struct capture_options_tag {
     gboolean datatx_udp;            /**< Whether to use UDP for data transfer */
     gboolean nocap_rpcap;           /**< Whether to capture RPCAP own traffic */
     gboolean nocap_local;           /**< TODO: Whether to capture local traffic */
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_sampling sampling_method; /**< PCAP packet sampling method */
     int sampling_param;             /**< PCAP packet sampling parameter */
-#endif
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     int      buffer_size;           /**< the capture buffer size (MB) */

@@ -69,10 +69,10 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->datatx_udp              = FALSE;
   capture_opts->nocap_rpcap             = TRUE;
   capture_opts->nocap_local             = FALSE;
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
   capture_opts->sampling_method         = CAPTURE_SAMP_NONE;
   capture_opts->sampling_param          = 0;
-#endif
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   capture_opts->buffer_size             = 1;                /* 1 MB */
@@ -130,7 +130,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Interface          : %s", capture_opts->iface);
     /* iface_descr may not been filled in and some C Libraries hate a null ptr for %s */
     g_log(log_domain, log_level, "Interface Descr    : %s",
-	  capture_opts->iface_descr ? capture_opts->iface_descr : "<null>");
+        capture_opts->iface_descr ? capture_opts->iface_descr : "<null>");
 #ifdef HAVE_PCAP_REMOTE
     g_log(log_domain, log_level, "Capture source     : %s",
         capture_opts->src_type == CAPTURE_IFLOCAL ? "Local interface" :
@@ -467,7 +467,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     case 'i':        /* Use interface x */
         status = capture_opts_add_iface_opt(capture_opts, optarg_str_p);
-        if(status != 0) {
+        if (status != 0) {
             return status;
         }
         break;
@@ -506,10 +506,10 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
         capture_opts->snaplen = get_natural_int(optarg_str_p, "snapshot length");
-	/*
-	 * Make a snapshot length of 0 equivalent to the maximum packet
-	 * length, mirroring what tcpdump does.
-	 */
+        /*
+         * Make a snapshot length of 0 equivalent to the maximum packet
+         * length, mirroring what tcpdump does.
+         */
         if (capture_opts->snaplen == 0)
           capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
         break;
@@ -539,7 +539,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->linktype = linktype_name_to_val(optarg_str_p);
         if (capture_opts->linktype == -1) {
           cmdarg_err("The specified data link type \"%s\" isn't valid",
-                  optarg_str_p);
+              optarg_str_p);
           return 1;
         }
         break;
@@ -660,10 +660,10 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
         }
         if_info = (if_info_t *)if_list->data;	/* first interface */
         capture_opts->iface = g_strdup(if_info->name);
-	/*  We don't set iface_descr here because doing so requires
-	 *  capture_ui_utils.c which requires epan/prefs.c which is
-	 *  probably a bit too much dependency for here...
-	 */
+        /*  We don't set iface_descr here because doing so requires
+         *  capture_ui_utils.c which requires epan/prefs.c which is
+         *  probably a bit too much dependency for here...
+         */
         free_interface_list(if_list);
       }
     }
@@ -683,15 +683,15 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 /* copied from filesystem.c */
 static int capture_opts_test_for_fifo(const char *path)
 {
-	struct stat statb;
+  struct stat statb;
 
-	if (ws_stat(path, &statb) < 0)
-		return errno;
+  if (ws_stat(path, &statb) < 0)
+    return errno;
 
-	if (S_ISFIFO(statb.st_mode))
-		return ESPIPE;
-	else
-		return 0;
+  if (S_ISFIFO(statb.st_mode))
+    return ESPIPE;
+  else
+    return 0;
 }
 
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
@@ -714,17 +714,17 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
       err = capture_opts_test_for_fifo(save_file);
       switch (err) {
 
-      case ENOENT:	/* it doesn't exist, so we'll be creating it,
-      			   and it won't be a FIFO */
-      case 0:		/* found it, but it's not a FIFO */
+      case ENOENT:      /* it doesn't exist, so we'll be creating it,
+                           and it won't be a FIFO */
+      case 0:           /* found it, but it's not a FIFO */
         break;
 
-      case ESPIPE:	/* it is a FIFO */
+      case ESPIPE:      /* it is a FIFO */
         *is_pipe = TRUE;
         break;
 
-      default:		/* couldn't stat it              */
-        break;		/* ignore: later attempt to open */
+      default:          /* couldn't stat it              */
+        break;          /* ignore: later attempt to open */
                         /*  will generate a nice msg     */
       }
     }
