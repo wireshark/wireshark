@@ -1942,11 +1942,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
                         break;
 
                     case SR_Request:
-                        /* Tried another SR after a failure, and presumbly no
-                           successful subsequent RACH */
+                        /* Tried another SR after previous one failed.
+                           Presumably a subsequent RACH was tried in-between... */
+
+                        state->status = SR_Outstanding;
+
                         result = GetSRResult(pinfo->fd->num, TRUE);
-                        result->type = InvalidSREvent;
-                        result->status = SR_Failed;
+                        result->status = SR_Outstanding;
                         result->event = SR_Request;
                         break;
 
