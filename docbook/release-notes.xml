@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.4">
+  <!ENTITY WiresharkCurrentVersion "1.4.5">
 
 ]>
 
@@ -78,8 +78,6 @@ Wireshark Info
             <!-- Fixed in trunk: r35953 -->
             <!-- Fixed in trunk-1.4: r36050 -->
             <!-- Fixed in trunk-1.2: r36051 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
-            5661</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
           <para>
@@ -93,8 +91,8 @@ Wireshark Info
             bit systems could crash while reading a malformed 6LoWPAN packet.
             <!-- Fixed in trunk: r36037 -->
             <!-- Fixed in trunk-1.4: r36036 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
-            5661</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5722">Bug
+            5722</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.3.</para>
           <!--
