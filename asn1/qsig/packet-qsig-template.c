@@ -307,8 +307,12 @@ static gint ett_qsig = -1;
 static gint ett_qsig_ie = -1;
 static gint ett_qsig_unknown_extension = -1;
 #include "packet-qsig-ett.c"
+static gint ett_cnq_PSS1InformationElement = -1;
 
 /* Preferences */
+
+/* Subdissectors */
+static dissector_handle_t q931_ie_handle = NULL; 
 
 /* Global variables */
 static const char *extension_oid = NULL;
@@ -653,6 +657,7 @@ void proto_register_qsig(void) {
     &ett_qsig_ie,
     &ett_qsig_unknown_extension,
 #include "packet-qsig-ettarr.c"
+    &ett_cnq_PSS1InformationElement,
   };
 
   /* Register protocol and dissector */
@@ -681,6 +686,7 @@ void proto_reg_handoff_qsig(void) {
   dissector_handle_t qsig_ie_handle;
 
   q931_handle = find_dissector("q931");
+  q931_ie_handle = find_dissector("q931.ie");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);

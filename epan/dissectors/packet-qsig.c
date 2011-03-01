@@ -2018,8 +2018,12 @@ static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
 #line 310 "packet-qsig-template.c"
+static gint ett_cnq_PSS1InformationElement = -1;
 
 /* Preferences */
+
+/* Subdissectors */
+static dissector_handle_t q931_ie_handle = NULL; 
 
 /* Global variables */
 static const char *extension_oid = NULL;
@@ -2090,9 +2094,18 @@ dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_qsig_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 168 "qsig.cnf"
+  tvbuff_t *out_tvb = NULL;
+  proto_tree *data_tree;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &out_tvb);
+
+  data_tree = proto_item_add_subtree(actx->created_item, ett_cnq_PSS1InformationElement); 
+  if (out_tvb && (tvb_length(out_tvb) > 0) && q931_ie_handle)
+    call_dissector(q931_ie_handle, out_tvb, actx->pinfo, data_tree);
+
 
   return offset;
 }
@@ -2102,7 +2115,7 @@ dissect_qsig_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_qsig_PSS1InformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_qsig_OCTET_STRING);
+                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_qsig_PSS1InformationElement_U);
 
   return offset;
 }
@@ -11896,7 +11909,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 322 "packet-qsig-template.c"
+#line 326 "packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12114,7 +12127,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 331 "packet-qsig-template.c"
+#line 335 "packet-qsig-template.c"
 };                                 
 
 typedef struct _qsig_err_t {
@@ -12295,7 +12308,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 340 "packet-qsig-template.c"
+#line 344 "packet-qsig-template.c"
 };                                 
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15841,7 +15854,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 648 "packet-qsig-template.c"
+#line 652 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16292,7 +16305,8 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 656 "packet-qsig-template.c"
+#line 660 "packet-qsig-template.c"
+    &ett_cnq_PSS1InformationElement,
   };
 
   /* Register protocol and dissector */
@@ -16321,6 +16335,7 @@ void proto_reg_handoff_qsig(void) {
   dissector_handle_t qsig_ie_handle;
 
   q931_handle = find_dissector("q931");
+  q931_ie_handle = find_dissector("q931.ie");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);

@@ -164,6 +164,16 @@ NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
 
 #.END
 
+#.FN_BODY PSS1InformationElement/_untag  VAL_PTR = &out_tvb
+  tvbuff_t *out_tvb = NULL;
+  proto_tree *data_tree;
+
+%(DEFAULT_BODY)s
+  data_tree = proto_item_add_subtree(%(ACTX)s->created_item, ett_cnq_PSS1InformationElement); 
+  if (out_tvb && (tvb_length(out_tvb) > 0) && q931_ie_handle)
+    call_dissector(q931_ie_handle, out_tvb, %(ACTX)s->pinfo, data_tree);
+#.END
+
 #.TABLE10_BODY OPERATION
   { %(&operationCode)3s, "%(_name)s" },
 #.END
