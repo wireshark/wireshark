@@ -33,7 +33,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-01.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-03.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -87,44 +87,45 @@ Wireshark Info
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-0713">CVE-2011-0713</ulink>
           </para>
         </listitem>
+
+        <listitem>
+          <para>
+            joernchen of Phenoelit discovered that the LDAP and SMB dissectors
+            could overflow the stack.
+            <!-- Fixed in trunk: r36029 -->
+            <!-- Fixed in trunk-1.4: r36053 -->
+            <!-- Fixed in trunk-1.2: r36054 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717">Bug
+            5717</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+          -->
+        </listitem>
+  
+        <listitem>
+          <para>
+            Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that large
+            LDAP Filter strings can consume excessive amounts of memory.
+            <!-- Fixed in trunk: r36101 -->
+            <!-- Fixed in trunk-1.4: r36102 -->
+            <!-- Fixed in trunk-1.2: r36103 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5732">Bug
+            5732</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
-
-      <listitem>
-        <para>
-          joernchen of Phenoelit discovered that the LDAP and SMB dissectors
-          could overflow the stack.
-          <!-- Fixed in trunk: r36029 -->
-          <!-- Fixed in trunk-1.4: r36053 -->
-          <!-- Fixed in trunk-1.2: r36054 -->
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717">Bug
-          5717</ulink>)
-        </para>
-        <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
-        <!--
-        <para>
-          <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-        </para>
-        -->
-      </listitem>
-
-      <listitem>
-        <para>
-          Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that large
-          LDAP Filter strings can consume excessive amounts of memory.
-          <!-- Fixed in trunk: r36101 -->
-          <!-- Fixed in trunk-1.4: r36102 -->
-          <!-- Fixed in trunk-1.2: r36103 -->
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5732">Bug
-          5732</ulink>)
-        </para>
-        <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
-        <!--
-        <para>
-          <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-        </para>
-        -->
-      </listitem>
-
+      
     </para>
 
     <para>
