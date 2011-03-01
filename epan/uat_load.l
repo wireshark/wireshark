@@ -304,6 +304,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 	g_free(fname);	/* we're done with the file name now */
 
 	yylex();
+	fclose(yyin);
 	yyrestart(NULL);
 
 	uat->changed = FALSE;
