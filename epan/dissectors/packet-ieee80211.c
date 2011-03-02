@@ -57,6 +57,33 @@
  * Enhance 802.11 dissector by Alexis La Goutte
  */
 
+/*
+ * Reference :
+ * The 802.11 standard is "free", 6 month after the publication.
+ * 
+ * IEEE Std 802.11-2007: Revision of IEEE Std 802.11-199
+ * include 8 amendments (802.11a,b,d,e,g,h,i,j)
+ * http://standards.ieee.org/getieee802/download/802.11-2007.pdf
+ *
+ * IEEE Std 802.11k-2008: Radio Resource Measurement of Wireless LANs
+ * http://standards.ieee.org/getieee802/download/802.11k-2008.pdf
+ *
+ * IEEE Std 802.11r-2008: Fast Basic Service Set (BSS) Transition
+ * http://standards.ieee.org/getieee802/download/802.11r-2008.pdf
+ *
+ * IEEE Std 802.11y-2008: 3650–3700 MHz Operation in USA
+ * http://standards.ieee.org/getieee802/download/802.11y-2008.pdf
+ *
+ * IEEE Std 802.11w-2009: Protected Management Frames
+ * http://standards.ieee.org/getieee802/download/802.11w-2009.pdf
+ *
+ * IEEE Std 802.11n-2009: Enhancements for Higher Throughput
+ * http://standards.ieee.org/getieee802/download/802.11n-2009.pdf
+ *
+ * IEEE Std 802.11p-2010: Wireless Access in Vehicular Environments
+ * http://standards.ieee.org/getieee802/download/802.11p-2010.pdf
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -465,93 +492,95 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
 /* ************************************************************************* */
-#define TAG_SSID                     0x00
-#define TAG_SUPP_RATES               0x01
-#define TAG_FH_PARAMETER             0x02
-#define TAG_DS_PARAMETER             0x03
-#define TAG_CF_PARAMETER             0x04
-#define TAG_TIM                      0x05
-#define TAG_IBSS_PARAMETER           0x06
-#define TAG_COUNTRY_INFO             0x07
-#define TAG_FH_HOPPING_PARAMETER     0x08
-#define TAG_FH_HOPPING_TABLE         0x09
-#define TAG_REQUEST                  0x0A
-#define TAG_QBSS_LOAD                0x0B
-#define TAG_EDCA_PARAM_SET           0x0C
-#define TAG_TSPEC                    0x0D
-#define TAG_TCLAS                    0x0E
-#define TAG_SCHEDULE                 0x0F
-#define TAG_CHALLENGE_TEXT           0x10
+#define TAG_SSID                     0
+#define TAG_SUPP_RATES               1
+#define TAG_FH_PARAMETER             2
+#define TAG_DS_PARAMETER             3
+#define TAG_CF_PARAMETER             4
+#define TAG_TIM                      5
+#define TAG_IBSS_PARAMETER           6
+#define TAG_COUNTRY_INFO             7
+#define TAG_FH_HOPPING_PARAMETER     8
+#define TAG_FH_HOPPING_TABLE         9
+#define TAG_REQUEST                  10
+#define TAG_QBSS_LOAD                11
+#define TAG_EDCA_PARAM_SET           12
+#define TAG_TSPEC                    13
+#define TAG_TCLAS                    14
+#define TAG_SCHEDULE                 15
+#define TAG_CHALLENGE_TEXT           16
 
-#define TAG_POWER_CONSTRAINT         0x20
-#define TAG_POWER_CAPABILITY         0x21
-#define TAG_TPC_REQUEST              0x22
-#define TAG_TPC_REPORT               0x23
-/* 0x24 - 0x29 below */
-#define TAG_ERP_INFO                 0x2A
-#define TAG_TS_DELAY                 0x2B
-#define TAG_TCLAS_PROCESS            0x2C
-#define TAG_HT_CAPABILITY            0x2D  /* IEEE Stc 802.11n/D2.0 */
-#define TAG_QOS_CAPABILITY           0x2E
-#define TAG_ERP_INFO_OLD             0x2F  /* IEEE Std 802.11g/D4.0 */
-#define TAG_RSN_IE                   0x30
+#define TAG_POWER_CONSTRAINT         32
+#define TAG_POWER_CAPABILITY         33
+#define TAG_TPC_REQUEST              34
+#define TAG_TPC_REPORT               35
+/* 36 - 41 below */
+#define TAG_ERP_INFO                 42
+#define TAG_TS_DELAY                 43
+#define TAG_TCLAS_PROCESS            44
+#define TAG_HT_CAPABILITY            45  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_QOS_CAPABILITY           46
+#define TAG_ERP_INFO_OLD             47  /* IEEE Std 802.11g/D4.0 */
+#define TAG_RSN_IE                   48
 /* Reserved 49 */
-#define TAG_EXT_SUPP_RATES           0x32
-#define TAG_AP_CHANNEL_REPORT        0x33
-/* 0x34 below */
-#define TAG_MOBILITY_DOMAIN          0x36  /* IEEE Std 802.11r-2008 */
-/* 0x37 below */
-#define TAG_TIMEOUT_INTERVAL         0x38  /* 56 IEEE Std 802.11r-2008 */
-#define TAG_RIC_DATA                 0x39  /* 57 IEEE Std 802.11r-2008 */
+#define TAG_EXT_SUPP_RATES           50
+#define TAG_AP_CHANNEL_REPORT        51
+/* 52 below */
+#define TAG_RCPI                     53
+#define TAG_MOBILITY_DOMAIN          54  /* IEEE Std 802.11r-2008 */
+/* 55 below */
+#define TAG_TIMEOUT_INTERVAL         56  /* IEEE Std 802.11r-2008 */
+#define TAG_RIC_DATA                 57  /* IEEE Std 802.11r-2008 */
+/* 58 ??? */
 #define TAG_SUPPORTED_REGULATORY_CLASSES            59 /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
-#define TAG_HT_INFO                  0x3D  /* IEEE Stc 802.11n/D2.0 */
-#define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
-/* 0x45 below */
-#define TAG_20_40_BSS_CO_EX          0x48   /* IEEE P802.11n/D6.0 */
-#define TAG_20_40_BSS_INTOL_CH_REP   0x49   /* IEEE P802.11n/D6.0 */
-#define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
-#define TAG_RIC_DESCRIPTOR           0x4B  /* IEEE Std 802.11r-2008 */
-#define TAG_MMIE                     0x4C  /* IEEE Std 802.11w-2009 */
-#define TAG_LINK_IDENTIFIER          0x65  /* IEEE Std 802.11z-2010 */
-#define TAG_WAKEUP_SCHEDULE          0x66  /* IEEE Std 802.11z-2010 */
-#define TAG_CHANNEL_SWITCH_TIMING    0x68  /* IEEE Std 802.11z-2010 */
-#define TAG_PTI_CONTROL              0x69  /* IEEE Std 802.11z-2010 */
-#define TAG_PU_BUFFER_STATUS         0x6A  /* IEEE Std 802.11z-2010 */
-#define TAG_ADVERTISEMENT_PROTOCOL   0x6C  /* IEEE P802.11u/D10.0 */
-#define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
-#define TAG_AGERE_PROPRIETARY        0x80
-#define TAG_CISCO_CCX1_CKIP          0x85  /* Cisco Compatible eXtensions */
-#define TAG_CISCO_UNKNOWN_88         0x88  /* Cisco Compatible eXtensions? */
-#define TAG_CISCO_UNKNOWN_95         0x95  /* Cisco Compatible eXtensions */
-#define TAG_CISCO_UNKNOWN_96         0x96  /* Cisco Compatible eXtensions */
-#define TAG_VENDOR_SPECIFIC_IE       0xDD
-#define TAG_SYMBOL_PROPRIETARY       0xAD
+#define TAG_HT_INFO                  61  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_SECONDARY_CHANNEL_OFFSET 62  /* IEEE Stc 802.11n/D1.10/D2.0 */
+/* 69 below */
+#define TAG_20_40_BSS_CO_EX          72   /* IEEE P802.11n/D6.0 */
+#define TAG_20_40_BSS_INTOL_CH_REP   73   /* IEEE P802.11n/D6.0 */
+#define TAG_OVERLAP_BSS_SCAN_PAR     74   /* IEEE P802.11n/D6.0 */
+#define TAG_RIC_DESCRIPTOR           75   /* IEEE Std 802.11r-2008 */
+#define TAG_MMIE                     76   /* IEEE Std 802.11w-2009 */
+#define TAG_LINK_IDENTIFIER          101  /* IEEE Std 802.11z-2010 */
+#define TAG_WAKEUP_SCHEDULE          102  /* IEEE Std 802.11z-2010 */
+#define TAG_CHANNEL_SWITCH_TIMING    104  /* IEEE Std 802.11z-2010 */
+#define TAG_PTI_CONTROL              105  /* IEEE Std 802.11z-2010 */
+#define TAG_PU_BUFFER_STATUS         106  /* IEEE Std 802.11z-2010 */
+#define TAG_ADVERTISEMENT_PROTOCOL   108  /* IEEE P802.11u/D10.0 */
+#define TAG_EXTENDED_CAPABILITIES    127   /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_AGERE_PROPRIETARY        128
+#define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_UNKNOWN_88         136  /* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_95         149  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
+#define TAG_SYMBOL_PROPRIETARY       173
+#define TAG_VENDOR_SPECIFIC_IE       221
 
 #ifndef MESH_OVERRIDES
-#define TAG_SUPPORTED_CHANNELS    0x24
-#define TAG_CHANNEL_SWITCH_ANN    0x25
-#define TAG_MEASURE_REQ           0x26
-#define TAG_MEASURE_REP           0x27
-#define TAG_QUIET                 0x28
-#define TAG_IBSS_DFS              0x29
-#define TAG_NEIGHBOR_REPORT       0x34
-#define TAG_FAST_BSS_TRANSITION      0x37  /* IEEE Std 802.11r-2008 */
-#define TAG_WSIE                     0x45   /* tag of the Wave Service Information (802.11p) */
+#define TAG_SUPPORTED_CHANNELS       36
+#define TAG_CHANNEL_SWITCH_ANN       37
+#define TAG_MEASURE_REQ              38
+#define TAG_MEASURE_REP              39
+#define TAG_QUIET                    40
+#define TAG_IBSS_DFS                 41
+#define TAG_NEIGHBOR_REPORT          52
+#define TAG_FAST_BSS_TRANSITION      55  /* IEEE Std 802.11r-2008 */
+#define TAG_WSIE                     69   /* tag of the Wave Service Information (802.11p) */
 #else /* MESH_OVERRIDES */
-#define TAG_SUPPORTED_CHANNELS    0xE0
-#define TAG_CHANNEL_SWITCH_ANN    0xE1
-#define TAG_MEASURE_REQ           0xE2
-#define TAG_MEASURE_REP           0xE3
-#define TAG_QUIET                 0xE4
-#define TAG_IBSS_DFS              0xE5
+#define TAG_SUPPORTED_CHANNELS       224
+#define TAG_CHANNEL_SWITCH_ANN       225
+#define TAG_MEASURE_REQ              226
+#define TAG_MEASURE_REP              227
+#define TAG_QUIET                    228
+#define TAG_IBSS_DFS                 229
 /* Not yet assigned by ANA */
-#define TAG_MESH_CONFIGURATION    51  /* 36 */
-#define TAG_MESH_ID               52  /* 37 */
-#define TAG_MESH_PEER_LINK_MGMT   55  /* 40 */
-#define TAG_MESH_PREQ             68  /* 53 */
-#define TAG_MESH_PREP             69  /* 54 */
-#define TAG_MESH_PERR             70  /* 55 */
+#define TAG_MESH_CONFIGURATION    51
+#define TAG_MESH_ID               52
+#define TAG_MESH_PEER_LINK_MGMT   55
+#define TAG_MESH_PREQ             68
+#define TAG_MESH_PREP             69
+#define TAG_MESH_PERR             70
 #endif /* MESH_OVERRIDES */
 
 static const range_string tag_num_vals[] = {
@@ -564,41 +593,15 @@ static const range_string tag_num_vals[] = {
   { TAG_IBSS_PARAMETER, TAG_IBSS_PARAMETER, "IBSS Parameter set" },
   { TAG_COUNTRY_INFO, TAG_COUNTRY_INFO, "Country Information" },
   { TAG_FH_HOPPING_PARAMETER, TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
-  { TAG_CHALLENGE_TEXT, TAG_CHALLENGE_TEXT,"Challenge text" },
-  { 17, 31, "Reserved" },
-  { TAG_ERP_INFO, TAG_ERP_INFO, "ERP Information" },
-  { TAG_ERP_INFO_OLD, TAG_ERP_INFO_OLD, "ERP Information" },
-  { TAG_RSN_IE, TAG_RSN_IE, "RSN Information" },
-  { TAG_EXT_SUPP_RATES, TAG_EXT_SUPP_RATES, "Extended Supported Rates" },
-  { TAG_AP_CHANNEL_REPORT, TAG_AP_CHANNEL_REPORT, "AP Channel Report" },
-  { TAG_CISCO_CCX1_CKIP, TAG_CISCO_CCX1_CKIP, "Cisco CCX1 CKIP + Device Name" },
-  { TAG_CISCO_UNKNOWN_88, TAG_CISCO_UNKNOWN_88, "Cisco Unknown 88" },
-  { TAG_CISCO_UNKNOWN_95, TAG_CISCO_UNKNOWN_95, "Cisco Unknown 95" },
-  { TAG_CISCO_UNKNOWN_96, TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
-  { TAG_VENDOR_SPECIFIC_IE, TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
-  { TAG_SYMBOL_PROPRIETARY, TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
-  { TAG_AGERE_PROPRIETARY, TAG_AGERE_PROPRIETARY, "Agere Proprietary" },
+  { TAG_FH_HOPPING_TABLE, TAG_FH_HOPPING_TABLE, "Hopping Pattern Table" },
   { TAG_REQUEST, TAG_REQUEST, "Request" },
   { TAG_QBSS_LOAD, TAG_QBSS_LOAD, "QBSS Load Element" },
   { TAG_EDCA_PARAM_SET, TAG_EDCA_PARAM_SET, "EDCA Parameter Set" },
   { TAG_TSPEC, TAG_TSPEC, "Traffic Specification" },
   { TAG_TCLAS, TAG_TCLAS, "Traffic Classification" },
   { TAG_SCHEDULE, TAG_SCHEDULE, "Schedule" },
-  { TAG_TS_DELAY, TAG_TS_DELAY, "TS Delay" },
-  { TAG_TCLAS_PROCESS, TAG_TCLAS_PROCESS, "TCLAS Processing" },
-  { TAG_HT_CAPABILITY, TAG_HT_CAPABILITY, "HT Capabilities (802.11n D1.10)" },
-#ifndef MESH_OVERRIDES
-  { TAG_NEIGHBOR_REPORT, TAG_NEIGHBOR_REPORT, "Neighbor Report" },
-#endif
-  { TAG_HT_INFO, TAG_HT_INFO, "HT Information (802.11n D1.10)" },
-  { TAG_SECONDARY_CHANNEL_OFFSET, TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)" },
-#ifndef MESH_OVERRIDES
-  { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
-#endif
-  { TAG_20_40_BSS_CO_EX, TAG_20_40_BSS_CO_EX, "20/40 BSS Coexistence" },
-  { TAG_20_40_BSS_INTOL_CH_REP, TAG_20_40_BSS_INTOL_CH_REP, "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
-  { TAG_OVERLAP_BSS_SCAN_PAR, TAG_OVERLAP_BSS_SCAN_PAR, "Overlapping BSS Scan Parameters" },       /* IEEE P802.11n/D6.0 */
-  { TAG_QOS_CAPABILITY, TAG_QOS_CAPABILITY, "QoS Capability" },
+  { TAG_CHALLENGE_TEXT, TAG_CHALLENGE_TEXT,"Challenge tex t" },
+  { 17, 31, "Reserved" },
   { TAG_POWER_CONSTRAINT, TAG_POWER_CONSTRAINT, "Power Constraint" },
   { TAG_POWER_CAPABILITY, TAG_POWER_CAPABILITY,"Power Capability" },
   { TAG_TPC_REQUEST, TAG_TPC_REQUEST, "TPC Request" },
@@ -609,16 +612,34 @@ static const range_string tag_num_vals[] = {
   { TAG_MEASURE_REP, TAG_MEASURE_REP, "Measurement Report" },
   { TAG_QUIET, TAG_QUIET, "Quiet" },
   { TAG_IBSS_DFS, TAG_IBSS_DFS, "IBSS DFS" },
-  { TAG_EXTENDED_CAPABILITIES, TAG_EXTENDED_CAPABILITIES, "Extended Capabilities" },
+  { TAG_ERP_INFO, TAG_ERP_INFO, "ERP Information" },
+  { TAG_TS_DELAY, TAG_TS_DELAY, "TS Delay" },
+  { TAG_TCLAS_PROCESS, TAG_TCLAS_PROCESS, "TCLAS Processing" },
+  { TAG_HT_CAPABILITY, TAG_HT_CAPABILITY, "HT Capabilities (802.11n D1.10)" },
+  { TAG_QOS_CAPABILITY, TAG_QOS_CAPABILITY, "QoS Capability" },
+  { TAG_ERP_INFO_OLD, TAG_ERP_INFO_OLD, "ERP Information" }, /* Reserved... */
+  { TAG_RSN_IE, TAG_RSN_IE, "RSN Information" },
+  { TAG_EXT_SUPP_RATES, TAG_EXT_SUPP_RATES, "Extended Supported Rates" },
+  { TAG_AP_CHANNEL_REPORT, TAG_AP_CHANNEL_REPORT, "AP Channel Report" },
+#ifndef MESH_OVERRIDES
+  { TAG_NEIGHBOR_REPORT, TAG_NEIGHBOR_REPORT, "Neighbor Report" },
+#endif
+  { TAG_RCPI, TAG_RCPI, "RCPI" },
   { TAG_MOBILITY_DOMAIN, TAG_MOBILITY_DOMAIN, "Mobility Domain" },
 #ifndef MESH_OVERRIDES
   { TAG_FAST_BSS_TRANSITION, TAG_FAST_BSS_TRANSITION, "Fast BSS Transition" },
 #endif
   { TAG_TIMEOUT_INTERVAL, TAG_TIMEOUT_INTERVAL,"Timeout Interval" },
-  { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" },
+  { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" }, 
   { TAG_SUPPORTED_REGULATORY_CLASSES, TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
-  { TAG_RIC_DESCRIPTOR, TAG_RIC_DESCRIPTOR, "RIC Descriptor" },
+#ifndef MESH_OVERRIDES
+  { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
+#endif
+  { TAG_20_40_BSS_CO_EX, TAG_20_40_BSS_CO_EX, "20/40 BSS Coexistence" },
+  { TAG_20_40_BSS_INTOL_CH_REP, TAG_20_40_BSS_INTOL_CH_REP, "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
+  { TAG_OVERLAP_BSS_SCAN_PAR, TAG_OVERLAP_BSS_SCAN_PAR, "Overlapping BSS Scan Parameters" },       /* IEEE P802.11n/D6.0 */
+  { TAG_RIC_DESCRIPTOR, TAG_RIC_DESCRIPTOR, "RIC Descriptor" }, 
   { TAG_MMIE, TAG_MMIE, "Management MIC" },
   { TAG_LINK_IDENTIFIER, TAG_LINK_IDENTIFIER, "Link Identifier" },
   { TAG_WAKEUP_SCHEDULE, TAG_WAKEUP_SCHEDULE, "Wakeup Schedule" },
@@ -626,6 +647,14 @@ static const range_string tag_num_vals[] = {
   { TAG_PTI_CONTROL, TAG_PTI_CONTROL, "PTI Control" },
   { TAG_PU_BUFFER_STATUS, TAG_PU_BUFFER_STATUS, "PU Buffer Status" },
   { TAG_ADVERTISEMENT_PROTOCOL, TAG_ADVERTISEMENT_PROTOCOL, "Advertisement Protocol"},
+  { TAG_EXTENDED_CAPABILITIES, TAG_EXTENDED_CAPABILITIES, "Extended Capabilities" },
+  { TAG_AGERE_PROPRIETARY, TAG_AGERE_PROPRIETARY, "Agere Proprietary" },
+  { TAG_CISCO_CCX1_CKIP, TAG_CISCO_CCX1_CKIP, "Cisco CCX1 CKIP + Device Name" },
+  { TAG_CISCO_UNKNOWN_88, TAG_CISCO_UNKNOWN_88, "Cisco Unknown 88" },
+  { TAG_CISCO_UNKNOWN_95, TAG_CISCO_UNKNOWN_95, "Cisco Unknown 95" },
+  { TAG_CISCO_UNKNOWN_96, TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
+  { TAG_SYMBOL_PROPRIETARY, TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
+  { TAG_VENDOR_SPECIFIC_IE, TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
 #ifdef MESH_OVERRIDES
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
