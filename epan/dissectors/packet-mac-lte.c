@@ -2830,8 +2830,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (direction == DIRECTION_DOWNLINK) {
         /* Result will be added to context tree */
         TrackReportedDLHARQResend(pinfo, tvb, offset, context_tree, p_mac_lte_info);
+
+        tap_info->isPHYRetx = (p_mac_lte_info->dl_retx == dl_retx_yes);
     }
-    tap_info->isPHYRetx = (p_mac_lte_info->dl_retx == dl_retx_yes);
+
 
 
     /* Now padding, if present, extends to the end of the PDU */
