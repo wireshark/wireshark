@@ -71,7 +71,7 @@
  * IEEE Std 802.11r-2008: Fast Basic Service Set (BSS) Transition
  * http://standards.ieee.org/getieee802/download/802.11r-2008.pdf
  *
- * IEEE Std 802.11y-2008: 3650–3700 MHz Operation in USA
+ * IEEE Std 802.11y-2008: 3650-3700 MHz Operation in USA
  * http://standards.ieee.org/getieee802/download/802.11y-2008.pdf
  *
  * IEEE Std 802.11w-2009: Protected Management Frames
