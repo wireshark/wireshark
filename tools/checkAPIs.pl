@@ -1280,6 +1280,7 @@ while ($_ = $ARGV[0])
 	my $filename = $_;
 	my $fileContents = '';
 	my @foundAPIs = ();
+	my $line;
 
 	die "No such file: \"$filename\"" if (! -e $filename);
 
@@ -1288,14 +1289,16 @@ while ($_ = $ARGV[0])
 
 	# Read in the file (ouch, but it's easier that way)
 	open(FC, $filename) || die("Couldn't open $filename");
-	while (<FC>) { $fileContents .= $_; }
-	close(FC);
-
-	if ($fileContents =~ m{ [\x80-\xFF] }xo)
-	{
-		print STDERR "Error: Found non-ASCII characters in " .$filename."\n";
-		$errorCount++;
+	$line = 1;
+	while (<FC>) {
+		$fileContents .= $_;
+		if ($_ =~ m{ [\x80-\xFF] }xo) {
+			print STDERR "Error: Found non-ASCII characters on line " .$line. " of " .$filename."\n";
+			$errorCount++;
+		}
+		$line++;
 	}
+	close(FC);
 
 	if ($fileContents =~ m{ %ll }xo)
 	{
