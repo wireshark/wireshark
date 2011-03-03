@@ -44,10 +44,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
-#include <glib.h>
-
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -1730,16 +1726,18 @@ static const char *yesno[] = { "no", "yes" };
 
 static const gchar hex_digits[10] = {'0','1','2','3','4','5','6','7','8','9'};
 
-static gchar *id_to_str(const guint8 * ad)
+static gchar *
+id_to_str(tvbuff_t *tvb, gint offset)
 {
-
     static gchar str[17] = "                ";
     guint8 bits8to5, bits4to1;
     int i, j = 0;
+    guint8 ad;
 
     for (i = 0; i < 8; i++) {
-        bits8to5 = (ad[i] >> 4) & 0x0F;
-        bits4to1 = ad[i] & 0x0F;
+        ad = tvb_get_guint8(tvb, offset + i);
+        bits8to5 = (ad >> 4) & 0x0F;
+        bits4to1 = ad & 0x0F;
         if (bits4to1 < 0xA)
             str[j++] = hex_digits[bits4to1];
         if (bits8to5 < 0xA)
@@ -1749,33 +1747,37 @@ static gchar *id_to_str(const guint8 * ad)
     return str;
 }
 
-static gchar *imsi_to_str(const guint8 * ad)
+static gchar *
+imsi_to_str(tvbuff_t *tvb, gint offset)
 {
-
     static gchar str[17] = "                ";
     int i, j = 0;
+    guint8 ad;
 
     for (i = 0; i < 8; i++) {
-        if ((ad[i] & 0x0F) <= 9)
-            str[j++] = (ad[i] & 0x0F) + 0x30;
-        if (((ad[i] >> 4) & 0x0F) <= 9)
-            str[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
+        ad = tvb_get_guint8(tvb, offset + i);
+        if ((ad & 0x0F) <= 9)
+            str[j++] = (ad & 0x0F) + 0x30;
+        if (((ad >> 4) & 0x0F) <= 9)
+            str[j++] = ((ad >> 4) & 0x0F) + 0x30;
     }
     str[j] = '\0';
 
     return str;
 }
 
-static gchar *msisdn_to_str(const guint8 * ad, int len)
+static gchar *
+msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
 {
-
     static gchar str[18] = "+                ";
     guint8 bits8to5, bits4to1;
     int i, j = 1;
+    guint ad;
 
     for (i = 1; i < len && i < 9; i++) {
-        bits8to5 = (ad[i] >> 4) & 0x0F;
-        bits4to1 = ad[i] & 0x0F;
+        ad = tvb_get_guint8(tvb, offset + 1);
+        bits8to5 = (ad >> 4) & 0x0F;
+        bits4to1 = ad & 0x0F;
         if (bits4to1 < 0xA)
             str[j++] = hex_digits[bits4to1];
         if (bits8to5 < 0xA)
@@ -2999,12 +3001,9 @@ static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-
-    guint8 imsi_val[8];
     gchar *imsi_str;
 
-    tvb_memcpy(tvb, imsi_val, offset + 1, 8);
-    imsi_str = imsi_to_str(imsi_val);
+    imsi_str = imsi_to_str(tvb, offset + 1);
 
     proto_tree_add_string(tree, hf_gtp_imsi, tvb, offset, 9, imsi_str);
 
@@ -4632,7 +4631,6 @@ static int decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _
 static int decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
-    const guint8 *msisdn_val;
     gchar *msisdn_str;
     guint16 length;
 
@@ -4641,8 +4639,7 @@ static int decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     if (length < 1)
         return 3;
 
-    msisdn_val = tvb_get_ptr(tvb, offset + 3, length);
-    msisdn_str = msisdn_to_str(msisdn_val, length);
+    msisdn_str = msisdn_to_str(tvb, offset + 3, length);
 
     proto_tree_add_string(tree, hf_gtp_msisdn, tvb, offset, 3 + length, msisdn_str);
 
@@ -6560,7 +6557,7 @@ static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _
     guint16 length, ext_id;
     proto_tree *ext_tree_priv_ext;
     proto_item *te;
-	tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb;
 
     te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_PRIV_EXT, &gtp_val_ext, "Unknown message"));
     ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
@@ -6578,11 +6575,11 @@ static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _
          * XXX - is this always a text string?  Or should it be
          * displayed as hex data?
          */
-		if (length > 2){
+       if (length > 2){
             proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext);
-		}
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext);
+       }
     }
 
     return 3 + length;
@@ -6604,7 +6601,6 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     int i, offset, length, gtp_prime, checked_field, mandatory;
     int seq_no=0, flow_label=0;
     guint8 pdu_no, next_hdr = 0, ext_hdr_val;
-    const guint8 *tid_val;
     gchar *tid_str;
     guint32 teid = 0;
     tvbuff_t *next_tvb;
@@ -6716,8 +6712,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
                 offset += 4;
 
-                tid_val = tvb_get_ptr(tvb, offset, 8);
-                tid_str = id_to_str(tid_val);
+                tid_str = id_to_str(tvb, offset);
                 proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
                 offset += 8;
                 break;
@@ -7430,7 +7425,7 @@ void proto_register_gtp(void)
     register_dissector("gtp", dissect_gtp, proto_gtp);
     register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
 
-	gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
+    gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_reinit);
     gtp_tap=register_tap("gtp");
