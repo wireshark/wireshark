@@ -31,10 +31,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
@@ -302,8 +298,8 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 		guint32 num_markers, guint32 orig_length)
 {
 	guint8 *mfree_buff = NULL;
-	const guint8 *raw_data_ptr = NULL;
 	guint32 mfree_buff_length, tot_copy, cur_copy;
+	guint32 source_offset;
 	tvbuff_t *mfree_tvb = NULL;
 
 	DISSECTOR_ASSERT(num_markers > 0);
@@ -317,13 +313,13 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 	if (!mfree_buff)
 		THROW(OutOfMemoryError);
 
-	raw_data_ptr = tvb_get_ptr(tvb, 0, -1);
 	tot_copy = 0;
+	source_offset = 0;
 	cur_copy = marker_offset;
 	while (tot_copy < mfree_buff_length) {
-		memcpy(mfree_buff+tot_copy, raw_data_ptr, cur_copy);
+		tvb_memcpy(tvb, mfree_buff+tot_copy, source_offset, cur_copy);
 		tot_copy += cur_copy;
-		raw_data_ptr += cur_copy + MPA_MARKER_LEN;
+		source_offset += cur_copy + MPA_MARKER_LEN;
 		cur_copy = MIN(MPA_MARKER_INTERVAL, (mfree_buff_length - tot_copy));
 	}
 	mfree_tvb = tvb_new_child_real_data(tvb, mfree_buff, mfree_buff_length,
