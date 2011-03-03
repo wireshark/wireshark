@@ -43,7 +43,7 @@
 #include "packet-ntp.h"
 
 /*
- * Dissecting NTP packets version 3 and 4 (RFC2030, RFC1769, RFC1361,
+ * Dissecting NTP packets version 3 and 4 (RFC5905, RFC2030, RFC1769, RFC1361,
  * RFC1305).
  *
  * Those packets have simple structure:
@@ -188,7 +188,7 @@ static const value_string info_mode_types[] = {
 };
 
 /* According to rfc, primary (stratum-0 and stratum-1) servers should set
- * their Reference Clock ID (4bytes field) according to following table:
+ * their Reference ID (4bytes field) according to following table:
  */
 static const struct {
 	const char *id;
@@ -783,7 +783,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	}
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
-				    NULL, "Reference Clock ID: %s", buff);
+				    NULL, "Reference ID: %s", buff);
 
 	/* Reference Timestamp: This is the time at which the local clock was
 	 * last set or corrected.
