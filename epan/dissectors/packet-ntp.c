@@ -112,21 +112,21 @@
 #define TCP_PORT_NTP	123
 
 /* Leap indicator, 2bit field is used to warn of a inserted/deleted
- * second, or to alarm loosed synchronization.
+ * second, or clock unsynchronized indication.
  */
 #define NTP_LI_MASK	0xC0
 
 #define NTP_LI_NONE	0
 #define NTP_LI_61	1
 #define NTP_LI_59	2
-#define NTP_LI_ALARM	3
+#define NTP_LI_UNKNOWN	3
 
 static const value_string li_types[] = {
-	{ NTP_LI_NONE,	"no warning" },
-	{ NTP_LI_61,	"last minute has 61 seconds" },
-	{ NTP_LI_59,	"last minute has 59 seconds" },
-	{ NTP_LI_ALARM,	"alarm condition (clock not synchronized)" },
-	{ 0,		NULL}
+	{ NTP_LI_NONE,	  "no warning" },
+	{ NTP_LI_61,	  "last minute of the day has 61 seconds" },
+	{ NTP_LI_59,	  "last minute of the day has 59 seconds" },
+	{ NTP_LI_UNKNOWN, "unknown (clock unsynchronized)" },
+	{ 0,		  NULL}
 };
 
 /* Version info, 3bit field informs about NTP version used in particular
@@ -692,11 +692,13 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	stratum = tvb_get_guint8(tvb, 1);
 	if (stratum == 0) {
-		buffc="Peer Clock Stratum: unspecified or unavailable (%u)";
+		buffc="Peer Clock Stratum: unspecified or invalid (%u)";
 	} else if (stratum == 1) {
 		buffc="Peer Clock Stratum: primary reference (%u)";
 	} else if ((stratum >= 2) && (stratum <= 15)) {
 		buffc="Peer Clock Stratum: secondary reference (%u)";
+	} else if (stratum == 16) {
+		buffc="Peer Clock Stratum: unsynchronized (%u)";
 	} else {
 		buffc="Peer Clock Stratum: reserved: %u";
 	}
@@ -1216,7 +1218,7 @@ proto_register_ntp(void)
 			NULL, 0, "Flags (Leap/Version/Mode)", HFILL }},
 		{ &hf_ntp_flags_li, {
 			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
-			VALS(li_types), NTP_LI_MASK, NULL, HFILL }},
+			VALS(li_types), NTP_LI_MASK, "Warning of an impending leap second to be inserted or deleted in the last minute of the current month", HFILL }},
 		{ &hf_ntp_flags_vn, {
 			"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
 			VALS(ver_nums), NTP_VN_MASK, NULL, HFILL }},
@@ -1228,31 +1230,31 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ppoll, {
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "Maximum interval between successive messages", HFILL }},
 		{ &hf_ntp_precision, {
 			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "The precision of the system clock", HFILL }},
 		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "Total round-trip delay to the reference clock", HFILL }},
 		{ &hf_ntp_rootdispersion, {
 			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "Total dispersion to the reference clock", HFILL }},
 		{ &hf_ntp_refid, {
-			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
+			"Reference ID", "ntp.refid", FT_BYTES, BASE_NONE,
+			NULL, 0, "Particular server or reference clock being used", HFILL }},
 		{ &hf_ntp_reftime, {
-			"Reference Clock Update Time", "ntp.reftime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
-			NULL, 0, NULL, HFILL }},
+			"Reference Timestamp", "ntp.reftime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			NULL, 0, "Time when the system clock was last set or corrected", HFILL }},
 		{ &hf_ntp_org, {
-			"Originate Time Stamp", "ntp.org", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
-			NULL, 0, NULL, HFILL }},
+			"Origin Timestamp", "ntp.org", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			NULL, 0, "Time at the client when the request departed for the server", HFILL }},
 		{ &hf_ntp_rec, {
-			"Receive Time Stamp", "ntp.rec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
-			NULL, 0, NULL, HFILL }},
+			"Receive Timestamp", "ntp.rec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			NULL, 0, "Time at the server when the request arrived from the client", HFILL }},
 		{ &hf_ntp_xmt, {
-			"Transmit Time Stamp", "ntp.xmt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
-			NULL, 0, NULL, HFILL }},
+			"Transmit Timestamp", "ntp.xmt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			NULL, 0, "Time at the server when the response left for the client", HFILL }},
 		{ &hf_ntp_keyid, {
 			"Key ID", "ntp.keyid", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
@@ -1329,7 +1331,7 @@ proto_register_ntp(void)
 			VALS(ctrl_err_status_types), NTP_CTRL_ERRSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_li, {
 			"Leap Indicator", "ntpctrl.sys_status.li", FT_UINT16, BASE_DEC,
-			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, NULL, HFILL }},
+			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, "Warning of an impending leap second to be inserted or deleted in the last minute of the current month", HFILL }},
 		{ &hf_ntpctrl_sys_status_clksrc, {
 			"Clock Source", "ntpctrl.sys_status.clksrc", FT_UINT16, BASE_DEC,
 			VALS(ctrl_sys_status_clksource_types), NTPCTRL_SYSSTATUS_CLK_MASK, NULL, HFILL }},
