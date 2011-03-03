@@ -105,14 +105,14 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		while ( tvb_reported_length_remaining(tvb, offset) > 0 )
 		{
 			guint8 type,length;
-			
+
 			type = tvb_get_guint8(tvb, offset);
 			length = tvb_get_guint8(tvb, offset+1);
 
-			/* make sure still in valid tlv */ 
+			/* make sure still in valid tlv */
 			if (( length < 1 ) || ( length > tvb_length_remaining(tvb,offset+2)))
 				break;
-		   
+
 			ti = proto_tree_add_text(hp_tree,tvb,offset,length+2,"%s",
 						val_to_str(type,hpsw_tlv_type_vals,"Unknown TLV type: 0x%02x"));
 
@@ -124,11 +124,11 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* LENGTH (not inclusive of type and length bytes) */
 			proto_tree_add_uint(tlv_tree, hf_hpsw_tlvlength, tvb, offset, 1, length);
-			offset++; 
-			
+			offset++;
+
 			dissect_hpsw_tlv(tvb,offset,length,tlv_tree,ti,type);
-	
-			offset += length;  
+
+			offset += length;
 
 		}
 
@@ -234,10 +234,10 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_DEVICE_ID:
         if (length == 10) {
-            const guint8 *macptr=tvb_get_ptr(tvb,offset,6);
+	    const gchar *macstr = tvb_ether_to_str(tvb, offset);
             guint32 id=tvb_get_ntohl(tvb, offset+6);
-            proto_item_set_text(ti, "Device ID: %s / %u", ether_to_str(macptr), id);
-            proto_tree_add_text(tree, tvb, offset, 10, "Device ID: %s / %u", ether_to_str(macptr), id);
+            proto_item_set_text(ti, "Device ID: %s / %u", macstr, id);
+            proto_tree_add_text(tree, tvb, offset, 10, "Device ID: %s / %u", macstr, id);
         } else {
             proto_item_set_text(ti, "Device ID: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "Device ID: Bad length %u", length);
@@ -246,9 +246,9 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_MAC_ADDR:
         if (length == 6) {
-            const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
-            proto_item_set_text(ti, "MAC Addr: %s", ether_to_str(macptr));
-            proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: %s", ether_to_str(macptr));
+            const gchar *macstr = tvb_ether_to_str(tvb, offset);
+            proto_item_set_text(ti, "MAC Addr: %s", macstr);
+            proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: %s", macstr);
         } else {
             proto_item_set_text(ti, "MAC Addr: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: Bad length %u", length);
