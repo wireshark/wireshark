@@ -1098,16 +1098,16 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         switch (opt_type) {
             case ND_OPT_SOURCE_LINKADDR: /* Source Link-layer Address (1) */
             {
-                const guint8        *link_addr;
+                const gchar *link_str;
                 /* if the opt len is 8, the Link Addr is MAC Address */
                 if(opt_len == 8){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
-                    link_addr = tvb_get_ptr(tvb, opt_offset, 6);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", ether_to_str(link_addr));
-                    proto_item_append_text(ti, " : %s",  ether_to_str(link_addr));
+                    link_str = tvb_ether_to_str(tvb, opt_offset);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
+                    proto_item_append_text(ti, " : %s",  link_str);
 
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
@@ -1118,16 +1118,16 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_TARGET_LINKADDR: /* Target Link-layer Address (2) */
             {
-                const guint8        *link_addr;
+                const gchar *link_str;
                 /* if the opt len is 8, the Link Addr is MAC Address */
                 if(opt_len == 8){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
-                    link_addr = tvb_get_ptr(tvb, opt_offset, 6);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", ether_to_str(link_addr));
-                    proto_item_append_text(ti, " : %s",  ether_to_str(link_addr));
+                    link_str = tvb_ether_to_str(tvb, opt_offset);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", link_str);
+                    proto_item_append_text(ti, " : %s",  link_str);
 
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
