@@ -27,11 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/oui.h>
 
@@ -280,7 +275,6 @@ static gboolean
 append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 	gboolean is_fhss)
 {
-	const guint8 *mac;
 	int z, val;
 	const gchar *strval;
 
@@ -295,9 +289,9 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 		case IAPP_PDU_BSSID:
 		case IAPP_PDU_OLDBSSID:
 		case IAPP_PDU_MSADDR:
-			mac = tvb_get_ptr(tvb, offset + 3, len);
 			for (z = 0; z < len; z++)
-				proto_item_append_text(ti, "%s%02x", z ? ":" : "", mac[z]);
+				proto_item_append_text(ti, "%s%02x", z ? ":" : "",
+						       tvb_get_guint8(tvb, offset + 3 + z));
 			break;
 		case IAPP_PDU_CAPABILITY:
 		{
