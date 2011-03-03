@@ -23,9 +23,12 @@ CauseMisc
 #.EXPORTS
 ENB-StatusTransfer-TransparentContainer_PDU
 Global-ENB-ID_PDU
+Global-ENB-ID
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
+SONtransferRequestContainer
 SONtransferResponseContainer_PDU
+SONtransferResponseContainer
 SONtransferCause_PDU
 
 #.PDU_NEW
