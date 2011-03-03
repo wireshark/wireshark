@@ -859,7 +859,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 
 
 	/* If we have reached this point, the packet is not defragmented yet.
-		 * Save all payload in a buffer until we can defragment.
+	 * Save all payload in a buffer until we can defragment.
 	 * XXX - what if we didn't capture the entire fragment due
 	 * to a too-short snapshot length?
 	 */
@@ -913,8 +913,8 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	}
 
 	/* we have received an entire packet, defragment it and
-		 * free all fragments
-		 */
+	 * free all fragments
+	 */
 	/* store old data just in case */
 	old_data=fd_head->data;
 	fd_head->data = g_malloc(max);
@@ -927,12 +927,12 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 			/* XXX - true? Can we get fd_i->offset+fd-i->len */
 			/* overflowing, for example? */
 			/*	Actually: there is at least one pathological case wherein there can be fragments
-				on the list which are for offsets greater than max (i.e.: following a gap after max).
-				(Apparently a "DESEGMENT_UNTIL_FIN" was involved wherein the FIN packet had an offset
-				less than the highest fragment offset seen. [Seen from a fuzz-test: bug #2470]).
-							Note that the "overlap" compare must only be done for fragments with (offset+len) <= max
-				and thus within the newly g_malloc'd buffer.
-			*/
+			 *	on the list which are for offsets greater than max (i.e.: following a gap after max).
+			 *	(Apparently a "DESEGMENT_UNTIL_FIN" was involved wherein the FIN packet had an offset
+			 *	less than the highest fragment offset seen. [Seen from a fuzz-test: bug #2470]).
+			 *	Note that the "overlap" compare must only be done for fragments with (offset+len) <= max
+			 *	and thus within the newly g_malloc'd buffer.
+			 */
 
 			if ( fd_i->offset+fd_i->len > dfpos ) {
 				if (fd_i->offset+fd_i->len > max)
@@ -966,7 +966,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 						fd_i->len-(dfpos-fd_i->offset));
 				}
 			} else {
-				if (fd_i->offset+fd_i->len < fd_i->offset)
+				if (fd_i->offset + fd_i->len < fd_i->offset) /* XXX what? This only tests if fd_i->len is negative */
 					g_warning("Reassemble error in frame %u: offset %u + len %u < offset",
 						pinfo->fd->num, fd_i->offset,
 						fd_i->len);
@@ -1225,8 +1225,7 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 }
 
 static void
-fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
-				  const packet_info *pinfo)
+fragment_defragment_and_free (fragment_data *fd_head, const packet_info *pinfo)
 {
 	fragment_data *fd_i = NULL;
 	fragment_data *last_fd = NULL;
@@ -1247,20 +1246,19 @@ fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
 
 	/* add all data fragments */
 	last_fd=NULL;
-	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
+	for (fd_i=fd_head->next; fd_i; fd_i=fd_i->next) {
 		if (fd_i->len) {
-			if(!last_fd || last_fd->offset!=fd_i->offset){
-				memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
+			if(!last_fd || last_fd->offset != fd_i->offset) {
+				/* First fragment or in-sequence fragment */
+				memcpy(fd_head->data+dfpos, fd_i->data, fd_i->len);
 				dfpos += fd_i->len;
 			} else {
 				/* duplicate/retransmission/overlap */
 				fd_i->flags    |= FD_OVERLAP;
 				fd_head->flags |= FD_OVERLAP;
-				if( (last_fd->len!=fd_i->len)
-					|| memcmp(last_fd->data, fd_i->data, last_fd->len) ) {
-					if (fd) {
-						fd->flags |= FD_OVERLAPCONFLICT;
-					}
+				if(last_fd->len != fd_i->len
+				   || memcmp(last_fd->data, fd_i->data, last_fd->len) ) {
+					fd_i->flags    |= FD_OVERLAPCONFLICT;
 					fd_head->flags |= FD_OVERLAPCONFLICT;
 				}
 			}
@@ -1279,7 +1277,8 @@ fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
 	g_free(old_data);
 
 	/* mark this packet as defragmented.
-		   allows us to skip any trailing fragments */
+	 * allows us to skip any trailing fragments.
+	 */
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
 }
@@ -1361,8 +1360,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 				/* Oops, this tail indicates a different packet
 				 * len than the previous ones. Something's wrong.
 				 */
-				fd->flags	   |= FD_MULTIPLETAILS;
-				fd_head->flags |= FD_MULTIPLETAILS;
+				fd->flags	|= FD_MULTIPLETAILS;
+				fd_head->flags	|= FD_MULTIPLETAILS;
 			}
 		} else {
 			/* this was the first tail fragment, now we know the
@@ -1375,19 +1374,19 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	}
 
 	/* If the packet is already defragmented, this MUST be an overlap.
-		 * The entire defragmented packet is in fd_head->data
+	 * The entire defragmented packet is in fd_head->data
 	 * Even if we have previously defragmented this packet, we still check
 	 * check it. Someone might play overlap and TTL games.
-		 */
+	 */
 	if (fd_head->flags & FD_DEFRAGMENTED) {
-		fd->flags	   |= FD_OVERLAP;
-		fd_head->flags |= FD_OVERLAP;
+		fd->flags	|= FD_OVERLAP;
+		fd_head->flags	|= FD_OVERLAP;
 
 		/* make sure it's not past the end */
 		if (fd->offset > fd_head->datalen) {
 			/* new fragment comes after the end */
-			fd->flags	   |= FD_TOOLONGFRAGMENT;
-			fd_head->flags |= FD_TOOLONGFRAGMENT;
+			fd->flags	|= FD_TOOLONGFRAGMENT;
+			fd_head->flags	|= FD_TOOLONGFRAGMENT;
 			LINK_FRAG(fd_head,fd);
 			return TRUE;
 		}
@@ -1407,8 +1406,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 				 * They have different lengths; this
 				 * is definitely a conflict.
 				 */
-				fd->flags	   |= FD_OVERLAPCONFLICT;
-				fd_head->flags |= FD_OVERLAPCONFLICT;
+				fd->flags	|= FD_OVERLAPCONFLICT;
+				fd_head->flags	|= FD_OVERLAPCONFLICT;
 				LINK_FRAG(fd_head,fd);
 				return TRUE;
 			}
@@ -1419,8 +1418,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 				 * They have the same length, but the
 				 * data isn't the same.
 				 */
-				fd->flags	   |= FD_OVERLAPCONFLICT;
-				fd_head->flags |= FD_OVERLAPCONFLICT;
+				fd->flags	|= FD_OVERLAPCONFLICT;
+				fd_head->flags	|= FD_OVERLAPCONFLICT;
 				LINK_FRAG(fd_head,fd);
 				return TRUE;
 			}
@@ -1465,7 +1464,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	}
 
 	/* If we have reached this point, the packet is not defragmented yet.
-		 * Save all payload in a buffer until we can defragment.
+	 * Save all payload in a buffer until we can defragment.
 	 * XXX - what if we didn't capture the entire fragment due
 	 * to a too-short snapshot length?
 	 */
@@ -1506,15 +1505,15 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 
 	if (max > (fd_head->datalen+1)) {
 		/* oops, too long fragment detected */
-		fd->flags	   |= FD_TOOLONGFRAGMENT;
-		fd_head->flags |= FD_TOOLONGFRAGMENT;
+		fd->flags	|= FD_TOOLONGFRAGMENT;
+		fd_head->flags	|= FD_TOOLONGFRAGMENT;
 	}
 
 
 	/* we have received an entire packet, defragment it and
-		 * free all fragments
-		 */
-	fragment_defragment_and_free(fd_head, fd, pinfo);
+	 * free all fragments
+	 */
+	fragment_defragment_and_free(fd_head, pinfo);
 
 	return TRUE;
 }
@@ -1916,7 +1915,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 		fd_head->datalen = fd_head->offset;
 		fd_head->flags |= FD_DATALEN_SET;
 
-		fragment_defragment_and_free (fd_head, NULL, pinfo);
+		fragment_defragment_and_free (fd_head, pinfo);
 
 		/*
 		 * Remove this from the table of in-progress
