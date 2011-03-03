@@ -558,8 +558,6 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint32 tempLen = 0;
 	const char *strPtr=NULL;
 	guint8 incorrectLen = 0;	/* incorrect length if 1 */
-
-	const guint8 *mac_addr = NULL;
 	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
@@ -612,8 +610,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		}
 
-		mac_addr=tvb_get_ptr(tvb, (offset+3), 6);
-		strPtr = ether_to_str(mac_addr);
+		strPtr = tvb_ether_to_str(tvb, offset+3);
 
 		break;
 	}
@@ -722,7 +719,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		switch (tempType)
 		{
 		case 4:	/* MAC address */
-			proto_tree_add_ether(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, mac_addr);
+			proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, ENC_NA);
 			proto_item_append_text(tf, ", Id: %s", strPtr);
 			break;
 		case 5: /* Network address */
@@ -763,7 +760,6 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint16 tempShort;
 	guint32 tempLen = 0;
 	const char *strPtr;
-	const guint8 *mac_addr = NULL;
 	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
@@ -789,8 +785,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		if (tempLen != 7)
 			return -1; 	/* Invalid port id */
 
-		mac_addr=tvb_get_ptr(tvb, (offset+3), 6);
-		strPtr = ether_to_str(mac_addr);
+		strPtr = tvb_ether_to_str(tvb, offset+3);
 
 		break;
 	}
@@ -851,7 +846,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		switch (tempType)
 		{
 		case 3:	/* MAC address */
-			proto_tree_add_ether(port_tree, hf_port_id_mac, tvb, (offset+3), 6, mac_addr);
+			proto_tree_add_item(port_tree, hf_port_id_mac, tvb, (offset+3), 6, ENC_NA);
 			break;
 		case 4: /* Network address */
 			/* Network address
@@ -2442,23 +2437,23 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	    fourwire_data = proto_item_add_subtree(tf, ett_cisco_fourwire_tlv);
 
 	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x01, 8, 
-							"PSE Four-Wire PoE Supported", 
+				decode_boolean_bitfield(tempByte, 0x01, 8,
+							"PSE Four-Wire PoE Supported",
 							"PSE Four-Wire PoE Not Supported"));
 
 	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x02, 8, 
-							"PD  Spare Pair Architecture Shared", 
+				decode_boolean_bitfield(tempByte, 0x02, 8,
+							"PD  Spare Pair Architecture Shared",
 							"PD  Spare Pair Architecture Independent"));
 
 	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x04, 8, 
-							"PD  Request Spare Pair PoE On", 
+				decode_boolean_bitfield(tempByte, 0x04, 8,
+							"PD  Request Spare Pair PoE On",
 							"PD  Request Spare Pair PoE Off"));
 
 	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x08, 8, 
-							"PSE Spare Pair PoE On", 
+				decode_boolean_bitfield(tempByte, 0x08, 8,
+							"PSE Spare Pair PoE On",
 							"PSE Spare Pair PoE Off"));
 	  }
 	  break;
