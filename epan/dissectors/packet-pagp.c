@@ -30,13 +30,7 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/etypes.h>
-#include <epan/llcsaps.h>
-#include <epan/ppptypes.h>
-#include <epan/address.h>
-#include <epan/addr_resolv.h>
 
 /* Offsets of fields within a PagP PDU */
 
@@ -45,21 +39,21 @@
 #define PAGP_FLAGS			1
 #define PAGP_LOCAL_DEVICE_ID		2
 #define PAGP_LOCAL_LEARN_CAP		8
-#define PAGP_LOCAL_PORT_PRIORITY		9
+#define PAGP_LOCAL_PORT_PRIORITY	9
 #define PAGP_LOCAL_SENT_PORT_IFINDEX	10
 #define PAGP_LOCAL_GROUP_CAPABILITY	14
-#define PAGP_LOCAL_GROUP_IFINDEX		18
+#define PAGP_LOCAL_GROUP_IFINDEX	18
 #define PAGP_PARTNER_DEVICE_ID		22
 #define PAGP_PARTNER_LEARN_CAP		28
-#define PAGP_PARTNER_PORT_PRIORITY		29
+#define PAGP_PARTNER_PORT_PRIORITY	29
 #define PAGP_PARTNER_SENT_PORT_IFINDEX	30
 #define PAGP_PARTNER_GROUP_CAPABILITY	34
-#define PAGP_PARTNER_GROUP_IFINDEX		38
+#define PAGP_PARTNER_GROUP_IFINDEX	38
 #define PAGP_PARTNER_COUNT		42
 #define PAGP_NUM_TLVS			44
 #define PAGP_FIRST_TLV			46
 
-#define PAGP_FLUSH_LOCAL_DEVICE_ID		2
+#define PAGP_FLUSH_LOCAL_DEVICE_ID	2
 #define PAGP_FLUSH_PARTNER_DEVICE_ID	8
 #define PAGP_FLUSH_TRANSACTION_ID	14
 
@@ -173,8 +167,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       guint8  flags;
 
-      struct _address device_id;
-
       guchar *ch;
 
       proto_tree *pagp_tree = NULL;
@@ -187,9 +179,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       const char *sep;
 
-
-      device_id.type = AT_ETHER;
-      device_id.len = 6;
 
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAGP"); /* PAGP Protocol */
 
@@ -212,24 +201,22 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (raw_octet == PAGP_FLUSH_PDU) {
 
-         device_id.data = tvb_get_ptr(tvb, PAGP_FLUSH_LOCAL_DEVICE_ID, 6);
          if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-               ep_address_to_str(&device_id));
+               tvb_ether_to_str(tvb, PAGP_FLUSH_LOCAL_DEVICE_ID));
          }
          if (tree) {
-	       proto_tree_add_ether(pagp_tree, hf_pagp_flush_local_device_id, tvb,
-			   PAGP_FLUSH_LOCAL_DEVICE_ID, 6, device_id.data);
+	       proto_tree_add_item(pagp_tree, hf_pagp_flush_local_device_id, tvb,
+			   PAGP_FLUSH_LOCAL_DEVICE_ID, 6, ENC_NA);
          }
 
-         device_id.data = tvb_get_ptr(tvb, PAGP_FLUSH_PARTNER_DEVICE_ID, 6);
          if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-               ep_address_to_str(&device_id));
+               tvb_ether_to_str(tvb, PAGP_FLUSH_PARTNER_DEVICE_ID));
          }
          if (tree) {
-	    proto_tree_add_ether(pagp_tree, hf_pagp_flush_partner_device_id, tvb,
-			   PAGP_FLUSH_PARTNER_DEVICE_ID, 6, device_id.data);
+	    proto_tree_add_item(pagp_tree, hf_pagp_flush_partner_device_id, tvb,
+			   PAGP_FLUSH_PARTNER_DEVICE_ID, 6, ENC_NA);
          }
 
          raw_word = tvb_get_ntohl(tvb, PAGP_FLUSH_TRANSACTION_ID);
@@ -278,14 +265,13 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 }
       }
 
-      device_id.data = tvb_get_ptr(tvb, PAGP_LOCAL_DEVICE_ID, 6);
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-            ep_address_to_str(&device_id));
+            tvb_ether_to_str(tvb, PAGP_LOCAL_DEVICE_ID));
       }
       if (tree) {
-	    proto_tree_add_ether(pagp_tree, hf_pagp_local_device_id, tvb,
-				PAGP_LOCAL_DEVICE_ID, 6, device_id.data);
+	    proto_tree_add_item(pagp_tree, hf_pagp_local_device_id, tvb,
+				PAGP_LOCAL_DEVICE_ID, 6, ENC_NA);
       }
 
       if (tree) {
@@ -310,14 +296,13 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				PAGP_LOCAL_GROUP_IFINDEX, 4, raw_word);
       }
 
-      device_id.data = tvb_get_ptr(tvb, PAGP_PARTNER_DEVICE_ID, 6);
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-  	       ep_address_to_str(&device_id));
+  	       tvb_ether_to_str(tvb, PAGP_PARTNER_DEVICE_ID));
       }
       if (tree) {
-	    proto_tree_add_ether(pagp_tree, hf_pagp_partner_device_id, tvb,
-				PAGP_PARTNER_DEVICE_ID, 6, device_id.data);
+	    proto_tree_add_item(pagp_tree, hf_pagp_partner_device_id, tvb,
+				PAGP_PARTNER_DEVICE_ID, 6, ENC_NA);
       }
 
       if (tree) {
