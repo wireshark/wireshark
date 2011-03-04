@@ -1447,6 +1447,14 @@ static int hf_ieee80211_tag_country_info_rrc_rc = -1;
 static int hf_ieee80211_tag_country_info_rrc_cc = -1;
 static int hf_ieee80211_tag_fh_hopping_parameter_prime_radix = -1;
 static int hf_ieee80211_tag_fh_hopping_parameter_nb_channels = -1;
+static int hf_ieee80211_tag_fh_hopping_table_flag = -1;
+static int hf_ieee80211_tag_fh_hopping_table_number_of_sets = -1;
+static int hf_ieee80211_tag_fh_hopping_table_modulus = -1;
+static int hf_ieee80211_tag_fh_hopping_table_offset = -1;
+static int hf_ieee80211_tag_fh_hopping_random_table = -1;
+static int hf_ieee80211_tag_request = -1;
+static int hf_ieee80211_tag_challenge_text = -1; 
+
 static int hf_ieee80211_wep_iv = -1;
 static int hf_ieee80211_wep_iv_weak = -1;
 static int hf_ieee80211_tkip_extiv = -1;
@@ -1836,9 +1844,6 @@ static int hf_ieee80211_tspec_min_phy = -1;
 static int hf_ieee80211_tspec_surplus = -1;
 static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_ts_delay = -1;
-static int hf_ieee80211_class_type = -1;
-static int hf_ieee80211_class_mask = -1;
-static int hf_ieee80211_ether_type = -1;
 static int hf_ieee80211_tclass_process = -1;
 static int hf_ieee80211_sched_info = -1;
 static int hf_ieee80211_sched_info_agg = -1;
@@ -1848,17 +1853,23 @@ static int hf_ieee80211_sched_srv_start = -1;
 static int hf_ieee80211_sched_srv_int = -1;
 static int hf_ieee80211_sched_spec_int = -1;
 static int hf_ieee80211_action = -1;
-static int hf_ieee80211_cf_version = -1;
-static int hf_ieee80211_cf_ipv4_src = -1;
-static int hf_ieee80211_cf_ipv4_dst = -1;
-static int hf_ieee80211_cf_src_port = -1;
-static int hf_ieee80211_cf_dst_port = -1;
-static int hf_ieee80211_cf_dscp = -1;
-static int hf_ieee80211_cf_protocol = -1;
-static int hf_ieee80211_cf_ipv6_src = -1;
-static int hf_ieee80211_cf_ipv6_dst = -1;
-static int hf_ieee80211_cf_flow = -1;
-static int hf_ieee80211_cf_tag_type = -1;
+static int hf_ieee80211_tclas_up = -1; 
+static int hf_ieee80211_tclas_class_type = -1; 
+static int hf_ieee80211_tclas_class_mask = -1; 
+static int hf_ieee80211_tclas_src_mac_addr = -1; 
+static int hf_ieee80211_tclas_dst_mac_addr = -1; 
+static int hf_ieee80211_tclas_ether_type = -1; 
+static int hf_ieee80211_tclas_version = -1;
+static int hf_ieee80211_tclas_ipv4_src = -1;
+static int hf_ieee80211_tclas_ipv4_dst = -1;
+static int hf_ieee80211_tclas_src_port = -1;
+static int hf_ieee80211_tclas_dst_port = -1;
+static int hf_ieee80211_tclas_dscp = -1;
+static int hf_ieee80211_tclas_protocol = -1;
+static int hf_ieee80211_tclas_ipv6_src = -1;
+static int hf_ieee80211_tclas_ipv6_dst = -1;
+static int hf_ieee80211_tclas_flow = -1;
+static int hf_ieee80211_tclas_tag_type = -1;
 
 static int hf_ieee80211_aruba = -1;
 static int hf_ieee80211_aruba_hb_seq = -1;
@@ -6147,13 +6158,39 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 4", tag_len);
         break;
       }
-      /* TODO */
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_flag, tvb, offset, 1, FALSE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_number_of_sets, tvb, offset, 1, FALSE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_modulus, tvb, offset, 1, FALSE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_offset, tvb, offset, 1, FALSE);
+      offset += 1;
+
+      while(offset <= tag_end )
+      {
+        proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_random_table, tvb, offset, 2, FALSE);
+        offset += 2;
+      }
+      break;
+
+    case TAG_REQUEST: /* 7.3.2.12 Request information element (10) */
+      while(offset <= tag_end )
+      {
+        proto_tree_add_item(tree, hf_ieee80211_tag_request, tvb, offset, 1, FALSE);
+        offset += 1;
+      }
       break;
 
     case TAG_QBSS_LOAD: /* 7.3.2.28 BSS Load element (11) */
       if (tag_len < 4 || tag_len >5)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Wrong QBSS Tag Length %u", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 4 or 5", tag_len);
         break;
       }
 
@@ -6181,103 +6218,135 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       break;
 
-    case TAG_TSPEC:
+    case TAG_TSPEC: /* 7.3.2.30 TSPEC element (13) */
       if (tag_len != 55)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TSPEC tag length %u != 55", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 55", tag_len);
         break;
       }
-      add_fixed_field(tree, tvb, offset + 2, FIELD_QOS_TS_INFO);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_nor_msdu, tvb, offset + 5, 2, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_max_msdu, tvb, offset + 7, 2, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_min_srv, tvb, offset + 9, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_max_srv, tvb, offset + 13, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_inact_int, tvb, offset + 17, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_susp_int, tvb, offset + 21, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_srv_start, tvb, offset + 25, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_min_data, tvb, offset + 29, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_mean_data, tvb, offset + 33, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_peak_data, tvb, offset + 37, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_burst_size, tvb, offset + 41, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_delay_bound, tvb, offset + 45, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_min_phy, tvb, offset + 49, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_surplus, tvb, offset + 53, 2, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tspec_medium, tvb, offset + 55, 2, TRUE);
+      offset += 2;
+
+      add_fixed_field(tree, tvb, offset, FIELD_QOS_TS_INFO);
+      offset += 3;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_nor_msdu, tvb, offset, 2, TRUE);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_max_msdu, tvb, offset, 2, TRUE);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_min_srv, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_max_srv, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_inact_int, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_susp_int, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_srv_start, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_min_data, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_mean_data, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_peak_data, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_burst_size, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_delay_bound, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_min_phy, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_surplus, tvb, offset, 2, TRUE);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tspec_medium, tvb, offset, 2, TRUE);
+      offset += 2;
+
       break;
 
-    case TAG_TS_DELAY:
-      if (tag_len != 4)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TS_DELAY tag length %u != 4", tag_len);
-        break;
-      }
-      proto_tree_add_item(tree, hf_ieee80211_ts_delay, tvb, offset + 2, 4, TRUE);
-      break;
-
-    case TAG_TCLAS:
+    case TAG_TCLAS: /* 7.3.2.31 TCLAS element (14) */
       if (tag_len < 6)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TCLAS element is too small %u", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
         break;
       }
       {
       guint8 type;
       guint8 version;
 
-      type = tvb_get_guint8(tvb, offset + 2);
-      proto_tree_add_item(tree, hf_ieee80211_tsinfo_up, tvb, offset + 2, 1, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_class_type, tvb, offset + 3, 1, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_class_mask, tvb, offset + 4, 1, TRUE);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tclas_up, tvb, offset, 1, TRUE);
+      type = tvb_get_guint8(tvb, offset);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tclas_class_type, tvb, offset, 1, TRUE);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tclas_class_mask, tvb, offset, 1, TRUE);
+      offset += 1;
+
       switch (type)
         {
           case 0:
-            proto_tree_add_item(tree, hf_ieee80211_ff_src_mac_addr, tvb, offset + 5,
-                    6, TRUE);
-            proto_tree_add_item(tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset + 11,
-                    6, TRUE);
-            proto_tree_add_item(tree, hf_ieee80211_ether_type, tvb, offset + 17,
-                    2, TRUE);
+            proto_tree_add_item(tree, hf_ieee80211_tclas_src_mac_addr, tvb, offset, 6, TRUE);
+            offset += 6;
+
+            proto_tree_add_item(tree, hf_ieee80211_tclas_dst_mac_addr, tvb, offset, 6, TRUE);
+            offset += 6;
+
+            proto_tree_add_item(tree, hf_ieee80211_tclas_ether_type, tvb, offset, 2, TRUE);
+            offset += 2;
             break;
 
           case 1:
             version = tvb_get_guint8(tvb, offset + 5);
-            proto_tree_add_item(tree, hf_ieee80211_cf_version, tvb, offset + 5, 1, TRUE);
+            proto_tree_add_item(tree, hf_ieee80211_tclas_version, tvb, offset + 5, 1, TRUE);
+            offset += 1;   
             if (version == 4)
             {
-              proto_tree_add_item(tree, hf_ieee80211_cf_ipv4_src, tvb, offset + 6,
-                4, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_ipv4_dst, tvb, offset + 10,
-                4, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_src_port, tvb, offset + 14,
-                2, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_dst_port, tvb, offset + 16,
-                2, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_dscp, tvb, offset + 18,
-                1, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_protocol, tvb, offset + 19,
-                1, FALSE);
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv4_src, tvb, offset, 4, FALSE);
+              offset += 4;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv4_dst, tvb, offset, 4, FALSE);
+              offset += 4;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_src_port, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_dst_port, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_dscp, tvb, offset, 1, FALSE);
+              offset += 1;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_protocol, tvb, offset, 1, FALSE);
+              offset += 1;
             }
             else if (version == 6)
             {
-              proto_tree_add_item(tree, hf_ieee80211_cf_ipv6_src, tvb, offset + 6,
-                16, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_ipv6_dst, tvb, offset + 22,
-                16, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_src_port, tvb, offset + 38,
-                2, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_dst_port, tvb, offset + 40,
-                2, FALSE);
-              proto_tree_add_item(tree, hf_ieee80211_cf_flow, tvb, offset + 42,
-                3, FALSE);
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_src, tvb, offset, 16, FALSE);
+              offset += 16;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_dst, tvb, offset, 16, FALSE);
+              offset += 16;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_src_port, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_dst_port, tvb, offset, 2, FALSE);
+              offset += 2;
+              proto_tree_add_item(tree, hf_ieee80211_tclas_flow, tvb, offset, 3, FALSE);
+              offset += 3;
             }
             break;
 
           case 2:
-            proto_tree_add_item(tree, hf_ieee80211_cf_tag_type, tvb, offset + 5,
-                    2, TRUE);
+            proto_tree_add_item(tree, hf_ieee80211_tclas_tag_type, tvb, offset, 2, TRUE);
+            offset += 2;
             break;
 
           default:
@@ -6286,34 +6355,41 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       break;
 
+    case TAG_SCHEDULE: /* 7.3.2.34 Schedule element (15) */
+      if (tag_len != 14)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 14", tag_len);
+        break;
+      }
+      offset += 2;
+
+      add_fixed_field(tree, tvb, offset, FIELD_SCHEDULE_INFO);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_sched_srv_start, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_sched_srv_int, tvb, offset, 4, TRUE);
+      offset += 4;
+
+      proto_tree_add_item(tree, hf_ieee80211_sched_spec_int, tvb, offset, 2, TRUE);
+      offset += 2;
+      break;
+
+    case TAG_CHALLENGE_TEXT: /* 7.3.2.8 Challenge Text element (16) */
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tag_challenge_text, tvb, offset, tag_len, FALSE);
+      break;
+
     case TAG_TCLAS_PROCESS:
       if (tag_len != 1)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TCLAS_PROCESS element length %u != 1", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
-      proto_tree_add_item(tree, hf_ieee80211_tclass_process, tvb, offset + 2, 1, TRUE);
-      break;
+      offset += 2;
 
-    case TAG_SCHEDULE:
-      if (tag_len != 14)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TCLAS_PROCESS element length %u != 14", tag_len);
-        break;
-      }
-      add_fixed_field(tree, tvb, offset + 2, FIELD_SCHEDULE_INFO);
-      proto_tree_add_item(tree, hf_ieee80211_sched_srv_start, tvb, offset + 4, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_sched_srv_int, tvb, offset + 8, 4, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_sched_spec_int, tvb, offset + 12, 2, TRUE);
-      break;
-
-    case TAG_CHALLENGE_TEXT:
-      g_snprintf (out_buff, SHORT_STR, "Challenge text: %s",
-                tvb_bytes_to_str(tvb, offset + 2, tag_len));
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-           tag_len, out_buff);
+      proto_tree_add_item(tree, hf_ieee80211_tclass_process, tvb, offset, 1, TRUE);
       break;
 
     case TAG_ERP_INFO:
@@ -6340,6 +6416,16 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
                                tag_len, out_buff);
         proto_item_append_text(ti, ": %s", print_buff);
       }
+      break;
+
+    case TAG_TS_DELAY:
+      if (tag_len != 4)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+            "TS_DELAY tag length %u != 4", tag_len);
+        break;
+      }
+      proto_tree_add_item(tree, hf_ieee80211_ts_delay, tvb, offset + 2, 4, TRUE);
       break;
 
     case TAG_CISCO_CCX1_CKIP:
@@ -12636,6 +12722,125 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_fh_hopping_table_flag,
+     {"Flag", "wlan_mgt.fh_hopping.table.flag",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Indicates that a Random Table is present when the value is 1", HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_table_number_of_sets,
+     {"Number of Sets", "wlan_mgt.fh_hopping.table.number_of_sets",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Indicates the total number of sets within the hopping patterns", HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_table_modulus,
+     {"Modulus", "wlan_mgt.fh_hopping.table.modulus",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Indicate the values to be used in the equations to create a hopping sequence from the Random Table information", HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_table_offset,
+     {"Offset", "wlan_mgt.fh_hopping.table.offset",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Indicate the values to be used in the equations to create a hopping sequence from the Random Table information", HFILL }},
+
+    {&hf_ieee80211_tag_fh_hopping_random_table,
+     {"Random Table", "wlan_mgt.fh_hopping.table.random_table",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      "It is a vector of single octet values that indicate the random sequence to be followed during a hopping sequence", HFILL }},
+
+    {&hf_ieee80211_tag_request,
+     {"Requested Element ID", "wlan_mgt.tag.request",
+      FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(tag_num_vals), 0,
+      "The list of elements that are to be included in the responding STA Probe Response frame", HFILL }},
+
+    {&hf_ieee80211_tclas_up,
+     {"User Priority", "wlan_mgt.tclas.user_priority",
+      FT_UINT8, BASE_DEC, NULL, 0, 
+      "Contains the value of the UP of the associated MSDUs", HFILL }},
+      
+    {&hf_ieee80211_tclas_class_type,
+     {"Classifier Type", "wlan_mgt.tclas.class_type",
+      FT_UINT8, BASE_DEC, VALS (classifier_type), 0, 
+      "Specifies the type of classifier parameters", HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask,
+     {"Classifier Mask", "wlan_mgt.tclas.class_mask",
+      FT_UINT8, BASE_HEX,  NULL, 0, 
+      "Specifies a bitmap where bits that are set to 1 identify a subset of the classifier parameters", HFILL }},
+
+    {&hf_ieee80211_tclas_src_mac_addr,
+     {"Source address", "wlan_mgt.tclas.type",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      "Classifier Parameters Ethernet Type", HFILL }},
+      
+    {&hf_ieee80211_tclas_dst_mac_addr,
+     {"Destination address", "wlan_mgt.tclas.type",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+      
+    {&hf_ieee80211_tclas_ether_type,
+     {"Ethernet Type", "wlan_mgt.tclas.type",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_version,
+     {"IP Version", "wlan_mgt.tclas.version",
+      FT_UINT8, BASE_DEC, NULL, 0, 
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_ipv4_src,
+     {"IPv4 Src Addr", "wlan_mgt.tclas.ipv4_src",
+      FT_IPv4, BASE_NONE, NULL, 0, 
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_ipv4_dst,
+     {"IPv4 Dst Addr", "wlan_mgt.tclas.ipv4_dst",
+      FT_IPv4, BASE_NONE, NULL, 0, 
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_src_port,
+     {"Source Port", "wlan_mgt.tclas.src_port",
+      FT_UINT16, BASE_DEC, NULL, 0, 
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_dst_port,
+     {"Destination Port", "wlan_mgt.tclas.dst_port",
+      FT_UINT16, BASE_DEC, NULL, 0, 
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_dscp,
+     {"IPv4 DSCP", "wlan_mgt.tclas.dscp",
+      FT_UINT8, BASE_HEX, NULL, 0,
+    "IPv4 Differentiated Services Code Point (DSCP) Field", HFILL }},
+
+    {&hf_ieee80211_tclas_protocol,
+     {"Protocol", "wlan_mgt.tclas.protocol",
+      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 Protocol", HFILL }},
+
+    {&hf_ieee80211_tclas_ipv6_src,
+     {"IPv6 Src Addr", "wlan_mgt.tclas.ipv6_src",
+      FT_IPv6, BASE_NONE,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_ipv6_dst,
+     {"IPv6 Dst Addr", "wlan_mgt.tclas.ipv6_dst",
+      FT_IPv6, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_flow,
+     {"Flow Label", "wlan_mgt.tclas.flow",
+      FT_UINT24, BASE_HEX, NULL, 0,
+      "IPv6 Flow Label", HFILL }},
+
+    {&hf_ieee80211_tclas_tag_type,
+     {"802.1Q Tag Type", "wlan_mgt.tclas.tag_type",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_challenge_text,
+     {"Challenge Text", "wlan_mgt.tag.challenge_text",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+      
     {&hf_ieee80211_rsn_version,
      {"RSN Version", "wlan_mgt.rsn.version", FT_UINT16, BASE_DEC,
       NULL, 0, "Indicates the version number of the RSNA protocol", HFILL }},
@@ -13869,18 +14074,6 @@ proto_register_ieee80211 (void)
      {"Traffic Stream (TS) Delay", "wlan_mgt.ts_delay",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_class_type,
-     {"Classifier Type", "wlan_mgt.tclas.class_type", FT_UINT8, BASE_DEC,
-      VALS (classifier_type), 0, NULL, HFILL }},
-
-    {&hf_ieee80211_class_mask,
-     {"Classifier Mask", "wlan_mgt.tclas.class_mask", FT_UINT8, BASE_HEX,
-      NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_ether_type,
-     {"Ethernet Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
-      NULL, 0, "Classifier Parameters Ethernet Type", HFILL }},
-
     {&hf_ieee80211_tclass_process,
      {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
       VALS (tclas_process), 0, "TCLAS Processing", HFILL }},
@@ -13917,49 +14110,6 @@ proto_register_ieee80211 (void)
      {"Action", "wlan_mgt.fixed.action",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_cf_version,
-     {"IP Version", "wlan_mgt.tclas.params.version",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_ipv4_src,
-     {"IPv4 Src Addr", "wlan_mgt.tclas.params.ipv4_src",
-      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_ipv4_dst,
-     {"IPv4 Dst Addr", "wlan_mgt.tclas.params.ipv4_dst",
-      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_src_port,
-     {"Source Port", "wlan_mgt.tclas.params.src_port",
-      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_dst_port,
-     {"Destination Port", "wlan_mgt.tclas.params.dst_port",
-      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_dscp,
-     {"IPv4 DSCP", "wlan_mgt.tclas.params.dscp",
-      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 Differentiated Services Code Point (DSCP) Field", HFILL }},
-
-    {&hf_ieee80211_cf_protocol,
-     {"Protocol", "wlan_mgt.tclas.params.protocol",
-      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 Protocol", HFILL }},
-
-    {&hf_ieee80211_cf_ipv6_src,
-     {"IPv6 Src Addr", "wlan_mgt.tclas.params.ipv6_src",
-      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_ipv6_dst,
-     {"IPv6 Dst Addr", "wlan_mgt.tclas.params.ipv6_dst",
-      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_cf_flow,
-     {"Flow Label", "wlan_mgt.tclas.params.flow",
-      FT_UINT24, BASE_HEX, NULL, 0, "IPv6 Flow Label", HFILL }},
-
-    {&hf_ieee80211_cf_tag_type,
-     {"802.1Q Tag Type", "wlan_mgt.tclas.params.tag_type",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_aruba,
      {"Aruba Type", "wlan_mgt.aruba.type",
