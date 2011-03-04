@@ -40,6 +40,7 @@
 #include "packet-bssgp.h"
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
+#include "packet-ranap.h"
 #include "packet-rrc.h"
 #include "packet-lte-rrc.h"
 #include "packet-s1ap.h"
@@ -105,6 +106,11 @@ static int hf_bssgp_llc_frames_disc = -1;
 static int hf_bssgp_ra_discriminator = -1;
 static int hf_bssgp_rim_app_id = -1;
 static int hf_bssgp_rim_seq_no = -1;
+static int hf_bssgp_rat_discriminator = -1;
+static int hf_bssgp_nacc_cause = -1;
+static int hf_bssgp_s13_cause = -1;
+static int hf_bssgp_mbms_data_ch_cause = -1;
+static int hf_bssgp_utra_si_cause = -1;
 static int hf_bssgp_num_si_psi = -1;
 static int hf_bssgp_si_psi_type = -1;
 static int hf_bssgp_ran_inf_req_pdu_t_ext_c = -1;
@@ -180,6 +186,8 @@ static int hf_bssgp_sub_prof_id_f_rat_freq_prio = -1;
 static int hf_bssgp_rel_int_rat_ho_inf_ind = -1;
 static int hf_bssgp_csg_id = -1;
 static int hf_bssgp_cell_acc_mode = -1;
+static int hf_bssgp_Global_ENB_ID_PDU = -1;
+static int hf_bssgp_SONtransferRequestContainer_PDU = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -363,6 +371,18 @@ static gint ett_bssgp_list_of_setup_pfcs = -1;
 #define BSSGP_PDU_RAN_INFORMATION_ACK          0x72
 #define BSSGP_PDU_RAN_INFORMATION_ERROR        0x73
 #define BSSGP_PDU_RAN_INFORMATION_APP_ERROR    0x74
+
+#define BSSGP_PDU_RESERVED_0X75                0x75
+#define BSSGP_PDU_RESERVED_0X76                0x76
+#define BSSGP_PDU_RESERVED_0X77                0x77
+#define BSSGP_PDU_RESERVED_0X78                0x78
+#define BSSGP_PDU_RESERVED_0X79                0x79
+#define BSSGP_PDU_RESERVED_0X7A                0x7a
+#define BSSGP_PDU_RESERVED_0X7B                0x7b
+#define BSSGP_PDU_RESERVED_0X7C                0x7c
+#define BSSGP_PDU_RESERVED_0X7D                0x7d
+#define BSSGP_PDU_RESERVED_0X7E                0x7e
+#define BSSGP_PDU_RESERVED_0X7F                0x7f
 
 /*
 0x80 MBMS-SESSION-START-REQUEST
@@ -610,16 +630,23 @@ x86 TAC
 
 #define ELEM_IN_ELEM_OPT_TELV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_telv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
-	{ \
-		curr_offset += consumed; \
-		curr_len -= consumed; \
+	if (curr_len != 0){\
+		if ((consumed = elem_telv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+		{ \
+			curr_offset += consumed; \
+			curr_len -= consumed; \
+		} \
 	} \
 }
 
 /* Forward declarations */
 static guint16 de_bssgp_source_BSS_to_target_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 static guint16 de_bssgp_target_BSS_to_source_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_bssgp_ran_inf_request_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_bssgp_ran_inf_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_bssgp_ran_inf_ack_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_bssgp_ran_inf_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+static guint16 de_bssgp_ran_inf_app_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 
 static const value_string tab_nacc_cause[]={
@@ -6514,11 +6541,11 @@ de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	/*Why doesn't this work? ( add_string will not contain RAI + CI )
 	 * curr_offset = curr_offset + de_cell_id(tvb, tree, curr_offset , 2, add_string, string_len);
 	 */
-	ci = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_bssgp_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+	ci = tvb_get_ntohs(tvb, curr_offset);
+	proto_tree_add_item(tree, hf_bssgp_ci, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
 	if (add_string)
-		g_snprintf(add_string, string_len, " %s, CI %u", add_string, ci);
+		g_snprintf(add_string, string_len, "%s, CI %u", add_string, ci);
 
 
 	return(curr_offset-offset);
@@ -7229,7 +7256,7 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	curr_offset = offset;
 
-	nsei = tvb_get_ntohs(tvb, offset);
+	nsei = tvb_get_ntohs(tvb, curr_offset);
 	proto_tree_add_item(tree, hf_bssgp_nsei, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
 
@@ -7426,14 +7453,11 @@ de_bssgp_rim_seq_no(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  */
 
 
-static const true_false_string  bssgp_si_psi_type_vals = {
-    "PSI messages as specified for PBCCH (3GPP TS 44.060) follow",
-    "SI messages as specified for BCCH (3GPP TS 44.018) follow"
-};
-#if 0
+
 static guint16
-de_bssgp_app_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	tvbuff_t *new_tvb = NULL;
 	guint32	curr_offset;
 
 	curr_offset = offset;
@@ -7442,53 +7466,306 @@ de_bssgp_app_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 		case 1:
 			/* 11.3.63.1.1	RAN-INFORMATION-REQUEST Application Container for the NACC Application */
 			/* Reporting Cell Identifier */
-			curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
-			/* Number of SI/PSI */
-			proto_tree_add_item(tree, hf_bssgp_num_si_psi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			/* Type */
-			proto_tree_add_item(tree, hf_bssgp_si_psi_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			curr_offset++;
-			/* Octet 12-n SI/PSI */
-			/* If the Type field indicates that "PSI messages as specified for PBCCH (3GPP TS 44.060) follow" then the SI/PSI
-			 * field contains Packet System Information message instances encoded for PBCCH as specified in
-			 * 3GPP TS 44.060. Each Packet System Information message contains the MESSAGE_TYPE field followed by the
-			 * PSI message content. Each message is 22 octets long.
-			 */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
 			break;
 		case 2:
 			/* 11.3.63.1.2	RAN-INFORMATION-REQUEST Application Container for the SI3 Application */
+			/* Reporting Cell Identifier */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
 			break;
 		case 3:
 			/* 11.3.63.1.3	RAN-INFORMATION-REQUEST Application Container for the MBMS data channel Application */
+			/* Reporting Cell Identifier */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
 			break;
 		case 4:
+			{
+			asn1_ctx_t asn1_ctx;
+
+			asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, gpinfo);
 			/* 11.3.63.1.4	RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application */
+			/* Reporting Cell Identifier */
+			/* convert to bit offset */
+			curr_offset = curr_offset<<3;
+			curr_offset = dissect_s1ap_Global_ENB_ID(tvb, curr_offset<<3, &asn1_ctx, tree, hf_bssgp_Global_ENB_ID_PDU);
+			curr_offset = dissect_s1ap_SONtransferRequestContainer(tvb, curr_offset, &asn1_ctx, tree, hf_bssgp_SONtransferRequestContainer_PDU);
+			curr_offset += 7; curr_offset >>= 3;
+			}
 			break;
 		case 5:
-			/* 11.3.63.2.5 RAN-INFORMATION Application Container for the UTRA SI Application */
+			/* 11.3.63.1.5 RAN-INFORMATION Application Container for the UTRA SI Application */
+			/* Octet 3-m Reporting Cell Identifier
+			 * This field is encoded as the Source Cell Identifier IE (UTRAN Source Cell ID) as defined in
+			 * 3GPP TS 25.413
+			 */
+			new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+			curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
 		default :
 			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identity");
+			curr_offset+=len;
 			break;
 	}
 
 
 	return(curr_offset-offset);
 }
-#endif
 
 /*
  * 11.3.63.2	RAN-INFORMATION Application Container Unit
  * 11.3.63.2.0	General
- * 11.3.63.2.1	RAN-INFORMATION Application Container for the NACC Application
- * 11.3.63.2.2	RAN-INFORMATION Application Container for the SI3 Application
- * 11.3.63.2.3	RAN-INFORMATION Application Container for the MBMS data channel Application
- * 11.3.63.2.4	RAN-INFORMATION Application Container for the SON Transfer Application
- * 11.3.64	Application Error Container
- * 11.3.64.1	Application Error Container layout for the NACC application
- * 11.3.64.2	Application Error Container for the SI3 application
- * 11.3.64.3	Application Error Container for the MBMS data channel application
- * 11.3.64.4	Application Error Container for the SON Transfer Application
  */
+static const true_false_string  bssgp_si_psi_type_vals = {
+    "PSI messages as specified for PBCCH (3GPP TS 44.060) follow",
+    "SI messages as specified for BCCH (3GPP TS 44.018) follow"
+};
+
+static const value_string bssgp_rat_discriminator_vals[] = {
+    { 0, "The reporting RAT is GERAN" },
+    { 1, "The reporting RAT is UTRAN" },
+    { 2, "The reporting RAT is E-UTRAN" },
+	{ 0,    NULL },
+  };
+static guint16
+de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *new_tvb = NULL;
+	guint32	curr_offset;
+	guint8 type, num_items, rat_type, oct;
+	int i;
+
+	curr_offset = offset;
+
+	switch(g_rim_application_identity){
+		case 1:
+			/* 11.3.63.2.1 RAN-INFORMATION Application Container for the NACC Application */
+			/* Reporting Cell Identifier */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
+			/* Number of SI/PSI */
+			num_items = tvb_get_guint8(tvb,curr_offset)>>1;
+			proto_tree_add_item(tree, hf_bssgp_num_si_psi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			/* Type */
+			type = tvb_get_guint8(tvb,curr_offset)&0x01;
+			proto_tree_add_item(tree, hf_bssgp_si_psi_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
+			/* Octet 12-n SI/PSI */
+			if(type==1){
+				/* If the Type field indicates that "PSI messages as specified for PBCCH (3GPP TS 44.060) follow" then the SI/PSI
+				 * field contains Packet System Information message instances encoded for PBCCH as specified in
+				 * 3GPP TS 44.060. Each Packet System Information message contains the MESSAGE_TYPE field followed by the
+				 * PSI message content. Each message is 22 octets long.
+				 */
+				for (i=0; i < num_items; i++){
+					proto_tree_add_text(tree, tvb, curr_offset, 22, "PSI item %u - not dissected yet",i+1);
+					curr_offset+=22;
+				}
+			}else{
+				/* If the Type field indicates that "SI messages as specified for BCCH (3GPP TS 44.018) follow" then the SI/PSI
+				 * field contains System Information message instances encoded for BCCH as specified in 3GPP TS 44.018. Each
+				 * System Information message contains the Message type octet followed by all the IEs composing the message
+				 * payload. Each message is 21 octets long.
+				 */
+				void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+				gint			ett_tree;
+				int				hf_idx;
+				const gchar		*msg_str;
+				proto_item		*si_item;
+				proto_tree		*si_tree;
+
+				for (i=0; i < num_items; i++){
+					oct = tvb_get_guint8(tvb,curr_offset);
+					get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
+					proto_tree_add_text(tree, tvb, curr_offset, 21, "SI item %u ",i+1);
+					si_item = proto_tree_add_item(tree, hf_idx, tvb, curr_offset, 1, FALSE);
+					si_tree = proto_item_add_subtree(si_item, ett_tree);
+					if (msg_fcn_p == NULL){
+						proto_tree_add_text(si_tree, tvb, curr_offset, 21, "Unknown SI message");
+					}else{
+						(*msg_fcn_p)(tvb, si_tree, curr_offset+1, 20);
+					}
+					curr_offset+=21;
+				}
+			}
+			break;
+		case 2:
+			/* 11.3.63.2.2 RAN-INFORMATION Application Container for the SI3 Application */
+			/* Octet 3-10 Reporting Cell Identifier */
+			/* Reporting Cell Identifier: The parameter is encoded as the value part of the Cell Identifier IE
+			 * defined in sub-clause 11.3.9, not including IEI and Length Indicator.
+			 */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
+			/* Octet 11-31 SI3 */
+			/* SI3: contains the SYSTEM INFORMATION type 3 message encoded for BCCH as specified in 3GPP TS 44.018 ch 9.1.35
+			 * It contains the Message type octet followed by all the IEs composing the message payload. 
+			 * The message is 21 octets long.
+			 * dtap_rr_sys_info_3(tvb, tree, curr_offset, len-7)
+			 */
+			proto_tree_add_text(tree, tvb, curr_offset, 1, "SYSTEM INFORMATION type 3 message");
+			curr_offset++;
+			break;
+		case 3:
+			/* 11.3.63.2.3 RAN-INFORMATION Application Container for the MBMS data channel Application */
+			/* Octet 3-10 Reporting Cell Identifier */
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
+			/* Octet 11-n MBMS data channel report */
+			proto_tree_add_text(tree, tvb, curr_offset, len-6, "MBMS data channel report - not dissected yet");
+			break;
+		case 4:
+			/* 11.3.63.2.4 RAN-INFORMATION Application Container for the SON Transfer Application */
+			/* Octet 3 Spare RAT discriminator */
+			rat_type = tvb_get_guint8(tvb,curr_offset) & 0x0f;
+			proto_tree_add_item(tree, hf_bssgp_rat_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
+			/* Octet 4-m Reporting Cell Identifier */
+			switch(rat_type){
+				case 0:
+					/* If the RAT discriminator field indicates GERAN, this field is encoded as the value part of the Cell Identifier IE
+					 * defined in sub-clause 11.3.9, not including IEI and Length Indicator.
+					 */
+					curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
+					break;
+				case 1:
+					/* If the RAT discriminator field indicates UTRAN, this field is encoded as the Source Cell Identifier IE (UTRAN
+					 * Source Cell ID) as defined in 3GPP TS 25.413
+					 */
+					new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+					curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+					break;
+				case 2:
+					/* If the RAT discriminator field indicates E-UTRAN, this field is encoded as the E-UTRAN CGI IE as 
+					 * defined in 3GPP TS 36.413
+					 */
+					new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+					curr_offset = curr_offset + dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
+					break;
+				default:
+					break;
+			}
+
+			break;
+		case 5:
+			/* 11.3.63.2.5 RAN-INFORMATION Application Container for the UTRA SI Application */
+			/* Octet 3-m Reporting Cell Identifier 
+			 * Reporting Cell Identifier: This field is encoded as the Source Cell Identifier IE
+			 * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
+			 */
+			new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+			curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+			/* Octet (m+1)-n UTRA SI Container
+			 * UTRA SI Container: This field contains System Information Container valid for the reporting cell
+			 * encoded as defined in TS 25.331
+			 */
+			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
+
+		default :
+			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identitys Data");
+			curr_offset+=len;
+			break;
+	}
+
+
+	return(curr_offset-offset);
+}
+/*
+ * 11.3.64	Application Error Container
+ */
+static const value_string bssgp_nacc_cause_vals[] = {
+    { 0, "Other unspecified error" },
+    { 1, "Syntax error in the Application Container" },
+    { 2, "Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
+    { 3, "SI/PSI type error" },
+    { 4, "Inconsistent length of a SI/PSI message" },
+    { 5, "Inconsistent set of messages" },
+	{ 0,    NULL },
+  };
+
+static const value_string bssgp_s13_cause_vals[] = {
+    { 0, "Other unspecified error" },
+    { 1, "Syntax error in the Application Container" },
+    { 2, "Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
+    { 3, "Inconsistent length of a SI3 message" },
+    { 4, "Inconsistent set of messages" },
+	{ 0,    NULL },
+  };
+
+static const value_string bssgp_mbms_data_ch_cause_vals[] = {
+    { 0, "Other unspecified error" },
+    { 1, "Syntax error in the Application Container" },
+    { 2, "Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
+    { 3, "RAN-INFORMATION/Initial Multiple Report or RANINFORMATION/Single Report PDU exceeds the maximum supported length" },
+    { 4, "Inconsistent MBMS data channel description" },
+	{ 0,    NULL },
+  };
+
+static const value_string bssgp_utra_si_cause_vals[] = {
+    { 0, "Other unspecified error" },
+    { 1, "Syntax error in the Application Container" },
+    { 2, "Inconsistent Reporting Cell Identifier" },
+	{ 0,    NULL },
+  };
+
+static guint16
+de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *new_tvb = NULL;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	switch(g_rim_application_identity){
+		case 1:
+			/*
+			 * 11.3.64.1	Application Error Container layout for the NACC application
+			 */
+			/* Octet 3 NACC Cause */
+			proto_tree_add_item(tree, hf_bssgp_nacc_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
+			/* Erroneous Application Container including IEI and LI */
+			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+			break;
+		case 2:
+			/*
+			 * 11.3.64.2	Application Error Container for the SI3 application
+			 */
+			/* Octet 3 SI3 Cause */
+			proto_tree_add_item(tree, hf_bssgp_s13_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
+			/* Erroneous Application Container including IEI and LI */
+			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+			break;
+		case 3:
+			/*
+			 * 11.3.64.3	Application Error Container for the MBMS data channel application
+			 */
+			/* Octet 3 MBMS data channel Cause */
+			proto_tree_add_item(tree, hf_bssgp_mbms_data_ch_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
+			/* Erroneous Application Container including IEI and LI */
+			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+			break;
+		case 4:
+			/*
+			 * 11.3.64.4	Application Error Container for the SON Transfer Application
+			 */
+			/* SON Transfer Cause: This field indicates the cause why the Application Error Container IE is sent.
+			 * The "SON Transfer Cause" field is encoded as the SON Transfer Cause IE as defined in 3GPP TS 36.413
+			 */
+			new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+			curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, gpinfo, tree);
+			/* Erroneous Application Container including IEI and LI */
+			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
+			break;
+		case 5:
+			/* 11.3.64.5 Application Error Container for the UTRA SI Application*/
+			/* Octet 3 UTRA SI Cause */
+			proto_tree_add_item(tree, hf_bssgp_utra_si_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		default :
+			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown Application Error Container");
+			curr_offset+=len;
+			break;
+	}
+	return(len);
+}
+
 /*
  * 11.3.65	RIM PDU Indications	
  */
@@ -7531,16 +7808,16 @@ de_bssgp_rim_pdu_indications(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	switch(g_pdu_type){
 		case BSSGP_PDU_RAN_INFORMATION_REQUEST:
 			/* 11.3.65.1 RAN-INFORMATION-REQUEST RIM PDU Indications */
-			/* The ACK field is not used and shall be considered as spare */
 			/* Table 11.3.65.1: RAN-INFORMATION-REQUEST PDU Type Extension coding */
 			proto_tree_add_item(tree, hf_bssgp_ran_inf_req_pdu_t_ext_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			/* The ACK field is not used and shall be considered as spare */
 			curr_offset++;
 			break;
 		case BSSGP_PDU_RAN_INFORMATION:
 			/* 11.3.65.2 RAN-INFORMATION RIM PDU Indications */
-			proto_tree_add_item(tree, hf_bssgp_rim_pdu_ind_ack, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			/* Table 11.3.65.2: RAN-INFORMATION PDU Type Extension coding */
 			proto_tree_add_item(tree, hf_bssgp_ran_inf_pdu_t_ext_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_bssgp_rim_pdu_ind_ack, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			break;
 		case BSSGP_PDU_RAN_INFORMATION_ERROR:
@@ -7664,7 +7941,6 @@ static guint16
 de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8 oct;
-	guint16 ci;
 	guint16 rnc_id;
 	tvbuff_t *new_tvb = NULL;
 	guint32	curr_offset;
@@ -7678,6 +7954,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	/* RIM Routing Address discriminator */
 	oct  = tvb_get_guint8(tvb,curr_offset);
 	proto_tree_add_item(tree, hf_bssgp_ra_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
 	switch(oct){
 		case 0:
 			/* RIM Routing Address discriminator = 0000:
@@ -7685,15 +7962,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 			 * and is coded as the value part (octet 3 to octet 10) of the 
 			 * Cell Identifier information element specified in sub-clause 11.3.9.
 			 */
-			curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
-			/*Why doesn't this work? ( add_string will not contain RAI + CI ) 
-			 * curr_offset = curr_offset + de_cell_id(tvb, tree, curr_offset , 2, add_string, string_len);
-			 */
-			ci = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(tree, hf_bssgp_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
-			if (add_string)
-				g_snprintf(add_string, string_len, " - %s, CI %u", add_string, ci);
-			curr_offset+=2;
+			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, curr_offset, len, add_string, string_len);
 			break;
 		case 1:
 			/* RIM Routing Address discriminator = 0001:
@@ -7703,8 +7972,8 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 			 */
 			curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
 			/* Octet 10 - 11 RNC-ID (or Extended RNC-ID) */
-			rnc_id = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			rnc_id = tvb_get_ntohs(tvb, curr_offset);
+			proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 
 			if (add_string)
@@ -7722,6 +7991,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 			dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
 			break;
 		default:
+			proto_tree_add_text(tree, tvb, curr_offset, 3, "Unknown RIM Routing Address discriminator");
 			return len;
 	}
 
@@ -7978,8 +8248,8 @@ de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	 */
 	curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
 	/* Octet 9 - 10 RNC ID (or Extended RNC-ID or Corresponding RNC-ID) */
-	rnc_id = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	rnc_id = tvb_get_ntohs(tvb, curr_offset);
+	proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
 
 	if (add_string)
@@ -8416,6 +8686,20 @@ de_bssgp_reliable_inter_rat_ho_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 /*
  * 11.3.108 	SON Transfer Application Identity
  */
+static guint16
+de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* SON Transfer Application Identity: This field is encoded as the SON Transfer Application Identity IE
+	 * as defined in 3GPP TS 36.413
+	 */
+	dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree);
+
+	return(len);
+}
 /*
  * 11.3.109 	CSG Identifier
  */
@@ -8525,25 +8809,25 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x00, "RIM Sequence Number" },								/* 11.3.62	RIM Sequence Number */
  /* 11.3.62a	RIM Container */
  /* 11.3.62a.0	General */
- /* 11.3.62a.1	RAN-INFORMATION-REQUEST RIM Container */
- /* 11.3.62a.2	RAN-INFORMATION RIM Container */
- /* 11.3.62a.3	RAN-INFORMATION-ACK RIM Container */
- /* 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container */
- /* 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container */
+	{ 0x00, "RAN-INFORMATION-REQUEST RIM Container" },				/* 11.3.62a.1	RAN-INFORMATION-REQUEST RIM Container */
+	{ 0x00, "RAN-INFORMATION RIM Container" },						/* 11.3.62a.2	RAN-INFORMATION RIM Container */
+	{ 0x00, "RAN-INFORMATION-ACK RIM Container" },					/* 11.3.62a.3	RAN-INFORMATION-ACK RIM Container */
+	{ 0x00, "RAN-INFORMATION-ERROR RIM Container" },				/* 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container */
+	{ 0x00, "RAN-INFORMATION-APPLICATION-ERROR RIM Container" },	/* 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container */
  /* 11.3.63	Application Container */
- /* 11.3.63.1	RAN-INFORMATION-REQUEST Application Container */
+	{ 0x00, "RAN-INFORMATION-REQUEST Application Container" },		/* 11.3.63.1	RAN-INFORMATION-REQUEST Application Container */
  /* 11.3.63.1.0	General */
  /* 11.3.63.1.1	RAN-INFORMATION-REQUEST Application Container for the NACC Application */
  /* 11.3.63.1.2	RAN-INFORMATION-REQUEST Application Container for the SI3 Application */
  /* 11.3.63.1.3	RAN-INFORMATION-REQUEST Application Container for the MBMS data channel Application */
  /* 11.3.63.1.4	RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application */
- /* 11.3.63.2	RAN-INFORMATION Application Container Unit */
+	{ 0x00, "RAN-INFORMATION Application Container Unit" },			/* 11.3.63.2	RAN-INFORMATION Application Container Unit */
  /* 11.3.63.2.0	General */
  /* 11.3.63.2.1	RAN-INFORMATION Application Container for the NACC Application */
  /* 11.3.63.2.2	RAN-INFORMATION Application Container for the SI3 Application */
  /* 11.3.63.2.3	RAN-INFORMATION Application Container for the MBMS data channel Application */
  /* 11.3.63.2.4	RAN-INFORMATION Application Container for the SON Transfer Application */
- /* 11.3.64	Application Error Container */
+	{ 0x00, "Application Error Container" },						/* 11.3.64	Application Error Container */
  /* 11.3.64.1	Application Error Container layout for the NACC application */
  /* 11.3.64.2	Application Error Container for the SI3 application */
  /* 11.3.64.3	Application Error Container for the MBMS data channel application */
@@ -8554,7 +8838,7 @@ const value_string bssgp_elem_strings[] = {
  /* 11.3.65.2	RAN-INFORMATION RIM PDU Indications */
  /* 11.3.65.3	RAN-INFORMATION-APPLICATION-ERROR RIM PDU Indications */
  /* 11.3.66	(void) */
-	{ 0x00, "IM Protocol Version Number" },							/* 11.3.67	RIM Protocol Version Number */
+	{ 0x00, "RIM Protocol Version Number" },							/* 11.3.67	RIM Protocol Version Number */
 	{ 0x00, "PFC Flow Control parameters" },						/* 11.3.68	PFC Flow Control parameters */
  /* 0x53, SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID */					/* 11.3.69	Global CN-Id */
 	{ 0x00, "RIM Routing Information" },							/* 11.3.70	RIM Routing Information */
@@ -8598,7 +8882,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x00, "Subscriber Profile ID for RAT/Frequency priority" },	/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
 /* 11.3.106 Request for Inter-RAT Handover Info */
 	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.107 Reliable Inter-RAT Handover Info */
-/* 11.3.108 SON Transfer Application Identity */
+	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.108 SON Transfer Application Identity */
 	{ 0x00, "CSG Identifier" },										/* 11.3.109 CSG Identifier */
 /* 11.3.110 Tracking Area Code */
 
@@ -8662,11 +8946,18 @@ typedef enum
 	DE_BSSGP_RRLP_FLAGS,										/* 11.3.60	RRLP Flags */
 	DE_BSSGP_RIM_APP_ID,										/* 11.3.61	RIM Application Identity */
 	DE_BSSGP_RIM_SEQ_NO,										/* 11.3.62	RIM Sequence Number */
+	DE_BSSGP_RAN_INF_REQUEST_RIM_CONT,							/* 11.3.62a.1	RAN-INFORMATION-REQUEST RIM Container */
+	DE_BSSGP_RAN_INF_RIM_CONT,									/* 11.3.62a.2	RAN-INFORMATION RIM Container */
+	DE_BSSGP_RAN_INFORMATION_ACK_RIM_CONT,						/* 11.3.62a.3	RAN-INFORMATION-ACK RIM Container */
+	DE_BSSGP_RAN_INFORMATION_ERROR_RIM_CONT,					/* 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container */
+	DE_BSSGP_RAN_INF_APP_ERROR_RIM_CONT,						/* 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container */
+	DE_BSSGP_RAN_INFORMATION_REQUEST_APP_CONT,					/* 11.3.63.1	RAN-INFORMATION-REQUEST Application Container */
+	DE_BSSGP_RAN_INFORMATION_APP_CONT_UNIT,						/* 11.3.63.2	RAN-INFORMATION Application Container Unit */
+	DE_BSSGP_RAN_APP_ERROR_CONT,								/* 11.3.64	Application Error Container */
 	DE_BSSGP_RIM_PDU_INDICATIONS,								/* 11.3.65	RIM PDU Indications */
 	DE_BSSGP_RIM_PROTO_VER_NO,									/* 11.3.67	RIM Protocol Version Number */
 
 	DE_BSSGP_PFC_FLOW_CTRL,										/* 11.3.68	PFC Flow Control parameters */
-	DE_BSSGP_GLOBAL_CN_ID,										/* 11.3.69	Global CN-Id SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID*/
 	DE_BSSGP_RIM_ROUTING_INF,									/* 11.3.70	RIM Routing Information */
 
 	DE_BSSGP_MBMS_SESSION_ID,									/* 11.3.71	MBMS Session Identity */
@@ -8696,6 +8987,7 @@ typedef enum
 	DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
  	DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO,						/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
 	DE_BSSGP_RELIABLE_INTER_RAT_HO_INF,							/* 11.3.107 Reliable Inter-RAT Handover Info */
+	DE_BSSGP_SON_TRANSFER_APP_ID,								/* 11.3.108 SON Transfer Application Identity */
 	DE_BSSGP_CSG_ID,											/* 11.3.109 CSG Identifier */
 	DE_BSSGP_NONE												/* NONE */
 }
@@ -8753,11 +9045,19 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_rrlp_flags,										/* 11.3.60	RRLP Flags */
 	de_bssgp_rim_app_id,										/* 11.3.61	RIM Application Identity */
 	de_bssgp_rim_seq_no,										/* 11.3.62	RIM Sequence Number */
+	de_bssgp_ran_inf_request_rim_cont,							/* 11.3.62a.1 RAN-INFORMATION-REQUEST RIM Container */
+	de_bssgp_ran_inf_rim_cont,									/* 11.3.62a.2 RAN-INFORMATION RIM Container */
+	de_bssgp_ran_inf_ack_rim_cont,								/* 11.3.62a.3	RAN-INFORMATION-ACK RIM Container */
+	de_bssgp_ran_inf_error_rim_cont,							/* 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container */
+	de_bssgp_ran_inf_app_error_rim_cont,						/* 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container */
+
+	de_bssgp_ran_information_request_app_cont,					/* 11.3.63.1 RAN-INFORMATION-REQUEST Application Container */
+	de_bssgp_ran_information_app_cont_unit,						/* 11.3.63.2 RAN-INFORMATION Application Container Unit */
+	de_bssgp_ran_app_error_cont,								/* 11.3.64	Application Error Container */
 	de_bssgp_rim_pdu_indications,								/* 11.3.65	RIM PDU Indications */
 	de_bssgp_rim_proto_ver_no,									/* 11.3.67	RIM Protocol Version Number */
 
     de_bssgp_pfc_flow_ctrl,										/* 11.3.68	PFC Flow Control parameters */
-	NULL,														/* 11.3.69	0x53 Global CN-Id */
 	de_bssgp_rim_routing_inf,									/* 11.3.70	RIM Routing Information */
 	de_bssgp_mbms_session_id,									/* 11.3.71	MBMS Session Identity */
 	NULL,														/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
@@ -8785,12 +9085,12 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_e_utran_inter_rat_ho_info,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
 	de_bssgp_sub_prof_id_f_rat_freq_prio,						/* 11.3.105	Subscriber Profile ID for RAT/Frequency priority */
 	de_bssgp_reliable_inter_rat_ho_inf,							/* 11.3.107 Reliable Inter-RAT Handover Info */
+	de_bssgp_son_transfer_app_id,								/* 11.3.108 SON Transfer Application Identity */
 	de_bssgp_csg_id,											/* 11.3.109 CSG Identifier */
 
 	NULL,	/* NONE */
 };
 
-#if 0
 /*
  * 11.3.62a	RIM Container
  * 11.3.62a.0	General
@@ -8804,6 +9104,7 @@ de_bssgp_ran_inf_request_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 	guint	curr_len;
 
 	curr_offset = offset;
+	curr_len = len;
 
 	/* RAN-INFORMATION-REQUEST RIM Container Contents coded as
 	 * defined in table 11.3.62a.1b
@@ -8817,13 +9118,139 @@ de_bssgp_ran_inf_request_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
 	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
 	/* Application Container (note 1) RAN-INFORMATION-REQUEST Application Container/11.3.63.1 C TLV 4-? */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RAN_INF_REQUEST_APP_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_REQUEST_APP_CONT, NULL);
 	/* SON Transfer Application Identity (note 2) SON Transfer Application Identity/11.3.108 C TLV 3-m */
+	ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
 
 	return(curr_offset-offset);
 }
-#endif
+/*
+ * 11.3.62a.2	RAN-INFORMATION RIM Container
+ */
+static guint16
+de_bssgp_ran_inf_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
-/* 11.3.79	Source BSS to Target BSS Transparent Container */
+	curr_offset = offset;
+	curr_len = len;
+
+	/* RAN-INFORMATION RIM Container Contents coded as 
+	 * defined in table 11.3.62a.2b
+	 */
+	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
+	/* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
+	/* RIM PDU Indications RIM PDU Indications /11.3.65. M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_PDU_INDICATIONS, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PDU_INDICATIONS, NULL);
+	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
+	/* Application Container (NOTE 1) RAN-INFORMATION Application Container /11.3.63.2 C (Note 1) TLV 4-? */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RAN_INF_APP_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_APP_CONT_UNIT, NULL);
+	/* Application Error Container (NOTE 1) Application Error Container/11.3.64 C (Note 1) TLV n */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_APPLICATION_ERROR_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_APP_ERROR_CONT, NULL);
+	/* SON Transfer Application Identity (note 2) SON Transfer Application Identity/11.3.108 C TLV 3-m */
+	ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
+
+	return(curr_offset-offset);
+}
+
+/*
+ * 11.3.62a.3	RAN-INFORMATION-ACK RIM Container
+ */
+static guint16
+de_bssgp_ran_inf_ack_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* RAN-INFORMATION-ACK RIM Container Contents coded as
+	 * defined in table 11.3.62a.3b
+	 */
+	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
+	/* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
+	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 4 */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
+	/* SON Transfer Application Identity (note 1) SON Transfer Application Identity/11.3.108 C TLV 3-m */
+	ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
+
+	return(curr_offset-offset);
+}
+/*
+ * 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container
+ */
+static guint16
+de_bssgp_ran_inf_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* RAN-INFORMATION-ERROR RIM Container Contents coded as
+	 * defined in table 11.3.62a.4b
+	 */
+	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
+	/* RIM Cause Cause/11.3.8 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
+	/* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
+	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
+	/* PDU in Error PDU in Error/11.3.24 M TLV 3-? */
+	ELEM_IN_ELEM_OPT_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR , NULL);
+	/* SON Transfer Application Identity (note 1) SON Transfer Application Identity/11.3.108 C TLV 3-m */
+	ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
+
+	return(curr_offset-offset);
+}
+/*
+ * 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container
+ */
+static guint16
+de_bssgp_ran_inf_app_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* RRAN-INFORMATION-APPLICATION-ERROR RIM Container
+	 * Contents coded as defined in table 11.3.62a.5b
+	 */
+	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
+	/* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
+	/* RIM PDU Indications RIM PDU Indications /11.3.65. M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_PDU_INDICATIONS, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PDU_INDICATIONS, NULL);
+	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
+	ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
+	/* Application Error Container Application Error Container/11.3.64 M TLV n */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_APPLICATION_ERROR_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_APP_ERROR_CONT, NULL);
+	/* SON Transfer Application Identity (note 1) SON Transfer Application Identity/11.3.108 C TLV 3-m */
+	ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
+
+	return(curr_offset-offset);
+}
+
+/* 
+ * 11.3.79	Source BSS to Target BSS Transparent Container
+ */
 static guint16
 de_bssgp_source_BSS_to_target_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -10531,7 +10958,6 @@ bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
 
-#if 0
 /*
  * 10.6	PDU functional definitions and contents at RIM SAP
  * 10.6.1	RAN-INFORMATION-REQUEST
@@ -10554,16 +10980,126 @@ bssgp_ran_inf_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* Source Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Source Cell Identifier");
 	/* RIM Container RAN-INFORMATION-REQUEST RIM Container/11.3.62a.1 M TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_RAN_INF_REQUEST_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_REQUEST_RIM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
-#endif
 
 /*
  * 10.6.2	RAN-INFORMATION
+ */
+static void
+bssgp_ran_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* The RAN-INFORMATION PDU allows a serving BSS to send information to a controlling BSS. */
+	/* Direction: BSS to SGSN SGSN to BSS */
+
+	/* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Destination Cell Identifier");
+	/* Source Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Source Cell Identifier");
+	/* RIM Container RAN-INFORMATION RIM Container/11.3.62a.2 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_RIM_CONT , " - Source Cell Identifier");
+
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.6.3	RAN-INFORMATION-ACK
+ */
+static void
+bssgp_ran_inf_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* The RAN-INFORMATION-ACK PDU allows a controlling BSS to acknowledge the reception of a RANINFORMATION
+     * PDU and a serving BSS to acknowledge the reception of a RAN-INFORMATION-APPLICATIONERROR PDU.
+	 */
+
+	/* Direction: BSS to SGSN SGSN to BSS */
+
+	/* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Destination Cell Identifier");
+	/* Source Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Source Cell Identifier");
+	/* RIM Container RAN-INFORMATION-ACK RIM Container/11.3.62a.3 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_ACK_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_ACK_RIM_CONT , NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.6.4	RAN-INFORMATION-ERROR
+ */
+
+static void
+bssgp_ran_inf_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* The RAN-INFORMATION-ERROR PDU allows a BSS to send an error PDU back to an originating BSS as a response
+	 * to a RAN-INFORMATION, a RAN-INFORMATION-REQUEST, a RAN-INFORMATION-ACK or a RANINFORMATION-APPLICATION-ERROR PDU.
+	 */
+
+	/* Direction: BSS to SGSN SGSN to BSS */
+
+	/* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Destination Cell Identifier");
+	/* Source Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Source Cell Identifier");
+	/* RIM Container RAN-INFORMATION-ERROR RIM Container/11.3.62a.4 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_ERROR_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_ERROR_RIM_CONT , NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
  * 10.6.5	RAN-INFORMATION-APPLICATION-ERROR
+ */
+static void
+bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* The RAN-INFORMATION-APPLICATION-ERROR PDU allows a controlling BSS to inform the serving BSS about
+	 * erroneous application information in a previously received RAN-INFORMATION PDU.
+	 */
+
+	/* Direction: BSS to SGSN SGSN to BSS */
+
+	/* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Destination Cell Identifier");
+	/* Source Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF , " - Source Cell Identifier");
+	/* RIM Container RAN-INFORMATION-APPLICATION ERROR RIM Container/11.3.62a.5 M TLV 3-? */
+	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_APP_ERROR_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_APP_ERROR_RIM_CONT , NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.7	PDU functional definitions and contents at MBMS SAP
  * 10.7.1	MBMS-SESSION-START-REQUEST
  * 10.7.2	MBMS-SESSION-START-RESPONSE
@@ -10696,12 +11232,22 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x6e */  { BSSGP_PDU_RESERVED_0X6E,                 "Reserved" },					/*  */
 /* 0x6f */  { BSSGP_PDU_RESERVED_0X6F,                 "Reserved" },					/*  */
 
-/* 0x70 */  { BSSGP_PDU_RAN_INFORMATION,              "RAN-INFORMATION" },
-/* 0x71 */  { BSSGP_PDU_RAN_INFORMATION_REQUEST,      "RAN-INFORMATION-REQUEST" },
-/* 0x72 */  { BSSGP_PDU_RAN_INFORMATION_ACK,          "RAN-INFORMATION-ACK" },
-/* 0x73 */  { BSSGP_PDU_RAN_INFORMATION_ERROR,        "RAN-INFORMATION-ERROR" },
-/* 0x74 */  { BSSGP_PDU_RAN_INFORMATION_APP_ERROR,    "RAN-INFORMATION-APPLICATION-ERROR" },
-
+/* 0x70 */  { BSSGP_PDU_RAN_INFORMATION,              "RAN-INFORMATION" },				/* 10.6.2 RAN-INFORMATION */
+/* 0x71 */  { BSSGP_PDU_RAN_INFORMATION_REQUEST,      "RAN-INFORMATION-REQUEST" },		/* 10.6.1 RAN-INFORMATION-REQUEST */
+/* 0x72 */  { BSSGP_PDU_RAN_INFORMATION_ACK,          "RAN-INFORMATION-ACK" },			/* 10.6.3 RAN-INFORMATION-ACK */
+/* 0x73 */  { BSSGP_PDU_RAN_INFORMATION_ERROR,        "RAN-INFORMATION-ERROR" },		/* 10.6.4 RAN-INFORMATION-ERROR */
+/* 0x74 */  { BSSGP_PDU_RAN_INFORMATION_APP_ERROR,    "RAN-INFORMATION-APPLICATION-ERROR" }, /* 10.6.5 RAN-INFORMATION-APPLICATION-ERROR */
+/* 0x75 */  { BSSGP_PDU_RESERVED_0X75,                 "Reserved" },					/*  */
+/* 0x76 */  { BSSGP_PDU_RESERVED_0X76,                 "Reserved" },					/*  */
+/* 0x77 */  { BSSGP_PDU_RESERVED_0X77,                 "Reserved" },					/*  */
+/* 0x78 */  { BSSGP_PDU_RESERVED_0X78,                 "Reserved" },					/*  */
+/* 0x79 */  { BSSGP_PDU_RESERVED_0X79,                 "Reserved" },					/*  */
+/* 0x7a */  { BSSGP_PDU_RESERVED_0X7A,                 "Reserved" },					/*  */
+/* 0x7b */  { BSSGP_PDU_RESERVED_0X7B,                 "Reserved" },					/*  */
+/* 0x7c */  { BSSGP_PDU_RESERVED_0X7C,                 "Reserved" },					/*  */
+/* 0x7d */  { BSSGP_PDU_RESERVED_0X7D,                 "Reserved" },					/*  */
+/* 0x7e */  { BSSGP_PDU_RESERVED_0X7E,                 "Reserved" },					/*  */
+/* 0x7f */  { BSSGP_PDU_RESERVED_0X7F,                 "Reserved" },					/*  */
 /* 0x80 */  {0x80,                                   "MBMS-SESSION-START-REQUEST" },
 /* 0x81 */  {0x81,                                   "MBMS-SESSION-START-RESPONSE" },
 /* 0x82 */  {0x82,                                   "MBMS-SESSION-STOP-REQUEST" },
@@ -10755,21 +11301,6 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     NULL,                            /* 0x1D */  
     NULL,                            /* 0x1E */  
     NULL,                            /* 0x1F */  
-    NULL,                            /* 0x11 */
-    NULL,                            /* 0x12 */
-    NULL,                            /* 0x13 */
-    NULL,                            /* 0x14 */
-    NULL,                            /* 0x15 */
-    NULL,                            /* 0x16 */
-    NULL,                            /* 0x17 */
-    NULL,                            /* 0x18 */
-    NULL,                            /* 0x19 */
-    NULL,                            /* 0x1A */
-    NULL,                            /* 0x1B */
-    NULL,                            /* 0x1C */
-    NULL,                            /* 0x1D */
-    NULL,                            /* 0x1E */
-    NULL,                            /* 0x1F */
 
 /* 0x20 to 0x2e */
     bssgp_bvc_block,					/* 10.4.8 BVC-BLOCK */
@@ -10854,6 +11385,34 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	bssgp_pos_cmd,						/* 10.5.4 POSITION-COMMAND */
 	bssgp_pos_resp,						/* 10.5.5 POSITION-RESPONSE */
 
+/* 0x65 to 0x6f Reserved */
+    NULL,                              /* 0x65 */  
+    NULL,                              /* 0x66 */  
+    NULL,                              /* 0x67 */  
+    NULL,                              /* 0x68 */  
+    NULL,                              /* 0x69 */  
+    NULL,                              /* 0x6a */  
+    NULL,                              /* 0x6b */  
+    NULL,                              /* 0x6c */  
+    NULL,                              /* 0x6d */  
+    NULL,                              /* 0x6e */  
+    NULL,                              /* 0x6f */
+	bssgp_ran_inf,                     /* 10.6.2 RAN-INFORMATION */
+	bssgp_ran_inf_request,             /* 10.6.1 RAN-INFORMATION-REQUEST */
+	bssgp_ran_inf_request_ack,         /* 10.6.3 RAN-INFORMATION-ACK */
+	bssgp_ran_inf_err,                 /* 10.6.4 RAN-INFORMATION-ERROR */
+    bssgp_ran_inf_app_err,             /* 10.6.5 RAN-INFORMATION-APPLICATION-ERROR */
+    NULL,                              /* 0x75 */
+    NULL,                              /* 0x76 */
+    NULL,                              /* 0x77 */
+    NULL,                              /* 0x78 */
+    NULL,                              /* 0x79 */
+    NULL,                              /* 0x7a */
+    NULL,                              /* 0x7b */
+    NULL,                              /* 0x7c */
+    NULL,                              /* 0x7d */
+    NULL,                              /* 0x7e */
+    NULL,                              /* 0x7f */
     NULL,    /* NONE */
 };
 
@@ -10923,7 +11482,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Unknown PDU type"));
 
   /* PDU's with msg no lover than this value are converted to common dissection style */
-  if(g_pdu_type>0x60){
+  if(g_pdu_type>0x7f){
 	  proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 	  decode_pdu(&bi);
   }else{
@@ -11084,6 +11643,31 @@ proto_register_bssgp(void)
 	{ &hf_bssgp_rim_seq_no,
       { "RIM Sequence Number", "bssgp.rim_seq_no",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_rat_discriminator,
+      { "RAT discriminator", "bssgp.rat_discriminator",
+	FT_UINT8, BASE_DEC, VALS(bssgp_rat_discriminator_vals), 0x0f,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_nacc_cause,
+      { "NACC Cause", "bssgp.nacc_cause",
+	FT_UINT8, BASE_DEC, VALS(bssgp_nacc_cause_vals), 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_s13_cause,
+      { "SI3 Cause", "bssgp.s13_cause",
+	FT_UINT8, BASE_DEC, VALS(bssgp_s13_cause_vals), 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_mbms_data_ch_cause,
+      { "MBMS data channel Cause", "bssgp.mbms_data_ch_cause",
+	FT_UINT8, BASE_DEC, VALS(bssgp_mbms_data_ch_cause_vals), 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_utra_si_cause,
+      { "UTRA SI Cause", "bssgp.utra_si_cause",
+	FT_UINT8, BASE_DEC, VALS(bssgp_utra_si_cause_vals), 0x0,
 	NULL, HFILL }
     },
 	{ &hf_bssgp_num_si_psi,
@@ -11411,6 +11995,15 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_DEC, VALS(bssgp_cell_access_mode_vals), 0x01,
 	NULL, HFILL }
     },
+    { &hf_bssgp_Global_ENB_ID_PDU,
+      { "Global-ENB-ID", "bssgp.Global_ENB_ID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+	},
+    { &hf_bssgp_SONtransferRequestContainer_PDU,
+      { "SONtransferRequestContainer", "bssgp.SONtransferRequestContainer",
+        FT_UINT32, BASE_DEC, VALS(s1ap_SONtransferRequestContainer_vals), 0,
+        NULL, HFILL }},
 
   };
 
