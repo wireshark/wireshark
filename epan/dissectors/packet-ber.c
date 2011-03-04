@@ -4093,7 +4093,7 @@ int
 dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
 	char str[35];
-	char buf[16];
+	int tmp_int;
 	const guint8 *tmpstr;
 	char *strptr;
 	char first_delim[2];
@@ -4151,7 +4151,8 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
 	first_delim[0]=0;
 	second_delim[0]=0;
-	ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", buf, first_delim, &first_digits, second_delim, &second_digits);
+	ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
+	/* tmp_int does not contain valid value bacause of overflow but we use it just for format checking */
 	if (ret < 1) {
 		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: GeneralizedTime invalid format: %s", tmpstr);
 		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format");
