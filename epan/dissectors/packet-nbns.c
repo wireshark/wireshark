@@ -1682,6 +1682,27 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
+		 * The larged size in for non-SMB NBSS traffic is
+		 * 17 bits (0x1FFFF).
+		 *
+		 * The SMB1 unix extensions and the SMB2 multi credit
+		 * feature allow more than 17 bits (0x1FFFF), they allow
+		 * 24 bits (0xFFFFFF).
+		 *
+		 * So if it is a SESSION_MESSAGE and SMB1 or SMB2
+		 * mark it as is_cifs.
+		 */
+		if (tvb_length_remaining(tvb, offset) >=8
+		    && tvb_get_guint8(tvb,offset+0) == SESSION_MESSAGE
+		    && tvb_get_guint8(tvb,offset+5) == 'S'
+		    && tvb_get_guint8(tvb,offset+6) == 'M'
+		    && tvb_get_guint8(tvb,offset+7) == 'B') {
+			is_cifs = TRUE;
+		} else {
+			is_cifs = FALSE;
+		}
+
+		/*
 		 * We have enough data for an NBSS header.
 		 * Get the flags and length of the message,
 		 * and see if they're sane.
@@ -1693,7 +1714,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			flags = tvb_get_guint8(tvb, offset + 1);
 			length = tvb_get_ntohs(tvb, offset + 2);
 			if (flags & NBSS_FLAGS_E)
-				length += 65536;
+				length += 0x10000;
 		}
 		if ((flags & (~NBSS_FLAGS_E)) != 0) {
 			/*
@@ -1715,15 +1736,6 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (length == 0)
 				goto continuation;
 
-			/*
-			   * I added this IF test to catch issues when the dissector loses track of the stream normally
-			   * because of missing frames in the capture and the first byte of the TCP data being check
-			   * happens to be a 0.  I'm adding a second sanity test to try to reject false positives.
-			   * I've haven't seen any real world CIFS/SMB traffic where the NBSS PDU length is greater then
-			   * 65536 bytes. I could have added this with an OR argument to the previous IF test but I added it
-			   * this way for clarity. - Frank Schorr */
-			if (length > 65536)
-				goto continuation;
 			break;
 
 		case SESSION_REQUEST:
