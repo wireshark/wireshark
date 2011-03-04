@@ -4093,12 +4093,14 @@ int
 dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
 	char str[35];
+	char buf[16];
 	const guint8 *tmpstr;
 	char *strptr;
 	char first_delim[2];
 	int first_digits;
 	char second_delim[2];
 	int second_digits;
+	int ret;
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
@@ -4149,9 +4151,10 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
 	first_delim[0]=0;
 	second_delim[0]=0;
-	if (sscanf( tmpstr, "%*14d%1[.,+-Z]%4d%1[+-Z]%4d", first_delim, &first_digits, second_delim, &second_digits) != 4) {
+	ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", buf, first_delim, &first_digits, second_delim, &second_digits);
+	if (ret < 1) {
 		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: GeneralizedTime invalid format: %s", tmpstr);
-		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid length");
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format");
 		if (decode_unexpected) {
 			proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
 			dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
