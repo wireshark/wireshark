@@ -840,11 +840,11 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
 
 
 
-static int dissect_pdcp_irdyn_packet(proto_tree *tree _U_,
+static int dissect_pdcp_irdyn_packet(proto_tree *tree,
                                      proto_item *root_item,
-                                     tvbuff_t *tvb _U_,
+                                     tvbuff_t *tvb,
                                      int offset,
-                                     struct pdcp_lte_info *p_pdcp_info _U_,
+                                     struct pdcp_lte_info *p_pdcp_info,
                                      packet_info *pinfo)
 {
     col_append_str(pinfo->cinfo, COL_INFO, " IRDYN");
@@ -1037,8 +1037,8 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
                                            tvbuff_t *tvb,
                                            int offset,
                                            int size,
-                                           struct pdcp_lte_info *p_pdcp_info _U_,
-                                           packet_info *pinfo _U_)
+                                           struct pdcp_lte_info *p_pdcp_info,
+                                           packet_info *pinfo)
 {
     proto_item *ti;
     guint8  ack_type;
@@ -1223,7 +1223,7 @@ static int dissect_pdcp_r_0_packet(proto_tree *tree,
                                    proto_item *root_item,
                                    tvbuff_t *tvb,
                                    int offset,
-                                   struct pdcp_lte_info *p_pdcp_info _U_,
+                                   struct pdcp_lte_info *p_pdcp_info,
                                    packet_info *pinfo)
 {
     guint8 sn;

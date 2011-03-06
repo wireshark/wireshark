@@ -1092,7 +1092,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelRepeatedNACKInfo(rlc_channel_repeated_nack_report_in_frame *p,
-                                       rlc_lte_info *p_rlc_lte_info _U_,
+                                       rlc_lte_info *p_rlc_lte_info,
                                        packet_info *pinfo, proto_tree *tree,
                                        tvbuff_t *tvb)
 {
@@ -1250,7 +1250,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree,
                                int offset,
                                rlc_lte_info *p_rlc_lte_info,
-                               proto_item *top_ti _U_)
+                               proto_item *top_ti)
 {
     proto_item *raw_tm_ti;
     proto_item *tm_ti;

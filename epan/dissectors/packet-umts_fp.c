@@ -471,7 +471,7 @@ static void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      int offset, struct fp_info *p_fp_info);
 static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                          int offset, struct fp_info *p_fp_info _U_);
+                                          int offset, struct fp_info *p_fp_info);
 static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         int offset, struct fp_info *p_fp_info);
 static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1901,7 +1901,7 @@ static void dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /********************************/
 /* Dissect an IUR DSCH channel  */
 static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                          int offset, struct fp_info *p_fp_info _U_)
+                                          int offset, struct fp_info *p_fp_info)
 {
     gboolean is_control_frame;
 
@@ -2636,8 +2636,8 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /* Dissect the remainder of the T2 or common frame that differs from T1 */
-static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                                    int offset, struct fp_info *p_fp_info _U_,
+static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                                    int offset, struct fp_info *p_fp_info,
                                                     int number_of_subframes,
                                                     gboolean is_common)
 {
