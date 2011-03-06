@@ -1826,20 +1826,20 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
 
 /* Keep track of SR requests, failures and related grants, in order to show them
    as generated fields in these frames */
-static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
-                        tvbuff_t *tvb _U_, guint16 rnti, proto_item *event_ti)
+static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
+                        tvbuff_t *tvb, mac_lte_info *p_mac_lte_info, proto_item *event_ti)
 {
     SRResult *result = NULL;
     SRResult *resultForSRFrame = NULL;
     proto_item *ti;
 
     /* Create state for this RNTI if necessary */
-    SRState *state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti));
+    SRState *state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)(p_mac_lte_info->rnti)));
     if (state == NULL) {
         /* Allocate status for this RNTI */
         state = se_alloc(sizeof(SRState));
         state->status = None;
-        g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
+        g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)(p_mac_lte_info->rnti)), state);
     }
 
     /* First time through - update state with new info */
@@ -2018,12 +2018,14 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
 
         case InvalidSREvent:
             ti = proto_tree_add_none_format(tree, hf_mac_lte_sr_invalid_event,
-                                            tvb, 0, 0, "Invalid SR event - state=(%s), event=(%s)",
+                                            tvb, 0, 0, "Invalid SR event - state=%s, event=%s",
                                             val_to_str_const(result->status, sr_status_vals, "Unknown"),
                                             val_to_str_const(result->event,  sr_event_vals,  "Unknown"));
             PROTO_ITEM_SET_GENERATED(ti);
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                   "Invalid SR event - state=(%s), event=(%s)",
+                                   "Invalid SR event for UE %u (C-RNTI %u) - state=%s, event=%s",
+                                   p_mac_lte_info->ueid,
+                                   p_mac_lte_info->rnti,
                                    val_to_str_const(result->status, sr_status_vals, "Unknown"),
                                    val_to_str_const(result->event,  sr_event_vals,  "Unknown"));
 
@@ -2082,7 +2084,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ((direction == DIRECTION_UPLINK) && (p_mac_lte_info->reTxCount == 0) &&
         global_mac_lte_track_sr) {
 
-        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info->rnti, NULL);
+        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info, NULL);
     }
 
     /* Add hidden item to filter on */
@@ -2995,7 +2997,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Update SR status */
                 if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti, ti);
+                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info, ti);
                 }
                 break;
             case ltemac_sr_failure:
@@ -3021,7 +3023,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Update SR status */
                 if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti, ti);
+                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info, ti);
                 }
 
                 break;
