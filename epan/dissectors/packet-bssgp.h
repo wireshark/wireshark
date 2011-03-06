@@ -40,7 +40,7 @@ typedef struct {
   guint8		pdutype;
 } build_info_t;
 
-value_string_ext bssgp_cause_vals_ext;
+WS_VAR_IMPORT value_string_ext bssgp_cause_vals_ext;
 
 void bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
