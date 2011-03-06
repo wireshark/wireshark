@@ -27,14 +27,7 @@
 #ifndef __PACKET_BSSGP_H__
 #define __PACKET_BSSGP_H__
 
-typedef struct {
-  guint8        iei;
-  const char   *name;
-  guint8        presence_req;
-  int           format;
-  gint16        value_length; /* in bytes (read from capture)*/
-  gint16        total_length; /* as specified, or 0 if unspecified */
-} bssgp_ie_t;
+
 
 typedef struct {
   tvbuff_t     *tvb;
@@ -47,10 +40,9 @@ typedef struct {
   guint8		pdutype;
 } build_info_t;
 
-extern const value_string tab_cause[];
+value_string_ext bssgp_cause_vals_ext;
 
-
-void decode_pdu_suspend_ack(build_info_t *bi);
+void bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
 #endif /* __PACKET_BSSGP_H__ */
 

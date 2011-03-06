@@ -7195,7 +7195,7 @@ void proto_register_gtp(void)
             NULL, HFILL }},
         {&hf_gtp_bssgp_cause,
          {"BSSGP Cause", "gtp.bssgp_cause",
-          FT_UINT8, BASE_DEC, VALS(tab_cause), 0,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_cause_vals_ext, 0,
           NULL, HFILL}},
         {&hf_gtp_sapi,
          {"PS Handover XID SAPI", "gtp.ps_handover_xid_sapi",

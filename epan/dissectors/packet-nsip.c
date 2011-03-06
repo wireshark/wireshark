@@ -1020,10 +1020,8 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     bi.nsip_tree = nsip_tree;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO,
+              val_to_str(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   decode_pdu(pdu_type, &bi);
 }
 

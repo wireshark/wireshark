@@ -67,6 +67,17 @@
  * For now, we'll use ENC_BIG_ENDIAN, now that we have ENC_BIG_ENDIAN and
  * REP_LITTLE_ENDIAN definitions.
  */
+
+
+typedef struct {
+  guint8        iei;
+  const char   *name;
+  guint8        presence_req;
+  int           format;
+  gint16        value_length; /* in bytes (read from capture)*/
+  gint16        total_length; /* as specified, or 0 if unspecified */
+} bssgp_ie_t;
+
 #define BSSGP_TRANSLATION_MAX_LEN 50
 #define BSSGP_MASK_LEFT_OCTET_HALF 0xf0
 #define BSSGP_MASK_RIGHT_OCTET_HALF 0x0f
@@ -2022,7 +2033,7 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			"BVCI %u", bvci);
 }
 
-const value_string tab_cause[] = {
+static const value_string tab_cause[] = {
   { 0x00, "Processor overload" },
   { 0x01, "Equipment failure" },
   { 0x02, "Transit network service failure" },
@@ -6499,7 +6510,8 @@ static const value_string bssgp_cause_vals[] = {
   { 0x4b, "Invalid CSG cell" },
   { 0,    NULL },
 };
-static value_string_ext bssgp_cause_vals_ext = VALUE_STRING_EXT_INIT(bssgp_cause_vals);
+
+value_string_ext bssgp_cause_vals_ext = VALUE_STRING_EXT_INIT(bssgp_cause_vals);
 
 static guint16
 de_bssgp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -9690,7 +9702,7 @@ bssgp_suspend(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 10.3.7	SUSPEND-ACK
  */
-static void
+void
 bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;

@@ -4102,21 +4102,12 @@ static guint16
 be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset = offset;
-    build_info_t bi;
 
     /* This Field Element contains the contents of the Gb interface SUSPEND ACK PDU,
        Call the BSSGP dissector here, assuming that the encoding is per 48.018 */
 
-    bi.tvb = tvb;
-    bi.offset = offset;
-    bi.pinfo = g_pinfo;
-    bi.bssgp_tree = tree;
-    bi.parent_tree = g_tree;
-    bi.dl_data = TRUE;
-    bi.ul_data = FALSE;
-    bi.pdutype = 0x0c; /* BSSGP_PDU_SUSPEND_ACK */
 
-    decode_pdu_suspend_ack(&bi);
+    bssgp_suspend_ack(tvb, tree, offset, len);
     curr_offset += len;
 
     return(curr_offset - offset);
