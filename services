@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-02-24)
+(last updated 2011-03-02)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -7594,7 +7594,7 @@ gamelobby       2914/udp   Game Lobby
 tksocket	2915/tcp   TK Socket
 tksocket	2915/udp   TK Socket
 #                          Previous contact: Alan Fahrner <alan&protix.com>
-#                          Current contact: Alan Fahrner <afahrner&tickets.com> 13 March 2009
+#                          Current contact: Dino Ciano <DCiano&tickets.com> 02 March 2011
 elvin_server	2916/tcp   Elvin Server
 elvin_server	2916/udp   Elvin Server
 elvin_client	2917/tcp   Elvin Client
@@ -12534,7 +12534,7 @@ xmpp-server     5269/tcp   XMPP Server Connection
 xmp             5270/tcp   Cartographer XMP
 xmp             5270/udp   Cartographer XMP
 #                          Bobby Krupczak <rdk&krupczak.org> 03 April 2008 
-cuelink         5271/tdp   StageSoft CueLink messaging
+cuelink         5271/tcp   StageSoft CueLink messaging
 cuelink-disc    5271/udp   StageSoft CueLink discovery
 #                          Todd Pichler <todd.pichler&stagesoft.com> 26 March 2010
 pk              5272/tcp   PK
@@ -15823,7 +15823,10 @@ dsmcc-ccp	13822/tcp  DSMCC Channel Change Protocol
 dsmcc-ccp	13822/udp  DSMCC Channel Change Protocol
 #			   Tim Addington <Tim.Addington&sciatl.com>
 #			   ISO/IEC 13818-6 MPEG-2 DSM-CC
-#               13823-13928 Unassigned
+bmdss           13823/tcp  Blackmagic Design Streaming Server
+#                          Sam Vaughan <samv&blackmagic-design.com> 01 March 2011
+#               13823/udp  Reserved  
+#               13824-13928 Unassigned
 dta-systems     13929/tcp  D-TA SYSTEMS 
 dta-systems     13929/udp  D-TA SYSTEMS 
 #                          Alexis Bose <abose&d-ta.com> 08 December 2008
