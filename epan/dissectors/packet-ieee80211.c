@@ -600,10 +600,10 @@ static const range_string tag_num_vals[] = {
   { TAG_TSPEC, TAG_TSPEC, "Traffic Specification" },
   { TAG_TCLAS, TAG_TCLAS, "Traffic Classification" },
   { TAG_SCHEDULE, TAG_SCHEDULE, "Schedule" },
-  { TAG_CHALLENGE_TEXT, TAG_CHALLENGE_TEXT,"Challenge tex t" },
+  { TAG_CHALLENGE_TEXT, TAG_CHALLENGE_TEXT,"Challenge text" },
   { 17, 31, "Reserved" },
   { TAG_POWER_CONSTRAINT, TAG_POWER_CONSTRAINT, "Power Constraint" },
-  { TAG_POWER_CAPABILITY, TAG_POWER_CAPABILITY,"Power Capability" },
+  { TAG_POWER_CAPABILITY, TAG_POWER_CAPABILITY, "Power Capability" },
   { TAG_TPC_REQUEST, TAG_TPC_REQUEST, "TPC Request" },
   { TAG_TPC_REPORT, TAG_TPC_REPORT, "TPC Report" },
   { TAG_SUPPORTED_CHANNELS, TAG_SUPPORTED_CHANNELS, "Supported Channels" },
@@ -1588,6 +1588,8 @@ static int hf_ieee80211_ht_info_reserved_3 = -1;
 
 static int hf_ieee80211_tag_secondary_channel_offset = -1;
 
+static int hf_ieee80211_tag_power_constraint_local = -1;
+
 static int hf_ieee80211_tag_power_capability_min = -1;
 static int hf_ieee80211_tag_power_capability_max = -1;
 
@@ -1597,6 +1599,10 @@ static int hf_ieee80211_tag_tpc_report_link_mrg = -1;
 static int hf_ieee80211_tag_supported_channels = -1;
 static int hf_ieee80211_tag_supported_channels_first = -1;
 static int hf_ieee80211_tag_supported_channels_range = -1;
+
+static int hf_ieee80211_csa_channel_switch_mode = -1;
+static int hf_ieee80211_csa_new_channel_number = -1;
+static int hf_ieee80211_csa_channel_switch_count = -1;
 
 static int hf_ieee80211_tag_measure_request_measurement_token = -1;
 static int hf_ieee80211_tag_measure_request_mode = -1;
@@ -6380,7 +6386,127 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_challenge_text, tvb, offset, tag_len, FALSE);
       break;
+      
+    case TAG_POWER_CONSTRAINT: /* 7.3.2.15 Power Constraint element (32) */
+    {
+      if (tag_len != 1)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        break;
+      }
+      offset += 2;
 
+      proto_tree_add_item(tree, hf_ieee80211_tag_power_constraint_local, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, " :%d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      
+      break;
+    } 
+    
+    case TAG_POWER_CAPABILITY: /* 7.3.2.16 Power Capability element (33) */
+    {
+      if (tag_len != 2)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 2", tag_len);
+        break;
+      }
+      offset += 2;
+      
+      proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_min, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, " Min: %d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      
+      proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_max, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, ", Max :%d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      break;
+    }
+    
+    case TAG_TPC_REQUEST: /* 7.3.2.18 TPC Request element (34) */
+    {
+      if (tag_len != 0)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 0", tag_len);
+        break;
+      }
+      offset += 2;
+      
+      /* No Data */
+      break; 
+    }    
+    
+    case TAG_TPC_REPORT: /* 7.3.2.18 TPC Report element (35) */
+    {
+      if (tag_len != 2)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 2", tag_len);
+        break;
+      }
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_trsmt_pow, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, " Transmit Power :%d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      
+      proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_link_mrg, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, ", Link Margin :%d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      
+      break;
+    }
+    
+    case TAG_SUPPORTED_CHANNELS: /* 7.3.2.19 Supported Channels element (36) */ 
+      {
+        proto_item *chan_item;
+        proto_tree *chan_tree;
+        guint i=1;
+
+        offset += 2;
+        if (tag_len % 2 == 1) {
+           expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u must be even",tag_len);
+           break;
+        }
+        while(offset <= tag_end)
+        {
+          chan_item = proto_tree_add_item(tree, hf_ieee80211_tag_supported_channels, tvb, offset, 2, FALSE);
+          proto_item_append_text(chan_item, " #%d", i);
+          i++;
+          
+          chan_tree = proto_item_add_subtree(chan_item , ett_tag_supported_channels);
+          
+          proto_tree_add_item(chan_tree, hf_ieee80211_tag_supported_channels_first, tvb, offset, 1, TRUE);
+          proto_item_append_text(chan_item, " First: %d", tvb_get_guint8(tvb, offset));
+          offset += 1;
+          
+          proto_tree_add_item(chan_tree, hf_ieee80211_tag_supported_channels_range, tvb, offset, 1, TRUE);
+          proto_item_append_text(chan_item, ", Range: %d ", tvb_get_guint8(tvb, offset));
+          offset += 1;
+          
+        }
+        break;
+      }
+    case TAG_CHANNEL_SWITCH_ANN: /* 7.3.2.20 Channel Switch Announcement element (37) */
+    {
+      if (tag_len != 3)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 3", tag_len);
+        break;
+      }
+      offset += 2;
+      
+      proto_tree_add_item(tree, hf_ieee80211_csa_channel_switch_mode, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, " Mode: %d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+   
+      proto_tree_add_item(tree, hf_ieee80211_csa_new_channel_number, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, ", Number: %d ", tvb_get_guint8(tvb, offset));
+      offset += 1;
+      
+      proto_tree_add_item(tree, hf_ieee80211_csa_channel_switch_count, tvb, offset, 1, TRUE);
+      proto_item_append_text(ti, ", Count: %d ", tvb_get_guint8(tvb, offset));
+      offset += 1;      
+    }
+    
     case TAG_TCLAS_PROCESS:
       if (tag_len != 1)
       {
@@ -6579,37 +6705,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 #endif /* MESH_OVERRIDES */
 
-    case TAG_POWER_CAPABILITY:
-    {
-      offset += 2;
-      if (tag_len != 2)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-                             "Power Capability: Error: Tag length must be exactly 2 bytes long");
-      }
 
-      proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_min, tvb, offset, 1, TRUE);
-      proto_tree_add_item(tree, hf_ieee80211_tag_power_capability_max, tvb, offset+1, 1, TRUE);
-      break;
-    }
-    /*
-     * 7.3.2.18 TPC Report element
-     *
-     */
-    case TAG_TPC_REPORT:
-      if(tag_len !=2)
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-                             "TPC Report: Error: Tag length must be 2 bytes long");
-      /* Transmit Power field
-       * The field is coded as a signed integer in units of decibels relative to 1 mW
-       */
-      offset += 2;
-      proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_trsmt_pow, tvb, offset, 1, TRUE);
-      offset++;
-      /* Link Margin */
-      proto_tree_add_item(tree, hf_ieee80211_tag_tpc_report_link_mrg, tvb, offset, 1, TRUE);
-      offset++;
-      break;
 
 #ifdef MESH_OVERRIDES
     case TAG_MESH_PEER_LINK_MGMT:
@@ -6720,30 +6816,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         break;
       }
 #endif /* MESH_OVERRIDES */
-
-    case TAG_SUPPORTED_CHANNELS:
-      /* 7.3.2.19 Supported Channels element */
-      {
-        proto_item *chan_item;
-        proto_tree *chan_tree;
-        guint i;
-
-        offset += 2;
-        if (tag_len % 2 == 1) {
-          proto_tree_add_text (tree, tvb, offset -1, 1,
-                               "Supported Channels: Error: Tag length %u must be even",tag_len);
-        }
-
-        for (i=0; i<(tag_len/2); i++)
-        {
-          chan_item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_supported_channels, tvb, offset, 2, i,
-                                                 "Supported Channels Set #%d", i+1);
-          chan_tree = proto_item_add_subtree(chan_item , ett_tag_supported_channels);
-          proto_tree_add_item(chan_tree, hf_ieee80211_tag_supported_channels_first, tvb, offset++, 1, TRUE);
-          proto_tree_add_item(chan_tree, hf_ieee80211_tag_supported_channels_range, tvb, offset++, 1, TRUE);
-        }
-        break;
-      }
 
     case TAG_MEASURE_REQ:
       if (tag_len < 3)
@@ -12838,7 +12910,7 @@ proto_register_ieee80211 (void)
       
     {&hf_ieee80211_tag_challenge_text,
      {"Challenge Text", "wlan_mgt.tag.challenge_text",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
       
     {&hf_ieee80211_rsn_version,
@@ -13487,31 +13559,61 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_secondary_channel_offset_flags), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_power_constraint_local,
+     {"Local Power Constraint", "wlan_mgt.powercon.local",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Value that allows the mitigation requirements to be satisfied in the current channel", HFILL }},
+      
     {&hf_ieee80211_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan_mgt.powercap.min",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, 
+      "The nominal minimum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, 
+      "The nominal maximum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
+      
     {&hf_ieee80211_tag_tpc_report_trsmt_pow,
      {"Transmit Power", "wlan_mgt.tcprep.trsmt_pow",
-      FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+      
     {&hf_ieee80211_tag_tpc_report_link_mrg,
      {"Link Margin", "wlan_mgt.tcprep.link_mrg",
-      FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_INT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+      
     {&hf_ieee80211_tag_supported_channels,
      {"Supported Channels Set", "wlan_mgt.supchan",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_NONE, BASE_NONE, NULL, 0, 
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_channels_first,
      {"First Supported Channel", "wlan_mgt.supchan.first",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_channels_range,
      {"Supported Channel Range", "wlan_mgt.supchan.range",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+      
+    {&hf_ieee80211_csa_channel_switch_mode,
+     {"Channel Switch Mode", "wlan_mgt.csa.channel_switch_mode",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Indicates any restrictions on transmission until a channel switch", HFILL }},
 
+    {&hf_ieee80211_csa_new_channel_number,
+     {"New Channel Number", "wlan_mgt.csa.new_channel_number",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Set to the number of the channel to which the STA is moving", HFILL }},
+
+    {&hf_ieee80211_csa_channel_switch_count,
+     {"Channel Switch Count", "wlan_mgt.csa.channel_switch_count",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Set to the number of TBTTs until the STA sending the Channel Switch Announcement element switches to the new channel or shall be set to 0", HFILL }},
+                       
     {&hf_ieee80211_tag_measure_request_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
       FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
