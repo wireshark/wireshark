@@ -1351,12 +1351,12 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (IS_DATA_TRANSFER(event)) {
         if (event == DATA_HOST_TO_CAM) {
-            SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(ADDR_HOST), ADDR_HOST);
-            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(ADDR_CAM), ADDR_CAM);
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_HOST)+1, ADDR_HOST);
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_CAM)+1 , ADDR_CAM);
         }
         else {
-            SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(ADDR_CAM), ADDR_CAM);
-            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(ADDR_HOST), ADDR_HOST);
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_CAM)+1 , ADDR_CAM);
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_HOST)+1, ADDR_HOST);
         }
 
         payload_tvb = tvb_new_subset( tvb, offset, -1, -1);
