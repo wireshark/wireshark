@@ -68,27 +68,7 @@
  * REP_LITTLE_ENDIAN definitions.
  */
 
-
-typedef struct {
-  guint8        iei;
-  const char   *name;
-  guint8        presence_req;
-  int           format;
-  gint16        value_length; /* in bytes (read from capture)*/
-  gint16        total_length; /* as specified, or 0 if unspecified */
-} bssgp_ie_t;
-
-#define BSSGP_TRANSLATION_MAX_LEN 50
-#define BSSGP_MASK_LEFT_OCTET_HALF 0xf0
-#define BSSGP_MASK_RIGHT_OCTET_HALF 0x0f
-#define BSSGP_MOBILE_IDENTITY_TYPE_IMSI 1
-#define BSSGP_MOBILE_IDENTITY_TYPE_IMEI 2
-#define BSSGP_MOBILE_IDENTITY_TYPE_IMEISV 3
-#define BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI 4
-#define BSSGP_MOBILE_IDENTITY_TYPE_NO_IDENTITY 0
 #define BSSGP_SEP ", "
-#define BSSGP_NOT_DECODED "< Not decoded yet >"
-#define BSSGP_UNKNOWN (-1)
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
@@ -534,78 +514,6 @@ static const value_string tab_nacc_cause[]={
   { 0x05,			"Inconsistent set of messages" },
   { 0,				NULL },
 
-};
-static const value_string tab_bssgp_ie_types[] = {
-  { BSSGP_IEI_ALIGNMENT_OCTETS,            "Alignment Octets" },
-  { BSSGP_IEI_BMAX_DEFAULT_MS,             "Bmax Default MS" },
-  { BSSGP_IEI_BSS_AREA_INDICATION,         "BSS Area Indication" },
-  { BSSGP_IEI_BUCKET_LEAK_RATE,            "Bucket Leak Rate" },
-  { BSSGP_IEI_BVCI,                        "BVCI" },
-  { BSSGP_IEI_BVC_BUCKET_SIZE,             "BVC Bucket Size" },
-  { BSSGP_IEI_BVC_MEASUREMENT,             "BVC Measurement" },
-  { BSSGP_IEI_CAUSE,                       "Cause" },
-  { BSSGP_IEI_CELL_IDENTIFIER,             "Cell Identifier" },
-  { BSSGP_IEI_CHANNEL_NEEDED,              "Channel Needed" },
-  { BSSGP_IEI_DRX_PARAMETERS,              "DRX Parameters" },
-  { BSSGP_IEI_EMLPP_PRIORITY,              "eMLPP Priority" },
-  { BSSGP_IEI_FLUSH_ACTION,                "Flush Action" },
-  { BSSGP_IEI_IMSI,                        "IMSI" },
-  { BSSGP_IEI_LLC_PDU,                     "LLC PDU" },
-  { BSSGP_IEI_LLC_FRAMES_DISCARDED,        "LLC Frames Discarded" },
-  { BSSGP_IEI_LOCATION_AREA,               "Location Area" },
-  { BSSGP_IEI_MOBILE_ID,                   "Mobile Id" },
-  { BSSGP_IEI_MS_BUCKET_SIZE,              "MS Bucket Size" },
-  { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY,  "MS Radio Access Capability" },
-  { BSSGP_IEI_OMC_ID,                      "OMC Id" },
-  { BSSGP_IEI_PDU_IN_ERROR,                "PDU In Error" },
-  { BSSGP_IEI_PDU_LIFETIME,                "PDU Lifetime" },
-  { BSSGP_IEI_PRIORITY,                    "Priority" },
-  { BSSGP_IEI_QOS_PROFILE,                 "QoS Profile" },
-  { BSSGP_IEI_RADIO_CAUSE,                 "Radio Cause" },
-  { BSSGP_IEI_RA_CAP_UPD_CAUSE,            "RA-Cap-UPD-Cause" },
-  { BSSGP_IEI_ROUTING_AREA,                "Routing Area" },
-  { BSSGP_IEI_R_DEFAULT_MS,                "R_default_MS" },
-  { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER,    "Suspend Reference Number" },
-  { BSSGP_IEI_TAG,                         "Tag" },
-  { BSSGP_IEI_TLLI,                        "TLLI" },
-  { BSSGP_IEI_TMSI,                        "TMSI" },
-  { BSSGP_IEI_TRACE_REFERENCE,             "Trace Reference" },
-  { BSSGP_IEI_TRACE_TYPE,                  "Trace Type" },
-  { BSSGP_IEI_TRANSACTION_ID,              "Transaction Id" },
-  { BSSGP_IEI_TRIGGER_ID,                  "Trigger Id" },
-  { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED,   "Number of Octets Affected" },
-  { BSSGP_IEI_LSA_IDENTIFIER_LIST,         "LSA Identifier List" },
-  { BSSGP_IEI_LSA_INFORMATION,             "LSA Information" },
-  { BSSGP_IEI_PFI,                         "Packet Flow Identifier: " },
-  { BSSGP_IEI_GPRS_TIMER,                  "GPRS Timer" },
-  { BSSGP_IEI_ABQP,                        "ABQP" },
-  { BSSGP_IEI_FEATURE_BITMAP,              "Feature Bitmap" },
-  { BSSGP_IEI_BUCKET_FULL_RATIO,           "Bucket Full Ratio" },
-  { BSSGP_IEI_SERVICE_UTRAN_CCO,           "Service UTRAN CCO" },
-  { BSSGP_IEI_NSEI,                        "NSEI" },
-  { BSSGP_IEI_RRLP_APDU,                   "RRLP APDU" },
-  { BSSGP_IEI_LCS_QOS,                     "LCS QoS" },
-  { BSSGP_IEI_LCS_CLIENT_TYPE,             "LCS Client Type" },
-  { BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, "Requested GPS Assistance Data" },
-  { BSSGP_IEI_LOCATION_TYPE,               "Location Type" },
-  { BSSGP_IEI_LOCATION_ESTIMATE,           "Location Estimate" },
-  { BSSGP_IEI_POSITIONING_DATA,            "Positioning Data" },
-  { BSSGP_IEI_DECIPHERING_KEYS,            "Deciphering Keys" },
-  { BSSGP_IEI_LCS_PRIORITY,                "LCS Priority" },
-  { BSSGP_IEI_LCS_CAUSE,                   "LCS Cause" },
-  { BSSGP_IEI_LCS_CAPABILITY,              "LCS Capability" },
-  { BSSGP_IEI_RRLP_FLAGS,                              "RRLP Flags" },
-  { BSSGP_IEI_RIM_APP_ID,					"RIM Application Identity" },
-  { BSSGP_IEI_RAN_INF_APP_CONTAINER,	"RAN INFORMATION Application Container" },
-  { BSSGP_IEI_RIM_SEQUENCE_NUMBER,						"RIM Sequence Number" },
-  { BSSGP_IEI_RAN_INF_REQUEST_RIM_CONTAINER,	"RAN INFORMATION REQUEST RIM Container" },
-  { BSSGP_IEI_RAN_INF_RIM_CONTAINER,			"RAN INFORMATION RIM Container" },
-  { BSSGP_IEI_RIM_PDU_INDICATIONS,						"RIM PDU Indications" },
-  { BSSGP_IEI_RIM_PROTOCOL_VERSION,						"RIM Protocol Version Number" },
-  { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS,				"Number of Container Units" },
-  { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS,				"PFC Flow Control Parameters" },
-  { BSSGP_IEI_GLOBAL_CN_ID,                              "Global CN Id" },
-  { 0,                                NULL },
 };
 
 
