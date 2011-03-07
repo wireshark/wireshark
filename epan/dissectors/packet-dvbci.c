@@ -1150,7 +1150,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti = NULL;
     proto_tree *trans_tree = NULL;
     gint offset, status_len;
-    guint8 hdr_tag;
+    guint8 hdr_tag = 0; /* XXX - is 0 a good default value? */
     tvbuff_t *payload_tvb = NULL;
     proto_item *pi;
 
