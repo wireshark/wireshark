@@ -122,7 +122,6 @@ static int hf_bssgp_ran_inf_req_pdu_t_ext_c = -1;
 static int hf_bssgp_ran_inf_pdu_t_ext_c = -1;
 static int hf_bssgp_rim_pdu_ind_ack = -1;
 static int hf_bssgp_rim_proto_ver_no = -1;
-static int hf_bssgp_tmsi_ptmsi = -1;
 static int hf_bssgp_bss_area_ind = -1;
 static int hf_bssgp_bvci = -1;
 static int hf_bssgp_bmax = -1;
