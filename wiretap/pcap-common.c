@@ -367,6 +367,8 @@ static const struct {
 	{ 229,		WTAP_ENCAP_RAW_IP6 },
 	/* IEEE 802.15.4 Wireless PAN no fcs */
 	{ 230,          WTAP_ENCAP_IEEE802_15_4_NOFCS },
+	/* DVB-CI (Common Interface) */
+	{ 235,		WTAP_ENCAP_DVBCI },
 
 	/*
 	 * To repeat:

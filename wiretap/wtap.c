@@ -488,7 +488,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Raw IPv6", "rawip6" },
 
 	/* WTAP_ENCAP_LAPD */
-	{ "Lapd header", "lapd" }
+	{ "Lapd header", "lapd" },
+
+	/* WTAP_ENCAP_DVBCI */
+	{ "DVB-CI (Common Interface)", "dvbci"}
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

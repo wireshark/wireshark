@@ -3235,6 +3235,10 @@ Grzegorz Szczytowski	<Grzegorz.Szczytowski [AT] gmail.com>  {
 	E212 dissector MCC 260 upgrade and modification
 }
 
+Martin Kaiser		<martin [AT] kaiser.cx> {
+	DVB-CI (Common Interface) dissector
+}
+
 
 and by:
 

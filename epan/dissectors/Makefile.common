@@ -423,6 +423,7 @@ DISSECTOR_SRC = \
 	packet-dtp.c		\
 	packet-dtpt.c		\
 	packet-dua.c		\
+	packet-dvbci.c		\
 	packet-dvmrp.c		\
 	packet-e100.c		\
 	packet-e164.c		\

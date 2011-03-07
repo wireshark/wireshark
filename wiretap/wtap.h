@@ -221,6 +221,7 @@ extern "C" {
 #define WTAP_ENCAP_RAW_IP4                      129
 #define WTAP_ENCAP_RAW_IP6                      130
 #define WTAP_ENCAP_LAPD                         131
+#define WTAP_ENCAP_DVBCI                        132
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
