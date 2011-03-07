@@ -28,18 +28,6 @@
 #define __PACKET_BSSGP_H__
 
 
-
-typedef struct {
-  tvbuff_t     *tvb;
-  guint32       offset;
-  packet_info  *pinfo;
-  proto_tree   *bssgp_tree;
-  proto_tree   *parent_tree;
-  gboolean      dl_data;
-  gboolean      ul_data;
-  guint8		pdutype;
-} build_info_t;
-
 WS_VAR_IMPORT value_string_ext bssgp_cause_vals_ext;
 
 void bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
