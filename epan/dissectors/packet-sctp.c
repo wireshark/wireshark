@@ -709,17 +709,21 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 
 #define RELTSN(tsn) (((tsn) < h->first_tsn) ? (tsn + (0xffffffff - (h->first_tsn)) + 1) : (tsn - h->first_tsn))
 
-static void
+/* Returns TRUE if the tsn is a retransmission (we've seen it before), FALSE
+ * otherwise.
+ */
+static gboolean
 sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
          sctp_half_assoc_t *h, guint32 tsn)
 {
   sctp_tsn_t *t;
   guint32 framenum;
   guint32 reltsn;
+  gboolean is_retransmission = FALSE;
 
   /* no half assoc? nothing to do!*/
   if (!h)
-    return;
+    return(is_retransmission);
 
 
   framenum = PINFO_FD_NUM(pinfo);
@@ -734,7 +738,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
    *  retransmission of that in frame 0.
    */
   if (framenum == 0)
-    return;
+    return(is_retransmission);
 
   /* we have not seen any tsn yet in this half assoc set the ground */
   if (! h->started) {
@@ -759,7 +763,9 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     emem_tree_insert32(h->tsns,reltsn,t);
   }
 
-  if ( (! pinfo->fd->flags.visited ) && t->first_transmit.framenum != framenum  ) {
+  is_retransmission = (t->first_transmit.framenum != framenum);
+
+  if ( (! pinfo->fd->flags.visited ) && is_retransmission ) {
     struct _retransmit_t **r;
     int i;
 
@@ -786,6 +792,8 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
   }
 
   tsn_tree(t, tsn_item, pinfo, tvb, framenum);
+
+  return(is_retransmission);
 }
 
 static void
@@ -2198,12 +2206,15 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     if (fragment->frame_num == pinfo->fd->num) {
       return fragment;
     } else {
-      /* there already is a fragment having the same ports, v_tag,
+      /* There already is a fragment having the same ports, v_tag,
        * stream id, stream_seq_num and tsn but it appeared in a different
-       * frame, so it must be a duplicate fragment. maybe a retransmission?
-       * Mark it as duplicate and return NULL
+       * frame, so it must be a duplicate fragment. Maybe a retransmission?
+       * Mark it as duplicate and return NULL.
+       *
+       * Note: This won't happen if TSN analysis is on: the caller will have
+       * detected the retransmission and not pass it to the reassembly code.
        */
-      col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)");
+      col_append_str(pinfo->cinfo, COL_INFO, "(Duplicate Message Fragment) ");
 
       proto_tree_add_uint(tree, hf_sctp_duplicate, tvb, 0, 0, fragment->frame_num);
       return NULL;
@@ -2377,7 +2388,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     /* this is not the last fragment,
      * so let the user know the frame where the reassembly is
      */
-    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "(Message Fragment) ");
 
     proto_tree_add_uint(tree, hf_sctp_reassembled_in, tvb, 0, 0, message->reassembled_in->frame_num);
     return NULL;
@@ -2414,7 +2425,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
      * just mark as fragment
      */
 
-    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "(Message Fragment) ");
 
     return NULL;
   }
@@ -2445,7 +2456,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
      */
     if ((last_frag->tsn + 1)) {
       /* there are just fragments missing */
-      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+      col_append_str(pinfo->cinfo, COL_INFO, "(Message Fragment) ");
 
       return NULL;
     }
@@ -2467,7 +2478,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
 
   if (!frag_i || frag_i != end->fragment || frag_i->tsn != (last_frag->tsn + 1)) {
     /* we need more fragments. just mark as fragment */
-    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "(Message Fragment) ");
 
     return NULL;
   }
@@ -2680,6 +2691,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   guint32 tsn;
   proto_item *tsn_item = NULL;
   gboolean call_subdissector = FALSE;
+  gboolean is_retransmission;
 
   if (chunk_length <= DATA_CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)", chunk_length, DATA_CHUNK_HEADER_LENGTH);
@@ -2737,7 +2749,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                            chunk_length - DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH, "", "s"));
   }
 
-  sctp_tsn(pinfo,  chunk_tvb, tsn_item, ha, tsn);
+  is_retransmission = sctp_tsn(pinfo,  chunk_tvb, tsn_item, ha, tsn);
 
   payload_tvb = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET,
                                MIN(chunk_length - DATA_CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET)),
@@ -2746,7 +2758,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   /* Is this a fragment? */
   if (b_bit && e_bit) {
     /* No - just call the subdissector. */
-    call_subdissector = TRUE;
+    if (!is_retransmission)
+      call_subdissector = TRUE;
   } else {
     /* Yes. */
     pinfo->fragmented = TRUE;
@@ -2757,9 +2770,10 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       /*  Don't pass on non-first fragments since the next dissector will
        *  almost certainly not understand the data.
        */
-      if (b_bit)
-        call_subdissector = TRUE;
-      else
+      if (b_bit) {
+	if (!is_retransmission)
+	  call_subdissector = TRUE;
+      } else
         return FALSE;
     }
 
@@ -2798,6 +2812,9 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
     return retval;
 
+  } else if (is_retransmission) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(retransmission) ");
+    return FALSE;
   } else {
 
     /* The logic above should ensure this... */
