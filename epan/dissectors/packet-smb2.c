@@ -197,7 +197,7 @@ static int hf_smb2_auth_frame = -1;
 static int hf_smb2_tcon_frame = -1;
 static int hf_smb2_share_type = -1;
 static int hf_smb2_signature = -1;
-static int hf_smb2_epoch = -1;
+static int hf_smb2_credit_charge = -1;
 static int hf_smb2_credits_requested = -1;
 static int hf_smb2_credits_granted = -1;
 static int hf_smb2_dialect_count = -1;
@@ -206,6 +206,8 @@ static int hf_smb2_secmode_flags_sign_required = -1;
 static int hf_smb2_secmode_flags_sign_enabled = -1;
 static int hf_smb2_capabilities = -1;
 static int hf_smb2_cap_dfs = -1;
+static int hf_smb2_cap_leasing = -1;
+static int hf_smb2_cap_large_mtu = -1;
 static int hf_smb2_dialect = -1;
 static int hf_smb2_max_trans_size = -1;
 static int hf_smb2_max_read_size = -1;
@@ -800,6 +802,16 @@ static const true_false_string tfs_flags_signature = {
 static const true_false_string tfs_cap_dfs = {
 	"This host supports DFS",
 	"This host does NOT support DFS"
+};
+
+static const true_false_string tfs_cap_leasing = {
+	"This host supports LEASING",
+	"This host does NOT support LEASING"
+};
+
+static const true_false_string tfs_cap_large_mtu = {
+	"This host supports LARGE_MTU",
+	"This host does NOT support LARGE_MTU"
 };
 
 static const value_string compression_format_vals[] = {
@@ -1840,6 +1852,8 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *le
 }
 
 #define NEGPROT_CAP_DFS		0x00000001
+#define NEGPROT_CAP_LEASING	0x00000002
+#define NEGPROT_CAP_LARGE_MTU	0x00000004
 static int
 dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
@@ -1854,6 +1868,8 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 
 	proto_tree_add_boolean(tree, hf_smb2_cap_dfs, tvb, offset, 4, cap);
+	proto_tree_add_boolean(tree, hf_smb2_cap_leasing, tvb, offset, 4, cap);
+	proto_tree_add_boolean(tree, hf_smb2_cap_large_mtu, tvb, offset, 4, cap);
 
 
 	offset += 4;
@@ -5467,8 +5483,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* epoch */
-	proto_tree_add_item(header_tree, hf_smb2_epoch, tvb, offset, 2, TRUE);
+	/* credit charge (previously "epoch" (unused) which has been deprecated as of "SMB 2.1") */
+	proto_tree_add_item(header_tree, hf_smb2_credit_charge, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* Status Code */
@@ -5507,7 +5523,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 	offset += 4;
 
-	/* some unknown bytes */
+	/* Next Command */
 	chain_offset=tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -6171,8 +6187,8 @@ proto_register_smb2(void)
 		{ "Share Type", "smb2.share_type", FT_UINT8, BASE_HEX,
 		VALS(smb2_share_type_vals), 0, "Type of share", HFILL }},
 
-	{ &hf_smb2_epoch,
-		{ "Epoch", "smb2.epoch", FT_UINT16, BASE_DEC,
+	{ &hf_smb2_credit_charge,
+		{ "Credit Charge", "smb2.credit.charge", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_credits_requested,
@@ -6278,6 +6294,16 @@ proto_register_smb2(void)
 	{ &hf_smb2_cap_dfs,
 		{ "DFS", "smb2.capabilities.dfs", FT_BOOLEAN, 32,
 		TFS(&tfs_cap_dfs), NEGPROT_CAP_DFS, "If the host supports dfs", HFILL }},
+
+	{ &hf_smb2_cap_leasing,
+		{ "LEASING", "smb2.capabilities.leasing", FT_BOOLEAN, 32,
+		TFS(&tfs_cap_leasing), NEGPROT_CAP_LEASING,
+		"If the host supports leasing", HFILL }},
+
+	{ &hf_smb2_cap_large_mtu,
+		{ "LARGE MTU", "smb2.capabilities.large_mtu", FT_BOOLEAN, 32,
+		TFS(&tfs_cap_large_mtu), NEGPROT_CAP_LARGE_MTU,
+		"If the host supports LARGE MTU", HFILL }},
 
 	{ &hf_smb2_max_trans_size,
 		{ "Max Transaction Size", "smb2.max_trans_size", FT_UINT32, BASE_DEC,
