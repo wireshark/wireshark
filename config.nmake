@@ -215,9 +215,6 @@ PATH=$(PYTHON_DIR);$(PATH)
 #
 GLIB_VERSION=2.0
 
-##### To use the old packet list comment out this line ####
-NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
-
 #
 # Mandatory: GLib, GTK & related library settings
 #
@@ -421,9 +418,6 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win32ws\libGeoIP
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-
-##### To use the old packet list comment out this line ####
-NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
 # Mandatory: GLib, GTK & related library settings

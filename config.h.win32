@@ -70,9 +70,6 @@
 @HAVE_AIRPCAP@
 @HAVE_AIRPDCAP@
 
-/* Use new packet list or not */
-@HAVE_NEW_PACKET_LIST@
-
 /* availability of pcap_freecode() is handled at runtime */
 #define HAVE_PCAP_FREECODE 1
 
