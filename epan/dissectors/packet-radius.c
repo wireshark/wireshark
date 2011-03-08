@@ -1396,6 +1396,11 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
 		case RADIUS_DISCONNECT_REQUEST:
 		case RADIUS_CHANGE_FILTER_REQUEST:
+			/* Don't bother creating conversations if we're encapsulated within 
+			 * an error packet, such as an ICMP destination unreachable */
+			if (pinfo->in_error_pkt)
+				break;
+
 			if (tree)
 			{
 				hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
@@ -1501,6 +1506,11 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RADIUS_DISCONNECT_REQUEST_NAK:
 		case RADIUS_CHANGE_FILTER_REQUEST_ACK:
 		case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+			/* Don't bother finding conversations if we're encapsulated within
+			 * an error packet, such as an ICMP destination unreachable */
+			if (pinfo->in_error_pkt)
+				break;
+
 			if (tree)
 			{
 				hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
