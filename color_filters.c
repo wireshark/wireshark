@@ -434,9 +434,7 @@ color_filters_prime_edt(epan_dissect_t *edt)
 		g_slist_foreach(color_filter_list, prime_edt, edt);
 }
 
-/* Colorize a single packet of the packet list (old packet list)
- *
- * Return the color_t for later use (new packet list) */
+/* * Return the color_t for later use */
 const color_filter_t *
 color_filters_colorize_packet(epan_dissect_t *edt)
 {

@@ -16,9 +16,6 @@
 #define PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}"
 
 /* Define to 1 if we want to enable plugins */
-#cmakedefine NEW_PACKET_LIST 1
-
-/* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
 
 /* Link plugins statically into Wireshark */
