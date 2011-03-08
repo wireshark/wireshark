@@ -3662,9 +3662,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv=find_or_create_conversation(pinfo);
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
-    item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, conv->index);
-    PROTO_ITEM_SET_GENERATED(item);
-
     /* If this is a SYN packet, then check if it's seq-nr is different
      * from the base_seq of the retrieved conversation. If this is the
      * case, create a new conversation with the same addresses and ports
@@ -3683,6 +3680,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
         tcpd->ta->flags|=TCP_A_REUSED_PORTS;
     }
+
+    item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, conv->index);
+    PROTO_ITEM_SET_GENERATED(item);
 
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
