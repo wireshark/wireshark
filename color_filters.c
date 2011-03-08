@@ -410,11 +410,7 @@ tmp_color_filters_used(void)
 void
 color_filters_enable(gboolean enable)
 {
-#ifdef NEW_PACKET_LIST
 	new_packet_list_enable_color(enable);
-#else
-        filters_enabled = enable;
-#endif
 }
 
 
@@ -442,11 +438,7 @@ color_filters_prime_edt(epan_dissect_t *edt)
  *
  * Return the color_t for later use (new packet list) */
 const color_filter_t *
-#ifdef NEW_PACKET_LIST
 color_filters_colorize_packet(epan_dissect_t *edt)
-#else
-color_filters_colorize_packet(gint row, epan_dissect_t *edt)
-#endif
 {
 	GSList *curr;
 	color_filter_t *colorf;
@@ -460,11 +452,6 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
 			if ( (!colorf->disabled) &&
 			     (colorf->c_colorfilter != NULL) &&
 			     dfilter_apply_edt(colorf->c_colorfilter, edt)) {
-				/* this is the filter to use, apply it to the packet list */
-#ifndef NEW_PACKET_LIST
-				/* We'll do this in the column cell function instead. */
-				packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
-#endif
 				return colorf;
 			}
 			curr = g_slist_next(curr);

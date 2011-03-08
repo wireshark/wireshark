@@ -29,8 +29,6 @@
 #include "config.h"
 #endif
 
-#ifdef NEW_PACKET_LIST
-
 #include "string.h"
 
 #include <stdio.h>
@@ -1724,6 +1722,3 @@ new_packet_list_colorize_packets(void)
 	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
 }
-
-#endif /* NEW_PACKET_LIST */
-

@@ -46,13 +46,9 @@
 #include "gtk/recent.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/font_utils.h"
-#include "gtk/main_packet_list.h"
 #include "gtk/main_proto_draw.h"
 #include "gtk/follow_tcp.h"
-
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#endif
 
 
 static PangoFontDescription *m_r_font, *m_b_font;
@@ -276,11 +272,7 @@ user_font_apply(void) {
     }
 
     /* the font(s) seem to be ok */
-#ifdef NEW_PACKET_LIST
     new_packet_list_set_font(new_r_font);
-#else
-    packet_list_set_font(new_r_font);
-#endif
     set_ptree_font_all(new_r_font);
     old_r_font = m_r_font;
     old_b_font = m_b_font;

@@ -1295,12 +1295,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
     return;
   }
 
-#ifdef NEW_PACKET_LIST
   pinfo->cinfo->col_data[col] = se_get_addr_name(addr);
-#else
-  get_addr_name_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-  pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-#endif
 
   if (!fill_col_exprs)
     return;

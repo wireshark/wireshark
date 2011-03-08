@@ -66,10 +66,8 @@ typedef struct _frame_data {
   nstime_t     del_dis_ts;  /**< Delta timestamp to previous displayed frame (yes, it can be negative) */
   nstime_t     del_cap_ts;  /**< Delta timestamp to previous captured frame (yes, it can be negative) */
 
-#ifdef NEW_PACKET_LIST
   gchar        **col_text;    /**< The column text for some columns, see colum_utils */
   guint        *col_text_len; /**< The length of the column text strings in 'col_text' */
-#endif
 } frame_data;
 
 /**

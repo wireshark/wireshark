@@ -37,7 +37,6 @@
 #include "gtk/prefs_stream.h"
 #include "gtk/keys.h"
 #include "gtk/follow_tcp.h"
-#include "gtk/main_packet_list.h"
 
 
 #define SAMPLE_MARKED_TEXT  "Sample marked packet text\n"
@@ -221,11 +220,6 @@ void
 stream_prefs_apply(GtkWidget *w _U_)
 {
 	follow_tcp_redraw_all();
-
-#ifndef NEW_PACKET_LIST
-	packet_list_update_marked_frames();
-	packet_list_update_ignored_frames();
-#endif
 }
 
 void

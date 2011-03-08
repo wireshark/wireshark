@@ -41,11 +41,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#else
-#include "gtk/main_packet_list.h"
-#endif
 #include "gtk/main_proto_draw.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/font_utils.h"
@@ -513,11 +509,7 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 	toolbar_redraw_all();
 
 	set_scrollbar_placement_all();
-#ifdef NEW_PACKET_LIST
 	new_packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
-#else
-	packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
-#endif
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
 	main_widgets_rearrange();

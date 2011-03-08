@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#ifdef NEW_PACKET_LIST
-
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -1279,6 +1277,3 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 		return widest_column_str;
 	}
 }
-
-#endif /* NEW_PACKET_LIST */
-

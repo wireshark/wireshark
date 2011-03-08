@@ -35,12 +35,8 @@
 #define E_MPACKET_LIST_KEY				"menu_packet_list"
 #define E_MPACKET_LIST_ROW_KEY			"menu_packet_list_row"
 #define E_MPACKET_LIST_COL_KEY			"menu_packet_list_col"
-#ifdef NEW_PACKET_LIST
 #define E_MPACKET_LIST_COLUMN_KEY	       		"menu_packet_list_column"
 #define E_MPACKET_LIST_PREV_COLUMN_KEY	       		"menu_packet_list_prev_column"
-#else
-#define E_MPACKET_LIST_COL_ARROWS_KEY	       		"menu_packet_list_col_arrows"
-#endif
 
 #define PRINT_CMD_LB_KEY				"printer_command_label"
 #define PRINT_CMD_TE_KEY				"printer_command_entry"

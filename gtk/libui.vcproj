@@ -241,10 +241,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\main_packet_list.c"
-				>
-			</File>
-			<File
 				RelativePath=".\main_proto_draw.c"
 				>
 			</File>
@@ -900,10 +896,6 @@
 			</File>
 			<File
 				RelativePath=".\main_filter_toolbar.h"
-				>
-			</File>
-			<File
-				RelativePath=".\main_packet_list.h"
 				>
 			</File>
 			<File

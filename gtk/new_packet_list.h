@@ -25,7 +25,6 @@
 #ifndef __NEW_PACKET_LIST_H__
 #define __NEW_PACKET_LIST_H__
 
-#ifdef NEW_PACKET_LIST
 #include <gtk/gtk.h>
 
 /** @file
@@ -152,7 +151,5 @@ void new_packet_list_colorize_packets(void);
  *                  was already set (used within packet_list_recreate).
  */
 extern void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
-
-#endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */

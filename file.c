@@ -127,9 +127,7 @@ static void cf_open_failure_alert_box(const char *filename, int err,
 static const char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
-#ifdef NEW_PACKET_LIST
 static void ref_time_packets(capture_file *cf);
-#endif
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES   100
 /* We read around 200k/100ms don't update the progress bar more often than that */
@@ -200,9 +198,7 @@ cf_callback_remove(cf_callback_t func)
 void
 cf_timestamp_auto_precision(capture_file *cf)
 {
-#ifdef NEW_PACKET_LIST
   int i;
-#endif
   int prec = timestamp_get_precision();
 
 
@@ -243,7 +239,6 @@ cf_timestamp_auto_precision(capture_file *cf)
       g_assert_not_reached();
     }
   }
-#ifdef NEW_PACKET_LIST
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -251,7 +246,6 @@ cf_timestamp_auto_precision(capture_file *cf)
       new_packet_list_resize_column(i);
     }
   }
-#endif
 }
 
 gulong
@@ -350,15 +344,10 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   g_assert(cf->plist_chunk);
 #endif
 
-#ifdef NEW_PACKET_LIST
   /* Adjust timestamp precision if auto is selected, col width will be adjusted */
   cf_timestamp_auto_precision(cf);
   /* XXX needed ? */
   new_packet_list_queue_draw();
-#else
-  /* change the time formats now, as we might have a new precision */
-  cf_change_time_formats(cf);
-#endif
   fileset_file_opened(fname);
 
   if(cf->cd_t == WTAP_FILE_BER) {
@@ -428,15 +417,9 @@ cf_reset_state(capture_file *cf)
   cf->finfo_selected = NULL;
 
   /* Clear the packet list. */
-#ifdef NEW_PACKET_LIST
   new_packet_list_freeze();
   new_packet_list_clear();
   new_packet_list_thaw();
-#else
-  packet_list_freeze();
-  packet_list_clear();
-  packet_list_thaw();
-#endif
 
   cf->f_datalen = 0;
   cf->count = 0;
@@ -581,11 +564,7 @@ cf_read(capture_file *cf, gboolean from_save)
   /* Progress so far. */
   progbar_val = 0.0f;
 
-#ifdef NEW_PACKET_LIST
   new_packet_list_freeze();
-#else
-  packet_list_freeze();
-#endif
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -620,17 +599,10 @@ cf_read(capture_file *cf, gboolean from_save)
           if (progbar_quantum > 500000 || displayed_once == 0) {
             if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
               displayed_once = 1;
-#ifdef NEW_PACKET_LIST
               new_packet_list_thaw();
               if (auto_scroll_live)
                 new_packet_list_moveto_end();
               new_packet_list_freeze();
-#else
-              packet_list_thaw();
-              if (auto_scroll_live)
-                packet_list_moveto_end();
-              packet_list_freeze();
-#endif /* NEW_PACKET_LIST */
             }
           }
 #endif /* HAVE_LIBPCAP */
@@ -706,11 +678,7 @@ cf_read(capture_file *cf, gboolean from_save)
   cf->current_frame = cf->first_displayed;
   cf->current_row = 0;
 
-#ifdef NEW_PACKET_LIST
   new_packet_list_thaw();
-#else
-  packet_list_thaw();
-#endif
   if (from_save == FALSE)
     cf_callback_invoke(cf_cb_file_read_finished, cf);
   else
@@ -719,11 +687,7 @@ cf_read(capture_file *cf, gboolean from_save)
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
   if (cf->first_displayed != NULL){
-#ifdef NEW_PACKET_LIST
     new_packet_list_select_first_row();
-#else
-    packet_list_select_row(0);
-#endif /* NEW_PACKET_LIST */
   }
 
   if(stop_flag) {
@@ -819,14 +783,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   *err = 0;
 
-#ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_freeze();*/
-#else
-  packet_list_check_end();
-  packet_list_freeze();
-#endif
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
@@ -868,12 +827,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
         /* XXX - how to avoid a busy wait? */
         /* Sleep(100); */
       };
-#ifdef NEW_PACKET_LIST
       /* Don't freeze/thaw the list when doing live capture */
       /*new_packet_list_thaw();*/
-#else
-      packet_list_thaw();
-#endif
       return CF_READ_ABORTED;
     }
     ENDTRY;
@@ -888,7 +843,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
     cf->count, cf->state, *err);*/
 
-#ifdef NEW_PACKET_LIST
   /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_thaw();*/
   /* With the new packet list the first packet
@@ -896,23 +850,11 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
    */
   if(!cf->current_frame)
     new_packet_list_select_first_row();
-#else
-  /* XXX - this causes "flickering" of the list */
-  packet_list_thaw();
-#endif
 
   /* moving to the end of the packet list - if the user requested so and
      we have some new packets. */
   if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
-#ifdef NEW_PACKET_LIST
       new_packet_list_moveto_end();
-#else
-    /* this doesn't seem to work well with a frozen GTK_Clist, so do this after
-       packet_list_thaw() is done, see bugzilla 1188 */
-    /* XXX - this cheats and looks inside the packet list to find the final
-       row number. */
-    packet_list_moveto_end();
-#endif /* NEW_PACKET_LIST */
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to exit Wireshark.  Return CF_READ_ABORTED
@@ -965,14 +907,9 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ERROR;
   }
 
-#ifdef NEW_PACKET_LIST
   new_packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_freeze();*/
-#else
-  packet_list_check_end();
-  packet_list_freeze();
-#endif
 
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
@@ -989,12 +926,8 @@ cf_finish_tail(capture_file *cf, int *err)
     dfilter_free(dfcode);
   }
 
-#ifdef NEW_PACKET_LIST
   /* Don't freeze/thaw the list when doing live capture */
   /*new_packet_list_thaw();*/
-#else
-  packet_list_thaw();
-#endif
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to abort the read.  We're only called
@@ -1007,13 +940,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
   if (auto_scroll_live && cf->plist_end != NULL)
-#ifdef NEW_PACKET_LIST
     new_packet_list_moveto_end();
-#else
-    /* XXX - this cheats and looks inside the packet list to find the final
-       row number. */
-    packet_list_moveto_end();
-#endif
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -1143,7 +1070,6 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
   cf->rfcode = rfcode;
 }
 
-#ifdef NEW_PACKET_LIST
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     dfilter_t *dfcode, gboolean filtering_tap_listeners,
@@ -1232,124 +1158,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   return row;
 }
 
-#else
-
-static int
-add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-    dfilter_t *dfcode, gboolean filtering_tap_listeners,
-    guint tap_flags,
-    union wtap_pseudo_header *pseudo_header, const guchar *buf,
-    gboolean refilter,
-    gboolean add_to_packet_list _U_)
-{
-  gboolean  create_proto_tree = FALSE;
-  epan_dissect_t edt;
-  column_info *cinfo;
-  gint row = -1;
-
-  cinfo = &cf->cinfo;
-
-  /* just add some value here until we know if it is being displayed or not */
-  fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
-
-  frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                &first_ts, &prev_dis_ts, &prev_cap_ts);
-
-  /* If either
-
-    we have a display filter and are re-applying it;
-
-    we have a list of color filters;
-
-    we have tap listeners with filters;
-
-    we have tap listeners that require a protocol tree;
-
-    we have custom columns;
-
-     allocate a protocol tree root node, so that we'll construct
-     a protocol tree against which a filter expression can be
-     evaluated. */
-  if ((dfcode != NULL && refilter) ||
-      color_filters_used() ||
-      have_custom_cols(cinfo) ||
-      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
-      create_proto_tree = TRUE;
-
-  /* Dissect the frame. */
-  epan_dissect_init(&edt, create_proto_tree, FALSE);
-
-  if (dfcode != NULL && refilter) {
-      epan_dissect_prime_dfilter(&edt, dfcode);
-  }
-
-  /* prepare color filters */
-  color_filters_prime_edt(&edt);
-  col_custom_prime_edt(&edt, cinfo);
-
-  tap_queue_init(&edt);
-  epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
-  tap_push_tapped_queue(&edt);
-
-  /* If we have a display filter, apply it if we're refiltering, otherwise
-     leave the "passed_dfilter" flag alone.
-
-     If we don't have a display filter, set "passed_dfilter" to 1. */
-  if (dfcode != NULL) {
-    if (refilter) {
-      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
-    }
-  } else
-    fdata->flags.passed_dfilter = 1;
-
-  if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
-  {
-    frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
-
-    epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
-
-    /* If we haven't yet seen the first frame, this is it.
-
-       XXX - we must do this before we add the row to the display,
-       as, if the display's GtkCList's selection mode is
-       GTK_SELECTION_BROWSE, when the first entry is added to it,
-       "cf_select_packet()" will be called, and it will fetch the row
-       data for the 0th row, and will get a null pointer rather than
-       "fdata", as "gtk_clist_append()" won't yet have returned and
-       thus "gtk_clist_set_row_data()" won't yet have been called.
-
-       We thus need to leave behind bread crumbs so that
-       "cf_select_packet()" can find this frame.  See the comment
-       in "cf_select_packet()". */
-    if (cf->first_displayed == NULL)
-      cf->first_displayed = fdata;
-
-    /* This is the last frame we've seen so far. */
-    cf->last_displayed = fdata;
-
-    row = packet_list_append(cinfo->col_data, fdata);
-
-    /* colorize packet: first apply color filters
-     * then if packet is marked, use preferences to overwrite color
-     * we do both to make sure that when a packet gets un-marked, the
-     * color will be correctly set (fixes bug 2038)
-     */
-     fdata->color_filter = color_filters_colorize_packet(row, &edt);
-     if (fdata->flags.marked) {
-       packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-     }
-     if (fdata->flags.ignored) {
-       packet_list_set_colors(row, &prefs.gui_ignored_fg, &prefs.gui_ignored_bg);
-     }
-
-    cf->displayed_count++;
-  }
-
-  epan_dissect_cleanup(&edt);
-  return row;
-}
-#endif
-
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
@@ -1377,10 +1185,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   frame_data_init(fdata, cf->count, phdr, offset, cum_bytes);
 
-#ifdef NEW_PACKET_LIST
   fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
   fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
-#endif
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1724,20 +1530,10 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 }
 
 void
-cf_colorize_packets(capture_file *cf)
-{
-  rescan_packets(cf, "Colorizing", "all packets", FALSE, FALSE);
-}
-
-void
 cf_reftime_packets(capture_file *cf)
 {
 
-#ifdef NEW_PACKET_LIST
   ref_time_packets(cf);
-#else
-  rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
-#endif
 }
 
 void
@@ -1804,7 +1600,6 @@ cf_read_frame(capture_file *cf, frame_data *fdata)
    any state information they have (because a preference that affects
    some dissector has changed, meaning some dissector might construct
    its state differently from the way it was constructed the last time). */
-#ifdef NEW_PACKET_LIST
 static void
 rescan_packets(capture_file *cf, const char *action, const char *action_item,
         gboolean refilter, gboolean redissect)
@@ -2105,299 +1900,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   dfilter_free(dfcode);
 }
 
-#else
-
-static void
-rescan_packets(capture_file *cf, const char *action, const char *action_item,
-        gboolean refilter, gboolean redissect)
-{
-  frame_data *fdata;
-  progdlg_t  *progbar = NULL;
-  gboolean    stop_flag;
-  int         count;
-  frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
-  int         selected_row, prev_row, preceding_row, following_row;
-  gboolean    selected_frame_seen;
-  int         row;
-  float       progbar_val;
-  GTimeVal    start_time;
-  gchar       status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
-  dfilter_t   *dfcode;
-  gboolean    filtering_tap_listeners;
-  guint       tap_flags;
-  gboolean    add_to_packet_list = TRUE;
-  gboolean compiled;
-
-  /* Compile the current display filter.
-   * We assume this will not fail since cf->dfilter is only set in
-   * cf_filter IFF the filter was valid.
-   */
-  compiled = dfilter_compile(cf->dfilter, &dfcode);
-  g_assert(!cf->dfilter || (compiled && dfcode));
-
-  /* Do we have any tap listeners with filters? */
-  filtering_tap_listeners = have_filtering_tap_listeners();
-
-  /* Get the union of the flags for all tap listeners. */
-  tap_flags = union_of_tap_listener_flags();
-
-  reset_tap_listeners();
-  /* Which frame, if any, is the currently selected frame?
-     XXX - should the selected frame or the focus frame be the "current"
-     frame, that frame being the one from which "Find Frame" searches
-     start? */
-  selected_frame = cf->current_frame;
-
-  /* We don't yet know what row that frame will be on, if any, after we
-     rebuild the clist, however. */
-  selected_row = -1;
-
-  /* Freeze the packet list while we redo it, so we don't get any
-     screen updates while it happens. */
-  packet_list_freeze();
-
-  /* Clear it out. */
-  packet_list_clear();
-
-  if (redissect) {
-    /* We need to re-initialize all the state information that protocols
-       keep, because some preference that controls a dissector has changed,
-       which might cause the state information to be constructed differently
-       by that dissector. */
-
-    /* We might receive new packets while redissecting, and we don't
-       want to dissect those before their time. */
-    cf->redissecting = TRUE;
-
-    /* Cleanup all data structures used for dissection. */
-    cleanup_dissection();
-    /* Initialize all data structures used for dissection. */
-    init_dissection();
-
-  }
-
-  /* We don't yet know which will be the first and last frames displayed. */
-  cf->first_displayed = NULL;
-  cf->last_displayed = NULL;
-
-  reset_elapsed();
-
-  /* We currently don't display any packets */
-  cf->displayed_count = 0;
-
-  /* Iterate through the list of frames.  Call a routine for each frame
-     to check whether it should be displayed and, if so, add it to
-     the display list. */
-  nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
-  cum_bytes = 0;
-
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-  /* Count of packets at which we've looked. */
-  count = 0;
-  /* Progress so far. */
-  progbar_val = 0.0f;
-
-  stop_flag = FALSE;
-  g_get_current_time(&start_time);
-
-  row = -1;     /* no previous row yet */
-  prev_row = -1;
-  prev_frame = NULL;
-
-  preceding_row = -1;
-  preceding_frame = NULL;
-  following_row = -1;
-  following_frame = NULL;
-
-  selected_frame_seen = FALSE;
-
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
-    /* Create the progress bar if necessary.
-       We check on every iteration of the loop, so that it takes no
-       longer than the standard time to create it (otherwise, for a
-       large file, we might take considerably longer than that standard
-       time in order to get to the next progress bar step). */
-    if (progbar == NULL)
-      progbar = delayed_create_progress_dlg(action, action_item, TRUE,
-                                            &stop_flag, &start_time,
-                                            progbar_val);
-
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
-      /* let's not divide by zero. I should never be started
-       * with count == 0, so let's assert that
-       */
-      g_assert(cf->count > 0);
-      progbar_val = (gfloat) count / cf->count;
-
-      if (progbar != NULL) {
-        g_snprintf(status_str, sizeof(status_str),
-                  "%4u of %u frames", count, cf->count);
-        update_progress_dlg(progbar, progbar_val, status_str);
-      }
-
-      progbar_nextstep += progbar_quantum;
-    }
-
-    if (stop_flag) {
-      /* Well, the user decided to abort the filtering.  Just stop.
-
-         XXX - go back to the previous filter?  Users probably just
-     want not to wait for a filtering operation to finish;
-     unless we cancel by having no filter, reverting to the
-     previous filter will probably be even more expensive than
-     continuing the filtering, as it involves going back to the
-     beginning and filtering, and even with no filter we currently
-     have to re-generate the entire clist, which is also expensive.
-
-     I'm not sure what Network Monitor does, but it doesn't appear
-     to give you an unfiltered display if you cancel. */
-      break;
-    }
-
-    count++;
-
-    if (redissect) {
-      /* Since all state for the frame was destroyed, mark the frame
-       * as not visited, free the GSList referring to the state
-       * data (the per-frame data itself was freed by
-       * "init_dissection()"), and null out the GSList pointer.
-       */
-      fdata->flags.visited = 0;
-      frame_data_cleanup(fdata);
-    }
-
-    if (!cf_read_frame(cf, fdata))
-      break; /* error reading the frame */
-
-    /* If the previous frame is displayed, and we haven't yet seen the
-       selected frame, remember that frame - it's the closest one we've
-       yet seen before the selected frame. */
-    if (prev_row != -1 && !selected_frame_seen) {
-      preceding_row = prev_row;
-      preceding_frame = prev_frame;
-    }
-    row = add_packet_to_packet_list(fdata, cf, dfcode, filtering_tap_listeners,
-                                    tap_flags, &cf->pseudo_header, cf->pd,
-                                    refilter,
-                                    add_to_packet_list);
-
-    /* If this frame is displayed, and this is the first frame we've
-       seen displayed after the selected frame, remember this frame -
-       it's the closest one we've yet seen at or after the selected
-       frame. */
-    if (row != -1 && selected_frame_seen && following_row == -1) {
-      following_row = row;
-      following_frame = fdata;
-    }
-    if (fdata == selected_frame) {
-      selected_row = row;
-      selected_frame_seen = TRUE;
-    }
-
-    /* Remember this row/frame - it'll be the previous row/frame
-       on the next pass through the loop. */
-    prev_row = row;
-    prev_frame = fdata;
-  }
-
-  /* We are done redissecting the packet list. */
-  cf->redissecting = FALSE;
-
-  if (redissect) {
-    /* Clear out what remains of the visited flags and per-frame data
-       pointers.
-
-       XXX - that may cause various forms of bogosity when dissecting
-       these frames, as they won't have been seen by this sequential
-       pass, but the only alternative I see is to keep scanning them
-       even though the user requested that the scan stop, and that
-       would leave the user stuck with an Wireshark grinding on
-       until it finishes.  Should we just stick them with that? */
-    for (; fdata != NULL; fdata = fdata->next) {
-      fdata->flags.visited = 0;
-      frame_data_cleanup(fdata);
-    }
-  }
-
-  /* We're done filtering the packets; destroy the progress bar if it
-     was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
-
-  /* Unfreeze the packet list. */
-  packet_list_thaw();
-
-  if (selected_row == -1) {
-    /* The selected frame didn't pass the filter. */
-    if (selected_frame == NULL) {
-      /* That's because there *was* no selected frame.  Make the first
-         displayed frame the current frame. */
-      selected_row = 0;
-    } else {
-      /* Find the nearest displayed frame to the selected frame (whether
-         it's before or after that frame) and make that the current frame.
-         If the next and previous displayed frames are equidistant from the
-         selected frame, choose the next one. */
-      g_assert(following_frame == NULL ||
-               following_frame->num >= selected_frame->num);
-      g_assert(preceding_frame == NULL ||
-               preceding_frame->num <= selected_frame->num);
-      if (following_frame == NULL) {
-        /* No frame after the selected frame passed the filter, so we
-           have to select the last displayed frame before the selected
-           frame. */
-        selected_row = preceding_row;
-      } else if (preceding_frame == NULL) {
-        /* No frame before the selected frame passed the filter, so we
-           have to select the first displayed frame after the selected
-           frame. */
-        selected_row = following_row;
-      } else {
-        /* Frames before and after the selected frame passed the filter, so
-           we'll select the previous frame */
-        selected_row = preceding_row;
-      }
-    }
-  }
-
-  if (selected_row == -1) {
-    /* There are no frames displayed at all. */
-    cf_unselect_packet(cf);
-  } else {
-    /* Either the frame that was selected passed the filter, or we've
-       found the nearest displayed frame to that frame.  Select it, make
-       it the focus row, and make it visible. */
-    if (selected_row == 0) {
-      /* Set to invalid to force update of packet list and packet details */
-      cf->current_row = -1;
-    }
-    packet_list_set_selected_row(selected_row);
-  }
-
-  /* Cleanup and release all dfilter resources */
-  dfilter_free(dfcode);
-}
-#endif /* NEW_PACKET_LIST */
 
 /*
  * Scan trough all frame data and recalculate the ref time
  * without rereading the file.
  * XXX - do we need a progres bar or is this fast enough?
  */
-#ifdef NEW_PACKET_LIST
 static void
 ref_time_packets(capture_file *cf)
 {
@@ -2470,7 +1978,6 @@ ref_time_packets(capture_file *cf)
     }
   }
 }
-#endif
 
 typedef enum {
   PSP_FINISHED,
@@ -3231,181 +2738,6 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
-#ifndef NEW_PACKET_LIST /* This function is not needed with the new packet list */
-
-/* Scan through the packet list and change all columns that use the
-   "command-line-specified" time stamp format to use the current
-   value of that format. */
-void
-cf_change_time_formats(capture_file *cf)
-{
-  int         i;
-  frame_data *fdata;
-  progdlg_t  *progbar = NULL;
-  gboolean    stop_flag;
-  int         count;
-  int         row;
-  float       progbar_val;
-  GTimeVal    start_time;
-  gchar       status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
-  gboolean    sorted_by_frame_column;
-
-  /* Adjust timestamp precision if auto is selected */
-  cf_timestamp_auto_precision(cf);
-
-  /* Are there any columns with time stamps in the "command-line-specified"
-     format?
-
-     XXX - we have to force the "column is writable" flag on, as it
-     might be off from the last frame that was dissected. */
-  col_set_writable(&cf->cinfo, TRUE);
-  if (!check_col(&cf->cinfo, COL_CLS_TIME) &&
-      !check_col(&cf->cinfo, COL_ABS_TIME) &&
-      !check_col(&cf->cinfo, COL_ABS_DATE_TIME) &&
-      !check_col(&cf->cinfo, COL_REL_TIME) &&
-      !check_col(&cf->cinfo, COL_DELTA_TIME) &&
-      !check_col(&cf->cinfo, COL_DELTA_TIME_DIS)) {
-    /* No, there aren't any columns in that format, so we have no work
-       to do. */
-    return;
-  }
-
-  /* Freeze the packet list while we redo it, so we don't get any
-     screen updates while it happens. */
-  packet_list_freeze();
-
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-  /* Count of packets at which we've looked. */
-  count = 0;
-  /* Progress so far. */
-  progbar_val = 0.0f;
-
-  /*  If the rows are currently sorted by the frame column then we know
-   *  the row number of each packet: it's the row number of the previously
-   *  displayed packet + 1.
-   *
-   *  Otherwise, if the display is sorted by a different column then we have
-   *  to use the O(N) packet_list_find_row_from_data() (thus making the job
-   *  of changing the time display format O(N**2)).
-   *
-   *  (XXX - In fact it's still O(N**2) because gtk_clist_set_text() takes
-   *  the row number and walks that many elements down the clist to find
-   *  the appropriate element.)
-   */
-  sorted_by_frame_column = FALSE;
-  for (i = 0; i < cf->cinfo.num_cols; i++) {
-    if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-    {
-      sorted_by_frame_column = (i == packet_list_get_sort_column());
-      break;
-    }
-  }
-
-  stop_flag = FALSE;
-  g_get_current_time(&start_time);
-
-  /* Iterate through the list of packets, checking whether the packet
-     is in a row of the summary list and, if so, whether there are
-     any columns that show the time in the "command-line-specified"
-     format and, if so, update that row. */
-  for (fdata = cf->plist_start, row = -1; fdata != NULL; fdata = fdata->next) {
-    /* Create the progress bar if necessary.
-       We check on every iteration of the loop, so that it takes no
-       longer than the standard time to create it (otherwise, for a
-       large file, we might take considerably longer than that standard
-       time in order to get to the next progress bar step). */
-    if (progbar == NULL)
-      progbar = delayed_create_progress_dlg("Changing", "time display",
-        TRUE, &stop_flag, &start_time, progbar_val);
-
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
-      /* let's not divide by zero. I should never be started
-       * with count == 0, so let's assert that
-       */
-      g_assert(cf->count > 0);
-
-      progbar_val = (gfloat) count / cf->count;
-
-      if (progbar != NULL) {
-        g_snprintf(status_str, sizeof(status_str),
-                   "%4u of %u packets", count, cf->count);
-        update_progress_dlg(progbar, progbar_val, status_str);
-      }
-
-      progbar_nextstep += progbar_quantum;
-    }
-
-    if (stop_flag) {
-      /* Well, the user decided to abort the redisplay.  Just stop.
-
-         XXX - this leaves the time field in the old format in
-     frames we haven't yet processed.  So it goes; should we
-     simply not offer them the option of stopping? */
-      break;
-    }
-
-    count++;
-
-    /* Find what row this packet is in. */
-    if (!sorted_by_frame_column) {
-      /* This function is O(N), so we try to avoid using it... */
-      row = packet_list_find_row_from_data(fdata);
-    } else {
-      /* ...which we do by maintaining a count of packets that are
-         being displayed (i.e., that have passed the display filter),
-         and using the current value of that count as the row number
-         (which is why we can only do it when the display is sorted
-         by the frame number). */
-      if (fdata->flags.passed_dfilter)
-        row++;
-      else
-        continue;
-    }
-
-    if (row != -1) {
-      /* This packet is in the summary list, on row "row". */
-
-      for (i = 0; i < cf->cinfo.num_cols; i++) {
-        if (col_has_time_fmt(&cf->cinfo, i)) {
-          /* This is one of the columns that shows the time in
-             "command-line-specified" format; update it. */
-          cf->cinfo.col_buf[i][0] = '\0';
-          col_set_fmt_time(fdata, &cf->cinfo, cf->cinfo.col_fmt[i], i);
-          packet_list_set_text(row, i, cf->cinfo.col_data[i]);
-        }
-      }
-    }
-  }
-
-  /* We're done redisplaying the packets; destroy the progress bar if it
-     was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
-
-  /* Set the column widths of those columns that show the time in
-     "command-line-specified" format. */
-  for (i = 0; i < cf->cinfo.num_cols; i++) {
-    if (col_has_time_fmt(&cf->cinfo, i)) {
-      packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
-    }
-  }
-
-  /* Unfreeze the packet list. */
-  packet_list_thaw();
-}
-#endif /* NEW_PACKET_LIST */
-
 gboolean
 cf_find_packet_protocol_tree(capture_file *cf, const char *string,
                              search_direction dir)
@@ -3992,16 +3324,11 @@ find_packet(capture_file *cf,
   }
 
   if (new_fd != NULL) {
-#ifdef NEW_PACKET_LIST
     /* Find and select */
     cf->search_in_progress = TRUE;
     row = new_packet_list_find_row_from_data(fdata, TRUE);
     cf->search_in_progress = FALSE;
     cf->search_pos = 0; /* Reset the position */
-#else
-    /* We found a frame.  Find what row it's in. */
-    row = packet_list_find_row_from_data(new_fd);
-#endif /* NEW_PACKET_LIST */
     if (row == -1) {
       /* We didn't find a row even though we know that a frame
        * exists that satifies the search criteria. This means that the
@@ -4012,11 +3339,6 @@ find_packet(capture_file *cf,
                     simple_dialog_primary_start(), simple_dialog_primary_end());
       return FALSE;
     }
-
-#ifndef NEW_PACKET_LIST
-    /* Select that row, make it the focus row, and make it visible. */
-    packet_list_set_selected_row(row);
-#endif /* NEW_PACKET_LIST */
     return TRUE;    /* success */
   } else
     return FALSE;   /* failure */
@@ -4026,9 +3348,6 @@ gboolean
 cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
-#ifndef NEW_PACKET_LIST
-  int row;
-#endif
 
   for (fdata = cf->plist_start; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
@@ -4045,82 +3364,23 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     return FALSE;   /* we failed to go to that packet */
   }
 
-#ifdef NEW_PACKET_LIST
   new_packet_list_find_row_from_data(fdata, TRUE);
-#else
-  /* We found that packet, and it's currently being displayed.
-     Find what row it's in. */
-  row = packet_list_find_row_from_data(fdata);
-  g_assert(row != -1);
-
-  /* Select that row, make it the focus row, and make it visible. */
-  packet_list_set_selected_row(row);
-#endif /* NEW_PACKET_LIST */
   return TRUE;  /* we got to that packet */
 }
 
 gboolean
-cf_goto_top_frame(capture_file *cf _U_)
+cf_goto_top_frame()
 {
-#ifdef NEW_PACKET_LIST
   /* Find and select */
   new_packet_list_select_first_row();
-#else
-  frame_data *fdata;
-  int row;
-  frame_data *lowest_fdata = NULL;
-
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
-    if (fdata->flags.passed_dfilter) {
-        lowest_fdata = fdata;
-        break;
-    }
-  }
-
-  if (lowest_fdata == NULL) {
-      return FALSE;
-  }
-
-  /* We found that packet, and it's currently being displayed.
-     Find what row it's in. */
-  row = packet_list_find_row_from_data(lowest_fdata);
-  g_assert(row != -1);
-
-  /* Select that row, make it the focus row, and make it visible. */
-  packet_list_set_selected_row(row);
-#endif /* NEW_PACKET_LIST */
   return TRUE;  /* we got to that packet */
 }
 
 gboolean
-cf_goto_bottom_frame(capture_file *cf _U_) /* cf is unused w/ NEW_PACKET_LIST */
+cf_goto_bottom_frame()
 {
-#ifdef NEW_PACKET_LIST
   /* Find and select */
   new_packet_list_select_last_row();
-#else
-  frame_data *fdata;
-  int row;
-  frame_data *highest_fdata = NULL;
-
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
-    if (fdata->flags.passed_dfilter) {
-        highest_fdata = fdata;
-    }
-  }
-
-  if (highest_fdata == NULL) {
-      return FALSE;
-  }
-
-  /* We found that packet, and it's currently being displayed.
-     Find what row it's in. */
-  row = packet_list_find_row_from_data(highest_fdata);
-  g_assert(row != -1);
-
-  /* Select that row, make it the focus row, and make it visible. */
-  packet_list_set_selected_row(row);
-#endif /* NEW_PACKET_LIST */
   return TRUE;  /* we got to that packet */
 }
 
@@ -4153,11 +3413,7 @@ cf_select_packet(capture_file *cf, int row)
   frame_data *fdata;
 
   /* Get the frame data struct pointer for this frame */
-#ifdef NEW_PACKET_LIST
   fdata = new_packet_list_get_row_data(row);
-#else
-  fdata = (frame_data *)packet_list_get_row_data(row);
-#endif
 
   if (fdata == NULL) {
     /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when

@@ -209,10 +209,8 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.ref_time = 0;
   fdata->flags.ignored = 0;
   fdata->color_filter = NULL;
-#ifdef NEW_PACKET_LIST
   fdata->col_text_len = NULL;
   fdata->col_text = NULL;
-#endif
 }
 
 void

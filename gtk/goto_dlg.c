@@ -148,32 +148,24 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 void
 goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    cf_goto_top_frame(&cfile);
+    cf_goto_top_frame();
 }
 
 void
 goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    cf_goto_bottom_frame(&cfile);
+    cf_goto_bottom_frame();
 }
 
 void
 goto_next_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-#ifdef NEW_PACKET_LIST
     new_packet_list_next();
-#else
-    packet_list_next();
-#endif
 }
 
 void
 goto_previous_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-#ifdef NEW_PACKET_LIST
     new_packet_list_prev();
-#else
-    packet_list_prev();
-#endif
 }
 

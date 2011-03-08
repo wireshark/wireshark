@@ -135,7 +135,6 @@
 #include "gtk/main_filter_toolbar.h"
 #include "gtk/menus.h"
 #include "gtk/macros_dlg.h"
-#include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar_private.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
@@ -159,6 +158,7 @@
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/proto_help.h"
+#include "gtk/new_packet_list.h"
 
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
@@ -181,9 +181,6 @@
 #include <epan/crypt/airpdcap_ws.h>
 #endif
 
-#ifdef NEW_PACKET_LIST
-#include "gtk/new_packet_list.h"
-#endif
 
 #ifdef HAVE_GTKOSXAPPLICATION
 #include <igemacintegration/gtkosxapplication.h>
@@ -356,11 +353,7 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             } else {
                 color_filters_set_tmp(filt_nr,filter, FALSE);
             }
-#ifdef NEW_PACKET_LIST
             new_packet_list_colorize_packets();
-#else
-            cf_colorize_packets(&cfile);
-#endif
         }
     }
 }
@@ -530,20 +523,12 @@ GList *
 get_ip_address_list_from_packet_list_row(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-#ifdef NEW_PACKET_LIST
     gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
-#else
-    gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
-#endif
     gint    col;
     frame_data *fdata;
     GList      *addr_list = NULL;
 
-#ifdef NEW_PACKET_LIST
     fdata = (frame_data *) new_packet_list_get_row_data(row);
-#else
-    fdata = (frame_data *) packet_list_get_row_data(row);
-#endif
 
     if (fdata != NULL) {
         epan_dissect_t edt;
@@ -579,19 +564,11 @@ static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-#ifdef NEW_PACKET_LIST
     gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
-#else
-    gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
-#endif
     frame_data *fdata;
     gchar      *buf=NULL;
 
-#ifdef NEW_PACKET_LIST
     fdata = (frame_data *) new_packet_list_get_row_data(row);
-#else
-    fdata = (frame_data *) packet_list_get_row_data(row);
-#endif
 
     if (fdata != NULL) {
         epan_dissect_t edt;
@@ -717,7 +694,6 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
     cfile.ref_time_count--;
   }
   cf_reftime_packets(&cfile);
-#ifdef NEW_PACKET_LIST
   if (!frame->flags.ref_time && !frame->flags.passed_dfilter) {
     new_packet_list_freeze();
     cfile.displayed_count--;
@@ -725,7 +701,6 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
     new_packet_list_thaw();
   }
   new_packet_list_queue_draw();
-#endif
 }
 
 
@@ -735,12 +710,8 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
     case(ESD_BTN_YES):
         timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
-#ifdef NEW_PACKET_LIST
 		cf_timestamp_auto_precision(&cfile);
 		new_packet_list_queue_draw();
-#else
-        cf_change_time_formats(&cfile);
-#endif
         break;
     case(ESD_BTN_NO):
         break;
@@ -910,11 +881,7 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
     column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
                             cfile.finfo_selected->hfinfo->abbrev,0);
     /* Recreate the packet list according to new preferences */
-#ifdef NEW_PACKET_LIST
     new_packet_list_recreate ();
-#else
-    packet_list_recreate ();
-#endif
     if (!prefs.gui_use_pref_save) {
       prefs_main_write();
     }
@@ -1861,9 +1828,6 @@ get_gui_compiled_info(GString *str)
   get_compiled_airpcap_version(str);
 #else
   g_string_append(str, "without AirPcap");
-#endif
-#ifndef NEW_PACKET_LIST
-  g_string_append(str, ", with old_packet_list");
 #endif
 }
 
@@ -2836,9 +2800,6 @@ main(int argc, char *argv[])
      is displayed.
 
      XXX - is that still true, with fixed-width columns? */
-#ifndef NEW_PACKET_LIST
-  packet_list_set_column_titles();
-#endif
 
   menu_recent_read_finished();
 #ifdef HAVE_LIBPCAP
@@ -3495,12 +3456,6 @@ main_widgets_show_or_hide(void)
     } else {
         gtk_widget_hide(welcome_pane);
     }
-
-    /* workaround for bug in GtkCList to ensure packet list scrollbar is updated */
-#ifndef NEW_PACKET_LIST
-    packet_list_freeze ();
-    packet_list_thaw ();
-#endif
 }
 
 
@@ -3529,18 +3484,10 @@ static gboolean
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
-#ifdef NEW_PACKET_LIST
 	new_packet_list_next();
-#else
-	packet_list_next();
-#endif
 	return TRUE;
     } else if (event->keyval == GDK_F7) {
-#ifdef NEW_PACKET_LIST
 	new_packet_list_prev();
-#else
-	packet_list_prev();
-#endif
 	return TRUE;
     } else if (event->state & NO_SHIFT_MOD_MASK) {
         return FALSE; /* Skip control, alt, and other modifiers */
@@ -3605,15 +3552,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     filter_tb = filter_toolbar_new();
 
     /* Packet list */
-#ifdef NEW_PACKET_LIST
     pkt_scrollw = new_packet_list_create();
     gtk_widget_set_size_request(pkt_scrollw, -1, pl_size);
     gtk_widget_show_all(pkt_scrollw);
-#else
-    pkt_scrollw = packet_list_new(prefs_p);
-    gtk_widget_set_size_request(packet_list, -1, pl_size);
-    gtk_widget_show(pkt_scrollw);
-#endif
 
     /* Tree view */
     tv_scrollw = main_tree_view_new(prefs_p, &tree_view_gbl);
@@ -3798,11 +3739,7 @@ void change_configuration_profile (const gchar *profile_name)
    welcome_if_panel_reload();
 
    /* Recreate the packet list according to new preferences */
-#ifdef NEW_PACKET_LIST
    new_packet_list_recreate ();
-#else
-   packet_list_recreate ();
-#endif
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply();
 

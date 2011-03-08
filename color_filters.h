@@ -104,11 +104,7 @@ void color_filters_prime_edt(epan_dissect_t *edt);
  * @return the matching color filter or NULL
  */
 const color_filter_t *
-#ifdef NEW_PACKET_LIST
 color_filters_colorize_packet(epan_dissect_t *edt);
-#else
-color_filters_colorize_packet(gint row, epan_dissect_t *edt);
-#endif
 
 /** Clone the currently active filter list.
  *

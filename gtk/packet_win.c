@@ -135,14 +135,11 @@ void new_window_cb(GtkWidget *w _U_)
     return;
   }
 
-#ifdef NEW_PACKET_LIST
-
   /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
   if (!cf_read_frame(&cfile, cfile.current_frame)) {
     /* error reading the frame */
     return;
   }
-#endif
 
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));

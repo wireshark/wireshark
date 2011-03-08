@@ -321,13 +321,6 @@ void cf_reftime_packets(capture_file *cf);
 gulong cf_get_computed_elapsed(void);
 
 /**
- * The coloring rules have changed, redo coloring
- *
- * @param cf the capture file
- */
-void cf_colorize_packets(capture_file *cf);
-
-/**
  * "Something" has changed, rescan all packets.
  *
  * @param cf the capture file
@@ -341,13 +334,6 @@ void cf_redissect_packets(capture_file *cf);
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_retap_packets(capture_file *cf);
-
-/**
- * The time format has changed, rescan all packets.
- *
- * @param cf the capture file
- */
-void cf_change_time_formats(capture_file *cf);
 
 /**
  * Adjust timestamp precision if auto is selected.
@@ -490,18 +476,16 @@ gboolean cf_find_packet_time_reference(capture_file *cf, search_direction dir);
 /**
  * GoTo Packet in first row.
  *
- * @param cf the capture file
  * @return TRUE if the first row exists, FALSE otherwise
  */
-gboolean cf_goto_top_frame(capture_file *cf);
+gboolean cf_goto_top_frame();
 
 /**
  * GoTo Packet in last row.
  *
- * @param cf the capture file
  * @return TRUE if last row exists, FALSE otherwise
  */
-gboolean cf_goto_bottom_frame(capture_file *cf);
+gboolean cf_goto_bottom_frame();
 
 /**
  * GoTo Packet with the given row.

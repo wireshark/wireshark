@@ -58,12 +58,7 @@
 #include "gtk/keys.h"
 #include "gtk/recent.h"
 #include "gtk/packet_history.h"
-
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#else
-#include "gtk/main_packet_list.h"
-#endif
 
 static gboolean toolbar_init = FALSE;
 
@@ -390,13 +385,8 @@ toolbar_new(void)
     toolbar_item(zoom_100_button, main_tb,
 	GTK_STOCK_ZOOM_100, tooltips, "Zoom 100%", view_zoom_100_cb, NULL);
 
-#ifdef NEW_PACKET_LIST
     toolbar_item(resize_columns_button, main_tb,
     WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", new_packet_list_resize_columns_cb, NULL);
-#else
-    toolbar_item(resize_columns_button, main_tb,
-    WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", packet_list_resize_columns_cb, NULL);
-#endif
 
     toolbar_append_separator(main_tb);
 

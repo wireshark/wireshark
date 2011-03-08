@@ -40,11 +40,7 @@
 #include "gtk/prefs_column.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#else
-#include "gtk/main_packet_list.h"
-#endif
 #include "gtk/filter_dlg.h"
 #include "gtk/filter_autocomplete.h"
 
@@ -67,16 +63,13 @@ static gboolean column_title_changed_cb(GtkCellRendererText *, const gchar *, co
 static char custom_occurrence_str[8] = "";
 
 enum {
-#ifdef NEW_PACKET_LIST
   VISIBLE_COLUMN,
-#endif
   TITLE_COLUMN,
   FORMAT_COLUMN,
   DATA_COLUMN,
   N_COLUMN /* The number of columns */
 };
 
-#ifdef NEW_PACKET_LIST
 /* Visible toggled */
 static void
 visible_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
@@ -101,7 +94,6 @@ visible_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
 
   gtk_tree_path_free(path);
 } /* visible_toggled */
-#endif
 
 /*
  * Create and display the column selection widgets.
@@ -118,11 +110,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gint               i;
     gchar             *fmt;
     gint               cur_fmt;
-#ifdef NEW_PACKET_LIST
     const gchar       *column_titles[] = {"Displayed", "Title", "Field type"};
-#else
-    const gchar       *column_titles[] = {"Title", "Field type"};
-#endif
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
@@ -153,9 +141,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(list_sc);
 
     store = gtk_list_store_new(N_COLUMN,
-#ifdef NEW_PACKET_LIST
 			       G_TYPE_BOOLEAN,
-#endif
 			       G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
     column_row_deleted_handler_id = 
         g_signal_connect(GTK_TREE_MODEL(store), "row-deleted", G_CALLBACK(column_dnd_row_deleted_cb), NULL);
@@ -167,13 +153,11 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_tooltips_set_tip (tooltips, column_l, 
         "Click on a title to change its name.\nDrag an item to change its order.", NULL);
 
-#ifdef NEW_PACKET_LIST
     renderer = gtk_cell_renderer_toggle_new();
     g_signal_connect(renderer, "toggled", G_CALLBACK(visible_toggled), store);
     column = gtk_tree_view_column_new_with_attributes(column_titles[VISIBLE_COLUMN], renderer, "active", VISIBLE_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
-#endif
 
     renderer = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer), "editable", TRUE, NULL);
@@ -220,9 +204,7 @@ column_prefs_show(GtkWidget *prefs_window) {
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,
 #endif
-#ifdef NEW_PACKET_LIST
 			   VISIBLE_COLUMN, cfmt->visible,
-#endif
 			   TITLE_COLUMN, cfmt->title, FORMAT_COLUMN, fmt, DATA_COLUMN, clp, -1);
 
         if (first_row) {
@@ -428,9 +410,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
 #endif
-#ifdef NEW_PACKET_LIST
                        VISIBLE_COLUMN, TRUE,
-#endif
                        TITLE_COLUMN, title,
                        FORMAT_COLUMN, col_format_desc(cur_fmt),
                        DATA_COLUMN, g_list_last(prefs.col_list),
@@ -848,11 +828,7 @@ column_prefs_apply(GtkWidget *w _U_)
 {
     /* Redraw the packet list if the columns were changed */
     if(cfile.cinfo.columns_changed) {
-#ifdef NEW_PACKET_LIST
         new_packet_list_recreate();
-#else
-        packet_list_recreate();
-#endif
         cfile.cinfo.columns_changed = FALSE; /* Reset value */
     }
 }

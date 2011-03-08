@@ -51,9 +51,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
 #include "gtk/color_edit_dlg.h"
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#endif /* NEW_PACKET_LIST */
 
 
 #define BUTTON_SIZE_X -1
@@ -779,11 +777,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gtk_tree_selection_unselect_all (sel);
 
   /* Use the default background and foreground colors as the colors. */
-#ifdef NEW_PACKET_LIST
   style = gtk_widget_get_style(new_packet_list_get_widget());
-#else
-   style = gtk_widget_get_style(packet_list);
-#endif /* NEW_PACKET_LIST */
   gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
 
@@ -1028,11 +1022,7 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   color_filters_apply(color_filter_tmp_list, color_filter_edit_list);
 
   /* colorize list */
-#ifdef NEW_PACKET_LIST
   new_packet_list_colorize_packets();
-#else
-  cf_colorize_packets(&cfile);
-#endif /* NEW_PACKET_LIST */
 }
 
 /* User pressed the "Save" button: save the color filters to the

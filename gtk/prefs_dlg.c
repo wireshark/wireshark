@@ -57,9 +57,6 @@
 #include "gtk/help_dlg.h"
 #include "gtk/keys.h"
 #include "gtk/uat_gui.h"
-#ifndef NEW_PACKET_LIST
-#include "gtk/main_packet_list.h"
-#endif
 
 
 #ifdef HAVE_LIBPCAP
@@ -1286,15 +1283,6 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
   layout_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
-#ifndef NEW_PACKET_LIST
-  /*  With the old packet list, we need to do some calculations to figure out
-   *  the column sizes.  But we don't want to do it until after we've set the
-   *  fonts (so we know how much room is needed) and we don't want to do it
-   *  until after we've applied the column preferences (so we know which
-   *  columns are there).
-   */
-  packet_list_set_default_column_sizes();
-#endif
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32

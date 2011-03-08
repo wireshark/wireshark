@@ -28,8 +28,6 @@
 #ifndef __PACKET_LIST_STORE_H__
 #define __PACKET_LIST_STORE_H__
 
-#ifdef NEW_PACKET_LIST
-
 #include <glib.h>
 
 #include "epan/column_info.h"
@@ -120,7 +118,5 @@ void packet_list_change_record(PacketList *packet_list, guint row, gint col, col
 void packet_list_dissect_and_cache_iter(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color);
 void packet_list_reset_colorized(PacketList *packet_list);
 const char* packet_list_get_widest_column_string(PacketList *packet_list, gint col);
-
-#endif /* NEW_PACKET_LIST */
 
 #endif /* __PACKET_LIST_STORE_H__ */

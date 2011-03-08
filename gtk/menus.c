@@ -100,11 +100,7 @@
 #include "gtk/dissector_tables_dlg.h"
 #include "gtk/utf8_entities.h"
 
-#ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
-#else
-#include "gtk/main_packet_list.h"
-#endif
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
 #include <ige-mac-menu.h>
@@ -400,11 +396,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
 
     if( (action>>8) == 255 ) {
         color_filters_reset_tmp();
-#ifdef NEW_PACKET_LIST
         new_packet_list_colorize_packets();
-#else
-        cf_colorize_packets(&cfile);
-#endif
     } else if (cfile.current_frame) {
         if( (action&0xff) == 0 ) {
             /* colorize_conversation_cb was called from the window-menu
@@ -433,11 +425,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
         } else {
             /* Set one of the temporary coloring filters */
             color_filters_set_tmp((guint8)(action>>8),filter,FALSE);
-#ifdef NEW_PACKET_LIST
             new_packet_list_colorize_packets();
-#else
-            cf_colorize_packets(&cfile);
-#endif
         }
 
         g_free(filter);
@@ -732,13 +720,9 @@ timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gp
     if (recent.gui_time_format != value) {
         timestamp_set_type(value);
         recent.gui_time_format = value;
-#ifdef NEW_PACKET_LIST
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
         new_packet_list_queue_draw();
-#else
-        cf_change_time_formats(&cfile);
-#endif
     }
 
 }
@@ -751,20 +735,16 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
     value = gtk_radio_action_get_current_value (action);
     g_warning("timestamp_precision_new_cb, value %u, recent.gui_time_precision %u",value, recent.gui_time_precision);
     if (recent.gui_time_precision != value) {
-        /* the actual precision will be set in cf_change_time_formats() below */
+        /* the actual precision will be set in new_packet_list_queue_draw() below */
         if (value == TS_PREC_AUTO) {
             timestamp_set_precision(TS_PREC_AUTO_SEC);
         } else {
             timestamp_set_precision(value);
         }
         recent.gui_time_precision  = value;
-#ifdef NEW_PACKET_LIST
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
         new_packet_list_queue_draw();
-#else
-        cf_change_time_formats(&cfile);
-#endif
     }
 }
 
@@ -1055,7 +1035,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='FindNext' action='/Edit/FindNext'/>\n"
 "        <menuitem name='FindPrevious' action='/Edit/FindPrevious'/>\n"
 "        <separator/>\n"
-#ifdef NEW_PACKET_LIST
 "        <menuitem name='MarkPacket' action='/Edit/MarkPacket'/>\n"
 "        <menuitem name='MarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>\n"
 "        <menuitem name='UnmarkAllDisplayedPackets' action='/Edit/UnmarkAllDisplayedPackets'/>\n"
@@ -1071,9 +1050,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
 "        <separator/>\n"
-#else /* NEW_PACKET_LIST */
-#error "You must use the new packet list if you are using GTKUIManager for menus"
-#endif
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
 "    </menu>\n"
@@ -1422,7 +1398,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindNext",					NULL,				"Find Ne_xt",							"<control>N",			NULL,			G_CALLBACK(find_next_cb) },
    { "/Edit/FindPrevious",				NULL,				"Find Pre_vious",						"<control>B",			NULL,			G_CALLBACK(find_previous_cb) },
 
-#ifdef NEW_PACKET_LIST
    { "/Edit/MarkPacket",				NULL,				"_Mark Packet (toggle)",				"<control>M",			NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
    { "/Edit/ToggleMarkingOfAllDisplayedPackets",	NULL,	"Toggle Marking Of All Displayed Packets",	"<shift><alt><control>M",			NULL,			G_CALLBACK(new_packet_list_toggle_mark_all_displayed_frames_cb) },
    { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets",			"<shift><control>M",	NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
@@ -1441,9 +1416,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindNextTimeReference",		NULL,				"Find Next Time Reference",				"<alt><control>N",			NULL,			G_CALLBACK(find_next_ref_time_cb) },
    { "/Edit/FindPreviousTimeReference",	NULL,				"Find Previous Time Reference",			"<alt><control>B",			NULL,			G_CALLBACK(find_previous_ref_time_cb) },
 
-#else /* NEW_PACKET_LIST */
-#error "You must use the new packet list if you are using GTKUIManager for menus"
-#endif /* NEW_PACKET_LIST */
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
 
@@ -1454,12 +1426,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/View/ZoomIn",				GTK_STOCK_ZOOM_IN,		"_Zoom In",								"<control>plus",			NULL,			G_CALLBACK(view_zoom_in_cb) },
    { "/View/ZoomOut",				GTK_STOCK_ZOOM_OUT,		"Zoom _Out",							"<control>minus",			NULL,			G_CALLBACK(view_zoom_out_cb) },
    { "/View/NormalSize",			GTK_STOCK_ZOOM_100,		"_Normal Size",							"<control>equal",			NULL,			G_CALLBACK(view_zoom_100_cb) },
-#ifdef NEW_PACKET_LIST
    { "/View/ResizeAllColumns",		WIRESHARK_STOCK_RESIZE_COLUMNS,	"Resize All Columns",			"<shift><control>R",		NULL,			G_CALLBACK(new_packet_list_resize_columns_cb) },
    { "/View/DisplayedColumns",		NULL,					"Displayed Columns",			NULL,		NULL,			NULL },
-#else
-#error "You must use the new packet list if you are using GTKUIManager for menus"
-#endif /* NEW_PACKET_LIST */
    { "/View/ExpandSubtrees",		NULL,					"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
    { "/View/ExpandAll",				NULL,					"Expand All",			NULL,					NULL,			G_CALLBACK(expand_all_cb) },
    { "/View/CollapseAll",			NULL,					"Collapse All",			NULL,					NULL,			G_CALLBACK(collapse_all_cb) },
@@ -1795,7 +1763,6 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
     {"/Edit/Find Pre_vious",                              "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifdef NEW_PACKET_LIST
     {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
     {"/Edit/Toggle Marking Of All Displayed Packets",        "<shift><alt><control>M", GTK_MENU_FUNC(new_packet_list_toggle_mark_all_displayed_frames_cb), 0, NULL, NULL,},
     {"/Edit/Mark All Displayed Packets",                  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
@@ -1814,33 +1781,6 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
     {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
-#else /* NEW_PACKET_LIST */
-    /*
-     * XXX - this should be changed to match the list used with the new
-     * packet list, assuming we don't just drop the old packet list
-     * code first.
-     */
-    {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Mark _All Displayed Packets", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Displayed Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
-                       0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets (toggle)", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
-                        REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
-    {"/Edit/Find Next Time Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
-    {"/Edit/Find Previous Time Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
     {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
@@ -1904,14 +1844,9 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_ZOOM_OUT,},
     {"/View/_Normal Size", "<control>equal", GTK_MENU_FUNC(view_zoom_100_cb),
                              0, "<StockItem>", GTK_STOCK_ZOOM_100,},
-#ifdef NEW_PACKET_LIST
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
     {"/View/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
-#else
-    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-#endif /* NEW_PACKET_LIST */
     {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/View/E_xpand Subtrees", "<shift>Right", GTK_MENU_FUNC(expand_tree_cb), 0, NULL, NULL,},
     {"/View/_Expand All", "<control>Right", GTK_MENU_FUNC(expand_all_cb),
@@ -2632,7 +2567,6 @@ packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action _U_, gpointer user
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA);
 }
 
-#ifdef NEW_PACKET_LIST
 static void
 packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
 {
@@ -2644,19 +2578,6 @@ packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 {
 	new_packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
 }
-#else
-static void
-packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
-{
-	packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
-}
-
-static void
-packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
-{
-	packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
-}
-#endif /* NEW_PACKET_LIST */
 
 static void
 packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
@@ -4358,11 +4279,6 @@ set_menu_sensitivity_old(const gchar *path, gint val)
             menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
         }
         gtk_widget_set_sensitive(menu_item, val);
-    } else{
-#ifndef NEW_PACKET_LIST
-        /* be sure this menu item *is* existing */
-        g_assert_not_reached();
-#endif
     }
 
     g_free(dup);
@@ -5138,13 +5054,9 @@ timestamp_format_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
     if (recent.gui_time_format != action) {
         timestamp_set_type(action);
         recent.gui_time_format = action;
-#ifdef NEW_PACKET_LIST
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
         new_packet_list_queue_draw();
-#else
-        cf_change_time_formats(&cfile);
-#endif
     }
 }
 
@@ -5153,20 +5065,16 @@ static void
 timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 {
     if (recent.gui_time_precision != action) {
-        /* the actual precision will be set in cf_change_time_formats() below */
+        /* the actual precision will be set in new_packet_list_queue_draw() below */
         if (action == TS_PREC_AUTO) {
             timestamp_set_precision(TS_PREC_AUTO_SEC);
         } else {
             timestamp_set_precision(action);
         }
         recent.gui_time_precision  = action;
-#ifdef NEW_PACKET_LIST
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
         new_packet_list_queue_draw();
-#else
-        cf_change_time_formats(&cfile);
-#endif
     }
 }
 #endif
@@ -5181,13 +5089,9 @@ timestamp_seconds_time_cb(GtkWidget *w, gpointer d _U_, gint action _U_)
     }
     timestamp_set_seconds_type (recent.gui_seconds_format);
 
-#ifdef NEW_PACKET_LIST
     /* This call adjusts column width */
     cf_timestamp_auto_precision(&cfile);
     new_packet_list_queue_draw();
-#else
-    cf_change_time_formats(&cfile);
-#endif
 }
 
 void
@@ -5299,11 +5203,7 @@ menu_colorize_changed(gboolean packet_list_colorize) {
     if(packet_list_colorize != recent.packet_list_colorize) {
         recent.packet_list_colorize = packet_list_colorize;
         color_filters_enable(packet_list_colorize);
-#ifdef NEW_PACKET_LIST
         new_packet_list_colorize_packets();
-#else
-        cf_colorize_packets(&cfile);
-#endif
     }
 }
 
@@ -5432,13 +5332,9 @@ menu_recent_read_finished(void) {
 #ifdef MAIN_MENU_USE_UIMANAGER
     /* XXX Fix me */
     timestamp_set_type(recent.gui_time_format);
-#ifdef NEW_PACKET_LIST
     /* This call adjusts column width */
     cf_timestamp_auto_precision(&cfile);
     new_packet_list_queue_draw();
-#else /* NEW_PACKET_LIST */
-    cf_change_time_formats(&cfile);
-#endif /* NEW_PACKET_LIST */
 #if 0
 /* This should not be needed as we set the active radioItem when we crate the actiongroup */
     switch(recent.gui_time_format) {
@@ -5530,19 +5426,15 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
-    /* the actual precision will be set in cf_change_time_formats() below */
+    /* the actual precision will be set in new_packet_list_queue_draw() below */
     if (recent.gui_time_precision == TS_PREC_AUTO) {
         timestamp_set_precision(TS_PREC_AUTO_SEC);
     } else {
         timestamp_set_precision(recent.gui_time_precision);
     }
-#ifdef NEW_PACKET_LIST
     /* This call adjusts column width */
     cf_timestamp_auto_precision(&cfile);
     new_packet_list_queue_draw();
-#else /* NEW_PACKET_LIST */
-    cf_change_time_formats(&cfile);
-#endif /* NEW_PACKET_LIST */
 #else /* MAIN_MENU_USE_UIMANAGER */
     switch(recent.gui_time_precision) {
     case(TS_PREC_AUTO):
@@ -5639,25 +5531,13 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     /* Check if we are on packet_list object */
     if (widget == g_object_get_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY) &&
         ((GdkEventButton *)event)->button != 1) {
-#ifdef NEW_PACKET_LIST
         gint physical_row;
         if (new_packet_list_get_event_row_column((GdkEventButton *)event, &physical_row, &row, &column)) {
-#else
-        if (packet_list_get_event_row_column(widget, (GdkEventButton *)event, &row, &column)) {
-#endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
-#ifdef NEW_PACKET_LIST
                             GINT_TO_POINTER(row));
-#else
-                            GINT_TO_POINTER(row));
-#endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
-#ifdef NEW_PACKET_LIST
             new_packet_list_set_selected_row(row);
-#else
-            packet_list_set_selected_row(row);
-#endif
         }
     }
 
@@ -6146,7 +6026,6 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old("/Edit/Set Time Reference (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef NEW_PACKET_LIST
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Un-TimeReferenceAllPackets",
                          have_time_ref);
@@ -6154,7 +6033,6 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old("/Edit/Un-Time Reference All Packets",
                          have_time_ref);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#endif /* NEW_PACKET_LIST */
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
 #ifdef MAIN_MENU_USE_UIMANAGER
@@ -6681,7 +6559,6 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
 
 }
 
-#ifdef NEW_PACKET_LIST
 static void
 menu_visible_column_toggle (GtkWidget *w _U_, gpointer data)
 {
@@ -6753,7 +6630,6 @@ rebuild_visible_columns_menu (void)
         gtk_widget_show (menu_item);
     }
 }
-#endif /* NEW_PACKET_LIST */
 
 void
 menus_set_column_resolved (gboolean resolved, gboolean can_resolve)
