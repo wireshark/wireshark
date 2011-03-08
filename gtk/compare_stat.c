@@ -711,9 +711,12 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(sscanf(optarg,"compare,%d,%d,%d,%d,%lf,%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
+	if(sscanf(optarg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
 		if(pos){
-			filter=optarg+pos;
+			if(*(optarg+pos)==',')
+				filter=optarg+pos+1;
+			else
+				filter=optarg+pos;
 		} else {
 			filter=NULL;
 		}
