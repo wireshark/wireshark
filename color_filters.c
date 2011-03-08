@@ -571,9 +571,8 @@ read_filters_file(FILE *f, gpointer user_data)
 			dfilter_t *temp_dfilter;
 
 			if (!dfilter_compile(filter_exp, &temp_dfilter)) {
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				"Could not compile color filter %s from saved filters.\n%s",
-					      name, dfilter_error_msg);
+				g_warning("Could not compile color filter \"%s\" from saved filters: %s",
+					name, dfilter_error_msg);
 				skip_end_of_line = TRUE;
 				continue;
 			}
