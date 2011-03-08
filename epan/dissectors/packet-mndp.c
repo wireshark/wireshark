@@ -1,0 +1,385 @@
+/* packet-mndp.c
+ * Routines for the disassembly of the Mikrotik Neighbor Discovery Protocol
+ *
+ * $Id$
+ *
+ * Copyright 2011 Joerg Mayer (see AUTHORS file)
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+  http://wiki.mikrotik.com/wiki/Manual:IP/Neighbor_discovery
+  TODO:
+  - Find out about first 4 bytes
+  - Find out about additional TLVs
+  - Find out about unpack values
+ */
+
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/emem.h>
+#include <epan/expert.h>
+
+/* protocol handles */
+static int proto_mndp = -1;
+
+/* ett handles */
+static int ett_mndp = -1;
+static int ett_mndp_tlv_header = -1;
+
+/* hf elements */
+/* tlv generic */
+static int hf_mndp_tlv_type = -1;
+static int hf_mndp_tlv_length = -1;
+static int hf_mndp_tlv_data = -1;
+/* tunnel header */
+static int hf_mndp_header_unknown = -1;
+static int hf_mndp_header_seqno = -1;
+/* tlvs */
+static int hf_mndp_mac = -1;
+static int hf_mndp_softwareid = -1;
+static int hf_mndp_version = -1;
+static int hf_mndp_identity = -1;
+static int hf_mndp_uptime = -1;
+static int hf_mndp_platform = -1;
+static int hf_mndp_interface = -1;
+static int hf_mndp_unpack = -1;
+static int hf_mndp_ipv6address = -1;
+
+#define PROTO_SHORT_NAME "MNDP"
+#define PROTO_LONG_NAME "Mikrotik Neighbor Discovery Protocol"
+
+#define PORT_MNDP	5678
+
+/* ============= copy/paste/modify from value_string.[hc] ============== */
+typedef struct _ext_value_string {
+  guint32  value;
+  const gchar   *strptr;
+  int* hf_element;
+  int (*specialfunction)(tvbuff_t *, packet_info *, proto_tree *, guint32,
+	guint32, const struct _ext_value_string *);
+  const struct _ext_value_string *evs;
+} ext_value_string;
+
+
+static const gchar*
+match_strextval_idx(guint32 val, const ext_value_string *vs, gint *idx) {
+  gint i = 0;
+
+  if(vs) {
+    while (vs[i].strptr) {
+      if (vs[i].value == val) {
+	if (idx)
+	  *idx = i;
+	return(vs[i].strptr);
+      }
+      i++;
+    }
+  }
+
+  if (idx)
+    *idx = -1;
+  return NULL;
+}
+
+static const gchar*
+extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char *fmt) {
+  const gchar *ret;
+
+  if (!fmt)
+    fmt="Unknown";
+
+  ret = match_strextval_idx(val, vs, idx);
+  if (ret != NULL)
+    return ret;
+
+  return ep_strdup_printf(fmt, val);
+}
+/* ============= end copy/paste/modify  ============== */
+
+/* Forward decls needed by mndp_tunnel_tlv_vals et al */
+static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
+	guint32 offset, guint32 length, const ext_value_string *value_array);
+
+static const ext_value_string mndp_body_tlv_vals[] = {
+/*
+ *	(11) interface (interface name)
+ *	address (IPv4 address)
+ *	(15) address (IPv6 address)
+ *	(1)  mac-address (MAC address)
+ *	(8)  identity (text)
+ *	(12) platform (text)
+ *	(7)  version (text)
+ *	(14) unpack (none|simple|uncompressed-headers|uncompressed-all)
+ *	age (time)
+ *	(10) uptime (time)
+ *	(5)  software-id (text)
+ */
+
+	{ 1, "MAC-Address", &hf_mndp_mac, NULL, NULL },
+	{ 5, "Software-ID", &hf_mndp_softwareid, NULL, NULL },
+	{ 7, "Version", &hf_mndp_version, NULL, NULL },
+	{ 8, "Identity", &hf_mndp_identity, NULL, NULL },
+	{ 10, "Uptime", &hf_mndp_uptime, NULL, (void *)TRUE },
+	{ 11, "Interface", &hf_mndp_interface, NULL, NULL },
+	{ 12, "Platform", &hf_mndp_platform, NULL, NULL },
+	{ 14, "Unpack", &hf_mndp_unpack, NULL, NULL },
+	{ 15, "IPv6-Address", &hf_mndp_ipv6address, NULL, NULL },
+
+	{ 0,	NULL, NULL, NULL, NULL }
+};
+
+static const value_string mndp_unpack_vals[] = {
+ 	/* none|simple|uncompressed-headers|uncompressed-all */
+	{ 0,	"None?" },
+	{ 1,	"Simple?" },
+
+	{ 0,	NULL }
+};
+
+static int
+dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
+	guint32 offset, guint32 length _U_, const ext_value_string *value_array)
+{
+	guint32 tlv_type;
+	guint32 tlv_length;
+	proto_item *tlv_item;
+	proto_item *tlv_tree;
+	proto_item *type_item;
+	int type_index;
+	guint32 tlv_end;
+	guint encoding_info;
+
+	tlv_type = tvb_get_ntohs(tvb, offset);
+	tlv_length = tvb_get_ntohs(tvb, offset + 2);
+	/* DISSECTOR_ASSERT(tlv_length >= 4); */
+	tlv_item = proto_tree_add_text(mndp_tree, tvb,
+		offset, tlv_length+4,
+		"T %d, L %d: %s",
+		tlv_type,
+		tlv_length,
+		extval_to_str_idx(tlv_type, value_array, NULL, "Unknown"));
+	tlv_tree = proto_item_add_subtree(tlv_item,
+		ett_mndp_tlv_header);
+	type_item = proto_tree_add_item(tlv_tree, hf_mndp_tlv_type,
+		tvb, offset, 2, FALSE);
+	proto_item_append_text(type_item, " = %s",
+		extval_to_str_idx(tlv_type, value_array,
+			&type_index, "Unknown"));
+	offset += 2;
+	proto_tree_add_item(tlv_tree, hf_mndp_tlv_length,
+		tvb, offset, 2, FALSE);
+	offset += 2;
+
+	/* tlv_length -= 4; */
+
+	if (tlv_length == 0)
+		return offset;
+
+	tlv_end = offset + tlv_length;
+
+	/* Make hf_ handling independent of specialfuncion */
+	if ( type_index != -1
+		 && !value_array[type_index].specialfunction
+		 && value_array[type_index].evs != NULL
+	) {
+		encoding_info = (guint)value_array[type_index].evs;
+	} else {
+		encoding_info = FALSE;
+	}
+	if ( type_index != -1 && value_array[type_index].hf_element) {
+		proto_tree_add_item(tlv_tree,
+			*(value_array[type_index].hf_element),
+			tvb, offset, tlv_length, encoding_info);
+	} else {
+		proto_tree_add_item(tlv_tree, hf_mndp_tlv_data,
+			tvb, offset, tlv_length, FALSE);
+	}
+	if ( type_index != -1 && value_array[type_index].specialfunction ) {
+		guint32 newoffset;
+
+		while (offset < tlv_end) {
+			newoffset = value_array[type_index].specialfunction (
+				tvb, pinfo, tlv_tree, offset, tlv_length,
+				value_array[type_index].evs);
+			DISSECTOR_ASSERT(newoffset > offset);
+			offset = newoffset;
+		}
+	}
+	return tlv_end;
+}
+
+static int
+dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *mndp_tree = NULL;
+	guint32 offset = 0;
+	guint32 packet_length;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+
+	packet_length = tvb_length(tvb);
+
+	if (tree) {
+		/* Header dissection */
+		ti = proto_tree_add_item(tree, proto_mndp, tvb, offset, -1,
+		    FALSE);
+		mndp_tree = proto_item_add_subtree(ti, ett_mndp);
+
+		proto_tree_add_item(mndp_tree, hf_mndp_header_unknown, tvb, offset, 2,
+			FALSE);
+		offset += 2;
+		proto_tree_add_item(mndp_tree, hf_mndp_header_seqno, tvb, offset, 2,
+			FALSE);
+		offset += 2;
+
+		while (offset < packet_length)
+			offset = dissect_tlv(tvb, pinfo, mndp_tree,
+				offset, 0, mndp_body_tlv_vals);
+	}
+	return offset;
+}
+
+static gboolean
+test_mndp(tvbuff_t *tvb)
+{
+	/* Minimum of 8 bytes, 4 Bytes header + 1 TLV-header */
+	if ( tvb_length(tvb) < 8
+		    || tvb_get_guint8(tvb, 4) != 0
+		    || tvb_get_guint8(tvb, 6) != 0
+	) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
+#if 0
+static gboolean
+dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if ( !test_mndp(tvb) ) {
+		return FALSE;
+	}
+	dissect_mndp(tvb, pinfo, tree);
+	return TRUE;
+}
+#endif
+
+static int
+dissect_mndp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if ( !test_mndp(tvb) ) {
+		return 0;
+	}
+	return dissect_mndp(tvb, pinfo, tree);
+}
+
+void
+proto_register_mndp(void)
+{
+	static hf_register_info hf[] = {
+
+	/* TLV fields */
+		{ &hf_mndp_tlv_type,
+		{ "TlvType",	"mndp.tlv.type", FT_UINT16, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_mndp_tlv_length,
+		{ "TlvLength",	"mndp.tlv.length", FT_UINT16, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_mndp_tlv_data,
+		{ "TlvData",   "mndp.tlv.data", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
+	/* MNDP tunnel header */
+		{ &hf_mndp_header_unknown,
+		{ "Header Unknown",	"mndp.header.unknown", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_mndp_header_seqno,
+		{ "SeqNo",	"mndp.header.seqno", FT_UINT16, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+	/* MNDP tunnel data */
+		{ &hf_mndp_mac,
+		{ "MAC-Address",	"mndp.mac", FT_ETHER, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_mndp_softwareid,
+		{ "Software-ID", "mndp.softwareid", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_version,
+		{ "Version", "mndp.version", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_identity,
+		{ "Identity", "mndp.identity", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_uptime,
+		{ "Uptime", "mndp.uptime", FT_RELATIVE_TIME, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_platform,
+		{ "Platform", "mndp.platform", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_interface,
+		{ "Interface", "mndp.interface", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_unpack,
+		{ "Unpack", "mndp.unpack", FT_UINT8, BASE_NONE, VALS(mndp_unpack_vals),
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_ipv6address,
+		{ "IPv6-Address", "mndp.ipv6address", FT_IPv6, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+	};
+	static gint *ett[] = {
+		&ett_mndp,
+		&ett_mndp_tlv_header,
+	};
+
+	proto_mndp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mndp");
+	proto_register_field_array(proto_mndp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mndp(void)
+{
+	dissector_handle_t mndp_handle;
+
+
+	mndp_handle = new_create_dissector_handle(dissect_mndp_static, proto_mndp);
+	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
+	/* heur_dissector_add("udp", dissect_mndp_heur, proto_mndp); */
+}
+
