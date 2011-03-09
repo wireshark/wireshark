@@ -63,7 +63,7 @@ static int hf_mndp_version = -1;
 static int hf_mndp_identity = -1;
 static int hf_mndp_uptime = -1;
 static int hf_mndp_platform = -1;
-static int hf_mndp_interface = -1;
+static int hf_mndp_board = -1;
 static int hf_mndp_unpack = -1;
 static int hf_mndp_ipv6address = -1;
 
@@ -123,27 +123,13 @@ static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	guint32 offset, guint32 length, const ext_value_string *value_array);
 
 static const ext_value_string mndp_body_tlv_vals[] = {
-/*
- *	(11) interface (interface name)
- *	address (IPv4 address)
- *	(15) address (IPv6 address)
- *	(1)  mac-address (MAC address)
- *	(8)  identity (text)
- *	(12) platform (text)
- *	(7)  version (text)
- *	(14) unpack (none|simple|uncompressed-headers|uncompressed-all)
- *	age (time)
- *	(10) uptime (time)
- *	(5)  software-id (text)
- */
-
 	{ 1, "MAC-Address", &hf_mndp_mac, NULL, NULL },
-	{ 5, "Software-ID", &hf_mndp_softwareid, NULL, NULL },
+	{ 5, "Identity", &hf_mndp_identity, NULL, NULL },
 	{ 7, "Version", &hf_mndp_version, NULL, NULL },
-	{ 8, "Identity", &hf_mndp_identity, NULL, NULL },
+	{ 8, "Platform", &hf_mndp_platform, NULL, NULL },
 	{ 10, "Uptime", &hf_mndp_uptime, NULL, (void *)TRUE },
-	{ 11, "Interface", &hf_mndp_interface, NULL, NULL },
-	{ 12, "Platform", &hf_mndp_platform, NULL, NULL },
+	{ 11, "Software-ID", &hf_mndp_softwareid, NULL, NULL },
+	{ 12, "Board", &hf_mndp_board, NULL, NULL },
 	{ 14, "Unpack", &hf_mndp_unpack, NULL, NULL },
 	{ 15, "IPv6-Address", &hf_mndp_ipv6address, NULL, NULL },
 
@@ -152,8 +138,7 @@ static const ext_value_string mndp_body_tlv_vals[] = {
 
 static const value_string mndp_unpack_vals[] = {
  	/* none|simple|uncompressed-headers|uncompressed-all */
-	{ 0,	"None?" },
-	{ 1,	"Simple?" },
+	{ 1,	"None" },
 
 	{ 0,	NULL }
 };
@@ -349,8 +334,8 @@ proto_register_mndp(void)
 		{ "Platform", "mndp.platform", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_mndp_interface,
-		{ "Interface", "mndp.interface", FT_STRING, BASE_NONE, NULL,
+		{ &hf_mndp_board,
+		{ "Board", "mndp.board", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_mndp_unpack,
