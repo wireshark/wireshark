@@ -28,7 +28,7 @@
   * the content of AVP:s of the OctetString type(or similar).
   */
 
-  #ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
@@ -100,7 +100,6 @@ static int hf_diameter_3gpp_idr_flags_bit1 = -1;
 static int hf_diameter_3gpp_idr_flags_bit2 = -1;
 static int hf_diameter_3gpp_idr_flags_bit3 = -1;
 static int hf_diameter_3gpp_idr_flags_bit4 = -1;
-
 static gint diameter_3gpp_msisdn_ett				= -1;
 static gint diameter_3gpp_tmgi_ett					= -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
@@ -188,6 +187,8 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 	return offset;
 
 }
+
+/* AVP Code: 903 MBMS-Service-Area */
 
 /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 static int
@@ -483,8 +484,10 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 900 TMGI */
 	dissector_add_uint("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
-	/* AVP Code: 904 MBMS-Session-Duration */
-	/* AVP Code: 911 MBMS-Time-To-Data-Transfer */
+	/* AVP Code: 904 MBMS-Session-Duration  Registered by packet-gtp.c */
+	/* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
+
+	/* AVP Code: 911 MBMS-Time-To-Data-Transfer  Registered by packet-gtp.c */
 	/* Registered by packet-gtp.c */
 
 	/* AVP Code: 913 MBMS-Required-QoS */

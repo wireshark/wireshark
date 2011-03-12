@@ -5600,22 +5600,14 @@ static int decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pin
  * UMTS:        3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.60
  * MBMS Service Area
  */
-static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
-{
+static int
+dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
-    guint16 length;
-    proto_tree *ext_tree;
-    proto_item *te, *item;
-    guint8 no_of_mbms_sa_codes;
+	int offset = 0;
+	int length = tvb_length(tvb);
+	guint8 no_of_mbms_sa_codes;
     int i;
 
-    length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SA, &gtp_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_sa);
-
-    offset++;
-    item = proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset = offset + 2;
     /* The MBMS Service Area is defined in 3GPP TS 23.246 [26].
      * The MBMS Service Area information element indicates the area over
      * which the Multimedia Broadcast/Multicast Service is to be distributed.
@@ -5629,20 +5621,37 @@ static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U
      * 256 binary value is '11111111'
      */
     no_of_mbms_sa_codes = tvb_get_guint8(tvb, offset) + 1;
-    if (length != ((no_of_mbms_sa_codes << 1) + 1)) {
-        expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_WARN,
-                               "Wrong length: %u. The length of an MBMS service area code is 2 octets", length);
-    }
-    proto_tree_add_uint(ext_tree, hf_gtp_no_of_mbms_sa_codes, tvb, offset, 1, no_of_mbms_sa_codes);
+    proto_tree_add_uint(tree, hf_gtp_no_of_mbms_sa_codes, tvb, offset, 1, no_of_mbms_sa_codes);
     offset++;
     /* A consecutive list of N MBMS service area codes
      * The MBMS Service Area Identity and its semantics are defined in 3GPP TS 23.003
      * The length of an MBMS service area code is 2 octets.
      */
     for (i = 0; i < no_of_mbms_sa_codes; i++) {
-        proto_tree_add_item(ext_tree, hf_gtp_mbms_sa_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtp_mbms_sa_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset = offset + 2;
     }
+
+	return offset;
+}
+
+static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+	tvbuff_t *next_tvb;
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SA, &gtp_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_sa);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+	next_tvb = tvb_new_subset(tvb, offset, length-3, length-3);
+	dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo,ext_tree);
 
     return 3 + length;
 
@@ -7471,6 +7480,8 @@ void proto_reg_handoff_gtp(void)
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
+		/* AVP Code: 903 MBMS-Service-Area */
+		dissector_add_uint("diameter.3gpp", 903, new_create_dissector_handle(dissect_gtp_3gpp_mbms_service_area, proto_gtp));
         /* AVP Code: 904 MBMS-Session-Duration */
         dissector_add_uint("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
         /* AVP Code: 911 MBMS-Time-To-Data-Transfer */
