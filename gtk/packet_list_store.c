@@ -629,9 +629,9 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
-	newrecord->columnized = FALSE;
-	newrecord->colorized = FALSE;
-	newrecord->fdata = fdata;
+	newrecord->columnized   = FALSE;
+	newrecord->colorized    = FALSE;
+	newrecord->fdata        = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
 	if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
@@ -643,14 +643,11 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 
 	PACKET_LIST_RECORD_APPEND(packet_list->physical_rows, newrecord);
 
-	if (packet_list->columnized) {
-		/* XXX, dissect? */
-		packet_list->columnized = FALSE;
-	}
+	packet_list->columnized = FALSE;   /* XXX, dissect? */
 
-	/* 
+	/*
 	 * Issue a row_inserted signal if the model is connected
-	 * and the row is vissible.
+	 * and the row is visible.
 	 */
 	if((model)&&(newrecord->visible_pos!=-1))
 		packet_list_row_inserted(packet_list, newrecord->visible_pos);
@@ -776,7 +773,15 @@ packet_list_column_contains_values(PacketList *packet_list, gint sort_col_id)
 		return FALSE;
 }
 
-static void
+/* packet_list_dissect_and_cache_all()
+ *  returns:
+ *   TRUE   if columnization completed;
+ *            packet_list->columnized set to TRUE;
+ *   FALSE: columnization did not complete (i.e., was stopped by the user);
+ *            packet_list->columnized unchanged (i.e., FALSE).
+ */
+
+static gboolean
 packet_list_dissect_and_cache_all(PacketList *packet_list)
 {
 	PacketListRecord *record;
@@ -809,47 +814,70 @@ packet_list_dissect_and_cache_all(PacketList *packet_list)
 	main_window_update();
 
 	for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
-	  record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
-	  packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
+		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
+		packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
 
-	  /* Create the progress bar if necessary.
-		 We check on every iteration of the loop, so that it takes no
-		 longer than the standard time to create it (otherwise, for a
-		 large file, we might take considerably longer than that standard
-		 time in order to get to the next progress bar step). */
-	  if (progbar == NULL)
-		 progbar = delayed_create_progress_dlg("Construct", "Columns",
-						TRUE, &progbar_stop_flag,
-						&progbar_start_time, progbar_val);
+		/* Create the progress bar if necessary.
+		   We check on every iteration of the loop, so that it takes no
+		   longer than the standard time to create it (otherwise, for a
+		   large file, we might take considerably longer than that standard
+		   time in order to get to the next progress bar step). */
+		if (progbar == NULL)
+			/* Note: The following may call gtk_main_iteration() which will */
+			/*       allow certain "interupts" to happen during this code.  */
+			/*       (Note that the progress_dlg window is set to "modal"   */
+			/*        so that clicking on other windows is disabled).       */
+			progbar = delayed_create_progress_dlg("Construct", "Columns",
+							      TRUE, &progbar_stop_flag,
+							      &progbar_start_time, progbar_val);
 
-	  if (progbar_loop_var >= progbar_nextstep) {
-		/* let's not divide by zero. We should never be started
-		 * with count == 0, so let's assert that */
-		g_assert(progbar_loop_max > 0);
+		if (progbar_loop_var >= progbar_nextstep) {
+			/* let's not divide by zero. We should never be started
+			 * with count == 0, so let's assert that */
+			g_assert(progbar_loop_max > 0);
 
-		progbar_val = (gfloat) progbar_loop_var / progbar_loop_max;
+			progbar_val = (gfloat) progbar_loop_var / progbar_loop_max;
 
-		if (progbar != NULL) {
-		  g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-					 "%u of %u frames", progbar_loop_var+1, progbar_loop_max);
-		  update_progress_dlg(progbar, progbar_val, progbar_status_str);
+			if (progbar != NULL) {
+				g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+					   "%u of %u frames", progbar_loop_var+1, progbar_loop_max);
+				/* Note: See comment above re use of gtk_main_iteration() */
+				update_progress_dlg(progbar, progbar_val, progbar_status_str);
+			}
+
+			progbar_nextstep += progbar_quantum;
 		}
 
-		progbar_nextstep += progbar_quantum;
-	  }
-
-	  if (progbar_stop_flag) {
-		/* Well, the user decided to abort the resizing... */
-		break;
-	  }
+		if (progbar_stop_flag) {
+			/* Well, the user decided to abort ... */
+			break;
+		}
 	}
 
-	/* We're done resizing the columns; destroy the progress bar if it
-	   was created. */
+	/* We're done; destroy the progress bar if it was created. */
 	if (progbar != NULL)
-	  destroy_progress_dlg(progbar);
+		destroy_progress_dlg(progbar);
+
+	if (progbar_stop_flag) {
+		return FALSE; /* user aborted before columnization completed */
+	}
 
 	packet_list->columnized = TRUE;
+	return TRUE;
+}
+
+/* packet_list_do_packet_list_dissect_and_cache_all()
+ *  returns:
+ *    TRUE:  if columnization not needed or columnization completed;
+ *    FALSE: columnization did not complete (i.e., stopped by the user)
+ */
+gboolean
+packet_list_do_packet_list_dissect_and_cache_all(PacketList *packet_list, gint sort_col_id)
+{
+	if (!packet_list_column_contains_values(packet_list, sort_col_id)) {
+		return packet_list_dissect_and_cache_all(packet_list);
+	}
+	return TRUE;
 }
 
 static void
@@ -873,9 +901,6 @@ packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
 
 	if(PACKET_LIST_RECORD_COUNT(packet_list->physical_rows) == 0)
 		return;
-
-	if (!packet_list_column_contains_values(packet_list, sort_col_id))
-		packet_list_dissect_and_cache_all(packet_list);
 
 	packet_list_resort(packet_list);
 
@@ -933,7 +958,7 @@ packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *
 		/* Attempt to convert to numbers */
 		double num_a = atof(a->fdata->col_text[sort_id]);
 		double num_b = atof(b->fdata->col_text[sort_id]);
-		
+
 		if (num_a < num_b)
 			return -1;
 		else if (num_a > num_b)
@@ -958,17 +983,12 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 	g_assert(b->fdata->col_text[sort_id]);
 
 	if(a->fdata->col_text[sort_id] == b->fdata->col_text[sort_id])
-		return 0; /* not always NULL, but anyway no need to call strcmp() */
+		return 0; /* no need to call strcmp() */
 
-	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id])) {
-		if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM) {
-			return packet_list_compare_custom (sort_id, a, b);
-		}
-		return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
-	} else
-		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
-
-	g_assert_not_reached();
+	if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM) {
+		return packet_list_compare_custom (sort_id, a, b);
+	}
+	return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
 }
 
 static gint
@@ -1091,7 +1111,13 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	gboolean create_proto_tree;
 	union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
 	guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
-    
+
+	/* XXX: Does it work to check if the record is already columnized/colorized ?
+	 *      i.e.: test record->columnized and record->colorized and just return
+	 *            if they're both TRUE.
+	 *      Note: Part of the patch submitted with Bug #4273 had code to do this but it
+	 *            was commented out in the patch and was not included in SVN #33011.
+	 */
 	fdata = record->fdata;
 
 	if (dissect_columns)
@@ -1121,7 +1147,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 
 	if (dissect_columns) {
 		/* "Stringify" non frame_data vals */
-		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_colums */);
+		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
 
 		for(col = 0; col < cinfo->num_cols; ++col) {
 			/* Skip columns based om frame_data because we already store those. */
@@ -1264,7 +1290,7 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 		guint widest_column_len = 0;
 
 		if (!packet_list->columnized)
-			packet_list_dissect_and_cache_all(packet_list);
+			packet_list_dissect_and_cache_all(packet_list); /* XXX: need to handle case of "incomplete" ? */
 
 		for(vis_idx = 0; vis_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows); ++vis_idx) {
 			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);

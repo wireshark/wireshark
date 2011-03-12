@@ -356,7 +356,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_tooltips_set_tip (tooltips, label,
 			      "Select which packet information to present in the column.", NULL);
- 
+
 	format_cmb = gtk_combo_box_new_text();
 	for (i = 0; i < NUM_COL_FMTS; i++) {
 	  gtk_combo_box_append_text(GTK_COMBO_BOX(format_cmb), col_format_desc(i));
@@ -412,7 +412,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(col_title_change_ok), win);
 
 	cur_fmt = get_column_format (col_id);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(format_cmb), cur_fmt);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(format_cmb), cur_fmt);
 	if (cur_fmt == COL_CUSTOM) {
 		gtk_entry_set_text(GTK_ENTRY(field_te), get_column_custom_field(col_id));
 		g_snprintf(custom_occurrence_str, sizeof(custom_occurrence_str), "%d", get_column_custom_occurrence(col_id));
@@ -431,19 +431,37 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_widget_show_all(win);
 }
 
+/* Process sort request;
+ *   order:          GTK_SORT_ASCENDING or GTK_SORT_DESCENDING
+ *   sort_indicator: TRUE: set sort_indicator on column; FALSE: don't set ....
+ *
+ * If necessary, columns are first "columnized" for all rows in the packet-list; If this
+ *  is not completed (i.e., stopped), then the sort request is aborted.
+ */
 static void
-new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order)
+new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order, gboolean sort_indicator)
 {
-	GtkTreeViewColumn *prev_col = (GtkTreeViewColumn *)
+	GtkTreeViewColumn *prev_col;
+
+	if (col == NULL) {
+		col = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
+	}
+	g_assert(col);
+
+	if (!packet_list_do_packet_list_dissect_and_cache_all(packetlist, col_id)) {
+		return;  /* "stopped": do not try to sort */
+	}
+
+	prev_col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY);
 
 	if (prev_col) {
 		gtk_tree_view_column_set_sort_indicator(prev_col, FALSE);
 	}
-	gtk_tree_view_column_set_sort_indicator(col, TRUE);
+	gtk_tree_view_column_set_sort_indicator(col, sort_indicator);
 	gtk_tree_view_column_set_sort_order (col, order);
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY, col);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order); /* triggers sort callback */
 
 	scroll_to_current ();
 }
@@ -462,13 +480,11 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 		return;
 
 	if (!gtk_tree_view_column_get_sort_indicator(col)) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 	} else if (order == GTK_SORT_ASCENDING) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 	} else {
-		gtk_tree_view_column_set_sort_indicator(col, FALSE);
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
-		scroll_to_current ();
+		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 	}
 }
 
@@ -610,15 +626,13 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 
 	switch (action) {
 	case COLUMN_SELECTED_SORT_ASCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_DESCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_NONE:
-		gtk_tree_view_column_set_sort_indicator(col, FALSE);
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
-		scroll_to_current ();
+		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 		break;
 	case COLUMN_SELECTED_TOGGLE_RESOLVED:
 		new_packet_list_toggle_resolved (w, col_id);
@@ -819,7 +833,7 @@ create_view_and_model(void)
 		}
 
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
-		
+
 		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
 		 * a GtkTreeView column header. See GTK bug #141937.
 		 */
@@ -864,9 +878,7 @@ new_packet_list_clear(void)
 	/* XXX is this correct in all cases?
 	 * Reset the sort column, use packetlist as model in case the list is frozen.
 	 */
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist),
-			0, GTK_SORT_ASCENDING);
-
+	new_packet_list_sort_column(0, NULL, GTK_SORT_ASCENDING, FALSE);
 }
 
 void
@@ -1023,8 +1035,8 @@ scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkT
 			0.5,	/* row_align determines where the row is placed, 0.5 means center */
 			0); 	/* The horizontal alignment of the column */
 
-        /* "cursor-changed" signal triggers new_packet_list_select_cb() */
-        /*  which will update the middle and bottom panes.              */
+	/* "cursor-changed" signal triggers new_packet_list_select_cb() */
+	/*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
@@ -1170,8 +1182,8 @@ new_packet_list_set_selected_row(gint row)
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_select_iter (selection, &iter);
 
-        /* "cursor-changed" signal triggers new_packet_list_select_cb() */
-        /*  which will update the middle and bottom panes.              */
+	/* "cursor-changed" signal triggers new_packet_list_select_cb() */
+	/*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
@@ -1224,12 +1236,12 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	cf_select_packet(&cfile, row);
 	/* If searching the tree, set the focus there; otherwise, focus on the packet list */
-	if (cfile.search_in_progress && (cfile.decode_data || cfile.decode_data)) { 
+	if (cfile.search_in_progress && (cfile.decode_data || cfile.decode_data)) {
 		gtk_widget_grab_focus(tree_view_gbl);
 	} else {
 		gtk_widget_grab_focus(packetlist->view);
 	}
-	
+
 	/* Add newly selected frame to packet history (breadcrumbs) */
 	packet_history_add(row);
 }
@@ -1485,14 +1497,14 @@ mark_all_displayed_frames(gboolean set)
 void
 new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-        mark_all_displayed_frames(TRUE);
-        mark_frames_ready();
+	mark_all_displayed_frames(TRUE);
+	mark_frames_ready();
 }
 
 void
 new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-        mark_all_displayed_frames(FALSE);
+	mark_all_displayed_frames(FALSE);
 	mark_frames_ready();
 }
 
