@@ -189,7 +189,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 		 && !value_array[type_index].specialfunction
 		 && value_array[type_index].evs != NULL
 	) {
-		encoding_info = (guint)value_array[type_index].evs;
+		encoding_info = value_array[type_index].evs ? TRUE : FALSE;
 	} else {
 		encoding_info = FALSE;
 	}

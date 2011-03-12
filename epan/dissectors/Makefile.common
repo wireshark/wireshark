@@ -124,6 +124,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-idmp.c \
 	packet-logotypecertextn.c \
 	packet-mms.c \
+	packet-mndp.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
 	packet-ns_cert_exts.c \
