@@ -5604,7 +5604,6 @@ static int
 dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	int offset = 0;
-	int length = tvb_length(tvb);
 	guint8 no_of_mbms_sa_codes;
     int i;
 
