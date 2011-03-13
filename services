@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-03-02)
+(last updated 2011-03-10)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -11196,7 +11196,10 @@ ml-svnet        4171/tcp   Maxlogic Supervisor Communication
 pcoip           4172/tcp   PC over IP
 pcoip           4172/udp   PC over IP
 #                          Ken Unger <kunger&teradici.com> 23 December 2009
-#               4173-4174  Unassigned
+#               4173       Unassigned
+smcluster       4174/tcp   StorMagic Cluster Services
+#                          Chris Farey <chris_farey&stormagic.com> 09 March 2011
+#               4174/udp   Reserved
 bccp            4175/tcp   Brocade Cluster Communication Protocol
 #                          Norival Figueira <nfigueir&brocade.com> 07 April 2010
 #               4175/udp   Reserved
@@ -12480,7 +12483,13 @@ perfd		5227/udp   HP System Performance Metric Service
 hpvroom         5228/tcp   HP Virtual Room Service
 #                          Scott Levin <scott.levin&hp.com> 19 March 2009
 #               5228/udp   Reserved
-#               5229-5233  Unassigned
+#               5229-5231  Unassigned
+csedaemon       5232/tcp   Cruse Scanning System Service
+#                          Christof J. Reetz <cjr&netplan.de> 09 March 2011
+#               5232/udp   Reserved
+enfs            5233/tcp   Etinnae Network File Service
+#                          Chris Peel <chrispeel.gsi&googlemail.com> 09 March 2011
+#               5233/udp   Reserved
 eenet           5234/tcp   EEnet communications
 eenet           5234/udp   EEnet communications
 #                          Helmut Giritzer <helmut.giritzer&epluse.at> November 2005
@@ -13150,7 +13159,7 @@ ppsuitemsg	5863/udp   PlanetPress Suite Messeng
 rfb             5900/tcp   Remote Framebuffer
 rfb             5900/udp   Remote Framebuffer
 #                          Tristan Richardson <iana&realvnc.com> March 2006
-#                          [RFC-levine-rfb-03.txt]
+#                          [RFC6143]
 #               5901-5909  Unassigned
 cm              5910/tcp   Context Management
 cm              5910/udp   Context Management
@@ -14018,7 +14027,11 @@ citrixupp       7228/tcp    Citrix Universal Printing Port
 citrixuppg      7229/tcp    Citrix UPP Gateway
 #                           Gary Barton <gary.barton&citrix.com> 24 February 2011
 #               7229/udp    Reserved
-#               7230-7261   Unassigned
+#               7230-7236   Unassigned
+pads            7237/tcp    PADS (Public Area Display System) Server
+#                           Willie Jan Bons <WillieJan.Bons&nds.eu> 10 March 2011
+#               7237/udp    Reserved
+#               7238-7261   Unassigned
 cnap            7262/tcp    Calypso Network Access Protocol
 cnap            7262/udp    Calypso Network Access Protocol
 #                           Scott Halberg <eng&calypsosystems.com> 02 June 2009
@@ -14170,7 +14183,11 @@ nls-tl		7549/udp    Network Layer Signaling Transport Layer
 sncp            7560/tcp    Sniffer Command Protocol
 sncp            7560/udp    Sniffer Command Protocol
 #                           Dominick Cafarelli <dominick.cafarelli&networkgeneral.com> August 2005
-#               7561-7565   Unassigned
+#               7561-7562   Unassigned
+cfw             7563/tcp    Control Framework
+#               7563/udp    Reserved
+#                           [RFC-ietf-mediactrl-sip-control-framework-12.txt]
+#               7564-7565   Unassigned
 vsi-omega       7566/tcp    VSI Omega	
 vsi-omega       7566/udp    VSI Omega
 #                           Curtis Smith <curtis.smith&vsin.com>
@@ -15203,7 +15220,11 @@ sntlkeyssrvr    9450/udp    Sentinel Keys Server
 ismserver	9500/tcp    ismserver
 ismserver   	9500/udp    ismserver
 #		            Ian Gordon <iang&micromuse.co.uk>
-#               9501-9534   Unassigned
+#               9501-9521   Unassigned
+#               9522/tcp    Reserved
+sma-spw         9522/udp    SMA Speedwire
+#                           SMA Solar Techology AG <thomas.weber&sma.de> 08 March 2011
+#               9523-9534   Unassigned
 mngsuite        9535/tcp    Management Suite Remote Control
 mngsuite        9535/udp    Management Suite Remote Control
 #                           Previous contact: Alan Butt <alan.butt&landesk.com>
@@ -17152,15 +17173,18 @@ References
             A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
             RFC XXXX, Month Year. 
 
-[RFC-levine-rfb-03.txt]
-            T. Richardson, J. Levine, "The Remote Framebuffer Protocol", RFC XXXX, 
-            Month Year.
+[RFC6143]  T. Richardson, J. Levine, "The Remote Framebuffer Protocol", RFC 6143, 
+           March 2011.
 
 [RFC-chroboczek-babel-routing-protocol-05.txt]
             J. Chroboczek, "The Babel Routing Protocol", RFC XXXX, Month Year. 
 
 [RFC-ietf-xmpp-3920bis-22.txt]
             P. Saint-Andre, "Extensible Messaging and Presence Protocol (XMPP): Core", 
+            RFC XXXX, Month Year.
+
+[RFC-ietf-mediactrl-sip-control-framework-12.txt]
+            C. Boulton, T. Melanchuk, S. McGlashan, "Media Control Channel Framework", 
             RFC XXXX, Month Year.
 
 []
