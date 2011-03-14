@@ -1030,6 +1030,8 @@ timestamp_set_type
 timestamp_set_seconds_type
 trans2_cmd_vals_ext             DATA
 tree_is_expanded                DATA
+tvb_composite_finalize
+tvb_composite_append
 tvb_bcd_dig_to_ep_str
 tvb_bytes_exist
 tvb_bytes_to_str
@@ -1087,6 +1089,7 @@ tvb_ip6_to_str
 tvb_ip_to_str
 tvb_length
 tvb_length_remaining
+tvb_new_composite
 tvb_memcpy
 tvb_memdup
 tvb_memeql
