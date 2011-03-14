@@ -527,10 +527,14 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_HDR SearchRequest/_untag/filter
 	Filter_string=NULL;
+	Filter_elements = 0;
+	Filter_length = 0;
 
 #.FN_FTR SearchRequest/_untag/filter
 	Filter_string=NULL;
 	and_filter_string=NULL;
+	Filter_elements = 0;
+	Filter_length = 0;
 
 #.FN_FTR Filter/equalityMatch
 	Filter_string=ep_strdup_printf("(%s=%s)",
