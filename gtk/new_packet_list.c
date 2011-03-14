@@ -263,19 +263,37 @@ col_title_edit_dlg (GtkTreeViewColumn *col)
 	gtk_widget_show_all(win);
 }
 
+/* Process sort request;
+ *   order:          GTK_SORT_ASCENDING or GTK_SORT_DESCENDING
+ *   sort_indicator: TRUE: set sort_indicator on column; FALSE: don't set ....
+ *
+ * If necessary, columns are first "columnized" for all rows in the packet-list; If this
+ *  is not completed (i.e., stopped), then the sort request is aborted.
+ */
 static void
-new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order)
+new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order, gboolean sort_indicator)
 {
-	GtkTreeViewColumn *prev_col = (GtkTreeViewColumn *) 
+	GtkTreeViewColumn *prev_col;
+
+	if (col == NULL) {
+		col = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
+	}
+	g_assert(col);
+
+	if (!packet_list_do_packet_list_dissect_and_cache_all(packetlist, col_id)) {
+		return;  /* "stopped": do not try to sort */
+	}
+
+	prev_col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY);
 
 	if (prev_col) {
 		gtk_tree_view_column_set_sort_indicator(prev_col, FALSE);
 	}
-	gtk_tree_view_column_set_sort_indicator(col, TRUE);
+	gtk_tree_view_column_set_sort_indicator(col, sort_indicator);
 	gtk_tree_view_column_set_sort_order (col, order);
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY, col);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order); /* triggers sort callback */
 
 	scroll_to_current ();
 }
@@ -294,13 +312,11 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 		return;
 
 	if (!gtk_tree_view_column_get_sort_indicator(col)) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 	} else if (order == GTK_SORT_ASCENDING) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 	} else {
-		gtk_tree_view_column_set_sort_indicator(col, FALSE);
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
-		scroll_to_current ();
+		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 	}
 }
 
@@ -427,15 +443,13 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 
 	switch (action) {
 	case COLUMN_SELECTED_SORT_ASCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_DESCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_NONE:
-		gtk_tree_view_column_set_sort_indicator(col, FALSE);
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
-		scroll_to_current ();
+		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 		break;
 	case COLUMN_SELECTED_ALIGN_LEFT:
 		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_LEFT);
@@ -672,9 +686,7 @@ new_packet_list_clear(void)
 	/* XXX is this correct in all cases?
 	 * Reset the sort column, use packetlist as model in case the list is frozen.
 	 */
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist),
-			0, GTK_SORT_ASCENDING);
-
+	new_packet_list_sort_column(0, NULL, GTK_SORT_ASCENDING, FALSE);
 }
 
 void

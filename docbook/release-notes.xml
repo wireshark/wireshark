@@ -72,6 +72,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark crashes when cancelling a large sort operation.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5189">Bug
+          5189</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
