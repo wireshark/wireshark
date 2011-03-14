@@ -290,7 +290,7 @@ static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
   proto_tree *udp_tree = NULL;
-  proto_item *ti, *hidden_item;
+  proto_item *ti, *hidden_item, *port_item;
   guint      len;
   guint      reported_len;
   vec_t      cksum_vec[4];
@@ -333,10 +333,23 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
-    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, tvb, offset, 2, udph->uh_sport,
+    port_item = proto_tree_add_uint_format(udp_tree, hf_udp_srcport, tvb, offset, 2, udph->uh_sport,
 	"Source port: %s (%u)", get_udp_port(udph->uh_sport), udph->uh_sport);
-    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, udph->uh_dport,
+    /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
+     * further assumes that 3 attempts are made per hop */
+    if(udph->uh_sport > 32768 + 666 && udph->uh_sport <= 32768 + 666 + 30)
+	    expert_add_info_format(pinfo, port_item, PI_SEQUENCE, PI_CHAT, "Possible traceroute: hop #%u, attempt #%u",
+				   ((udph->uh_sport - 32768 - 666 - 1) / 3) + 1,
+				   ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1
+				   );
+
+    port_item = proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, udph->uh_dport,
 	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
+    if(udph->uh_dport > 32768 + 666 && udph->uh_dport <= 32768 + 666 + 30)
+	    expert_add_info_format(pinfo, port_item, PI_SEQUENCE, PI_CHAT, "Possible traceroute: hop #%u, attempt #%u",
+				   ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
+				   ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1
+				   );
 
     hidden_item = proto_tree_add_uint(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
