@@ -73,6 +73,10 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Cygwin make fails after updating to bash v 4.1.9.2
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes when cancelling a large sort operation.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5189">Bug
           5189</ulink>)
