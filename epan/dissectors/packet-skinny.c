@@ -46,9 +46,11 @@
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 #include "packet-skinny.h"
 
 #define TCP_PORT_SKINNY 2000
+#define SSL_PORT_SKINNY 2443 /* IANA assigned to PowerClient Central Storage Facility */
 
 #define SKINNY_SOFTKEY0  0x01
 #define SKINNY_SOFTKEY1  0x02
@@ -4557,6 +4559,7 @@ proto_reg_handoff_skinny(void)
     media_type_dissector_table = find_dissector_table("media_type");
     skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
     dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+    ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
     skinny_prefs_initialized = TRUE;
   }
 }
