@@ -80,6 +80,7 @@ static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
 
 static module_t *bssgp_module;
+static dissector_table_t diameter_3gpp_avp_dissector_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_bssgp = -1;
@@ -143,7 +144,10 @@ static int hf_bssgp_b_pfc = -1;
 
 static int hf_bssgp_precedence = -1;
 static int hf_bssgp_serv_utran_cco = -1;
-static int hf_bssgp_mbs_session_id = -1;
+static int hf_bssgp_mbms_session_id = -1;
+static int hf_bssgp_mbms_cause = -1;
+static int hf_bssgp_mbms_num_ra_ids = -1;
+static int hf_bssgp_session_inf = -1;
 static int hf_bssgp_gb_if = -1;
 static int hf_bssgp_ps_ho = -1;
 static int hf_bssgp_src_to_trg_transp_cont = -1;
@@ -154,6 +158,8 @@ static int hf_bssgp_container_id = -1;
 static int hf_bssgp_global_tfi = -1;
 static int hf_bssgp_ul_tfi = -1;
 static int hf_bssgp_dl_tfi = -1;
+static int hf_bssgp_time_to_MBMS_data_tran = -1;
+static int hf_bssgp_mbms_session_rep_no = -1;
 static int hf_bssgp_ps_ho_cmd = -1;
 static int hf_bssgp_sipsi = -1;
 static int hf_bssgp_type = -1;
@@ -177,6 +183,7 @@ static gint ett_bssgp_pfcs_to_be_set_up_list_arp = -1;
 static gint ett_bssgp_pfcs_to_be_set_up_list_t10 = -1;
 static gint ett_bssgp_list_of_setup_pfcs = -1;
 static gint ett_bssgp_pfc_flow_control_parameters_pfc = -1;
+static gint ett_bssgp_ra_id = -1;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -319,14 +326,13 @@ static gint ett_bssgp_pfc_flow_control_parameters_pfc = -1;
 #define BSSGP_PDU_RESERVED_0X7E                0x7e
 #define BSSGP_PDU_RESERVED_0X7F                0x7f
 
-/*
-0x80 MBMS-SESSION-START-REQUEST
-0x81 MBMS-SESSION-START-RESPONSE
-0x82 MBMS-SESSION-STOP-REQUEST
-0x83 MBMS-SESSION-STOP-RESPONSE
-0x84 MBMS-SESSION-UPDATE-REQUEST
-0x85 MBMS-SESSION-UPDATE-RESPONSE
-*/
+#define BSSGP_PDU_MBMS_SESSION_START_REQ       0x80
+#define BSSGP_PDU_MBMS_SESSION_START_RESP      0x81
+#define BSSGP_PDU_MBMS_SESSION_STOP_REQ        0x82
+#define BSSGP_PDU_MBMS_SESSION_STOP_RESP       0x83
+#define BSSGP_PDU_MBMS_SESSION_UPDATE_REQ      0x84
+#define BSSGP_PDU_MBMS_SESSION_UPDATE_RESP     0x85
+
 /*
 0x91 PS-HANDOVER-COMPLETE
 0x92 PS-HANDOVER-CANCEL
@@ -2248,18 +2254,165 @@ de_bssgp_mbms_session_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_offset = offset;
 
 	/* MBMS Session Identity */
-	proto_tree_add_item(tree, hf_bssgp_mbs_session_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_mbms_session_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset-offset);
 }
 /*
  * 11.3.72	MBMS Session Duration
+ */
+static guint16
+de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *new_tvb;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* AVP Code: 904 MBMS-Session-Duration Registered by packet-gtp.c */
+	new_tvb =tvb_new_subset(tvb, offset, len, len);
+	dissector_try_uint(diameter_3gpp_avp_dissector_table, 904, new_tvb, gpinfo, tree);
+
+	return(curr_offset-offset);
+}
+/*
  * 11.3.73	MBMS Service Area Identity List
+ * octet 3 - 514
+ * MBMS-Service-Area AVP encoded as in 3GPP TS 29.061,
+ * excluding AVP Header fields (as defined in IETF RFC 3588 [33]).
+ * 
+ */
+static guint16
+de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *new_tvb;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
+	new_tvb =tvb_new_subset(tvb, offset, len, len);
+	dissector_try_uint(diameter_3gpp_avp_dissector_table, 903, new_tvb, gpinfo, tree);
+
+	return(curr_offset-offset);
+}
+/*
  * 11.3.74	MBMS Response
+ */
+
+static const value_string bssgp_mbms_cause_vals[] = {
+  { 0, "Acknowledge" },
+  { 1, "Acknowledge, initiate data transfer" },
+  { 2, "Acknowledge, data transfer initiated from other SGSN" },
+  { 3, "Reject - Congestion" },
+  { 4, "Reject - None of the listed MBMS Service Areas are supported by BSS" },
+  { 5, "Reject - MBMS Service Context is released due to interrupted data flow" },
+
+  { 6, "Unspecified in this version of the protocol" },
+  { 7, "Unspecified in this version of the protocol" },
+  { 8, "Unspecified in this version of the protocol" },
+  { 9, "Unspecified in this version of the protocol" },
+  { 10, "Unspecified in this version of the protocol" },
+  { 11, "Unspecified in this version of the protocol" },
+  { 12, "Unspecified in this version of the protocol" },
+  { 13, "Unspecified in this version of the protocol" },
+  { 14, "Unspecified in this version of the protocol" },
+  { 15, "Unspecified in this version of the protocol" },
+  { 0, NULL },
+};
+static value_string_ext bssgp_mbms_cause_vals_ext = VALUE_STRING_EXT_INIT(bssgp_mbms_cause_vals);
+
+static guint16
+de_bssgp_mbms_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* MBMS Session Identity */
+	proto_tree_add_item(tree, hf_bssgp_mbms_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
+/*
  * 11.3.75	MBMS Routing Area List
+ */
+/* Number of Routing Areas (octet 3) */
+static const value_string bssgp_mbms_num_ra_ids_vals[] = {
+  { 0, "Notification shall not be sent to any Routing Areas in the BSS" },
+  { 1, "'1' Routing Area Identities" },
+  { 2, "'1' Routing Area Identities" },
+  { 3, "'1' Routing Area Identities" },
+  { 4, "'1' Routing Area Identities" },
+  { 5, "'1' Routing Area Identities" },
+  { 6, "'1' Routing Area Identities" },
+  { 7, "'1' Routing Area Identities" },
+  { 8, "'1' Routing Area Identities" },
+  { 9, "'1' Routing Area Identities" },
+  { 10, "'1' Routing Area Identities" },
+  { 11, "'1' Routing Area Identities" },
+  { 12, "'1' Routing Area Identities" },
+  { 13, "'1' Routing Area Identities" },
+  { 14, "'1' Routing Area Identities" },
+  { 15, "Notification shall be sent in all Routing Areas in the BSS" },
+  { 0, NULL },
+};
+static value_string_ext bssgp_mbms_num_ra_ids_vals_ext = VALUE_STRING_EXT_INIT(bssgp_mbms_num_ra_ids_vals);
+
+static guint16
+de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_item *ti;
+	proto_tree *rai_tree;
+	guint32	curr_offset;
+	guint8 num_ra_ids;
+	int i;
+
+	curr_offset = offset;
+
+	/* octet 3 Number of Routing Area Identifications Spare Spare Spare Spare */
+	num_ra_ids = tvb_get_guint8(tvb,curr_offset) >> 4;
+	proto_tree_add_item(tree, hf_bssgp_mbms_num_ra_ids, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	/* octet 4 - 11 Routing Area Identification 1 (etc)*/
+	for (i = 0; i < num_ra_ids; i++) {
+		ti = proto_tree_add_text(tree, tvb, curr_offset, 8, "Routing Area Identification (%u)", i + 1);
+		rai_tree = proto_item_add_subtree(ti, ett_bssgp_ra_id);
+
+		/* The element is coded as the Routing Area Identification information element in
+		 * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator.
+		 */
+		de_gmm_rai(tvb, tree, curr_offset , 6, NULL, 0);
+
+		curr_offset+=8;
+	}
+
+	return(curr_offset-offset);
+}
+
+/*
  * 11.3.76	MBMS Session Information
  */
+
+static const true_false_string  tfs_bssgp_bc_mc = {
+    "Multicast Session",
+    "Broadcast Session"
+};
+static guint16
+de_bssgp_mbms_session_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* MBMS Session Identity */
+	proto_tree_add_item(tree, hf_bssgp_session_inf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
 /*
  * 11.3.77	TMGI (Temporary Mobile Group Identity)
  */
@@ -2580,8 +2733,36 @@ de_bssgp_global_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  */
 /*
  * 11.3.92	Time to MBMS Data Transfer
+ */
+static guint16
+de_bssgp_time_to_MBMS_data_tran(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint8 value;
+
+	curr_offset = offset;
+
+	/* 0 = 1s etc */
+	value = tvb_get_guint8(tvb,curr_offset) + 1;
+	proto_tree_add_uint(tree, hf_bssgp_time_to_MBMS_data_tran, tvb, curr_offset, 1, value);
+
+	return(len);
+}
+/*
  * 11.3.93	MBMS Session Repetition Number
  */
+static guint16
+de_bssgp_mbms_session_rep_no(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_bssgp_mbms_session_rep_no, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(len);
+}
 /*
  * 11.3.94	Inter RAT Handover Info
  */
@@ -3069,11 +3250,11 @@ const value_string bssgp_elem_strings[] = {
  /* 0x53, SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID */					/* 11.3.69	Global CN-Id */
 	{ 0x00, "RIM Routing Information" },							/* 11.3.70	RIM Routing Information */
 	{ 0x00, "MBMS Session Identity" },								/* 11.3.71 MBMS Session Identity */
- /* 11.3.72	MBMS Session Duration */
- /* 11.3.73	MBMS Service Area Identity List */
- /* 11.3.74	MBMS Response */
- /* 11.3.75	MBMS Routing Area List */
- /* 11.3.76	MBMS Session Information */
+	{ 0x00, "MBMS Session Duration" },								/* 11.3.72	MBMS Session Duration */
+	{ 0x00, "MBMS Service Area Identity List" },					/* 11.3.73	MBMS Service Area Identity List */
+	{ 0x00, "MBMS Response" },										/* 11.3.74	MBMS Response */
+	{ 0x00, "MBMS Routing Area List" },								/* 11.3.75	MBMS Routing Area List */
+	{ 0x00, "MBMS Session Information" },							/* 11.3.76	MBMS Session Information */
  /* ELEM_MAND_TELV(GSM_A_PDU_TYPE_GM, DE_TMGI,  */					/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
  /* 11.3.78	MBMS Stop Cause */
 	{ 0x00, "Source BSS to Target BSS Transparent Container" },		/* 11.3.79	Source BSS to Target BSS Transparent Container */
@@ -3089,8 +3270,8 @@ const value_string bssgp_elem_strings[] = {
  	{ 0x00, "Container ID" },										/* 11.3.89	Container ID */
  	{ 0x00, "Global TFI" },											/* 11.3.90	Global TFI */
  /* 11.3.91	IMEI */
- /* 11.3.92	Time to MBMS Data Transfer */
- /* 11.3.93	MBMS Session Repetition Number */
+ 	{ 0x00, "Time to MBMS Data Transfer" },							/* 11.3.92	Time to MBMS Data Transfer */
+ 	{ 0x00, "MBMS Session Repetition Number" },						/* 11.3.93	MBMS Session Repetition Number */
 	{ 0x00, "Inter RAT Handover Info" },							/* 11.3.94	Inter RAT Handover Info */
 	{ 0x00, "PS Handover Command" },								/* 11.3.95	PS Handover Command */
  	{ 0x00, "PS Handover Indications" },							/* 11.3.95a	PS Handover Indications */
@@ -3187,6 +3368,12 @@ typedef enum
 	DE_BSSGP_RIM_ROUTING_INF,									/* 11.3.70	RIM Routing Information */
 
 	DE_BSSGP_MBMS_SESSION_ID,									/* 11.3.71	MBMS Session Identity */
+	DE_BSSGP_MBMS_SESSION_DUR,									/* 11.3.72	MBMS Session Duration */
+	DE_BSSGP_MBMS_SAI_LIST,										/* 11.3.73	MBMS Service Area Identity List */
+	DE_BSSGP_MBMS_RESPONSE,										/* 11.3.74	MBMS Response */
+	DE_BSSGP_MBMS_RA_LIST,										/* 11.3.75	MBMS Routing Area List */
+	DE_BSSGP_MBMS_SESSION_INF,									/* 11.3.76	MBMS Session Information */
+
 	DE_BSSGP_TMGI,												/* 11.3.77	TMGI (Temporary Mobile Group Identity) GSM_A_PDU_TYPE_GM, DE_TMGI*/
 	DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
@@ -3199,6 +3386,8 @@ typedef enum
 	DE_BSSGP_PAGE_MODE,											/* 11.3.88	Page Mode */
  	DE_BSSGP_CONTAINER_ID,										/* 11.3.89	Container ID */
 	DE_BSSGP_GLOBAL_TFI,										/* 11.3.90	Global TFI */
+ 	DE_BSSGP_TIME_TO_MBMS_DATA_TRAN,							/* 11.3.92	Time to MBMS Data Transfer */
+ 	DE_BSSGP_MBMS_SESSION_REP_NO,								/* 11.3.93	MBMS Session Repetition Number */
 
 	DE_BSSGP_INTER_RAT_HO_INFO,									/* 11.3.94	Inter RAT Handover Info */
 	DE_BSSGP_PS_HO_CMD,											/* 11.3.95	PS Handover Command */
@@ -3286,6 +3475,11 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
     de_bssgp_pfc_flow_ctrl,										/* 11.3.68	PFC Flow Control parameters */
 	de_bssgp_rim_routing_inf,									/* 11.3.70	RIM Routing Information */
 	de_bssgp_mbms_session_id,									/* 11.3.71	MBMS Session Identity */
+	de_bssgp_mbms_session_dur,									/* 11.3.72	MBMS Session Duration */
+	de_bssgp_mbms_sai_list,										/* 11.3.73	MBMS Service Area Identity List */
+	de_bssgp_mbms_response,										/* 11.3.74	MBMS Response */
+	de_bssgp_mbms_ra_list,										/* 11.3.75	MBMS Routing Area List */
+	de_bssgp_mbms_session_inf,									/* 11.3.76	MBMS Session Information */
 	NULL,														/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
 	de_bssgp_source_BSS_to_target_BSS_transp_cont,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	de_bssgp_target_BSS_to_source_BSS_transp_cont,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
@@ -3298,6 +3492,8 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_page_mode,											/* 11.3.88	Page Mode */
 	de_bssgp_container_id,										/* 11.3.89	Container ID */
 	de_bssgp_global_tfi,										/* 11.3.90	Global TFI */
+ 	de_bssgp_time_to_MBMS_data_tran,							/* 11.3.92	Time to MBMS Data Transfer */
+ 	de_bssgp_mbms_session_rep_no,								/* 11.3.93	MBMS Session Repetition Number */
 	de_bssgp_inter_rat_ho_info,									/* 11.3.94	Inter RAT Handover Info */
 	de_bssgp_ps_ho_cmd,											/* 11.3.95	PS Handover Command */
  	de_bssgp_ps_ho_indications,									/* 11.3.95a	PS Handover Indications */
@@ -4535,7 +4731,7 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
 	ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
 	/* T10 GPRS Timer/11.3.44 C (note 2) TLV 3 */
-	ELEM_MAND_TELV(0x29, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER , " - T10");
+	ELEM_MAND_TELV(BSSGP_IEI_GPRS_TIMER, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER , " - T10");
 	/* Inter RAT Handover Info Inter RAT Handover Info/11.3.94 O (note 3) TLV 3-? */
 	ELEM_OPT_TELV(0x73, BSSGP_PDU_TYPE, DE_BSSGP_INTER_RAT_HO_INFO, NULL);
 	/* E-UTRAN Inter RAT Handover Info E-UTRAN Inter RAT Handover Info/11.3.104 O (note 3) TLV 3-? */
@@ -4655,7 +4851,7 @@ bssgp_modify_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	/* PFI PFI/11.3.42 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 	/* PFT GPRS Timer/11.3.44 M TLV 3 */
-	ELEM_MAND_TELV(0x29, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER , " - PFT");
+	ELEM_MAND_TELV(BSSGP_IEI_GPRS_TIMER, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER , " - PFT");
 	/* ABQP ABQP/11.3.43 M TLV 13-? */
 	ELEM_MAND_TELV(0x3a , GSM_A_PDU_TYPE_GM, DE_QOS , NULL);
 
@@ -5328,7 +5524,77 @@ bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * 10.7	PDU functional definitions and contents at MBMS SAP
  * 10.7.1	MBMS-SESSION-START-REQUEST
+ */
+static void
+bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows a SGSN to request BSS to start an MBMS session. */
+
+	/* Direction: SGSN to BSS */
+	gpinfo->link_dir = P2P_DIR_DL;
+
+	/* TMGI TMGI/11.3.77 M TLV 3-8  */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* ABQP ABQP/11.3.43 M TLV 13-? */
+	ELEM_MAND_TELV(0x3a , GSM_A_PDU_TYPE_GM, DE_QOS , NULL);
+	/* MBMS Service Area Identity List MBMS Service Area Identity List/11.3.73 M TLV 4-? */
+	ELEM_MAND_TELV(0x5f, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SAI_LIST, NULL);
+	/* MBMS Routing Area List MBMS Routing Area List/11.3.75 M TLV 3-? */
+	ELEM_MAND_TELV(0x61, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RA_LIST, NULL);
+	/* MBMS Session Duration MBMS Session Duration/11.3.72 M TLV 3-? */
+	ELEM_MAND_TELV(0x5e, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_DUR, NULL);
+	/* MBMS Session Information MBMS Session Information/11.3.76 M TLV 3 */
+	ELEM_MAND_TELV(0x62, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_INF, NULL);
+	/* Time to MBMS Data Transfer Time to MBMS Data Transfer/11.3.92 M TLV 3 */
+	ELEM_MAND_TELV(0x71, BSSGP_PDU_TYPE, DE_BSSGP_TIME_TO_MBMS_DATA_TRAN, NULL);
+	/* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
+	ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+	/* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
+	ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
+
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
  * 10.7.2	MBMS-SESSION-START-RESPONSE
+ */
+static void
+bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows a BSS to acknowledge to SGSN that it will start an MBMS session or to indicate to SGSN why the
+	 * MBMS Service Context cannot be created or is released by the BSS.
+	 */
+
+	/* Direction: BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/ 11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
+	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.7.3	MBMS-SESSION-STOP-REQUEST
  * 10.7.4	MBMS-SESSION-STOP-RESPONSE
  * 10.7.5	MBMS-SESSION-UPDATE-REQUEST
@@ -5474,12 +5740,12 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x7d */  { BSSGP_PDU_RESERVED_0X7D,                 "Reserved" },					/*  */
 /* 0x7e */  { BSSGP_PDU_RESERVED_0X7E,                 "Reserved" },					/*  */
 /* 0x7f */  { BSSGP_PDU_RESERVED_0X7F,                 "Reserved" },					/*  */
-/* 0x80 */  {0x80,                                   "MBMS-SESSION-START-REQUEST" },
-/* 0x81 */  {0x81,                                   "MBMS-SESSION-START-RESPONSE" },
-/* 0x82 */  {0x82,                                   "MBMS-SESSION-STOP-REQUEST" },
-/* 0x83 */  {0x83,                                   "MBMS-SESSION-STOP-RESPONSE" },
-/* 0x84 */  {0x84,                                   "MBMS-SESSION-UPDATE-REQUEST" },
-/* 0x85 */  {0x85,                                   "MBMS-SESSION-UPDATE-RESPONSE" },
+/* 0x80 */  { BSSGP_PDU_MBMS_SESSION_START_REQ,        "MBMS-SESSION-START-REQUEST" },	/* 10.7.1	MBMS-SESSION-START-REQUEST */
+/* 0x81 */  { BSSGP_PDU_MBMS_SESSION_START_RESP,       "MBMS-SESSION-START-RESPONSE" }, /* 10.7.2	MBMS-SESSION-START-RESPONSE */
+/* 0x82 */  { BSSGP_PDU_MBMS_SESSION_STOP_REQ,         "MBMS-SESSION-STOP-REQUEST" },
+/* 0x83 */  { BSSGP_PDU_MBMS_SESSION_STOP_RESP,        "MBMS-SESSION-STOP-RESPONSE" },
+/* 0x84 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_REQ,       "MBMS-SESSION-UPDATE-REQUEST" },
+/* 0x85 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_RESP,      "MBMS-SESSION-UPDATE-RESPONSE" },
 
 /* 0x91 */  {0x91,                                   "PS-HANDOVER-COMPLETE" },
 /* 0x92 */  {0x92,                                   "PS-HANDOVER-CANCEL" },
@@ -5639,6 +5905,8 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     NULL,                              /* 0x7d */
     NULL,                              /* 0x7e */
     NULL,                              /* 0x7f */
+	bssgp_mbms_session_start_req,      /* 10.7.1	MBMS-SESSION-START-REQUEST */
+	bssgp_mbms_session_start_resp,     /* 10.7.2	MBMS-SESSION-START-RESPONSE */
     NULL,    /* NONE */
 };
 
@@ -6021,9 +6289,24 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_DEC, VALS(bssgp_service_utran_cco_vals), 0x07,
 	NULL, HFILL }
     },
-	{ &hf_bssgp_mbs_session_id,
-		{ "MBMS Session ID", "bssgp.mbs_session_id",
+	{ &hf_bssgp_mbms_session_id,
+		{ "MBMS Session ID", "bssgp.mbms_session_id",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_bssgp_mbms_cause,
+		{ "Cause", "bssgp.mbms_cause",
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_mbms_cause_vals_ext, 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_bssgp_session_inf,
+		{ "BC/MC", "bssgp.session_inf",
+		FT_BOOLEAN, 8, TFS(&tfs_bssgp_bc_mc), 0x01,
+		NULL, HFILL }
+    },
+	{ &hf_bssgp_mbms_num_ra_ids,
+		{ "Number of Routing Area Identifications", "bssgp.mbms_num_ra_ids",
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_mbms_num_ra_ids_vals_ext, 0xf0,
 		NULL, HFILL }
 	},
 	{ &hf_bssgp_gb_if,
@@ -6073,6 +6356,16 @@ proto_register_bssgp(void)
     },
 	{ &hf_bssgp_dl_tfi,
       { "DOWNLINK_TFI", "bssgp.global_tfi",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_time_to_MBMS_data_tran,
+      { "Time to MBMS Data Transfer", "bssgp.time_to_mbms_data_tran",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_mbms_session_rep_no,
+      { "MBMS-Session-Repetition-Number", "bssgp.mbms_session_rep_no",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	NULL, HFILL }
     },
@@ -6140,7 +6433,7 @@ proto_register_bssgp(void)
   };
 
   /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	9
+#define	NUM_INDIVIDUAL_ELEMS	10
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_BSSGP_ELEM +
 		  NUM_BSSGP_MSG];
@@ -6153,6 +6446,7 @@ proto_register_bssgp(void)
     ett[6] = &ett_bssgp_pfcs_to_be_set_up_list;
     ett[7] = &ett_bssgp_new;
     ett[8] = &ett_bssgp_pfc_flow_control_parameters_pfc;
+	ett[9] = &ett_bssgp_ra_id,
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -6195,4 +6489,6 @@ proto_reg_handoff_bssgp(void)
   llc_handle = find_dissector("llcgprs");
   rrlp_handle = find_dissector("rrlp");
   data_handle = find_dissector("data");
+
+  diameter_3gpp_avp_dissector_table = find_dissector_table("diameter.3gpp");
 }
