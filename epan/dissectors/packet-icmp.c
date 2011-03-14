@@ -752,9 +752,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (code_str)
     proto_item_append_text (ti, " (%s)", code_str);
 
-  if (!pinfo->fragmented && length >= reported_length) {
-    /* The packet isn't part of a fragmented datagram and isn't
-       truncated, so we can checksum it. */
+  if (!pinfo->fragmented && length >= reported_length && !pinfo->in_error_pkt) {
+    /* The packet isn't part of a fragmented datagram, isn't
+       truncated, and isn't the payload of an error packet, so we can checksum
+       it. */
 
     computed_cksum = ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
 				 reported_length);
