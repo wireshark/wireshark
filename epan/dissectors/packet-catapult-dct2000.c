@@ -1940,17 +1940,20 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /**************************************************************************/
             /* These protocols have no encapsulation type, just look them up directly */
-            if (strcmp(protocol_name, "mac_r8_lte") == 0) {
+            if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
+                (strcmp(protocol_name, "mac_r9_lte") == 0)) {
                 protocol_handle = mac_lte_handle;
             }
 
             else
-            if (strcmp(protocol_name, "rlc_r8_lte") == 0) {
+            if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
+                (strcmp(protocol_name, "rlc_r9_lte") == 0)) {
                 protocol_handle = rlc_lte_handle;
             }
 
             else
-            if (strcmp(protocol_name, "pdcp_r8_lte") == 0) {
+            if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
+                (strcmp(protocol_name, "pdcp_r9_lte") == 0)) {
                 /* Dissect proprietary header, then pass remainder to PDCP */
                 dissect_pdcp_lte(tvb, offset, pinfo, tree);
                 return;
@@ -2016,14 +2019,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             else
-            if (
-                ((strcmp(protocol_name, "ccpri_r8_lte") == 0))) {
+            if (((strcmp(protocol_name, "ccpri_r8_lte") == 0))) {
 
                 /* Dissect proprietary header, then pass remainder to lapb */
                 dissect_ccpri_lte(tvb, offset, pinfo, tree);
                 return;
             }
-
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the
@@ -2307,6 +2308,17 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item_set_len(sctpprim_tree, offset - offset_before_sctpprim_header);
                 }
             }
+
+#if 0
+            /* PART OF WORK IN PROGRESS */
+            if (protocol_handle == 0) {
+                /* TODO: only look inside preference? */
+                char dotted_protocol_name[64+128];
+                sprintf(dotted_protocol_name, "dct2000.%s", protocol_name);
+                protocol_handle = find_dissector(dotted_protocol_name);
+            }
+#endif
+
 
             break;
 
