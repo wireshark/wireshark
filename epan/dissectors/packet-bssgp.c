@@ -146,6 +146,7 @@ static int hf_bssgp_precedence = -1;
 static int hf_bssgp_serv_utran_cco = -1;
 static int hf_bssgp_mbms_session_id = -1;
 static int hf_bssgp_mbms_cause = -1;
+static int hf_bssgp_mbms_stop_cause = -1;
 static int hf_bssgp_mbms_num_ra_ids = -1;
 static int hf_bssgp_session_inf = -1;
 static int hf_bssgp_gb_if = -1;
@@ -167,6 +168,9 @@ static int hf_bssgp_cs_indication = -1;
 static int hf_bssgp_flow_control_gran = -1;
 static int hf_bssgp_serv_eutran_cco = -1;
 static int hf_bssgp_sub_prof_id_f_rat_freq_prio = -1;
+static int hf_bssgp_eutran_irat_ho_inf_req = -1;
+static int hf_bssgp_irat_ho_inf_req = -1;
+
 static int hf_bssgp_rel_int_rat_ho_inf_ind = -1;
 static int hf_bssgp_csg_id = -1;
 static int hf_bssgp_cell_acc_mode = -1;
@@ -332,6 +336,22 @@ static gint ett_bssgp_ra_id = -1;
 #define BSSGP_PDU_MBMS_SESSION_STOP_RESP       0x83
 #define BSSGP_PDU_MBMS_SESSION_UPDATE_REQ      0x84
 #define BSSGP_PDU_MBMS_SESSION_UPDATE_RESP     0x85
+
+#define BSSGP_PDU_RESERVED_0X86                0x86
+#define BSSGP_PDU_RESERVED_0X87                0x87
+#define BSSGP_PDU_RESERVED_0X88                0x88
+#define BSSGP_PDU_RESERVED_0X89                0x89
+#define BSSGP_PDU_RESERVED_0X8A                0x8a
+#define BSSGP_PDU_RESERVED_0X8B                0x8b
+#define BSSGP_PDU_RESERVED_0X8C                0x8c
+#define BSSGP_PDU_RESERVED_0X8D                0x8d
+#define BSSGP_PDU_RESERVED_0X8E                0x8e
+#define BSSGP_PDU_RESERVED_0X8F                0x8f
+
+#define BSSGP_PDU_RESERVED_0X90                0x90
+#define BSSGP_PDU_PS_HANDOVER_COMPLETE         0x91
+#define BSSGP_PDU_PS_HANDOVER_CANCEL           0x92
+#define BSSGP_PDU_PS_HANDOVER_COMPLETE_ACK     0x93
 
 /*
 0x91 PS-HANDOVER-COMPLETE
@@ -2422,6 +2442,41 @@ de_bssgp_mbms_session_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 /*
  * 11.3.78	MBMS Stop Cause
  */
+static const value_string bssgp_mbms_stop_cause_vals[] = {
+  { 0, "MBMS Session terminated by upstream node" },
+  { 1, "MBMS Session terminated by SGSN" },
+
+  { 2, "Unspecified in this version of the protocol" },
+  { 3, "Unspecified in this version of the protocol" },
+  { 4, "Unspecified in this version of the protocol" },
+  { 5, "Unspecified in this version of the protocol" },
+  { 6, "Unspecified in this version of the protocol" },
+  { 7, "Unspecified in this version of the protocol" },
+  { 8, "Unspecified in this version of the protocol" },
+  { 9, "Unspecified in this version of the protocol" },
+  { 10, "Unspecified in this version of the protocol" },
+  { 11, "Unspecified in this version of the protocol" },
+  { 12, "Unspecified in this version of the protocol" },
+  { 13, "Unspecified in this version of the protocol" },
+  { 14, "Unspecified in this version of the protocol" },
+  { 15, "Unspecified in this version of the protocol" },
+  { 0, NULL },
+};
+static value_string_ext bssgp_mbms_stop_cause_vals_ext = VALUE_STRING_EXT_INIT(bssgp_mbms_stop_cause_vals);
+
+static guint16
+de_bssgp_mbms_stop_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* MBMS Session Identity */
+	proto_tree_add_item(tree, hf_bssgp_mbms_stop_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
 /*
  * 11.3.79	Source BSS to Target BSS Transparent Container
  */
@@ -3074,6 +3129,20 @@ de_bssgp_sub_prof_id_f_rat_freq_prio(tvbuff_t *tvb, proto_tree *tree, guint32 of
 /*
  * 11.3.106 	Request for Inter-RAT Handover Info
  */
+static guint16
+de_bssgp_req_for_inter_rat_ho_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/*octet 3 Spare E-UTRAN Inter RAT Handover Info Req Inter RAT Handover Info Req */
+	proto_tree_add_item(tree, hf_bssgp_eutran_irat_ho_inf_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_irat_ho_inf_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
 /*
  * 11.3.107 	Reliable Inter-RAT Handover Info
  */
@@ -3256,7 +3325,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x00, "MBMS Routing Area List" },								/* 11.3.75	MBMS Routing Area List */
 	{ 0x00, "MBMS Session Information" },							/* 11.3.76	MBMS Session Information */
  /* ELEM_MAND_TELV(GSM_A_PDU_TYPE_GM, DE_TMGI,  */					/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
- /* 11.3.78	MBMS Stop Cause */
+	{ 0x00, "MBMS Stop Cause" },									/* 11.3.78	MBMS Stop Cause */
 	{ 0x00, "Source BSS to Target BSS Transparent Container" },		/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	{ 0x00, "Target BSS to Source BSS Transparent Container" },		/* 11.3.80	Target BSS to Source BSS Transparent Container */
  /* 11.3.81	NAS container for PS Handover */
@@ -3287,7 +3356,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x00, "eNB Identifier" },										/* 11.3.103 	eNB Identifier */
  	{ 0x00, "E-UTRAN Inter RAT Handover Info" },					/* 11.3.104 	E-UTRAN Inter RAT Handover Info */
 	{ 0x00, "Subscriber Profile ID for RAT/Frequency priority" },	/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
-/* 11.3.106 Request for Inter-RAT Handover Info */
+	{ 0x00, "Request for Inter-RAT Handover Info" },				/* 11.3.106 Request for Inter-RAT Handover Info */
 	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.107 Reliable Inter-RAT Handover Info */
 	{ 0x00, "Reliable Inter-RAT Handover Info" },					/* 11.3.108 SON Transfer Application Identity */
 	{ 0x00, "CSG Identifier" },										/* 11.3.109 CSG Identifier */
@@ -3375,6 +3444,7 @@ typedef enum
 	DE_BSSGP_MBMS_SESSION_INF,									/* 11.3.76	MBMS Session Information */
 
 	DE_BSSGP_TMGI,												/* 11.3.77	TMGI (Temporary Mobile Group Identity) GSM_A_PDU_TYPE_GM, DE_TMGI*/
+	DE_BSSGP_MBMS_STOP_CAUSE,									/* 11.3.78	MBMS Stop Cause */
 	DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
 	DE_BSSGP_PFCS_TO_BE_SET_UP_LIST,							/* 11.3.82	PFCs to be set-up list */
@@ -3401,6 +3471,7 @@ typedef enum
 	DE_BSSGP_ENB_ID,											/* 11.3.103 	eNB Identifier */
 	DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
  	DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO,						/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
+	DE_BSSGP_REQ_FOR_INTER_RAT_HO_INFO,							/* 11.3.106 Request for Inter-RAT Handover Info */
 	DE_BSSGP_RELIABLE_INTER_RAT_HO_INF,							/* 11.3.107 Reliable Inter-RAT Handover Info */
 	DE_BSSGP_SON_TRANSFER_APP_ID,								/* 11.3.108 SON Transfer Application Identity */
 	DE_BSSGP_CSG_ID,											/* 11.3.109 CSG Identifier */
@@ -3481,6 +3552,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_mbms_ra_list,										/* 11.3.75	MBMS Routing Area List */
 	de_bssgp_mbms_session_inf,									/* 11.3.76	MBMS Session Information */
 	NULL,														/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
+	de_bssgp_mbms_stop_cause,									/* 11.3.78	MBMS Stop Cause */
 	de_bssgp_source_BSS_to_target_BSS_transp_cont,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	de_bssgp_target_BSS_to_source_BSS_transp_cont,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
 	de_bssgp_pfcs_to_be_set_up_list,							/* 11.3.82	PFCs to be set-up list */
@@ -3507,6 +3579,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_e_utran_inter_rat_ho_info,							/* 11.3.104	E-UTRAN Inter RAT Handover Info */
 	de_bssgp_sub_prof_id_f_rat_freq_prio,						/* 11.3.105	Subscriber Profile ID for RAT/Frequency priority */
 	de_bssgp_reliable_inter_rat_ho_inf,							/* 11.3.107 Reliable Inter-RAT Handover Info */
+	de_bssgp_req_for_inter_rat_ho_inf,							/* 11.3.106 Request for Inter-RAT Handover Info */
 	de_bssgp_son_transfer_app_id,								/* 11.3.108 SON Transfer Application Identity */
 	de_bssgp_csg_id,											/* 11.3.109 CSG Identifier */
 
@@ -3626,7 +3699,7 @@ de_bssgp_ran_inf_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
 	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
 	/* RIM Cause Cause/11.3.8 M TLV 3 */
-	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, " - RIM");
 	/* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
 	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
 	/* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
@@ -5030,7 +5103,7 @@ bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Active PFCs List Active PFCs List/11.3.95c M TLV 3-? */
 	ELEM_OPT_TELV(0x77,BSSGP_PDU_TYPE, DE_BSSGP_ACTIVE_PFCS_LIST, NULL);
 	/* Target eNB identifier (note 2) (note 3) eNB Identifier/11.3.103 C TLV 3-n */
-	ELEM_OPT_TELV(0x7f,BSSGP_PDU_TYPE, DE_BSSGP_ENB_ID, NULL);
+	ELEM_OPT_TELV(0x7f,BSSGP_PDU_TYPE, DE_BSSGP_ENB_ID, " - Target");
 	/* Reliable Inter RAT Handover Info (note 4)
 	 * Reliable Inter RAT Handover Info/11.3.107 C TLV 3
 	 */
@@ -5200,10 +5273,95 @@ bssgp_ps_ho_request_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 /*
  * 10.4.33	PS-HANDOVER-COMPLETE
  */
+static void
+bssgp_ps_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU informs the SGSN about successful channel change for an MS. */
+	/* BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TLLI TLLI/11.3.35 M TLV 6 */
+	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
+	/* IMSI IMSI/11.3.14 M TLV 5-10 */
+	ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
+	/* Target Cell Identifier (note 1) Cell Identifier/11.3.9 O TLV 10 */
+	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Target");
+	/* Request for Inter RAT Handover Info (note 2) Request for Inter RAT Handover Info/11.3.106 C TLV 3 */
+	ELEM_OPT_TELV(0x82, BSSGP_PDU_TYPE, DE_BSSGP_REQ_FOR_INTER_RAT_HO_INFO , NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
 /*
  * 10.4.34	PS-HANDOVER-CANCEL
+ */
+static void
+bssgp_ps_ho_cancel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU cancels the handover for an MS. */
+	/* BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TLLI TLLI/11.3.35 M TLV 6 */
+	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
+	/* Cause Cause/11.3.8 M TLV 3 */
+	ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
+	/* Source Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
+	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Source");
+	/* Target Cell Identifier (note 1) Cell Identifier/11.3.9 O TLV 10 */
+	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Target");
+	/* Target RNC Identifier (note 1) (note 2) RNC Identifier/11.3.87 C TLV 10 */
+	ELEM_OPT_TELV(0x6c,BSSGP_PDU_TYPE, BE_BSSGP_RNC_ID, " - Target");
+	/* Target eNB Identifier (note 1) (note 2) eNB Identifier/11.3.103 C TLV 3-n */
+	ELEM_OPT_TELV(0x7f,BSSGP_PDU_TYPE, DE_BSSGP_ENB_ID, " - Target");
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.4.35	PS-HANDOVER-COMPLETE-ACK
  */
+static void
+bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU provides to the BSS the Inter RAT Handover Info IE or 
+	 * E-UTRAN Inter RAT Handover Info IE or both. It is sent only if 
+	 * requested by the BSS and it shall contain at least one of the 
+	 * inter-RAT capabilities.
+	 */
+
+	/* SGSN to BSS */
+	gpinfo->link_dir = P2P_DIR_DL;
+
+	/* TLLI TLLI/11.3.35 M TLV 6 */
+	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
+	/* Inter RAT Handover Info Inter RAT Handover Info/11.3.94 C (note 1) TLV 3-? */
+	ELEM_OPT_TELV(0x73, BSSGP_PDU_TYPE, DE_BSSGP_INTER_RAT_HO_INFO, NULL);
+	/* E-UTRAN Inter RAT Handover Info E-UTRAN Inter RAT Handover Info/11.3.104 C (note 1) TLV 3-? */
+	ELEM_OPT_TELV(0x80, BSSGP_PDU_TYPE, DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
 /*
  * 10.5	PDU functional definitions and contents at LCS SAP
  * 10.5.1	PERFORM-LOCATION-REQUEST
@@ -5596,10 +5754,130 @@ bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 /*
  * 10.7.3	MBMS-SESSION-STOP-REQUEST
+ */
+static void
+bssgp_mbms_session_stop_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows a SGSN to request BSS to stop an MBMS session. */
+
+	/* Direction: SGSN to BSS */
+	gpinfo->link_dir = P2P_DIR_DL;
+
+	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/ 11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* MBMS Stop Cause MBMS Stop Cause/11.3.78 M TLV 3 */
+	ELEM_OPT_TELV(0x63, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_STOP_CAUSE, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
  * 10.7.4	MBMS-SESSION-STOP-RESPONSE
+ */
+static void
+bssgp_mbms_session_stop_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows a BSS to acknowledge to SGSN that it will stop an MBMS session. */
+
+	/* Direction: BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/ 11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
+	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
  * 10.7.5	MBMS-SESSION-UPDATE-REQUEST
+ */
+static void
+bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows an SGSN to request BSS to update the MBMS service area list
+	 * of an ongoing MBMS broadcast service session.
+	 */
+
+	/* Direction: BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/ 11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* ABQP ABQP/11.3.43 M TLV 13-? */
+	ELEM_MAND_TELV(0x3a , GSM_A_PDU_TYPE_GM, DE_QOS , NULL);
+	/* MBMS Service Area Identity List MBMS Service Area Identity List/11.3.73 M TLV 4-? */
+	ELEM_MAND_TELV(0x5f, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SAI_LIST, NULL);
+	/* MBMS Routing Area List MBMS Routing Area List/11.3.75 M TLV 3-? */
+	ELEM_MAND_TELV(0x61, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RA_LIST, NULL);
+	/* MBMS Session Duration MBMS Session Duration/11.3.72 M TLV 3-? */
+	ELEM_MAND_TELV(0x5e, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_DUR, NULL);
+	/* MBMS Session Information MBMS Session Information/11.3.76 M TLV 3 */
+	ELEM_MAND_TELV(0x62, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_INF, NULL);
+	/* Time to MBMS Data Transfer Time to MBMS Data Transfer/11.3.92 M TLV 3 */
+	ELEM_MAND_TELV(0x71, BSSGP_PDU_TYPE, DE_BSSGP_TIME_TO_MBMS_DATA_TRAN, NULL);
+	/* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
+	ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+	/* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
+	ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
  * 10.7.6	MBMS-SESSION-UPDATE-RESPONSE
-*/
+ */
+static void
+bssgp_mbms_session_uptate_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU allows a BSS to acknowledge to SGSN that it will update the MBMS service area list of an ongoing MBMS
+	 * broadcast service session or to indicate to SGSN why the MBMS Service Context cannot be created or is released by the BSS.
+	 */
+
+	/* Direction: BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
+	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	/* MBMS Session Identity MBMS Session Identity/ 11.3.71 O TLV 3 */
+	ELEM_OPT_TELV(0x5d, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_ID, NULL);
+	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
+	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
 
 static const value_string bssgp_msg_strings[] = {
 /* 0x00 */  { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" },					/* 10.2.1 DL-UNITDATA */
@@ -5742,14 +6020,26 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x7f */  { BSSGP_PDU_RESERVED_0X7F,                 "Reserved" },					/*  */
 /* 0x80 */  { BSSGP_PDU_MBMS_SESSION_START_REQ,        "MBMS-SESSION-START-REQUEST" },	/* 10.7.1	MBMS-SESSION-START-REQUEST */
 /* 0x81 */  { BSSGP_PDU_MBMS_SESSION_START_RESP,       "MBMS-SESSION-START-RESPONSE" }, /* 10.7.2	MBMS-SESSION-START-RESPONSE */
-/* 0x82 */  { BSSGP_PDU_MBMS_SESSION_STOP_REQ,         "MBMS-SESSION-STOP-REQUEST" },
-/* 0x83 */  { BSSGP_PDU_MBMS_SESSION_STOP_RESP,        "MBMS-SESSION-STOP-RESPONSE" },
-/* 0x84 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_REQ,       "MBMS-SESSION-UPDATE-REQUEST" },
-/* 0x85 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_RESP,      "MBMS-SESSION-UPDATE-RESPONSE" },
+/* 0x82 */  { BSSGP_PDU_MBMS_SESSION_STOP_REQ,         "MBMS-SESSION-STOP-REQUEST" },	/* 10.7.3	MBMS-SESSION-STOP-REQUEST */
+/* 0x83 */  { BSSGP_PDU_MBMS_SESSION_STOP_RESP,        "MBMS-SESSION-STOP-RESPONSE" },  /* 10.7.4	MBMS-SESSION-STOP-RESPONSE */
+/* 0x84 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_REQ,       "MBMS-SESSION-UPDATE-REQUEST" }, /* 10.7.5	MBMS-SESSION-UPDATE-REQUEST */
+/* 0x85 */  { BSSGP_PDU_MBMS_SESSION_UPDATE_RESP,      "MBMS-SESSION-UPDATE-RESPONSE" },/* 10.7.6	MBMS-SESSION-UPDATE-RESPONSE */
 
-/* 0x91 */  {0x91,                                   "PS-HANDOVER-COMPLETE" },
-/* 0x92 */  {0x92,                                   "PS-HANDOVER-CANCEL" },
-/* 0x93 */  {0x93,                                   "PS-HANDOVER-COMPLETE-ACK" },
+/* 0x86 */  { BSSGP_PDU_RESERVED_0X86,                 "Reserved" },					/*  */
+/* 0x87 */  { BSSGP_PDU_RESERVED_0X87,                 "Reserved" },					/*  */
+/* 0x88 */  { BSSGP_PDU_RESERVED_0X88,                 "Reserved" },					/*  */
+/* 0x89 */  { BSSGP_PDU_RESERVED_0X89,                 "Reserved" },					/*  */
+/* 0x8a */  { BSSGP_PDU_RESERVED_0X8A,                 "Reserved" },					/*  */
+/* 0x8b */  { BSSGP_PDU_RESERVED_0X8B,                 "Reserved" },					/*  */
+/* 0x8c */  { BSSGP_PDU_RESERVED_0X8C,                 "Reserved" },					/*  */
+/* 0x8d */  { BSSGP_PDU_RESERVED_0X8D,                 "Reserved" },					/*  */
+/* 0x8e */  { BSSGP_PDU_RESERVED_0X8E,                 "Reserved" },					/*  */
+/* 0x8f */  { BSSGP_PDU_RESERVED_0X8F,                 "Reserved" },					/*  */
+/* 0x90 */  { BSSGP_PDU_RESERVED_0X90,                 "Reserved" },					/*  */
+
+/* 0x91 */  {BSSGP_PDU_PS_HANDOVER_COMPLETE,           "PS-HANDOVER-COMPLETE" },        /* 10.4.33	PS-HANDOVER-COMPLETE */
+/* 0x92 */  {BSSGP_PDU_PS_HANDOVER_CANCEL,             "PS-HANDOVER-CANCEL" },          /* 10.4.34	PS-HANDOVER-CANCEL */
+/* 0x93 */  {BSSGP_PDU_PS_HANDOVER_COMPLETE_ACK,       "PS-HANDOVER-COMPLETE-ACK" },    /* 10.4.35	PS-HANDOVER-COMPLETE-ACK*/
 
 	{ 0,	NULL }
 };
@@ -5907,6 +6197,24 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     NULL,                              /* 0x7f */
 	bssgp_mbms_session_start_req,      /* 10.7.1	MBMS-SESSION-START-REQUEST */
 	bssgp_mbms_session_start_resp,     /* 10.7.2	MBMS-SESSION-START-RESPONSE */
+	bssgp_mbms_session_stop_req,       /* 10.7.3	MBMS-SESSION-STOP-REQUEST */
+	bssgp_mbms_session_stop_resp,      /* 10.7.4	MBMS-SESSION-STOP-RESPONSE */
+	bssgp_mbms_session_update_req,     /* 10.7.5	MBMS-SESSION-UPDATE-REQUEST */
+	bssgp_mbms_session_uptate_resp,    /* 10.7.6	MBMS-SESSION-UPDATE-RESPONSE */
+    NULL,                              /* 0x86 */
+    NULL,                              /* 0x87 */
+    NULL,                              /* 0x88 */
+    NULL,                              /* 0x89 */
+    NULL,                              /* 0x8a */
+    NULL,                              /* 0x8b */
+    NULL,                              /* 0x8c */
+    NULL,                              /* 0x8d */
+    NULL,                              /* 0x8e */
+    NULL,                              /* 0x8f */
+    NULL,                              /* 0x90 */
+    bssgp_ps_ho_complete,              /* 0x91 10.4.33	PS-HANDOVER-COMPLETE */
+    bssgp_ps_ho_cancel,                /* 0x92 10.4.34	PS-HANDOVER-CANCEL */
+    bssgp_ps_ho_complete_ack,          /* 0x93 10.4.35	PS-HANDOVER-COMPLETE-ACK*/
     NULL,    /* NONE */
 };
 
@@ -6299,6 +6607,11 @@ proto_register_bssgp(void)
 		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_mbms_cause_vals_ext, 0x0f,
 		NULL, HFILL }
 	},
+	{ &hf_bssgp_mbms_stop_cause,
+		{ "Stop Cause", "bssgp.mbms_stop_cause",
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_mbms_stop_cause_vals_ext, 0x0f,
+		NULL, HFILL }
+	},
 	{ &hf_bssgp_session_inf,
 		{ "BC/MC", "bssgp.session_inf",
 		FT_BOOLEAN, 8, TFS(&tfs_bssgp_bc_mc), 0x01,
@@ -6405,6 +6718,17 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	NULL, HFILL }
     },
+	{ &hf_bssgp_eutran_irat_ho_inf_req,
+      { "E-UTRAN Inter RAT Handover Info", "bssgp.eutran_irat_ho_inf_req",
+	FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_irat_ho_inf_req,
+      { "Inter RAT Handover Info", "bssgp.irat_ho_inf_req",
+	FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+	NULL, HFILL }
+    },
+
 	{ &hf_bssgp_rel_int_rat_ho_inf_ind,
       { "Inter RAT Handover Info", "bssgp.rel_int_rat_ho_inf_ind",
 	FT_BOOLEAN, 8, TFS(&tfs_reliable_not_reliable), 0x01,
