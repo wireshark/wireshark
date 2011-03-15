@@ -2314,7 +2314,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (protocol_handle == 0) {
                 /* TODO: only look inside preference? */
                 char dotted_protocol_name[64+128];
-                sprintf(dotted_protocol_name, "dct2000.%s", protocol_name);
+                g_snprintf(dotted_protocol_name, 64+128, "dct2000.%s", protocol_name);
                 protocol_handle = find_dissector(dotted_protocol_name);
             }
 #endif
