@@ -1386,7 +1386,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         }
 
         if (strcmp(protocol_name, "fp_r8") == 0) {
-            p_fp_info->edch_type = outhdr_values[i++];
+            p_fp_info->edch_type = outhdr_values[i];
         }
         else {
             p_fp_info->edch_type = 0;
@@ -1490,14 +1490,14 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
             if (outhdr_values_found == 16) {
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i];
             }
             if (outhdr_values_found > 16) {
                 p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
 
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i];
             }
         }
     }
@@ -1530,7 +1530,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     p_rlc_lte_info->channelId = outhdr_values[i++];
     p_rlc_lte_info->channelType = outhdr_values[i++];
     p_rlc_lte_info->ueid = outhdr_values[i++];
-    p_rlc_lte_info->pduLength = outhdr_values[i++];
+    p_rlc_lte_info->pduLength = outhdr_values[i];
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
@@ -1566,7 +1566,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     p_pdcp_lte_info->mode = outhdr_values[i++];
     p_pdcp_lte_info->rnd = outhdr_values[i++];
     p_pdcp_lte_info->udp_checkum_present = outhdr_values[i++];
-    p_pdcp_lte_info->profile = outhdr_values[i++];
+    p_pdcp_lte_info->profile = outhdr_values[i];
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
