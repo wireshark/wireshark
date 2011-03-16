@@ -300,19 +300,15 @@ static int
 dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint32 n_oct, p_noct;
-	char context[1024];
+	guint8 *str_buf;
 
 	NORLEL(flags, n_oct, tvb, offset);
 
 	p_noct = PADDING(n_oct);
-	if (n_oct >= 1024)
-		THROW(ReportedBoundsError);
-	if (n_oct > 0)
-		tvb_get_nstringz(tvb, offset + 4, n_oct, context);
-	context[n_oct]='\0';
+	str_buf = tvb_get_ephemeral_string(tvb, offset + 4, n_oct);
 
 	proto_tree_add_uint(tree, hf_ostring_len, tvb, offset, 4, n_oct);
-	proto_tree_add_string(tree, hf_ostring, tvb, offset + 4, n_oct, context);
+	proto_tree_add_string(tree, hf_ostring, tvb, offset + 4, n_oct, str_buf);
 	return p_noct + 4;
 
 }
