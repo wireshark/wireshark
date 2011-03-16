@@ -175,7 +175,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     guint32 usecs;
     gint firstline_length = 0;
     dct2000_file_externals_t *file_externals;
-    gchar linebuff[MAX_LINE_LENGTH];
+    static gchar linebuff[MAX_LINE_LENGTH];
 
     /* Clear errno before reading from the file */
     errno = 0;
@@ -290,7 +290,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         int line_length, seconds, useconds, data_chars;
         int is_comment = FALSE;
         gint64 this_offset = offset;
-        gchar linebuff[MAX_LINE_LENGTH+1];
+        static gchar linebuff[MAX_LINE_LENGTH+1];
         gchar aal_header_chars[AAL_HEADER_CHARS];
         gchar context_name[MAX_CONTEXT_NAME];
         guint8 context_port;
@@ -449,7 +449,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 {
     gint64 offset = wth->data_offset;
     long dollar_offset, before_time_offset, after_time_offset;
-    gchar linebuff[MAX_LINE_LENGTH+1];
+    static gchar linebuff[MAX_LINE_LENGTH+1];
     gchar aal_header_chars[AAL_HEADER_CHARS];
     gchar context_name[MAX_CONTEXT_NAME];
     guint8 context_port;
