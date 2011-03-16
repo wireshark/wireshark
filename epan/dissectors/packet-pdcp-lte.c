@@ -387,7 +387,6 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
     proto_tree *seqnum_tree;
     proto_item *seqnum_ti;
     proto_item *ti;
-    guint16 snLimit;
 
     /* Create subtree */
     seqnum_ti = proto_tree_add_string_format(tree,
@@ -410,16 +409,11 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             tvb, 0, 0, p->sequenceExpected);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    /* Work out SN wrap (in case needed below) */
+    /* Make sure we have recognised SN length */
     switch (p_pdcp_lte_info->seqnum_length) {
         case PDCP_SN_LENGTH_5_BITS:
-            snLimit = 32;
-            break;
         case PDCP_SN_LENGTH_7_BITS:
-            snLimit = 128;
-            break;
         case PDCP_SN_LENGTH_12_BITS:
-            snLimit = 4096;
             break;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
@@ -2298,7 +2292,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                  /* UO-1 if !(ipv4 && rand) */
                  if (!((p_pdcp_info->rohc_ip_version == 4) &&
                       (!p_pdcp_info->rnd))) {
-                    offset = dissect_pdcp_uo_1_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
+
+                    dissect_pdcp_uo_1_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
                  } else {
                     /* Whether its UO-1-ID or UO-1-TS depends upon T bit */
                     dissect_pdcp_uo_1_ts_or_id_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
@@ -2316,7 +2311,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (!((p_pdcp_info->rohc_ip_version == 4) &&
               (!p_pdcp_info->rnd))) {
 
-            offset = dissect_pdcp_uor_2_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
+            dissect_pdcp_uor_2_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
         }
         else {
             /* Whether its UOR-2-ID or UOR-2-TS depends upon T bit */
@@ -3061,9 +3056,6 @@ void proto_register_pdcp(void)
 
 void proto_reg_handoff_pdcp_lte(void)
 {
-    dissector_handle_t pdcp_lte_handle;
-
-    pdcp_lte_handle = find_dissector("pdcp-lte");
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
 

@@ -454,13 +454,8 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
     /* May need to skip padding after last extension part */
     isOdd = (s_number_of_extensions % 2);
     if (isOdd) {
-        guint8 padding;
-        proto_item *ti;
-
-        padding = tvb_get_guint8(tvb, offset) & 0x0f;
-        ti = proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
-                                 tvb, offset, 1, FALSE);
-        offset++;
+        proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
+                            tvb, offset++, 1, FALSE);
     }
 
     return offset;
@@ -2559,9 +2554,6 @@ void proto_register_rlc_lte(void)
 void
 proto_reg_handoff_rlc_lte(void)
 {
-    dissector_handle_t rlc_lte_handle;
-
-    rlc_lte_handle = find_dissector("rlc-lte");
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
 }
