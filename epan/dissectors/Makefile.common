@@ -1098,8 +1098,6 @@ DISSECTOR_INCLUDES =	\
 	packet-e212.h   \
 	packet-edonkey.h	\
 	packet-enc.h	\
-	packet-epl.h	\
-	packet-epl_v1.h	\
 	packet-epmd.h  	\
 	packet-esis.h	\
 	packet-ess.h	\
