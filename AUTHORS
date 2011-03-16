@@ -3239,6 +3239,10 @@ Martin Kaiser		<martin [AT] kaiser.cx> {
 	DVB-CI (Common Interface) dissector
 }
 
+Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
+	JSON dissector
+}
+
 
 and by:
 
@@ -3396,7 +3400,6 @@ Pascal Quantin		<pascal.quantin [AT] gmail.com>
 Roy Marples		<roy [AT] marples.name>
 Ward van Wanrooij	<ward [AT] ward.nu>
 Federico Mena Quintero	<federico [AT] novell.com>
-Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx>
 Andreas Heise		<andreas.heise [AT] nextiraone.de>
 Alex Lindberg		<alindber [AT] yahoo.com>
 Rama Chitta		<rama [AT] gear6.com>
