@@ -1398,7 +1398,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                     break;
                                 default:
                                     /* Not defined */
-                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[n],
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[6],
                                                         tvb, offset, 1, FALSE);
                                     break;
                             }
@@ -1430,6 +1430,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
                         default:
                             /* No defined meanings */
+                            /* Visual Studio Code Analyzer wrongly thinks n can be 7 here. It can't */
                             proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[n],
                                                 tvb, offset, 1, FALSE);
                             break;
