@@ -306,6 +306,7 @@ EXTRA_DIST = \
 	README.design	\
 	README.developer	\
 	README.display_filter	\
+	README.heuristic	\
 	README.idl2wrs	\
 	README.malloc	\
 	README.packaging	\
