@@ -1352,7 +1352,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
         {
             int n;
             guint8 flags;
-            guint8 flag_bytes = 0;
+            /* guint8 flag_bytes = 0; */
 
             gboolean cell_portion_id_present = FALSE;
             gboolean ext_propagation_delay_present = FALSE;
@@ -1374,7 +1374,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
                 /* Read next byte */
                 flags = tvb_get_guint8(tvb, offset);
-                flag_bytes++;
+                /* flag_bytes++ */
 
                 /* Dissect individual bits */
                 for (n=0; n < 8; n++)
@@ -2124,7 +2124,6 @@ static int dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pi
 static int dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     int n;
-    guint8 cfn;
     guint8 value;
 
     /* Show defined flags in these 2 bytes */
@@ -2135,7 +2134,7 @@ static int dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet
     offset += 2;
 
     /* CFN  */
-    cfn = tvb_get_guint8(tvb, offset);
+    tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
     offset++;
 
@@ -2451,16 +2450,12 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
             for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
             {
                 guint64 ddi;
-                int     ddi_offset;
                 guint64 n_pdus;
-                int     n_pdus_offset;
                 proto_item *ddi_ti;
                 gint ddi_size = -1;
                 int     p;
 
                 /* DDI (6 bits) */
-                ddi_offset = offset + (bit_offset / 8);
-
                 ddi_ti = proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
                                                      offset*8 + bit_offset, 6, &ddi, FALSE);
 
@@ -2489,8 +2484,6 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 bit_offset += 6;
 
                 /* Number of MAC-d PDUs (6 bits) */
-                n_pdus_offset = offset + (bit_offset / 8);
-
                 proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb,
                                             offset*8 + bit_offset, 6, &n_pdus, FALSE);
 
@@ -2525,7 +2518,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
             {
                 int         m;
                 guint16     size = 0;
-                guint8      tsn;
+                /* guint8      tsn; */
                 guint       send_size;
                 proto_item  *ti;
                 int         macd_idx;
@@ -2557,7 +2550,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 bit_offset += 2;
 
                 /* TSN */
-                tsn = (tvb_get_guint8(tvb, offset + (bit_offset/8)) & 0x3f);
+                /* tsn = (tvb_get_guint8(tvb, offset + (bit_offset/8)) & 0x3f); */
                 proto_tree_add_item(subframe_tree, hf_fp_edch_tsn, tvb,
                                     offset + (bit_offset/8),
                                     1, FALSE);
@@ -2960,7 +2953,7 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         {
             int n;
             guint8 flags;
-            guint8 flag_bytes = 0;
+            /* guint8 flag_bytes = 0; */
 
             /* New IE flags */
             do
@@ -2976,7 +2969,7 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
                 /* Read next byte */
                 flags = tvb_get_guint8(tvb, offset);
-                flag_bytes++;
+                /* flag_bytes++; */
 
                 /* Dissect individual bits */
                 for (n=0; n < 8; n++)
