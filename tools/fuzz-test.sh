@@ -151,14 +151,12 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 
     "$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
     RETVAL=$?
-    if [ $RETVAL -eq 0 ] ; then
-        # have a valid file
-        rm -f $TMP_DIR/$ERR_FILE
-    elif [ $RETVAL -eq 1 ] ; then
+    if [ $RETVAL -eq 1 ] ; then
         echo "Not a valid capture file"
         rm -f $TMP_DIR/$ERR_FILE
         continue
-    else
+    elif [ $RETVAL -ne 0 ] ; then
+        # Some other error
         echo ""
         echo " ERROR"
         echo -e "Processing failed.  Capture info follows:\n"
@@ -187,7 +185,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     export G_SLICE=debug-blocks             # since GLib 2.13
     export MALLOC_CHECK_=3
     "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-        > /dev/null 2> $TMP_DIR/$ERR_FILE
+        > /dev/null 2>> $TMP_DIR/$ERR_FILE
     RETVAL=$?
     # Uncomment the next two lines to enable dissector bug
     # checking.
