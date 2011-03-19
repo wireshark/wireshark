@@ -371,7 +371,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 
 #ifdef HAVE_GTKOSXAPPLICATION
 gboolean
-gtk_osx_openFile (GtkOSXApplication *app, gchar *path, gpointer user_data)
+gtk_osx_openFile (GtkOSXApplication *app _U_, gchar *path, gpointer user_data _U_)
 {
     GtkSelectionData selection_data;
     int length = strlen(path);
