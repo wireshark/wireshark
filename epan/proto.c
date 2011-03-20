@@ -387,15 +387,15 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   do. */
 	register_all_protocols_func(cb, client_data);
 #ifdef HAVE_PYTHON
-		/* Now scan for python protocols */
-		register_all_py_protocols_func(cb, client_data);
+	/* Now scan for python protocols */
+	register_all_py_protocols_func(cb, client_data);
 #endif
 
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
 	   their register routines to do the stuff described above. */
 	if(cb)
-	  (*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
+		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	init_plugins();
 	register_all_plugin_registrations();
 #endif
@@ -407,14 +407,14 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	register_all_handoffs_func(cb, client_data);
 
 #ifdef HAVE_PYTHON
-		/* Now do the same with python dissectors */
-		register_all_py_handoffs_func(cb, client_data);
+	/* Now do the same with python dissectors */
+	register_all_py_handoffs_func(cb, client_data);
 #endif
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
 	if(cb)
-	  (*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
+		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	register_all_plugin_handoffs();
 #endif
 
@@ -482,7 +482,7 @@ proto_cleanup(void)
 		gpa_hfinfo.hfi=NULL;
 	}
 	g_free(tree_is_expanded);
-    tree_is_expanded = NULL;
+	tree_is_expanded = NULL;
 }
 
 static gboolean
