@@ -2031,7 +2031,11 @@ fi
 if test "x$have_good_adns" = "xyes" ; then
 	adns_message="yes"
 else
-	adns_message="no"
+	if test "x$have_good_c_ares" = "xyes" ; then
+		adns_message="no (using c-ares instead)"
+	else
+		adns_message="no"
+	fi
 fi
 
 if test "x$have_good_libcap" = "xyes" ; then
