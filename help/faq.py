@@ -45,23 +45,23 @@ class faq_section:
 		return 3
 
 	def print_index(self):
-		print "<a href=#sec%s><h%d>%s:</h%d></a>\n" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level())
+		print("<a href=#sec%s><h%d>%s:</h%d></a>\n" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level()))
 		for qa in self.qa:
 			id = qa[0]
 			question = qa[1]
-			print '<p class="faq_q">'
-			print '<a class="faq_qnum" href=#q%s>%s %s</a>\n' % (id, id, question)
-			print '</p>'
+			print('<p class="faq_q">')
+			print('<a class="faq_qnum" href=#q%s>%s %s</a>\n' % (id, id, question))
+			print('</p>')
 		for subsec in self.subsecs:
 			subsec.print_index()
 
 	def print_contents(self):
 		# Table header
-		print """
+		print("""
   <a name="sec%s">
     <h%d>%s</h%d>
   </a>
-""" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level())
+""" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level()))
 
 		# Questions and Answers
 		for qa in self.qa:
@@ -70,26 +70,26 @@ class faq_section:
 			answer = qa[2]
 			tag = qa[3]
 
-			print '<p class="faq_q">'
-			print '<a class="faq_qnum" name=q%s>Q %s:</a>' % (id, id)
+			print('<p class="faq_q">')
+			print('<a class="faq_qnum" name=q%s>Q %s:</a>' % (id, id))
 			if tag is not None:
-				print '<a name=%s>' % tag
-			print '<span>%s</span>' % (question)
+				print('<a name=%s>' % tag)
+			print('<span>%s</span>' % (question))
 			if tag is not None:
-				print '</a>'
-			print '</p>'
+				print('</a>')
+			print('</p>')
 
-			print '<p class="faq_a">'
-			print '<span class="faq_anum">A:</span>\n'
-			print answer
-			print '</p>'
+			print('<p class="faq_a">')
+			print('<span class="faq_anum">A:</span>\n')
+			print(answer)
+			print('</p>')
 
 		# Subsections
 		for subsec in self.subsecs:
 			subsec.print_contents()
 
 		# Table footer
-		print ""
+		print("")
 
 class faq_subsection(faq_section):
 	def __init__(self, name, secnum, subsecnum):
@@ -199,16 +199,16 @@ def answer(text):
 
 # Create the index
 def create_index():
-	print """
+	print("""
   <a name="index">
     <h1>Index</h1>
   </a>
-"""
+""")
 	for sec in sections:
 		sec.print_index()
 
-	print """
-"""
+	print("""
+""")
 
 
 # Print result
