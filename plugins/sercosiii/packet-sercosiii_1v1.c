@@ -40,6 +40,9 @@ static gint proto_siii = -1;
 static gint ett_siii = -1;
 static gint ett_siii_header = -1;
 
+/* Allow heuristic dissection */
+static heur_dissector_list_t heur_subdissector_list;
+
 /* Main dissector entry */
 static void
 dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -54,6 +57,14 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* setup columns */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SERCOS III V1.1");
   col_clear(pinfo->cinfo, COL_INFO);
+
+  /*
+   * In case the packet is a protocol encoded in the basic SercosIII transport stream,
+   * give that protocol a chance to make a heuristic dissection, before we continue
+   * to dissect it as a normal SercosIII packet.
+   */
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
+    return;
 
   /* check what we got on our hand */
   type = tvb_get_guint8(tvb, 0);
@@ -96,6 +107,9 @@ proto_register_sercosiii(void)
       "SERCOS III V1.1", "sercosiii");
 
   register_dissector("sercosiii", dissect_siii, proto_siii);
+
+  /* subdissector code */
+  register_heur_dissector_list("sercosiii", &heur_subdissector_list);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_subtree_array(ett, array_length(ett));

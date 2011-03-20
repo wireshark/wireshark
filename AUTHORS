@@ -3243,6 +3243,9 @@ Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
 	JSON dissector
 }
 
+Roland Knall		<rknall [AT] gmail.com> {
+	Support for heuristic subdissectors for SERCOS III
+}
 
 and by:
 
@@ -3354,7 +3357,7 @@ Brice Augustin		<bricecotte [AT] gmail.com>
 Matt Thornton		<MATT_THORNTON [AT] appsig.com>
 Markus Seehofer		<Markus.Seehofer [AT] hirschmann.de>
 Timo Metsala		<timo.metsala [AT] gmail.com>
-Tomer Shani		<thetour [AT} japan.com>
+Tomer Shani		<thetour [AT] japan.com>
 Manu Pathak		<mapathak [AT] cisco.com>
 Kaul			<mykaul [AT] gmail.com>
 John Sullivan		<john [AT] kanargh.force9.co.uk>
