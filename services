@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-03-10)
+(last updated 2011-03-16)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -13722,7 +13722,14 @@ vision_server   6672/udp   vision_server
 vision_elmd     6673/tcp   vision_elmd
 vision_elmd     6673/udp   vision_elmd
 #                          Chris Kramer <CKramer&gis.shl.com>
-#               6674-6686  Unassigned
+#               6674-6677  Unassigned
+vfbp            6678/tcp   Viscount Freedom Bridge Protocol
+vfbp-disc       6678/udp   Viscount Freedom Bridge Discovery
+#                          Chris MacDonald <chris&viscount.com> 16 March 2011
+osaut           6679/tcp   Osorno Automation
+osaut           6679/udp   Osorno Automation
+#                          Peter Hombach <p.hombach&osorno.ca> 16 March 2011
+#               6680-6686  Unassigned
 clever-ctrace   6687/tcp   CleverView for cTrace Message Service
 #                          David Cheng <davec&aesclever.com> 01 February 2010
 #               6687/udp   Reserved
