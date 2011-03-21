@@ -966,7 +966,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 						fd_i->len-(dfpos-fd_i->offset));
 				}
 			} else {
-				if (fd_i->offset + fd_i->len < fd_i->offset) /* XXX what? This only tests if fd_i->len is negative */
+				if (fd_i->offset + fd_i->len < fd_i->offset) /* Integer overflow? */
 					g_warning("Reassemble error in frame %u: offset %u + len %u < offset",
 						pinfo->fd->num, fd_i->offset,
 						fd_i->len);
