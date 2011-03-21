@@ -101,7 +101,7 @@ static GtkWidget *find_frame_w;
 static GtkWidget *filter_text_box;
 
 /*
- * Save the presskey handlers to be able to dissable the auto-completion 
+ * Save the presskey handlers to be able to dissable the auto-completion
  * feature for hex and string searches.
  */
 static gulong te_presskey_handler_id;
@@ -287,7 +287,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Character Type Selection Dropdown Box
      These only apply to the string find option */
   /* Create Combo Box */
- 
+
   combo_cb = gtk_combo_box_new_text();
 
   gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Unicode & Non-Unicode");
@@ -553,8 +553,10 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   size_t           nbytes = 0;
   char            *string = NULL;
   dfilter_t       *sfcode = NULL;
-  gboolean        found_packet=FALSE;
-  int			  string_type;
+  gboolean         found_packet=FALSE;
+  gboolean         hex_search;
+  gboolean         string_search;
+  int		   string_type;
 
   filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILT_KEY);
   up_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_BACKWARD_KEY);
@@ -569,7 +571,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
   /* Corresponds to the enum in file.c
-   * Character set for text search. 
+   * Character set for text search.
    * typedef enum {
    *   SCS_ASCII_AND_UNICODE,
    *   SCS_ASCII,
@@ -579,15 +581,16 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
    */
   string_type = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_cb));
 
-  case_type = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
-  packet_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(packet_data_rb));
-  decode_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(decode_data_rb));
-  summary_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(summary_data_rb));
-
+  case_type     = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
+  packet_data   =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(packet_data_rb));
+  decode_data   =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(decode_data_rb));
+  summary_data  =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(summary_data_rb));
+  hex_search    =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb));
+  string_search =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb));
   /*
    * Process the search criterion.
    */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb))) {
+  if (hex_search) {
     /*
      * Hex search - scan the search string to make sure it's valid hex
      * and to find out how many bytes there are.
@@ -597,7 +600,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       statusbar_push_temporary_msg("That's not a valid hex string.");
       return;
     }
-  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb))) {
+  } else if (string_search) {
     /*
      * String search.
      * Make sure we're searching for something, first.
@@ -644,17 +647,17 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
    */
   g_free(cfile.sfilter);
   cfile.sfilter = g_strdup(filter_text);
-  cfile.dir = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (up_rb)) ? SD_BACKWARD : SD_FORWARD;
-  cfile.hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb));
-  cfile.string = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb));
-  cfile.scs_type = scs_type;
-  cfile.case_type = case_type;
-  cfile.packet_data = packet_data;
-  cfile.decode_data = decode_data;
+  cfile.dir          = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (up_rb)) ? SD_BACKWARD : SD_FORWARD;
+  cfile.hex          = hex_search;
+  cfile.string       = string_search;
+  cfile.scs_type     = scs_type;
+  cfile.case_type    = case_type;
+  cfile.packet_data  = packet_data;
+  cfile.decode_data  = decode_data;
   cfile.summary_data = summary_data;
 
   if (cfile.hex) {
-    /* Hex value in packet data */ 
+    /* Hex value in packet data */
     found_packet = cf_find_packet_data(&cfile, bytes, nbytes, cfile.dir);
     g_free(bytes);
     if (!found_packet) {
