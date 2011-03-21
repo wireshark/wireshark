@@ -177,6 +177,8 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
     MD5Transform(ctx->buf, ctx->in);
     byteReverse(ctx->buf, 4);
     memcpy(digest, ctx->buf, 16);
+    /* XXX: Reported as "suspicious" by Coverity Prevent ...         */
+    /*      Was sizeof(*ctx) [i.e., sizeof(md5_state_t)] intended ?  */
     memset(ctx, 0, sizeof(ctx));	/* In case it's sensitive */
 }
 
