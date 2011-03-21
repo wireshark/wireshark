@@ -66,7 +66,7 @@
    is a byte-swapped version of that.
 
    PCAP_NSEC_MAGIC is for Ulf Lamping's modified "libpcap" format,
-   which uses the same common file format as PCAP_MAGIC, but the 
+   which uses the same common file format as PCAP_MAGIC, but the
    timestamps are saved in nanosecond resolution instead of microseconds.
    PCAP_SWAPPED_NSEC_MAGIC is a byte-swapped version of that. */
 #define	PCAP_MAGIC			0xa1b2c3d4
@@ -182,7 +182,6 @@ struct option {
 			} else {                                                           \
 				*error_pointer = 0;                                        \
 			}                                                                  \
-			fclose(file_pointer);                                              \
 			return FALSE;                                                      \
 		}                                                                          \
 		written_length += (long)nwritten;                                          \
@@ -277,7 +276,7 @@ libpcap_write_session_header_block(FILE *fp,
 	struct option option;
 	guint32 block_total_length;
 	const guint32 padding = 0;
-	
+
 	block_total_length = sizeof(struct shb) +
 	                     sizeof(guint32);
 	if ((strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
@@ -328,7 +327,7 @@ libpcap_write_interface_description_block(FILE *fp,
 
 	block_total_length = sizeof(struct idb) + sizeof(guint32);
 	if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
-		block_total_length += sizeof(struct option) + 
+		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(name) + 1));
 	}
 	if ((strlen(filter) > 0) && (strlen(name) < G_MAXUINT16)) {
@@ -433,7 +432,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	guint64 timestamp;
 	guint64 counter;
 	gboolean stats_retrieved;
-	
+
 #ifdef _WIN32
 	/*
 	 * Current time, represented as 100-nanosecond intervals since
@@ -506,7 +505,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 	}
 	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-	
+
 	return TRUE;
 }
 
