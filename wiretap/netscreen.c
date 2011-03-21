@@ -322,7 +322,7 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	return parse_netscreen_hex_dump(wth->random_fh, len, pd, err, err_info);
+	return (parse_netscreen_hex_dump(wth->random_fh, len, pd, err, err_info) != -1);
 }
 
 /* Parses a packet record header. There are a few possible formats:
