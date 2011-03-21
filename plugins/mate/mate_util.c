@@ -1698,7 +1698,7 @@ extern LoAL* loal_from_file(gchar* filename) {
 					name[0] = '\0';
 					switch (c) {
 						case '\\':
-							c = fgetc(fp);
+							c = (gchar) fgetc(fp);
 							if (c != '\n') ungetc(c,fp);
 							continue;
 						case ' ':
@@ -1751,7 +1751,7 @@ extern LoAL* loal_from_file(gchar* filename) {
 					case IN_VALUE:
 						switch (c) {
 							case '\\':
-								value[i++] = fgetc(fp);
+								value[i++] = (gchar) fgetc(fp);
 								continue;
 							case ';':
 								state = BEFORE_NAME;
