@@ -458,6 +458,7 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
+#if 0
 static void
 expert_dlg_severity_cb(GtkWidget *w, gpointer data _U_)
 {
@@ -478,6 +479,7 @@ expert_dlg_severity_cb(GtkWidget *w, gpointer data _U_)
     expert_dlg_display_reset(etd);
     expert_dlg_draw(etd);
 }
+#endif
 
 expert_tapdata_t * expert_dlg_new_table(void)
 {
