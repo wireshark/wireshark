@@ -383,7 +383,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 					    portnum + number);
 				} else {
 					for (i = off + 4;
-					    paramlen > 0;
+					    paramleft > 0;
 					    i += 2, paramleft -= 2)
 						proto_tree_add_item(v_tree,
 						    hf_rsip_parameter_ports_port_number,
