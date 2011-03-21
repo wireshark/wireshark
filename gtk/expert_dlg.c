@@ -490,6 +490,7 @@ expert_tapdata_t * expert_dlg_new_table(void)
     return etd;
 }
 
+#if 0
 static void
 expert_dlg_init(const char *optarg, void* userdata _U_)
 {
@@ -597,7 +598,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
     gdk_window_raise(etd->win->window);
     expert_dlg_draw(etd);
 }
-#if 0
+
 static void
 expert_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
