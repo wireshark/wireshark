@@ -203,7 +203,7 @@ gboolean capture_info_new_file(const char *new_filename)
 {
     int err;
     gchar *err_info;
-    char err_msg[2048+1];
+    gchar *err_msg;
 
 
     if(info_data.wtap != NULL) {
@@ -212,10 +212,10 @@ gboolean capture_info_new_file(const char *new_filename)
 
     info_data.wtap = wtap_open_offline(new_filename, &err, &err_info, FALSE);
     if (!info_data.wtap) {
-        g_snprintf(err_msg, sizeof err_msg,
-                   cf_open_error_message(err, err_info, FALSE, WTAP_FILE_PCAP),
-                   new_filename);
+        err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_PCAP),
+                                  new_filename);
         g_warning("capture_info_new_file: %d (%s)", err, err_msg);
+        g_free (err_msg);
         return FALSE;
     } else
         return TRUE;
