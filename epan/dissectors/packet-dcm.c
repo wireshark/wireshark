@@ -6297,10 +6297,8 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    /* Copy pure DICOM data to buffer, no PDV flags */
 
 		    pdv->data = g_malloc(next_tvb->length);      /* will be freed in dcm_export_create_object() */
-		    if (pdv->data) {
-			tvb_memcpy(next_tvb, pdv->data, 0, next_tvb->length);
-			pdv->data_len = next_tvb->length;
-		    }
+                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb->length);
+                    pdv->data_len = next_tvb->length;
 
 		    /* Copy to export buffer */
 		    dcm_export_create_object(pinfo, assoc, pdv);
@@ -6317,10 +6315,8 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    /* Copy pure DICOM data to buffer, no PDV flags */
 
 	    pdv->data = g_malloc(pdv_body_len);      /* will be freed in dcm_export_create_object() */
-	    if (pdv->data) {
-		tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
-		pdv->data_len = pdv_body_len;
-	    }
+            tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
+            pdv->data_len = pdv_body_len;
 
 	    if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
 		/* At the last segment, merge all related previous PDVs and copy to export buffer */
