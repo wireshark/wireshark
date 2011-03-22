@@ -1562,6 +1562,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
   /* Only process the point information for replies or items with point index lists */
   if (!header_only || al_objq_index > 0) {
     start_offset = offset;
+    nstime_set_zero (&al_cto);
     for (item_num = 0; item_num < num_items; item_num++)
     {
       /* Create Point item and Process Index */
