@@ -80,9 +80,11 @@ typedef struct tpncp_data_field_info
 static gboolean tpncp_desegment = TRUE;
 
 /* Database for storing information about all TPNCP events. */
+/* XXX: ToDo: allocate at runtime as needed */
 static tpncp_data_field_info tpncp_events_info_db[MAX_TPNCP_DB_SIZE];
 
 /* Database for storing information about all TPNCP commands. */
+/* XXX: ToDo: allocate at runtime as needed */
 static tpncp_data_field_info tpncp_commands_info_db[MAX_TPNCP_DB_SIZE];
 
 /* Global variables for bitfields representation. */
@@ -115,6 +117,9 @@ static guint trunkpack_tcp_port = 0,
              host_tcp_port = 0,
              host_udp_port = 0;
 
+/* XXX: ToDo: allocate at runtime as needed */
+/*      The following allocates something on the order of 2M of static memory ! */
+/*      Also: Runtime value_string_ext arrays should be used                    */
 static value_string tpncp_commands_id_vals[MAX_TPNCP_DB_SIZE];
 static value_string tpncp_events_id_vals[MAX_TPNCP_DB_SIZE];
 static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
@@ -355,7 +360,7 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
         if (sscanf(line_in_file, "%s %d", tpncp_name, &tpncp_id) == 2) {
             string[i].strptr = g_strdup(tpncp_name);
             string[i].value = tpncp_id;
-            if (i < MAX_TPNCP_DB_SIZE) {
+            if (i < (MAX_TPNCP_DB_SIZE-1)) {
                 i++;
             }
             else {
@@ -390,9 +395,9 @@ static gint fill_enums_id_vals(FILE *file) {
         if (sscanf(line_in_file, "%s %s %d", enum_name, enum_str, &enum_id) == 3) {
             if (strcmp(enum_type, enum_name)) {
                 if (!first_entry) {
-                    if (enum_val < MAX_ENUMS_NUM) {
-                        tpncp_enums_id_vals[enum_val][i].strptr = NULL;
-                        tpncp_enums_id_vals[enum_val][i].value = 0;
+                    tpncp_enums_id_vals[enum_val][i].strptr = NULL;
+                    tpncp_enums_id_vals[enum_val][i].value = 0;
+                    if (enum_val < (MAX_ENUMS_NUM-1)) {
                         enum_val++; i = 0;
                     }
                     else {
@@ -406,7 +411,7 @@ static gint fill_enums_id_vals(FILE *file) {
             }
             tpncp_enums_id_vals[enum_val][i].strptr = g_strdup(enum_str);
             tpncp_enums_id_vals[enum_val][i].value = enum_id;
-            if (i < MAX_ENUM_ENTRIES) {
+            if (i < (MAX_ENUM_ENTRIES-1)) {
                 i++;
             }
             else {
