@@ -340,7 +340,6 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	guint dl_burst_diuc, dl_num_regions;
 	proto_item *dcd_item = NULL;
 	proto_tree *dcd_tree = NULL;
-	proto_item *tlv_item = NULL;
 	proto_tree *tlv_tree = NULL;
 	proto_tree *sub_tree = NULL;
 	tlv_info_t tlv_info;
@@ -393,7 +392,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* get the TLV value offset */
 			tlv_value_offset = get_tlv_value_offset(&tlv_info);
 #ifdef DEBUG /* for debug only */
-			tlv_item = proto_tree_add_protocol_format(dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, (tlv_len + tlv_value_offset), "DCD Type: %u (%u bytes, offset=%u, tvb_len=%u)", tlv_type, tlv_len, offset, tvb_len);
+			proto_tree_add_protocol_format(dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, (tlv_len + tlv_value_offset), "DCD Type: %u (%u bytes, offset=%u, tvb_len=%u)", tlv_type, tlv_len, offset, tvb_len);
 #endif
 			/* update the offset */
 			offset += tlv_value_offset;
@@ -430,6 +429,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						{
 							case DCD_BURST_FREQUENCY:
 							{
+								proto_item *tlv_item = NULL;
+
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), 1, FALSE);
 								tlv_item = proto_tree_add_item(sub_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), 1, FALSE);
 								proto_item_append_text(tlv_item, " kHz");
@@ -444,13 +445,13 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 							case DCD_BURST_DIUC_EXIT_THRESHOLD:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, FALSE);
-								tlv_item = proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, FALSE);
 								break;
 							}
 							case DCD_BURST_DIUC_ENTRY_THRESHOLD:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, FALSE);
-								tlv_item = proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, FALSE);
 								break;
 							}
 							case DCD_BURST_TCS_ENABLE:
@@ -469,6 +470,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_BS_EIRP:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_bs_eirp, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_bs_eirp, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dBm");
@@ -500,6 +503,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TTG:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_ttg, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_ttg, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " PS");
@@ -507,6 +512,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_RTG:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_rtg, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rtg, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " PS");
@@ -515,6 +522,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 #ifdef WIMAX_16D_2004
 				case DCD_RSS:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_rss, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rss, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dBm");
@@ -523,6 +532,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 #else
 				case DCD_EIRXP:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_eirxp, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_eirxp, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dBm");
@@ -537,6 +548,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_FREQUENCY:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_frequency, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_frequency, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " kHz");
@@ -570,6 +583,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 #endif
 				case DCD_H_ARQ_ACK_DELAY:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_h_arq_ack_delay, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_h_arq_ack_delay, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " frame offset");
@@ -637,6 +652,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TLV_T_31_H_ADD_THRESHOLD:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset, 1, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dB");
@@ -644,6 +661,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TLV_T_32_H_DELETE_THRESHOLD:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dB");
@@ -651,6 +670,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TLV_T_33_ASR:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "ASR Slot Length (M) and Switching Period (L) (%u byte(s))", tlv_len);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr, tvb, offset, 1, FALSE);
 					tlv_item = proto_tree_add_item(tvl_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, FALSE);
@@ -679,6 +700,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TLV_T_51_HYSTERSIS_MARGIN:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " dB");
@@ -686,6 +709,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				}
 				case DCD_TLV_T_52_TIME_TO_TRIGGER_DURATION:
 				{
+					proto_item *tlv_item = NULL;
+
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset, tlv_len, FALSE);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset, tlv_len, FALSE);
 					proto_item_append_text(tlv_item, " ms");
