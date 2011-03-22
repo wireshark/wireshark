@@ -774,7 +774,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 			}
 
 			if ( range_fi ) {
-				range = g_malloc(sizeof(range));
+				range = g_malloc(sizeof(*range));
 				range->start = range_fi->start;
 				range->end = range_fi->start + range_fi->length;
 				g_ptr_array_add(data.ranges,range);
@@ -811,7 +811,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 				}
 
 				if ( range_fi ) {
-					range = g_malloc(sizeof(range));
+					range = g_malloc(sizeof(*range));
 					range->start = range_fi->start;
 					range->end = range_fi->start + range_fi->length;
 					g_ptr_array_add(data.ranges,range);
