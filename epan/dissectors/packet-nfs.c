@@ -1748,9 +1748,9 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 		item = proto_tree_add_text(tree, tvb, offset + 0, 8, "export (inode %u)", fileid);
 		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_export);
 
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
+		proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
 					   tvb, offset + 0, 4, fileid);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_generation,
+		proto_tree_add_uint(subtree, hf_nfs_fh_export_generation,
 					   tvb, offset + 4, 4, snapgen);
 		item = proto_tree_add_text(tree, tvb, offset + 8, 16, "file (inode %u)", inum);
 		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_file);
@@ -1759,33 +1759,33 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 						  "Flags: %#02x%s", flags,
 						  flag_string);
 		flag_tree = proto_item_add_subtree(item, ett_nfsv4_fh_file_flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_mntpoint, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir_ent, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_empty, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vbn_access, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_multivolume, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_metadata, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_orphan, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_foster, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_named_attr, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_exp_snapdir, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vfiler, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_aggr, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_striped, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_private, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_next_gen, tvb, offset+8, 2, flags);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_mntpoint, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_snapdir_ent, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_empty, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vbn_access, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_multivolume, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_metadata, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_orphan, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_foster, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_named_attr, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_exp_snapdir, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_vfiler, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_aggr, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_striped, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_private, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_nfs_fh_file_flag_next_gen, tvb, offset+8, 2, flags);
+		proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
 					   offset + 10, 1, snapid);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
 					   offset + 11, 1, unused);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
 					   offset + 12, 4, inum);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
 					   offset + 16, 4, generation);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
 					   offset + 20, 4, fsid);
-		item = proto_tree_add_uint_format(tree, hf_nfs_fh_handle_type,
+		proto_tree_add_uint_format(tree, hf_nfs_fh_handle_type,
 						  tvb, offset+24, 4, handle_type,
 						  "Handle type: %s(%#02x)", handle_string, handle_type);
 	}
