@@ -1164,8 +1164,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 static void
 init_col_text(frame_data *fdata, gint num_cols)
 {
-  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * num_cols);
-  fdata->col_text = se_alloc0(sizeof(fdata->col_text) * num_cols);
+  fdata->col_text_len = se_alloc0(sizeof(*fdata->col_text_len) * num_cols);
+  fdata->col_text = se_alloc0(sizeof(*fdata->col_text) * num_cols);
 }
 
 /* read in a new packet */
