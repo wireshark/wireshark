@@ -30,7 +30,8 @@
 
 #include <gtk/gtk.h>
 #include <epan/expert.h>
-#include <gtk/expert_dlg.h>
+
+typedef struct expert_tapdata_s expert_tapdata_t;
 
 /** @file
  *  Helper routines common to all error statistics tap.
