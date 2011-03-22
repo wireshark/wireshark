@@ -68,6 +68,7 @@ static int hf_sgsap_imsi_det_eps = -1;
 static int hf_sgsap_lcs_indic = -1;
 static int hf_sgsap_mme_name = -1;
 static int hf_sgsap_vlr_name = -1;
+static int hf_sgsap_imeisv = -1;
 
 static int ett_sgsap = -1;
 
@@ -189,6 +190,20 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * The IMEISV consists of 16 digits
  * (see 3GPP TS 23.003).
  */
+static guint16
+de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	const char  *imeisv_str;
+    guint32		curr_offset;
+
+    curr_offset = offset;
+
+	imeisv_str = tvb_bcd_dig_to_ep_str( tvb, curr_offset, len, NULL, FALSE);
+	proto_tree_add_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, imeisv_str);
+
+    return(len);
+}
+
 /*
  * 9.4.6	IMSI
  * See subclause 18.4.10 in 3GPP TS 29.018 [16].
@@ -682,7 +697,7 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_sgsap_imsi_det_eps,									/* 9.4.7 IMSI detach from EPS service type */
 	de_sgsap_imsi_det_non_eps,								/* 9.4.8 IMSI detach from non-EPS service type */
 
-	NULL/*DE_SGSAP_IMEISV*/,								/* 9.4.5 IMEISV */
+	de_sgsap_imeisv,										/* 9.4.5 IMEISV */
 	de_sgsap_nas_msg_container,								/* 9.4.15 NAS message container*/
 	de_sgsap_mm_info,										/* 9.4.12 MM information*/
 
@@ -945,6 +960,7 @@ sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* TMSI status	TMSI status 9.4.21	O	TLV	3 */
 	ELEM_OPT_TLV( 0x07 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL );
 	/* IMEISV	IMEISV 9.4.5	O	TLV	10 */
+	ELEM_OPT_TLV(0x15, SGSAP_PDU_TYPE, DE_SGSAP_IMEISV, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1089,16 +1105,17 @@ sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Service indicator	Service indicator 9.4.17	M	TLV	3 */
 	ELEM_MAND_TLV(0x20, SGSAP_PDU_TYPE, DE_SGSAP_SERV_INDIC, NULL);
 	/* IMEISV	IMEISV 9.4.5	O	TLV	10 */
+	ELEM_OPT_TLV(0x15, SGSAP_PDU_TYPE, DE_SGSAP_IMEISV, NULL);
 	/* UE Time Zone	UE Time Zone 9.4.21b	O	TLV	3 */
-	ELEM_OPT_TV(0x21, GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE, " - UE Time Zone");
+	ELEM_OPT_TLV(0x21, GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE, " - UE Time Zone");
 	/* Mobile Station Classmark 2	Mobile Station Classmark 2 9.4.14a	O	TLV	5 */
 	ELEM_OPT_TLV(0x22 ,GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 	/* TAI	Tracking Area Identity 9.4.21a	O	TLV	7 */
 	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
 	/* E-CGI	E-UTRAN Cell Global Identity 9.4.3a	O	TLV	9 */
-	ELEM_OPT_TLV(0x24, NAS_PDU_TYPE_EMM, DE_SGSAP_ECGI, NULL);
+	ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
 	/* UE EMM Mode	UE EMM mode 9.4.21c	O	TLV	3 */ 
-	ELEM_MAND_TLV(0x25, SGSAP_PDU_TYPE, DE_SGSAP_UE_EMM_MODE, NULL);
+	ELEM_OPT_TLV(0x25, SGSAP_PDU_TYPE, DE_SGSAP_UE_EMM_MODE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1203,14 +1220,15 @@ sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* NAS message container	NAS message container 9.4.15	M	TLV	4-253 */
 	ELEM_MAND_TLV(0x16, SGSAP_PDU_TYPE, DE_SGSAP_NAS_MSG_CONTAINER, NULL);
 	/* IMEISV	IMEISV 9.4.5	O	TLV	10 */
+	ELEM_OPT_TLV(0x15, SGSAP_PDU_TYPE, DE_SGSAP_IMEISV, NULL);
 	/* UE Time Zone	UE Time Zone 9.4.21b	O	TLV	3 */
-	ELEM_OPT_TV(0x21, GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE, " - UE Time Zone");
+	ELEM_OPT_TLV(0x21, GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE, " - UE Time Zone");
 	/* Mobile Station Classmark 2	Mobile Station Classmark 2 9.4.14a	O	TLV	5 */
 	ELEM_OPT_TLV(0x22 ,GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 	/* TAI	Tracking Area Identity 9.4.21a	O	TLV	7 */
 	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
 	/* E-CGI	E-UTRAN Cell Global Identity 9.4.3a	O	TLV	9 */
-	ELEM_OPT_TLV(0x24, NAS_PDU_TYPE_EMM, DE_SGSAP_ECGI, NULL);
+	ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1490,6 +1508,11 @@ void proto_register_sgsap(void) {
     },
     { &hf_sgsap_vlr_name,
         {"VLR name", "sgsap.mme_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+    },
+	{ &hf_sgsap_imeisv,
+        {"IMEISV", "sgsap.imeisv",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
