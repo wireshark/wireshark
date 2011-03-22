@@ -674,7 +674,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "ASR Slot Length (M) and Switching Period (L) (%u byte(s))", tlv_len);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr, tvb, offset, 1, FALSE);
-					tlv_item = proto_tree_add_item(tvl_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, FALSE);
 					proto_item_append_text(tlv_item, " frames");
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_l, tvb, offset, 1, FALSE);
 					proto_item_append_text(tlv_item, " frames");
