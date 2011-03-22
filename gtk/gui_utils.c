@@ -315,6 +315,8 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         http://www.gtk.org/faq/#AEN606
      */
 
+    memset (geom, 0, sizeof (window_geometry_t));
+
 #if GTK_CHECK_VERSION(2,14,0)
     widget_window = gtk_widget_get_window(widget);
 #else
