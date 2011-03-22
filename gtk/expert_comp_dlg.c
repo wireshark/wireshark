@@ -84,7 +84,7 @@ typedef struct _expert_comp_dlg_t {
     guint32 error_events;
 } expert_comp_dlg_t;
 
-typedef struct expert_tapdata_s {
+struct expert_tapdata_s {
 	GtkWidget	*win;
 	GtkWidget	*scrolled_window;
 	GtkTreeView *tree_view;
@@ -100,7 +100,7 @@ typedef struct expert_tapdata_s {
 	guint		first;
 	guint		last;
 	GStringChunk*	text;		/* summary text */
-} expert_tapdata_t;
+};
 
 static GtkWidget  *expert_comp_dlg_w = NULL;
 

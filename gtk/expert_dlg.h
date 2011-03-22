@@ -31,30 +31,7 @@
 
 #include <gtk/gtk.h>
 
-typedef struct expert_tapdata_s {
-	GtkWidget	*win;
-	GtkWidget	*scrolled_window;
-	GtkTreeView *tree_view;
-	GtkWidget	*label;
-	guint32		disp_events;
-	guint32		chat_events;
-	guint32		note_events;
-	guint32		warn_events;
-	guint32		error_events;
-	int		severity_report_level;
-
-	GArray		*ei_array;	/* expert info items */
-	guint		first;
-	guint		last;
-	GStringChunk*	text;		/* summary text */
-} expert_tapdata_t;
-
-extern expert_tapdata_t * expert_dlg_new_table(void);
-extern void expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox);
-extern void expert_dlg_reset(void *tapdata);
-extern int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer);
-extern void expert_dlg_draw(void *data);
-extern void expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data);
+typedef struct expert_tapdata_s expert_tapdata_t;
 
 #endif /* __EXPERT_DLG_H__ */
 
