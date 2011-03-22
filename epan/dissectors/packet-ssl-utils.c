@@ -3271,6 +3271,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
         if (!private_key) {
             fprintf(stderr,"can't load private key from %s\n",
                     filename);
+            fclose(fp);
             continue;
         }
 
