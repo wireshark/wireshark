@@ -139,7 +139,11 @@ static void ref_time_packets(capture_file *cf);
 #define FRAME_DATA_CHUNK_SIZE   1024
 
 
-/* this callback mechanism should possibly be replaced by the g_signal_...() stuff (if I only would know how :-) */
+/*
+ * We could probably use g_signal_...() instead of the callbacks below but that
+ * would require linking our CLI programs to libgobject and creating an object
+ * instance for the signals.
+ */
 typedef struct {
   cf_callback_t cb_fct;
   gpointer user_data;
