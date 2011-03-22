@@ -3079,7 +3079,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
         offset++;
 
         /* FACH Indicator flag */
-        fach_present = (tvb_get_guint8(tvb, offset) & 0x08) >> 7;
+        fach_present = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
         proto_tree_add_item(tree, hf_fp_fach_indicator, tvb, offset, 1, FALSE);
         offset++;
 
