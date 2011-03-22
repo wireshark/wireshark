@@ -811,11 +811,9 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     tvbuff_t *ccpri_tvb;
     dissector_handle_t protocol_handle = 0;
     guint16  length;
-    proto_item *top_ti;  /* TODO: pass one in */
 
     /* Top-level opcode */
-    top_ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode,
-                                 tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, FALSE);
     opcode = tvb_get_guint8(tvb, offset++);
 
     /* Skip 2-byte length field */
@@ -863,16 +861,6 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
         ccpri_tvb = tvb_new_subset(tvb, offset, length, length);
         call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree);
     }
-
-#if 0
-    /* Grumble if there are bytes left after indicated payload */
-    offset += length;
-    if (tvb_length_remaining(tvb, offset) > 0) {
-        expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR,
-                               "CCPRI frame has %u bytes remaining after payload",
-                               tvb_length_remaining(tvb, offset));
-    }
-#endif
 }
 
 
