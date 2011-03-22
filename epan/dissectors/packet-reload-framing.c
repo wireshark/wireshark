@@ -213,7 +213,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
-    reload_frame = ep_alloc(sizeof(reload_frame));
+    reload_frame = ep_alloc(sizeof(reload_frame_t));
     reload_frame->data_frame = 0;
     reload_frame->ack_frame = 0;
     reload_frame->req_time = pinfo->fd->abs_ts;
