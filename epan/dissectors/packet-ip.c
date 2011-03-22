@@ -1727,7 +1727,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    * the generic ip.proto dispatcher
    */
   if (nxt == IP_PROTO_IPIP &&
-        (tvb_get_guint8(next_tvb, 0) & 0xF0) != 40 &&
+        (tvb_get_guint8(next_tvb, 0) & 0xF0) != 0x40 &&
         tvb_get_ntohs(next_tvb, 2) < 20) {
      call_dissector(tapa_handle,next_tvb, pinfo, parent_tree);
 
