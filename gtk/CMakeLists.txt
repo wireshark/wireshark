@@ -147,7 +147,6 @@ set(WIRESHARK_TAP_SRC
 	dcerpc_stat.c
 	diameter_stat.c
 	expert_comp_dlg.c
-	expert_dlg.c
 	fc_stat.c
 	flow_graph.c
 	funnel_stat.c
