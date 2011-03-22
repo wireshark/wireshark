@@ -914,8 +914,6 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 
 		if (octet & Q931_IE_VL_EXTENSION)
 			goto l1_done;
-		if (len == 0)
-			return;
 		octet = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "%s duplex",
