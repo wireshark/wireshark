@@ -172,7 +172,6 @@ WIRESHARK_TAP_SRC = \
 	dcerpc_stat.c	\
 	diameter_stat.c	\
 	expert_comp_dlg.c     \
-	expert_dlg.c	\
 	fc_stat.c	\
 	flow_graph.c	\
 	funnel_stat.c	\
@@ -249,7 +248,6 @@ noinst_HEADERS = \
 	drag_and_drop.h	\
 	expert_comp_dlg.h	\
 	expert_comp_table.h	\
-	expert_dlg.h	\
 	expert_indicators.h	\
 	export_object.h	\
 	file_dlg.h	\
