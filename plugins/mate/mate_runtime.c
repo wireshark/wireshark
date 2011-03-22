@@ -445,18 +445,15 @@ static void analyze_gop(mate_gop* gop) {
 					break;
 				}
 
-				/** XXX: Can't get here because of "breaks" above; Incorrect code someplace ?? */
-				delete_avpl(gogkey_match,TRUE);
-				gogkey_match = NULL;
+				/** Can't get here because of "breaks" above */
+				g_assert_not_reached();
 			}
-
-			if (key) g_free(key);
-			key = NULL;
 
 			dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no gogkey_match: %s",key);
 		} /* while */
 
-		if (key) g_free(key);
+		g_free(key);
+		key = NULL;
 
 		if (gogkey_match) delete_avpl(gogkey_match,TRUE);
 
