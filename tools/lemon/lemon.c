@@ -3147,7 +3147,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	  if( access(buf,004)==0 ){
 	    tpltname = buf;
 	  }else if( access(templatename,004)==0 ){
-	    tpltname = templatename;
+	    tpltname = strdup(templatename);
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
 		free(buf);
