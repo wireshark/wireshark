@@ -280,7 +280,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   address     src_addr;
 
-  transport_info_t transport_info;
+  static transport_info_t transport_info;
 
   guint32     port=0;
   gboolean    is_rtp=FALSE;
