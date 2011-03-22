@@ -1158,6 +1158,23 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   return row;
 }
 
+/*
+ * Initialize the col_text and col_text_len arrays.
+ * We allocate them, and initialize them to point to a bunch of null
+ * strings, so that if the columns don't all get set to valid values,
+ * they are empty.
+ */
+static void
+init_col_text(frame_data *fdata, gint num_cols)
+{
+  gint i;
+
+  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * num_cols);
+  fdata->col_text = se_alloc(sizeof(fdata->col_text) * num_cols);
+  for (i = 0; i < num_cols; i++)
+    fdata->col_text[i] = "";
+}
+
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
@@ -1184,9 +1201,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 #endif
 
   frame_data_init(fdata, cf->count, phdr, offset, cum_bytes);
-
-  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
-  fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+  init_col_text(fdata, cf->cinfo.num_cols);
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1746,15 +1761,15 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       /* Well, the user decided to abort the filtering.  Just stop.
 
          XXX - go back to the previous filter?  Users probably just
-     want not to wait for a filtering operation to finish;
-     unless we cancel by having no filter, reverting to the
-     previous filter will probably be even more expensive than
-     continuing the filtering, as it involves going back to the
-     beginning and filtering, and even with no filter we currently
-     have to re-generate the entire clist, which is also expensive.
+         want not to wait for a filtering operation to finish;
+         unless we cancel by having no filter, reverting to the
+         previous filter will probably be even more expensive than
+         continuing the filtering, as it involves going back to the
+         beginning and filtering, and even with no filter we currently
+         have to re-generate the entire clist, which is also expensive.
 
-     I'm not sure what Network Monitor does, but it doesn't appear
-     to give you an unfiltered display if you cancel. */
+         I'm not sure what Network Monitor does, but it doesn't appear
+         to give you an unfiltered display if you cancel. */
       break;
     }
 
@@ -1772,8 +1787,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * And after that fdata->col_text (which is allocated using se_alloc0())
        * no longer points to valid memory.
        */
-      fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
-      fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+      init_col_text(fdata, cf->cinfo.num_cols);
     }
 
     if (!cf_read_frame(cf, fdata))
