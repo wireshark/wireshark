@@ -1204,7 +1204,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
              * GSLists after a capture is closed and wireshark frees seasonal memory
              * with se_free_all() before calling the registered init routine.
              */
-            nwk_keyring = (GSList **)g_malloc0(sizeof(GSList**));
+            nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));
             g_hash_table_insert(zbee_table_nwk_keyring,
                             g_memdup(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
         }
