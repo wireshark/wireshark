@@ -527,7 +527,7 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 static void
 create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
                       guint8 *sessionkey ,const  guint8 *encryptedsessionkey , int flags ,
-                      ntlmssp_blob ntlm_response, ntlmssp_blob lm_response _U_, ntlmssp_header_t *ntlmssph )
+                      const ntlmssp_blob *ntlm_response, const ntlmssp_blob *lm_response _U_, ntlmssp_header_t *ntlmssph )
 {
   char domain_name_unicode[256];
   char user_uppercase[256];
@@ -600,10 +600,10 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     /* NT proof = First NTLMSSP_KEY_LEN bytes of NT response */
     memset(buf,0,512);
     memcpy(buf,serverchallenge,8);
-    memcpy(buf+8,ntlm_response.contents+NTLMSSP_KEY_LEN,ntlm_response.length-NTLMSSP_KEY_LEN);
-    md5_hmac(buf,ntlm_response.length-8,ntowf,NTLMSSP_KEY_LEN,nt_proof);
+    memcpy(buf+8,ntlm_response->contents+NTLMSSP_KEY_LEN,ntlm_response->length-NTLMSSP_KEY_LEN);
+    md5_hmac(buf,ntlm_response->length-8,ntowf,NTLMSSP_KEY_LEN,nt_proof);
     printnbyte(nt_proof,NTLMSSP_KEY_LEN,"NT proof: ","\n");
-    if( !memcmp(nt_proof,ntlm_response.contents,NTLMSSP_KEY_LEN) ) {
+    if( !memcmp(nt_proof,ntlm_response->contents,NTLMSSP_KEY_LEN) ) {
       found = 1;
       break;
     }
@@ -1806,7 +1806,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       {
         conv_ntlmssp_info->rc4_state_initialized = 0;
         if( conv_ntlmssp_info->is_auth_ntlm_v2 ) {
-          create_ntlmssp_v2_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response,conv_ntlmssp_info->lm_response,ntlmssph);
+          create_ntlmssp_v2_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,&conv_ntlmssp_info->ntlm_response,&conv_ntlmssp_info->lm_response,ntlmssph);
         }
         else
         {
