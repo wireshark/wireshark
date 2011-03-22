@@ -1160,19 +1160,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 /*
  * Initialize the col_text and col_text_len arrays.
- * We allocate them, and initialize them to point to a bunch of null
- * strings, so that if the columns don't all get set to valid values,
- * they are empty.
  */
 static void
 init_col_text(frame_data *fdata, gint num_cols)
 {
-  gint i;
-
   fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * num_cols);
-  fdata->col_text = se_alloc(sizeof(fdata->col_text) * num_cols);
-  for (i = 0; i < num_cols; i++)
-    fdata->col_text[i] = "";
+  fdata->col_text = se_alloc0(sizeof(fdata->col_text) * num_cols);
 }
 
 /* read in a new packet */
