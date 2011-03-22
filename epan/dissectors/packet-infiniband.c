@@ -3090,7 +3090,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             {
                 conversation_t *conv;
                 conversation_infiniband_data *proto_data = NULL;
-                guint64 *hash_key = g_malloc(sizeof(hash_key));
+                guint64 *hash_key = g_malloc(sizeof(guint64));
 
                 /* create a new connection context and store it in the hash table */
                 connection = g_malloc(sizeof(connection_context));
