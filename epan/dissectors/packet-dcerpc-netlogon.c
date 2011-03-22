@@ -7963,9 +7963,13 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
         else {
             if(vars->can_decrypt == TRUE) {
                 rc4_state_struct rc4state;
-                int data_len = tvb_length_remaining(tvb,offset);
+                int data_len;
                 guint64 copyconfounder = vars->confounder;
 
+                data_len = tvb_length_remaining(tvb,offset);
+                if (data_len < 0) {
+                    return NULL;
+                }
                 crypt_rc4_init(&rc4state,vars->encryption_key,16);
                 crypt_rc4(&rc4state,(guint8*)&copyconfounder,8);
                 decrypted = (guint8*)tvb_memdup(tvb, offset,data_len);
@@ -7977,8 +7981,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 debugprintf("Session key not found can't decrypt ...\n");
             }
         }
-    }
-    else {
+    } else {
         debugprintf("Vars not found  %d (packet_data)\n",g_hash_table_size(netlogon_auths));
         return(buf);
     }
