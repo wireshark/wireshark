@@ -492,7 +492,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 				GtkWidget *combo_box;
 				int idx;
 				const value_string* enum_vals = f[colnum].fld_data;
-				int* valptr = g_malloc(sizeof(int*));	/* A place to store the index of the    */
+				int* valptr = g_malloc(sizeof(int));	/* A place to store the index of the    */
 									/*  "active" fld_data array entry       */
 									/* -1 means "nothing selected (active)" */
 				combo_box = gtk_combo_box_new_text();
