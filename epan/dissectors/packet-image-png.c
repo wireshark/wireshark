@@ -416,6 +416,20 @@ proto_register_png(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
+static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
+	static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+	if (tvb_length(tvb) < 20)
+		return FALSE;
+
+	if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
+		return FALSE;
+
+	dissect_png(tvb, pinfo, tree);
+	return TRUE;
+}
+
 void
 proto_reg_handoff_png(void)
 {
@@ -423,4 +437,5 @@ proto_reg_handoff_png(void)
 
 	png_handle = create_dissector_handle(dissect_png, proto_png);
 	dissector_add_string("media_type", "image/png", png_handle);
+	heur_dissector_add("http", dissect_png_heur, proto_png);
 }

@@ -873,6 +873,19 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	return;
 }
 
+static gboolean
+dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint len = tvb_length(tvb);
+	if (len < 20)
+		return FALSE;
+	if (tvb_get_ntohs(tvb, 0) != MARKER_SOI)
+		return FALSE;
+	if (tvb_get_ntohs(tvb, len-2) != MARKER_EOI)
+		return FALSE;
+	dissect_jfif(tvb, pinfo, tree);
+	return TRUE;
+}
 
 /****************** Register the protocol with Wireshark ******************/
 
@@ -1172,7 +1185,7 @@ proto_register_jfif(void)
 	proto_register_field_array(proto_jfif, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("image-jfif", dissect_jfif, proto_jfif);
+	register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
 }
 
 
@@ -1181,7 +1194,7 @@ proto_reg_handoff_jfif(void)
 {
 	dissector_handle_t jfif_handle;
 
-	jfif_handle = find_dissector("image-jfif");
+	jfif_handle = find_dissector(IMG_JFIF);
 
 	/* Register the JPEG media type */
 	dissector_add_string("media_type", "image/jfif", jfif_handle);
@@ -1189,4 +1202,6 @@ proto_reg_handoff_jfif(void)
 	dissector_add_string("media_type", "image/jpeg", jfif_handle);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_JPEG_JFIF, jfif_handle);
+
+	heur_dissector_add("http", dissect_jfif_heur, proto_jfif);
 }

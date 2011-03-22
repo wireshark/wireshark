@@ -83,7 +83,6 @@ enum {
 	GIF_UNKNOWN = 0,
 	GIF_87a = 0x87,
 	GIF_89a = 0x89,
-	GIF_ERROR = 0xFF
 };
 
 /* Initialize the protocol and registered fields */
@@ -175,7 +174,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		version = GIF_UNKNOWN;
 	} else {
 		/* Not a GIF image! */
-		version = GIF_ERROR;
 		return;
 	}
 	/* Add summary to INFO column if it is enabled */
@@ -435,6 +433,23 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 }
 
+static gboolean
+dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (tvb_length(tvb) < 20)
+		return FALSE;
+
+	/* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
+	if ((tvb_strneql(tvb, 0, "GIF89a", 6) == 0) ||
+	    (tvb_strneql(tvb, 0, "GIF87a", 6) == 0))
+	{
+		dissect_gif(tvb, pinfo, tree);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 
 /****************** Register the protocol with Wireshark ******************/
 
@@ -686,7 +701,7 @@ proto_register_gif(void)
 	proto_register_field_array(proto_gif, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("image-gif", dissect_gif, proto_gif);
+	register_dissector(IMG_GIF, dissect_gif, proto_gif);
 }
 
 
@@ -695,8 +710,9 @@ proto_reg_handoff_gif(void)
 {
 	dissector_handle_t gif_handle;
 
-	gif_handle = find_dissector("image-gif");
+	gif_handle = find_dissector(IMG_GIF);
 
 	/* Register the GIF media type */
 	dissector_add_string("media_type", "image/gif", gif_handle);
+	heur_dissector_add("http", dissect_gif_heur, proto_gif);
 }
