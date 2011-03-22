@@ -1397,13 +1397,13 @@ make_basename(char* fullname)
 #endif
 
 	if (!cp) {
-		new_string = malloc( strlen(fullname) );
+		new_string = malloc( strlen(fullname) + 1 );
 		strcpy(new_string, fullname);
 	}
 	else {
 		/* skip the slash */
 		cp++;
-		new_string = malloc( strlen(cp) );
+		new_string = malloc( strlen(cp) + 1 );
 		strcpy(new_string, cp);
 	}
 
