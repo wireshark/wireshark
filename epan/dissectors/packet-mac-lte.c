@@ -689,7 +689,7 @@ typedef struct LastFrameData {
 } LastFrameData;
 
 typedef struct DLHarqBuffers {
-    LastFrameData harqid[2][8];  /* 2 blocks (1 for each antenna) needed for DL */
+    LastFrameData harqid[2][15];  /* 2 blocks (1 for each antenna) needed for DL */
 } DLHarqBuffers;
 
 
@@ -1631,7 +1631,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         guint8 transport_block = p_mac_lte_info->detailed_phy_info.dl_info.transport_block;
 
         /* Check harq-id bounds, give up if invalid */
-        if ((harq_id >= 8) || (transport_block+1 > 2)) {
+        if ((harq_id >= 15) || (transport_block+1 > 2)) {
             return;
         }
 
@@ -2068,7 +2068,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     volatile   guint32    is_truncated = FALSE;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "%s: (SF=%u) UEId=%u ",
+                             "%s: (SF=%u) UEId=%-3u ",
                              (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                              p_mac_lte_info->subframeNumber,
                              p_mac_lte_info->ueid);
