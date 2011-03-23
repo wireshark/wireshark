@@ -24,4 +24,4 @@
 void registerApplicationLayerTypes(int proto);
 
 /* Ua type parsers */
-int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
+int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);

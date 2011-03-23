@@ -72,13 +72,11 @@ void registerApplicationLayerTypes(int proto)
 /** Parses an OpcUa Service NodeId and returns the service type.
  * In this cases the NodeId is always from type numeric and NSId = 0.
  */
-int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
     guint32 Numeric = 0;
-
-	szFieldName = 0; /* avoid warning */
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(tree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, TRUE);

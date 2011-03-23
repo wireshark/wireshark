@@ -188,7 +188,7 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     /* add nodeid subtree */
     ti = proto_tree_add_text(encobj_tree, tvb, 0, -1, "TypeId : ExpandedNodeId");
     nodeid_tree = proto_item_add_subtree(ti, ett_opcua_nodeid);
-    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
+    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
 
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
     return ServiceId;
@@ -218,7 +218,7 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     /* add nodeid subtree */
     ti = proto_tree_add_text(encobj_tree, tvb, 0, -1, "TypeId : ExpandedNodeId");
     nodeid_tree = proto_item_add_subtree(ti, ett_opcua_nodeid);
-    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
+    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset);
 
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
     return -1;
