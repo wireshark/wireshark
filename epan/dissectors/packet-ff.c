@@ -3179,7 +3179,7 @@ dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
 		decode_enumerated_bitfield(value, 0x03, 8,
 			names_assigned_redundant_dev_type,
 			"Assigned Device Redundancy Type: %s"),
-			(value & 0x03) >> 2);
+			value & 0x03);
 
 	return;
 }
