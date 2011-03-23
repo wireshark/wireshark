@@ -1766,7 +1766,7 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_rsl_class, tvb, offset, 1, FALSE);
-	if ((octet & 0x80) == 80)
+	if ((octet & 0x80) == 0x80)
 	/* Cause Extension*/
 		offset++;
 
