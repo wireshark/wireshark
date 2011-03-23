@@ -492,7 +492,7 @@ makeackedrundroppedtail8kb(int len, int spacing, int ackdelay)
 void usage()
 {
   fprintf(stderr, "Usage: mkcap [OPTIONS], where\n");
-  fprintf(stderr, "\t-a <ack-delay>        is the delay to an ACK (RTT)\n");
+  fprintf(stderr, "\t-a <ack-delay>        is the delay to an ACK (SRT)\n");
   fprintf(stderr, "\t-b <bytes-to-send>    is the bytes to send on connection\n");
   fprintf(stderr, "\t-i <ip-addr-hex>      is the sender IP address in hex\n");
   fprintf(stderr, "\t-I <ip-addr-hex>      is the recipient IP address in hex\n");

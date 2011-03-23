@@ -193,7 +193,7 @@ smbstat_init(const char *optarg,void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"smb,rtt,",8)){
+	if(!strncmp(optarg,"smb,srt,",8)){
 		filter=optarg+8;
 	} else {
 		filter=NULL;
@@ -244,7 +244,7 @@ smbstat_init(const char *optarg,void* userdata _U_)
 		g_free(ss->filter);
 		g_free(ss);
 
-		fprintf(stderr, "tshark: Couldn't register smb,rtt tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register smb,srt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -255,6 +255,6 @@ smbstat_init(const char *optarg,void* userdata _U_)
 void
 register_tap_listener_smbstat(void)
 {
-	register_stat_cmd_arg("smb,rtt", smbstat_init,NULL);
+	register_stat_cmd_arg("smb,srt", smbstat_init,NULL);
 }
 

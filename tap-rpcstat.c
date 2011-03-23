@@ -277,14 +277,14 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
+	if(sscanf(optarg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
 			filter=optarg+pos;
 		} else {
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tshark: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z rpc,srt,<program>,<version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -339,7 +339,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tshark: Couldn't register rpc,rtt tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register rpc,srt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -350,6 +350,6 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 void
 register_tap_listener_rpcstat(void)
 {
-	register_stat_cmd_arg("rpc,rtt,", rpcstat_init,NULL);
+	register_stat_cmd_arg("rpc,srt,", rpcstat_init,NULL);
 }
 

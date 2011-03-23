@@ -655,22 +655,26 @@ Currently implemented statistics are:
 
 =over 4
 
-=item B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
+=item B<-z> afp,srt[,I<filter>]
 
-Collect call/reply RTT data for DCERPC interface I<uuid>,
+=item B<-z> camel,srt
+
+=item B<-z> dcerpc,srt,I<uuid>,I<major>.I<minor>[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for DCERPC interface I<uuid>,
 version I<major>.I<minor>.
-Data collected is the number of calls for each procedure, MinRTT, MaxRTT
-and AvgRTT.
+Data collected is the number of calls for each procedure, MinSRT, MaxSRT
+and AvgSRT.
 
-Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
+Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
+
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>>
-will collect SAMR RTT statistics for a specific host.
-
-This option can be used multiple times on the command line.
+Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
+SRT statistics for a specific host.
 
 =item B<-z> io,phs[,I<filter>]
 
@@ -846,25 +850,26 @@ Several fields with same name within one diameter message are supported, e.g. I<
 
 Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
 
-=item B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
+=item B<-z> rpc,srt,I<program>,I<version>[,I<filter>]
 
-Collect call/reply RTT data for I<program>/I<version>.  Data collected
-is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT.
-Example: B<-z rpc,rtt,100003,3> will collect data for NFS v3.
+Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
+is number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
+
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> will collect NFS v3
-RTT statistics for a specific file.
-
-This option can be used multiple times on the command line.
+Example: B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678> will collect NFS v3
+SRT statistics for a specific file.
 
 =item B<-z> rpc,programs
 
-Collect call/reply RTT data for all known ONC-RPC programs/versions.
-Data collected is number of calls for each protocol/version, MinRTT,
-MaxRTT and AvgRTT.
+Collect call/reply SRT data for all known ONC-RPC programs/versions.
+Data collected is number of calls for each protocol/version, MinSRT,
+MaxSRT and AvgSRT.
 This option can only be used once on the command line.
 
 =item B<-z> rtp,streams
@@ -872,11 +877,32 @@ This option can only be used once on the command line.
 Collect statistics for all RTP streams and calculate max. delta, max. and
 mean jitter and packet loss percentages.
 
-=item B<-z> smb,rtt[,I<filter>]
+=item B<-z> scsi,srt,I<cmdset>[,<filter>]
 
-Collect call/reply RTT data for SMB.  Data collected
-is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT.
-Example: B<-z smb,rtt>.
+Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.
+
+Commandsets are 0:SBC   1:SSC  5:MMC
+
+Data collected
+is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z scsi,srt,0> will collect data for SCSI BLOCK COMMANDS (SBC).
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z scsi,srt,0,ip.addr==1.2.3.4> will collect SCSI SBC
+SRT statistics for a specific iscsi/ifcp/fcip host.
+
+=item B<-z> smb,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z smb,srt>
+
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
 Only those commands that are seen in the capture will have its stats
@@ -891,7 +917,7 @@ This option can be used multiple times on the command line.
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "smb,rtt,ip.addr==1.2.3.4"> will only collect stats for
+Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will only collect stats for
 SMB packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> smb,sids
@@ -911,7 +937,7 @@ is relatively restricted with a hope of future expansion.
 =item B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP.
-(This is similar to B<-z smb,rtt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>). Data collected is the number of calls
 for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses, which don't match with any request.
@@ -927,7 +953,7 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 =item B<-z> megaco,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MEGACO.
-(This is similar to B<-z smb,rtt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>). Data collected is the number of calls
 for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses, which don't match with any request.
@@ -960,17 +986,19 @@ This option can be used multiple times on the command line.
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
 Data collected is number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame.
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
 You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
-Example: B<-z h225,srt>.
+
+Example: B<-z h225,srt>
+
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
+
 Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
-
-This option can be used multiple times on the command line.
 
 =item B<-z> sip,stat[I<,filter>]
 

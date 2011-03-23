@@ -149,9 +149,9 @@ scsistat_draw(void *prs)
 
 	printf("\n");
 	printf("===========================================================\n");
-	printf("SCSI %s RTT Statistics:\n", rs->prog);
+	printf("SCSI %s SRT Statistics:\n", rs->prog);
 	printf("Filter: %s\n", rs->filter?rs->filter:"");
-	printf("Procedure            Calls   Min RTT    Max RTT    Avg RTT\n");
+	printf("Procedure            Calls   Min SRT    Max SRT    Avg SRT\n");
 	for(i=0; i < MAX_PROCEDURES; i++) {
 		if(rs->procedures[i].num==0) {
 			continue;
@@ -183,14 +183,14 @@ scsistat_init(const char *optarg, void* userdata _U_)
 	GString *error_string;
 
 	pos=0;
-	if(sscanf(optarg, "scsi,rtt,%d,%n", &program, &pos)==1) {
+	if(sscanf(optarg, "scsi,srt,%d,%n", &program, &pos)==1) {
 		if(pos) {
 			filter=optarg+pos;
 		} else {
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tshark: invalid \"-z scsi,rtt,<cmdset>[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z scsi,srt,<cmdset>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -249,7 +249,7 @@ scsistat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tshark: Couldn't register scsi,rtt tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register scsi,srt tap: %s\n",
 		        error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -259,6 +259,6 @@ scsistat_init(const char *optarg, void* userdata _U_)
 void
 register_tap_listener_scsistat(void)
 {
-	register_stat_cmd_arg("scsi,rtt,", scsistat_init, NULL);
+	register_stat_cmd_arg("scsi,srt,", scsistat_init, NULL);
 }
 

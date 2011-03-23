@@ -49,7 +49,7 @@ typedef struct _wsp_pdu_t {
 	const gchar 	*type;
 	guint32		 packets;
 } wsp_pdu_t;
-/* used to keep track of RTT statistics */
+/* used to keep track of SRT statistics */
 typedef struct _wsp_status_code_t {
 	const gchar	*name;
 	guint32		 packets;
