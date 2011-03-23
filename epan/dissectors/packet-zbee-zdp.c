@@ -425,13 +425,15 @@ zdp_status_name(guint8 status)
 static guint16
 zdp_convert_2003cluster(guint8 cluster)
 {
-    if (cluster & ZBEE_ZDP_MSG_RESPONSE_BIT_2003) {
+    guint16 cluster16 = (guint16)cluster;
+
+    if (cluster16 & ZBEE_ZDP_MSG_RESPONSE_BIT_2003) {
         /* Clear the 2003 request bit. */
-        cluster &= ~(ZBEE_ZDP_MSG_RESPONSE_BIT_2003);
+        cluster16 &= ~(ZBEE_ZDP_MSG_RESPONSE_BIT_2003);
         /* Set the 2006 request bit. */
-        cluster |= (ZBEE_ZDP_MSG_RESPONSE_BIT);
+        cluster16 |= (ZBEE_ZDP_MSG_RESPONSE_BIT);
     }
-    return (guint16)cluster;
+    return cluster16;
 } /* zdp_convert_2003cluster */
 
 /*FUNCTION:------------------------------------------------------
@@ -1093,7 +1095,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zdp, tvb, offset, tvb_length(tvb), "ZigBee Device Profile");
         zdp_tree = proto_item_add_subtree(proto_root, ett_zbee_zdp);
     }
-#if 0   
+#if 0
     /* Overwrite the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee ZDP");
 #endif
