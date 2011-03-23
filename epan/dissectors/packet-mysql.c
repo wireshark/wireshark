@@ -559,544 +559,6 @@ static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tre
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null);
 
-
-/* dissector registration */
-void proto_reg_handoff_mysql(void)
-{
-	dissector_handle_t mysql_handle;
-	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
-	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
-}
-
-/* protocol registration */
-void proto_register_mysql(void)
-{
-	static hf_register_info hf[]=
-	{
-		{ &hf_mysql_packet_length,
-		{ "Packet Length", "mysql.packet_length",
-		FT_UINT24, BASE_DEC, NULL,  0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_packet_number,
-		{ "Packet Number", "mysql.packet_number",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_opcode,
-		{ "Command", "mysql.opcode",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_error_code,
-		{ "Error Code", "mysql.error_code",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_error_string,
-		{ "Error message", "mysql.error.message",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Error string in case of MySQL error message", HFILL }},
-
-		{ &hf_mysql_sqlstate,
-		{ "SQL state", "mysql.sqlstate",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_message,
-		{ "Message", "mysql.message",
-		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_protocol,
-		{ "Protocol", "mysql.protocol",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Protocol Version", HFILL }},
-
-		{ &hf_mysql_version,
-		{ "Version", "mysql.version",
-		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-		"MySQL Version", HFILL }},
-
-		{ &hf_mysql_caps,
-		{ "Caps", "mysql.caps",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"MySQL Capabilities", HFILL }},
-
-		{ &hf_mysql_cap_long_password,
-		{ "Long Password","mysql.caps.lp",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LP,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_found_rows,
-		{ "Found Rows","mysql.caps.fr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_FR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_long_flag,
-		{ "Long Column Flags","mysql.caps.lf",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LF,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_connect_with_db,
-		{ "Connect With Database","mysql.caps.cd",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CD,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_no_schema,
-		{ "Don't Allow database.table.column","mysql.caps.ns",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_NS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_compress,
-		{ "Can use compression protocol","mysql.caps.cp",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CP,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_odbc,
-		{ "ODBC Client","mysql.caps.ob",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_OB,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_local_files,
-		{ "Can Use LOAD DATA LOCAL","mysql.caps.li",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LI,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_ignore_space,
-		{ "Ignore Spaces before '('","mysql.caps.is",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_IS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_change_user,
-		{ "Speaks 4.1 protocol (new flag)","mysql.caps.cu",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CU,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_interactive,
-		{ "Interactive Client","mysql.caps.ia",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_IA,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_ssl,
-		{ "Switch to SSL after handshake","mysql.caps.sl",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SL,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_ignore_sigpipe,
-		{ "Ignore sigpipes","mysql.caps.ii",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_II,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_transactions,
-		{ "Knows about transactions","mysql.caps.ta",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_TA,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_reserved,
-		{ "Speaks 4.1 protocol (old flag)","mysql.caps.rs",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_RS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_secure_connect,
-		{ "Can do 4.1 authentication","mysql.caps.sc",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SC,
-		NULL, HFILL }},
-
-		{ &hf_mysql_extcaps,
-		{ "Ext. Caps", "mysql.extcaps",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"MySQL Extended Capabilities", HFILL }},
-
-		{ &hf_mysql_cap_multi_statements,
-		{ "Supports multiple statements","mysql.caps.ms",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_cap_multi_results,
-		{ "Supports multiple results","mysql.caps.mr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_max_packet,
-		{ "MAX Packet", "mysql.max_packet",
-		FT_UINT24, BASE_DEC, NULL,  0x0,
-		"MySQL Max packet", HFILL }},
-
-		{ &hf_mysql_user,
-		{ "Username", "mysql.user",
-		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-		"Login Username", HFILL }},
-
-		{ &hf_mysql_schema,
-		{ "Schema", "mysql.schema",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Login Schema", HFILL }},
-
-		{ &hf_mysql_salt,
-		{ "Salt", "mysql.salt",
-		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_salt2,
-		{ "Salt", "mysql.salt2",
-		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_thread_id,
-		{ "Thread ID", "mysql.thread_id",
-		FT_UINT32, BASE_DEC, NULL,  0x0,
-		"MySQL Thread ID", HFILL }},
-
-		{ &hf_mysql_charset,
-		{ "Charset", "mysql.charset",
-		FT_UINT8, BASE_DEC, NULL,  0x0,
-		"MySQL Charset", HFILL }},
-
-		{ &hf_mysql_status,
-		{ "Status", "mysql.status",
-		FT_UINT16, BASE_DEC, NULL,  0x0,
-		"MySQL Status", HFILL }},
-
-		{ &hf_mysql_stat_it,
-		{ "In transaction", "mysql.stat.it",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_IT,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_ac,
-		{ "AUTO_COMMIT", "mysql.stat.ac",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_AC,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_mr,
-		{ "More results", "mysql.stat.mr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_MR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_mu,
-		{ "Multi query - more resultsets", "mysql.stat.mu",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_MU,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_bi,
-		{ "Bad index used", "mysql.stat.bi",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_BI,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_ni,
-		{ "No index used", "mysql.stat.ni",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_NI,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_cr,
-		{ "Cursor exists", "mysql.stat.cr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_CR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_lr,
-		{ "Last row sebd", "mysql.stat.lr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_LR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_dr,
-		{ "database dropped", "mysql.stat.dr",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_DR,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stat_bs,
-		{ "No backslash escapes", "mysql.stat.bs",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_BS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_refresh,
-		{ "Refresh Option", "mysql.refresh",
-		FT_UINT8, BASE_DEC, NULL,  0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_grants,
-		{ "reload permissions", "mysql.rfsh.grants",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_GRANT,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_log,
-		{ "flush logfiles", "mysql.rfsh.log",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_LOG,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_tables,
-		{ "flush tables", "mysql.rfsh.tables",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_TABLES,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_hosts,
-		{ "flush hosts", "mysql.rfsh.hosts",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_HOSTS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_status,
-		{ "reset statistics", "mysql.rfsh.status",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_STATUS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_threads,
-		{ "empty thread cache", "mysql.rfsh.threads",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_THREADS,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_slave,
-		{ "flush slave status", "mysql.rfsh.slave",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_SLAVE,
-		NULL, HFILL }},
-
-		{ &hf_mysql_rfsh_master,
-		{ "flush master status", "mysql.rfsh.master",
-		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_MASTER,
-		NULL, HFILL }},
-
-		{ &hf_mysql_unused,
-		{ "Unused", "mysql.unused",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_passwd,
-		{ "Password", "mysql.passwd",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_payload,
-		{ "Payload", "mysql.payload",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Additional Payload", HFILL }},
-
-		{ &hf_mysql_affected_rows,
-		{ "Affected Rows", "mysql.affected_rows",
-		FT_UINT64, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_insert_id,
-		{ "Last INSERT ID", "mysql.insert_id",
-		FT_UINT64, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_num_warn,
-		{ "Warnings", "mysql.warnings",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_thd_id,
-		{ "Thread ID", "mysql.thd_id",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_stmt_id,
-		{ "Statement ID", "mysql.stmt_id",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_query,
-		{ "Statement", "mysql.query",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_option,
-		{ "Option", "mysql.option",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_param,
-		{ "Parameter", "mysql.param",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_num_rows,
-		{ "Rows to fetch", "mysql.num_rows",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_exec_flags,
-		{ "Flags (unused)", "mysql.exec_flags",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_exec_iter,
-		{ "Iterations (unused)", "mysql.exec_iter",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_eof,
-		{ "EOF", "mysql.eof",
-		FT_UINT8, BASE_DEC, NULL,  0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_num_fields,
-		{ "Number of fields", "mysql.num_fields",
-		FT_UINT64, BASE_DEC, NULL,  0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_extra,
-		{ "Extra data", "mysql.extra",
-		FT_UINT64, BASE_DEC, NULL,  0x0,
-		NULL, HFILL }},
-
-		{ &hf_mysql_fld_catalog,
-		{ "Catalog", "mysql.field.catalog",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: catalog", HFILL }},
-
-		{ &hf_mysql_fld_db,
-		{ "Database", "mysql.field.db",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: database", HFILL }},
-
-		{ &hf_mysql_fld_table,
-		{ "Table", "mysql.field.table",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: table", HFILL }},
-
-		{ &hf_mysql_fld_org_table,
-		{ "Original table", "mysql.field.org_table",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: original table", HFILL }},
-
-		{ &hf_mysql_fld_name,
-		{ "Name", "mysql.field.name",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: name", HFILL }},
-
-		{ &hf_mysql_fld_org_name,
-		{ "Original name", "mysql.field.org_name",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: original name", HFILL }},
-
-		{ &hf_mysql_fld_charsetnr,
-		{ "Charset number", "mysql.field.charsetnr",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Field: charset number", HFILL }},
-
-		{ &hf_mysql_fld_length,
-		{ "Length", "mysql.field.length",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Field: length", HFILL }},
-
-		{ &hf_mysql_fld_type,
-		{ "Type", "mysql.field.type",
-		FT_UINT8, BASE_DEC, VALS(type_constants), 0x0,
-		"Field: type", HFILL }},
-
-		{ &hf_mysql_fld_flags,
-		{ "Flags", "mysql.field.flags",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Field: flags", HFILL }},
-
-		{ &hf_mysql_fld_not_null,
-		{ "Not null", "mysql.field.flags.not_null",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_NOT_NULL_FLAG,
-		"Field: flag not null", HFILL }},
-
-		{ &hf_mysql_fld_primary_key,
-		{ "Primary key", "mysql.field.flags.primary_key",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_PRI_KEY_FLAG,
-		"Field: flag primary key", HFILL }},
-
-		{ &hf_mysql_fld_unique_key,
-		{ "Unique key", "mysql.field.flags.unique_key",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_UNIQUE_KEY_FLAG,
-		"Field: flag unique key", HFILL }},
-
-		{ &hf_mysql_fld_multiple_key,
-		{ "Multiple key", "mysql.field.flags.multiple_key",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_MULTIPLE_KEY_FLAG,
-		"Field: flag multiple key", HFILL }},
-
-		{ &hf_mysql_fld_blob,
-		{ "Blob", "mysql.field.flags.blob",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_BLOB_FLAG,
-		"Field: flag blob", HFILL }},
-
-		{ &hf_mysql_fld_unsigned,
-		{ "Unsigned", "mysql.field.flags.unsigned",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_UNSIGNED_FLAG,
-		"Field: flag unsigned", HFILL }},
-
-		{ &hf_mysql_fld_zero_fill,
-		{ "Zero fill", "mysql.field.flags.zero_fill",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_ZEROFILL_FLAG,
-		"Field: flag zero fill", HFILL }},
-
-		{ &hf_mysql_fld_binary,
-		{ "Binary", "mysql.field.flags.binary",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_BINARY_FLAG,
-		"Field: flag binary", HFILL }},
-
-		{ &hf_mysql_fld_enum,
-		{ "Enum", "mysql.field.flags.enum",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_ENUM_FLAG,
-		"Field: flag enum", HFILL }},
-
-		{ &hf_mysql_fld_auto_increment,
-		{ "Auto increment", "mysql.field.flags.auto_increment",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_AUTO_INCREMENT_FLAG,
-		"Field: flag auto increment", HFILL }},
-
-		{ &hf_mysql_fld_timestamp,
-		{ "Timestamp", "mysql.field.flags.timestamp",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_TIMESTAMP_FLAG,
-		"Field: flag timestamp", HFILL }},
-
-		{ &hf_mysql_fld_set,
-		{ "Set", "mysql.field.flags.set",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_SET_FLAG,
-		"Field: flag set", HFILL }},
-
-		{ &hf_mysql_fld_decimals,
-		{ "Decimals", "mysql.field.decimals",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Field: decimals", HFILL }},
-
-		{ &hf_mysql_fld_default,
-		{ "Default", "mysql.field.default",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: default", HFILL }},
-
-		{ &hf_mysql_row_text,
-		{ "text", "mysql.row.text",
-		FT_STRING, BASE_NONE, NULL, 0x0,
-		"Field: row packet text", HFILL }},
-	};
-
-	static gint *ett[]=
-	{
-		&ett_mysql,
-		&ett_server_greeting,
-		&ett_caps,
-		&ett_extcaps,
-		&ett_stat,
-		&ett_request,
-		&ett_refresh,
-		&ett_field_flags
-	};
-
-	module_t *mysql_module;
-
-	proto_mysql= proto_register_protocol("MySQL Protocol", "MySQL", "mysql");
-	proto_register_field_array(proto_mysql, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-
-	mysql_module= prefs_register_protocol(proto_mysql, NULL);
-	prefs_register_bool_preference(mysql_module, "desegment_buffers",
-				       "Reassemble MySQL buffers spanning multiple TCP segments",
-				       "Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
-				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-				       &mysql_desegment);
-	prefs_register_bool_preference(mysql_module, "show_sql_query",
-				       "Show SQL Query string in INFO column",
-				       "Whether the MySQL dissector should display the SQL query string in the INFO column.",
-				       &mysql_showquery);
-
-	 register_dissector("mysql", dissect_mysql_pdu, proto_mysql);
-}
-
-
 /* dissector entrypoint, handles TCP-desegmentation */
 static void
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1180,10 +642,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti= proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_LITTLE_ENDIAN);
-		mysql_tree= proto_item_add_subtree(ti, ett_mysql);
-		proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb,
-				    offset, 3, ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_NA);
+		mysql_tree = proto_item_add_subtree(ti, ett_mysql);
+		proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 	}
 	offset+= 3;
 
@@ -1195,10 +656,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		is_response= TRUE;
 	}
 
-	packet_number= tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(mysql_tree, hf_mysql_packet_number, tvb,
-			    offset, 1, packet_number);
-	offset+= 1;
+	packet_number = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(mysql_tree, hf_mysql_packet_number, tvb, offset, 1, ENC_NA);
+	offset += 1;
 
 #ifdef CTDEBUG
 	conn_state_in= conn_data->state;
@@ -1223,22 +683,18 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (is_response) {
 		if (packet_number == 0) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Server Greeting");
-			offset= mysql_dissect_greeting(tvb, pinfo, offset,
-						       mysql_tree, conn_data);
+			offset= mysql_dissect_greeting(tvb, pinfo, offset, mysql_tree, conn_data);
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "Response");
-			offset= mysql_dissect_response(tvb, pinfo, offset,
-						       mysql_tree, conn_data);
+			offset= mysql_dissect_response(tvb, pinfo, offset, mysql_tree, conn_data);
 		}
 	} else {
 		if (packet_number == 1) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
-			offset= mysql_dissect_login(tvb, pinfo, offset,
-						    mysql_tree, conn_data);
+			offset= mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "Request");
-			offset= mysql_dissect_request(tvb, pinfo, offset,
-						      mysql_tree, conn_data);
+			offset= mysql_dissect_request(tvb, pinfo, offset, mysql_tree, conn_data);
 		}
 	}
 
@@ -1265,7 +721,6 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	gint protocol;
 	gint strlen;
-	gint32 thread_id;
 
 	proto_item *tf;
 	proto_item *greeting_tree= NULL;
@@ -1286,58 +741,49 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " proto=%d", protocol) ;
 	}
-	proto_tree_add_uint(greeting_tree, hf_mysql_protocol, tvb,
-			    offset, 1, protocol);
-	offset+= 1;
+	proto_tree_add_item(greeting_tree, hf_mysql_protocol, tvb, offset, 1, ENC_NA);
+	
+	offset += 1;
 
 	/* version string */
-	strlen= tvb_strsize(tvb,offset);
-
+	strlen = tvb_strsize(tvb,offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s",
-				tvb_get_ephemeral_string(tvb, offset, strlen));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_ephemeral_string(tvb, offset, strlen));
 	}
-	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb,
-			    offset, strlen, ENC_LITTLE_ENDIAN);
-	offset+= strlen;
+	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, strlen, ENC_NA);
+	offset += strlen;
 
 	/* 4 bytes little endian thread_id */
-	thread_id= tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(greeting_tree, hf_mysql_thread_id, tvb,
-			    offset, 4, thread_id);
-	offset+= 4;
+	proto_tree_add_item(greeting_tree, hf_mysql_thread_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	/* salt string */
-	strlen= tvb_strsize(tvb,offset);
-	proto_tree_add_item(greeting_tree, hf_mysql_salt, tvb,
-			    offset, strlen, ENC_LITTLE_ENDIAN);
+	strlen = tvb_strsize(tvb,offset);
+	proto_tree_add_item(greeting_tree, hf_mysql_salt, tvb, offset, strlen, ENC_NA);
 	offset+=strlen;
 
 	/* rest is optional */
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
 
 	/* 2 bytes CAPS */
-	offset= mysql_dissect_caps(tvb, offset, greeting_tree, &conn_data->srv_caps, "Server");
+	offset = mysql_dissect_caps(tvb, offset, greeting_tree, &conn_data->srv_caps, "Server");
 
 	/* rest is optional */
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
 
-	mysql_dissect_collation(tvb, offset, greeting_tree, conn_data->srv_caps,
-				tvb_get_guint8(tvb, offset), hf_mysql_charset);
-	offset++; /* for charset */
-	offset= mysql_dissect_server_status(tvb, offset, greeting_tree);
+	mysql_dissect_collation(tvb, offset, greeting_tree, conn_data->srv_caps, tvb_get_guint8(tvb, offset), hf_mysql_charset);
+	offset += 1; /* for charset */
+	offset = mysql_dissect_server_status(tvb, offset, greeting_tree);
 
 	/* 13 bytes unused */
-	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb,
-			    offset, 13, ENC_LITTLE_ENDIAN);
-	offset+= 13;
+	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 13, ENC_NA);
+	offset += 13;
 
 	/* 4.1+ server: rest of salt */
 	if (tvb_reported_length_remaining(tvb, offset)) {
-		strlen= tvb_strsize(tvb,offset);
-		proto_tree_add_item(greeting_tree, hf_mysql_salt2, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
+		strlen = tvb_strsize(tvb,offset);
+		proto_tree_add_item(greeting_tree, hf_mysql_salt2, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
 	}
 
 	return offset;
@@ -1349,31 +795,28 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		    proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	guint16  ext_caps;
-	guint32  max_packet;
 	gint	 strlen;
 
 	proto_item *tf;
 	proto_item *login_tree= NULL;
 
 	/* after login there can be OK or DENIED */
-	conn_data->state= RESPONSE_OK;
+	conn_data->state = RESPONSE_OK;
 
 	if (tree) {
-		tf= proto_tree_add_text(tree, tvb, offset, -1, "Login Request");
-		login_tree= proto_item_add_subtree(tf, ett_server_greeting);
+		tf = proto_tree_add_text(tree, tvb, offset, -1, "Login Request");
+		login_tree = proto_item_add_subtree(tf, ett_server_greeting);
 	}
 
-	offset= mysql_dissect_caps(tvb, offset, login_tree, &conn_data->clnt_caps, "Client");
+	offset = mysql_dissect_caps(tvb, offset, login_tree, &conn_data->clnt_caps, "Client");
 
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
 	{
-		offset= mysql_dissect_ext_caps(tvb, offset, login_tree, &ext_caps, "Client");
+		offset = mysql_dissect_ext_caps(tvb, offset, login_tree, &ext_caps, "Client");
 		conn_data->clnt_caps_ext= ext_caps;
 
-		max_packet= tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(login_tree, hf_mysql_max_packet, tvb,
-				    offset, 4, max_packet);
-		offset+= 4;
+		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
 		mysql_dissect_collation(tvb, offset, login_tree, conn_data->clnt_caps,
 					tvb_get_guint8(tvb, offset), hf_mysql_charset);
@@ -1382,37 +825,32 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		offset+= 23; /* filler bytes */
 
 	} else { /* pre-4.1 */
-		max_packet= 0xffffff - tvb_get_letoh24(tvb, offset);
-		proto_tree_add_uint(login_tree, hf_mysql_max_packet, tvb,
-				    offset, 3, max_packet);
-		offset+= 3;
+		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+		offset += 3;
 	}
 
 	/* User name */
-	strlen= my_tvb_strsize(tvb, offset);
+	strlen = my_tvb_strsize(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s",
-				tvb_get_ephemeral_string(tvb,offset,strlen));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s", tvb_get_ephemeral_string(tvb, offset, strlen));
 	}
-	proto_tree_add_item(login_tree, hf_mysql_user, tvb,
-			    offset, strlen, ENC_LITTLE_ENDIAN);
-	offset+= strlen;
+	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, strlen, ENC_NA);
+	offset += strlen;
 
 	/* rest is optional */
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
 
 	/* password: asciiz or length+ascii */
 	if (conn_data->clnt_caps & MYSQL_CAPS_SC) {
-		strlen= tvb_get_guint8(tvb, offset);
-		offset+= 1;
+		strlen = tvb_get_guint8(tvb, offset);
+		offset += 1;
 	} else {
-		strlen= my_tvb_strsize(tvb, offset);
+		strlen = my_tvb_strsize(tvb, offset);
 	}
 	if (tree && strlen > 1) {
-		proto_tree_add_item(login_tree, hf_mysql_passwd,
-				    tvb, offset, strlen, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(login_tree, hf_mysql_passwd, tvb, offset, strlen, ENC_NA);
 	}
-	offset+= strlen;
+	offset += strlen;
 
 	/* optional: initial schema */
 	if (conn_data->clnt_caps & MYSQL_CAPS_CD)
@@ -1423,17 +861,10 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			/* ugly hack: copy database to new buffer*/
-			guint8 buf[65];
-			if (strlen > 64)
-				strlen= 64;
-			tvb_memcpy(tvb, buf, offset, strlen);
-			buf[strlen]= '\0';
-			col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", buf);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", tvb_get_ephemeral_string(tvb, offset, strlen));
 		}
-		proto_tree_add_item(login_tree, hf_mysql_schema, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
+		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
 	}
 
 	return offset;
@@ -2160,3 +1591,540 @@ tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null)
 
 	return 1;
 }
+
+/* protocol registration */
+void proto_register_mysql(void)
+{
+	static hf_register_info hf[]=
+	{
+		{ &hf_mysql_packet_length,
+		{ "Packet Length", "mysql.packet_length",
+		FT_UINT24, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_packet_number,
+		{ "Packet Number", "mysql.packet_number",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_opcode,
+		{ "Command", "mysql.opcode",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_error_code,
+		{ "Error Code", "mysql.error_code",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_error_string,
+		{ "Error message", "mysql.error.message",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Error string in case of MySQL error message", HFILL }},
+
+		{ &hf_mysql_sqlstate,
+		{ "SQL state", "mysql.sqlstate",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_message,
+		{ "Message", "mysql.message",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_protocol,
+		{ "Protocol", "mysql.protocol",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"Protocol Version", HFILL }},
+
+		{ &hf_mysql_version,
+		{ "Version", "mysql.version",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		"MySQL Version", HFILL }},
+
+		{ &hf_mysql_caps,
+		{ "Caps", "mysql.caps",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"MySQL Capabilities", HFILL }},
+
+		{ &hf_mysql_cap_long_password,
+		{ "Long Password","mysql.caps.lp",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LP,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_found_rows,
+		{ "Found Rows","mysql.caps.fr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_FR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_long_flag,
+		{ "Long Column Flags","mysql.caps.lf",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LF,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_connect_with_db,
+		{ "Connect With Database","mysql.caps.cd",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CD,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_no_schema,
+		{ "Don't Allow database.table.column","mysql.caps.ns",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_NS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_compress,
+		{ "Can use compression protocol","mysql.caps.cp",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CP,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_odbc,
+		{ "ODBC Client","mysql.caps.ob",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_OB,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_local_files,
+		{ "Can Use LOAD DATA LOCAL","mysql.caps.li",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LI,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_ignore_space,
+		{ "Ignore Spaces before '('","mysql.caps.is",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_IS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_change_user,
+		{ "Speaks 4.1 protocol (new flag)","mysql.caps.cu",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CU,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_interactive,
+		{ "Interactive Client","mysql.caps.ia",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_IA,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_ssl,
+		{ "Switch to SSL after handshake","mysql.caps.sl",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SL,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_ignore_sigpipe,
+		{ "Ignore sigpipes","mysql.caps.ii",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_II,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_transactions,
+		{ "Knows about transactions","mysql.caps.ta",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_TA,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_reserved,
+		{ "Speaks 4.1 protocol (old flag)","mysql.caps.rs",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_RS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_secure_connect,
+		{ "Can do 4.1 authentication","mysql.caps.sc",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SC,
+		NULL, HFILL }},
+
+		{ &hf_mysql_extcaps,
+		{ "Ext. Caps", "mysql.extcaps",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"MySQL Extended Capabilities", HFILL }},
+
+		{ &hf_mysql_cap_multi_statements,
+		{ "Supports multiple statements","mysql.caps.ms",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_multi_results,
+		{ "Supports multiple results","mysql.caps.mr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_max_packet,
+		{ "MAX Packet", "mysql.max_packet",
+		FT_UINT24, BASE_DEC, NULL,  0x0,
+		"MySQL Max packet", HFILL }},
+
+		{ &hf_mysql_user,
+		{ "Username", "mysql.user",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		"Login Username", HFILL }},
+
+		{ &hf_mysql_schema,
+		{ "Schema", "mysql.schema",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Login Schema", HFILL }},
+
+		{ &hf_mysql_salt,
+		{ "Salt", "mysql.salt",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_salt2,
+		{ "Salt", "mysql.salt2",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_thread_id,
+		{ "Thread ID", "mysql.thread_id",
+		FT_UINT32, BASE_DEC, NULL,  0x0,
+		"MySQL Thread ID", HFILL }},
+
+		{ &hf_mysql_charset,
+		{ "Charset", "mysql.charset",
+		FT_UINT8, BASE_DEC, NULL,  0x0,
+		"MySQL Charset", HFILL }},
+
+		{ &hf_mysql_status,
+		{ "Status", "mysql.status",
+		FT_UINT16, BASE_DEC, NULL,  0x0,
+		"MySQL Status", HFILL }},
+
+		{ &hf_mysql_stat_it,
+		{ "In transaction", "mysql.stat.it",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_IT,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_ac,
+		{ "AUTO_COMMIT", "mysql.stat.ac",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_AC,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_mr,
+		{ "More results", "mysql.stat.mr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_MR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_mu,
+		{ "Multi query - more resultsets", "mysql.stat.mu",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_MU,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_bi,
+		{ "Bad index used", "mysql.stat.bi",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_BI,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_ni,
+		{ "No index used", "mysql.stat.ni",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_NI,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_cr,
+		{ "Cursor exists", "mysql.stat.cr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_CR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_lr,
+		{ "Last row sebd", "mysql.stat.lr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_LR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_dr,
+		{ "database dropped", "mysql.stat.dr",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_DR,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_bs,
+		{ "No backslash escapes", "mysql.stat.bs",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_BS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_refresh,
+		{ "Refresh Option", "mysql.refresh",
+		FT_UINT8, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_grants,
+		{ "reload permissions", "mysql.rfsh.grants",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_GRANT,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_log,
+		{ "flush logfiles", "mysql.rfsh.log",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_LOG,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_tables,
+		{ "flush tables", "mysql.rfsh.tables",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_TABLES,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_hosts,
+		{ "flush hosts", "mysql.rfsh.hosts",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_HOSTS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_status,
+		{ "reset statistics", "mysql.rfsh.status",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_STATUS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_threads,
+		{ "empty thread cache", "mysql.rfsh.threads",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_THREADS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_slave,
+		{ "flush slave status", "mysql.rfsh.slave",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_SLAVE,
+		NULL, HFILL }},
+
+		{ &hf_mysql_rfsh_master,
+		{ "flush master status", "mysql.rfsh.master",
+		FT_BOOLEAN, 8, TFS(&tfs_set_notset), MYSQL_RFSH_MASTER,
+		NULL, HFILL }},
+
+		{ &hf_mysql_unused,
+		{ "Unused", "mysql.unused",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_passwd,
+		{ "Password", "mysql.passwd",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_payload,
+		{ "Payload", "mysql.payload",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Additional Payload", HFILL }},
+
+		{ &hf_mysql_affected_rows,
+		{ "Affected Rows", "mysql.affected_rows",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_insert_id,
+		{ "Last INSERT ID", "mysql.insert_id",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_num_warn,
+		{ "Warnings", "mysql.warnings",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_thd_id,
+		{ "Thread ID", "mysql.thd_id",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stmt_id,
+		{ "Statement ID", "mysql.stmt_id",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_query,
+		{ "Statement", "mysql.query",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_option,
+		{ "Option", "mysql.option",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_param,
+		{ "Parameter", "mysql.param",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_num_rows,
+		{ "Rows to fetch", "mysql.num_rows",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_flags,
+		{ "Flags (unused)", "mysql.exec_flags",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_iter,
+		{ "Iterations (unused)", "mysql.exec_iter",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_eof,
+		{ "EOF", "mysql.eof",
+		FT_UINT8, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_num_fields,
+		{ "Number of fields", "mysql.num_fields",
+		FT_UINT64, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_extra,
+		{ "Extra data", "mysql.extra",
+		FT_UINT64, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_fld_catalog,
+		{ "Catalog", "mysql.field.catalog",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: catalog", HFILL }},
+
+		{ &hf_mysql_fld_db,
+		{ "Database", "mysql.field.db",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: database", HFILL }},
+
+		{ &hf_mysql_fld_table,
+		{ "Table", "mysql.field.table",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: table", HFILL }},
+
+		{ &hf_mysql_fld_org_table,
+		{ "Original table", "mysql.field.org_table",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: original table", HFILL }},
+
+		{ &hf_mysql_fld_name,
+		{ "Name", "mysql.field.name",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: name", HFILL }},
+
+		{ &hf_mysql_fld_org_name,
+		{ "Original name", "mysql.field.org_name",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: original name", HFILL }},
+
+		{ &hf_mysql_fld_charsetnr,
+		{ "Charset number", "mysql.field.charsetnr",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"Field: charset number", HFILL }},
+
+		{ &hf_mysql_fld_length,
+		{ "Length", "mysql.field.length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		"Field: length", HFILL }},
+
+		{ &hf_mysql_fld_type,
+		{ "Type", "mysql.field.type",
+		FT_UINT8, BASE_DEC, VALS(type_constants), 0x0,
+		"Field: type", HFILL }},
+
+		{ &hf_mysql_fld_flags,
+		{ "Flags", "mysql.field.flags",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"Field: flags", HFILL }},
+
+		{ &hf_mysql_fld_not_null,
+		{ "Not null", "mysql.field.flags.not_null",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_NOT_NULL_FLAG,
+		"Field: flag not null", HFILL }},
+
+		{ &hf_mysql_fld_primary_key,
+		{ "Primary key", "mysql.field.flags.primary_key",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_PRI_KEY_FLAG,
+		"Field: flag primary key", HFILL }},
+
+		{ &hf_mysql_fld_unique_key,
+		{ "Unique key", "mysql.field.flags.unique_key",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_UNIQUE_KEY_FLAG,
+		"Field: flag unique key", HFILL }},
+
+		{ &hf_mysql_fld_multiple_key,
+		{ "Multiple key", "mysql.field.flags.multiple_key",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_MULTIPLE_KEY_FLAG,
+		"Field: flag multiple key", HFILL }},
+
+		{ &hf_mysql_fld_blob,
+		{ "Blob", "mysql.field.flags.blob",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_BLOB_FLAG,
+		"Field: flag blob", HFILL }},
+
+		{ &hf_mysql_fld_unsigned,
+		{ "Unsigned", "mysql.field.flags.unsigned",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_UNSIGNED_FLAG,
+		"Field: flag unsigned", HFILL }},
+
+		{ &hf_mysql_fld_zero_fill,
+		{ "Zero fill", "mysql.field.flags.zero_fill",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_ZEROFILL_FLAG,
+		"Field: flag zero fill", HFILL }},
+
+		{ &hf_mysql_fld_binary,
+		{ "Binary", "mysql.field.flags.binary",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_BINARY_FLAG,
+		"Field: flag binary", HFILL }},
+
+		{ &hf_mysql_fld_enum,
+		{ "Enum", "mysql.field.flags.enum",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_ENUM_FLAG,
+		"Field: flag enum", HFILL }},
+
+		{ &hf_mysql_fld_auto_increment,
+		{ "Auto increment", "mysql.field.flags.auto_increment",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_AUTO_INCREMENT_FLAG,
+		"Field: flag auto increment", HFILL }},
+
+		{ &hf_mysql_fld_timestamp,
+		{ "Timestamp", "mysql.field.flags.timestamp",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_TIMESTAMP_FLAG,
+		"Field: flag timestamp", HFILL }},
+
+		{ &hf_mysql_fld_set,
+		{ "Set", "mysql.field.flags.set",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_FLD_SET_FLAG,
+		"Field: flag set", HFILL }},
+
+		{ &hf_mysql_fld_decimals,
+		{ "Decimals", "mysql.field.decimals",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"Field: decimals", HFILL }},
+
+		{ &hf_mysql_fld_default,
+		{ "Default", "mysql.field.default",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: default", HFILL }},
+
+		{ &hf_mysql_row_text,
+		{ "text", "mysql.row.text",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: row packet text", HFILL }},
+	};
+
+	static gint *ett[]=
+	{
+		&ett_mysql,
+		&ett_server_greeting,
+		&ett_caps,
+		&ett_extcaps,
+		&ett_stat,
+		&ett_request,
+		&ett_refresh,
+		&ett_field_flags
+	};
+
+	module_t *mysql_module;
+
+	proto_mysql= proto_register_protocol("MySQL Protocol", "MySQL", "mysql");
+	proto_register_field_array(proto_mysql, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	mysql_module= prefs_register_protocol(proto_mysql, NULL);
+	prefs_register_bool_preference(mysql_module, "desegment_buffers",
+				       "Reassemble MySQL buffers spanning multiple TCP segments",
+				       "Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
+				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+				       &mysql_desegment);
+	prefs_register_bool_preference(mysql_module, "show_sql_query",
+				       "Show SQL Query string in INFO column",
+				       "Whether the MySQL dissector should display the SQL query string in the INFO column.",
+				       &mysql_showquery);
+
+	 register_dissector("mysql", dissect_mysql_pdu, proto_mysql);
+}
+
+/* dissector registration */
+void proto_reg_handoff_mysql(void)
+{
+	dissector_handle_t mysql_handle;
+	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
+	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
+}
+
