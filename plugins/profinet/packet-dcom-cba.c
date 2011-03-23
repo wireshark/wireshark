@@ -575,7 +575,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
 			hf_cba_name, szStr, u32MaxStr);
 	}
 
-    if(szStr != NULL) {
+    if(strlen(szStr) > 0) {
         call = se_strdup(szStr);
         info->call_data->private_data = call;
     }
