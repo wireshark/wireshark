@@ -412,7 +412,8 @@ static gchar* ph_capture_get_description(capture_file *cf)
 {
 	gchar *buffer = NULL;
 
-	if(cf->finfo_selected->rep->representation != 0)
+	if(cf->finfo_selected->rep &&
+	   strlen(cf->finfo_selected->rep->representation) > 0)
 	{
 		buffer = g_strdup(cf->finfo_selected->rep->representation);
 	}
