@@ -5614,10 +5614,6 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   offset += 1;
   tag_val_off += 1;
-
-  if (tag_val_off < tag_len)
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset,
-        tag_len - tag_val_off, "Not interpreted");
 }
 
 static void
