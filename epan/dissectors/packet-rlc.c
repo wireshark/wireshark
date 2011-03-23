@@ -826,8 +826,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 	/* is there data left? */
 	if (tvb_length_remaining(tvb, offs) > 0) {
 		if (tree) {
-			proto_item *ti;
-			ti = proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
+			proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
 		}
 		/* add remaining data as fragment */
 		add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_length_remaining(tvb, offs), FALSE);
@@ -1135,8 +1134,7 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		if (tvb_length_remaining(tvb, offs) > 0) {
 			/* we have remaining data, which we need to mark in the tree */
 			if (tree) {
-				proto_item *ti;
-				ti = proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
 			}
 			add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,
 				tvb_length_remaining(tvb,offs), final);
