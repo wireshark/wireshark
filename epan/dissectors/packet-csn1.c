@@ -431,7 +431,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         else if (pDescr->type == CSN_VARIABLE_TARRAY_OFFSET)
         { /* Count specified in field */
           nCount = *pui8DATA(data, pDescr->i);
-//          nCount--; /* Offset 1 */ // the 1 offset is already taken into account in CSN_UINT_OFFSET
+          /* nCount--; Offset 1 -- except that the 1 offset is already taken into account in CSN_UINT_OFFSET */
         }
 
         while (nCount > 0)
