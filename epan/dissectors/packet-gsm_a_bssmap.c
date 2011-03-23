@@ -3749,6 +3749,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 				curr_offset++;
 				consumed++;
+				break;
             default:
 				proto_tree_add_text(subtree, tvb, curr_offset, 2,"Unknown codec - the rest of the dissection my be suspect");
 				curr_offset+=2;
