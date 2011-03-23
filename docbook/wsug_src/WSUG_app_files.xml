@@ -3,37 +3,37 @@
 
 <appendix id="AppFiles">
   <title>Files and Folders</title>
-  
+
   <section id="ChAppFilesCaptureFilesSection"><title>Capture Files</title>
     <para>
-	To understand which information will remain available after 
+	To understand which information will remain available after
 	the captured packets are saved to a capture file,
 	it's helpful to know a bit about the capture file contents.
     </para>
     <para>
-	Wireshark uses the libpcap file format as the default format to save 
+	Wireshark uses the libpcap file format as the default format to save
 	captured packets; this format has existed for a long time and it's pretty simple.
-	However, it has some drawbacks: it's not extensible and lacks some 
+	However, it has some drawbacks: it's not extensible and lacks some
 	information that would be really helpful (e.g. being able to add a comment
 	to a packet such as "the problems start here" would be really nice).
     </para>
     <para>
-	In addition to the libpcap format, Wireshark supports several different 
-	capture file formats. However, the problems described above also applies 
+	In addition to the libpcap format, Wireshark supports several different
+	capture file formats. However, the problems described above also applies
 	for these formats.
     </para>
     <para>
 	A new capture file format "PCAP Next Generation Dump File Format"
-	is currently under development, which will fix these drawbacks. 
-	However, it still might take a while until the new file format is ready 
+	is currently under development, which will fix these drawbacks.
+	However, it still might take a while until the new file format is ready
 	and Wireshark can use it.
     </para>
   <section id="ChIOFileContentSection"><title>Libpcap File Contents</title>
     <para>
-	At the start of each libpcap capture file some basic information is stored 
-	like a magic number to identify the libpcap file format. 
-	The most interesting information of this file start is the link layer type 
-	(Ethernet, Token Ring, ...). 
+	At the start of each libpcap capture file some basic information is stored
+	like a magic number to identify the libpcap file format.
+	The most interesting information of this file start is the link layer type
+	(Ethernet, Token Ring, ...).
     </para>
     <para>
 	The following data is saved for each packet:
@@ -75,12 +75,12 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    name resolution information, see <xref 
+	    name resolution information, see <xref
 		linkend="ChAdvNameResolutionSection"/> for details
 		<warning><title>Warning!</title>
 		<para>
-		The name resolution information is rebuilt each time Wireshark is 
-		restarted so this information might even change when the capture file 
+		The name resolution information is rebuilt each time Wireshark is
+		restarted so this information might even change when the capture file
 		is reopened on the same machine later!
 		</para>
 		</warning>
@@ -118,20 +118,20 @@
 
     <section id="ChAppFilesConfigurationSection"><title>Configuration Files and Folders</title>
     <para>
-      Wireshark uses a number of files and folders while it is running. Some 
-	  of these reside in the personal configuration folder and are used to 
-	  maintain information between runs of Wireshark, while some of them are 
+      Wireshark uses a number of files and folders while it is running. Some
+	  of these reside in the personal configuration folder and are used to
+	  maintain information between runs of Wireshark, while some of them are
 	  maintained in system areas.
     </para>
 	<tip><title>Tip</title>
-	<para>A list of the folders Wireshark actually uses can be found under the 
-	<command>Folders</command> tab in the dialog box shown when you select 
+	<para>A list of the folders Wireshark actually uses can be found under the
+	<command>Folders</command> tab in the dialog box shown when you select
 	<command>About Wireshark</command> from the <command>Help</command> menu.
 	</para>
 	</tip>
     <para>
 	The content format of the configuration files is the same on all platforms.
-	However, to match the different policies for Unix and Windows platforms, 
+	However, to match the different policies for Unix and Windows platforms,
 	different folders are used for these files.
     </para>
     <table id="AppFilesTabFolders" frame="none">
@@ -224,11 +224,11 @@
 	      <row>
 		<entry><command>plugins</command></entry>
 		<entry>Plugin directories.</entry>
-		<entry>/usr/share/wireshark/plugins, 
-	      /usr/local/share/wireshark/plugins, 
+		<entry>/usr/share/wireshark/plugins,
+	      /usr/local/share/wireshark/plugins,
 	      $HOME/.wireshark/plugins
 		</entry>
-		<entry>%WIRESHARK%\plugins\&lt;version&gt;, 
+		<entry>%WIRESHARK%\plugins\&lt;version&gt;,
 		%APPDATA%\Wireshark\plugins</entry>
 	      </row>
 	      <row>
@@ -243,8 +243,8 @@
 	<note><title>Windows folders</title>
 	<para>
 	%APPDATA% points to the personal configuration folder, e.g.:
-	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename> 
-	(details can be found at: <xref linkend="ChWindowsProfiles"/>), 
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>
+	(details can be found at: <xref linkend="ChWindowsProfiles"/>),
 	</para>
 	<para>
 	%WIRESHARK% points to the Wireshark program folder, e.g.:
@@ -253,8 +253,8 @@
 	</note>
 	<note><title>Unix/Linux folders</title>
 	<para>
-	The <filename>/etc</filename> folder is the global Wireshark configuration 
-	folder. The folder actually used on your system 
+	The <filename>/etc</filename> folder is the global Wireshark configuration
+	folder. The folder actually used on your system
 	may vary, maybe something like: <filename>/usr/local/etc</filename>.
 	</para>
 	<para>
@@ -267,13 +267,13 @@
 	  <term><command>preferences/wireshark.conf</command></term>
 	  <listitem>
 	    <para>
-	      This file contains your Wireshark preferences, 
-	      including defaults for capturing and displaying packets.  
+	      This file contains your Wireshark preferences,
+	      including defaults for capturing and displaying packets.
 	      It is a simple text file containing statements of the form:
 	      <programlisting>
 variable: value
 		  </programlisting>
-	      The settings from this file are 
+	      The settings from this file are
 		  read in at program start and written to disk when you press the
 		  Save button in the "Preferences" dialog box.
 	    </para>
@@ -289,21 +289,21 @@ variable: value
 	      <programlisting>
 variable: value
 		  </programlisting>
-		  It is read at program start and written at program exit. 
+		  It is read at program start and written at program exit.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>cfilters</command></term>
 	  <listitem>
 	    <para>
-	      This file contains all the capture filters that you have defined 
-	      and saved. It consists of one or more lines, where each 
+	      This file contains all the capture filters that you have defined
+	      and saved. It consists of one or more lines, where each
 	      line has the following format:
 	      <programlisting>
 "&lt;filter name>" &lt;filter string>
 	      </programlisting>
- 		The settings from this file are read in at program start and written 
-		to disk when you press the Save button in the "Capture Filters" dialog 
+ 		The settings from this file are read in at program start and written
+		to disk when you press the Save button in the "Capture Filters" dialog
 		box.
 		</para>
 	  </listitem>
@@ -311,14 +311,14 @@ variable: value
 	<varlistentry><term><command>dfilters</command></term>
 	  <listitem>
 	    <para>
-	      This file contains all the display filters that you have defined 
-	      and saved. It consists of one or more lines, where each 
+	      This file contains all the display filters that you have defined
+	      and saved. It consists of one or more lines, where each
 	      line has the following format:
 	      <programlisting>
 "&lt;filter name>" &lt;filter string>
 	      </programlisting>
- 		The settings from this file are read in at program start and written 
-		to disk when you press the Save button in the "Display Filters" dialog 
+ 		The settings from this file are read in at program start and written
+		to disk when you press the Save button in the "Display Filters" dialog
 		box.
 	    </para>
 	  </listitem>
@@ -327,16 +327,16 @@ variable: value
 	  <term><command>colorfilters</command></term>
 	  <listitem>
 	    <para>
-	      This file contains all the color filters that you have 
-	      defined and saved. It consists of one or more lines, 
+	      This file contains all the color filters that you have
+	      defined and saved. It consists of one or more lines,
 	      where each line has the following format:
 	      <programlisting>
 @&lt;filter name>@&lt;filter string>@[&lt;bg RGB(16-bit)>][&lt;fg RGB(16-bit)>]
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and written 
-		to disk when you press the Save button in the "Coloring Rules" dialog 
+ 		The settings from this file are read in at program start and written
+		to disk when you press the Save button in the "Coloring Rules" dialog
 		box.
 		</para>
 	  </listitem>
@@ -345,7 +345,7 @@ variable: value
 	  <term><command>disabled_protos</command></term>
 	  <listitem>
 	    <para>
-	      Each line in this file specifies a disabled protocol name. The 
+	      Each line in this file specifies a disabled protocol name. The
 		  following are some examples:
 	      <programlisting>
 tcp
@@ -353,8 +353,8 @@ udp
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and written 
-		to disk when you press the Save button in the "Enabled Protocols" 
+ 		The settings from this file are read in at program start and written
+		to disk when you press the Save button in the "Enabled Protocols"
 		dialog box.
 		</para>
 	  </listitem>
@@ -365,23 +365,23 @@ udp
 	  </term>
 	  <listitem>
 	    <para>
-	      When Wireshark is trying to translate Ethernet hardware 
-	      addresses to names, it consults the files listed in 
+	      When Wireshark is trying to translate Ethernet hardware
+	      addresses to names, it consults the files listed in
 		  <xref linkend="AppFilesTabFolders"/>.
-	      If an address is not found in /etc/ethers, 
+	      If an address is not found in /etc/ethers,
 	      Wireshark looks in $HOME/.wireshark/ethers
 	    </para>
 	    <para>
-	      Each line in these files consists of one hardware address and 
-	      name separated by whitespace. The digits of hardware 
-	      addresses are separated by colons (:), dashes (-) or 
+	      Each line in these files consists of one hardware address and
+	      name separated by whitespace. The digits of hardware
+	      addresses are separated by colons (:), dashes (-) or
 	      periods(.). The following are some examples:
 	      <programlisting>
 ff-ff-ff-ff-ff-ff    Broadcast
 c0-00-ff-ff-ff-ff    TR_broadcast
 00.2b.08.93.4b.a1    Freds_machine
 	      </programlisting>
- 		The settings from this file are read in at program start and never 
+ 		The settings from this file are read in at program start and never
 		written by Wireshark.
 	    </para>
 	  </listitem>
@@ -391,8 +391,8 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <listitem>
 	    <para>
 	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
-		  to translate the first three bytes of an Ethernet address into a 
-		  manufacturers name.  This file has the same format as the ethers 
+		  to translate the first three bytes of an Ethernet address into a
+		  manufacturers name.  This file has the same format as the ethers
 		  file, except addresses are three bytes long.
 	    </para>
 	    <para>
@@ -402,7 +402,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and never 
+ 		The settings from this file are read in at program start and never
 		written by Wireshark.
 		</para>
 	  </listitem>
@@ -425,7 +425,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and never 
+ 		The settings from this file are read in at program start and never
 		written by Wireshark.
 		</para>
 	  </listitem>
@@ -445,7 +445,7 @@ mydns       5045/tcp     # My own Domain Name Server
 	      </programlisting>
 	    </para>
 	    <para>
-	      The settings from this file are read in at program start and never 
+	      The settings from this file are read in at program start and never
 	      written by Wireshark.
 	    </para>
 	  </listitem>
@@ -464,7 +464,7 @@ mydns       5045/tcp     # My own Domain Name Server
 		  only by a '/' and a name separated by whitespace. While the address must be a full IPv4
 		  address, any values beyond the mask length are subsequently ignored.
 	    </para>
-		
+
 	    <para>
 	      An example is:
 	      <programlisting>
@@ -478,7 +478,7 @@ mydns       5045/tcp     # My own Domain Name Server
 		above had been 16 rather than 24, the printed address would be "ws_test_network.0.1".
 		</para>
 		<para>
- 		The settings from this file are read in at program start and never 
+ 		The settings from this file are read in at program start and never
 		written by Wireshark.
 		</para>
 	  </listitem>
@@ -500,7 +500,7 @@ c0-a8-1c-00      CEO
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and never 
+ 		The settings from this file are read in at program start and never
 		written by Wireshark.
 		</para>
 	  </listitem>
@@ -510,7 +510,7 @@ c0-a8-1c-00      CEO
 	  <listitem>
 	    <para>
 	      Wireshark searches for plugins in the directories listed in
-		  <xref linkend="AppFilesTabFolders"/>. 
+		  <xref linkend="AppFilesTabFolders"/>.
 	      They are searched in the order listed.
 	    </para>
 	  </listitem>
@@ -519,7 +519,7 @@ c0-a8-1c-00      CEO
 	  <term><command>temp</command> folder</term>
 	  <listitem>
 	    <para>
-	      If you start a new capture and don't specify a filename for it, 
+	      If you start a new capture and don't specify a filename for it,
 		  Wireshark uses this directory to store that file; see
 		  <xref linkend="ChCapCaptureFiles"/>.
 	    </para>
@@ -545,7 +545,7 @@ c0-a8-1c-00      CEO
 	      <listitem>
 		<para>
 		  Mandatory. This contains initialization information for the
-		  help file. The following keys must be defined: 
+		  help file. The following keys must be defined:
 		  <variablelist>
 		    <varlistentry>
 		      <term>source</term>
@@ -654,7 +654,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  TCP destination or source ports will display additional help menu items that
 	  take you to the "TCP ports" section of the page.
 	</para>
-	
+
 	<para>
 	  The [location data] and ${PATH} can be omitted if they are not needed.
 	  For example, the following configuration is functionally equivalent to
@@ -680,30 +680,30 @@ Source port=Transmission_Control_Protocol#TCP_ports
 
 	<section id="ChWindowsFolder"><title>Windows folders</title>
 	<para>
-	Here you will find some details about the folders used in Wireshark 
-	on different Windows versions. 
+	Here you will find some details about the folders used in Wireshark
+	on different Windows versions.
 	</para>
 	<para>
-	As already mentioned, you can find the currently used folders in the 
+	As already mentioned, you can find the currently used folders in the
 	<command>About Wireshark</command> dialog.
 	</para>
-	
+
 	<section id="ChWindowsProfiles"><title>Windows profiles</title>
 	<para>
 	Windows uses some special directories to store user configuration files
         which define the "user profile". This can be confusing, as the default directory location
-	changed from Windows version to version and might also be different for English 
-	and internationalized versions of Windows. 
+	changed from Windows version to version and might also be different for English
+	and internationalized versions of Windows.
 	</para>
 	<note><title>Note!</title>
 	<para>
-	If you've upgraded to a new Windows version, your profile might 
-	be kept in the former location, so the defaults mentioned here might not 
+	If you've upgraded to a new Windows version, your profile might
+	be kept in the former location, so the defaults mentioned here might not
 	apply.
 	</para>
 	</note>
 	<para>
-	The following guides 
+	The following guides
 	you to the right place where to look for Wireshark's profile data.
 	</para>
 	<para>
@@ -721,7 +721,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  <term><application>Windows XP</application></term>
 	  <listitem>
 	<para>
-	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>,
 	"Documents and Settings" and "Application Data" might be internationalized.
 	</para>
 	  </listitem>
@@ -731,7 +731,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  <term><application>Windows 2000</application> (no longer supported by Wireshark, for historical reference only)</term>
 	  <listitem>
 	<para>
-	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>,
 	"Documents and Settings" and "Application Data" might be internationalized.
 	</para>
 	  </listitem>
@@ -760,7 +760,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  <term><application>Windows ME</application>, <application>Windows 98</application> without user profiles (no longer supported, for historical reference only)</term>
 	  <listitem>
 	<para>
-	Without user profiles enabled the default location for all users is 
+	Without user profiles enabled the default location for all users is
 	<filename>C:\windows\Application Data\Wireshark</filename>
 	</para>
 	  </listitem>
@@ -773,21 +773,21 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	<title>Windows 7, Vista, XP, 2000, and NT roaming profiles</title>
 	<para>
 	The following will only be applicable if you are using roaming profiles.
-	This might be the case, if you work in a Windows domain environment 
-	(used in company networks). The configurations of all 
-	programs you use won't be saved on the local hard drive of the computer 
+	This might be the case, if you work in a Windows domain environment
+	(used in company networks). The configurations of all
+	programs you use won't be saved on the local hard drive of the computer
 	you are currently working on, but on the domain server.
 	</para>
 	<para>
 	As Wireshark is using the correct places to store its profile data,
-	your settings will travel with you, if you logon to a different computer 
+	your settings will travel with you, if you logon to a different computer
 	the next time.
 	</para>
 	<para>
-	There is an exception to this: The "Local Settings" folder in your profile 
-	data (typically something like: 
+	There is an exception to this: The "Local Settings" folder in your profile
+	data (typically something like:
 	<filename>C:\Documents and Settings\&lt;username&gt;\Local Settings</filename>)
-	will not be transferred to the domain server. This is the default for 
+	will not be transferred to the domain server. This is the default for
 	temporary capture files.
 	</para>
 	</section>
@@ -795,13 +795,13 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	<section id="ChWindowsTempFolder">
 	<title>Windows temporary folder</title>
 	<para>
-	Wireshark uses the folder which is set by the TMPDIR or TEMP environment 
+	Wireshark uses the folder which is set by the TMPDIR or TEMP environment
 	variable. This variable will be set by the Windows installer.
 	</para>
 	<para>
       <variablelist>
 	<varlistentry>
-	  <term><command>7/Vista</command></term>
+	  <term><application>Windows 7</application>, <application>Windows Vista</application></term>
 	  <listitem>
 	<para>
 	<filename>C:\Users\&lt;username&gt;\AppData\Local\Temp</filename>
@@ -809,7 +809,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>XP/2000</command></term>
+	  <term><application>Windows XP</application>, <application>Windows 2000</application></term>
 	  <listitem>
 	<para>
 	<filename>C:\Documents and Settings\&lt;username&gt;\Local Settings\Temp</filename>
@@ -817,7 +817,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>NT 4</command></term>
+	  <term><application>Windows NT</application></term>
 	  <listitem>
 	<para>
 	<filename>C:\TEMP</filename>
