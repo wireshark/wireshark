@@ -2750,7 +2750,7 @@ dissect_scsi_spc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset+4, 1,
                              "SWP: %u, RAERP: %u, UAAERP: %u, EAERP: %u",
                              (flags & 0x8) >> 3, (flags & 0x4) >> 2,
-                             (flags & 0x2) >> 2, (flags & 0x1));
+                             (flags & 0x2) >> 1, (flags & 0x1));
         proto_tree_add_text (tree, tvb, offset+5, 1, "Autoload Mode: 0x%x",
                              tvb_get_guint8 (tvb, offset+5) & 0x7);
         proto_tree_add_text (tree, tvb, offset+6, 2,
