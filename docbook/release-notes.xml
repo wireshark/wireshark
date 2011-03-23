@@ -186,10 +186,12 @@ Wireshark Info
 
         <listitem>
           <para>
-            The tshark -z option now uses the "-z <proto>,srt" syntax instead
-            of "-z <proto>,rtt" for all protocols that support service response
-            time statistics.  This syntax now matches Wireshark's syntax for
-            this option.
+            The tshark -z option now uses the <cmdsynopsis><arg>-z
+            &lt;proto&gt;,srt</arg></cmdsynopsis> syntax instead of
+            <cmdsynopsis><arg>-z &lt;proto&gt;,rtt</arg></cmdsynopsis>
+            for all protocols that support service response time
+            statistics.  This syntax now matches Wireshark's syntax
+            for this option.
           </para>
         </listitem>
 
