@@ -423,7 +423,8 @@ in_checksum (void *buf, unsigned long count)
     while (sum>>16)
         sum = (sum & 0xffff) + (sum >> 16);
 
-    return g_htons(~sum);
+    sum = ~sum;
+    return g_htons(sum);
 }
 
 /* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
@@ -605,16 +606,22 @@ write_current_packet (void)
 
         /* Write UDP header */
         if (hdr_udp) {
+            guint16 x16;
             HDR_UDP.source_port = g_htons(hdr_src_port);
             HDR_UDP.dest_port = g_htons(hdr_dest_port);
             HDR_UDP.length = g_htons(proto_length);
 
+            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
 	    HDR_UDP.checksum = 0;
-	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) +
-		    g_ntohs(in_checksum(&HDR_UDP, sizeof(HDR_UDP))) +
-		    g_ntohs(in_checksum(packet_buf, curr_offset));
-	    HDR_UDP.checksum = g_htons((u & 0xffff) + (u>>16));
-	    if (HDR_UDP.checksum == 0) /* differenciate between 'none' and 0 */
+            x16  = in_checksum(&pseudoh, sizeof(pseudoh));
+            u    = g_ntohs(x16);
+            x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
+            u   += g_ntohs(x16);
+            x16  = in_checksum(packet_buf, curr_offset);
+            u   += g_ntohs(x16);
+            x16  = (u & 0xffff) + (u>>16);
+	    HDR_UDP.checksum = g_htons(x16);
+	    if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
 	    	    HDR_UDP.checksum = g_htons(1);
 
             fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file);
@@ -622,18 +629,24 @@ write_current_packet (void)
 
         /* Write TCP header */
         if (hdr_tcp) {
+            guint16 x16;
             HDR_TCP.source_port = g_htons(hdr_src_port);
             HDR_TCP.dest_port = g_htons(hdr_dest_port);
     	    /* HDR_TCP.seq_num already correct */
 	    HDR_TCP.window = g_htons(0x2000);
 
+            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
 	    HDR_TCP.checksum = 0;
-	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) +
-		    g_ntohs(in_checksum(&HDR_TCP, sizeof(HDR_TCP))) +
-		    g_ntohs(in_checksum(packet_buf, curr_offset));
-	    HDR_TCP.checksum = g_htons((u & 0xffff) + (u>>16));
-	    if (HDR_TCP.checksum == 0) /* differenciate between 'none' and 0 */
-	    	    HDR_TCP.checksum = g_htons(1);
+            x16  = in_checksum(&pseudoh, sizeof(pseudoh));
+            u    = g_ntohs(x16);
+            x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
+            u   += g_ntohs(x16);
+            x16  = in_checksum(packet_buf, curr_offset);
+            u   += g_ntohs(x16);
+            x16  = (u & 0xffff) + (u>>16);
+	    HDR_TCP.checksum = g_htons(x16);
+	    if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
+                HDR_TCP.checksum = g_htons(1);
 
             fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file);
         }
@@ -655,6 +668,7 @@ write_current_packet (void)
 
         /* Write SCTP header */
         if (hdr_sctp) {
+            guint32 x32;
             HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
             HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
@@ -662,7 +676,9 @@ write_current_packet (void)
             HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
             if (hdr_data_chunk)
               HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = g_htonl(finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum)));
+            /* Note: g_ntohl() macro arg may be eval'd twice so calc value before invoking macro */
+            x32 = finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum));
+            HDR_SCTP.checksum  = g_htonl(x32);
 
             fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
         }
@@ -684,8 +700,8 @@ write_current_packet (void)
             fprintf(stderr, "Wrote packet of %lu bytes at %u\n", curr_offset, g_ntohl(HDR_TCP.seq_num));
         num_packets_written ++;
     }
-
-    HDR_TCP.seq_num = g_htonl(g_ntohl(HDR_TCP.seq_num) + curr_offset);
+    HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
+    HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
     packet_start += curr_offset;
     curr_offset = 0;
