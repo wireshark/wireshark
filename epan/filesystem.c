@@ -1198,7 +1198,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 		/*
 		 * Create the "Default" personal configuration files directory, if necessary.
 		 */
-		if (create_persconffile_profile (NULL, &pf_dir_path_return) == -1) {
+		if (create_persconffile_profile (NULL, pf_dir_path_return) == -1) {
 			return -1;
 		}
 
