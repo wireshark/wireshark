@@ -172,7 +172,7 @@ get_interface_descriptive_name(const char *if_name)
        one from the OS or libpcap? */
     descr = NULL;
     if_list = capture_interface_list(&err, NULL);
-    if (if_list != NULL && if_name != NULL) {
+    if (if_list != NULL) {
       if_entry = if_list;
       do {
         if_info = if_entry->data;
