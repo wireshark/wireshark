@@ -1,7 +1,8 @@
 /* packet-gsm_rlcmac.h
  * Definitions for GSM RLC MAC control plane message dissection in wireshark.
  * TS 44.060 and 24.008
- * By Vincent Helfre
+ * By Vincent Helfre, based on original code by Jari Sassi
+ * with the gracious authorization of STE
  * Copyright (c) 2011 ST-Ericsson
  *
  * $Id$
@@ -55,8 +56,8 @@ typedef struct
   guint8 UnionType;/* UnionType is index */
   union
   {
-    guint8 UPLINK_TFI_v;
-    guint8 DOWNLINK_TFI_v;
+    guint8 UPLINK_TFI;
+    guint8 DOWNLINK_TFI;
   } u;
 } Global_TFI_t;
 
@@ -72,69 +73,69 @@ typedef struct
 
 typedef struct
 {
-  guint8 FINAL_ACK_INDICATION_v;
-  guint8 STARTING_SEQUENCE_NUMBER_v;
-  guint8 RECEIVED_BLOCK_BITMAP_v[64/8];
+  guint8 FINAL_ACK_INDICATION;
+  guint8 STARTING_SEQUENCE_NUMBER;
+  guint8 RECEIVED_BLOCK_BITMAP[64/8];
 } Ack_Nack_Description_t;
 
 
 typedef struct
 {
-  guint8 Exist_TIMING_ADVANCE_VALUE_v;
-  guint8 TIMING_ADVANCE_VALUE_v;
+  guint8 Exist_TIMING_ADVANCE_VALUE;
+  guint8 TIMING_ADVANCE_VALUE;
 
   guint8 Exist_IndexAndtimeSlot;
-  guint8 TIMING_ADVANCE_INDEX_v;
-  guint8 TIMING_ADVANCE_TIMESLOT_NUMBER_v;
+  guint8 TIMING_ADVANCE_INDEX;
+  guint8 TIMING_ADVANCE_TIMESLOT_NUMBER;
 } Packet_Timing_Advance_t;
 
 typedef struct
 {
-  guint8 ALPHA_v;
+  guint8 ALPHA;
 
   struct
   {
     guint8 Exist;
-    guint8 GAMMA_TN_v;
+    guint8 GAMMA_TN;
   } Slot[8];
 } Power_Control_Parameters_t;
 
 typedef struct
 {
-  guint8 ALPHA_v;
-  guint8 T_AVG_W_v;
-  guint8 T_AVG_T_v;
+  guint8 ALPHA;
+  guint8 T_AVG_W;
+  guint8 T_AVG_T;
   guint8 Pb;
-  guint8 PC_MEAS_CHAN_v;
-  guint8 INT_MEAS_CHANNEL_LIST_AVAIL_v;
-  guint8 N_AVG_I_v;
+  guint8 PC_MEAS_CHAN;
+  guint8 INT_MEAS_CHANNEL_LIST_AVAIL;
+  guint8 N_AVG_I;
 } Global_Power_Control_Parameters_t;
 
 typedef struct
 {
-  guint8 Exist_TIMING_ADVANCE_VALUE_v;
-  guint8 TIMING_ADVANCE_VALUE_v;
+  guint8 Exist_TIMING_ADVANCE_VALUE;
+  guint8 TIMING_ADVANCE_VALUE;
 
   guint8 Exist_UPLINK_TIMING_ADVANCE;
-  guint8 UPLINK_TIMING_ADVANCE_INDEX_v;
-  guint8 UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER_v;
+  guint8 UPLINK_TIMING_ADVANCE_INDEX;
+  guint8 UPLINK_TIMING_ADVANCE_TIMESLOT_NUMBER;
 
   guint8 Exist_DOWNLINK_TIMING_ADVANCE;
-  guint8 DOWNLINK_TIMING_ADVANCE_INDEX_v;
-  guint8 DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER_v;
+  guint8 DOWNLINK_TIMING_ADVANCE_INDEX;
+  guint8 DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER;
 } Global_Packet_Timing_Advance_t;
 
 
 typedef struct
 {
-  guint8 C_VALUE_v;
-  guint8 RXQUAL_v;
-  guint8 SIGN_VAR_v;
+  guint8 C_VALUE;
+  guint8 RXQUAL;
+  guint8 SIGN_VAR;
 
   struct
   {
     guint8 Exist;
-    guint8 I_LEVEL_TN_v;
+    guint8 I_LEVEL_TN;
   } Slot[8];
 } Channel_Quality_Report_t;
 
@@ -146,17 +147,17 @@ typedef enum
 
 typedef struct
 {
-  guint8 PEAK_THROUGHPUT_CLASS_v;
-  guint8 RADIO_PRIORITY_v;
-  RLC_MODE_t RLC_MODE_v;
-  guint8 LLC_PDU_TYPE_v;
-  guint16 RLC_OCTET_COUNT_v;
+  guint8 PEAK_THROUGHPUT_CLASS;
+  guint8 RADIO_PRIORITY;
+  RLC_MODE_t RLC_MODE;
+  guint8 LLC_PDU_TYPE;
+  guint16 RLC_OCTET_COUNT;
 } Channel_Request_Description_t;
 
 typedef struct
 {
-  guint16 RANDOM_ACCESS_INFORMATION_v;
-  guint8 FRAME_NUMBER_v[2];
+  guint16 RANDOM_ACCESS_INFORMATION;
+  guint8 FRAME_NUMBER[2];
 } Packet_Request_Reference_t;
 
 typedef PRE_PACKED struct
@@ -302,29 +303,29 @@ typedef struct
 
 typedef struct
 {
-  guint8 MA_LENGTH_v;/* =(MA_BitLength +7) MA_BitLength_ converted to bytes */
-  guint8 MA_BITMAP_v[(63+1)/8];/* : bit (val (MA_LENGTH) + 1) > */
+  guint8 MA_LENGTH;/* =(MA_BitLength +7) MA_BitLength_ converted to bytes */
+  guint8 MA_BITMAP[(63+1)/8];/* : bit (val (MA_LENGTH) + 1) > */
   /* The above should not change order! */
   guint8 MA_BitLength;
 } MobileAllocation_t;
 
 typedef struct
 {
-  guint8 ElementsOf_ARFCN_INDEX_v;
-  guint8 ARFCN_INDEX_v[16];
+  guint8 ElementsOf_ARFCN_INDEX;
+  guint8 ARFCN_INDEX[16];
 } ARFCN_index_list_t;
 
 typedef struct
 {
-  guint8 HSN_v;
+  guint8 HSN;
 
-  guint8 ElementsOf_RFL_NUMBER_v;
-  guint8 RFL_NUMBER_v[4];
+  guint8 ElementsOf_RFL_NUMBER;
+  guint8 RFL_NUMBER[4];
 
   guint8 UnionType;
   union
   {
-    MobileAllocation_t MA_v;
+    MobileAllocation_t MA;
     ARFCN_index_list_t ARFCN_index_list;
   } u;
 } GPRS_Mobile_Allocation_t;
@@ -339,21 +340,21 @@ typedef struct
 
 typedef struct
 {
-  gboolean Exist_LENGTH_v;
-  guint8   LENGTH_v;
+  gboolean Exist_LENGTH;
+  guint8   LENGTH;
 
-  guint8   FINAL_ACK_INDICATION_v;
-  guint8   BEGINNING_OF_WINDOW_v;
-  guint8   END_OF_WINDOW_v;
-  guint16  STARTING_SEQUENCE_NUMBER_v;
+  guint8   FINAL_ACK_INDICATION;
+  guint8   BEGINNING_OF_WINDOW;
+  guint8   END_OF_WINDOW;
+  guint16  STARTING_SEQUENCE_NUMBER;
 
   gboolean Exist_CRBB;
-  guint8   CRBB_LENGTH_v;
-  guint8   CRBB_STARTING_COLOR_CODE_v;
-  guint8   CRBB_v[CRBB_MAX_BITS/8 + 1];
+  guint8   CRBB_LENGTH;
+  guint8   CRBB_STARTING_COLOR_CODE;
+  guint8   CRBB[CRBB_MAX_BITS/8 + 1];
 
-  guint16  URBB_LENGTH_v;
-  guint8   URBB_v[URBB_MAX_BITS/8];
+  guint16  URBB_LENGTH;
+  guint8   URBB[URBB_MAX_BITS/8];
 } EGPRS_AckNack_t;
 
 
@@ -379,7 +380,7 @@ typedef struct
 typedef struct
 {
   guint8 Length;
-  guint8 MA_v[8];
+  guint8 MA[8];
 } MobileAllocationIE_t;
 
 typedef struct
@@ -387,7 +388,7 @@ typedef struct
   guint8 UnionType;
   union
   {
-    MobileAllocationIE_t MA_v;
+    MobileAllocationIE_t MA;
     guint8 Frequency_Short_List[64/8];
   } u;
 } MobileAllocation_or_Frequency_Short_List_t;
@@ -395,20 +396,20 @@ typedef struct
 typedef struct
 {
   guint8 spare;
-  guint16 ARFCN_v;
+  guint16 ARFCN;
 } SingleRFChannel_t;
 
 typedef struct
 {
-  guint8 MAIO_v;
-  guint8 HSN_v;
+  guint8 MAIO;
+  guint8 HSN;
 } RFHoppingChannel_t;
 
 typedef struct
 {
   guint8 Channel_type_and_TDMA_offset;
-  guint8 TN_v;
-  guint8 TSC_v;
+  guint8 TN;
+  guint8 TSC;
 
   guint8 UnionType;
   union
@@ -438,7 +439,7 @@ typedef struct
 typedef struct
 {
   guint8 Exist_NLN_PCH_and_NLN_status;
-  guint8 NLN_PCH_v;
+  guint8 NLN_PCH;
   guint8 NLN_status;
 
   guint8 Exist_Priority1;
@@ -456,11 +457,11 @@ typedef struct
 
 typedef struct
 {
-  guint8 Exist_CN3_v;
-  guint8 CN3_v;
+  guint8 Exist_CN3;
+  guint8 CN3;
 
   guint8 Exist_NLN_and_status;
-  guint8 NLN_v;
+  guint8 NLN;
   guint8 NLN_status;
 
   guint8 Exist_Priority1;
@@ -479,33 +480,33 @@ typedef struct
 
 typedef struct
 {
-  guint8 USF_v;
-  guint8 USF_GRANULARITY_v;
+  guint8 USF;
+  guint8 USF_GRANULARITY;
 
   guint8 Exist_P0_PR_MODE;
-  guint8 P0_v;
-  guint8 PR_MODE_v;
+  guint8 P0;
+  guint8 PR_MODE;
 } DynamicAllocation_t;
 
 typedef struct
 {
-  gboolean Exist_ALPHA_v;
-  guint8   ALPHA_v;
+  gboolean Exist_ALPHA;
+  guint8   ALPHA;
 
-  guint8   GAMMA_v;
-  StartingTime_t TBF_STARTING_TIME_v;
-  guint8   NR_OF_RADIO_BLOCKS_ALLOCATED_v;
+  guint8   GAMMA;
+  StartingTime_t TBF_STARTING_TIME;
+  guint8   NR_OF_RADIO_BLOCKS_ALLOCATED;
 
   gboolean Exist_P0_BTS_PWR_CTRL_PR_MODE;
-  guint8   P0_v;
-  guint8   BTS_PWR_CTRL_MODE_v;
-  guint8   PR_MODE_v;
+  guint8   P0;
+  guint8   BTS_PWR_CTRL_MODE;
+  guint8   PR_MODE;
 } EGPRS_TwoPhaseAccess_t;
 
 typedef struct
 {
-  guint8 TFI_ASSIGNMENT_v;
-  guint8 POLLING_v;
+  guint8 TFI_ASSIGNMENT;
+  guint8 POLLING;
 
   guint8 UnionType;
   union
@@ -514,25 +515,25 @@ typedef struct
     guint8               FixedAllocationDummy;   /* Fixed Allocation was removed */
   } Allocation;
 
-  guint8   EGPRS_CHANNEL_CODING_COMMAND_v;
-  guint8   TLLI_BLOCK_CHANNEL_CODING_v;
+  guint8   EGPRS_CHANNEL_CODING_COMMAND;
+  guint8   TLLI_BLOCK_CHANNEL_CODING;
 
-  gboolean Exist_BEP_PERIOD2_v;
-  guint8   BEP_PERIOD2_v;
+  gboolean Exist_BEP_PERIOD2;
+  guint8   BEP_PERIOD2;
 
-  guint8   RESEGMENT_v;
+  guint8   RESEGMENT;
   guint8   EGPRS_WindowSize;
 
-  gboolean Exist_ALPHA_v;
-  guint8   ALPHA_v;
+  gboolean Exist_ALPHA;
+  guint8   ALPHA;
 
-  guint8   GAMMA_v;
+  guint8   GAMMA;
 
-  gboolean Exist_TIMING_ADVANCE_INDEX_v;
-  guint8   TIMING_ADVANCE_INDEX_v;
+  gboolean Exist_TIMING_ADVANCE_INDEX;
+  guint8   TIMING_ADVANCE_INDEX;
 
-  gboolean            Exist_TBF_STARTING_TIME_v;
-  StartingTime_t TBF_STARTING_TIME_v;
+  gboolean            Exist_TBF_STARTING_TIME;
+  StartingTime_t TBF_STARTING_TIME;
 } EGPRS_OnePhaseAccess_t;
 
 #define MAX_ACCESS_TECHOLOGY_TYPES 12
@@ -566,29 +567,29 @@ typedef struct
 typedef struct
 {
   guint8 Length;
-  guint8 MAIO_v;
+  guint8 MAIO;
   guint8 MobileAllocation[62];
 } IA_FreqParamsBeforeTime_t;
 
 typedef struct
 {
-  gboolean Exist_ALPHA_v;
-  guint8   ALPHA_v;
+  gboolean Exist_ALPHA;
+  guint8   ALPHA;
 
-  guint8   GAMMA_v;
+  guint8   GAMMA;
   guint8   R97_CompatibilityBits;
-  StartingTime_t TBF_STARTING_TIME_v;
+  StartingTime_t TBF_STARTING_TIME;
 
   gboolean Exist_P0_BTS_PWR_CTRL_PR_MODE;
-  guint8   P0_v;
-  guint8   BTS_PWR_CTRL_MODE_v;
-  guint8   PR_MODE_v;
+  guint8   P0;
+  guint8   BTS_PWR_CTRL_MODE;
+  guint8   PR_MODE;
 } GPRS_SingleBlockAllocation_t;
 
 typedef struct
 {
-  guint8 TFI_ASSIGNMENT_v;
-  guint8 POLLING_v;
+  guint8 TFI_ASSIGNMENT;
+  guint8 POLLING;
 
   guint8 UnionType;
   union
@@ -597,19 +598,19 @@ typedef struct
     guint8               FixedAllocationDummy;
   } Allocation;
 
-  guint8              CHANNEL_CODING_COMMAND_v;
-  guint8              TLLI_BLOCK_CHANNEL_CODING_v;
+  guint8              CHANNEL_CODING_COMMAND;
+  guint8              TLLI_BLOCK_CHANNEL_CODING;
 
-  guint8              Exist_ALPHA_v;
-  guint8              ALPHA_v;
+  guint8              Exist_ALPHA;
+  guint8              ALPHA;
 
-  guint8              GAMMA_v;
+  guint8              GAMMA;
 
-  guint8              Exist_TIMING_ADVANCE_INDEX_v;
-  guint8              TIMING_ADVANCE_INDEX_v;
+  guint8              Exist_TIMING_ADVANCE_INDEX;
+  guint8              TIMING_ADVANCE_INDEX;
 
-  guint8              Exist_TBF_STARTING_TIME_v;
-  StartingTime_t TBF_STARTING_TIME_v;
+  guint8              Exist_TBF_STARTING_TIME;
+  StartingTime_t TBF_STARTING_TIME;
 } GPRS_DynamicOrFixedAllocation_t;
 
 typedef struct
@@ -634,35 +635,35 @@ typedef struct
 typedef struct
 {
   guint8   EGPRS_WindowSize;
-  guint8   LINK_QUALITY_MEASUREMENT_MODE_v;
+  guint8   LINK_QUALITY_MEASUREMENT_MODE;
 
-  gboolean Exist_BEP_PERIOD2_v;
-  guint8   BEP_PERIOD2_v;
+  gboolean Exist_BEP_PERIOD2;
+  guint8   BEP_PERIOD2;
 } PD_IA_AdditionsR99_t;
 
 typedef struct
 {
-  guint32               TLLI_v;
+  guint32               TLLI;
 
-  guint8                Exist_TFI_to_TA_VALID_v;
-  guint8                TFI_ASSIGNMENT_v;
-  guint8                RLC_MODE_v;
-  guint8                Exist_ALPHA_v;
-  guint8                ALPHA_v;
-  guint8                GAMMA_v;
-  guint8                POLLING_v;
-  guint8                TA_VALID_v;
+  guint8                Exist_TFI_to_TA_VALID;
+  guint8                TFI_ASSIGNMENT;
+  guint8                RLC_MODE;
+  guint8                Exist_ALPHA;
+  guint8                ALPHA;
+  guint8                GAMMA;
+  guint8                POLLING;
+  guint8                TA_VALID;
 
-  guint8                Exist_TIMING_ADVANCE_INDEX_v;
-  guint8                TIMING_ADVANCE_INDEX_v;
+  guint8                Exist_TIMING_ADVANCE_INDEX;
+  guint8                TIMING_ADVANCE_INDEX;
 
-  guint8                Exist_TBF_STARTING_TIME_v;
-  StartingTime_t       TBF_STARTING_TIME_v;
+  guint8                Exist_TBF_STARTING_TIME;
+  StartingTime_t       TBF_STARTING_TIME;
 
   guint8                Exist_P0_PR_MODE;
-  guint8                P0_v;
-  guint8                BTS_PWR_CTRL_MODE_v;
-  guint8                PR_MODE_v;
+  guint8                P0;
+  guint8                BTS_PWR_CTRL_MODE;
+  guint8                PR_MODE;
 
   gboolean              Exist_AdditionsR99;
   PD_IA_AdditionsR99_t AdditionsR99;
@@ -720,15 +721,15 @@ typedef struct
 /* <IAR Rest Octets> ref: 04.18/10.5.2.17 */
 typedef struct
 {
-  guint8 Exist_ExtendedRA_v;
-  guint8 ExtendedRA_v;
+  guint8 Exist_ExtendedRA;
+  guint8 ExtendedRA;
 } ExtendedRA_Info_t;
 
 typedef ExtendedRA_Info_t ExtendedRA_Info_Array_t[4];
 
 typedef struct
 {
-  ExtendedRA_Info_Array_t ExtendedRA_Info_v;
+  ExtendedRA_Info_Array_t ExtendedRA_Info;
 } IAR_t;
 
 
@@ -739,17 +740,17 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint32 TLLI_v;
-    guint16 TQI_v;
+    guint32 TLLI;
+    guint16 TQI;
   } u;
 } PacketPollingID_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
   PacketPollingID_t ID;
-  guint8 TYPE_OF_ACK_v;
+  guint8 TYPE_OF_ACK;
 } Packet_Polling_Request_t;
 
 /* < SI 13 Rest Octets > */
@@ -763,29 +764,29 @@ typedef struct
 
 typedef struct
 {
-  guint8 DTM_SUPPORT_v                  : 1;
-  guint8 PFC_FEATURE_MODE_v             : 1;
-  guint8 BEP_PERIOD_v                   : 4;
-  guint8 EGPRS_PACKET_CHANNEL_REQUEST_v : 1;
+  guint8 DTM_SUPPORT                  : 1;
+  guint8 PFC_FEATURE_MODE             : 1;
+  guint8 BEP_PERIOD                   : 4;
+  guint8 EGPRS_PACKET_CHANNEL_REQUEST : 1;
   guint8 EGPRS_Support                  : 1;
 
   guint8 NotUsed                        : 3;
-  guint8 EXT_UTBF_NODATA_v              : 1;
-  guint8 MULTIPLE_TBF_CAPABILITY_v      : 1;
-  guint8 NW_EXT_UTBF_v                  : 1;
-  guint8 CCN_ACTIVE_v                   : 1;
-  guint8 BSS_PAGING_COORDINATION_v      : 1;
+  guint8 EXT_UTBF_NODATA              : 1;
+  guint8 MULTIPLE_TBF_CAPABILITY      : 1;
+  guint8 NW_EXT_UTBF                  : 1;
+  guint8 CCN_ACTIVE                   : 1;
+  guint8 BSS_PAGING_COORDINATION      : 1;
 } GPRS_ExtensionInfoWithEGPRS_t;
 
 typedef struct
 {
-  guint8 EXT_UTBF_NODATA_v         : 1;
-  guint8 MULTIPLE_TBF_CAPABILITY_v : 1;
-  guint8 NW_EXT_UTBF_v             : 1;
-  guint8 CCN_ACTIVE_v              : 1;
-  guint8 BSS_PAGING_COORDINATION_v : 1;
-  guint8 DTM_SUPPORT_v             : 1;
-  guint8 PFC_FEATURE_MODE_v        : 1;
+  guint8 EXT_UTBF_NODATA         : 1;
+  guint8 MULTIPLE_TBF_CAPABILITY : 1;
+  guint8 NW_EXT_UTBF             : 1;
+  guint8 CCN_ACTIVE              : 1;
+  guint8 BSS_PAGING_COORDINATION : 1;
+  guint8 DTM_SUPPORT             : 1;
+  guint8 PFC_FEATURE_MODE        : 1;
   guint8 EGPRS_Support             : 1;
 } GPRS_ExtensionInfoWithoutEGPRS_t;
 
@@ -797,8 +798,8 @@ typedef struct
 
 typedef struct
 {
-  guint8 ECSC_v    : 1;
-  guint8 ECSR_3G_v : 1;
+  guint8 ECSC    : 1;
+  guint8 ECSR_3G : 1;
 } NonGPRS_ExtensionInfo_t;
 
 typedef struct
@@ -817,25 +818,25 @@ typedef struct
 typedef struct
 {
   gboolean EGPRS_Support;
-  guint8   BEP_PERIOD_v;
-  gboolean EGPRS_PACKET_CHANNEL_REQUEST_v;
+  guint8   BEP_PERIOD;
+  gboolean EGPRS_PACKET_CHANNEL_REQUEST;
 } EGPRS_OptionalExtensionInformation_t;
 
 
 typedef struct
 {
-  guint8 NMO_v;
-  guint8 T3168_v;
-  guint8 T3192_v;
-  guint8 DRX_TIMER_MAX_v;
-  guint8 ACCESS_BURST_TYPE_v;
-  guint8 CONTROL_ACK_TYPE_v;
-  guint8 BS_CV_MAX_v;
+  guint8 NMO;
+  guint8 T3168;
+  guint8 T3192;
+  guint8 DRX_TIMER_MAX;
+  guint8 ACCESS_BURST_TYPE;
+  guint8 CONTROL_ACK_TYPE;
+  guint8 BS_CV_MAX;
 
   guint8 Exist_PAN;
-  guint8 PAN_DEC_v;
-  guint8 PAN_INC_v;
-  guint8 PAN_MAX_v;
+  guint8 PAN_DEC;
+  guint8 PAN_INC;
+  guint8 PAN_MAX;
 
   guint8 Exist_Extension_Bits;
   Extension_Bits_t Extension_Bits;
@@ -843,19 +844,19 @@ typedef struct
 
 typedef struct
 {
-  guint8 ALPHA_v;
-  guint8 T_AVG_W_v;
-  guint8 T_AVG_T_v;
-  guint8 PC_MEAS_CHAN_v;
-  guint8 N_AVG_I_v;
+  guint8 ALPHA;
+  guint8 T_AVG_W;
+  guint8 T_AVG_T;
+  guint8 PC_MEAS_CHAN;
+  guint8 N_AVG_I;
 } GPRS_Power_Control_Parameters_t;
 
 typedef struct
 {
-  guint8 RAC_v;
-  guint8 SPGC_CCCH_SUP_v;
-  guint8 PRIORITY_ACCESS_THR_v;
-  guint8 NETWORK_CONTROL_ORDER_v;
+  guint8 RAC;
+  guint8 SPGC_CCCH_SUP;
+  guint8 PRIORITY_ACCESS_THR;
+  guint8 NETWORK_CONTROL_ORDER;
   GPRS_Cell_Options_t GPRS_Cell_Options;
   GPRS_Power_Control_Parameters_t GPRS_Power_Control_Parameters;
 } PBCCH_Not_present_t;
@@ -863,21 +864,21 @@ typedef struct
 typedef struct
 {
   guint8 Pb;
-  guint8 TSC_v;
-  guint8 TN_v;
+  guint8 TSC;
+  guint8 TN;
 
   guint8 UnionType;
   union
   {
     guint8 dummy;
-    guint16 ARFCN_v;
-    guint8 MAIO_v;
+    guint16 ARFCN;
+    guint8 MAIO;
   } u;
 } PBCCH_Description_t;
 
 typedef struct
 {
-  guint8 PSI1_REPEAT_PERIOD_v;
+  guint8 PSI1_REPEAT_PERIOD;
   PBCCH_Description_t PBCCH_Description;
 } PBCCH_present_t;
 
@@ -890,40 +891,40 @@ typedef guint8 TBF_RELEASE_CAUSE_t;
 
 typedef struct
 {
-  guint8               MESSAGE_TYPE_v;
-  guint8               PAGE_MODE_v;
+  guint8               MESSAGE_TYPE;
+  guint8               PAGE_MODE;
   Global_TFI_t        Global_TFI;
-  guint8               UPLINK_RELEASE_v;
-  guint8               DOWNLINK_RELEASE_v;
-  TBF_RELEASE_CAUSE_t TBF_RELEASE_CAUSE_v;
+  guint8               UPLINK_RELEASE;
+  guint8               DOWNLINK_RELEASE;
+  TBF_RELEASE_CAUSE_t TBF_RELEASE_CAUSE;
 } Packet_TBF_Release_t;
 
 /* < Packet Control Acknowledgement message content > */
 typedef struct
 {
   guint8  Exist_CTRL_ACK_Extension;
-  guint16 CTRL_ACK_Extension_v;
+  guint16 CTRL_ACK_Extension;
 } Packet_Control_Acknowledgement_AdditionsR6_t;
 
 typedef struct
 {
   guint8 Exist_TN_RRBP;
-  guint8 TN_RRBP_v;
+  guint8 TN_RRBP;
   guint8 Exist_G_RNTI_Extension;
-  guint8 G_RNTI_Extension_v;
+  guint8 G_RNTI_Extension;
   gboolean Exist_AdditionsR6;
   Packet_Control_Acknowledgement_AdditionsR6_t AdditionsR6;
 } Packet_Control_Acknowledgement_AdditionsR5_t;
 
 typedef struct
 {  /* Mac header */
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint32 TLLI_v;
-  guint8 CTRL_ACK_v;
+  guint32 TLLI;
+  guint8 CTRL_ACK;
   gboolean Exist_AdditionsR5;
   Packet_Control_Acknowledgement_AdditionsR5_t AdditionsR5;
 } Packet_Control_Acknowledgement_t;
@@ -932,28 +933,28 @@ typedef Packet_Control_Acknowledgement_t Packet_Ctrl_Ack_t;
 
 typedef struct
 {
-  guint8 CTRL_ACK_v;
+  guint8 CTRL_ACK;
 } Packet_Control_Acknowledgement_11_bit_t, Packet_Control_Acknowledgement_8_bit_t;
 
 /* < Packet Downlink Dummy Control Block message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
-  guint8 Exist_PERSISTENCE_LEVEL_v;
-  guint8 PERSISTENCE_LEVEL_v[4];
+  guint8 Exist_PERSISTENCE_LEVEL;
+  guint8 PERSISTENCE_LEVEL[4];
 } Packet_Downlink_Dummy_Control_Block_t;
 
 /* < Packet Uplink Dummy Control Block message content > */
 typedef struct
 { /* Mac header */
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint32 TLLI_v;
+  guint32 TLLI;
 } Packet_Uplink_Dummy_Control_Block_t;
 
 /*< MS Radio Access capability IE >
@@ -983,8 +984,8 @@ typedef struct
   guint8 GPRS_Extended_Dynamic_Allocation_Capability;
 
   guint8 Exist_SM;
-  guint8 SMS_VALUE_v;
-  guint8 SM_VALUE_v;
+  guint8 SMS_VALUE;
+  guint8 SM_VALUE;
 
 /*-------- Rel 99 additions */
   guint8 Exist_ECSD_multislot_class;
@@ -1010,10 +1011,10 @@ typedef struct
   *-- The presence of the A5 bits is mandatory in the 1st Access capabilies struct within this IE.
   */
 
-  guint8 ES_IND_v;
-  guint8 PS_v;
-  guint8 VGCS_v;
-  guint8 VBS_v;
+  guint8 ES_IND;
+  guint8 PS;
+  guint8 VGCS;
+  guint8 VBS;
 
   guint8 Exist_Multislot_capability;
   Multislot_capability_t Multislot_capability;
@@ -1078,8 +1079,8 @@ typedef enum
 
 typedef struct
 {
-  guint8              CountAccessTechnologies_v;
-  AccessTechnology_t AccessTechnologies_v[MAX_ACCESS_TECHNOLOGIES_COUNT];
+  guint8              CountAccessTechnologies;
+  AccessTechnology_t AccessTechnologies[MAX_ACCESS_TECHNOLOGIES_COUNT];
 } AccessTechnologiesRequest_t;
 
 typedef struct
@@ -1133,7 +1134,7 @@ typedef struct
 
 typedef struct
 {
-  guint8   Multiband_v;
+  guint8   Multiband;
   union
   {
     guint8 A5_Bits;
@@ -1156,8 +1157,8 @@ typedef struct              /* MS classmark 3 R99 */
   guint8         ExtendedMeasurementCapability;
 
   guint8         Exist_MS_MeasurementCapability;
-  guint8         SMS_VALUE_v;
-  guint8         SM_VALUE_v;
+  guint8         SMS_VALUE;
+  guint8         SM_VALUE;
 
   guint8         Exist_MS_PositioningMethodCapability;
   guint8         MS_PositioningMethod;
@@ -1242,35 +1243,35 @@ typedef struct
   guint8   UnionType;
   union
   {
-    guint8 MEAN_BEP_GMSK_v;
-    guint8 MEAN_BEP_8PSK_v;
+    guint8 MEAN_BEP_GMSK;
+    guint8 MEAN_BEP_8PSK;
   } u;
 } BEP_MeasurementReport_t;
 
 typedef struct
 {
   gboolean Exist;
-  guint8   I_LEVEL_v;
+  guint8   I_LEVEL;
 } InterferenceMeasurementReport_t;
 
 typedef struct
 {
   gboolean                 Exist_BEP_MEASUREMENTS;
-  BEP_MeasurementReport_t BEP_MEASUREMENTS_v[8];
+  BEP_MeasurementReport_t BEP_MEASUREMENTS[8];
 
   gboolean                         Exist_INTERFERENCE_MEASUREMENTS;
-  InterferenceMeasurementReport_t INTERFERENCE_MEASUREMENTS_v[8];
+  InterferenceMeasurementReport_t INTERFERENCE_MEASUREMENTS[8];
 } EGPRS_TimeslotLinkQualityMeasurements_t;
 
 typedef struct
 {
   gboolean Exist_MEAN_CV_BEP_GMSK;
-  guint8   MEAN_BEP_GMSK_v;
-  guint8   CV_BEP_GMSK_v;
+  guint8   MEAN_BEP_GMSK;
+  guint8   CV_BEP_GMSK;
 
   gboolean Exist_MEAN_CV_BEP_8PSK;
-  guint8   MEAN_BEP_8PSK_v;
-  guint8   CV_BEP_8PSK_v;
+  guint8   MEAN_BEP_8PSK;
+  guint8   CV_BEP_8PSK;
 } EGPRS_BEP_LinkQualityMeasurements_t;
 
 typedef struct
@@ -1281,8 +1282,8 @@ typedef struct
   gboolean                                 Exist_EGPRS_TimeslotLinkQualityMeasurements;
   EGPRS_TimeslotLinkQualityMeasurements_t EGPRS_TimeslotLinkQualityMeasurements;
 
-  gboolean                                 Exist_PFI_v;
-  guint8                                   PFI_v;
+  gboolean                                 Exist_PFI;
+  guint8                                   PFI;
 
   guint8                                   MS_RAC_AdditionalInformationAvailable;
   guint8                                   RetransmissionOfPRR;
@@ -1294,19 +1295,19 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint32 TLLI_v;
+    guint32 TLLI;
   } u;
 } PacketResourceRequestID_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint8 Exist_ACCESS_TYPE_v;
-  guint8 ACCESS_TYPE_v;
+  guint8 Exist_ACCESS_TYPE;
+  guint8 ACCESS_TYPE;
 
   PacketResourceRequestID_t ID;
 
@@ -1315,13 +1316,13 @@ typedef struct
 
   Channel_Request_Description_t Channel_Request_Description;
 
-  guint8 Exist_CHANGE_MARK_v;
-  guint8 CHANGE_MARK_v;
+  guint8 Exist_CHANGE_MARK;
+  guint8 CHANGE_MARK;
 
-  guint8 C_VALUE_v;
+  guint8 C_VALUE;
 
-  guint8 Exist_SIGN_VAR_v;
-  guint8 SIGN_VAR_v;
+  guint8 Exist_SIGN_VAR;
+  guint8 SIGN_VAR;
 
   InterferenceMeasurementReport_t  Slot[8];
 
@@ -1332,23 +1333,23 @@ typedef struct
 /* < Packet Mobile TBF Status message content >*/
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
   Global_TFI_t Global_TFI;
-  guint8 TBF_CAUSE_v;
+  guint8 TBF_CAUSE;
 
-  guint8 Exist_STATUS_MESSAGE_TYPE_v;
-  guint8 STATUS_MESSAGE_TYPE_v;
+  guint8 Exist_STATUS_MESSAGE_TYPE;
+  guint8 STATUS_MESSAGE_TYPE;
 } Packet_Mobile_TBF_Status_t;
 
 /* < Packet PSI Status message content >*/
 typedef struct
 {
-  guint8 PSI_MESSAGE_TYPE_v;
-  guint8 PSIX_CHANGE_MARK_v;
+  guint8 PSI_MESSAGE_TYPE;
+  guint8 PSIX_CHANGE_MARK;
   guint8 Exist_PSIX_COUNT_and_Instance_Bitmap;
 } PSI_Message_t;
 
@@ -1357,23 +1358,23 @@ typedef struct
   guint8 Count_PSI_Message;
   PSI_Message_t PSI_Message[10];
 
-  guint8 ADDITIONAL_MSG_TYPE_v;
+  guint8 ADDITIONAL_MSG_TYPE;
 } PSI_Message_List_t;
 
 typedef struct
 {
-  guint8 ADDITIONAL_MSG_TYPE_v;
+  guint8 ADDITIONAL_MSG_TYPE;
 } Unknown_PSI_Message_List_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
   Global_TFI_t Global_TFI;
-  guint8 PBCCH_CHANGE_MARK_v;
+  guint8 PBCCH_CHANGE_MARK;
 
   PSI_Message_List_t PSI_Message_List;
   Unknown_PSI_Message_List_t Unknown_PSI_Message_List;
@@ -1382,11 +1383,11 @@ typedef struct
 /* < Packet SI Status message content > */
 typedef struct
 {
-  guint8 SI_MESSAGE_TYPE_v;
+  guint8 SI_MESSAGE_TYPE;
   guint8 MESS_REC;
-  guint8 SIX_CHANGE_MARK_v;
+  guint8 SIX_CHANGE_MARK;
 
-  guint8 SIX_COUNT_v;
+  guint8 SIX_COUNT;
   guint8 Instance_bitmap[2];
 } SI_Message_t;
 
@@ -1395,23 +1396,23 @@ typedef struct
   guint8 Count_SI_Message;
   SI_Message_t SI_Message[10];
 
-  guint8 ADDITIONAL_MSG_TYPE_v;
+  guint8 ADDITIONAL_MSG_TYPE;
 } SI_Message_List_t;
 
 typedef struct
 {
-  guint8 ADDITIONAL_MSG_TYPE_v;
+  guint8 ADDITIONAL_MSG_TYPE;
 } Unknown_SI_Message_List_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
   Global_TFI_t Global_TFI;
-  guint8 BCCH_CHANGE_MARK_v;
+  guint8 BCCH_CHANGE_MARK;
 
   SI_Message_List_t SI_Message_List;
   Unknown_SI_Message_List_t Unknown_SI_Message_List;
@@ -1419,11 +1420,11 @@ typedef struct
 
 typedef struct
 {
-  guint16 FDD_ARFCN_v;
-  guint8 DIVERSITY_v;
+  guint16 FDD_ARFCN;
+  guint8 DIVERSITY;
   guint8 Exist_Bandwith_FDD;
-  guint8 BANDWITH_FDD_v;
-  guint16 SCRAMBLING_CODE_v;
+  guint8 BANDWITH_FDD;
+  guint16 SCRAMBLING_CODE;
 } FDD_Target_Cell_t;
 
 /* TDD Target cell not implemented */
@@ -1443,15 +1444,15 @@ typedef struct
 /* < Packet Cell Change Failure message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint32 TLLI_v;
-  guint16 ARFCN_v;
-  guint8 BSIC_v;
-  guint8 CAUSE_v;
+  guint32 TLLI;
+  guint16 ARFCN;
+  guint8 BSIC;
+  guint8 CAUSE;
   gboolean Exist_AdditionsR99;
   PCCF_AdditionsR99_t AdditionsR99;
 } Packet_Cell_Change_Failure_t;
@@ -1459,18 +1460,18 @@ typedef struct
 /* < Packet Downlink Ack/Nack message content > */
 typedef struct
 {
-  gboolean Exist_PFI_v;
-  guint8   PFI_v;
+  gboolean Exist_PFI;
+  guint8   PFI;
 } PD_AckNack_AdditionsR99_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint8 DOWNLINK_TFI_v;
+  guint8 DOWNLINK_TFI;
   Ack_Nack_Description_t Ack_Nack_Description;
 
   guint8 Exist_Channel_Request_Description;
@@ -1486,19 +1487,19 @@ typedef struct
 typedef struct
 {
   EGPRS_BEP_LinkQualityMeasurements_t     EGPRS_BEP_LinkQualityMeasurements;
-  guint8                                   C_VALUE_v;
+  guint8                                   C_VALUE;
   EGPRS_TimeslotLinkQualityMeasurements_t EGPRS_TimeslotLinkQualityMeasurements;
 } EGPRS_ChannelQualityReport_t;
 
 typedef struct
 {
-  guint8   MESSAGE_TYPE_v;
+  guint8   MESSAGE_TYPE;
   guint8   PayloadType;
   guint8   spare;
   guint8   R;
 
-  guint8   DOWNLINK_TFI_v;
-  guint8   MS_OUT_OF_MEMORY_v;
+  guint8   DOWNLINK_TFI;
+  guint8   MS_OUT_OF_MEMORY;
 
   gboolean                       Exist_EGPRS_ChannelQualityReport;
   EGPRS_ChannelQualityReport_t  EGPRS_ChannelQualityReport;
@@ -1506,8 +1507,8 @@ typedef struct
   gboolean                       Exist_ChannelRequestDescription;
   Channel_Request_Description_t ChannelRequestDescription;
 
-  gboolean Exist_PFI_v;
-  guint8   PFI_v;
+  gboolean Exist_PFI;
+  guint8   PFI;
 
   gboolean          Exist_ExtensionBits;
   Extension_Bits_t ExtensionBits;
@@ -1519,8 +1520,8 @@ typedef struct
 
 typedef struct
 {
-  guint8                      Exist_CONTENTION_RESOLUTION_TLLI_v;
-  guint32                     CONTENTION_RESOLUTION_TLLI_v;
+  guint8                      Exist_CONTENTION_RESOLUTION_TLLI;
+  guint32                     CONTENTION_RESOLUTION_TLLI;
 
   guint8                      Exist_Packet_Timing_Advance;
   Packet_Timing_Advance_t    Packet_Timing_Advance;
@@ -1536,12 +1537,12 @@ typedef struct
 {
   gboolean Exist_PacketExtendedTimingAdvance;
   guint8   PacketExtendedTimingAdvance;
-  guint8   TBF_EST_v;
+  guint8   TBF_EST;
 } PU_AckNack_GPRS_AdditionsR99_t;
 
 typedef struct
 {
-  guint8                  CHANNEL_CODING_COMMAND_v;
+  guint8                  CHANNEL_CODING_COMMAND;
   Ack_Nack_Description_t Ack_Nack_Description;
 
   guint8 UnionType;
@@ -1561,12 +1562,12 @@ typedef struct
 typedef struct
 {
   guint8   EGPRS_ChannelCodingCommand;
-  guint8   RESEGMENT_v;
-  guint8   PRE_EMPTIVE_TRANSMISSION_v;
-  guint8   PRR_RETRANSMISSION_REQUEST_v;
-  guint8   ARAC_RETRANSMISSION_REQUEST_v;
+  guint8   RESEGMENT;
+  guint8   PRE_EMPTIVE_TRANSMISSION;
+  guint8   PRR_RETRANSMISSION_REQUEST;
+  guint8   ARAC_RETRANSMISSION_REQUEST;
 
-  guint8   TBF_EST_v;
+  guint8   TBF_EST;
 
   gboolean Exist_Packet_Extended_Timing_Advance;
   guint8   Packet_Extended_Timing_Advance;
@@ -1597,9 +1598,9 @@ enum PUAN_Type
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
-  guint8 UPLINK_TFI_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
+  guint8 UPLINK_TFI;
 
   guint8 UnionType;
   union
@@ -1619,8 +1620,8 @@ typedef struct
 
 typedef struct
 {
-  guint8 MAIO_v;
-  guint8 MA_NUMBER_v;
+  guint8 MAIO;
+  guint8 MA_NUMBER;
 
   guint8 Exist_CHANGE_MARK;
   CHANGE_MARK_t CHANGE_MARK;
@@ -1628,25 +1629,25 @@ typedef struct
 
 typedef struct
 {
-  guint8 MAIO_v;
+  guint8 MAIO;
   GPRS_Mobile_Allocation_t GPRS_Mobile_Allocation;
 } Direct_encoding_1_t;
 
 typedef struct
 {
-  guint8 MAIO_v;
-  guint8 HSN_v;
+  guint8 MAIO;
+  guint8 HSN;
   guint8 Length_of_MA_Frequency_List;
   guint8 MA_Frequency_List[15+3];
 } Direct_encoding_2_t;
 
 typedef struct
 {
-  guint8 TSC_v;
+  guint8 TSC;
   guint8 UnionType;
   union
   {
-    guint16 ARFCN_v;
+    guint16 ARFCN;
     Indirect_encoding_t Indirect_encoding;
     Direct_encoding_1_t Direct_encoding_1;
     Direct_encoding_2_t Direct_encoding_2;
@@ -1656,18 +1657,18 @@ typedef struct
 typedef struct
 {
   guint8 Exist;
-  guint8 USF_TN_v;
+  guint8 USF_TN;
 } Timeslot_Allocation_t;
 
 typedef struct
 {
-  guint8 ALPHA_v;
+  guint8 ALPHA;
 
   struct
   {
     guint8 Exist;
-    guint8 USF_TN_v;
-    guint8 GAMMA_TN_v;
+    guint8 USF_TN;
+    guint8 GAMMA_TN;
   } Slot[8];
 } Timeslot_Allocation_Power_Ctrl_Param_t;
 
@@ -1679,13 +1680,13 @@ typedef struct
   guint8 P0;
   guint8 PR_MODE;
 
-  guint8 USF_GRANULARITY_v;
+  guint8 USF_GRANULARITY;
 
-  guint8 Exist_UPLINK_TFI_ASSIGNMENT_v;
-  guint8 UPLINK_TFI_ASSIGNMENT_v;
+  guint8 Exist_UPLINK_TFI_ASSIGNMENT;
+  guint8 UPLINK_TFI_ASSIGNMENT;
 
-  guint8 Exist_RLC_DATA_BLOCKS_GRANTED_v;
-  guint8 RLC_DATA_BLOCKS_GRANTED_v;
+  guint8 Exist_RLC_DATA_BLOCKS_GRANTED;
+  guint8 RLC_DATA_BLOCKS_GRANTED;
 
   guint8 Exist_TBF_Starting_Time;
   Starting_Frame_Number_t TBF_Starting_Time;
@@ -1706,13 +1707,13 @@ typedef struct
   guint8 P0;
   guint8 PR_MODE;
 
-  guint8 USF_GRANULARITY_v;
+  guint8 USF_GRANULARITY;
 
-  guint8 Exist_UPLINK_TFI_ASSIGNMENT_v;
-  guint8 UPLINK_TFI_ASSIGNMENT_v;
+  guint8 Exist_UPLINK_TFI_ASSIGNMENT;
+  guint8 UPLINK_TFI_ASSIGNMENT;
 
-  guint8 Exist_RLC_DATA_BLOCKS_GRANTED_v;
-  guint8 RLC_DATA_BLOCKS_GRANTED_v;
+  guint8 Exist_RLC_DATA_BLOCKS_GRANTED;
+  guint8 RLC_DATA_BLOCKS_GRANTED;
 
   guint8 UnionType;
   union
@@ -1724,11 +1725,11 @@ typedef struct
 
 typedef struct
 {
-  guint8 TIMESLOT_NUMBER_v;
+  guint8 TIMESLOT_NUMBER;
 
   guint8 Exist_ALPHA_and_GAMMA_TN;
-  guint8 ALPHA_v;
-  guint8 GAMMA_TN_v;
+  guint8 ALPHA;
+  guint8 GAMMA_TN;
 
   guint8 Exist_P0;
   guint8 P0;
@@ -1740,11 +1741,11 @@ typedef struct
 
 typedef struct
 {
-  guint8 TIMESLOT_NUMBER_v;
+  guint8 TIMESLOT_NUMBER;
 
   guint8 Exist_ALPHA_and_GAMMA_TN;
-  guint8 ALPHA_v;
-  guint8 GAMMA_TN_v;
+  guint8 ALPHA;
+  guint8 GAMMA_TN;
 
   guint8 Exist_P0;
   guint8 P0;
@@ -1759,8 +1760,8 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint32 TLLI_v;
-    guint16 TQI_v;
+    guint32 TLLI;
+    guint16 TQI;
     Packet_Request_Reference_t Packet_Request_Reference;
   } u;
 } PacketUplinkID_t;
@@ -1773,8 +1774,8 @@ typedef struct
 
 typedef struct
 {
-  guint8                       CHANNEL_CODING_COMMAND_v;
-  guint8                       TLLI_BLOCK_CHANNEL_CODING_v;
+  guint8                       CHANNEL_CODING_COMMAND;
+  guint8                       TLLI_BLOCK_CHANNEL_CODING;
   Packet_Timing_Advance_t     Packet_Timing_Advance;
 
   guint8                       Exist_Frequency_Parameters;
@@ -1798,47 +1799,47 @@ typedef struct
   guint8   BitmapLength;
   guint8   ReducedMA_Bitmap[127 / 8 + 1];
 
-  gboolean Exist_MAIO_2_v;
-  guint8   MAIO_2_v;
+  gboolean Exist_MAIO_2;
+  guint8   MAIO_2;
 } COMPACT_ReducedMA_t;
 
 typedef struct
 {
-  guint8                   TIMESLOT_NUMBER_v;
+  guint8                   TIMESLOT_NUMBER;
 
-  gboolean                 Exist_ALPHA_GAMMA_TN_v;
-  guint8                   ALPHA_v;
-  guint8                   GAMMA_TN_v;
+  gboolean                 Exist_ALPHA_GAMMA_TN;
+  guint8                   ALPHA;
+  guint8                   GAMMA_TN;
 
   gboolean                 Exist_P0_BTS_PWR_CTRL_PR_MODE;
-  guint8                   P0_v;
-  guint8                   BTS_PWR_CTRL_MODE_v;
-  guint8                   PR_MODE_v;
+  guint8                   P0;
+  guint8                   BTS_PWR_CTRL_MODE;
+  guint8                   PR_MODE;
 
   Starting_Frame_Number_t TBF_Starting_Time;
-  guint8                   NUMBER_OF_RADIO_BLOCKS_ALLOCATED_v;
+  guint8                   NUMBER_OF_RADIO_BLOCKS_ALLOCATED;
 } MultiBlock_Allocation_t;
 
 typedef struct
 {
-  gboolean                     Exist_CONTENTION_RESOLUTION_TLLI_v;
-  guint32                      CONTENTION_RESOLUTION_TLLI_v;
+  gboolean                     Exist_CONTENTION_RESOLUTION_TLLI;
+  guint32                      CONTENTION_RESOLUTION_TLLI;
 
   gboolean                     Exist_COMPACT_ReducedMA;
   COMPACT_ReducedMA_t         COMPACT_ReducedMA;
 
-  guint8                       EGPRS_CHANNEL_CODING_COMMAND_v;
-  guint8                       RESEGMENT_v;
+  guint8                       EGPRS_CHANNEL_CODING_COMMAND;
+  guint8                       RESEGMENT;
   guint8                       EGPRS_WindowSize;
 
   guint8                       NrOfAccessTechnologies;  /* will hold the number of list elements */
   guint8                       AccessTechnologyType[MAX_ACCESS_TECHOLOGY_TYPES]; /* for max size of array see 24.008/Table 10.5.146 */
 
-  guint8                       ARAC_RETRANSMISSION_REQUEST_v;
-  guint8                       TLLI_BLOCK_CHANNEL_CODING_v;
+  guint8                       ARAC_RETRANSMISSION_REQUEST;
+  guint8                       TLLI_BLOCK_CHANNEL_CODING;
 
-  gboolean                     Exist_BEP_PERIOD2_v;
-  guint8                       BEP_PERIOD2_v;
+  gboolean                     Exist_BEP_PERIOD2;
+  guint8                       BEP_PERIOD2;
 
   Packet_Timing_Advance_t     PacketTimingAdvance;
 
@@ -1878,11 +1879,11 @@ enum PUA_Type
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
-  guint8 Exist_PERSISTENCE_LEVEL_v;
-  guint8 PERSISTENCE_LEVEL_v[4];
+  guint8 Exist_PERSISTENCE_LEVEL;
+  guint8 PERSISTENCE_LEVEL[4];
 
   PacketUplinkID_t ID;
 
@@ -1898,8 +1899,8 @@ typedef struct
 /* < DTM Packet Uplink Assignment message content > */
 typedef struct
 {
-  guint8 CHANNEL_CODING_COMMAND_v;
-  guint8 TLLI_BLOCK_CHANNEL_CODING_v;
+  guint8 CHANNEL_CODING_COMMAND;
+  guint8 TLLI_BLOCK_CHANNEL_CODING;
   Packet_Timing_Advance_t Packet_Timing_Advance;
 
   guint8 UnionType;
@@ -1910,8 +1911,8 @@ typedef struct
     DTM_Single_Block_Allocation_t DTM_Single_Block_Allocation;
   } u;
   gboolean Exist_EGPRS_Parameters;
-  guint8 EGPRS_CHANNEL_CODING_COMMAND_v;
-  guint8 RESEGMENT_v;
+  guint8 EGPRS_CHANNEL_CODING_COMMAND;
+  guint8 RESEGMENT;
   guint8 EGPRS_WindowSize;
   gboolean Exist_Packet_Extended_Timing_Advance;
   guint8 Packet_Extended_Timing_Advance;
@@ -1927,16 +1928,16 @@ typedef struct
 {
   guint8 DTM_Pkt_Est_Cause;
   Channel_Request_Description_t Channel_Request_Description;
-  gboolean                                 Exist_PFI_v;
-  guint8                                   PFI_v;
+  gboolean                                 Exist_PFI;
+  guint8                                   PFI;
 }DTM_Channel_Request_Description_t;
 
 /* < Packet Downlink Assignment message content > */
 typedef struct
 {
   Starting_Frame_Number_t Measurement_Starting_Time;
-  guint8 MEASUREMENT_INTERVAL_v;
-  guint8 MEASUREMENT_BITMAP_v;
+  guint8 MEASUREMENT_INTERVAL;
+  guint8 MEASUREMENT_BITMAP;
 } Measurement_Mapping_struct_t;
 
 typedef struct
@@ -1945,7 +1946,7 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint32 TLLI_v;
+    guint32 TLLI;
   } u;
 } PacketDownlinkID_t;
 
@@ -1953,9 +1954,9 @@ typedef struct
 {
   gboolean Exist_EGPRS_Params; /* if Exist_EGPRS_Params == FALSE then none of the following 4 vars exist */
   guint8   EGPRS_WindowSize;
-  guint8   LINK_QUALITY_MEASUREMENT_MODE_v;
-  gboolean Exist_BEP_PERIOD2_v;
-  guint8   BEP_PERIOD2_v;
+  guint8   LINK_QUALITY_MEASUREMENT_MODE;
+  gboolean Exist_BEP_PERIOD2;
+  guint8   BEP_PERIOD2;
 
   gboolean Exist_Packet_Extended_Timing_Advance;
   guint8   Packet_Extended_Timing_Advance;
@@ -1966,30 +1967,30 @@ typedef struct
 
 typedef struct
 {
-  guint8                        MESSAGE_TYPE_v;
-  guint8                        PAGE_MODE_v;
+  guint8                        MESSAGE_TYPE;
+  guint8                        PAGE_MODE;
 
-  gboolean                      Exist_PERSISTENCE_LEVEL_v;
-  guint8                        PERSISTENCE_LEVEL_v[4];
+  gboolean                      Exist_PERSISTENCE_LEVEL;
+  guint8                        PERSISTENCE_LEVEL[4];
 
   PacketDownlinkID_t           ID;
 
-  guint8                        MAC_MODE_v;
-  guint8                        RLC_MODE_v;
-  guint8                        CONTROL_ACK_v;
-  guint8                        TIMESLOT_ALLOCATION_v;
+  guint8                        MAC_MODE;
+  guint8                        RLC_MODE;
+  guint8                        CONTROL_ACK;
+  guint8                        TIMESLOT_ALLOCATION;
   Packet_Timing_Advance_t      Packet_Timing_Advance;
 
-  gboolean                      Exist_P0_and_BTS_PWR_CTRL_MODE_v;
-  guint8                        P0_v;
-  guint8                        BTS_PWR_CTRL_MODE_v;
+  gboolean                      Exist_P0_and_BTS_PWR_CTRL_MODE;
+  guint8                        P0;
+  guint8                        BTS_PWR_CTRL_MODE;
   guint8                        PR_MODE;
 
   gboolean                      Exist_Frequency_Parameters;
   Frequency_Parameters_t       Frequency_Parameters;
 
-  gboolean                      Exist_DOWNLINK_TFI_ASSIGNMENT_v;
-  guint8                        DOWNLINK_TFI_ASSIGNMENT_v;
+  gboolean                      Exist_DOWNLINK_TFI_ASSIGNMENT;
+  guint8                        DOWNLINK_TFI_ASSIGNMENT;
 
   gboolean                      Exist_Power_Control_Parameters;
   Power_Control_Parameters_t   Power_Control_Parameters;
@@ -2007,27 +2008,27 @@ typedef struct
 /* < DTM Packet Downlink Assignment message content > */
 typedef struct
 {
-  guint8 MAC_MODE_v;
-  guint8 RLC_MODE_v;
-  guint8 TIMESLOT_ALLOCATION_v;
+  guint8 MAC_MODE;
+  guint8 RLC_MODE;
+  guint8 TIMESLOT_ALLOCATION;
   Packet_Timing_Advance_t Packet_Timing_Advance;
 
-  guint8 Exist_P0_and_BTS_PWR_CTRL_MODE_v;
-  guint8 P0_v;
-  guint8 BTS_PWR_CTRL_MODE_v;
+  guint8 Exist_P0_and_BTS_PWR_CTRL_MODE;
+  guint8 P0;
+  guint8 BTS_PWR_CTRL_MODE;
   guint8 PR_MODE;
 
   guint8 Exist_Power_Control_Parameters;
   Power_Control_Parameters_t Power_Control_Parameters;
 
-  guint8 Exist_DOWNLINK_TFI_ASSIGNMENT_v;
-  guint8 DOWNLINK_TFI_ASSIGNMENT_v;
+  guint8 Exist_DOWNLINK_TFI_ASSIGNMENT;
+  guint8 DOWNLINK_TFI_ASSIGNMENT;
 
   guint8 Exist_Measurement_Mapping;
   Measurement_Mapping_struct_t Measurement_Mapping;
   gboolean EGPRS_Mode;
   guint8 EGPRS_WindowSize;
-  guint8 LINK_QUALITY_MEASUREMENT_MODE_v;
+  guint8 LINK_QUALITY_MEASUREMENT_MODE;
   gboolean Exist_Packet_Extended_Timing_Advance;
   guint8   Packet_Extended_Timing_Advance;
 } DTM_Packet_Downlink_Assignment_t;
@@ -2054,7 +2055,7 @@ typedef struct
   guint8 UnionType;
   union
   {
-    TMSI_t PTMSI_v;
+    TMSI_t PTMSI;
     struct MobileId Mobile_Identity;
   } u;
 } Page_request_for_TBF_establishment_t;
@@ -2064,11 +2065,11 @@ typedef struct
   guint8 UnionType;
   union
   {
-    TMSI_t TMSI_v;
+    TMSI_t TMSI;
     struct MobileId Mobile_Identity;
   } u;
 
-  guint8 CHANNEL_NEEDED_v;
+  guint8 CHANNEL_NEEDED;
 
   guint8 Exist_eMLPP_PRIORITY;
   guint8 eMLPP_PRIORITY;
@@ -2086,14 +2087,14 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
-  guint8 Exist_PERSISTENCE_LEVEL_v;
-  guint8 PERSISTENCE_LEVEL_v[4];
+  guint8 Exist_PERSISTENCE_LEVEL;
+  guint8 PERSISTENCE_LEVEL[4];
 
-  guint8 Exist_NLN_v;
-  guint8 NLN_v;
+  guint8 Exist_NLN;
+  guint8 NLN;
 
   guint8 Count_Repeated_Page_info;
   Repeated_Page_info_t Repeated_Page_info[5];
@@ -2101,10 +2102,10 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
-  guint8 TIMESLOTS_AVAILABLE_v;
+  guint8 TIMESLOTS_AVAILABLE;
 } Packet_PDCH_Release_t;
 
 /* < Packet Power Control/Timing Advance message content > */
@@ -2114,7 +2115,7 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint16 TQI_v;
+    guint16 TQI;
     Packet_Request_Reference_t Packet_Request_Reference;
   } u;
 } PacketPowerControlTimingAdvanceID_t;
@@ -2137,8 +2138,8 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   PacketPowerControlTimingAdvanceID_t ID;
 
@@ -2157,12 +2158,12 @@ typedef struct
 /* < Packet Queueing Notification message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   /* 111 Fixed */
   Packet_Request_Reference_t Packet_Request_Reference;
-  guint16 TQI_v;
+  guint16 TQI;
 } Packet_Queueing_Notification_t;
 
 /* < Packet Timeslot Reconfigure message content 04.60 sec. 11.2.31> */
@@ -2173,16 +2174,16 @@ typedef struct
 {
   Global_Packet_Timing_Advance_t Global_Packet_Timing_Advance;
 
-  guint8                          DOWNLINK_RLC_MODE_v;
-  guint8                          CONTROL_ACK_v;
+  guint8                          DOWNLINK_RLC_MODE;
+  guint8                          CONTROL_ACK;
 
-  guint8                          Exist_DOWNLINK_TFI_ASSIGNMENT_v;
-  guint8                          DOWNLINK_TFI_ASSIGNMENT_v;
+  guint8                          Exist_DOWNLINK_TFI_ASSIGNMENT;
+  guint8                          DOWNLINK_TFI_ASSIGNMENT;
 
-  guint8                          Exist_UPLINK_TFI_ASSIGNMENT_v;
-  guint8                          UPLINK_TFI_ASSIGNMENT_v;
+  guint8                          Exist_UPLINK_TFI_ASSIGNMENT;
+  guint8                          UPLINK_TFI_ASSIGNMENT;
 
-  guint8                          DOWNLINK_TIMESLOT_ALLOCATION_v;
+  guint8                          DOWNLINK_TIMESLOT_ALLOCATION;
 
   guint8                          Exist_Frequency_Parameters;
   Frequency_Parameters_t         Frequency_Parameters;
@@ -2196,7 +2197,7 @@ typedef struct
 
 typedef struct
 {
-  guint8                          CHANNEL_CODING_COMMAND_v;
+  guint8                          CHANNEL_CODING_COMMAND;
 
   Common_Timeslot_Reconfigure_t  Common_Timeslot_Reconfigure_Data;
 
@@ -2217,7 +2218,7 @@ typedef struct
   COMPACT_ReducedMA_t            COMPACT_ReducedMA;
 
   guint8                          EGPRS_ChannelCodingCommand;
-  guint8                          RESEGMENT_v;
+  guint8                          RESEGMENT;
 
   gboolean                        Exist_DOWNLINK_EGPRS_WindowSize;
   guint8                          DOWNLINK_EGPRS_WindowSize;
@@ -2225,7 +2226,7 @@ typedef struct
   gboolean                        Exist_UPLINK_EGPRS_WindowSize;
   guint8                          UPLINK_EGPRS_WindowSize;
 
-  guint8                          LINK_QUALITY_MEASUREMENT_MODE_v;
+  guint8                          LINK_QUALITY_MEASUREMENT_MODE;
 
   gboolean                        Exist_Packet_Extended_Timing_Advance;
   guint8                          Packet_Extended_Timing_Advance;
@@ -2260,8 +2261,8 @@ enum PTR_Type
 
 typedef struct
 {
-  guint8          MESSAGE_TYPE_v;
-  guint8          PAGE_MODE_v;
+  guint8          MESSAGE_TYPE;
+  guint8          PAGE_MODE;
 
   Global_TFI_t   Global_TFI;
 
@@ -2277,49 +2278,49 @@ typedef struct
 /* < PSI1 message content > */
 typedef struct
 {
-  guint8 ACC_CONTR_CLASS_v[2];
-  guint8 MAX_RETRANS_v[4];
-  guint8 S_v;
-  guint8 TX_INT_v;
+  guint8 ACC_CONTR_CLASS[2];
+  guint8 MAX_RETRANS[4];
+  guint8 S;
+  guint8 TX_INT;
 
-  guint8 Exist_PERSISTENCE_LEVEL_v;
-  guint8 PERSISTENCE_LEVEL_v[4];
+  guint8 Exist_PERSISTENCE_LEVEL;
+  guint8 PERSISTENCE_LEVEL[4];
 } PRACH_Control_t;
 
 typedef struct
 {
-  guint8 BS_PCC_REL_v;
-  guint8 BS_PBCCH_BLKS_v;
-  guint8 BS_PAG_BLKS_RES_v;
-  guint8 BS_PRACH_BLKS_v;
+  guint8 BS_PCC_REL;
+  guint8 BS_PBCCH_BLKS;
+  guint8 BS_PAG_BLKS_RES;
+  guint8 BS_PRACH_BLKS;
 } PCCCH_Organization_t;
 
 typedef struct
 {
-  guint8 MSCR_v;
-  guint8 SGSNR_v;
+  guint8 MSCR;
+  guint8 SGSNR;
   guint8 BandIndicator;
 } PSI1_AdditionsR99_t;
 
 typedef struct
 {
-  guint8                             MESSAGE_TYPE_v;
+  guint8                             MESSAGE_TYPE;
 
-  guint8                             PAGE_MODE_v;
-  guint8                             PBCCH_CHANGE_MARK_v;
-  guint8                             PSI_CHANGE_FIELD_v;
-  guint8                             PSI1_REPEAT_PERIOD_v;
-  guint8                             PSI_COUNT_LR_v;
+  guint8                             PAGE_MODE;
+  guint8                             PBCCH_CHANGE_MARK;
+  guint8                             PSI_CHANGE_FIELD;
+  guint8                             PSI1_REPEAT_PERIOD;
+  guint8                             PSI_COUNT_LR;
 
-  guint8                             Exist_PSI_COUNT_HR_v;
-  guint8                             PSI_COUNT_HR_v;
+  guint8                             Exist_PSI_COUNT_HR;
+  guint8                             PSI_COUNT_HR;
 
-  guint8                             MEASUREMENT_ORDER_v;
+  guint8                             MEASUREMENT_ORDER;
   GPRS_Cell_Options_t               GPRS_Cell_Options;
   PRACH_Control_t                   PRACH_Control;
   PCCCH_Organization_t              PCCCH_Organization;
   Global_Power_Control_Parameters_t Global_Power_Control_Parameters;
-  guint8                             PSI_STATUS_IND_v;
+  guint8                             PSI_STATUS_IND;
 
   gboolean                           Exist_AdditionsR99;
   PSI1_AdditionsR99_t               AdditionsR99;
@@ -2328,7 +2329,7 @@ typedef struct
 /* < PSI2 message content > */
 typedef struct
 {
-  guint8 NUMBER_v;
+  guint8 NUMBER;
 
   guint8 Length;
   guint8 Contents[15 + 3];/* octet (val(Length of RFL contents) + 3) */
@@ -2342,14 +2343,14 @@ typedef struct
 
 typedef struct
 {
-  guint8 NUMBER_v;
+  guint8 NUMBER;
   GPRS_Mobile_Allocation_t Mobile_Allocation;
 } PSI2_MA_t;
 
 typedef struct
 {
-  guint16 ARFCN_v;
-  guint8 TIMESLOT_ALLOCATION_v;
+  guint16 ARFCN;
+  guint8 TIMESLOT_ALLOCATION;
 } Non_Hopping_PCCCH_Carriers_t;
 
 typedef struct
@@ -2360,13 +2361,13 @@ typedef struct
 
 typedef struct
 {
-  guint8 MAIO_v;
-  guint8 TIMESLOT_ALLOCATION_v;
+  guint8 MAIO;
+  guint8 TIMESLOT_ALLOCATION;
 } Hopping_PCCCH_Carriers_t;
 
 typedef struct
 {
-  guint8 MA_NUMBER_v;
+  guint8 MA_NUMBER;
 
   guint8 Count_Carriers;
   Hopping_PCCCH_Carriers_t Carriers[10];/* MAX_PCCCH but 10 is theoretical max. */
@@ -2374,7 +2375,7 @@ typedef struct
 
 typedef struct
 {
-  guint8 TSC_v;
+  guint8 TSC;
 
   guint8 UnionType;
   union
@@ -2393,22 +2394,22 @@ typedef struct
 
 typedef struct
 {
-  guint8 ATT_v;
+  guint8 ATT;
 
-  guint8 Exist_T3212_v;
-  guint8 T3212_v;
+  guint8 Exist_T3212;
+  guint8 T3212;
 
-  guint8 NECI_v;
-  guint8 PWRC_v;
-  guint8 DTX_v;
-  guint8 RADIO_LINK_TIMEOUT_v;
-  guint8 BS_AG_BLKS_RES_v;
-  guint8 CCCH_CONF_v;
-  guint8 BS_PA_MFRMS_v;
-  guint8 MAX_RETRANS_v;
-  guint8 TX_INTEGER_v;
-  guint8 EC_v;
-  guint8 MS_TXPWR_MAX_CCCH_v;
+  guint8 NECI;
+  guint8 PWRC;
+  guint8 DTX;
+  guint8 RADIO_LINK_TIMEOUT;
+  guint8 BS_AG_BLKS_RES;
+  guint8 CCCH_CONF;
+  guint8 BS_PA_MFRMS;
+  guint8 MAX_RETRANS;
+  guint8 TX_INTEGER;
+  guint8 EC;
+  guint8 MS_TXPWR_MAX_CCCH;
 
   guint8 Exist_Extension_Bits;
   Extension_Bits_t Extension_Bits;
@@ -2416,11 +2417,11 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
-  guint8 CHANGE_MARK_v;
-  guint8 INDEX_v;
-  guint8 COUNT_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
+  guint8 CHANGE_MARK;
+  guint8 INDEX;
+  guint8 COUNT;
 
   guint8 Exist_Cell_Identification;
   Cell_Identification_t Cell_Identification;
@@ -2433,8 +2434,8 @@ typedef struct
 
   Cell_Allocation_t Cell_Allocation;
 
-  guint8 Count_GPRS_MA_v;
-  PSI2_MA_t GPRS_MA_v[MAX_MA_LISTS_IN_PSI2];
+  guint8 Count_GPRS_MA;
+  PSI2_MA_t GPRS_MA[MAX_MA_LISTS_IN_PSI2];
 
   guint8 Count_PCCCH_Description;
   PCCCH_Description_t PCCCH_Description[7];/* MAX_PCCCH but it is impossible that more than 7 can be decoded */
@@ -2449,34 +2450,34 @@ typedef struct
 
 typedef struct
 {
-  guint8 CELL_BAR_ACCESS_2_v;
-  guint8 EXC_ACC_v;
-  guint8 GPRS_RXLEV_ACCESS_MIN_v;
-  guint8 GPRS_MS_TXPWR_MAX_CCH_v;
+  guint8 CELL_BAR_ACCESS_2;
+  guint8 EXC_ACC;
+  guint8 GPRS_RXLEV_ACCESS_MIN;
+  guint8 GPRS_MS_TXPWR_MAX_CCH;
 
   guint8 Exist_HCS;
   HCS_t HCS;
-  guint8 MULTIBAND_REPORTING_v;
+  guint8 MULTIBAND_REPORTING;
 } Serving_Cell_params_t;
 
 typedef struct
 {
-  guint8 GPRS_CELL_RESELECT_HYSTERESIS_v;
-  guint8 C31_HYST_v;
-  guint8 C32_QUAL_v;
-  guint8 RANDOM_ACCESS_RETRY_v;
+  guint8 GPRS_CELL_RESELECT_HYSTERESIS;
+  guint8 C31_HYST;
+  guint8 C32_QUAL;
+  guint8 RANDOM_ACCESS_RETRY;
 
-  guint8 Exist_T_RESEL_v;
-  guint8 T_RESEL_v;
+  guint8 Exist_T_RESEL;
+  guint8 T_RESEL;
 
-  guint8 Exist_RA_RESELECT_HYSTERESIS_v;
-  guint8 RA_RESELECT_HYSTERESIS_v;
+  guint8 Exist_RA_RESELECT_HYSTERESIS;
+  guint8 RA_RESELECT_HYSTERESIS;
 } Gen_Cell_Sel_t;
 
 typedef struct
 {
-  guint8 PBCCH_LOCATION_v;
-  guint8 PSI1_REPEAT_PERIOD_v;
+  guint8 PBCCH_LOCATION;
+  guint8 PSI1_REPEAT_PERIOD;
 } Location_Repeat_t;
 
 typedef struct
@@ -2484,28 +2485,28 @@ typedef struct
   guint8 UnionType;
   union
   {
-    guint8 SI13_LOCATION_v;
+    guint8 SI13_LOCATION;
     Location_Repeat_t lr;
   } u;
 } SI13_PBCCH_Location_t;
 
 typedef struct
 {
-  guint8 BSIC_v;
-  guint8 CELL_BAR_ACCESS_2_v;
-  guint8 EXC_ACC_v;
-  guint8 SAME_RA_AS_SERVING_CELL_v;
+  guint8 BSIC;
+  guint8 CELL_BAR_ACCESS_2;
+  guint8 EXC_ACC;
+  guint8 SAME_RA_AS_SERVING_CELL;
 
   guint8 Exist_RXLEV_and_TXPWR;
-  guint8 GPRS_RXLEV_ACCESS_MIN_v;
-  guint8 GPRS_MS_TXPWR_MAX_CCH_v;
+  guint8 GPRS_RXLEV_ACCESS_MIN;
+  guint8 GPRS_MS_TXPWR_MAX_CCH;
 
   guint8 Exist_OFFSET_and_TIME;
-  guint8 GPRS_TEMPORARY_OFFSET_v;
-  guint8 GPRS_PENALTY_TIME_v;
+  guint8 GPRS_TEMPORARY_OFFSET;
+  guint8 GPRS_PENALTY_TIME;
 
-  guint8 Exist_GPRS_RESELECT_OFFSET_v;
-  guint8 GPRS_RESELECT_OFFSET_v;
+  guint8 Exist_GPRS_RESELECT_OFFSET;
+  guint8 GPRS_RESELECT_OFFSET;
 
   guint8 Exist_HCS;
   HCS_t HCS;
@@ -2517,18 +2518,18 @@ typedef struct
 /* Neigbour cell list as used in PSI3 and PSI3bis */
 typedef struct
 {
-  guint8 FREQ_DIFF_LENGTH_v;
-  guint8 FREQUENCY_DIFF_v;
+  guint8 FREQ_DIFF_LENGTH;
+  guint8 FREQUENCY_DIFF;
 
   Cell_Selection_t Cell_SelectionParams;
 } Cell_Selection_Params_With_FreqDiff_t;
 
 typedef struct
 {
-  guint16 START_FREQUENCY_v;
+  guint16 START_FREQUENCY;
   Cell_Selection_t Cell_Selection;
-  guint8 NR_OF_REMAINING_CELLS_v;
-  guint8 FREQ_DIFF_LENGTH_v;
+  guint8 NR_OF_REMAINING_CELLS;
+  guint8 FREQ_DIFF_LENGTH;
 
   Cell_Selection_Params_With_FreqDiff_t Cell_Selection_Params_With_FreqDiff[16];
 } NeighbourCellParameters_t;
@@ -2542,10 +2543,10 @@ typedef struct
 /* < PSI3 message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
-  guint8 CHANGE_MARK_v;
-  guint8 BIS_COUNT_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
+  guint8 CHANGE_MARK;
+  guint8 BIS_COUNT;
 
   Serving_Cell_params_t Serving_Cell_params;
 
@@ -2556,11 +2557,11 @@ typedef struct
 /* < PSI3_BIS message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
-  guint8 CHANGE_MARK_v;
-  guint8 BIS_INDEX_v;
-  guint8 BIS_COUNT_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
+  guint8 CHANGE_MARK;
+  guint8 BIS_INDEX;
+  guint8 BIS_COUNT;
 
   NeighbourCellList_t NeighbourCellList;
 } PSI3_BIS_t;
@@ -2568,8 +2569,8 @@ typedef struct
 /* < PSI4 message content > */
 typedef struct
 {
-  guint8 MA_NUMBER_v;
-  guint8 MAIO_v;
+  guint8 MA_NUMBER;
+  guint8 MAIO;
 } h_CG_t;
 
 typedef struct
@@ -2577,11 +2578,11 @@ typedef struct
   guint8 UnionType;
   union
   {
-    guint16 ARFCN_v;
+    guint16 ARFCN;
     h_CG_t h_CG;
   } u;
 
-  guint8 TIMESLOT_ALLOCATION_v;
+  guint8 TIMESLOT_ALLOCATION;
 } Channel_Group_t;
 
 typedef struct
@@ -2596,12 +2597,12 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
 
-  guint8 PAGE_MODE_v;
-  guint8 CHANGE_MARK_v;
-  guint8 INDEX_v;
-  guint8 COUNT_v;
+  guint8 PAGE_MODE;
+  guint8 CHANGE_MARK;
+  guint8 INDEX;
+  guint8 COUNT;
 
   Channel_List_t Channel_List;
 
@@ -2613,14 +2614,14 @@ typedef struct
 typedef struct
 {
   guint8 Exist;
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
 
-  guint8 PAGE_MODE_v;
-  guint8 BCCH_CHANGE_MARK_v;
-  guint8 SI_CHANGE_FIELD_v;
+  guint8 PAGE_MODE;
+  guint8 BCCH_CHANGE_MARK;
+  guint8 SI_CHANGE_FIELD;
 
   guint8 Exist_MA;
-  guint8 SI13_CHANGE_MARK_v;
+  guint8 SI13_CHANGE_MARK;
   GPRS_Mobile_Allocation_t GPRS_Mobile_Allocation;
 
   guint8 UnionType;
@@ -2631,9 +2632,9 @@ typedef struct
   } u;
 
   gboolean              Exist_AdditionsR99;
-  guint8                SGSNR_v;
+  guint8                SGSNR;
   gboolean              Exist_AdditionsR4;
-  guint8                SI_STATUS_IND_v;
+  guint8                SI_STATUS_IND;
 } PSI13_t;
 
 /* SI_13_t is combined in the PSI13 structure */
@@ -2642,8 +2643,8 @@ typedef PSI13_t SI_13_t;
 /* < Packet PRACH Parameters message content > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
 
   PRACH_Control_t PRACH_Control;
@@ -2655,7 +2656,7 @@ typedef struct
   guint8 UnionType;
   union
   {
-    guint32 TLLI_v;
+    guint32 TLLI;
     Packet_Request_Reference_t Packet_Request_Reference;
     Global_TFI_t Global_TFI;
   } u;
@@ -2666,14 +2667,14 @@ typedef struct
   RejectID_t ID;
 
   guint8 Exist_Wait;
-  guint8 WAIT_INDICATION_v;
-  guint8 WAIT_INDICATION_SIZE_v;
+  guint8 WAIT_INDICATION;
+  guint8 WAIT_INDICATION_SIZE;
 } Reject_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   guint8 IndexToOur;
   guint8 Count_Reject;
@@ -2683,20 +2684,20 @@ typedef struct
 /* < Packet Cell Change Order message content > */
 typedef struct
 {
-  guint8 CELL_BAR_ACCESS_2_v;
-  guint8 EXC_ACC_v;
-  guint8 SAME_RA_AS_SERVING_CELL_v;
+  guint8 CELL_BAR_ACCESS_2;
+  guint8 EXC_ACC;
+  guint8 SAME_RA_AS_SERVING_CELL;
 
   guint8 Exist_RXLEV_and_TXPWR;
-  guint8 GPRS_RXLEV_ACCESS_MIN_v;
-  guint8 GPRS_MS_TXPWR_MAX_CCH_v;
+  guint8 GPRS_RXLEV_ACCESS_MIN;
+  guint8 GPRS_MS_TXPWR_MAX_CCH;
 
   guint8 Exist_OFFSET_and_TIME;
-  guint8 GPRS_TEMPORARY_OFFSET_v;
-  guint8 GPRS_PENALTY_TIME_v;
+  guint8 GPRS_TEMPORARY_OFFSET;
+  guint8 GPRS_PENALTY_TIME;
 
-  guint8 Exist_GPRS_RESELECT_OFFSET_v;
-  guint8 GPRS_RESELECT_OFFSET_v;
+  guint8 Exist_GPRS_RESELECT_OFFSET;
+  guint8 GPRS_RESELECT_OFFSET;
 
   guint8 Exist_HCS;
   HCS_t HCS;
@@ -2707,16 +2708,16 @@ typedef struct
 
 typedef struct
 {
-  guint8 FREQUENCY_DIFF_v;
-  guint8 BSIC_v;
+  guint8 FREQUENCY_DIFF;
+  guint8 BSIC;
   Cell_Selection_t Cell_Selection;
 } h_FreqBsicCell_t;
 
 typedef struct
 {
-  guint8 FREQ_DIFF_LENGTH_v;
-  guint8 FREQUENCY_DIFF_v;
-  guint8 BSIC_v;
+  guint8 FREQ_DIFF_LENGTH;
+  guint8 FREQUENCY_DIFF;
+  guint8 BSIC;
 
   gboolean Exist_CellSelectionParams;
   Cell_Selection_2_t CellSelectionParams;
@@ -2724,14 +2725,14 @@ typedef struct
 
 typedef struct
 {
-  guint16 START_FREQUENCY_v;
-  guint8 BSIC_v;
+  guint16 START_FREQUENCY;
+  guint8 BSIC;
 
   guint8 Exist_Cell_Selection;
   Cell_Selection_2_t Cell_Selection;
 
-  guint8 NR_OF_FREQUENCIES_v;
-  guint8 FREQ_DIFF_LENGTH_v;
+  guint8 NR_OF_FREQUENCIES;
+  guint8 FREQ_DIFF_LENGTH;
 
 
   CellSelectionParamsWithFreqDiff_t CellSelectionParamsWithFreqDiff[32];
@@ -2739,7 +2740,7 @@ typedef struct
 
 typedef struct
 {
-  guint8 REMOVED_FREQ_INDEX_v;
+  guint8 REMOVED_FREQ_INDEX;
 } Removed_Freq_Index_t;
 
 typedef struct
@@ -2754,22 +2755,22 @@ typedef struct
 
 typedef struct
 {
-  guint8 NETWORK_CONTROL_ORDER_v;
+  guint8 NETWORK_CONTROL_ORDER;
 
   guint8 Exist_NC;
-  guint8 NC_NON_DRX_PERIOD_v;
-  guint8 NC_REPORTING_PERIOD_I_v;
-  guint8 NC_REPORTING_PERIOD_T_v;
+  guint8 NC_NON_DRX_PERIOD;
+  guint8 NC_REPORTING_PERIOD_I;
+  guint8 NC_REPORTING_PERIOD_T;
 } NC_Measurement_Parameters_t;
 
 typedef struct
 {
-  guint8 NETWORK_CONTROL_ORDER_v;
+  guint8 NETWORK_CONTROL_ORDER;
 
   guint8 Exist_NC;
-  guint8 NC_NON_DRX_PERIOD_v;
-  guint8 NC_REPORTING_PERIOD_I_v;
-  guint8 NC_REPORTING_PERIOD_T_v;
+  guint8 NC_NON_DRX_PERIOD;
+  guint8 NC_REPORTING_PERIOD_I;
+  guint8 NC_REPORTING_PERIOD_T;
 
   guint8 Exist_NC_FREQUENCY_LIST;
   NC_Frequency_list_t NC_Frequency_list;
@@ -2778,49 +2779,49 @@ typedef struct
 
 typedef struct
 {
-  guint8 BA_IND_v;
-  guint8 BA_IND_3G_v;
+  guint8 BA_IND;
+  guint8 BA_IND_3G;
 } BA_IND_t;
 
 typedef struct
 {
-  guint8 BA_USED_v;
-  guint8 BA_USED_3G_v;
+  guint8 BA_USED;
+  guint8 BA_USED_3G;
 } BA_USED_t;
 
 typedef struct
 {
-  guint8 RXLEV_SERVING_CELL_v;
+  guint8 RXLEV_SERVING_CELL;
 } Serving_Cell_Data_t;
 
 typedef struct
 {
-  guint8 FREQUENCY_N_v;
+  guint8 FREQUENCY_N;
   guint8 Exist_BSIC_N;
-  guint8 BSIC_N_v;
-  guint8 RXLEV_N_v;
+  guint8 BSIC_N;
+  guint8 RXLEV_N;
 } NC_Measurements_t;
 
 typedef struct
 {
-  guint8 BCCH_FREQ_N_v;
-  guint8 BSIC_N_v;
-  guint8 RXLEV_N_v;
+  guint8 BCCH_FREQ_N;
+  guint8 BSIC_N;
+  guint8 RXLEV_N;
 } RepeatedInvalid_BSIC_Info_t;
 
 typedef struct
 {
   guint8 Exist_REPORTING_QUANTITY;
-  guint8 REPORTING_QUANTITY_v;
+  guint8 REPORTING_QUANTITY;
 } REPORTING_QUANTITY_Instance_t;
 
 typedef struct
 {
-  guint8 NC_MODE_v;
+  guint8 NC_MODE;
   Serving_Cell_Data_t Serving_Cell_Data;
 
-  guint8 NUMBER_OF_NC_MEASUREMENTS_v;
-  NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS_v))
+  guint8 NUMBER_OF_NC_MEASUREMENTS;
+  NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS))
                                            Max 7 NC Measurements in one PACKET MEASUREMENT REPORT,
                                            but only 6 cells are updated in PACKET IDLE. */
 } NC_Measurement_Report_t;
@@ -2836,15 +2837,15 @@ typedef struct
     guint8 I_LEVEL;
   } Slot[8];
 
-  guint8 NUMBER_OF_EXT_MEASUREMENTS_v;
-  NC_Measurements_t EXT_Measurements[9];  /* EXT_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS_v))
+  guint8 NUMBER_OF_EXT_MEASUREMENTS;
+  NC_Measurements_t EXT_Measurements[9];  /* EXT_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS))
                                             Max 9 Ext Measurements in one PACKET MEASUREMENT REPORT */
 } EXT_Measurement_Report_t;
 
 typedef struct
 {
-  guint8 CELL_LIST_INDEX_3G_v;
-  guint8 REPORTING_QUANTITY_v;
+  guint8 CELL_LIST_INDEX_3G;
+  guint8 REPORTING_QUANTITY;
 } Measurements_3G_t;
 
 typedef struct
@@ -2854,29 +2855,29 @@ typedef struct
   union
   {
     BA_USED_t BA_USED;
-    guint8     PSI3_CHANGE_MARK_v;
+    guint8     PSI3_CHANGE_MARK;
   } u;
-  guint8       PMO_USED_v;
+  guint8       PMO_USED;
 
   /* N_3G        bit(3): max value 7
    * Report part  (csn): {<3G_CELL_LIST_INDEX:bit(7)><REPORTING_QUANTITY:bit(6)>}*(val(N_3G + 1))
    * Max 6 3G measurement structs in one PMR
    */
   gboolean     Exist_MeasurementReport3G;
-  guint8       N_3G_v;
+  guint8       N_3G;
   Measurements_3G_t Measurements_3G[6];
 } PMR_AdditionsR99_t;
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint32 TLLI_v;
-  guint8 Exist_PSI5_CHANGE_MARK_v;
-  guint8 PSI5_CHANGE_MARK_v;
+  guint32 TLLI;
+  guint8 Exist_PSI5_CHANGE_MARK;
+  guint8 PSI5_CHANGE_MARK;
 
   guint8 UnionType;
   union
@@ -2895,17 +2896,17 @@ typedef struct
 
 typedef struct
 {
-  guint8 NC_MODE_v;
+  guint8 NC_MODE;
   guint8 UnionType;
   union
   {
     BA_USED_t BA_USED;
-    guint8 PSI3_CHANGE_MARK_v;
+    guint8 PSI3_CHANGE_MARK;
   } u;
 
-  guint8 PMO_USED_v;
+  guint8 PMO_USED;
   guint8 BSIC_Seen;
-  guint8 SCALE_v;
+  guint8 SCALE;
 
   guint8 Exist_Serving_Cell_Data;
   Serving_Cell_Data_t Serving_Cell_Data;
@@ -2921,38 +2922,38 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
 
-  guint32 TLLI_v;
+  guint32 TLLI;
 
   ENH_NC_Measurement_Report_t Measurements;
 } Packet_Enh_Measurement_Report_t;
 
 typedef struct
 {
-  guint8 RXLEV_SERVING_CELL_v;
+  guint8 RXLEV_SERVING_CELL;
 
-  guint8 NUMBER_OF_NC_MEASUREMENTS_v;
-  NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS_v))
+  guint8 NUMBER_OF_NC_MEASUREMENTS;
+  NC_Measurements_t NC_Measurements[6];  /* NC_Measurements * (val(NUMBER_OF_NC_MEASUREMENTS))
                                            Max 7 NC Measurements in one PACKET MEASUREMENT REPORT,
                                            but only 6 cells are updated in PACKET IDLE. */
 } CCN_Measurement_Report_t;
 
 typedef struct
 {
-  guint16 ARFCN_v;
-  guint8 BSIC_v;
+  guint16 ARFCN;
+  guint8 BSIC;
 } Target_Cell_GSM_Notif_t;
 
 typedef struct
 {
-  guint16 FDD_ARFCN_v;
+  guint16 FDD_ARFCN;
   guint8 Exist_Bandwith_FDD;
-  guint8 BANDWITH_FDD_v;
-  guint16 SCRAMBLING_CODE_v;
+  guint8 BANDWITH_FDD;
+  guint16 SCRAMBLING_CODE;
 } FDD_Target_Cell_Notif_t;
 
 typedef struct
@@ -2961,7 +2962,7 @@ typedef struct
   FDD_Target_Cell_Notif_t FDD_Target_Cell_Notif;
   guint8 Exist_TDD_Description;
   TDD_Target_Cell_t TDD_Target_Cell;
-  guint8 REPORTING_QUANTITY_v;
+  guint8 REPORTING_QUANTITY;
 } Target_Cell_3G_Notif_t;
 
 typedef struct
@@ -2977,16 +2978,16 @@ typedef struct
 typedef struct
 {
   guint8 Exist_BA_USED_3G;
-  guint8 BA_USED_3G_v;
+  guint8 BA_USED_3G;
 
-  guint8 N_3G_v;
+  guint8 N_3G;
   Measurements_3G_t Measurements_3G[6];
 } PCCN_AdditionsR6_t;
 
 /* < Packet Cell Change Notification message contents > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
   guint8 R;
@@ -2998,10 +2999,10 @@ typedef struct
   guint8 UnionType;
   union
   {
-    guint8 BA_IND_v;
-    guint8 PSI3_CHANGE_MARK_v;
+    guint8 BA_IND;
+    guint8 PSI3_CHANGE_MARK;
   } u;
-  guint8 PMO_USED_v;
+  guint8 PMO_USED;
   guint8 PCCN_SENDING;
   CCN_Measurement_Report_t CCN_Measurement_Report;
 
@@ -3015,7 +3016,7 @@ typedef struct
 
 typedef struct
 {
-  guint8 NUMBER_CELLS_v;
+  guint8 NUMBER_CELLS;
   guint8 REPORT_PRIORITY[MAX_REPORT_PRIORITY_CELLS];
 } ReportPriority_t;
 
@@ -3023,14 +3024,14 @@ typedef ReportPriority_t GPRSReportPriority_t;
 
 typedef struct
 {
-  guint8 REPORTING_OFFSET_v;
-  guint8 REPORTING_THRESHOLD_v;
+  guint8 REPORTING_OFFSET;
+  guint8 REPORTING_THRESHOLD;
 } OffsetThreshold_t;
 
 typedef struct
 {
   guint8   FrequencyScrolling;
-  guint8   BSIC_v;
+  guint8   BSIC;
 } BSICDesc_t;
 
 
@@ -3042,7 +3043,7 @@ typedef struct
 {
   gboolean     Exist_IndexStartBA;
   guint8       IndexStartBA;
-  guint8       BSIC_v;
+  guint8       BSIC;
   guint8       NumRemainingBSICs;
   BSICDesc_t  BSICDesc[MAX_BSIC_DESCS];
 } BSICList_t;
@@ -3054,7 +3055,7 @@ typedef BSICList_t GPRSBSICList_t;
 typedef struct
 {
   guint8  NumRTDValues;
-  guint16 RTD_v[MAX_RTD_VALUES];
+  guint16 RTD[MAX_RTD_VALUES];
 } RTDValues_t;
 
 typedef struct
@@ -3084,10 +3085,10 @@ typedef struct
 typedef struct
 {
   guint8             Exist_MULTI_BAND_REPORTING;
-  guint8             MULTI_BAND_REPORTING_v;
+  guint8             MULTI_BAND_REPORTING;
 
   guint8             Exist_SERVING_BAND_REPORTING;
-  guint8             SERVING_BAND_REPORTING_v;
+  guint8             SERVING_BAND_REPORTING;
 
   /* Warning:
    *
@@ -3099,7 +3100,7 @@ typedef struct
    * PMO, and PCCO so to check it (in these cases) would be erroneous.
    */
   guint8             Exist_SCALE_ORD;
-  guint8             SCALE_ORD_v;
+  guint8             SCALE_ORD;
 
   guint8             Exist_OffsetThreshold900;
   OffsetThreshold_t OffsetThreshold900;
@@ -3184,9 +3185,9 @@ typedef struct
 
 typedef struct
 {
-  guint8 REMOVED_3GCELL_INDEX_v;
-  guint8 CELL_DIFF_LENGTH_3G_v;
-  guint8 CELL_DIFF_3G_v;
+  guint8 REMOVED_3GCELL_INDEX;
+  guint8 CELL_DIFF_LENGTH_3G;
+  guint8 CELL_DIFF_3G;
 } N2_t;
 
 typedef struct
@@ -3207,8 +3208,8 @@ typedef struct
 } CDMA2000_Description_t;
 
 typedef struct {
-  guint8  ZERO_v;
-  guint16 UARFCN_v;
+  guint8  ZERO;
+  guint16 UARFCN;
   guint8  Indic0;
   guint8  NrOfCells;
   guint8  BitsInCellInfo;
@@ -3223,8 +3224,8 @@ typedef struct {
 } UTRAN_FDD_Description_t;
 
 typedef struct {
-  guint8  ZERO_v;
-  guint16 UARFCN_v;
+  guint8  ZERO;
+  guint16 UARFCN;
   guint8  Indic0;
   guint8  NrOfCells;
   guint8  BitsInCellInfo;
@@ -3240,10 +3241,10 @@ typedef struct {
 
 typedef struct
 {
-  guint8 Exist_Index_Start_3G_v;
-  guint8 Index_Start_3G_v;
-  guint8 Exist_Absolute_Index_Start_EMR_v;
-  guint8 Absolute_Index_Start_EMR_v;
+  guint8 Exist_Index_Start_3G;
+  guint8 Index_Start_3G;
+  guint8 Exist_Absolute_Index_Start_EMR;
+  guint8 Absolute_Index_Start_EMR;
   guint8 Exist_UTRAN_FDD_Description;
   UTRAN_FDD_Description_t UTRAN_FDD_Description;
   guint8 Exist_UTRAN_TDD_Description;
@@ -3256,10 +3257,10 @@ typedef struct
 
 typedef struct
 {
-  guint8 Exist_Index_Start_3G_v;
-  guint8 Index_Start_3G_v;
-  guint8 Exist_Absolute_Index_Start_EMR_v;
-  guint8 Absolute_Index_Start_EMR_v;
+  guint8 Exist_Index_Start_3G;
+  guint8 Index_Start_3G;
+  guint8 Exist_Absolute_Index_Start_EMR;
+  guint8 Absolute_Index_Start_EMR;
   guint8 Exist_UTRAN_FDD_Description;
   UTRAN_FDD_Description_t UTRAN_FDD_Description;
   guint8 Exist_UTRAN_TDD_Description;
@@ -3274,14 +3275,14 @@ typedef struct
   union
   {
     BA_IND_t BA_IND;
-    guint8 PSI3_CHANGE_MARK_v;
+    guint8 PSI3_CHANGE_MARK;
   } u;
 
-  guint8   PMO_IND_v;
+  guint8   PMO_IND;
 
-  guint8   REPORT_TYPE_v;
-  guint8   REPORTING_RATE_v;
-  guint8   INVALID_BSIC_REPORTING_v;
+  guint8   REPORT_TYPE;
+  guint8   REPORTING_RATE;
+  guint8   INVALID_BSIC_REPORTING;
 
   gboolean Exist_NeighbourCellDescription3G;
   NeighbourCellDescription3G_PMO_t NeighbourCellDescription3G;
@@ -3301,14 +3302,14 @@ typedef struct
   union
   {
     BA_IND_t BA_IND;
-    guint8 PSI3_CHANGE_MARK_v;
+    guint8 PSI3_CHANGE_MARK;
   } u;
 
-  guint8   PMO_IND_v;
+  guint8   PMO_IND;
 
-  guint8   REPORT_TYPE_v;
-  guint8   REPORTING_RATE_v;
-  guint8   INVALID_BSIC_REPORTING_v;
+  guint8   REPORT_TYPE;
+  guint8   REPORTING_RATE;
+  guint8   INVALID_BSIC_REPORTING;
 
   gboolean Exist_NeighbourCellDescription3G;
   NeighbourCellDescription3G_PCCO_t NeighbourCellDescription3G;
@@ -3328,19 +3329,19 @@ typedef struct
   union
   {
     Global_TFI_t Global_TFI;
-    guint32 TLLI_v;
+    guint32 TLLI;
   } u;
 } PacketCellChangeOrderID_t;
 
 typedef struct
 {
-  guint8 NUMBER_CELLS_v;
+  guint8 NUMBER_CELLS;
   guint8 CCN_SUPPORTED[16];  /* bit (1), max size: 16 x 8 => 128 bits */
 } CCN_Support_Description_t;
 
 typedef struct
 {
-  guint8 CELL_BAR_QUALIFY_3_v;
+  guint8 CELL_BAR_QUALIFY_3;
   guint8 Exist_SI13_Alt_PBCCH_Location;
   SI13_PBCCH_Location_t SI13_Alt_PBCCH_Location;
 } lu_ModeCellSelectionParameters_t;
@@ -3354,25 +3355,25 @@ typedef struct
 typedef struct
 {
   lu_ModeCellSelectionParams_t lu_ModeCellSelectionParameters;
-  guint8 NR_OF_FREQUENCIES_v;
+  guint8 NR_OF_FREQUENCIES;
   lu_ModeCellSelectionParams_t lu_ModeCellSelectionParams[32];
 } lu_ModeNeighbourCellParams_t;
 
 typedef struct
 {
-  guint8 CELL_BAR_QUALIFY_3_v;
-  guint8 SAME_RA_AS_SERVING_CELL_v;
+  guint8 CELL_BAR_QUALIFY_3;
+  guint8 SAME_RA_AS_SERVING_CELL;
 
   guint8 Exist_RXLEV_and_TXPWR;
-  guint8 GPRS_RXLEV_ACCESS_MIN_v;
-  guint8 GPRS_MS_TXPWR_MAX_CCH_v;
+  guint8 GPRS_RXLEV_ACCESS_MIN;
+  guint8 GPRS_MS_TXPWR_MAX_CCH;
 
   guint8 Exist_OFFSET_and_TIME;
-  guint8 GPRS_TEMPORARY_OFFSET_v;
-  guint8 GPRS_PENALTY_TIME_v;
+  guint8 GPRS_TEMPORARY_OFFSET;
+  guint8 GPRS_PENALTY_TIME;
 
-  guint8 Exist_GPRS_RESELECT_OFFSET_v;
-  guint8 GPRS_RESELECT_OFFSET_v;
+  guint8 Exist_GPRS_RESELECT_OFFSET;
+  guint8 GPRS_RESELECT_OFFSET;
 
   guint8 Exist_HCS;
   HCS_t HCS;
@@ -3383,9 +3384,9 @@ typedef struct
 
 typedef struct
 {
-  guint8 FREQ_DIFF_LENGTH_v;
-  guint8 FREQUENCY_DIFF_v;
-  guint8 BSIC_v;
+  guint8 FREQ_DIFF_LENGTH;
+  guint8 FREQUENCY_DIFF;
+  guint8 BSIC;
 
   gboolean Exist_lu_ModeOnlyCellSelectionParams;
   lu_ModeOnlyCellSelection_t lu_ModeOnlyCellSelectionParams;
@@ -3393,14 +3394,14 @@ typedef struct
 
 typedef struct
 {
-  guint16 START_FREQUENCY_v;
-  guint8 BSIC_v;
+  guint16 START_FREQUENCY;
+  guint8 BSIC;
 
   guint8 Exist_lu_ModeCellSelection;
   lu_ModeOnlyCellSelection_t lu_ModeOnlyCellSelection;
 
-  guint8 NR_OF_FREQUENCIES_v;
-  guint8 FREQ_DIFF_LENGTH_v;
+  guint8 NR_OF_FREQUENCIES;
+  guint8 FREQ_DIFF_LENGTH;
 
   lu_ModeOnlyCellSelectionParamsWithFreqDiff_t lu_ModeOnlyCellSelectionParamsWithFreqDiff[32];
 } Add_lu_ModeOnlyFrequencyList_t;
@@ -3657,7 +3658,7 @@ typedef struct
 {
   guint8 CCN_ACTIVE;
   guint8 Exist_Container_ID;
-  guint8 CONTAINER_ID_v;
+  guint8 CONTAINER_ID;
   guint8 Exist_CCN_Support_Description_ID;
   CCN_Support_Description_t CCN_Support_Description;
   guint8 Exist_AdditionsR5;
@@ -3684,8 +3685,8 @@ typedef struct
   guint8 UnionType;
   union
   {
-    guint8 LSA_ID_v;
-    guint8 ShortLSA_ID_v;
+    guint8 LSA_ID;
+    guint8 ShortLSA_ID;
   } u;
 } LSA_ID_Info_Element_t;
 
@@ -3701,7 +3702,7 @@ typedef struct
 
 typedef struct
 {
-  guint8 NR_OF_FREQ_OR_CELLS_v;
+  guint8 NR_OF_FREQ_OR_CELLS;
   LSA_ID_Info_t LSA_ID_Info[NR_OF_FREQ_OR_CELLS_MAX];
 } LSA_Parameters_t;
 
@@ -3725,9 +3726,9 @@ typedef struct
 
 typedef struct
 {
-  guint8 IMMEDIATE_REL_v;
-  guint16 ARFCN_v;
-  guint8 BSIC_v;
+  guint8 IMMEDIATE_REL;
+  guint16 ARFCN;
+  guint8 BSIC;
   NC_Measurement_Parameters_with_Frequency_List_t NC_Measurement_Parameters;
 
   guint8 Exist_AdditionsR98;
@@ -3737,7 +3738,7 @@ typedef struct
 typedef struct
 {
   /* 00 -- Message escape */
-  guint8 IMMEDIATE_REL_v;
+  guint8 IMMEDIATE_REL;
   guint8 Exist_FDD_Description;
   FDD_Target_Cell_t FDD_Target_Cell;
   guint8 Exist_TDD_Description;
@@ -3749,8 +3750,8 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   PacketCellChangeOrderID_t ID;
 
@@ -3766,28 +3767,28 @@ typedef struct
 /* < Packet Cell Change Continue message contents > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   Global_TFI_t Global_TFI;
   guint8 Exist_ID;
-  guint16 ARFCN_v;
-  guint8 BSIC_v;
-  guint8 CONTAINER_ID_v;
+  guint16 ARFCN;
+  guint8 BSIC;
+  guint8 CONTAINER_ID;
 } Packet_Cell_Change_Continue_t;
 
 
 /* < Packet Neighbour Cell Data message contents > */
 typedef struct
 {
-  guint16 ARFCN_v;
-  guint8 BSIC_v;
-  guint8 CONTAINER[17];     /* PD_v (3 bits) + CD_LENGTH_v (5 bits) + 16 bytes of CONTAINER_DATA (max!) */
+  guint16 ARFCN;
+  guint8 BSIC;
+  guint8 CONTAINER[17];     /* PD (3 bits) + CD_LENGTH (5 bits) + 16 bytes of CONTAINER_DATA (max!) */
 } PNCD_Container_With_ID_t;
 
 typedef struct
 {
-  guint8 CONTAINER[19];     /* PD_v (3 bits) + CD_LENGTH_v (5 bits) + 18 bytes of CONTAINER_DATA (max!) */
+  guint8 CONTAINER[19];     /* PD (3 bits) + CD_LENGTH (5 bits) + 18 bytes of CONTAINER_DATA (max!) */
 } PNCD_Container_Without_ID_t;
 
 typedef struct
@@ -3802,13 +3803,13 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
   /* Fixed 0 */
   Global_TFI_t Global_TFI;
-  guint8 CONTAINER_ID_v;
+  guint8 CONTAINER_ID;
   guint8 spare;
-  guint8 CONTAINER_INDEX_v;
+  guint8 CONTAINER_INDEX;
 
   PNCDContainer_t Container;
 } Packet_Neighbour_Cell_Data_t;
@@ -3816,21 +3817,21 @@ typedef struct
 /* < Packet Serving Cell Data message contents > */
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
   /* Fixed 0 */
   Global_TFI_t Global_TFI;
   guint8 spare;
-  guint8 CONTAINER_INDEX_v;
-  guint8 CONTAINER[19];     /* PD_v (3 bits) + CD_LENGTH_v (5 bits) + 18 bytes of CONTAINER_DATA (max!) */
+  guint8 CONTAINER_INDEX;
+  guint8 CONTAINER[19];     /* PD (3 bits) + CD_LENGTH (5 bits) + 18 bytes of CONTAINER_DATA (max!) */
 } Packet_Serving_Cell_Data_t;
 
 /* < Packet Measurement Order message contents > */
 typedef struct
 {
-  guint16 START_FREQUENCY_v;
-  guint8 NR_OF_FREQUENCIES_v;
-  guint8 FREQ_DIFF_LENGTH_v;
+  guint16 START_FREQUENCY;
+  guint8 NR_OF_FREQUENCIES;
+  guint8 FREQ_DIFF_LENGTH;
 
   guint8 Count_FREQUENCY_DIFF;
   guint8 FREQUENCY_DIFF[31];/* bit (FREQ_DIFF_LENGTH) * NR_OF_FREQUENCIES --> MAX is bit(7) * 31 */
@@ -3838,13 +3839,13 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
 
   PacketDownlinkID_t ID; /* use the PDA ID as it is the same as as the PMO */
 
-  guint8 PMO_INDEX_v;
-  guint8 PMO_COUNT_v;
+  guint8 PMO_INDEX;
+  guint8 PMO_COUNT;
 
   guint8 Exist_NC_Measurement_Parameters;
   NC_Measurement_Parameters_with_Frequency_List_t NC_Measurement_Parameters;
@@ -3857,8 +3858,8 @@ typedef struct
 
 typedef struct
 {
-  guint8 MESSAGE_TYPE_v;
-  guint8 PAGE_MODE_v;
+  guint8 MESSAGE_TYPE;
+  guint8 PAGE_MODE;
   PacketDownlinkID_t ID;
 } Packet_Measurement_Order_Reduced_t;
 
@@ -4186,7 +4187,7 @@ typedef struct
 {
   union
   {
-    guint8                                MESSAGE_TYPE_v;
+    guint8                                MESSAGE_TYPE;
     Packet_Access_Reject_t                Packet_Access_Reject;
     Packet_Cell_Change_Order_t            Packet_Cell_Change_Order;
     Packet_Downlink_Assignment_t          Packet_Downlink_Assignment;
@@ -4232,7 +4233,7 @@ typedef struct
 {
   union
   {
-    guint8 MESSAGE_TYPE_v;
+    guint8 MESSAGE_TYPE;
     Packet_Cell_Change_Failure_t          Packet_Cell_Change_Failure;
     Packet_Control_Acknowledgement_t      Packet_Control_Acknowledgement;
     Packet_Downlink_Ack_Nack_t            Packet_Downlink_Ack_Nack;
@@ -4264,10 +4265,10 @@ typedef struct
 /* SI3_Rest_Octet_t */
 typedef struct
 {
-  guint8 CBQ_v;
-  guint8 CELL_RESELECT_OFFSET_v;
-  guint8 TEMPORARY_OFFSET_v;
-  guint8 PENALTY_TIME_v;
+  guint8 CBQ;
+  guint8 CELL_RESELECT_OFFSET;
+  guint8 TEMPORARY_OFFSET;
+  guint8 PENALTY_TIME;
 } Selection_Parameters_t;
 
 typedef struct
@@ -4281,12 +4282,12 @@ typedef struct
   guint8 System_Information_2ter_Indicator;
   guint8 Early_Classmark_Sending_Control;
 
-  guint8 Exist_WHERE_v;
-  guint8 WHERE_v;
+  guint8 Exist_WHERE;
+  guint8 WHERE;
 
   guint8 Exist_GPRS_Indicator;
-  guint8 RA_COLOUR_v;
-  guint8 SI13_POSITION_v;
+  guint8 RA_COLOUR;
+  guint8 SI13_POSITION;
   guint8 ECS_Restriction3G;
   guint8 ExistSI2quaterIndicator;
   guint8 SI2quaterIndicator;
@@ -4301,8 +4302,8 @@ typedef struct
   guint8 Power_Offset;
 
   guint8 Exist_GPRS_Indicator;
-  guint8 RA_COLOUR_v;
-  guint8 SI13_POSITION_v;
+  guint8 RA_COLOUR;
+  guint8 SI13_POSITION;
 } SI4_Rest_Octet_t;
 
 typedef SI4_Rest_Octet_t SI7_Rest_Octet_t;
@@ -4314,7 +4315,7 @@ typedef SI4_Rest_Octet_t SI8_Rest_Octet_t;
 typedef struct
 {
   guint8   PagingChannelRestructuring;
-  guint8   NLN_SACCH_v;
+  guint8   NLN_SACCH;
 
   gboolean Exist_CallPriority;
   guint8   CallPriority;
@@ -4335,8 +4336,8 @@ typedef struct
    * TRUE  => DTM is supported in the serving cell, RAC and MAX_LAPDm are present in bitstream
    */
   gboolean            Exist_DTM_Support;
-  guint8              RAC_v;
-  guint8              MAX_LAPDm_v;
+  guint8              RAC;
+  guint8              MAX_LAPDm;
 
   guint8              BandIndicator; /* bit(1) L/H, L => ARFCN in 1800 band H => ARFCN in 1900 band */
 } SI6_RestOctet_t;
@@ -4358,7 +4359,7 @@ typedef struct
 typedef struct
 {
   guint8 RR_Short_PD;
-  guint8 MESSAGE_TYPE_v;
+  guint8 MESSAGE_TYPE;
   guint8 ShortLayer2_Header;
 
   BA_USED_t BA_USED;

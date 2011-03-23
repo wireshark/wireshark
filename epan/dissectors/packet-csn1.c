@@ -1,6 +1,7 @@
 /* packet-csn1.c
  * Routines for CSN1 dissection in wireshark.
- * By Vincent Helfre
+ * By Vincent Helfre, based on original code by Jari Sassi
+ * with the gracious authorization of STE
  * Copyright (c) 2011 ST-Ericsson
  *
  * $Id$
@@ -42,9 +43,6 @@
 #define REVERSED_TAG 0
 
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
-
-static guint8 Tag = STANDARD_TAG;
-
 
 
 /* Returns no_of_bits (up to 8) masked with 0x2B */
@@ -167,10 +165,10 @@ static const char* CSN_DESCR_type[]=
  */
 
 static gboolean
-existNextElement(tvbuff_t *tvb, gint bit_offset, guint8 Tag_v)
+existNextElement(tvbuff_t *tvb, gint bit_offset, guint8 Tag)
 {
   guint8 res = tvb_get_bits8(tvb, bit_offset, 1);
-  if (Tag_v == STANDARD_TAG)
+  if (Tag == STANDARD_TAG)
   {
     return (res > 0);
   }
@@ -186,6 +184,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
   guint8*  pui8;
   guint16* pui16;
   guint32* pui32;
+  guint8 Tag = STANDARD_TAG;
 
   proto_item   * item;
 
@@ -432,7 +431,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         else if (pDescr->type == CSN_VARIABLE_TARRAY_OFFSET)
         { /* Count specified in field */
           nCount = *pui8DATA(data, pDescr->i);
-          nCount--; /* Offset 1 */
+//          nCount--; /* Offset 1 */ // the 1 offset is already taken into account in CSN_UINT_OFFSET
         }
 
         while (nCount > 0)
@@ -1048,7 +1047,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s",
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
@@ -1096,7 +1095,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST_LH description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Next exist: %s",
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 

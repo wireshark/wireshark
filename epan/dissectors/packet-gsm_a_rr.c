@@ -4463,7 +4463,7 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
         proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "BA Index Start BSIC: %d", tvb_get_bits8(tvb,curr_bit_offset,5));
         curr_bit_offset += 5;
     }
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, bit_offset, 6, FALSE);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, curr_bit_offset, 6, FALSE);
     curr_bit_offset += 6;
     idx = tvb_get_bits8(tvb,curr_bit_offset,7);
     proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "Number Remaining BSIC: %d", idx);
