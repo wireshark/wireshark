@@ -1778,8 +1778,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* CSG and NSG must not be 2 */
-	if(((tmpbyte&0x03)==0x02)
-	|| ((tmpbyte&0xc0)==0x08)){
+	if(((tmpbyte & 0x03) == 0x02)
+	|| ((tmpbyte & 0x0c) == 0x08)) {
 	    return FALSE;
 	}
 	/* if T bit is set NSG must not be 0 */
@@ -1809,8 +1809,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* CSG and NSG must not be 2 */
-	if(((tmpbyte&0x03)==0x02)
-	|| ((tmpbyte&0xc0)==0x08)){
+	if(((tmpbyte & 0x03) == 0x02)
+	|| ((tmpbyte & 0x0c) == 0x08)) {
 	    return FALSE;
 	}
 	/* if T bit is set NSG must not be 0 */
