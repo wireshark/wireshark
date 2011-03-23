@@ -40,7 +40,26 @@
 #include <epan/in_cksum.h>
 
 #include "packet-ip.h"
+#include <epan/conversation.h>
+#include <epan/emem.h>
 
+/* Conversation related data */
+static int hf_icmp_resp_in = -1;
+static int hf_icmp_resp_to = -1;
+static int hf_icmp_resptime = -1;
+
+typedef struct _icmp_transaction_t {
+    guint32 rqst_frame;
+    guint32 resp_frame;
+    nstime_t rqst_time;
+} icmp_transaction_t;
+
+typedef struct _icmp_conv_info_t {
+    emem_tree_t *pdus;
+} icmp_conv_info_t;
+
+static void transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key);
+static void transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key);
 
 /* Decode the end of the ICMP payload as ICMP MPLS extensions
 if the packet in the payload has more than 128 bytes */
@@ -57,7 +76,6 @@ static int hf_icmp_seq_num = -1;
 static int hf_icmp_seq_num_le = -1;
 static int hf_icmp_mtu = -1;
 static int hf_icmp_redir_gw = -1;
-
 
 /* Mobile ip */
 static int hf_icmp_mip_type = -1;
@@ -261,6 +279,23 @@ static const value_string mip_extensions[] = {
 
 #define MPLS_STACK_ENTRY_C_TYPE                 1
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
+
+static conversation_t *
+_find_or_create_conversation(packet_info *pinfo)
+{
+    conversation_t *conv = NULL;
+
+    /* Have we seen this conversation before? */
+    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        pinfo->ptype, 0, 0, 0);
+    if ( conv == NULL )
+    {
+        /* No, this is a new conversation. */
+        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+            pinfo->ptype, 0, 0, 0);
+    }
+    return (conv);
+}
 
 /*
  * Dissect the mobile ip advertisement extensions.
@@ -669,6 +704,100 @@ dissect_mpls_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
     } /* end while */
 } /* end dissect_mpls_extensions */
 
+/* ======================================================================= */
+static void transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key)
+{
+    conversation_t *conversation;
+    icmp_conv_info_t *icmp_info;
+    icmp_transaction_t *icmp_trans;
+    emem_tree_key_t icmp_key[2];
+    proto_item *it;
+
+    /* Handle the conversation tracking */
+    conversation = _find_or_create_conversation(pinfo);
+    icmp_info = conversation_get_proto_data(conversation, proto_icmp);
+    if ( icmp_info == NULL )
+    {
+        icmp_info = se_alloc(sizeof(icmp_conv_info_t));
+        icmp_info->pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmp_pdus");
+        conversation_add_proto_data(conversation, proto_icmp, icmp_info);
+    }
+
+    icmp_key[0].length = 2;
+    icmp_key[0].key = key;
+    icmp_key[1].length = 0;
+    icmp_key[1].key = NULL;
+    if ( !PINFO_FD_VISITED(pinfo) )
+    {
+        icmp_trans = se_alloc(sizeof(icmp_transaction_t));
+        icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+        icmp_trans->resp_frame = 0;
+        icmp_trans->rqst_time = pinfo->fd->abs_ts;
+        se_tree_insert32_array(icmp_info->pdus, icmp_key, (void *)icmp_trans);
+    }
+    else /* Already visited this frame */
+        icmp_trans = se_tree_lookup32_array(icmp_info->pdus, icmp_key);
+
+    if ( icmp_trans == NULL )
+        return;
+
+    /* Print state tracking in the tree */
+    if ( icmp_trans->resp_frame &&
+        (icmp_trans->rqst_frame == PINFO_FD_NUM(pinfo)) )
+    {
+        it = proto_tree_add_uint(tree, hf_icmp_resp_in, NULL, 0, 0,
+            icmp_trans->resp_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+} /* transaction_start() */
+
+/* ======================================================================= */
+static void transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
+{
+    conversation_t *conversation;
+    icmp_conv_info_t *icmp_info;
+    icmp_transaction_t *icmp_trans;
+    emem_tree_key_t icmp_key[2];
+    proto_item *it;
+    nstime_t ns;
+
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        pinfo->ptype, 0, 0, 0);
+    if ( conversation == NULL )
+        return;
+
+    icmp_info = conversation_get_proto_data(conversation, proto_icmp);
+    if ( icmp_info == NULL )
+        return;
+
+    icmp_key[0].length = 2;
+    icmp_key[0].key = key;
+    icmp_key[1].length = 0;
+    icmp_key[1].key = NULL;
+    icmp_trans = se_tree_lookup32_array(icmp_info->pdus, icmp_key);
+    if ( icmp_trans == NULL )
+        return;
+
+    /* Print state tracking in the tree */
+    if ( icmp_trans->rqst_frame &&
+        (icmp_trans->rqst_frame < PINFO_FD_NUM(pinfo)) &&
+        ((icmp_trans->resp_frame == 0) || 
+        (icmp_trans->resp_frame == PINFO_FD_NUM(pinfo))) )
+    {
+        icmp_trans->resp_frame = PINFO_FD_NUM(pinfo);
+        it = proto_tree_add_uint(tree, hf_icmp_resp_to, NULL, 0, 0,
+            icmp_trans->rqst_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+
+        nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
+        it = proto_tree_add_time(tree, hf_icmp_resptime, NULL, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+} /* transaction_end() */
+
 /*
  * RFC 792 for basic ICMP.
  * RFC 1191 for ICMP_FRAG_NEEDED (with MTU of next hop).
@@ -691,6 +820,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
   proto_item *item;
+  guint32 conv_key[2];
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -873,10 +1003,29 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
       case ICMP_ECHOREPLY:
+          if ( !pinfo->in_error_pkt ) {
+            conv_key[0] = (guint32)tvb_get_ntohs(tvb, 2);
+            conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
+              tvb_get_ntohs(tvb, 6));
+            transaction_end(pinfo, icmp_tree, conv_key);
+          }
+          call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
+            icmp_tree);
+        break;
       case ICMP_ECHO:
-	call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
-	               icmp_tree);
-	break;
+          if ( !pinfo->in_error_pkt ) {
+            guint16 tmp[2];
+
+            tmp[0] = ~tvb_get_ntohs(tvb, 2);
+            tmp[1] = ~0x0800; /* The difference between echo request & reply */
+            conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
+            conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
+              tvb_get_ntohs(tvb, 6));
+            transaction_start(pinfo, icmp_tree, conv_key);
+          }
+          call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
+            icmp_tree);
+        break;
 
       case ICMP_RTRADVERT:
         if (addr_entry_size == 2) {
@@ -917,7 +1066,6 @@ void
 proto_register_icmp(void)
 {
   static hf_register_info hf[] = {
-
     { &hf_icmp_type,
       { "Type",         "icmp.type",            FT_UINT8, BASE_DEC,     NULL, 0x0,
         NULL, HFILL }},
@@ -1020,7 +1168,6 @@ proto_register_icmp(void)
       { "Revocation support", "icmp.mip.x", FT_BOOLEAN, 16, NULL, 0x0040,
        "Registration revocation support", HFILL }},
 
-
     { &hf_icmp_mip_reserved,
       { "Reserved", "icmp.mip.reserved",     FT_UINT16, BASE_HEX, NULL, 0x003f,
         NULL, HFILL}},
@@ -1079,7 +1226,19 @@ proto_register_icmp(void)
 
     { &hf_icmp_mpls_ttl,
       { "Time to live", "icmp.mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+
+    { &hf_icmp_resp_in,
+      { "Response In", "icmp.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The response to this request is in this frame", HFILL }},
+
+    { &hf_icmp_resp_to,
+      { "Response To", "icmp.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This is the response to the request in this frame", HFILL }},
+
+    { &hf_icmp_resptime,
+      { "Response Time", "icmp.resptime", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the request and the response", HFILL }}
   };
 
   static gint *ett[] = {
