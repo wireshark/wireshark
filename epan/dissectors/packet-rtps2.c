@@ -2879,7 +2879,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
      * Foreach member: (it's just like a struct)
      *
      */
-    case RTI_CDR_TK_VALUE_PARARM: 
+    case RTI_CDR_TK_VALUE_PARARM:
     case RTI_CDR_TK_VALUE: {
         /* Not fully dissected for now */
         /* Pad-align */
@@ -5352,8 +5352,8 @@ static gint dissect_parameter_sequence(proto_tree *tree,
               break;
 
             /* 0...2...........7...............15.............23...............31
-             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
-             * | PID_DISABLE_POSITIVE_ACKS     |            length             | 
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             * | PID_DISABLE_POSITIVE_ACKS     |            length             |
              * +---------------+---------------+---------------+---------------+
              * | boolean value | = = = = = = = =  u n u s e d  = = = = = = = = |
              * +---------------+---------------+---------------+---------------+
@@ -5369,8 +5369,8 @@ static gint dissect_parameter_sequence(proto_tree *tree,
               break;
 
             /* 0...2...........7...............15.............23...............31
-             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
-             * | PID_LOCATOR_FILTER_LIST       |            length             | 
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             * | PID_LOCATOR_FILTER_LIST       |            length             |
              * +---------------+---------------+---------------+---------------+
              * | unsigned long number_of_channels                              |
              * +---------------+---------------+---------------+---------------+
@@ -5400,7 +5400,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
               number_of_channels = NEXT_guint32(tvb, off, little_endian);
               g_snprintf(buffer, MAX_PARAM_SIZE, "%d channels", number_of_channels);
               off += 4;
-      
+
               if (number_of_channels == 0) {
                 /* Do not dissect the rest */
                 proto_tree_add_text(rtps_parameter_tree,
@@ -5461,8 +5461,8 @@ static gint dissect_parameter_sequence(proto_tree *tree,
 	else if (vendor_id == RTPS_VENDOR_TOC) {
           switch(parameter) {
             /* 0...2...........7...............15.............23...............31
-             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
-             * | PID_TYPECODE                  |            length             | 
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             * | PID_TYPECODE                  |            length             |
              * +---------------+---------------+---------------+---------------+
              * |                                                               |
              * +                    Type code description                      +
@@ -7261,7 +7261,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_IP4_FLAGS);
 
   min_len = 8;
-  if ((flags & FLAG_INFO_REPLY_IP4_M) == 1) min_len += 8;
+  if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) min_len += 8;
 
 
   if (octets_to_next_header != min_len) {
@@ -7303,7 +7303,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
   offset += 8;
 
   /* multicastReplyLocator */
-  if ((flags & FLAG_INFO_REPLY_IP4_M) == 1) {
+  if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) {
     rtps_util_add_locator_udp_v4(tree,
                         tvb,
                         offset,
@@ -7413,7 +7413,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_FLAGS);
 
   min_len = 8;
-  if ((flags & FLAG_INFO_REPLY_M) == 1) min_len += 8;
+  if ((flags & FLAG_INFO_REPLY_M) != 0) min_len += 8;
 
 
   if (octets_to_next_header != min_len) {
@@ -7455,7 +7455,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
 
 
   /* multicastReplyLocatorList */
-  if ((flags & FLAG_INFO_REPLY_M) == 1) {
+  if ((flags & FLAG_INFO_REPLY_M) != 0) {
     offset = rtps_util_add_locator_list(tree,
                         tvb,
                         offset,
@@ -7505,7 +7505,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
    * +---------------+---------------+---------------+---------------+
    *
    * 0...2...........7...............15.............23...............31
-   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    * |RTPS_DATA_SESSI|X|X|X|X|K|D|Q|E|      octetsToNextHeader       |
    * +---------------+---------------+---------------+---------------+
    * | Flags extraFlags              |      octetsToInlineQos        |
@@ -7718,7 +7718,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
                         "encapsulation options: %04x",
                         encapsulation_len);
       offset += 2;
-                        
+
       guid_tree = proto_item_add_subtree(ti,
                         ett_rtps_part_message_data);
 
@@ -7790,7 +7790,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
    *
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |RTPS_DATA_FRAG |X|X|X|X|X|K|Q|E|      octetsToNextHeader       | 
+   * |RTPS_DATA_FRAG |X|X|X|X|X|K|Q|E|      octetsToNextHeader       |
    * +---------------+---------------+---------------+---------------+
    * | Flags extraFlags              |      octetsToInlineQos        |
    * +---------------+---------------+---------------+---------------+
@@ -7993,9 +7993,9 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
       label = "serializedKey";
     }
-    dissect_serialized_data(tree, 
-                        tvb, 
-                        offset, 
+    dissect_serialized_data(tree,
+                        tvb,
+                        offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         label,
                         vendor_id);
@@ -8408,7 +8408,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
 
   /* The next two bytes are ignored */
   offset += 2;
-  
+
   /* Now the list of serialized data:
    * Serialized data is allocated one after another one.
    * We need to use the data previously stored in the sampleInfo to detect the
@@ -8427,16 +8427,16 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
     gint count = 0;
     const char * label;
 
-    ti = proto_tree_add_text(tree, 
-                        tvb, 
-                        offset, 
+    ti = proto_tree_add_text(tree,
+                        tvb,
+                        offset,
                         -1,
                         "Serialized Sample List");
     sil_tree = proto_item_add_subtree(ti, ett_rtps_sample_batch_list);
     for (count = 0; count < sample_info_count; ++count) {
       /* Ensure there are enough bytes in the buffer to dissect the next sample */
       if (octets_to_next_header - (offset - old_offset) + 4 < (gint)sample_info_length[count]) {
-        proto_tree_add_text(sil_tree, 
+        proto_tree_add_text(sil_tree,
                         tvb,
                         offset,
                         4,
@@ -8546,7 +8546,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
 
   if (is_ping) {
     g_strlcpy(info_summary_text, "PING", MAX_SUMMARY_SIZE);
-  } 
+  }
 #ifdef RTI_BUILD
   else {
     pinfo->guid_prefix_host = tvb_get_ntohl(tvb, offset + 8);

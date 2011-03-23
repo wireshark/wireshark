@@ -5350,7 +5350,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_IP4_FLAGS);
 
   min_len = 8;
-  if ((flags & FLAG_INFO_REPLY_IP4_M) == 1) min_len += 8;
+  if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) min_len += 8;
 
 
   if (octects_to_next_header != min_len) {
@@ -5385,7 +5385,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
   offset += 8;
 
   /* multicastReplyLocator */
-  if ((flags & FLAG_INFO_REPLY_IP4_M) == 1) {
+  if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) {
     rtps_util_add_locator_udp_v4(tree,
                         tvb,
                         offset,
@@ -5495,7 +5495,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_FLAGS);
 
   min_len = 8;
-  if ((flags & FLAG_INFO_REPLY_M) == 1) min_len += 8;
+  if ((flags & FLAG_INFO_REPLY_M) != 0) min_len += 8;
 
 
   if (octects_to_next_header != min_len) {
@@ -5530,7 +5530,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   offset += 8;
 
   /* multicastReplyLocatorList */
-  if ((flags & FLAG_INFO_REPLY_M) == 1) {
+  if ((flags & FLAG_INFO_REPLY_M) != 0) {
     rtps_util_add_locator_list(tree,
                         tvb,
                         offset,
