@@ -337,7 +337,9 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 		       void *arg)
 {
     tcp_stream_chunk	sc;
-    int			bcount, iplen;
+    size_t		bcount;
+    size_t		bytes_read;
+    int			iplen;
     guint8		client_addr[MAX_IPADDR_LEN];
     guint16		client_port = 0;
     gboolean		is_server;
@@ -392,13 +394,14 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 	    }
 	}
 
-	while (sc.dlen > 0) {
-	    bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
+        bytes_read = 0;
+	while (bytes_read < sc.dlen) {
+	    bcount = ((sc.dlen-bytes_read) < FLT_BUF_SIZE) ? (sc.dlen-bytes_read) : FLT_BUF_SIZE;
 	    nchars = fread(buffer, 1, bcount, data_out_file);
 	    if (nchars == 0)
 		break;
 	    /* XXX - if we don't get "bcount" bytes, is that an error? */
-	    sc.dlen -= (guint32) nchars;
+            bytes_read += nchars;
 
 	    if (!skip) {
 		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
