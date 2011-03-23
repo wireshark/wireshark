@@ -709,15 +709,16 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	<para>
       <variablelist>
 	<varlistentry>
-	  <term><command>7/Vista</command></term>
+	  <term><application>Windows 7</application>, <application>Windows Vista</application></term>
 	  <listitem>
 	<para>
 	<filename>C:\Users\&lt;username&gt;\AppData\Roaming\Wireshark</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
+
 	<varlistentry>
-	  <term><command>XP/2000</command></term>
+	  <term><application>Windows XP</application></term>
 	  <listitem>
 	<para>
 	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
@@ -725,8 +726,19 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	</para>
 	  </listitem>
 	</varlistentry>
+
 	<varlistentry>
-	  <term><command>NT 4 (no longer supported by Wireshark)</command></term>
+	  <term><application>Windows 2000</application> (no longer supported by Wireshark, for historical reference only)</term>
+	  <listitem>
+	<para>
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
+	"Documents and Settings" and "Application Data" might be internationalized.
+	</para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><application>Windows NT 4</application> (no longer supported, for historical reference only)</term>
 	  <listitem>
 	<para>
 	<filename>C:\WINNT\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
@@ -734,22 +746,21 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>ME/98 - with enabled user profiles  (no longer supported by Wireshark)</command></term>
+	  <term><application>Windows ME</application>, <application>Windows 98</application> with user profiles (no longer supported, for historical reference only)</term>
 	  <listitem>
 	<para>
 	In Windows ME and 98 you can enable separate user profiles. In that case,
-	something like:
+	something like
 	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
 	is used.
 	</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>ME/98/95 (no longer supported by Wireshark)</command></term>
+	  <term><application>Windows ME</application>, <application>Windows 98</application> without user profiles (no longer supported, for historical reference only)</term>
 	  <listitem>
 	<para>
-	The default in Windows ME/98/95 is: all users work with the same profile,
-	which is located at: 
+	Without user profiles enabled the default location for all users is 
 	<filename>C:\windows\Application Data\Wireshark</filename>
 	</para>
 	  </listitem>
@@ -759,7 +770,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	</section>
 
 	<section id="ChWindowsRoamingProfiles">
-	<title>Windows 7/Vista/XP/2000/NT roaming profiles</title>
+	<title>Windows 7, Vista, XP, 2000, and NT roaming profiles</title>
 	<para>
 	The following will only be applicable if you are using roaming profiles.
 	This might be the case, if you work in a Windows domain environment 

@@ -262,12 +262,14 @@
 	  releases of Windows lack memory protection (specifically <ulink
 	  url="http://msdn.microsoft.com/en-us/library/aa366898.aspx">VirutalProtect</ulink>)
 	  which we use to improve program safety and security. The last known
-	  version to work was Ethereal 0.99.0 (which includes WinPcap 3.1). You
+	  version to work was Ethereal 0.10.14 (which includes WinPcap 3.1). You
 	  can get it from <ulink url="http://ethereal.com/download.html" />.
 	  According to <ulink
 	  url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1130">this
 	  bug report</ulink>, you may need to install Ethereal 0.10.0 on some
 	  systems.
+	</para>
+	<para>
           Microsoft retired support for Windows 98 and ME in 2006.
 	</para></listitem>
 	<listitem><para>
@@ -276,6 +278,8 @@
 	  can get it from <ulink
 	  url="http://www.wireshark.org/download/win32/all-versions/wireshark-setup-0.99.4.exe"
 	  />.
+	</para>
+	<para>
 	  Microsoft retired support for Windows NT 4.0 in 2004.
 	</para></listitem>
 	<listitem><para>
@@ -283,6 +287,8 @@
 	  to work was Wireshark 1.2.x (which includes WinPcap 4.1.2). You still
 	  can get it from <ulink
 	  url="http://www.wireshark.org/download/win32/all-versions/" />.
+	</para>
+	<para>
 	  Microsoft retired support for Windows 2000 in 2010.
 	</para></listitem>
 	<listitem><para>
