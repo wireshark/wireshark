@@ -4343,8 +4343,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     pctx=dcm_state_pctx_get(assoc, pdv_curr->pctx_id, FALSE);
 
-    if (assoc->ae_calling && strlen(assoc->ae_calling)>0 &&
-	assoc->ae_called  && strlen(assoc->ae_called)>0 ) {
+    if (strlen(assoc->ae_calling)>0 && strlen(assoc->ae_called)>0 ) {
 	hostname = ep_strdup_printf("%s <-> %s", assoc->ae_calling, assoc->ae_called);
     }
     else {
