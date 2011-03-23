@@ -645,7 +645,8 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
     switch(action)
     {
     case COPY_SELECTED_DESCRIPTION:
-        if (cfile.finfo_selected->rep->representation != 0) {
+        if (cfile.finfo_selected->rep &&
+            strlen (cfile.finfo_selected->rep->representation) > 0) {
             g_string_append(gtk_text_str, cfile.finfo_selected->rep->representation);
         }
         break;
