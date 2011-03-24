@@ -144,8 +144,9 @@ static gint ett_bap_call_status_opt = -1;
 
 static int proto_comp_data = -1;
 
+#if 0  /* see dissect_comp_data() */
 static gint ett_comp_data = -1;
-
+#endif
 static int proto_pppmuxcp = -1;
 
 static gint ett_pppmuxcp = -1;
@@ -2574,7 +2575,6 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  proto_item *ta;
   proto_tree *addr_tree;
   guint8 addr_type;
   guint addr_len;
@@ -2588,8 +2588,8 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   length -= 3;
 
   while (length > 0) {
-    ta = proto_tree_add_text(field_tree, tvb, offset, length,
-                             "Callback Address");
+    proto_tree_add_text(field_tree, tvb, offset, length,
+                        "Callback Address");
     addr_type = tvb_get_guint8(tvb, offset);
     addr_tree = proto_item_add_subtree(tf, ett_cbcp_callback_opt_addr);
     proto_tree_add_text(addr_tree, tvb, offset, 1,
@@ -2790,12 +2790,11 @@ dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint length, packet_info *pinfo _U_,
                         proto_tree *tree)
 {
-  proto_item *tf;
   guint8 PDNID;
 
   PDNID = tvb_get_guint8(tvb, offset + 2);
-  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%02x",
-                           optp->name, PDNID);
+  proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%02x",
+                      optp->name, PDNID);
   offset += 2;
 }
 
@@ -3606,6 +3605,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+#if 0 /* XXX: ToDo ?? */
 static void
 dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3621,6 +3621,19 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     comp_data_tree = proto_item_add_subtree(ti, ett_comp_data);
   }
 }
+#else
+static void
+dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
+
+  col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
+
+  if (tree) {
+    proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
+  }
+}
+#endif
 
 /*
  * RFC 3153 (both PPPMuxCP and PPPMux).
@@ -3706,7 +3719,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
                           decode_boolean_bitfield(flags,0x40,8,"2 bytes length field ","1 byte length field"));
 
-      ti = proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
+      proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
 
       ti = proto_tree_add_uint(hdr_tree,hf_pppmux_protocol,tvb,offset + length_field,pid_field, pid);
 
@@ -3801,10 +3814,10 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
 
     /* flags field */
-    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
+    proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
 
     /* generation field */
-    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
+    proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
 
     /* calculate length of IP header, assume IPv4 */
     ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
@@ -3832,15 +3845,15 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case IPHC_CRTP_FH_CID8:
       offset_cid = 3;
       offset_seq = ip_hdr_len + 5;
-      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_cid8, tvb, offset_cid, 1, FALSE);
-      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_iphc_crtp_cid8, tvb, offset_cid, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
       break;
 
     case IPHC_CRTP_FH_CID16:
       offset_seq = 3;
       offset_cid = ip_hdr_len + 4;
-      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
-      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_cid16, tvb, offset_cid, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_iphc_crtp_cid16, tvb, offset_cid, 2, FALSE);
       break;
     }
 
@@ -3894,13 +3907,13 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     hdr_length = 3;
 
-    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid16, tvb, 0, 2, FALSE);
-    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 2, 1, FALSE);
+    proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid16, tvb, 0, 2, FALSE);
+    proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 2, 1, FALSE);
 
     offset += hdr_length;
     length -= hdr_length;
 
-    ti = proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
+    proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
   } /* if tree */
 }
 
@@ -3929,13 +3942,13 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     hdr_length = 2;
 
-    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid8, tvb, 0, 1, FALSE);
-    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 1, 1, FALSE);
+    proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid8, tvb, 0, 1, FALSE);
+    proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 1, 1, FALSE);
 
     offset += hdr_length;
     length -= hdr_length;
 
-    ti = proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
+    proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
   } /* if tree */
 }
 
@@ -3963,8 +3976,8 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     cs_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
-    ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_flags, tvb, 0, 1, FALSE);
-    ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_cnt, tvb, 1, 1, FALSE);
+    proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_flags, tvb, 0, 1, FALSE);
+    proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_cnt, tvb, 1, 1, FALSE);
 
     /* calculate required length */
     flags = tvb_get_guint8(tvb, 0);
@@ -3983,12 +3996,12 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_ensure_bytes_exist(tvb, offset, length);
 
     while (offset < length) {
-      ti = proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, FALSE);
+      proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, FALSE);
       offset += cid_size;
-      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, FALSE);
-      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_seq, tvb, offset, 1, FALSE);
+      proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, FALSE);
+      proto_tree_add_item(cs_tree, hf_iphc_crtp_seq, tvb, offset, 1, FALSE);
       ++offset;
-      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_gen, tvb, offset, 1, FALSE);
+      proto_tree_add_item(cs_tree, hf_iphc_crtp_gen, tvb, offset, 1, FALSE);
       ++offset;
     }
   } /* if tree */
@@ -5159,13 +5172,17 @@ proto_reg_handoff_bap(void)
 void
 proto_register_comp_data(void)
 {
+#if 0 /* See dissect_comp_data() */
   static gint *ett[] = {
     &ett_comp_data
   };
+#endif
 
   proto_comp_data = proto_register_protocol("PPP Compressed Datagram",
                                             "PPP Comp", "comp_data");
+#if 0
   proto_register_subtree_array(ett, array_length(ett));
+#endif
 }
 
 void
@@ -5575,7 +5592,7 @@ proto_reg_handoff_iphc_crtp(void)
   dissector_add_uint("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
 
   cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp);
-  dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp16_handle);
+  dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp8_handle);
 
   cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp);
   dissector_add_uint("ppp.protocol", PPP_RTP_CS, cs_handle);
