@@ -5189,19 +5189,19 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_startingtime_n32,
-      { " N32",        "gsm_rlcmac_dl.n32",
+      { "N32",        "gsm_rlcmac_dl.n32",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_startingtime_n51,
-      { " N51",        "gsm_rlcmac_dl.n51",
+      { "N51",        "gsm_rlcmac_dl.n51",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_startingtime_n26,
-      { " N26",        "gsm_rlcmac_dl.n26",
+      { "N26",        "gsm_rlcmac_dl.n26",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
