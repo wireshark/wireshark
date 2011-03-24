@@ -795,7 +795,7 @@ static void transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
         nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
         resptime = 1000.0 * ns.secs + ns.nsecs/1000000.0;
         it = proto_tree_add_double_format_value(tree, hf_icmp_resptime,
-            NULL, 0, 0, resptime, "%f ms", resptime);
+            NULL, 0, 0, resptime, "%.3f ms", resptime);
         PROTO_ITEM_SET_GENERATED(it);
     }
 
