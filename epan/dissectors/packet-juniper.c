@@ -619,7 +619,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 /* print the payload protocol  */
 static int
 dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                              proto_item *ti, guint proto, guint offset)
+                              proto_item *ti _U_, guint proto, guint offset)
 {
 
   tvbuff_t   *next_tvb;
