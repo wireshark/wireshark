@@ -646,6 +646,11 @@ mtp3_service_indicator_code_short_vals DATA
 new_octet_aligned_subset_bits
 new_create_dissector_handle
 new_register_dissector
+next_tvb_init
+next_tvb_add_handle
+next_tvb_add_uint
+next_tvb_add_string
+next_tvb_call
 nstime_cmp
 nstime_delta
 nstime_diff
