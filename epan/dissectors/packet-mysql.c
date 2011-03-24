@@ -110,7 +110,7 @@
 #define MYSQL_RFSH_SLAVE   64  /* Reset master info and restart slave thread */
 #define MYSQL_RFSH_MASTER  128 /* Remove all bin logs in the index and truncate the index */
 
-/* MySQL operation codes */
+/* MySQL command codes */
 #define MYSQL_SLEEP               0  /* not from client */
 #define MYSQL_QUIT                1
 #define MYSQL_INIT_DB             2
@@ -142,8 +142,8 @@
 #define MYSQL_STMT_FETCH          28
 
 
-/* decoding table: opcodes */
-static const value_string mysql_opcode_vals[] = {
+/* decoding table: command */
+static const value_string mysql_command_vals[] = {
 	{MYSQL_SLEEP,   "SLEEP"},
 	{MYSQL_QUIT,   "Quit"},
 	{MYSQL_INIT_DB,  "Use Database"},
@@ -351,7 +351,8 @@ static gint ett_refresh = -1;
 static gint ett_field_flags = -1;
 
 /* protocol fields */
-static int hf_mysql_caps= -1;
+static int hf_mysql_caps_server= -1;
+static int hf_mysql_caps_client= -1;
 static int hf_mysql_cap_long_password= -1;
 static int hf_mysql_cap_found_rows= -1;
 static int hf_mysql_cap_long_flag= -1;
@@ -368,7 +369,7 @@ static int hf_mysql_cap_ignore_sigpipe= -1;
 static int hf_mysql_cap_transactions= -1;
 static int hf_mysql_cap_reserved= -1;
 static int hf_mysql_cap_secure_connect= -1;
-static int hf_mysql_extcaps= -1;
+static int hf_mysql_extcaps_client= -1;
 static int hf_mysql_cap_multi_statements= -1;
 static int hf_mysql_cap_multi_results= -1;
 static int hf_mysql_status= -1;
@@ -393,7 +394,7 @@ static int hf_mysql_rfsh_slave= -1;
 static int hf_mysql_rfsh_master= -1;
 static int hf_mysql_packet_length= -1;
 static int hf_mysql_packet_number= -1;
-static int hf_mysql_opcode= -1;
+static int hf_mysql_command= -1;
 static int hf_mysql_error_code= -1;
 static int hf_mysql_error_string= -1;
 static int hf_mysql_sqlstate= -1;
@@ -403,6 +404,7 @@ static int hf_mysql_protocol= -1;
 static int hf_mysql_version = -1;
 static int hf_mysql_max_packet= -1;
 static int hf_mysql_user= -1;
+static int hf_mysql_table_name= -1;
 static int hf_mysql_schema= -1;
 static int hf_mysql_thread_id = -1;
 static int hf_mysql_salt= -1;
@@ -416,6 +418,7 @@ static int hf_mysql_num_warn= -1;
 static int hf_mysql_thd_id= -1;
 static int hf_mysql_stmt_id= -1;
 static int hf_mysql_query= -1;
+static int hf_mysql_shutdown= -1;
 static int hf_mysql_option= -1;
 static int hf_mysql_num_rows= -1;
 static int hf_mysql_param= -1;
@@ -549,8 +552,9 @@ static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo, int off
 static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree);
 static void mysql_dissect_collation(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 caps, gint charset, int field);
-static int mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
-static int mysql_dissect_ext_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
+static int mysql_dissect_caps_server(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
+static int mysql_dissect_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
+static int mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
 static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
@@ -766,7 +770,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
 
 	/* 2 bytes CAPS */
-	offset = mysql_dissect_caps(tvb, offset, greeting_tree, &conn_data->srv_caps, "Server");
+	offset = mysql_dissect_caps_server(tvb, offset, greeting_tree, &conn_data->srv_caps);
 
 	/* rest is optional */
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
@@ -794,7 +798,6 @@ static int
 mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		    proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-	guint16  ext_caps;
 	gint	 strlen;
 
 	proto_item *tf;
@@ -808,12 +811,11 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		login_tree = proto_item_add_subtree(tf, ett_server_greeting);
 	}
 
-	offset = mysql_dissect_caps(tvb, offset, login_tree, &conn_data->clnt_caps, "Client");
+	offset = mysql_dissect_caps_client(tvb, offset, login_tree, &conn_data->clnt_caps);
 
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
 	{
-		offset = mysql_dissect_ext_caps(tvb, offset, login_tree, &ext_caps, "Client");
-		conn_data->clnt_caps_ext= ext_caps;
+		offset = mysql_dissect_ext_caps_client(tvb, offset, login_tree, &conn_data->clnt_caps_ext);
 
 		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -879,23 +881,18 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	gint strlen;
 	proto_item *tf;
 	proto_item *req_tree= NULL;
-	guint16 option;
 
 	if (tree) {
-		tf= proto_tree_add_text(tree, tvb, offset, -1, "Command");
-		req_tree= proto_item_add_subtree(tf, ett_request);
+		tf = proto_tree_add_text(tree, tvb, offset, -1, "Command");
+		req_tree = proto_item_add_subtree(tf, ett_request);
 	}
 
-	opcode= tvb_get_guint8(tvb, offset);
+	opcode = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-				val_to_str(opcode, mysql_opcode_vals, "Unknown (%u)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
 	}
-	proto_tree_add_uint_format(req_tree, hf_mysql_opcode, tvb,
-				   offset, 1, opcode, "Command: %s (%u)",
-				   val_to_str(opcode, mysql_opcode_vals, "Unknown (%u)"),
-				   opcode);
-	offset+= 1;
+	proto_tree_add_item(req_tree, hf_mysql_command, tvb, offset, 1, ENC_NA);
+	offset += 1;
 
 
 	switch (opcode) {
@@ -923,82 +920,71 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	case MYSQL_INIT_DB:
 	case MYSQL_CREATE_DB:
 	case MYSQL_DROP_DB:
-		strlen= my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_schema, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
-		conn_data->state= RESPONSE_OK;
+		strlen = my_tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
+		conn_data->state = RESPONSE_OK;
 		break;
 
 	case MYSQL_QUERY:
-		strlen= my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_query, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
+		strlen = my_tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, strlen, ENC_NA);
 		if (mysql_showquery) {
 		        if (check_col(pinfo->cinfo, COL_INFO))
-		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
-						tvb_get_ephemeral_string(tvb, offset, strlen));
+		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ", tvb_get_ephemeral_string(tvb, offset, strlen));
 		}
-		offset+= strlen;
-		conn_data->state= RESPONSE_TABULAR;
+		offset += strlen;
+		conn_data->state = RESPONSE_TABULAR;
 		break;
 
 	case MYSQL_STMT_PREPARE:
-		strlen= my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_query, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
-		conn_data->state= RESPONSE_PREPARE;
+		strlen = my_tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
+		conn_data->state = RESPONSE_PREPARE;
 		break;
 
 	case MYSQL_STMT_CLOSE:
 		if (conn_data->stmts) {
-			gint stmt= tvb_get_letohl(tvb, offset);
+			gint stmt = tvb_get_letohl(tvb, offset);
 			g_hash_table_remove(conn_data->stmts, &stmt);
 		}
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
-		conn_data->state= REQUEST;
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		conn_data->state = REQUEST;
 		break;
 
 	case MYSQL_STMT_RESET:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
-		conn_data->state= RESPONSE_OK;
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		conn_data->state = RESPONSE_OK;
 		break;
 
 	case MYSQL_FIELD_LIST:
-		strlen= my_tvb_strsize(tvb, offset);
-		proto_tree_add_text(req_tree, tvb, offset, strlen, "Table name: %s",
-				    tvb_get_ephemeral_string(tvb, offset, strlen));
-		offset+= strlen;
-		conn_data->state= RESPONSE_SHOW_FIELDS;
+		strlen = my_tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_table_name, tvb,  offset, strlen, ENC_NA);
+		offset += strlen;
+		conn_data->state = RESPONSE_SHOW_FIELDS;
 		break;
 
 	case MYSQL_PROCESS_KILL:
-		proto_tree_add_item(req_tree, hf_mysql_thd_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
-		conn_data->state= RESPONSE_OK;
+		proto_tree_add_item(req_tree, hf_mysql_thd_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		conn_data->state = RESPONSE_OK;
 		break;
 
 	case MYSQL_CHANGE_USER:
 		strlen= tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_user, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
+		proto_tree_add_item(req_tree, hf_mysql_user, tvb,  offset, strlen, ENC_NA);
+		offset += strlen;
 
-		strlen= tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_passwd, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
+		strlen = tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_passwd, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
 
-		strlen= my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_schema, tvb,
-				    offset, strlen, ENC_LITTLE_ENDIAN);
-		offset+= strlen;
+		strlen = my_tvb_strsize(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
 		conn_data->state= RESPONSE_OK;
 		break;
 
@@ -1006,85 +992,69 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		{
 			proto_item *tff;
 			proto_item *rfsh_tree;
-			gint refresh= tvb_get_guint8(tvb, offset);
 
-			if (req_tree) {
-				tff= proto_tree_add_uint_format(req_tree, hf_mysql_refresh, tvb, offset, 1, refresh, "Refresh Bitmap: 0x%02X ", refresh);
-				rfsh_tree= proto_item_add_subtree(tff, ett_refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_grants, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_log, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_tables, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_hosts, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_status, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_threads, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_slave, tvb, offset, 1, refresh);
-				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_master, tvb, offset, 1, refresh);
-			}
+			tff = proto_tree_add_item(req_tree, hf_mysql_refresh, tvb, offset, 1, ENC_NA);
+			rfsh_tree = proto_item_add_subtree(tff, ett_refresh);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_grants, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_log, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_tables, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_hosts, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_status, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_threads, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_slave, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(rfsh_tree, hf_mysql_rfsh_master, tvb, offset, 1, ENC_NA);
+			
 		}
-		offset+= 1;
+		offset += 1;
 		conn_data->state= RESPONSE_OK;
 		break;
 
 	case MYSQL_SHUTDOWN:
-		opcode= tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format(req_tree, hf_mysql_opcode, tvb, offset,
-					   1, opcode, "Shutdown-Level: %s",
-					   val_to_str(opcode, mysql_shutdown_vals, "Unknown (%u)"));
-		offset+= 1;
-		conn_data->state= RESPONSE_OK;
+		proto_tree_add_item(req_tree, hf_mysql_shutdown, tvb, offset, 1, ENC_NA);
+		offset += 1;
+		conn_data->state = RESPONSE_OK;
 		break;
 
 	case MYSQL_SET_OPTION:
-		option= tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint_format(req_tree, hf_mysql_option, tvb, offset,
-					   2, option, "Option: %s",
-					   val_to_str(option, mysql_option_vals, "Unknown (%u)"));
-		offset+= 2;
-		conn_data->state= RESPONSE_OK;
+		proto_tree_add_item(req_tree, hf_mysql_option, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		conn_data->state = RESPONSE_OK;
 		break;
 
 	case MYSQL_STMT_FETCH:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_num_rows,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
-		conn_data->state= RESPONSE_TABULAR;
+		proto_tree_add_item(req_tree, hf_mysql_num_rows, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		conn_data->state = RESPONSE_TABULAR;
 		break;
 
 	case MYSQL_STMT_SEND_LONG_DATA:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_param,
-				    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset+= 2;
+		proto_tree_add_item(req_tree, hf_mysql_param, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
 		/* rest is data */
 		strlen= tvb_reported_length_remaining(tvb, offset);
 		if (tree &&  strlen > 0) {
-			proto_tree_add_item(req_tree, hf_mysql_payload,
-					    tvb, offset, strlen, ENC_NA);
+			proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, strlen, ENC_NA);
 		}
-		offset+= strlen;
-		conn_data->state= REQUEST;
+		offset += strlen;
+		conn_data->state = REQUEST;
 		break;
 
 	case MYSQL_STMT_EXECUTE:
-		proto_tree_add_item(req_tree, hf_mysql_stmt_id,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_exec_flags,
-				    tvb, offset, 1, ENC_NA);
-		offset+= 1;
+		proto_tree_add_item(req_tree, hf_mysql_exec_flags, tvb, offset, 1, ENC_NA);
+		offset += 1;
 
-		proto_tree_add_item(req_tree, hf_mysql_exec_iter,
-				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset+= 4;
+		proto_tree_add_item(req_tree, hf_mysql_exec_iter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
 #if 0
 /* FIXME: rest needs metadata about statement */
@@ -1094,7 +1064,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 			proto_tree_add_string(req_tree, hf_mysql_payload, tvb, offset,
 					      strlen, "FIXME: execute dissector incomplete");
 		}
-		offset+= strlen;
+		offset += strlen;
 #endif
 		conn_data->state= RESPONSE_TABULAR;
 		break;
@@ -1106,15 +1076,15 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	case MYSQL_REGISTER_SLAVE:
 		proto_tree_add_string(req_tree, hf_mysql_payload, tvb, offset, -1,
 				      "FIXME: implement replication packets");
-		offset+= tvb_reported_length_remaining(tvb, offset);
-		conn_data->state= REQUEST;
+		offset += tvb_reported_length_remaining(tvb, offset);
+		conn_data->state = REQUEST;
 		break;
 
 	default:
 		proto_tree_add_string(req_tree, hf_mysql_payload, tvb, offset, -1,
 				      "unknown/invalid command code");
-		offset+= tvb_reported_length_remaining(tvb, offset);
-		conn_data->state= UNDEFINED;
+		offset += tvb_reported_length_remaining(tvb, offset);
+		conn_data->state = UNDEFINED;
 	}
 
 	return offset;
@@ -1137,16 +1107,14 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	else if (response_code == 0xfe && tvb_reported_length_remaining(tvb, offset) < 9) {
 
-		proto_tree_add_uint_format(tree, hf_mysql_eof, tvb, offset, 1,
-					   response_code, "EOF marker (%u)",
-					   response_code);
-		offset+= 1;
+		proto_tree_add_item(tree, hf_mysql_eof, tvb, offset, 1, ENC_NA);
+
+		offset += 1;
 
 		/* pre-4.1 packet ends here */
 		if (tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_item(tree, hf_mysql_num_warn,
-					    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset= mysql_dissect_server_status(tvb, offset+2, tree);
+			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset = mysql_dissect_server_status(tvb, offset+2, tree);
 		}
 
 		if (conn_data->state == FIELD_PACKET) {
@@ -1157,13 +1125,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	else if (response_code == 0) {
-		if (tvb_reported_length_remaining(tvb, offset+1)
-		    > tvb_get_fle(tvb, offset+1, NULL, NULL)) {
-			offset= mysql_dissect_ok_packet(tvb, pinfo, offset+1,
-							tree, conn_data);
+		if (tvb_reported_length_remaining(tvb, offset+1)  > tvb_get_fle(tvb, offset+1, NULL, NULL)) {
+			offset = mysql_dissect_ok_packet(tvb, pinfo, offset+1, tree, conn_data);
 		} else {
-			offset= mysql_dissect_result_header(tvb, pinfo, offset,
-							    tree, conn_data);
+			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data);
 		}
 	}
 
@@ -1171,40 +1136,38 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		switch (conn_data->state) {
 		case RESPONSE_MESSAGE:
 			if ((strlen= tvb_reported_length_remaining(tvb, offset))) {
-				proto_tree_add_item(tree, hf_mysql_message, tvb,
-						    offset, strlen, ENC_NA);
-				offset+= strlen;
+				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, strlen, ENC_NA);
+				offset += strlen;
 			}
-			conn_data->state= REQUEST;
+			conn_data->state = REQUEST;
 			break;
 
 		case RESPONSE_TABULAR:
-			offset= mysql_dissect_result_header(tvb, pinfo, offset,
-							    tree, conn_data);
+			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data);
 			break;
 
 		case FIELD_PACKET:
 		case RESPONSE_SHOW_FIELDS:
-			offset= mysql_dissect_field_packet(tvb, offset, tree, conn_data);
+			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
 			break;
 
 		case ROW_PACKET:
-			offset= mysql_dissect_row_packet(tvb, offset, tree);
+			offset = mysql_dissect_row_packet(tvb, offset, tree);
 			break;
 
 		case RESPONSE_PREPARE:
-			offset= mysql_dissect_response_prepare(tvb, offset, tree);
+			offset = mysql_dissect_response_prepare(tvb, offset, tree);
 			break;
 
 		case PARAM_PACKET:
-			offset= mysql_dissect_param_packet(tvb, offset, tree);
+			offset = mysql_dissect_param_packet(tvb, offset, tree);
 			break;
 
 		default:
 			proto_tree_add_string(tree, hf_mysql_payload, tvb, offset, -1,
 					      "unknown/invalid response");
-			offset+= tvb_reported_length_remaining(tvb, offset);
-			conn_data->state= UNDEFINED;
+			offset += tvb_reported_length_remaining(tvb, offset);
+			conn_data->state = UNDEFINED;
 		}
 	}
 
@@ -1216,21 +1179,17 @@ static int
 mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 			   int offset, proto_tree *tree)
 {
-	gint error_code;
-	error_code= tvb_get_letohs(tvb, offset);
-
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Error %d", error_code);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Error %d", tvb_get_letohs(tvb, offset));
 	}
-	proto_tree_add_uint(tree, hf_mysql_error_code, tvb,
-			    offset, 2, error_code);
-	offset+= 2;
+	proto_tree_add_item(tree, hf_mysql_error_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
 
 	if (tvb_get_guint8(tvb, offset) == '#')
 	{
-		offset+= 1;
+		offset += 1;
 		proto_tree_add_item(tree, hf_mysql_sqlstate, tvb, offset, 5, ENC_NA);
-		offset+= 5;
+		offset += 5;
 	}
 
 	proto_tree_add_item(tree, hf_mysql_error_string, tvb, offset, -1, ENC_NA);
@@ -1251,37 +1210,33 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	col_append_str(pinfo->cinfo, COL_INFO, " OK" );
 
-	fle= tvb_get_fle(tvb, offset, &affected_rows, NULL);
-	proto_tree_add_uint64(tree, hf_mysql_affected_rows,
-			      tvb, offset, fle, affected_rows);
-	offset+= fle;
+	fle = tvb_get_fle(tvb, offset, &affected_rows, NULL);
+	proto_tree_add_uint64(tree, hf_mysql_affected_rows, tvb, offset, fle, affected_rows);
+	offset += fle;
 
 	fle= tvb_get_fle(tvb, offset, &insert_id, NULL);
 	if (tree && insert_id) {
-		proto_tree_add_uint64(tree, hf_mysql_insert_id,
-				      tvb, offset, fle, insert_id);
+		proto_tree_add_uint64(tree, hf_mysql_insert_id, tvb, offset, fle, insert_id);
 	}
-	offset+= fle;
+	offset += fle;
 
-	if ((strlen= tvb_reported_length_remaining(tvb, offset))) {
-	        offset= mysql_dissect_server_status(tvb, offset, tree);
+	if ((strlen = tvb_reported_length_remaining(tvb, offset))) {
+	        offset = mysql_dissect_server_status(tvb, offset, tree);
 
 	        /* 4.1+ protocol only: 2 bytes number of warnings */
 		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
-			proto_tree_add_item(tree, hf_mysql_num_warn, tvb,
-					    offset, 2, ENC_LITTLE_ENDIAN);
-		offset+= 2;
+			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 		}
 	}
 
 	/* optional: message string */
-	if ((strlen= tvb_reported_length_remaining(tvb, offset))) {
-		proto_tree_add_item(tree, hf_mysql_message, tvb,
-				    offset, strlen, ENC_NA);
-		offset+= strlen;
+	if ((strlen = tvb_reported_length_remaining(tvb, offset))) {
+		proto_tree_add_item(tree, hf_mysql_message, tvb, offset, strlen, ENC_NA);
+		offset += strlen;
 	}
 
-	conn_data->state= REQUEST;
+	conn_data->state = REQUEST;
 	return offset;
 }
 
@@ -1289,26 +1244,24 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 static int
 mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint16 status;
 	proto_item *tf;
 	proto_item *stat_tree;
 
-	status= tvb_get_letohs(tvb, offset);
 	if (tree) {
-		tf= proto_tree_add_uint_format(tree, hf_mysql_status, tvb, offset, 2, status, "Server Status: 0x%04X ", status);
+		tf= proto_tree_add_item(tree, hf_mysql_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		stat_tree= proto_item_add_subtree(tf, ett_stat);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_it, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_ac, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_mr, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_mu, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_bi, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_ni, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_cr, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_lr, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_dr, tvb, offset, 2, status);
-		proto_tree_add_boolean(stat_tree, hf_mysql_stat_bs, tvb, offset, 2, status);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_it, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_ac, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_mr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_mu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_bi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_ni, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_cr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_lr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_dr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_bs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
-	offset+= 2;
+	offset += 2;
 
 	return offset;
 }
@@ -1326,54 +1279,85 @@ mysql_dissect_collation(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 cap
 					      "Unknown (%u)"), charset);
 }
 
-
 static int
-mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree,
-		   guint16 *caps, const char* whom)
+mysql_dissect_caps_server(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps)
 {
+	proto_item *tf;
+	proto_item *cap_tree;
+	
 	*caps= tvb_get_letohs(tvb, offset);
+	
 	if (tree) {
-		proto_item *tf= proto_tree_add_uint_format(tree, hf_mysql_caps, tvb, offset, 2, *caps,
-							   "%s Capabilities: 0x%04X ", whom, *caps);
-		proto_item *cap_tree= proto_item_add_subtree(tf, ett_caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_long_password, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_found_rows, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_long_flag, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_connect_with_db, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_no_schema, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_compress, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_odbc, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_local_files, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_ignore_space, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_change_user, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_interactive, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_ssl, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_ignore_sigpipe, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_transactions, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_reserved, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(cap_tree, hf_mysql_cap_secure_connect, tvb, offset, 2, *caps);
+		tf = proto_tree_add_item(tree, hf_mysql_caps_server, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		cap_tree= proto_item_add_subtree(tf, ett_caps);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_long_password, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_found_rows, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_long_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_connect_with_db, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_no_schema, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_compress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_odbc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_local_files, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ignore_space, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_change_user, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_interactive, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ssl, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ignore_sigpipe, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_transactions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_secure_connect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 
-	offset+= 2;
+	offset += 2;
 	return offset;
 }
 
-
 static int
-mysql_dissect_ext_caps(tvbuff_t *tvb, int offset, proto_tree *tree,
-		       guint16 *caps, const char* whom)
+mysql_dissect_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps)
 {
-	proto_item *extcap_tree;
+	proto_item *tf;
+	proto_item *cap_tree;
+	
 	*caps= tvb_get_letohs(tvb, offset);
+	
 	if (tree) {
-		proto_item *tf= proto_tree_add_uint_format(tree, hf_mysql_extcaps, tvb, offset, 2, *caps,
-							   "Extended %s Capabilities: 0x%04X ", whom, *caps);
-		extcap_tree= proto_item_add_subtree(tf, ett_extcaps);
-		proto_tree_add_boolean(extcap_tree, hf_mysql_cap_multi_statements, tvb, offset, 2, *caps);
-		proto_tree_add_boolean(extcap_tree, hf_mysql_cap_multi_results, tvb, offset, 2, *caps);
+		tf = proto_tree_add_item(tree, hf_mysql_caps_client, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		cap_tree= proto_item_add_subtree(tf, ett_caps);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_long_password, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_found_rows, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_long_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_connect_with_db, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_no_schema, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_compress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_odbc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_local_files, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ignore_space, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_change_user, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_interactive, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ssl, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_ignore_sigpipe, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_transactions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cap_tree, hf_mysql_cap_secure_connect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 
-	offset+= 2;
+	offset += 2;
+	return offset;
+}
+static int
+mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *ext_caps)
+{
+	proto_item *tf;
+	proto_item *extcap_tree;
+	*ext_caps= tvb_get_letohs(tvb, offset);
+	if (tree) {
+		tf = proto_tree_add_item(tree, hf_mysql_extcaps_client, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		extcap_tree = proto_item_add_subtree(tf, ett_extcaps);
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_statements, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	}
+
+	offset += 2;
 	return offset;
 }
 
@@ -1387,22 +1371,20 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	col_append_str(pinfo->cinfo, COL_INFO, " TABULAR" );
 
-	fle= tvb_get_fle(tvb, offset, &num_fields, NULL);
-	proto_tree_add_uint64(tree, hf_mysql_num_fields,
-			      tvb, offset, fle, num_fields);
-	offset+= fle;
+	fle = tvb_get_fle(tvb, offset, &num_fields, NULL);
+	proto_tree_add_uint64(tree, hf_mysql_num_fields, tvb, offset, fle, num_fields);
+	offset += fle;
 
 	if (tvb_reported_length_remaining(tvb, offset)) {
-		fle= tvb_get_fle(tvb, offset, &extra, NULL);
-		proto_tree_add_uint64(tree, hf_mysql_extra,
-				      tvb, offset, fle, extra);
-		offset+= fle;
+		fle = tvb_get_fle(tvb, offset, &extra, NULL);
+		proto_tree_add_uint64(tree, hf_mysql_extra, tvb, offset, fle, extra);
+		offset += fle;
 	}
 
 	if (num_fields) {
-		conn_data->state= FIELD_PACKET;
+		conn_data->state = FIELD_PACKET;
 	} else {
-		conn_data->state= ROW_PACKET;
+		conn_data->state = ROW_PACKET;
 	}
 
 	return offset;
@@ -1434,7 +1416,6 @@ mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field)
 static int
 mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-	guint16 flags;
 	proto_item *tf;
 	proto_item *flags_tree;
 
@@ -1444,35 +1425,33 @@ mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_co
 	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_table);
 	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_name);
 	offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_org_name);
-	offset++; /* filler */
+	offset +=1; /* filler */
 	mysql_dissect_collation(tvb, offset, tree, conn_data->srv_caps,
 				tvb_get_letohs(tvb, offset), hf_mysql_fld_charsetnr);
 	offset += 2; /* charset */
 	proto_tree_add_item(tree, hf_mysql_fld_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4; /* length */
 	proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA);
-	offset++; /* type */
+	offset += 1; /* type */
 
-	flags = tvb_get_letohs(tvb, offset);
-	tf = proto_tree_add_uint_format(tree, hf_mysql_fld_flags, tvb, offset,
-					2, flags, "Field flags: 0x%04X", flags);
+	tf = proto_tree_add_item(tree, hf_mysql_fld_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	flags_tree = proto_item_add_subtree(tf, ett_field_flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_not_null, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_primary_key, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_unique_key, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_multiple_key, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_blob, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_unsigned, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_zero_fill, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_binary, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_enum, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_auto_increment, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_timestamp, tvb, offset, 2, flags);
-	proto_tree_add_boolean(flags_tree, hf_mysql_fld_set, tvb, offset, 2, flags);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_not_null, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_primary_key, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_unique_key, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_multiple_key, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_blob, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_unsigned, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_zero_fill, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_binary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_enum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_auto_increment, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mysql_fld_set, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2; /* flags */
 
 	proto_tree_add_item(tree, hf_mysql_fld_decimals, tvb, offset, 1, ENC_NA);
-	offset++; /* decimals */
+	offset += 1; /* decimals */
 
 	offset += 2; /* filler */
 
@@ -1607,9 +1586,9 @@ void proto_register_mysql(void)
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
-		{ &hf_mysql_opcode,
-		{ "Command", "mysql.opcode",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ &hf_mysql_command,
+		{ "Command", "mysql.command",
+		FT_UINT8, BASE_DEC, VALS(mysql_command_vals), 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_error_code,
@@ -1642,11 +1621,16 @@ void proto_register_mysql(void)
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		"MySQL Version", HFILL }},
 
-		{ &hf_mysql_caps,
-		{ "Caps", "mysql.caps",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ &hf_mysql_caps_server,
+		{ "Server Capabilities", "mysql.caps.server",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		"MySQL Capabilities", HFILL }},
 
+		{ &hf_mysql_caps_client,
+		{ "Client Capabilities", "mysql.caps.client",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
+		"MySQL Capabilities", HFILL }},
+		
 		{ &hf_mysql_cap_long_password,
 		{ "Long Password","mysql.caps.lp",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_LP,
@@ -1727,9 +1711,9 @@ void proto_register_mysql(void)
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SC,
 		NULL, HFILL }},
 
-		{ &hf_mysql_extcaps,
-		{ "Ext. Caps", "mysql.extcaps",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ &hf_mysql_extcaps_client,
+		{ "Extended Client Capabilities", "mysql.extcaps.client",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		"MySQL Extended Capabilities", HFILL }},
 
 		{ &hf_mysql_cap_multi_statements,
@@ -1747,6 +1731,11 @@ void proto_register_mysql(void)
 		FT_UINT24, BASE_DEC, NULL,  0x0,
 		"MySQL Max packet", HFILL }},
 
+		{ &hf_mysql_table_name,
+		{ "Table Name", "mysql.table_name",
+		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+		
 		{ &hf_mysql_user,
 		{ "Username", "mysql.user",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
@@ -1778,8 +1767,8 @@ void proto_register_mysql(void)
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_status,
-		{ "Status", "mysql.status",
-		FT_UINT16, BASE_DEC, NULL,  0x0,
+		{ "Server Status", "mysql.status",
+		FT_UINT16, BASE_HEX, NULL,  0x0,
 		"MySQL Status", HFILL }},
 
 		{ &hf_mysql_stat_it,
@@ -1834,7 +1823,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_refresh,
 		{ "Refresh Option", "mysql.refresh",
-		FT_UINT8, BASE_DEC, NULL,  0x0,
+		FT_UINT8, BASE_HEX, NULL,  0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_rfsh_grants,
@@ -1884,7 +1873,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_passwd,
 		{ "Password", "mysql.passwd",
-		FT_STRING, BASE_NONE, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_payload,
@@ -1922,9 +1911,14 @@ void proto_register_mysql(void)
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_mysql_shutdown,
+		{ "Shutdown Level", "mysql.shutdown",
+		FT_UINT8, BASE_DEC, VALS(mysql_shutdown_vals), 0x0,
+		NULL, HFILL }},
+		
 		{ &hf_mysql_option,
 		{ "Option", "mysql.option",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		FT_UINT16, BASE_DEC, VALS(mysql_option_vals), 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_param,
@@ -1948,7 +1942,7 @@ void proto_register_mysql(void)
 		NULL, HFILL }},
 
 		{ &hf_mysql_eof,
-		{ "EOF", "mysql.eof",
+		{ "EOF marker", "mysql.eof",
 		FT_UINT8, BASE_DEC, NULL,  0x0,
 		NULL, HFILL }},
 
@@ -2009,7 +2003,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_fld_flags,
 		{ "Flags", "mysql.field.flags",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		"Field: flags", HFILL }},
 
 		{ &hf_mysql_fld_not_null,
