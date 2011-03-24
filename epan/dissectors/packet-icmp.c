@@ -762,6 +762,7 @@ static void transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
     emem_tree_key_t icmp_key[2];
     proto_item *it;
     nstime_t ns;
+    double resptime;
 
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
@@ -792,7 +793,9 @@ static void transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
         PROTO_ITEM_SET_GENERATED(it);
 
         nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
-        it = proto_tree_add_time(tree, hf_icmp_resptime, NULL, 0, 0, &ns);
+        resptime = 1000.0 * ns.secs + ns.nsecs/1000000.0;
+        it = proto_tree_add_double_format_value(tree, hf_icmp_resptime,
+            NULL, 0, 0, resptime, "%f ms", resptime);
         PROTO_ITEM_SET_GENERATED(it);
     }
 
@@ -1237,8 +1240,8 @@ proto_register_icmp(void)
         "This is the response to the request in this frame", HFILL }},
 
     { &hf_icmp_resptime,
-      { "Response Time", "icmp.resptime", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "The time between the request and the response", HFILL }}
+      { "Response Time", "icmp.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        "The time between the request and the response, in ms.", HFILL }}
   };
 
   static gint *ett[] = {
