@@ -58,6 +58,10 @@
 # include <winsock2.h>
 #endif
 
+#if defined(_WIN32) && defined(INET6)
+# include <ws2tcpip.h>
+#endif
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -1807,7 +1811,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 	bh.block_type = BLOCK_TYPE_NRB;
 	bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
 	rec_data = g_malloc(NRES_REC_MAX_SIZE);
-	
+
 	for (; pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next; pcapng->addrinfo_list_last = pcapng->addrinfo_list_last->ai_next ) {
 		ai = pcapng->addrinfo_list_last->ai_next; /* Skips over the first (dummy) entry */
 		namelen = strlen(ai->ai_canonname) + 1;
@@ -1930,7 +1934,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	              phdr->pkt_encap,
 	              wtap_encap_string(phdr->pkt_encap));
 
-	if (!pcapng->addrinfo_list_last) 
+	if (!pcapng->addrinfo_list_last)
 		pcapng->addrinfo_list_last = wdh->addrinfo_list;
 
 	interface_id = pcapng_lookup_interface_id_by_encap(phdr->pkt_encap, wdh);
