@@ -218,12 +218,20 @@ static const true_false_string png_chunk_stc = {
 };
 
 
-static void
+static gint
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree = NULL;
 	proto_item *ti;
 	int offset=0;
+
+	/* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
+	static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+	if (tvb_length(tvb) < 20)
+		return 0;
+
+	if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
+		return 0;
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (PNG)");
 
@@ -301,6 +309,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(chunk_tree, hf_png_chunk_crc, tvb, offset, 4, FALSE);
 		offset+=4;
 	}
+	return offset;
 }
 
 void
@@ -418,24 +427,13 @@ proto_register_png(void)
 
 static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
-	static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
-	if (tvb_length(tvb) < 20)
-		return FALSE;
-
-	if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
-		return FALSE;
-
-	dissect_png(tvb, pinfo, tree);
-	return TRUE;
+	return dissect_png(tvb, pinfo, tree) > 0;
 }
 
 void
 proto_reg_handoff_png(void)
 {
-	dissector_handle_t png_handle;
-
-	png_handle = create_dissector_handle(dissect_png, proto_png);
+	dissector_handle_t png_handle = new_create_dissector_handle(dissect_png, proto_png);
 	dissector_add_string("media_type", "image/png", png_handle);
 	heur_dissector_add("http", dissect_png_heur, proto_png);
 }

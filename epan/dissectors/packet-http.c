@@ -610,7 +610,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		datalen;
 	int		reported_datalen = -1;
 	dissector_handle_t handle;
-	gboolean	dissected;
+	gboolean	dissected = FALSE;
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
 	http_eo_t       *eo_info;
@@ -1237,20 +1237,26 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "multipart/");
 			}
 		}
+
 		if (handle != NULL) {
 			/*
 			 * We have a subdissector - call it.
 			 */
-			dissected = call_dissector(handle, next_tvb, pinfo,
-			    tree);
-		} else {
-			/*
-			 * We don't have a subdissector - try the heuristic
-			 * subdissectors.
-			 */
-			dissected = dissector_try_heuristic(
-			    heur_subdissector_list, next_tvb, pinfo, tree);
+			dissected = call_dissector_only(handle, next_tvb, pinfo, tree);
+			if (!dissected)
+				expert_add_info_format(pinfo, http_tree, PI_MALFORMED, PI_NOTE,
+						       "HTTP body subdissector failed, trying heuristic subdissector");
 		}
+
+		if (!dissected) {
+			/*
+			 * We don't have a subdissector or we have one and it did not
+			 * dissect the payload - try the heuristic subdissectors.
+			 */
+			dissected = dissector_try_heuristic(heur_subdissector_list,
+							    next_tvb, pinfo, tree);
+		}
+
 		if (dissected) {
 			/*
 			 * The subdissector dissected the body.

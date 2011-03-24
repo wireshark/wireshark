@@ -13,24 +13,24 @@
  * Copyright 1998 Gerald Combs
  *
  * JFIF media decoding functionality provided by Olivier Biot.
- * 
+ *
  * The JFIF specifications are found at several locations, such as:
  * http://www.jpeg.org/public/jfif.pdf
  * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
  *
  * The Exif specifications are found at several locations, such as:
  * http://www.exif.org/
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -354,20 +354,6 @@ static gint ett_marker_segment = -1;
 static gint ett_details = -1;
 
 
-/**************** GIF related declarations and definitions ****************/
-
-
-/************************** Function prototypes **************************/
-
-
-static void
-dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void
-proto_register_jfif(void);
-
-
-
 /****************** JFIF protocol dissection functions ******************/
 
 #define ErrorInvalidJFIF "This is not a valid JFIF (JPEG) object"
@@ -475,7 +461,7 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
 			count--;
 		}
 	}
-	
+
 	proto_tree_add_item(subtree, hf_sos_ss, tvb, offset++, 1, FALSE);
 	proto_tree_add_item(subtree, hf_sos_se, tvb, offset++, 1, FALSE);
 
@@ -771,16 +757,21 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	}
 }
 
-static void
+static gint
 dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree *subtree = NULL;
-	proto_item *ti;
+	proto_item *ti = NULL;
 	guint tvb_len = tvb_reported_length(tvb);
 	guint32 offset = 0;
-	tvbuff_t *tmp_tvb;
-	guint32 len;
-	guint16 marker;
+
+	/* check if we have a full JFIF in tvb */
+	if (tvb_len < 20)
+		return 0;
+	if (tvb_get_ntohs(tvb, 0) != MARKER_SOI)
+		return 0;
+	if (tvb_get_ntohs(tvb, tvb_len-2) != MARKER_EOI)
+		return 0;
 
 	/* Add summary to INFO column if it is enabled */
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -790,32 +781,23 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_jfif,
 				tvb, 0, -1, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_jfif);
-	}
-
-	marker = tvb_get_ntohs(tvb, 0);
-	if (marker != MARKER_SOI) {
-		if (tree) {
-			proto_tree_add_text(subtree, tvb, 0, 2, ErrorInvalidJFIF);
-			return;
-		}
-	}
-	if (tree)
 		proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	}
 
-	offset = 2;
+	offset = 2;		/* skip MARKER_SOI */
 
 	/*
 	 * Process the remaining markers and marker segments
 	 */
 	while (offset < tvb_len) {
 		const char *str;
-		marker = tvb_get_ntohs(tvb, offset);
+		const guint16 marker = tvb_get_ntohs(tvb, offset);
 		str = match_strval(marker, vals_marker);
 		if (str) { /* Known marker */
 			if (marker_has_length(marker)) { /* Marker segment */
 				/* Length of marker segment = 2 + len */
-				len = tvb_get_ntohs(tvb, offset + 2);
-				tmp_tvb = tvb_new_subset(tvb, offset, 2 + len, 2 + len);
+				const guint16 len = tvb_get_ntohs(tvb, offset + 2);
+				tvbuff_t *tmp_tvb = tvb_new_subset(tvb, offset, 2 + len, 2 + len);
 				switch (marker) {
 					case MARKER_APP0:
 						process_app0_segment(subtree, tmp_tvb, len, marker, str);
@@ -849,7 +831,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 						 */
 						proto_tree_add_text(subtree, tvb, offset + 2 + len, -1,
 								"JFIF dissection stops here (dissection of a scan is not yet implemented)");
-						return;
+						return tvb_len;
 						break;
 					default:
 						process_marker_segment(subtree, tmp_tvb, len, marker, str);
@@ -866,25 +848,17 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			ti = proto_tree_add_item(subtree, hf_marker,
 					tvb, offset, 2, FALSE);
 			proto_item_append_text(ti, " (Reserved)");
-			return;
+			return tvb_len;
 		}
 	}
 
-	return;
+	return offset;
 }
 
 static gboolean
 dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint len = tvb_length(tvb);
-	if (len < 20)
-		return FALSE;
-	if (tvb_get_ntohs(tvb, 0) != MARKER_SOI)
-		return FALSE;
-	if (tvb_get_ntohs(tvb, len-2) != MARKER_EOI)
-		return FALSE;
-	dissect_jfif(tvb, pinfo, tree);
-	return TRUE;
+	return dissect_jfif(tvb, pinfo, tree) > 0;
 }
 
 /****************** Register the protocol with Wireshark ******************/
@@ -1078,7 +1052,7 @@ proto_register_jfif(void)
 			{	"Vertical sampling factor",
 				IMG_JFIF ".sof.v_i",
 				FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"Specifies the relationship between the component vertical dimension and maximum image dimension Y.",				
+				"Specifies the relationship between the component vertical dimension and maximum image dimension Y.",
 				HFILL
 			}
 		},
@@ -1156,7 +1130,7 @@ proto_register_jfif(void)
 				HFILL
 			}
 		},
-		{ &hf_sos_al, 
+		{ &hf_sos_al,
 			{	"Successive approximation bit position low or point transform",
 				IMG_JFIF ".sos.al",
 				FT_UINT8, BASE_DEC, NULL, 0x0F,
@@ -1185,16 +1159,14 @@ proto_register_jfif(void)
 	proto_register_field_array(proto_jfif, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
+	new_register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
 }
 
 
 void
 proto_reg_handoff_jfif(void)
 {
-	dissector_handle_t jfif_handle;
-
-	jfif_handle = find_dissector(IMG_JFIF);
+	dissector_handle_t jfif_handle = find_dissector(IMG_JFIF);
 
 	/* Register the JPEG media type */
 	dissector_add_string("media_type", "image/jfif", jfif_handle);

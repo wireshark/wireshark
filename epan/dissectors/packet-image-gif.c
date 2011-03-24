@@ -13,21 +13,21 @@
  * Copyright 1998 Gerald Combs
  *
  * Compuserve GIF media decoding functionality provided by Olivier Biot.
- * 
+ *
  * The two GIF specifications are found at several locations, such as W3C:
  * http://www.w3.org/Graphics/GIF/spec-gif87.txt
  * http://www.w3.org/Graphics/GIF/spec-gif89a.txt
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -80,7 +80,6 @@ static const value_string vals_extensions[] = {
 };
 
 enum {
-	GIF_UNKNOWN = 0,
 	GIF_87a = 0x87,
 	GIF_89a = 0x89,
 };
@@ -130,19 +129,6 @@ static gint ett_extension = -1;
 static gint ett_image = -1;
 
 
-/**************** GIF related declarations and definitions ****************/
-
-
-/************************** Function prototypes **************************/
-
-
-static void
-dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void
-proto_register_gif(void);
-
-
 /****************** GIF protocol dissection functions ******************/
 
 /* There are two Compuserve GIF standards: GIF87a and GIF89a. GIF image files
@@ -150,7 +136,7 @@ proto_register_gif(void);
  * string representation of the version: "GIF87a" or "GIF89a".
  */
 
-static void
+static gint
 dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti;
@@ -163,19 +149,24 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	guint8 image_bpp;
 	guint tvb_len = tvb_reported_length(tvb);
 	char *str = tvb_get_ephemeral_string(tvb, 0, 6);
-	guint8 version;
+	guint8 version = 0;
+
+	if (tvb_len < 20)
+		return 0;
 
 	/* Check whether we're processing a GIF object */
+	/* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
 	if (strcmp(str, "GIF87a") == 0) {
 		version = GIF_87a;
 	} else if (strcmp(str, "GIF89a") == 0) {
 		version = GIF_89a;
-	} else if (strncmp(str,"GIF", 3) == 0) {
-		version = GIF_UNKNOWN;
 	} else {
 		/* Not a GIF image! */
-		return;
+		return 0;
 	}
+
+	DISSECTOR_ASSERT(version);
+
 	/* Add summary to INFO column if it is enabled */
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", str);
@@ -191,9 +182,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		gif_tree = proto_item_add_subtree(ti, ett_gif);
 		/* GIF signature */
 		ti = proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, TRUE);
-		if (version == GIF_UNKNOWN) {
-			proto_item_append_text(ti, " <Error: unknown GIF version>");
-		}
 		/* Screen descriptor */
 		proto_tree_add_item(gif_tree, hf_screen_width, tvb, 6, 2, TRUE);
 		proto_tree_add_item(gif_tree, hf_screen_height, tvb, 8, 2, TRUE);
@@ -209,7 +197,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		color_map_present = peek & 0x80;
 		color_resolution = 1 + ((peek & 0x60) >> 4);
 		image_bpp = 1 + (peek & 0x07);
-	
+
 		ti = proto_tree_add_text(gif_tree, tvb, 10, 1,
 				"Global settings:");
 		if (color_map_present)
@@ -374,7 +362,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				color_map_present = peek & 0x80;
 				color_resolution = 1 + ((peek & 0x60) >> 4);
 				image_bpp = 1 + (peek & 0x07);
-	
+
 				ti2 = proto_tree_add_text(subtree, tvb, offset, 1,
 						"Local settings:");
 				if (color_map_present)
@@ -431,23 +419,13 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			}
 		} /* while */
 	}
+	return offset;
 }
 
 static gboolean
 dissect_gif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (tvb_length(tvb) < 20)
-		return FALSE;
-
-	/* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
-	if ((tvb_strneql(tvb, 0, "GIF89a", 6) == 0) ||
-	    (tvb_strneql(tvb, 0, "GIF87a", 6) == 0))
-	{
-		dissect_gif(tvb, pinfo, tree);
-		return TRUE;
-	}
-
-	return FALSE;
+	return dissect_gif(tvb, pinfo, tree) > 0;
 }
 
 
@@ -701,17 +679,14 @@ proto_register_gif(void)
 	proto_register_field_array(proto_gif, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector(IMG_GIF, dissect_gif, proto_gif);
+	new_register_dissector(IMG_GIF, dissect_gif, proto_gif);
 }
 
 
 void
 proto_reg_handoff_gif(void)
 {
-	dissector_handle_t gif_handle;
-
-	gif_handle = find_dissector(IMG_GIF);
-
+	dissector_handle_t gif_handle = find_dissector(IMG_GIF);
 	/* Register the GIF media type */
 	dissector_add_string("media_type", "image/gif", gif_handle);
 	heur_dissector_add("http", dissect_gif_heur, proto_gif);
