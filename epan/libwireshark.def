@@ -13,6 +13,8 @@ abs_time_secs_to_str
 abs_time_to_str
 add_new_data_source
 add_ip_name_from_string
+add_ipv4_name
+add_ipv6_name
 add_itu_tcap_subdissector
 address_to_str_buf
 AdmissionRejectReason_vals      DATA
@@ -500,6 +502,7 @@ geoip_db_name
 geoip_db_num_dbs
 geoip_db_type
 get_addr_name
+get_addrinfo_list
 get_asn1_ctx
 get_basename
 get_ber_identifier
@@ -862,6 +865,7 @@ range_copy
 range_empty
 range_foreach
 ranges_are_equal
+read_hosts_file
 read_keytab_file
 read_keytab_file_from_preferences
 read_prefs

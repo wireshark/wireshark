@@ -10,6 +10,8 @@ S<[ B<-c> E<lt>packets per fileE<gt> ]>
 S<[ B<-C> E<lt>choplenE<gt> ]>
 S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
+S<[ B<-W> E<lt>file format optionE<gt>]>
+S<[ B<-H> E<lt>input hosts file<gt> ]>
 S<[ B<-A> E<lt>start timeE<gt> ]>
 S<[ B<-B> E<lt>stop timeE<gt> ]>
 S<[ B<-h> ]>
@@ -149,6 +151,30 @@ Sets the file format of the output capture file.
 B<Editcap> can write the file in several formats, B<editcap -F> 
 provides a list of the available output formats. The default
 is the B<libpcap> format.
+
+=item -W  E<lt>file format optionE<gt>
+
+Save extra information in the file if the format supports it. For
+example,
+
+  -F pcapng -W n
+
+will save host name resolution records along with captured packets.
+
+Future versions of Wireshark may automatically change the capture format to
+B<pcapng> as needed.
+
+The argument is a string that may contain the following letter:
+
+B<n> write network address resolution information (pcapng only)
+
+=item -H  E<lt>input "hosts" fileE<gt>
+
+Read a list of address to host name mappings and include the result in
+the output file. Implies B<-W n>.
+
+The input file format is described at
+L<http://en.wikipedia.org/wiki/Hosts_%28file%29>.
 
 =item -A  E<lt>start timeE<gt>
 

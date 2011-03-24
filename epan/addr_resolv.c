@@ -149,6 +149,11 @@
 
 #define HASH_IPV4_ADDRESS(addr) (g_htonl(addr) & (HASHHOSTSIZE - 1))
 
+/*
+ * XXX Some of this is duplicated in addrinfo_list. We may want to replace the
+ * addr and name parts with a struct addrinfo or create our own addrinfo-like
+ * struct that simply points to the data below.
+ */
 typedef struct hashipv4 {
   guint             addr;
   gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
@@ -271,6 +276,9 @@ static gboolean eth_resolution_initialized = FALSE;
 static int      ipxnet_resolution_initialized = 0;
 static int      service_resolution_initialized = 0;
 static gboolean new_resolved_objects = FALSE;
+
+static struct addrinfo *addrinfo_list = NULL; /* IPv4 and IPv6 */
+static struct addrinfo *addrinfo_list_last = NULL;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port);
@@ -2015,7 +2023,7 @@ ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 } /* ipxnet_addr_lookup */
 
-static gboolean
+gboolean
 read_hosts_file (const char *hostspath)
 {
   FILE *hf;
@@ -2065,6 +2073,7 @@ read_hosts_file (const char *hostspath)
 
     /*
      * Add the aliases, too, if there are any.
+     * XXX - host_lookup() only returns the first entry.
      */
     while ((cp = strtok(NULL, " \t")) != NULL) {
       if (is_ipv6) {
@@ -2112,6 +2121,10 @@ add_ip_name_from_string (const char *addr, const char *name)
   return TRUE;
 } /* add_ip_name_from_string */
 
+struct addrinfo *
+get_addrinfo_list(void) {
+  return addrinfo_list;
+}
 
 /* Read in a list of subnet definition - name pairs.
  * <line> = <comment> | <entry> | <whitespace>
@@ -2359,6 +2372,7 @@ subnet_name_lookup_init(void)
   g_free(subnetspath);
 }
 
+
 /*
  *  External Functions
  */
@@ -2366,6 +2380,7 @@ subnet_name_lookup_init(void)
 void
 host_name_lookup_init(void) {
   char *hostspath;
+  struct addrinfo *ai;
 
 #ifdef HAVE_GNU_ADNS
 #ifdef _WIN32
@@ -2374,6 +2389,11 @@ host_name_lookup_init(void) {
   static char rootpath_ot[] = "\\hosts";
 #endif /* _WIN32 */
 #endif /*GNU_ADNS */
+
+  if (!addrinfo_list) {
+    ai = g_malloc0(sizeof(struct addrinfo));
+    addrinfo_list = addrinfo_list_last = ai;
+  }
 
   /*
    * Load the user's hosts file, if they have one.
@@ -2392,7 +2412,7 @@ host_name_lookup_init(void) {
     report_open_failure(hostspath, errno, FALSE);
   }
   g_free(hostspath);
-
+  
 #ifdef HAVE_C_ARES
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
   if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
@@ -2646,6 +2666,8 @@ add_ipv4_name(const guint addr, const gchar *name)
 {
   int hash_idx;
   hashipv4_t *tp;
+  struct addrinfo *ai;
+  struct sockaddr_in *sa4;
 
   hash_idx = HASH_IPV4_ADDRESS(addr);
 
@@ -2675,6 +2697,25 @@ add_ipv4_name(const guint addr, const gchar *name)
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->resolve = TRUE;
   new_resolved_objects = TRUE;
+
+  if (!addrinfo_list) {
+    ai = g_malloc0(sizeof(struct addrinfo));
+    addrinfo_list = addrinfo_list_last = ai;
+  }
+ 
+  sa4 = g_malloc0(sizeof(struct sockaddr_in));
+  sa4->sin_family = AF_INET;
+  sa4->sin_addr.s_addr = addr;
+
+  ai = g_malloc0(sizeof(struct addrinfo));
+  ai->ai_family = AF_INET;
+  ai->ai_addrlen = sizeof(struct sockaddr_in);
+  ai->ai_canonname = (char *) tp->name;
+  ai->ai_addr = (struct sockaddr*) sa4;
+  
+  addrinfo_list_last->ai_next = ai;
+  addrinfo_list_last = ai;
+
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2683,6 +2724,8 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 {
   int hash_idx;
   hashipv6_t *tp;
+  struct addrinfo *ai;
+  struct sockaddr_in6 *sa6;
 
   hash_idx = HASH_IPV6_ADDRESS(*addrp);
 
@@ -2709,10 +2752,27 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
       tp = tp->next;
     }
   }
-
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->resolve = TRUE;
   new_resolved_objects = TRUE;
+
+  if (!addrinfo_list) {
+    ai = g_malloc0(sizeof(struct addrinfo));
+    addrinfo_list = addrinfo_list_last = ai;
+  }
+
+  sa6 = g_malloc0(sizeof(struct sockaddr_in6));
+  sa6->sin6_family = AF_INET;
+  memcpy(sa6->sin6_addr.s6_addr, addrp, 16);
+
+  ai = g_malloc0(sizeof(struct addrinfo));
+  ai->ai_family = AF_INET6;
+  ai->ai_addrlen = sizeof(struct sockaddr_in);
+  ai->ai_canonname = (char *) tp->name;
+  ai->ai_addr = (struct sockaddr *) sa6;
+
+  addrinfo_list_last->ai_next = ai;
+  addrinfo_list_last = ai;
 
 } /* add_ipv6_name */
 

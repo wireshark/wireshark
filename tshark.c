@@ -166,7 +166,7 @@ static void report_counts_siginfo(int);
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-static int load_cap_file(capture_file *, char *, int, int, gint64);
+static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet(capture_file *cf, gint64 offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
     const guchar *pd, gboolean filtering_tap_listeners, guint tap_flags);
@@ -819,6 +819,7 @@ main(int argc, char *argv[])
 #endif
   gboolean             quiet = FALSE;
   int                  out_file_type = WTAP_FILE_PCAP;
+  gboolean             out_file_name_res = FALSE;
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
   struct bpf_program   fcode;
@@ -845,7 +846,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hi:" OPTSTRING_I "K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:pPqr:R:s:St:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1159,6 +1160,20 @@ main(int argc, char *argv[])
           return 1;
         }
         break;
+      case 'W':        /* Select extra information to save in our capture file */
+        /* This is patterned after the -N flag which may not be the best idea. */
+        if (strchr(optarg, 'n'))
+            out_file_name_res = TRUE;
+        break;
+      case 'H':        /* Read address to name mappings from a hosts file */
+        if (! read_hosts_file(optarg))
+        {
+          cmdarg_err("Can't read host entries from \"%s\"", optarg);
+          return 1;
+        }
+        out_file_name_res = TRUE;
+        break;
+
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
         return 0;
@@ -1694,11 +1709,11 @@ main(int argc, char *argv[])
 
     /* Process the packets in the file */
 #ifdef HAVE_LIBPCAP
-    err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type,
+    err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
         global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
         global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-    err = load_cap_file(&cfile, NULL, out_file_type, 0, 0);
+    err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0);
 #endif
     if (err != 0) {
       /* We still dump out the results of taps, etc., as we might have
@@ -2548,7 +2563,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
 
 static int
 load_cap_file(capture_file *cf, char *save_file, int out_file_type,
-    int max_packet_count, gint64 max_byte_count)
+    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
   gint         linktype;
   int          snapshot_length;
@@ -2614,6 +2629,13 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
     }
     pdh = NULL;
+  }
+
+  if (pdh && out_file_name_res) {
+    if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
+      cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
+                 wtap_file_type_short_string(out_file_type));
+    }
   }
 
   /* Do we have any tap listeners with filters? */
@@ -3340,6 +3362,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   nstime_set_unset(&prev_cap_ts);
 
   cf->state = FILE_READ_IN_PROGRESS;
+
+  wtap_set_cb_new_ipv4(cf->wth, add_ipv4_name);
+  wtap_set_cb_new_ipv6(cf->wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
 
   return CF_OK;
 

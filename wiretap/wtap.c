@@ -40,7 +40,6 @@
 #endif
 
 #include "wtap-int.h"
-#include "wtap.h"
 
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
@@ -669,6 +668,16 @@ wtap_cleareof(wtap *wth _U_) {
 		gzclearerr(wth->fh);
 #endif
 #endif
+}
+
+void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4) {
+	if (wth)
+		wth->add_new_ipv4 = add_new_ipv4;
+}
+
+void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
+	if (wth)
+		wth->add_new_ipv6 = add_new_ipv6;
 }
 
 gboolean

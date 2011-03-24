@@ -18,6 +18,7 @@ S<[ B<-E> E<lt>field print optionE<gt> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
+S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-I> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
@@ -37,6 +38,7 @@ S<[ B<-T> pdml|psml|ps|text|fields ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
+S<[ B<-W> E<lt>file format optionE<gt>]>
 S<[ B<-x> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt>]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
@@ -398,6 +400,14 @@ B<currentprefs>  Dumps a copy of the current preferences file to stdout.
 
 Print the version and options and exits.
 
+=item -H  E<lt>input hosts fileE<gt>
+
+Read a list of entries from a "hosts" file, which will then be written
+to a capture file. Implies B<-W n>.
+
+The "hosts" file format is documented at
+L<http://en.wikipedia.org/wiki/Hosts_(file)>.
+
 =item -i  E<lt>capture interfaceE<gt> | -
 
 Set the name of the network interface or pipe to use for live packet
@@ -616,6 +626,22 @@ I<outfile> is '-'.
 NOTE: -w provides raw packet data, not text. If you want text output
 you need to redirect stdout (e.g. using '>'), don't use the B<-w>
 option for this.
+
+=item -W  E<lt>file format optionE<gt>
+
+Save extra information in the file if the format supports it. For
+example,
+
+  -F pcapng -W n
+
+will save host name resolution records along with captured packets.
+
+Future versions of Wireshark may automatically change the capture format to
+B<pcapng> as needed.
+
+The argument is a string that may contain the following letter:
+
+B<n> write network address resolution information (pcapng only)
 
 =item -x
 

@@ -176,8 +176,39 @@ extern void add_ipv4_name(const guint addr, const gchar *name);
 /* adds a hostname/IPv6 in the hash table */
 extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
 
+/* read a "hosts" file and add its entries to the IPv4 & IPv6 hash tables */
+extern gboolean read_hosts_file (const char *hostspath);
+
 /* adds a hostname in the hash table */
 extern gboolean add_ip_name_from_string (const char *addr, const char *name);
+
+/** Get a list of host name to address mappings we know about.
+ * 
+ * Each list element is an addrinfo struct with the following fields defined:
+ *   - ai_family: 0, AF_INET or AF_INET6
+ *   - ai_addrlen: Length of ai_addr
+ *   - ai_canonname: Host name or NULL
+ *   - ai_addr: Pointer to a struct sockaddr or NULL (see below)
+ *   - ai_next: Next element or NULL
+ * All other fields are zero-filled.
+ *
+ * If ai_family is 0, this is a dummy entry which should only appear at the beginning of the list.
+ *
+ * If ai_family is AF_INET, ai_addr points to a struct sockaddr_in with the following fields defined:
+ *   - sin_family: AF_INET
+ *   - sin_addr: Host IPv4 address
+ * All other fields are zero-filled.
+ *
+ * If ai_family is AF_INET6, ai_addr points to a struct sockaddr_in6 with the following fields defined:
+ *   - sin6_family: AF_INET6
+ *   - sin6_addr: Host IPv6 address
+ * All other fields are zero-filled.
+ *
+ * The list and its elements MUST NOT be modified or freed.
+ * 
+ * @return The first element in our list of known addresses. May be NULL.
+ */
+extern struct addrinfo *get_addrinfo_list(void);
 
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(const guint ip, const guint8 *eth);

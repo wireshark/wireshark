@@ -73,6 +73,7 @@
 #include <epan/dfilter/dfilter-macro.h>
 #include <wsutil/file_util.h>
 #include <epan/strutil.h>
+#include <epan/addr_resolv.h>
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -358,6 +359,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     /* tell the BER dissector the file name */
     ber_set_filename(cf->filename);
   }
+
+  wtap_set_cb_new_ipv4(cf->wth, add_ipv4_name);
+  wtap_set_cb_new_ipv6(cf->wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
 
   return CF_OK;
 

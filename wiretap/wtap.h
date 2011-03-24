@@ -822,6 +822,7 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
+/* XXX Should this be moved to wtap-int.h? It appears to be internal to wtap.c. */
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
@@ -842,8 +843,12 @@ struct file_type_info {
     /* can this type be compressed with gzip? */
     gboolean can_compress;
 
+    /* does this type support name resolution records? */
+    /* should be NULL is this file type doesn't have write support */
+    gboolean has_name_resolution;
+
     /* can this type write this encapsulation format? */
-    /* should be NULL is this file type don't have write support */
+    /* should be NULL is this file type doesn't have write support */
     int (*can_write_encap)(int);
 
     /* the function to open the capture file for writing */
@@ -871,6 +876,16 @@ struct wtap* wtap_open_offline(const char *filename, int *err,
  * we're tailing a file.
  */
 void wtap_cleareof(wtap *wth);
+
+/*
+ * Set callback functions to add new hostnames. Currently pcapng-only.
+ * MUST match add_ipv4_name and add_ipv6_name in addr_resolv.c.
+ */
+typedef void (*wtap_new_ipv4_callback_t) (const guint addr, const gchar *name);
+void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
+
+typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
+void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set to the offset in the file where the data for the read packet is
@@ -915,6 +930,8 @@ gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 void wtap_dump_flush(wtap_dumper *);
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
+struct addrinfo;
+gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 
 /*** various string converter functions ***/

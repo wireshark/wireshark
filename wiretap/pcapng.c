@@ -36,6 +36,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+/* Needed for addrinfo */
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+# include <netdb.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+#endif
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -124,6 +146,13 @@ typedef struct pcapng_simple_packet_block_s {
 	/* ... Packet Data ... */
 	/* ... Padding ... */
 } pcapng_simple_packet_block_t;
+
+/* pcapng: simple packet block */
+typedef struct pcapng_name_resolution_block_s {
+	guint16 record_type;
+	guint16 record_len;
+	/* ... Record ... */
+} pcapng_name_resolution_block_t;
 
 /* pcapng: interface statistics block */
 typedef struct pcapng_interface_statistics_block_s {
@@ -281,6 +310,8 @@ typedef struct {
 	gint8 if_fcslen;
 	GArray *interface_data;
 	guint number_of_interfaces;
+	wtap_new_ipv4_callback_t add_new_ipv4;
+	wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
 
 static int
@@ -1052,6 +1083,116 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	return block_read;
 }
 
+#define NRES_ENDOFRECORD 0
+#define NRES_IP4RECORD 1
+#define NRES_IP6RECORD 2
+#define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
+/* IPv6 + MAXNAMELEN */
+#define MAX_NRB_REC_SIZE (16 + 64)
+static int
+pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock _U_,int *err, gchar **err_info _U_)
+{
+	int bytes_read = 0;
+	int block_read = 0;
+	int to_read;
+	guint64 file_offset64;
+	pcapng_name_resolution_block_t nrb;
+	guchar nrb_rec[MAX_NRB_REC_SIZE];
+	guint32 v4_addr;
+
+	errno = WTAP_ERR_CANT_READ;
+	to_read = bh->block_total_length
+		- sizeof(pcapng_block_header_t)
+		- sizeof(bh->block_total_length);
+
+	while (block_read < to_read) {
+		bytes_read = file_read(&nrb, 1, sizeof nrb, fh);
+		if (bytes_read != sizeof nrb) {
+			pcapng_debug0("pcapng_read_name_resolution_block: failed to read record header");
+			*err = file_error(fh);
+			return 0;
+		}
+		block_read += bytes_read;
+
+		if (pn->byte_swapped) {
+			nrb.record_type = BSWAP32(nrb.record_type);
+			nrb.record_len  = BSWAP32(nrb.record_len);
+		}
+
+		switch(nrb.record_type) {
+			case NRES_ENDOFRECORD:
+				/* There shouldn't be any more data */
+				to_read = 0;
+				break;
+			case NRES_IP4RECORD:
+				if (nrb.record_len < 6 || nrb.record_len > MAX_NRB_REC_SIZE || to_read < nrb.record_len) {
+					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv4 record");
+					return 0;
+				}
+				bytes_read = file_read(nrb_rec, 1, nrb.record_len, fh);
+				if (bytes_read != nrb.record_len) {
+					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv4 record data");
+					*err = file_error(fh);
+					return 0;
+				}
+				block_read += bytes_read;
+
+				if (pn->add_new_ipv4) {
+					memcpy(&v4_addr, nrb_rec, 4);
+					if (pn->byte_swapped)
+						v4_addr = BSWAP32(v4_addr);
+					pn->add_new_ipv4(v4_addr, nrb_rec + 4);
+				}
+
+				file_offset64 = file_seek(fh, PADDING4(nrb.record_len), SEEK_CUR, err);
+				if (file_offset64 <= 0) {
+					if (*err != 0)
+						return -1;
+					return 0;
+				}
+				block_read += PADDING4(nrb.record_len);
+				break;
+			case NRES_IP6RECORD:
+				if (nrb.record_len < 18 || nrb.record_len > MAX_NRB_REC_SIZE || to_read < nrb.record_len) {
+					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv6 record");
+					return 0;
+				}
+				bytes_read = file_read(nrb_rec, 1, nrb.record_len, fh);
+				if (bytes_read != nrb.record_len) {
+					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv6 record data");
+					*err = file_error(fh);
+					return 0;
+				}
+				block_read += bytes_read;
+
+				if (pn->add_new_ipv6) {
+					pn->add_new_ipv6(nrb_rec, nrb_rec + 16);
+				}
+
+				file_offset64 = file_seek(fh, PADDING4(nrb.record_len), SEEK_CUR, err);
+				if (file_offset64 <= 0) {
+					if (*err != 0)
+						return -1;
+					return 0;
+				}
+				block_read += PADDING4(nrb.record_len);
+				break;
+			default:
+				pcapng_debug1("pcapng_read_name_resolution_block: unknown record type 0x%x", nrb.record_type);
+				file_offset64 = file_seek(fh, nrb.record_len + PADDING4(nrb.record_len), SEEK_CUR, err);
+				if (file_offset64 <= 0) {
+					if (*err != 0)
+						return -1;
+					return 0;
+				}
+				block_read += nrb.record_len + PADDING4(nrb.record_len);
+				break;
+		}
+	}
+
+	return block_read;
+}
+
 static int
 pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
@@ -1248,6 +1389,9 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 		case(BLOCK_TYPE_EPB):
 			bytes_read = pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info, TRUE);
 			break;
+		case(BLOCK_TYPE_NRB):
+			bytes_read = pcapng_read_name_resolution_block(fh, &bh, pn, wblock, err, err_info);
+			break;
 		case(BLOCK_TYPE_ISB):
 			bytes_read = pcapng_read_interface_statistics_block(fh, &bh, pn, wblock, err, err_info);
 			break;
@@ -1375,6 +1519,9 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wblock.packet_header = &wth->phdr;
 	wblock.file_encap    = &wth->file_encap;
 
+	pcapng->add_new_ipv4 = wth->add_new_ipv4;
+	pcapng->add_new_ipv6 = wth->add_new_ipv6;
+
 	/* read next block */
 	while (1) {
 		bytes_read = pcapng_read_block(wth->fh, FALSE, pcapng, &wblock, err, err_info);
@@ -1486,6 +1633,7 @@ pcapng_close(wtap *wth)
 typedef struct {
 	GArray *interface_data;
 	guint number_of_interfaces;
+	struct addrinfo *addrinfo_list_last;
 } pcapng_dump_t;
 
 static gboolean
@@ -1638,6 +1786,97 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	return TRUE;
 }
 
+/* Arbitrary. */
+#define NRES_REC_MAX_SIZE ((WTAP_MAX_PACKET_SIZE * 4) + 16)
+static gboolean
+pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int *err)
+{
+	pcapng_block_header_t bh;
+	pcapng_name_resolution_block_t nrb;
+	struct addrinfo *ai;
+	struct sockaddr_in *sa4;
+	struct sockaddr_in6 *sa6;
+	guchar *rec_data;
+	gint rec_off, namelen, tot_rec_len;
+
+	if (! pcapng->addrinfo_list_last || ! pcapng->addrinfo_list_last->ai_next) {
+		return TRUE;
+	}
+
+	rec_off = 8; /* block type + block total length */
+	bh.block_type = BLOCK_TYPE_NRB;
+	bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
+	rec_data = g_malloc(NRES_REC_MAX_SIZE);
+	
+	for (; pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next; pcapng->addrinfo_list_last = pcapng->addrinfo_list_last->ai_next ) {
+		ai = pcapng->addrinfo_list_last->ai_next; /* Skips over the first (dummy) entry */
+		namelen = strlen(ai->ai_canonname) + 1;
+		if (ai->ai_family == AF_INET) {
+			nrb.record_type = NRES_IP4RECORD;
+			nrb.record_len = 4 + namelen;
+			tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
+			bh.block_total_length += tot_rec_len;
+
+			if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
+				break;
+
+			sa4 = (struct sockaddr_in *) ai->ai_addr;
+			memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
+			rec_off += 4;
+
+			memcpy(rec_data + rec_off, &(sa4->sin_addr.s_addr), 4);
+			rec_off += 4;
+
+			memcpy(rec_data + rec_off, ai->ai_canonname, namelen);
+			rec_off += namelen;
+
+			memset(rec_data + rec_off, 0, PADDING4(namelen));
+			rec_off += PADDING4(namelen);
+			pcapng_debug1("NRB: added IPv4 record for %s", ai->ai_canonname);
+		} else if (ai->ai_family == AF_INET6) {
+			nrb.record_type = NRES_IP6RECORD;
+			nrb.record_len = 16 + namelen;
+			tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
+			bh.block_total_length += tot_rec_len;
+
+			if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
+				break;
+
+			sa6 = (struct sockaddr_in6 *) ai->ai_addr;
+			memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
+			rec_off += 4;
+
+			memcpy(rec_data + rec_off, sa6->sin6_addr.s6_addr, 16);
+			rec_off += 16;
+
+			memcpy(rec_data + rec_off, ai->ai_canonname, namelen);
+			rec_off += namelen;
+
+			memset(rec_data + rec_off, 0, PADDING4(namelen));
+			rec_off += PADDING4(namelen);
+			pcapng_debug1("NRB: added IPv6 record for %s", ai->ai_canonname);
+		}
+	}
+
+	/* We know the total length now; copy the block header. */
+	memcpy(rec_data, &bh, sizeof(bh));
+
+	/* End of record */
+	memset(rec_data + rec_off, 0, 4);
+	rec_off += 4;
+
+	memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
+
+	if (!wtap_dump_file_write(wdh, rec_data, bh.block_total_length, err)) {
+		g_free(rec_data);
+		return FALSE;
+	}
+
+	g_free(rec_data);
+	wdh->bytes_dumped += bh.block_total_length;
+	return TRUE;
+}
+
 
 static gboolean
 pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, int *err)
@@ -1691,6 +1930,9 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	              phdr->pkt_encap,
 	              wtap_encap_string(phdr->pkt_encap));
 
+	if (!pcapng->addrinfo_list_last) 
+		pcapng->addrinfo_list_last = wdh->addrinfo_list;
+
 	interface_id = pcapng_lookup_interface_id_by_encap(phdr->pkt_encap, wdh);
 	if (interface_id == G_MAXUINT32) {
 		/* write the interface description block */
@@ -1722,6 +1964,11 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 		              interface_id,
 		              phdr->pkt_encap,
 		              wtap_encap_string(phdr->pkt_encap));
+	}
+
+	/* Flush any hostname resolution info we may have */
+	while (pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next) {
+		pcapng_write_name_resolution_block(wdh, pcapng, err);
 	}
 
 	wblock.frame_buffer  = pd;
@@ -1786,10 +2033,9 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
 	wdh->subtype_close = pcapng_dump_close;
-	pcapng = (pcapng_dump_t *)g_malloc(sizeof(pcapng_dump_t));
+	pcapng = (pcapng_dump_t *)g_malloc0(sizeof(pcapng_dump_t));
 	wdh->priv = (void *)pcapng;
 	pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
-	pcapng->number_of_interfaces = 0;
 
 	/* write the section header block */
 	wblock.type = BLOCK_TYPE_SHB;

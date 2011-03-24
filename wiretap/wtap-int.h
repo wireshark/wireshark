@@ -71,6 +71,8 @@ struct wtap {
 						   types */
 	int			tsprecision;	/* timestamp precision of the lower 32bits
 						 * e.g. WTAP_FILE_TSPREC_USEC */
+	wtap_new_ipv4_callback_t add_new_ipv4;
+	wtap_new_ipv6_callback_t add_new_ipv6;
 };
 
 struct wtap_dumper;
@@ -85,8 +87,8 @@ struct wtap_dumper {
 	int			file_type;
 	int			snaplen;
 	int			encap;
-	gboolean	compressed;
-	gint64		bytes_dumped;
+	gboolean		compressed;
+	gint64			bytes_dumped;
 
 	void			*priv;
 
@@ -95,10 +97,14 @@ struct wtap_dumper {
 
 	int			tsprecision;	/* timestamp precision of the lower 32bits
 							 * e.g. WTAP_FILE_TSPREC_USEC */
+	struct addrinfo *addrinfo_list;
 };
 
 extern gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
     size_t bufsize, int *err);
+extern gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
+extern gint64 wtap_dump_file_tell(wtap_dumper *wdh);
+
 
 extern gint wtap_num_file_types;
 
@@ -327,3 +333,16 @@ extern gint wtap_num_file_types;
 #endif
 
 #endif /* __WTAP_INT_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

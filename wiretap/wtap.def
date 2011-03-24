@@ -30,6 +30,7 @@ wtap_dump_close
 wtap_dump_fdopen
 wtap_dump_flush
 wtap_dump_open
+wtap_dump_set_addrinfo_list
 wtap_encap_short_string
 wtap_encap_string
 wtap_file_encap
@@ -55,6 +56,8 @@ wtap_register_open_routine
 wtap_seek_read
 wtap_sequential_close
 wtap_set_bytes_dumped
+wtap_set_cb_new_ipv4
+wtap_set_cb_new_ipv6
 wtap_short_string_to_encap
 wtap_short_string_to_file_type
 wtap_snapshot_length
