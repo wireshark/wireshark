@@ -82,15 +82,15 @@
 #define EXT_TLV_TTP_IFL_ENCAPS    8
 
 static const value_string ext_tlv_vals[] = {
-  { EXT_TLV_IFD_IDX, "Device Interface Index" },
-  { EXT_TLV_IFD_NAME,	"Device Interface Name" },
-  { EXT_TLV_IFD_MEDIATYPE, "Device Media Type" },
-  { EXT_TLV_IFL_IDX, "Logical Interface Index" },
-  { EXT_TLV_IFL_UNIT,	"Logical Unit Number" },
-  { EXT_TLV_IFL_ENCAPS, "Logical Interface Encapsulation" },
+  { EXT_TLV_IFD_IDX,           "Device Interface Index" },
+  { EXT_TLV_IFD_NAME,          "Device Interface Name" },
+  { EXT_TLV_IFD_MEDIATYPE,     "Device Media Type" },
+  { EXT_TLV_IFL_IDX,           "Logical Interface Index" },
+  { EXT_TLV_IFL_UNIT,          "Logical Unit Number" },
+  { EXT_TLV_IFL_ENCAPS,        "Logical Interface Encapsulation" },
   { EXT_TLV_TTP_IFD_MEDIATYPE, "TTP derived Device Media Type" },
-  { EXT_TLV_TTP_IFL_ENCAPS, "TTP derived Logical Interface Encapsulation" },
-  { 0,		   NULL }
+  { EXT_TLV_TTP_IFL_ENCAPS,    "TTP derived Logical Interface Encapsulation" },
+  { 0,             NULL }
 };
 
 static const value_string juniper_direction_vals[] = {
@@ -454,7 +454,7 @@ static proto_tree *juniper_subtree = NULL;
 /* return a TLV value based on TLV length and TLV type (host/network order) */
 static int
 juniper_ext_get_tlv_value(tvbuff_t *tvb, guint tlv_type, guint tlv_len, guint offset) {
-   
+
   int tlv_value;
 
   if (tlv_type < 128) {
@@ -462,7 +462,7 @@ juniper_ext_get_tlv_value(tvbuff_t *tvb, guint tlv_type, guint tlv_len, guint of
     switch (tlv_len) {
     case 1:
       tlv_value = tvb_get_guint8(tvb, offset);
-      break; 
+      break;
     case 2:
       tlv_value = tvb_get_letohs(tvb, offset);
       break;
@@ -481,7 +481,7 @@ juniper_ext_get_tlv_value(tvbuff_t *tvb, guint tlv_type, guint tlv_len, guint of
     switch (tlv_len) {
     case 1:
       tlv_value = tvb_get_guint8(tvb, offset);
-      break; 
+      break;
     case 2:
       tlv_value = tvb_get_ntohs(tvb, offset);
       break;
@@ -508,7 +508,6 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
   guint16    ext_total_len,ext_offset=6,hdr_len;
   guint32    magic_number,ext_val;
 
-  tvbuff_t   *next_tvb;
   proto_tree *juniper_ext_subtree = NULL, *juniper_ext_subtree_item = NULL;
 
   magic_number = tvb_get_ntoh24(tvb, 0);
@@ -516,26 +515,26 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
   direction = *flags & JUNIPER_FLAG_PKT_IN;
   l2hdr_presence = *flags & JUNIPER_FLAG_NO_L2;
 
-  juniper_subtree = proto_item_add_subtree(ti, ett_juniper);          
+  juniper_subtree = proto_item_add_subtree(ti, ett_juniper);
 
   /* be liberal with magic-number detection -
    * some older JUNOS releases (e.g. 6.4),
    * which are still in the field do not generate magic-numbers */
   if (magic_number != JUNIPER_PCAP_MAGIC) {
-    tisub = proto_tree_add_text (juniper_subtree, tvb, 0, 0, "no Magic-Number found !");
+    proto_tree_add_text (juniper_subtree, tvb, 0, 0, "no Magic-Number found !");
     return 0;
   }
 
-  tisub = proto_tree_add_text (juniper_subtree, tvb, 0, 3,
-                            "Magic-Number: 0x%06x", magic_number);
-      
-  tisub = proto_tree_add_uint_format (juniper_subtree, hf_juniper_direction, tvb, 3, 1,
-                            direction, "Direction: %s",
-                            val_to_str(direction,juniper_direction_vals,"Unknown"));
-  
-  tisub = proto_tree_add_uint_format (juniper_subtree, hf_juniper_l2hdr_presence, tvb, 3, 1,
-                            l2hdr_presence, "L2-header: %s",
-                            val_to_str(l2hdr_presence,juniper_l2hdr_presence_vals,"Unknown"));
+  proto_tree_add_text (juniper_subtree, tvb, 0, 3,
+                       "Magic-Number: 0x%06x", magic_number);
+
+  proto_tree_add_uint_format (juniper_subtree, hf_juniper_direction, tvb, 3, 1,
+                              direction, "Direction: %s",
+                              val_to_str(direction,juniper_direction_vals,"Unknown"));
+
+  proto_tree_add_uint_format (juniper_subtree, hf_juniper_l2hdr_presence, tvb, 3, 1,
+                              l2hdr_presence, "L2-header: %s",
+                              val_to_str(l2hdr_presence,juniper_l2hdr_presence_vals,"Unknown"));
 
   /* calculate hdr_len before cookie, payload */
 
@@ -545,7 +544,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     hdr_len = 6 + ext_total_len; /* MGC,flags,ext_total_len */
 
     tisub = proto_tree_add_uint (juniper_subtree, hf_juniper_ext_total_len, tvb, 4, 2, ext_total_len);
-    juniper_ext_subtree = proto_item_add_subtree(tisub, ett_juniper);          
+    juniper_ext_subtree = proto_item_add_subtree(tisub, ett_juniper);
 
     while (ext_total_len > EXT_TLV_HEADER_SIZE) {
       ext_type = tvb_get_guint8(tvb, ext_offset);
@@ -565,38 +564,38 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
       switch (ext_type) {
       case EXT_TLV_IFD_MEDIATYPE:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifmt,
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifmt,
                                     tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
       case EXT_TLV_TTP_IFD_MEDIATYPE:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifmt,
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifmt,
                                     tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
       case EXT_TLV_IFL_ENCAPS:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifle,
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifle,
                                     tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
       case EXT_TLV_TTP_IFL_ENCAPS:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifle,
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ttp_ifle,
                                     tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
 
       case EXT_TLV_IFL_IDX:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifl,
-                                    tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifl,
+                            tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
 
       case EXT_TLV_IFL_UNIT:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_unit,
-                                    tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_unit,
+                            tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
       case EXT_TLV_IFD_IDX:
-        tisub = proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifd,
-                                    tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
+        proto_tree_add_uint(juniper_ext_subtree_item, hf_juniper_ext_ifd,
+                            tvb, ext_offset+EXT_TLV_HEADER_SIZE, ext_len, ext_val);
         break;
       case EXT_TLV_IFD_NAME: /* FIXME print ifname string - lets fall-through for now */
       default:
-        proto_item_append_text(tisub, "Unknown");              
+        proto_item_append_text(tisub, "Unknown");
         break;
       }
 
@@ -609,7 +608,6 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
   if ((*flags & JUNIPER_FLAG_NO_L2) == JUNIPER_FLAG_NO_L2) { /* no link header present ? */
     proto = tvb_get_letohl(tvb,hdr_len); /* proto is stored in host-order */
-    next_tvb = tvb_new_subset_remaining(tvb, hdr_len + 4);
     dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, hdr_len + 4);
     return -1;
   }
@@ -625,13 +623,13 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 
   tvbuff_t   *next_tvb;
-  guint8     nlpid; 
+  guint8     nlpid;
 
-  ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Payload Type: %s]",
-                            val_to_str(proto,juniper_proto_vals,"Unknown"));
+  proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Payload Type: %s]",
+                       val_to_str(proto,juniper_proto_vals,"Unknown"));
 
-  next_tvb = tvb_new_subset_remaining(tvb, offset);  
-  
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+
   switch (proto) {
   case PROTO_IP:
   case PROTO_MPLS_IP:
@@ -639,7 +637,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     break;
   case PROTO_IP6:
   case PROTO_MPLS_IP6:
-    call_dissector(ipv6_handle, next_tvb, pinfo, tree);  
+    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     break;
   case PROTO_MPLS:
   case PROTO_IP_MPLS:
@@ -678,7 +676,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     break;
   case PROTO_OAM: /* FIXME call OAM disector without leading HEC byte */
   default:
-    call_dissector(data_handle, next_tvb, pinfo, tree);  
+    call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }
 
@@ -718,12 +716,12 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   cookie_len = juniper_svc_cookie_len(aspic_cookie);
 
   if (cookie_len == AS_PIC_COOKIE_LEN)
-    ti = proto_tree_add_uint64(juniper_subtree, hf_juniper_aspic_cookie,
-                               tvb, offset, AS_PIC_COOKIE_LEN, aspic_cookie);
+    proto_tree_add_uint64(juniper_subtree, hf_juniper_aspic_cookie,
+                          tvb, offset, AS_PIC_COOKIE_LEN, aspic_cookie);
   if (cookie_len == LS_PIC_COOKIE_LEN) {
     lspic_cookie = tvb_get_ntohl(tvb,offset);
-    ti = proto_tree_add_uint(juniper_subtree, hf_juniper_lspic_cookie,
-                             tvb, offset, LS_PIC_COOKIE_LEN, lspic_cookie);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_lspic_cookie,
+                        tvb, offset, LS_PIC_COOKIE_LEN, lspic_cookie);
   }
 
   offset += cookie_len;
@@ -752,11 +750,11 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* child link of an LS-PIC bundle ? */
-  if (cookie_len == 0 && tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == 
+  if (cookie_len == 0 && tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) ==
       (JUNIPER_HDR_LLC_UI<<8 | NLPID_Q_933)) {
     cookie_len = ML_PIC_COOKIE_LEN;
-    ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
-                             tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                        tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
     offset += 3;
     proto = PROTO_Q933;
   }
@@ -766,8 +764,8 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == JUNIPER_HDR_LLC_UI ||
         tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == (JUNIPER_HDR_LLC_UI<<8)) {
       cookie_len = ML_PIC_COOKIE_LEN;
-      ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
-                               tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+      proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                          tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
       offset += 4;
       proto = PROTO_ISO;
     }
@@ -776,15 +774,15 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* ML-PIC bundle ? */
   if (cookie_len == 0 && tvb_get_guint8(tvb,offset+ML_PIC_COOKIE_LEN) == JUNIPER_HDR_LLC_UI) {
     cookie_len = ML_PIC_COOKIE_LEN;
-    ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
-                             tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                        tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
     offset += 3;
     proto = PROTO_ISO;
   }
 
   ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Cookie length: %u]",cookie_len);
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);
-      
+
 }
 
 
@@ -822,12 +820,12 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   cookie_len = juniper_svc_cookie_len(aspic_cookie);
 
   if (cookie_len == AS_PIC_COOKIE_LEN)
-    ti = proto_tree_add_uint64(juniper_subtree, hf_juniper_aspic_cookie,
-                               tvb, offset, AS_PIC_COOKIE_LEN, aspic_cookie);
+    proto_tree_add_uint64(juniper_subtree, hf_juniper_aspic_cookie,
+                          tvb, offset, AS_PIC_COOKIE_LEN, aspic_cookie);
   if (cookie_len == LS_PIC_COOKIE_LEN) {
     lspic_cookie = tvb_get_ntohl(tvb,offset);
-    ti = proto_tree_add_uint(juniper_subtree, hf_juniper_lspic_cookie,
-                             tvb, offset, LS_PIC_COOKIE_LEN, lspic_cookie);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_lspic_cookie,
+                        tvb, offset, LS_PIC_COOKIE_LEN, lspic_cookie);
   }
 
   /* no cookie pattern identified - lets guess from now on */
@@ -843,8 +841,8 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto = PROTO_PPP;
     cookie_len = 2;
     mlpic_cookie = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
-                             tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                        tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
   }
 
   /* child link of an ML-PIC bundle ? */
@@ -856,7 +854,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += cookie_len;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);
-      
+
 }
 
 
@@ -1003,14 +1001,14 @@ dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* wrapper for passing the PIC type to the generic ATM dissector */
 static void
 dissect_juniper_atm1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM1);
 }
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
 static void
 dissect_juniper_atm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM2);
 }
 
@@ -1018,7 +1016,7 @@ dissect_juniper_atm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 atm_pictype)
 {
-  proto_item *ti,*tisub;
+  proto_item *ti;
   guint8     next_proto = PROTO_UNKNOWN,atm1_header_len,atm2_header_len,flags;
   guint32    cookie1, proto;
   guint64    cookie2;
@@ -1049,7 +1047,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper ATM2 PIC");
     break;
   default: /* should not happen */
-    ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper unknown ATM PIC");
+    proto_tree_add_text (tree, tvb, 0, 0 , "Juniper unknown ATM PIC");
     return;
   }
 
@@ -1074,22 +1072,22 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   switch (atm_pictype) {
   case JUNIPER_PIC_ATM1:
-    tisub = proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, offset, 4, cookie1);
+    proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, offset, 4, cookie1);
     offset += atm1_header_len;
     if ((cookie1 >> 24) == 0x80) /* OAM cell ? */
       next_proto = PROTO_OAM;
     break;
   case JUNIPER_PIC_ATM2:
-    tisub = proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, offset, 8, cookie2);
+    proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, offset, 8, cookie2);
     offset += atm2_header_len;
     if (cookie2 & 0x70) /* OAM cell ? */
       next_proto = PROTO_OAM;
     break;
   default: /* should not happen */
-    return;  
+    return;
   }
 
-  next_tvb = tvb_new_subset_remaining(tvb, offset);  
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   if (next_proto == PROTO_OAM) {
     dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_OAM, offset);
@@ -1125,7 +1123,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   proto = tvb_get_ntohs(tvb, offset); /* second try: 16-Bit guess */
 
-  if ( ppp_heuristic_guess( (guint16) proto) && 
+  if ( ppp_heuristic_guess( (guint16) proto) &&
        atm_pictype != JUNIPER_PIC_ATM1) {
     /*
      * This begins with something that appears to be a PPP protocol
@@ -1161,8 +1159,8 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   }
 
   /* could not figure what it is */
-  ti = proto_tree_add_text (juniper_subtree, tvb, offset, -1, "Payload Type: unknown");
-  call_dissector(data_handle, next_tvb, pinfo, tree);  
+  proto_tree_add_text (juniper_subtree, tvb, offset, -1, "Payload Type: unknown");
+  call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 
@@ -1176,7 +1174,7 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper GGSN");
   col_clear(pinfo->cinfo, COL_INFO);
-    
+
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper GGSN");
 
   /* parse header, match mgc, extract flags and build first tree */
@@ -1206,7 +1204,7 @@ static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Voice PIC");
   col_clear(pinfo->cinfo, COL_INFO);
-    
+
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Voice PIC");
 
   /* parse header, match mgc, extract flags and build first tree */
@@ -1459,40 +1457,41 @@ proto_reg_handoff_juniper(void)
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
-  eth_handle = find_dissector("eth_withoutfcs");
-  ppp_handle = find_dissector("ppp");
-  llc_handle = find_dissector("llc");
-  ipv4_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
-  mpls_handle = find_dissector("mpls");
-  q933_handle = find_dissector("q933");
-  frelay_handle = find_dissector("fr");
-  chdlc_handle = find_dissector("chdlc");
-  data_handle = find_dissector("data");
 
-  juniper_atm2_handle = create_dissector_handle(dissect_juniper_atm2, proto_juniper);
-  juniper_atm1_handle = create_dissector_handle(dissect_juniper_atm1, proto_juniper);
-  juniper_pppoe_handle = create_dissector_handle(dissect_juniper_pppoe, proto_juniper);
-  juniper_mlppp_handle = create_dissector_handle(dissect_juniper_mlppp, proto_juniper);
-  juniper_mlfr_handle = create_dissector_handle(dissect_juniper_mlfr, proto_juniper);
-  juniper_ether_handle = create_dissector_handle(dissect_juniper_ether, proto_juniper);
-  juniper_ppp_handle = create_dissector_handle(dissect_juniper_ppp, proto_juniper);
+  eth_handle    = find_dissector("eth_withoutfcs");
+  ppp_handle    = find_dissector("ppp");
+  llc_handle    = find_dissector("llc");
+  ipv4_handle   = find_dissector("ip");
+  ipv6_handle   = find_dissector("ipv6");
+  mpls_handle   = find_dissector("mpls");
+  q933_handle   = find_dissector("q933");
+  frelay_handle = find_dissector("fr");
+  chdlc_handle  = find_dissector("chdlc");
+  data_handle   = find_dissector("data");
+
+  juniper_atm2_handle   = create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
+  juniper_atm1_handle   = create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
+  juniper_pppoe_handle  = create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
+  juniper_mlppp_handle  = create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
+  juniper_mlfr_handle   = create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);
+  juniper_ether_handle  = create_dissector_handle(dissect_juniper_ether,  proto_juniper);
+  juniper_ppp_handle    = create_dissector_handle(dissect_juniper_ppp,    proto_juniper);
   juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
-  juniper_chdlc_handle = create_dissector_handle(dissect_juniper_chdlc, proto_juniper);
-  juniper_ggsn_handle = create_dissector_handle(dissect_juniper_ggsn, proto_juniper);
-  juniper_vp_handle = create_dissector_handle(dissect_juniper_vp, proto_juniper);
-    
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP, juniper_mlppp_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR, juniper_mlfr_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ETHER, juniper_ether_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPP, juniper_ppp_handle);
+  juniper_chdlc_handle  = create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
+  juniper_ggsn_handle   = create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
+  juniper_vp_handle     = create_dissector_handle(dissect_juniper_vp,     proto_juniper);
+
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2,   juniper_atm2_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1,   juniper_atm1_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE,  juniper_pppoe_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP,  juniper_mlppp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR,   juniper_mlfr_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ETHER,  juniper_ether_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPP,    juniper_ppp_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN, juniper_ggsn_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP, juniper_vp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC,  juniper_chdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN,   juniper_ggsn_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP,     juniper_vp_handle);
 
 }
 
