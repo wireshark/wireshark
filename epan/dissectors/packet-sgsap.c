@@ -200,6 +200,8 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	imeisv_str = tvb_bcd_dig_to_ep_str( tvb, curr_offset, len, NULL, FALSE);
 	proto_tree_add_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, imeisv_str);
+	if (add_string)
+		g_snprintf(add_string, len, " - %s", imeisv_str);
 
     return(len);
 }
