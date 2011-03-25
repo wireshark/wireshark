@@ -917,11 +917,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
-                ti = proto_tree_add_text(tree, tvb, start_offset,
-                                         (offset + length) - start_offset,
-                                         "Label Stack=%s, IPv6=%s/%u",
-                                         stack_strbuf->str,
-                                         ip6_to_str(&ip6addr), plen);
+                proto_tree_add_text(tree, tvb, start_offset,
+                                    (offset + length) - start_offset,
+                                    "Label Stack=%s, IPv6=%s/%u",
+                                    stack_strbuf->str,
+                                    ip6_to_str(&ip6addr), plen);
                 total_length = (1 + labnum * 3) + length;
                 break;
 
@@ -943,10 +943,10 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                         tag, plen + 16);
                     return -1;
                 }
-                ti = proto_tree_add_text(tree, tvb, start_offset,
-                                         (offset + length) - start_offset,
-                                         "Tunnel Identifier=0x%x IPv6=%s/%u",
-                                         tnl_id, ip6_to_str(&ip6addr), plen);
+                proto_tree_add_text(tree, tvb, start_offset,
+                                    (offset + length) - start_offset,
+                                    "Tunnel Identifier=0x%x IPv6=%s/%u",
+                                    tnl_id, ip6_to_str(&ip6addr), plen);
                 total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
                 break;
 
@@ -985,13 +985,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                             return -1;
                         }
 
-                        ti = proto_tree_add_text(tree, tvb, start_offset,
-                                                 (offset + 8 + length) - start_offset,
-                                                 "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
-                                                 stack_strbuf->str,
-                                                 tvb_get_ntohs(tvb, offset + 2),
-                                                 tvb_get_ntohl(tvb, offset + 4),
-                                                 ip6_to_str(&ip6addr), plen);
+                        proto_tree_add_text(tree, tvb, start_offset,
+                                            (offset + 8 + length) - start_offset,
+                                            "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
+                                            stack_strbuf->str,
+                                            tvb_get_ntohs(tvb, offset + 2),
+                                            tvb_get_ntohl(tvb, offset + 4),
+                                            ip6_to_str(&ip6addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
@@ -1006,13 +1006,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                             return -1;
                         }
 
-                        ti = proto_tree_add_text(tree, tvb, start_offset,
-                                                 (offset + 8 + length) - start_offset,
-                                                 "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
-                                                 stack_strbuf->str,
-                                                 ip_to_str(ip4addr.addr_bytes),
-                                                 tvb_get_ntohs(tvb, offset + 6),
-                                                 ip6_to_str(&ip6addr), plen);
+                        proto_tree_add_text(tree, tvb, start_offset,
+                                            (offset + 8 + length) - start_offset,
+                                            "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
+                                            stack_strbuf->str,
+                                            ip_to_str(ip4addr.addr_bytes),
+                                            tvb_get_ntohs(tvb, offset + 6),
+                                            ip6_to_str(&ip6addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
@@ -1957,7 +1957,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             as_path_item = (asn_len == 2) ?
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q);
                             proto_item_append_text(ti, " %u", as_path_item);
-                            hidden_item = proto_tree_add_uint(as_path_tree, hf_bgp_as_path, tvb,
+                            hidden_item = proto_tree_add_uint(as_path_segment_tree, hf_bgp_as_path, tvb,
                                                               q, asn_len, as_path_item);
                             PROTO_ITEM_SET_HIDDEN(hidden_item);
                             q += asn_len;
@@ -2275,54 +2275,54 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                     ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
 
                                     subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
-                                    ti = proto_tree_add_text(subtree4, tvb, q, 1,
+                                    proto_tree_add_text(subtree4, tvb, q, 1,
                                                              "Type: 0x%02x", tvb_get_guint8(tvb,q));
                                     ti = proto_tree_add_text(subtree4, tvb, q+1, 1,
                                                              "Flags: 0x%02x", tvb_get_guint8(tvb,q+1));
                                     subtree5 = proto_item_add_subtree(ti,ett_bgp_ext_com_flags);
                                     /* add flag bitfield */
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
                                                                                                                   0x10, 8, "Remarking", "No Remarking"));
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
                                                                                                                   0x08, 8, "Ignored marking", "No Ignored marking"));
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
                                                                                                                   0x04, 8, "Aggregation of markings", "No Aggregation of markings"));
 
-                                    ti = proto_tree_add_text(subtree4, tvb, q+2, 1,
-                                                             "QoS Set Number: 0x%02x", tvb_get_guint8(tvb,q+2));
-                                    ti = proto_tree_add_text(subtree4, tvb, q+3, 1,
-                                                             "Technology Type: 0x%02x (%s)", tvb_get_guint8(tvb,q+3),
+                                    proto_tree_add_text(subtree4, tvb, q+2, 1,
+                                                        "QoS Set Number: 0x%02x", tvb_get_guint8(tvb,q+2));
+                                    proto_tree_add_text(subtree4, tvb, q+3, 1,
+                                                        "Technology Type: 0x%02x (%s)", tvb_get_guint8(tvb,q+3),
                                                              val_to_str(tvb_get_guint8(tvb,q+3),qos_tech_type,"Unknown"));
-                                    ti = proto_tree_add_text(subtree4, tvb, q+4, 2,
-                                                             "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_ntohs(tvb,q+4),
+                                    proto_tree_add_text(subtree4, tvb, q+4, 2,
+                                                        "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_ntohs(tvb,q+4),
                                                                                                                    0xffff, 16, "0x%04x"));
-                                    ti = proto_tree_add_text(subtree4, tvb, q+6, 1,
-                                                             "QoS Marking A  (8 bit): %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
-                                                                                                                                0xff, 8, "0x%02x"), tvb_get_guint8(tvb,q+6));
-                                    ti = proto_tree_add_text(subtree4, tvb, q+7, 1,
-                                                             "Defaults to zero: 0x%02x", tvb_get_guint8(tvb,q+7));
+                                    proto_tree_add_text(subtree4, tvb, q+6, 1,
+                                                        "QoS Marking A  (8 bit): %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
+                                                                                                                           0xff, 8, "0x%02x"), tvb_get_guint8(tvb,q+6));
+                                    proto_tree_add_text(subtree4, tvb, q+7, 1,
+                                                        "Defaults to zero: 0x%02x", tvb_get_guint8(tvb,q+7));
                                     break;
                                 case BGP_EXT_COM_COS_CAP_T:
                                     is_regular_type = TRUE;
                                     ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
 
                                     subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
-                                    ti = proto_tree_add_text(subtree4, tvb, q, 1,
-                                                             "Type: 0x%02x", tvb_get_guint8(tvb,q));
+                                    proto_tree_add_text(subtree4, tvb, q, 1,
+                                                        "Type: 0x%02x", tvb_get_guint8(tvb,q));
                                     ti = proto_tree_add_text(subtree4, tvb, q+1, 1,
                                                              "Flags byte 1 : 0x%02x", tvb_get_guint8(tvb,q+1));
                                     subtree5 = proto_item_add_subtree(ti,ett_bgp_ext_com_flags);
                                     /* add flag bitfield */
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
-                                                                                                                  0x80, 8, "BE class supported", "BE class NOT supported"));
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
-                                                                                                                  0x40, 8, "EF class supported", "EF class NOT supported"));
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
-                                                                                                                  0x20, 8, "AF class supported", "AF class NOT supported"));
-                                    ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
-                                                                                                                  0x10, 8, "LE class supported", "LE class NOT supported"));
-                                    ti = proto_tree_add_text(subtree4, tvb, q+2, 1,
-                                                             "Flags byte 2..7 : 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                                                                                             0x80, 8, "BE class supported", "BE class NOT supported"));
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                                                                                             0x40, 8, "EF class supported", "EF class NOT supported"));
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                                                                                             0x20, 8, "AF class supported", "AF class NOT supported"));
+                                    proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+                                                                                                             0x10, 8, "LE class supported", "LE class NOT supported"));
+                                    proto_tree_add_text(subtree4, tvb, q+2, 1,
+                                                        "Flags byte 2..7 : 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
                                                              tvb_get_guint8(tvb,q+2),tvb_get_guint8(tvb,q+3),tvb_get_guint8(tvb,q+4),
                                                              tvb_get_guint8(tvb,q+5),tvb_get_guint8(tvb,q+6),tvb_get_guint8(tvb,q+7));
                                     break;
