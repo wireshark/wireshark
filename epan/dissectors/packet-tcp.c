@@ -1792,6 +1792,7 @@ again:
                  * needs desegmentation).
                  */
                 fragment_set_partial_reassembly(pinfo,msp->first_frame, tcp_fragment_table);
+
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
                  */
@@ -1806,9 +1807,12 @@ again:
                      */
                     msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+		} else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+		    tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
                 } else {
                     msp->nxtpdu=seq + last_fragment_len + pinfo->desegment_len;
                 }
+
                 /* Since we need at least some more data
                  * there can be no pdu following in the
                  * tail of this segment.
