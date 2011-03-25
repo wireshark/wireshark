@@ -1612,7 +1612,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i= 0; i < count; i++) {
       net = tvb_get_ntohs(tvb, offset);
-      ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %u", net);
+      ti = proto_tree_add_text(sub_tree, tvb, offset , 2, "Zone for network : %u", net);
       net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
       proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
       offset += 2;
