@@ -377,6 +377,8 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
     tm.tm_year = 1970;
+    tm.tm_mon = 0;
+    tm.tm_mday = 1;
     tm.tm_hour = 1;
     tm.tm_min = 1;
     tm.tm_sec = 1;

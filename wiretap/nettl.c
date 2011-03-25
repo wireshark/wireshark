@@ -200,6 +200,8 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     int bytes_read;
     nettl_t *nettl;
 
+    memset(&file_hdr, 0, sizeof(file_hdr));
+
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(file_hdr.magic, 1, MAGIC_SIZE, wth->fh);
