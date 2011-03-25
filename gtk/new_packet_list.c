@@ -1476,7 +1476,9 @@ new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
-	gtk_tree_selection_get_selected(selection, &model, &iter);
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
 	record = new_packet_list_get_record(model, &iter);
 
 	set_frame_mark(!record->fdata->flags.marked, record->fdata);
@@ -1546,7 +1548,9 @@ new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
-	gtk_tree_selection_get_selected(selection, &model, &iter);
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
 	record = new_packet_list_get_record(model, &iter);
 	set_frame_ignore(!record->fdata->flags.ignored, record->fdata);
 	redissect_packets();
@@ -1663,7 +1667,9 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summa
 	if (cfile.current_frame) {
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 		/* model is filled with the current model as a convenience.  */
-		gtk_tree_selection_get_selected(selection, &model, &iter);
+		if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+			return;
+
 		record = new_packet_list_get_record(model, &iter);
 		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
 			if(col != 0) {
