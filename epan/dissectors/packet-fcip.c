@@ -189,14 +189,16 @@ NXT_BYTE: while (bytes_remaining) {
             if(fcip_desegment && pinfo->can_desegment) {
                 /*
                  * This frame doesn't have all of the data for
-                 * this message, but we can do reassembly on it.
+                 * the message header, but we can do reassembly on it.
                  *
                  * Tell the TCP dissector where the data for this
-                 * message starts in the data it handed us, and
-                 * how many more bytes we need, and return.
+                 * message starts in the data it handed us, and that we need
+                 * "some more data."  Don't tell it exactly how many bytes
+		 * we need because if/when we ask for even more (after the
+		 * header) that will break reassembly.
                  */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = FCIP_ENCAP_HEADER_LEN;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 return -2;
             }
         }

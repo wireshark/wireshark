@@ -1696,11 +1696,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     iscsi_session_t *iscsi_session=NULL;
     guint8 opcode, tmpbyte;
 
-    if (available_bytes < 48 ){
+    if (available_bytes < 48) {
 	/* heuristic already rejected the packet if size < 48,
 	  assume it's an iscsi packet with a segmented header */
         pinfo->desegment_offset = offset;
-        pinfo->desegment_len = 48 - available_bytes;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
         return TRUE;
     }
 
