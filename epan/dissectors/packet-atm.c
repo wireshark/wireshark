@@ -203,7 +203,6 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
   proto_item *td;
   proto_tree *dest_tree;
   guint16 tag;
-  proto_item *trd;
   proto_tree *rd_tree;
   guint16 route_descriptor;
 
@@ -226,7 +225,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
   case TAG_ROUTE_DESCRIPTOR:
     offset += 4;
     route_descriptor = tvb_get_ntohs(tvb, offset);
-    trd = proto_tree_add_text(dest_tree, tvb, offset, 2, "Route descriptor: 0x%02X",
+    proto_tree_add_text(dest_tree, tvb, offset, 2, "Route descriptor: 0x%02X",
                               route_descriptor);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
     proto_tree_add_text(rd_tree, tvb, offset, 2, "%s",
