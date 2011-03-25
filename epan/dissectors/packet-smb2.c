@@ -1989,10 +1989,8 @@ dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_caps_dfs,
 		NULL
 	};
-	proto_item *item;
 
-	item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_caps, ett_smb2_share_caps, sc_fields, TRUE);
-
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_caps, ett_smb2_share_caps, sc_fields, TRUE);
 
 	offset += 4;
 
