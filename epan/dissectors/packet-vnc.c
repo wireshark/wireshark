@@ -1438,6 +1438,8 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	vnc_packet_t *per_packet_info;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
 
@@ -2144,6 +2146,8 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offse
 	/* See TightVNC's vnc_unixsrc/vncviewer/tight.c:InitFilterPaletteBPP() */
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
 
 	VNC_BYTES_NEEDED(1);
 	proto_tree_add_item(tree, hf_vnc_tight_palette_num_colors, tvb, *offset, 1, FALSE);
@@ -2183,6 +2187,8 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	gint bytes_needed = -1;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
 
 	/* See xserver/hw/vnc/rfbproto.h and grep for "Tight Encoding." for the following layout */
 
@@ -2472,9 +2478,10 @@ vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel)
 {
 	vnc_packet_t *per_packet_info;
 
-	/* The per_packet_info has already been created by the
-	 * vnc_startup_messages() routine. */
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
+
 	per_packet_info->bytes_per_pixel = bytes_per_pixel;
 }
 
@@ -2484,9 +2491,10 @@ vnc_set_depth(const packet_info *pinfo, const guint8 depth)
 {
 	vnc_packet_t *per_packet_info;
 
-	/* The per_packet_info has already been created by the
-	 * vnc_startup_messages() routine. */
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
+
 	per_packet_info->depth = depth;
 }
 
@@ -2496,9 +2504,10 @@ vnc_get_bytes_per_pixel(const packet_info *pinfo)
 {
 	vnc_packet_t *per_packet_info;
 
-	/* The per_packet_info has already been created by the
-	 * vnc_startup_messages() routine. */
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	/* Our calling function should have set the packet's proto data already */
+	DISSECTOR_ASSERT(per_packet_info != NULL);
+
 	return per_packet_info->bytes_per_pixel;
 }
 
