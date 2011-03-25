@@ -497,10 +497,25 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
 	remain_length = tvb_ensure_length_remaining(tvb,offset);
+	/*
+	 * Can we do reassembly?
+	 */
 	if (ssh_desegment && pinfo->can_desegment) {
+		/*
+		 * Yes - would an SSH header starting at this offset be split
+		 * across segment boundaries?
+		 */
 		if(remain_length < 4) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data for
+			 * this message starts in the data it handed us and
+			 * that we need "some more data."  Don't tell it
+			 * exactly how many bytes we need because if/when we
+			 * ask for even more (after the header) that will
+			 * break reassembly.
+			 */
                 	pinfo->desegment_offset = offset;
-                	pinfo->desegment_len = 4-remain_length;
+                	pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 	*need_desegmentation = TRUE;
                 	return offset;
 		}
@@ -636,10 +651,25 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
 	remain_length = tvb_ensure_length_remaining(tvb,offset);
+	/*
+	 * Can we do reassembly?
+	 */
 	if (ssh_desegment && pinfo->can_desegment) {
+		/*
+		 * Yes - would an SSH header starting at this offset
+		 * be split across segment boundaries?
+		 */
 		if(remain_length < 4) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data for
+			 * this message starts in the data it handed us and
+			 * that we need "some more data."  Don't tell it
+			 * exactly how many bytes we need because if/when we
+			 * ask for even more (after the header) that will
+			 * break reassembly.
+			 */
                 	pinfo->desegment_offset = offset;
-                	pinfo->desegment_len = 4-remain_length;
+                	pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 	*need_desegmentation = TRUE;
                 	return offset;
 		}

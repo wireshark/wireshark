@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../../tools/asn2wrs.py -b -p snmp -c ../../../asn1/snmp/snmp.cnf -s ../../../asn1/snmp/packet-snmp-template -D ../../../asn1/snmp snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -2785,8 +2785,16 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * BER).
 		 */
 		if (length_remaining < 6) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us and that we need "some more data."  Don't tell
+			 * it exactly how many bytes we need because if/when
+			 * we ask for even more (after the header) that will
+			 * break reassembly.
+			 */
 			pinfo->desegment_offset = offset;
-			pinfo->desegment_len = 6 - length_remaining;
+			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 
 			/*
 			 * Return 0, which means "I didn't dissect anything
@@ -3625,7 +3633,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2140 "packet-snmp-template.c"
+#line 2148 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3665,7 +3673,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2156 "packet-snmp-template.c"
+#line 2164 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 

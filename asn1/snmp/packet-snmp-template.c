@@ -1561,8 +1561,16 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * BER).
 		 */
 		if (length_remaining < 6) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us and that we need "some more data."  Don't tell
+			 * it exactly how many bytes we need because if/when
+			 * we ask for even more (after the header) that will
+			 * break reassembly.
+			 */
 			pinfo->desegment_offset = offset;
-			pinfo->desegment_len = 6 - length_remaining;
+			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 
 			/*
 			 * Return 0, which means "I didn't dissect anything

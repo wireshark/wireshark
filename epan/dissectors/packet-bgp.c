@@ -2912,12 +2912,14 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     */
 	    if (length_remaining < BGP_HEADER_SIZE) {
 		/*
-		 * Yes.  Tell the TCP dissector where the data for this
-		 * message starts in the data it handed us, and how many
-		 * more bytes we need, and return.
+		 * Yes.  Tell the TCP dissector where the data for this message
+		 * starts in the data it handed us and that we need "some more
+		 * data."  Don't tell it exactly how many bytes we need because
+		 * if/when we ask for even more (after the header) that will
+		 * break reassembly.
 		 */
 		pinfo->desegment_offset = offset;
-		pinfo->desegment_len = BGP_HEADER_SIZE - length_remaining;
+		pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 		return;
 	    }
 	}

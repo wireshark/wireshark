@@ -1322,12 +1322,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (available_bytes < 5) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
-             * message starts in the data it handed us, and how many
-             * more bytes we need, and return.
-             * Fix for bug 4535: Don't get just the data we need, get
-             * one more segment. Otherwise when the next segment does
-             * not contain all the rest of the SSL PDU, reassembly will
-             * break.
+             * message starts in the data it handed us, and that we need
+             * "some more data."  Don't tell it exactly how many bytes we
+             * need because if/when we ask for even more (after the header)
+             * that will break reassembly.
              */
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -1366,7 +1364,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                  * the continuation of a previous PDU together with a full new
                  * PDU (and the info column would not show the message type
                  * of the second PDU)
-                */
+                 */
+
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 *need_desegmentation = TRUE;
                 return offset;
@@ -2811,11 +2810,11 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     byte = tvb_get_guint8(tvb, offset);
     record_length_length = (byte & 0x80) ? 2 : 3;
 
+    available_bytes = tvb_length_remaining(tvb, offset);
+
     /*
      * Can we do reassembly?
      */
-    available_bytes = tvb_length_remaining(tvb, offset);
-
     if (ssl_desegment && pinfo->can_desegment) {
         /*
          * Yes - is the record header split across segment boundaries?
@@ -2823,11 +2822,13 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (available_bytes < record_length_length) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
-             * message starts in the data it handed us, and how many
-             * more bytes we need, and return.
+             * message starts in the data it handed us, and that we need
+             * "some more data."  Don't tell it exactly how many bytes we
+             * need because if/when we ask for even more (after the header)
+             * that will break reassembly.
              */
             pinfo->desegment_offset = offset;
-            pinfo->desegment_len = record_length_length - available_bytes;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; 
             *need_desegmentation = TRUE;
             return offset;
         }
