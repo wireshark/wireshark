@@ -984,12 +984,14 @@ finished_fwd:
         }
 
         /* If the segment came <3ms since the segment with the highest
-         * seen sequence number, then it is an OUT-OF-ORDER segment.
+         * seen sequence number and it doesn't look like a retransmission
+         * then it is an OUT-OF-ORDER segment.
          *   (3ms is an arbitrary number)
          */
         t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
         t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
-        if( t<3000000 ){
+        if( t<3000000
+        && tcpd->fwd->nextseq != seq + seglen ){
             if(!tcpd->ta){
                 tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
             }
