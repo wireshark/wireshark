@@ -181,7 +181,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_item_append_text(ti, ", Version: %s", str);
 		gif_tree = proto_item_add_subtree(ti, ett_gif);
 		/* GIF signature */
-		ti = proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, TRUE);
+		proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, TRUE);
 		/* Screen descriptor */
 		proto_tree_add_item(gif_tree, hf_screen_width, tvb, 6, 2, TRUE);
 		proto_tree_add_item(gif_tree, hf_screen_height, tvb, 8, 2, TRUE);
