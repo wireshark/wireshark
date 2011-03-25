@@ -1814,7 +1814,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 
 	for (; pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next; pcapng->addrinfo_list_last = pcapng->addrinfo_list_last->ai_next ) {
 		ai = pcapng->addrinfo_list_last->ai_next; /* Skips over the first (dummy) entry */
-		namelen = strlen(ai->ai_canonname) + 1;
+		namelen = (gint)strlen(ai->ai_canonname) + 1;
 		if (ai->ai_family == AF_INET) {
 			nrb.record_type = NRES_IP4RECORD;
 			nrb.record_len = 4 + namelen;
