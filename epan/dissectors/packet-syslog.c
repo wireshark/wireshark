@@ -280,9 +280,9 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     syslog_tree = proto_item_add_subtree(ti, ett_syslog);
     if (pri >= 0) {
-      ti = proto_tree_add_uint(syslog_tree, hf_syslog_facility, tvb, 0,
+      proto_tree_add_uint(syslog_tree, hf_syslog_facility, tvb, 0,
         msg_off, pri);
-      ti = proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
+      proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
         msg_off, pri);
     }
     proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
