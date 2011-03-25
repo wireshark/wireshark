@@ -61,8 +61,6 @@ static int hf_usb_urb_status = -1;
 static int hf_usb_urb_len = -1;
 static int hf_usb_data_len = -1;
 
-static int hf_usb_src_endpoint_number = -1;
-static int hf_usb_dst_endpoint_number = -1;
 static int hf_usb_request = -1;
 static int hf_usb_request_unknown_class = -1;
 static int hf_usb_value = -1;
@@ -1779,7 +1777,6 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8 transfer_type;
     guint8 endpoint_number;
     guint8 transfer_type_and_direction;
-    const gchar* val_str;
     guint8 type, flag;
     guint16 val16;
     guint32 val32;
@@ -1790,10 +1787,9 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* show the event type of this URB as string and as a character */
     type = tvb_get_guint8(tvb, 8);
-    val_str = val_to_str(type, usb_urb_type_vals, "Unknown %d");
-    proto_tree_add_string_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
-        &type, "%s ('%c')", val_str, isprint(type) ? type : '.');
-
+    proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
+        type, "%s ('%c')", val_to_str(type, usb_urb_type_vals, "Unknown %d"),
+        isprint(type) ? type : '.');
     proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, FALSE);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2369,8 +2365,8 @@ proto_register_usb(void)
                 NULL, HFILL }},
 
         { &hf_usb_urb_type,
-        { "URB type", "usb.urb_type", FT_STRING, BASE_NONE,
-                NULL, 0x0,
+        { "URB type", "usb.urb_type", FT_UINT8, BASE_DEC,
+                VALS(usb_urb_type_vals), 0x0,
                 NULL, HFILL }},
 
         { &hf_usb_transfer_type,
@@ -2433,15 +2429,6 @@ proto_register_usb(void)
         { &hf_usb_data_len,
         { "Data length [bytes]", "usb.data_len", FT_UINT32, BASE_DEC, NULL, 0x0,
                 "URB data length in bytes", HFILL }},
-
-    /* Generated values */
-        { &hf_usb_src_endpoint_number,
-        { "Src Endpoint", "usb.src.endpoint", FT_UINT8, BASE_HEX, NULL, 0x0,
-                "Source USB endpoint number", HFILL }},
-
-        { &hf_usb_dst_endpoint_number,
-        { "Dst Endpoint", "usb.dst.endpoint", FT_UINT8, BASE_HEX, NULL, 0x0,
-                "Destination USB endpoint number", HFILL }},
 
     /* Fields from usb20.pdf, Table 9-2 'Format of Setup Data' */
         { &hf_usb_bmRequestType,
