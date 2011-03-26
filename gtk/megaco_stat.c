@@ -156,6 +156,11 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 	megaco_ctx_track = prefs_find_preference(prefs_find_module("megaco"),"ctx_info");
 	h248_ctx_track = prefs_find_preference(prefs_find_module("h248"),"ctx_info");
 
+	if (!megaco_ctx_track || !h248_ctx_track) {
+		/* No such preferences */
+		return;
+	}
+
 	if (!*megaco_ctx_track->varp.boolp || !*h248_ctx_track->varp.boolp) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences has to be set to true to enable measurement of service reponse times.");
 		return;

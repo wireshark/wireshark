@@ -87,6 +87,12 @@ megacostat_init(const char *optarg, void* userdata _U_)
 
 	megaco_ctx_track = prefs_find_preference(prefs_find_module("megaco"),"ctx_info");
 	h248_ctx_track = prefs_find_preference(prefs_find_module("h248"),"ctx_info");
+
+	if (!megaco_ctx_track || !h248_ctx_track) {
+		/* No such preferences */
+		return;
+	}
+
 	if (!*megaco_ctx_track->varp.boolp || !*h248_ctx_track->varp.boolp) {
 		printf("Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences\n");
 		printf("has to be set to true to enable measurement of service response times.\n");
