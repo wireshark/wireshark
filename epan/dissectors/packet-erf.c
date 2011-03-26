@@ -598,35 +598,35 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(mc_hdlc_item);
     mc_hdlc = (struct erf_mc_hdlc_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01); 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_FCSE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC FCS Error");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC FCS Error");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_SRE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Short Record Error, <5 bytes");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Short Record Error, <5 bytes");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_LRE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Long Record Error, >2047 bytes");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Long Record Error, >2047 bytes");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_AFE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Aborted Frame Error");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Aborted Frame Error");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_OE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_LBE_MASK)
-	    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Lost Byte Error");
+      expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF MC Lost Byte Error");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
 
   }
 }
@@ -815,40 +815,40 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pseudo_hdr_tree = proto_item_add_subtree(pseudo_hdr_item, ett_erf_pseudo_hdr);
   PROTO_ITEM_SET_GENERATED( pseudo_hdr_item);
 
-  pi=proto_tree_add_uint64(pseudo_hdr_tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
+  proto_tree_add_uint64(pseudo_hdr_tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
   types_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Header type");
   PROTO_ITEM_SET_GENERATED(types_item);
 
   types_tree = proto_item_add_subtree(types_item, ett_erf_types);
-  pi=proto_tree_add_uint(types_tree, hf_erf_type, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
-  pi=proto_tree_add_uint(types_tree, hf_erf_ehdr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
+  proto_tree_add_uint(types_tree, hf_erf_type, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
+  proto_tree_add_uint(types_tree, hf_erf_ehdr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
 
   flags_item=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_flags, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
 
-  pi=proto_tree_add_uint(flags_tree, hf_erf_flags_cap, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
-  pi=proto_tree_add_uint(flags_tree, hf_erf_flags_vlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  proto_tree_add_uint(flags_tree, hf_erf_flags_cap, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  proto_tree_add_uint(flags_tree, hf_erf_flags_vlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK)
-	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Truncation Error");
+    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Truncation Error");
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK)
-	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Rx Error");
+    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF Rx Error");
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK)
-	  expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF DS Error");
+    expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_ERROR, "ERF DS Error");
 
-  pi=proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
+  proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
 
-  pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
+  proto_tree_add_uint(pseudo_hdr_tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
   pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_lctr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
   if (pinfo->pseudo_header->erf.phdr.lctr > 0)
-	  expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet");
+    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet");
 
-  pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_wlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.wlen);
+  proto_tree_add_uint(pseudo_hdr_tree, hf_erf_wlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.wlen);
 }
 
 static void
@@ -926,7 +926,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
     if (pinfo->pseudo_header->erf.phdr.type & 0x80){
-	dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
+      dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
     }
   }
 
@@ -946,8 +946,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch(erf_type) {
 
   case ERF_TYPE_RAW_LINK:
-	call_dissector(data_handle, tvb, pinfo, erf_tree);
-	break;
+    call_dissector(data_handle, tvb, pinfo, erf_tree);
+    break;
 
   case ERF_TYPE_IPV4:
     if (ipv4_handle)
@@ -1160,8 +1160,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (first_byte == 0x0f || first_byte == 0x8f)
         hdlc_type = ERF_HDLC_CHDLC;
       else {
-      	/* Anything to check for to recognize Frame Relay or MTP2?
-      	   Should we require PPP packets to beging with FF 03? */
+        /* Anything to check for to recognize Frame Relay or MTP2?
+           Should we require PPP packets to beging with FF 03? */
         hdlc_type = ERF_HDLC_PPP;
       }
     }
