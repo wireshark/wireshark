@@ -1228,7 +1228,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
     /* Fetch last values from data saved in packet */
     pkg_data = p_get_proto_data (pinfo->fd, proto_dmp);
 
-    if (dmp_data && dmp.msg_type != ACK && pkg_data->ack_id == 0) {
+    if (dmp_data && pkg_data && dmp.msg_type != ACK && pkg_data->ack_id == 0) {
       pkg_data->ack_id = dmp_data->ack_id;
     }
   }
