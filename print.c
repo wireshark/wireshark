@@ -1344,6 +1344,9 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
         return FALSE; /* Is this guarded against by option parsing? */
     }
     option_name = strtok(option,"=");
+    if (!option_name) {
+        return FALSE;
+    }
     option_value = option + strlen(option_name) + 1;
     if(0 == strcmp(option_name, "header")) {
         switch(NULL == option_value ? '\0' : *option_value) {
