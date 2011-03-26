@@ -7612,16 +7612,12 @@ msg_stats_tree_init(stats_tree* st)
 static int
 msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p )
 {
-  const gchar* msg = match_strval_ext(((const isup_tap_rec_t*)p)->message_type, &isup_message_type_value_acro_ext);
-  gchar src[MAX_ADDR_STR_LEN];
-  gchar dst[MAX_ADDR_STR_LEN];
-  gchar dir[MAX_ADDR_STR_LEN];
+  const gchar *msg = match_strval_ext(((const isup_tap_rec_t*)p)->message_type, &isup_message_type_value_acro_ext);
+  gchar *dir;
   int msg_node;
   int dir_node;
 
-  address_to_str_buf(&(pinfo->src), src, sizeof src);
-  address_to_str_buf(&(pinfo->dst), dst, sizeof dst);
-  g_snprintf(dir,sizeof(dir),"%s->%s",src,dst);
+  dir = ep_strdup_printf("%s->%s", ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
 
   msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
   tick_stat_node(st, dir, msg_node, FALSE);
