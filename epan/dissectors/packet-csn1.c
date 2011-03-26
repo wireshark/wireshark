@@ -186,8 +186,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
   guint32* pui32;
   guint8 Tag = STANDARD_TAG;
 
-  proto_item   * item;
-
   if (remaining_bits_len <= 0)
   {
     return 0;
@@ -205,7 +203,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           pDescr++;
 
           *pui8 = tvb_get_bits8(tvb, bit_offset, 1);
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
 
@@ -278,7 +276,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8 + (guint8)pDescr->descr.value;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                        decode_bits_in_field(bit_offset, no_of_bits, ui8),
                                        pDescr->sz);
 
@@ -289,7 +287,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16 + (guint16)pDescr->descr.value;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                        decode_bits_in_field(bit_offset, no_of_bits, ui16),
                                        pDescr->sz);
           }
@@ -299,7 +297,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32 + (guint16)pDescr->descr.value;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                        decode_bits_in_field(bit_offset, no_of_bits, ui32),
                                        pDescr->sz);
           }
@@ -371,7 +369,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             {
               *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
 
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+              proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
                                          decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                          pDescr->sz,
                                          i++);
@@ -457,7 +455,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                      decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE)),
                                      pDescr->sz);
           remaining_bits_len -= no_of_bits;
@@ -522,7 +520,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             descr[1].type = CSN_END;
             pui8          = pui8DATA(data, pDescr->offset);
             *pui8         = i;
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s",
                                        decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                        pDescr->sz);
 
@@ -565,7 +563,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         proto_item   *ti;
         proto_tree   *test_tree;
 
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s length",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s length",
                                    decode_bits_in_field(bit_offset, 7, tvb_get_bits8(tvb, bit_offset, 7)),
                                    pDescr->sz);
 
@@ -610,7 +608,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         /* Now get the bits to extract the index */
         Bits = ixBitsTab[count];
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (Bits>>3)+1, "%s Union:%s",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, (Bits>>3)+1, "%s Union:%s",
                                    decode_bits_in_field(bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits)),
                                    pDescr->sz);
         index = 0;
@@ -650,7 +648,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8  = pui8DATA(data, pDescr->offset);
             pDescr++;
 
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
@@ -728,7 +726,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
               pui8      = pui8DATA(data, pDescr->offset);
               *pui8     = ui8 + (guint8)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+              proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                          decode_bits_in_field(bit_offset, no_of_bits, ui8),
                                          pDescr->sz);
             }
@@ -737,7 +735,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
               pui16       = pui16DATA(data, pDescr->offset);
               *pui16      = ui16 + (guint16)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+              proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                          decode_bits_in_field(bit_offset, no_of_bits, ui16),
                                          pDescr->sz);
             }
@@ -746,7 +744,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
               pui32       = pui32DATA(data, pDescr->offset);
               *pui32      = ui32 + (guint16)pDescr->descr.value;
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+              proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                          decode_bits_in_field(bit_offset, no_of_bits, ui32),
                                          pDescr->sz);
               }
@@ -814,7 +812,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 while (nCount > 0)
                 {
                   *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+                  proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
                                              decode_bits_in_field(bit_offset, no_of_bits, *pui8),
                                              pDescr->sz,
                                              i++);
@@ -830,7 +828,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 while (nCount > 0)
                 {
                   *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
-                  item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
+                  proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s[%d]",
                                              decode_bits_in_field(bit_offset, no_of_bits, *pui16),
                                              pDescr->sz,
                                              i++);
@@ -911,7 +909,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             if (no_of_bits > 0)
             { /* a non empty bitmap */
-              item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+              proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                          decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                          pDescr->sz);
               remaining_bits_len -= no_of_bits;
@@ -968,11 +966,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_EXIST_LH:
       {
         guint8 fExist;
-        proto_item   *ti;
 
         pui8  = pui8DATA(data, pDescr->offset);
 
-        ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "Exist:%s",pDescr->sz);
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1,  "Exist:%s",pDescr->sz);
 
         if (CSN_EXIST_LH == pDescr->type)
         {
@@ -1022,7 +1019,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
@@ -1070,7 +1067,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         }
 
         /* the "regular" M_NEXT_EXIST_LH description element */
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
@@ -1111,7 +1108,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)));
           remaining_bits_len -= no_of_bits;
 
@@ -1164,7 +1161,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         { /* a non empty bitmap */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                      decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                      pDescr->sz);
           remaining_bits_len -= no_of_bits;
@@ -1204,7 +1201,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           while (count > 0)
           {
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
+            proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                        decode_bits_in_field(bit_offset, 8, tvb_get_bits8(tvb, bit_offset, 8)),
                                        pDescr->sz);
             *pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
@@ -1233,7 +1230,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
           bit_offset++;
@@ -1249,13 +1246,13 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
           }
 
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                      decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                      pDescr->sz);
           bit_offset += no_of_bits;
         }
 
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                    pDescr->sz);
 
@@ -1279,7 +1276,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         while (existNextElement(tvb, bit_offset, Tag))
         { /* tag control shows existence of next list elements */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
 
@@ -1379,7 +1376,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
 
           /* control of next element's tag */
-          item = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
+          proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s Exist:%s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
                                      pDescr->sz);
           EndOfList         = !(existNextElement(tvb, bit_offset, Tag));
@@ -1421,7 +1418,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           return ProcessError(tree, tvb, bit_offset,"csnStreamDissector FIXED value does not match", -1, pDescr);
         }
-        item = proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+        proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                    decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
                                    pDescr->sz);
 
