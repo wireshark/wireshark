@@ -1196,7 +1196,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *parent_tree)
 {
 	proto_tree	*nlp_tree, *bf_tree;
-	proto_item	*nlp_item, *bf_item, *h_item;
+	proto_item	*nlp_item, *bf_item;
 	guint8		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9, fid;
 	guint32		thdr_len, thdr_dlf;
 	guint16		subindex;
@@ -1251,7 +1251,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
-			h_item = proto_tree_add_item(nlp_tree,
+			proto_tree_add_item(nlp_tree,
 			    hf_sna_nlp_fra, tvb, index, counter, FALSE);
 		index += counter;
 		if (tree)
@@ -1282,7 +1282,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
-			h_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
+			proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
 			    tvb, index, counter, FALSE);
 		index += counter;
 
