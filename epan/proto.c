@@ -6699,6 +6699,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_INT24:
 		case FT_INT32:
 			is_signed_num = TRUE;
+			/* FALLTHRU */
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
