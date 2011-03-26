@@ -69,6 +69,8 @@ gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* ep_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
+gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
+
 /** allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 

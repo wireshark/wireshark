@@ -380,6 +380,7 @@ ep_strbuf_new_label
 ep_strbuf_printf
 ep_strbuf_sized_new
 ep_strbuf_truncate
+ep_strconcat
 ep_strdup
 ep_strdup_printf
 ep_strdup_vprintf

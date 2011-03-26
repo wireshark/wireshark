@@ -33,4 +33,9 @@
 	#define G_GNUC_MALLOC
 #endif
 
+/* Glib 2.8 and later has this. */
+#if ! GLIB_CHECK_VERSION(2,8,0)
+	#define G_GNUC_NULL_TERMINATED
+#endif
+
 #endif /* g_gnuc_malloc.h */
