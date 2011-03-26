@@ -157,6 +157,7 @@ hostlist_get_filter_name(address *addr, int specific_addr_type_val, int port_typ
         default:
             break;
         }
+        break;
     case FN_ANY_PORT:
         switch(port_type_val){
         case PT_TCP:
