@@ -856,21 +856,47 @@ ep_alloc0(size_t size)
 	return memset(ep_alloc(size),'\0',size);
 }
 
-gchar *
-ep_strdup(const gchar* src)
+void *
+se_alloc0(size_t size)
 {
-	guint len = (guint) strlen(src);
-	gchar* dst;
+	return memset(se_alloc(size),'\0',size);
+}
 
-	dst = memcpy(ep_alloc(len+1), src, len+1);
+
+static gchar *
+emem_strdup(const gchar *src, void *allocator(size_t))
+{
+	guint len;
+	gchar *dst;
+
+	/* If str is NULL, just return the string "<NULL>" so that the callers don't
+	 * have to bother checking it.
+	 */
+	if(!src)
+		return "<NULL>";
+
+	len = (guint) strlen(src);
+	dst = memcpy(allocator(len+1), src, len+1);
 
 	return dst;
 }
 
 gchar *
-ep_strndup(const gchar* src, size_t len)
+ep_strdup(const gchar *src)
 {
-	gchar* dst = ep_alloc(len+1);
+	return emem_strdup(src, ep_alloc);
+}
+
+gchar *
+se_strdup(const gchar *src)
+{
+	return emem_strdup(src, se_alloc);
+}
+
+static gchar *
+emem_strndup(const gchar *src, size_t len, void *allocator(size_t))
+{
+	gchar *dst = allocator(len+1);
 	guint i;
 
 	for (i = 0; (i < len) && src[i]; i++)
@@ -881,14 +907,34 @@ ep_strndup(const gchar* src, size_t len)
 	return dst;
 }
 
+gchar *
+ep_strndup(const gchar *src, size_t len)
+{
+	return emem_strndup(src, len, ep_alloc);
+}
+
+gchar *
+se_strndup(const gchar *src, size_t len)
+{
+	return emem_strndup(src, len, se_alloc);
+}
+
+
+
 void *
 ep_memdup(const void* src, size_t len)
 {
 	return memcpy(ep_alloc(len), src, len);
 }
 
-gchar *
-ep_strdup_vprintf(const gchar* fmt, va_list ap)
+void *
+se_memdup(const void* src, size_t len)
+{
+	return memcpy(se_alloc(len), src, len);
+}
+
+static gchar *
+emem_strdup_vprintf(const gchar *fmt, va_list ap, void *allocator(size_t))
 {
 	va_list ap2;
 	gsize len;
@@ -898,7 +944,7 @@ ep_strdup_vprintf(const gchar* fmt, va_list ap)
 
 	len = g_printf_string_upper_bound(fmt, ap);
 
-	dst = ep_alloc(len+1);
+	dst = allocator(len+1);
 	g_vsnprintf (dst, (gulong) len, fmt, ap2);
 	va_end(ap2);
 
@@ -906,13 +952,37 @@ ep_strdup_vprintf(const gchar* fmt, va_list ap)
 }
 
 gchar *
-ep_strdup_printf(const gchar* fmt, ...)
+ep_strdup_vprintf(const gchar *fmt, va_list ap)
+{
+	return emem_strdup_vprintf(fmt, ap, ep_alloc);
+}
+
+gchar *
+se_strdup_vprintf(const gchar* fmt, va_list ap)
+{
+	return emem_strdup_vprintf(fmt, ap, se_alloc);
+}
+
+gchar *
+ep_strdup_printf(const gchar *fmt, ...)
 {
 	va_list ap;
-	gchar* dst;
+	gchar *dst;
 
-	va_start(ap,fmt);
+	va_start(ap, fmt);
 	dst = ep_strdup_vprintf(fmt, ap);
+	va_end(ap);
+	return dst;
+}
+
+gchar *
+se_strdup_printf(const gchar *fmt, ...)
+{
+	va_list ap;
+	gchar *dst;
+
+	va_start(ap, fmt);
+	dst = se_strdup_vprintf(fmt, ap);
 	va_end(ap);
 	return dst;
 }
@@ -994,81 +1064,6 @@ ep_strsplit(const gchar* string, const gchar* sep, int max_tokens)
 	return vec;
 }
 
-
-
-void *
-se_alloc0(size_t size)
-{
-	return memset(se_alloc(size),'\0',size);
-}
-
-/* If str is NULL, just return the string "<NULL>" so that the callers dont
- * have to bother checking it.
- */
-gchar *
-se_strdup(const gchar* src)
-{
-	guint len;
-	gchar* dst;
-
-	if(!src)
-		return "<NULL>";
-
-	len = (guint) strlen(src);
-	dst = memcpy(se_alloc(len+1), src, len+1);
-
-	return dst;
-}
-
-gchar *
-se_strndup(const gchar* src, size_t len)
-{
-	gchar* dst = se_alloc(len+1);
-	guint i;
-
-	for (i = 0; (i < len) && src[i]; i++)
-		dst[i] = src[i];
-
-	dst[i] = '\0';
-
-	return dst;
-}
-
-void *
-se_memdup(const void* src, size_t len)
-{
-	return memcpy(se_alloc(len), src, len);
-}
-
-gchar *
-se_strdup_vprintf(const gchar* fmt, va_list ap)
-{
-	va_list ap2;
-	gsize len;
-	gchar* dst;
-
-	G_VA_COPY(ap2, ap);
-
-	len = g_printf_string_upper_bound(fmt, ap);
-
-	dst = se_alloc(len+1);
-	g_vsnprintf (dst, (gulong) len, fmt, ap2);
-	va_end(ap2);
-
-	return dst;
-}
-
-gchar *
-se_strdup_printf(const gchar* fmt, ...)
-{
-	va_list ap;
-	gchar* dst;
-
-	va_start(ap,fmt);
-	dst = se_strdup_vprintf(fmt, ap);
-	va_end(ap);
-	return dst;
-}
 
 /* release all allocated memory back to the pool. */
 static void
