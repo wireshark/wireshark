@@ -346,6 +346,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-assa_r3.c
 	dissectors/packet-atalk.c
 	dissectors/packet-atm.c
+	dissectors/packet-atmtcp.c
 	dissectors/packet-auto_rp.c
 	dissectors/packet-ax4000.c
 	dissectors/packet-ayiya.c

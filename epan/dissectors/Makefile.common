@@ -259,6 +259,7 @@ DISSECTOR_SRC = \
 	packet-assa_r3.c	\
 	packet-atalk.c		\
 	packet-atm.c		\
+	packet-atmtcp.c		\
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
 	packet-ayiya.c		\
