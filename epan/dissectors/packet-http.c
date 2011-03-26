@@ -368,11 +368,11 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 	int reqs_by_this_addr;
 	int resps_by_this_addr;
 	int i = v->response_code;
-	static gchar ip_str[256];
+	gchar *ip_str;
 
 
 	if (v->request_method) {
-		g_snprintf(ip_str,sizeof(ip_str),"%s",ep_address_to_str(&pinfo->dst));
+		ip_str = ep_address_to_str(&pinfo->dst);
 
 		tick_stat_node(st, st_str_reqs, 0, FALSE);
 		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
@@ -389,7 +389,7 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 		return 1;
 
 	} else if (i != 0) {
-		g_snprintf(ip_str,sizeof(ip_str),"%s",ep_address_to_str(&pinfo->src));
+		ip_str = ep_address_to_str(&pinfo->src);
 
 		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
 		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
@@ -488,7 +488,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	guint i = v->response_code;
 	int resp_grp;
 	const gchar *resp_str;
-	static gchar str[64];
+	gchar str[64];
 
 	tick_stat_node(st, st_str_packets, 0, FALSE);
 
@@ -517,7 +517,8 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 
 		tick_stat_node(st, resp_str, st_node_responses, FALSE);
 
-		g_snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,vals_status_code, "Unknown (%d)"));
+		g_snprintf(str, sizeof(str), "%u %s", i,
+			   val_to_str(i, vals_status_code, "Unknown (%d)"));
 		tick_stat_node(st, str, resp_grp, FALSE);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
