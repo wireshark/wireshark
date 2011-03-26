@@ -19,7 +19,7 @@
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
- * CL-SP-CANN-DHCP-Reg-I03-090811.doc
+ * CL-SP-CANN-DHCP-Reg-I06-110210.doc
  *
  * Note that protocol constants are still subject to change, based on IANA
  * assignment decisions.
@@ -301,6 +301,7 @@ static const true_false_string fqdn_s = {
 /** CableLabs PacketCable Project Vendor Specific Options **/
 #define CL_OPTION_CCC 0x087a  /* 2170 */
 #define CL_OPTION_CCCV6 0x087b  /* 2171 */
+#define CL_OPTION_CORRELATION_ID 0x087c /*2172 */
 
 /** CableLabs TLVs for DOCS_CMTS_CAP Vendor Option **/
 #define CL_OPTION_DOCS_CMTS_TLV_VERS_NUM 0x01 /* 1 */
@@ -329,6 +330,7 @@ static const value_string cl_vendor_subopt_values[] = {
     /* 1027 */ { CL_EROUTER_CONTAINER_OPTION, "eRouter Container Option : " },
     /* 2170 */ { CL_OPTION_CCC, "CableLabs Client Configuration : " },
     /* 2171 */ { CL_OPTION_CCCV6, "CableLabs Client Configuration IPv6 : " },
+    /* 2172 */ { CL_OPTION_CORRELATION_ID, "CableLabs Correlation ID = " },
     { 0, NULL }
 };
 
@@ -983,6 +985,17 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     field_len += sub_value;
                 }
                 sub_off += field_len;
+                break;
+                
+            case CL_OPTION_CORRELATION_ID :
+                opt_len = tlv_len;
+                 if (tlv_len != 4) {
+                    proto_item_append_text(ti, "Bogus value length=%d",
+                                           tlv_len);
+                }
+                else {
+                    proto_item_append_text(ti, "%d", tvb_get_ntohl(tvb, sub_off));
+                }
                 break;
 
             default:
