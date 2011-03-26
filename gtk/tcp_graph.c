@@ -2518,6 +2518,7 @@ static void graph_select_segment (struct graph *g, int x, int y)
 				if (line_detect_collision (e, x, y)) {
 					num = e->parent->num;
 				}
+				break;
 			case ELMT_ARC:
 				if (arc_detect_collision (e, x, y)) {
 					num = e->parent->num;
