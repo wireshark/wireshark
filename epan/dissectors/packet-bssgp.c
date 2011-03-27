@@ -1749,6 +1749,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, guint
 			 */
 			new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
 			curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+			break;
 		default :
 			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identity");
 			curr_offset+=len;
@@ -1904,6 +1905,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, guint32 
 			 * encoded as defined in TS 25.331
 			 */
 			proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
+			break;
 
 		default :
 			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identitys Data");
@@ -2007,6 +2009,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 			/* 11.3.64.5 Application Error Container for the UTRA SI Application*/
 			/* Octet 3 UTRA SI Cause */
 			proto_tree_add_item(tree, hf_bssgp_utra_si_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			break;
 		default :
 			proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown Application Error Container");
 			curr_offset+=len;
