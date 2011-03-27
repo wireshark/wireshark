@@ -305,6 +305,7 @@ h225counter_draw(void *phs)
 						printf("    %s : %u\n", val_to_str(j,LocationRejectReason_vals,"unknown reason   "), hs->lrj_reason[j]);
 					}
 				}
+				break;
 			case 29: /* IRQNak */
 				for(j=0;j<=IRQNAK_REASONS;j++) {
 					if(hs->irqnak_reason[j]!=0) {
