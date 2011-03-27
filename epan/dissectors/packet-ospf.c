@@ -915,6 +915,7 @@ ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version
             v3flags = v3flags >> 8;
             return v3flags & OSPF_V3_OPTIONS_L;
         }
+        break;
     case OSPF_DB_DESC:
         switch (version) {
         case OSPF_VERSION_2:
@@ -925,6 +926,7 @@ ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version
             v3flags = v3flags >> 8;
             return v3flags & OSPF_V3_OPTIONS_L;
         }
+        break;
     }
 
     return 0;
