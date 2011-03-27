@@ -364,11 +364,11 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		cv_hdr.channel = pseudo_header->ieee_802_11.channel;
 		cv_hdr.rate = pseudo_header->ieee_802_11.data_rate;
 		cv_hdr.signal_level_percent = pseudo_header->ieee_802_11.signal_level;
-
 		break;
 
 	case WTAP_ENCAP_TOKEN_RING :
 		cv_hdr.flags |= MEDIUM_TOKEN_RING;
+		break;
 
 	default :
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;

@@ -1202,7 +1202,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
 	rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
-	if (!rlcinf) {
+	if (!fpinf || !rlcinf) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 			"Cannot dissect RLC frame because per-frame info is missing");
 		return;
