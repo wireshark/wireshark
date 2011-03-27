@@ -829,6 +829,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
 		  proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb,
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
+		  break;
 	      default:
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 				      "Data (%d bytes)", mylen);
@@ -1834,6 +1835,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      "Data (%d bytes)", mylen);
 		  break;
 	      }
+	      break;
 
 	  case LMP_CLASS_DA_DCN_ADDRESS:
 	      switch(type) {
