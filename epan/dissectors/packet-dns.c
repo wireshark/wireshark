@@ -1283,7 +1283,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, FALSE);
 
       if ((class & 0x7f) == C_IN) {
-	memcpy(&addr_int, addr, sizeof(addr_int));
+	tvb_memcpy(tvb, &addr_int, cur_offset, sizeof(addr_int));
 	add_ipv4_name(addr_int, name);
       }
     }
