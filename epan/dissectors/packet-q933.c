@@ -581,6 +581,8 @@ dissect_q933_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		    "Parity: %s",
 		      val_to_str(octet & 0x07, q933_l1_parity_vals,
 		       "Unknown (0x%X)"));
+		offset += 1;
+		len -= 1;
 
 		if (octet & Q933_IE_VL_EXTENSION)
 			goto l1_done;
@@ -707,8 +709,10 @@ l2_done:
 			add_l3_info = (octet & 0x0F) << 4;
 			if (octet & Q933_IE_VL_EXTENSION)
 				goto l3_done;
+#if 0 /* XXX: len is always >0 at this point; is field always 2 bytes (if not Q933_IE_VL_EXTENSION) ? */
 			if (len == 0)
 				return;
+#endif
 			octet = tvb_get_guint8(tvb, offset + 1);
 			add_l3_info |= (octet & 0x0F);
 			proto_tree_add_text(tree, tvb, offset, 2,
