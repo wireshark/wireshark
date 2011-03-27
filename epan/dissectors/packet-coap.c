@@ -333,8 +333,10 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 			break;
 		case COAP_OPT_URI_QUERY:
 			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_uri_query);
+			break;
 		default:
 			proto_tree_add_text(subtree, tvb, 0, 0, "Unkown Option Type");
+			break;
 		}
 	}
 
