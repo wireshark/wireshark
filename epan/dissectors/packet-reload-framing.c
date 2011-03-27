@@ -295,8 +295,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     break;
 
   default:
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Unknown ReLOAD frame type");
-    return 1;
+    DISSECTOR_ASSERT_NOT_REACHED();
   }
 
   return tvb_length(tvb);
@@ -317,6 +316,7 @@ dissect_reload_framing_message_no_return(tvbuff_t *tvb, packet_info *pinfo, prot
 static void
 dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  /* XXX: Check if we have a valid ReLOAD Frame Type ? */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LENGTH,
                    get_reload_framing_message_length, dissect_reload_framing_message_no_return);
 }
