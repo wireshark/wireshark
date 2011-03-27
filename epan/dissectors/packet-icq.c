@@ -1220,6 +1220,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 
 	    offset += sizeof(guint16); left -= sizeof(guint16);
 	}
+	/* FALLTHRU */
 	case META_USER_FOUND:
 	{
 	    /* The goto mentioned in this block should be local to this
