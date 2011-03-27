@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-03-16)
+(last updated 2011-03-21)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -15599,7 +15599,8 @@ nbd             10809/tcp  Linux Network Block Device
 #               10809/udp  Reserved
 #               10810/tcp  Reserved
 nmc-disc        10810/udp  Nuance Mobile Care Discovery
-#                          Tim Shelton <tim.shelton&nuance.com> 02 August 2010
+#                          Previous contact: Tim Shelton <tim.shelton&nuance.com> 02 August 2010
+#                          Current contact: Gordon Waddell <gordon.waddell&nuance.com> 21 March 2011
 #		10811-10859 Unassigned
 helix           10860/tcp  Helix Client/Server
 helix           10860/udp  Helix Client/Server
