@@ -818,6 +818,7 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         case 0xe0:
             if (len<5) return FALSE;
             if( (second_octet & 0x0f) > 3) return FALSE;
+            break;
         default:
             return FALSE;
     }
