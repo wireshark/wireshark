@@ -107,7 +107,7 @@ hosts_draw(void *dummy _U_)
 
 		sa4 = (struct sockaddr_in *) ai->ai_addr;
 		if (inet_ntop(AF_INET, &(sa4->sin_addr.s_addr), addr_str, ADDRSTRLEN)) {
-			tab_count = (HOSTNAME_POS - strlen(addr_str)) / 8;
+			tab_count = (HOSTNAME_POS - (int)strlen(addr_str)) / 8;
 			printf("%s", addr_str);
 			for (i = 0; i < tab_count; i++)
 				printf("\t");
@@ -123,7 +123,7 @@ hosts_draw(void *dummy _U_)
 
 		sa6 = (struct sockaddr_in6 *) ai->ai_addr;
 		if (inet_ntop(AF_INET6, sa6->sin6_addr.s6_addr, addr_str, ADDRSTRLEN)) {
-			tab_count = (HOSTNAME_POS - strlen(addr_str)) / 8;
+			tab_count = (HOSTNAME_POS - (int)strlen(addr_str)) / 8;
 			printf("%s", addr_str);
 			for (i = 0; i < tab_count; i++)
 				printf("\t");
