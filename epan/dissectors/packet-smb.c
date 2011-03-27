@@ -12790,7 +12790,8 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
-	        si->unicode = TRUE;
+		si->unicode = TRUE;
+		/* FALLTHRU */
 	case 0x0109:	/*Query File Stream Info*/
 		offset = dissect_qfi_SMB_FILE_STREAM_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc, si->unicode);
