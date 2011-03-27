@@ -1342,6 +1342,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* User Information oct 2 + n
              */
             proto_tree_add_text(tree, tvb, offset, -1, "User Information");
+            break;
         default:
             proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
             break;
