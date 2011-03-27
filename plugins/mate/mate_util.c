@@ -1669,7 +1669,6 @@ extern LoAL* loal_from_file(gchar* filename) {
 						default:
 							continue;
 					}
-					continue;
 				case START:
 					switch (c) {
 						case ' ': case '\t':
