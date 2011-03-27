@@ -2648,9 +2648,13 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 		/* Coding_grp 01xx */
 	case 4:
+		  /* FALLTHRU */
 	case 5:
+		  /* FALLTHRU */
 	case 6:
+		  /* FALLTHRU */
 	case 7:
+		  /* FALLTHRU */
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
@@ -2710,9 +2714,13 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 		break;
 	case 10:
+		/* FALLTHRU */
 	case 11:
+		/* FALLTHRU */
 	case 12:
+		/* FALLTHRU */
 	case 13:
+		/* FALLTHRU */
 		/* 1010..1101 Reserved coding groups */
 		break;
 	case 14:
@@ -16826,7 +16834,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 753 "packet-gsm_map-template.c"
+#line 761 "packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -17038,7 +17046,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 764 "packet-gsm_map-template.c"
+#line 772 "packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -17243,7 +17251,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 768 "packet-gsm_map-template.c"
+#line 776 "packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -17303,7 +17311,9 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
 const gchar* gsm_map_opr_code(guint32 val) {
   switch (val) {
   case 44: /*mt-forwardSM*/
+	  /* FALLTHRU */
   case 46: /*mo-forwardSM*/
+	  /* FALLTHRU */
     if (application_context_version < 3) {
       return val_to_str(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP (%u)");
     }
@@ -18103,8 +18113,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	  offset=dissect_gsm_map_er_FacilityNotSupParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
   case 22: /* OngoingGroupCallParam */
-          offset=dissect_gsm_map_er_OngoingGroupCallParam(FALSE, tvb, offset, actx, tree, -1);
-          break;
+      offset=dissect_gsm_map_er_OngoingGroupCallParam(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 27: /* AbsentSubscriberParam */
 	  offset=dissect_gsm_map_er_AbsentSubscriberParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
@@ -24494,7 +24504,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2455 "packet-gsm_map-template.c"
+#line 2465 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -25098,7 +25108,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2483 "packet-gsm_map-template.c"
+#line 2493 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25174,7 +25184,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2501 "packet-gsm_map-template.c"
+#line 2511 "packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

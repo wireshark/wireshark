@@ -634,9 +634,13 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 		/* Coding_grp 01xx */
 	case 4:
+		  /* FALLTHRU */
 	case 5:
+		  /* FALLTHRU */
 	case 6:
+		  /* FALLTHRU */
 	case 7:
+		  /* FALLTHRU */
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
@@ -696,9 +700,13 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 		break;
 	case 10:
+		/* FALLTHRU */
 	case 11:
+		/* FALLTHRU */
 	case 12:
+		/* FALLTHRU */
 	case 13:
+		/* FALLTHRU */
 		/* 1010..1101 Reserved coding groups */
 		break;
 	case 14:
@@ -824,7 +832,9 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
 const gchar* gsm_map_opr_code(guint32 val) {
   switch (val) {
   case 44: /*mt-forwardSM*/
+	  /* FALLTHRU */
   case 46: /*mo-forwardSM*/
+	  /* FALLTHRU */
     if (application_context_version < 3) {
       return val_to_str(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP (%u)");
     }
@@ -1624,8 +1634,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	  offset=dissect_gsm_map_er_FacilityNotSupParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
   case 22: /* OngoingGroupCallParam */
-          offset=dissect_gsm_map_er_OngoingGroupCallParam(FALSE, tvb, offset, actx, tree, -1);
-          break;
+      offset=dissect_gsm_map_er_OngoingGroupCallParam(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 27: /* AbsentSubscriberParam */
 	  offset=dissect_gsm_map_er_AbsentSubscriberParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
