@@ -702,6 +702,14 @@ on those calls that match that filter.
 Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
 SRT statistics for a specific host.
 
+=item B<-z> hosts[,ipv4][,ipv6]
+
+Dump any collected IPv4 and/or IPv6 addresses in "hosts" format. Both IPv4
+and IPv6 addresses are dumped by default.
+
+Addresses are collected from a number of sources, including standard "hosts"
+files and captured traffic.
+
 =item B<-z> io,phs[,I<filter>]
 
 Create Protocol Hierarchy Statistics listing both number of packets and bytes.

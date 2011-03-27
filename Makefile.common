@@ -113,6 +113,7 @@ TSHARK_TAP_SRC =	\
 	tap-gsm_astat.c	\
 	tap-h225counter.c	\
 	tap-h225rassrt.c	\
+	tap-hosts.c	\
 	tap-httpstat.c	\
 	tap-iostat.c	\
 	tap-iousers.c	\

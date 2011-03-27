@@ -187,7 +187,8 @@ Wireshark Info
         <listitem>
           <para>
 	    TShark can read and write host name information from and to
-	    pcapng-formatted files. Wireshark can read it.
+	    pcapng-formatted files. Wireshark can read it. TShark can dump host
+	    name information via <cmdsynopsis><arg>-z hosts</arg></cmdsynopsis>.
           </para>
         </listitem>
 
