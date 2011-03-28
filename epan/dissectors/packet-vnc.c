@@ -603,6 +603,7 @@ static gint ett_vnc_rre_subrect = -1;
 static gint ett_vnc_hextile_subencoding_mask = -1;
 static gint ett_vnc_hextile_num_subrects = -1;
 static gint ett_vnc_hextile_subrect = -1;
+static gint ett_vnc_hextile_tile = -1;
 static gint ett_vnc_zrle_subencoding = -1;
 static gint ett_vnc_colormap_num_groups = -1;
 static gint ett_vnc_colormap_color_group = -1;
@@ -1879,107 +1880,126 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		     proto_tree *tree, const guint16 width, const guint16 height)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
-	guint8 i, subencoding_mask, num_subrects, subrect_len;
-	guint length, bytes_needed;
-	proto_tree *subencoding_mask_tree, *subrect_tree, *num_subrects_tree;
-	proto_item *ti;
+	guint8 i, subencoding_mask, num_subrects, subrect_len, tile_height, tile_width;
+	guint32 raw_length;
+	proto_tree *tile_tree, *subencoding_mask_tree, *subrect_tree, *num_subrects_tree;
+	proto_item *ti, *tile_item;
+	guint16 current_height = 0, current_width;
 
-	VNC_BYTES_NEEDED(1);
-	ti = proto_tree_add_item(tree, hf_vnc_hextile_subencoding_mask, tvb,
-				 *offset, 1, FALSE);
-	subencoding_mask = tvb_get_guint8(tvb, *offset);
+	while(current_height != height) {
+		if (current_height + 16 > height)
+			tile_height = height - current_height;
+		else
+			tile_height = 16;
+		current_height += tile_height;
+		current_width = 0;
+		while(current_width != width) {
+			if (current_width + 16 > width)
+				tile_width = width - current_width;
+			else
+				tile_width = 16;
 
-	subencoding_mask_tree =
-		proto_item_add_subtree(ti, ett_vnc_hextile_subencoding_mask);
+			current_width += tile_width;
 
-	proto_tree_add_item(subencoding_mask_tree,
-			    hf_vnc_hextile_raw, tvb, *offset, 1,
-			    FALSE);
-	proto_tree_add_item(subencoding_mask_tree,
-			    hf_vnc_hextile_bg, tvb, *offset, 1,
-			    FALSE);
-	proto_tree_add_item(subencoding_mask_tree,
-			    hf_vnc_hextile_fg, tvb, *offset, 1,
-			    FALSE);
-	proto_tree_add_item(subencoding_mask_tree,
-			    hf_vnc_hextile_anysubrects, tvb, *offset, 1,
-			    FALSE);
-	proto_tree_add_item(subencoding_mask_tree,
-			    hf_vnc_hextile_subrectscolored, tvb, *offset, 1,
-			    FALSE);
-	*offset += 1;
+			VNC_BYTES_NEEDED(1);
+			subencoding_mask = tvb_get_guint8(tvb, *offset);
 
-	if(subencoding_mask & 0x1) { /* Raw */
-		length = width * height * bytes_per_pixel;
+			tile_item = proto_tree_add_text(tree, tvb, *offset, 1, "Tile {%d:%d}, sub encoding mask %u", current_width, current_height, subencoding_mask);
+			tile_tree = proto_item_add_subtree(tile_item, ett_vnc_hextile_tile);
 
-		VNC_BYTES_NEEDED(length);
+			ti = proto_tree_add_item(tile_tree, hf_vnc_hextile_subencoding_mask, tvb,
+						 *offset, 1, FALSE);
 
-		proto_tree_add_item(tree, hf_vnc_hextile_raw_value, tvb,
-				    *offset, length, FALSE);
-		*offset += length;
-	} else {
-		if(subencoding_mask & 0x2) { /* Background Specified */
-			VNC_BYTES_NEEDED(bytes_per_pixel);
-			proto_tree_add_item(tree, hf_vnc_hextile_bg_value,
-					    tvb, *offset, bytes_per_pixel,
+			subencoding_mask_tree =
+				proto_item_add_subtree(ti, ett_vnc_hextile_subencoding_mask);
+
+			proto_tree_add_item(subencoding_mask_tree,
+					    hf_vnc_hextile_raw, tvb, *offset, 1,
 					    FALSE);
-			*offset += bytes_per_pixel;
-		}
-
-		if(subencoding_mask & 0x4) { /* Foreground Specified */
-			VNC_BYTES_NEEDED(bytes_per_pixel);
-			proto_tree_add_item(tree, hf_vnc_hextile_fg_value,
-					    tvb, *offset, bytes_per_pixel,
+			proto_tree_add_item(subencoding_mask_tree,
+					    hf_vnc_hextile_bg, tvb, *offset, 1,
 					    FALSE);
-			*offset += bytes_per_pixel;
-		}
-
-		if(subencoding_mask & 0x8) { /* Any Subrects */
-			VNC_BYTES_NEEDED(3); /* 1 byte for number of subrects field, +2 at least for 1 subrect */
-			ti = proto_tree_add_item(tree,
-						 hf_vnc_hextile_num_subrects,
-						 tvb, *offset, 1,
-						 FALSE);
-			num_subrects = tvb_get_guint8(tvb, *offset);
+			proto_tree_add_item(subencoding_mask_tree,
+					    hf_vnc_hextile_fg, tvb, *offset, 1,
+					    FALSE);
+			proto_tree_add_item(subencoding_mask_tree,
+					    hf_vnc_hextile_anysubrects, tvb, *offset, 1,
+					    FALSE);
+			proto_tree_add_item(subencoding_mask_tree,
+					    hf_vnc_hextile_subrectscolored, tvb, *offset, 1,
+					    FALSE);
 			*offset += 1;
 
-			if(subencoding_mask & 0x16)
-				subrect_len = bytes_per_pixel + 2;
-			else
-				subrect_len = 2;
-			bytes_needed = subrect_len * num_subrects;
-			VNC_BYTES_NEEDED(bytes_needed);
+			if(subencoding_mask & 0x1) { /* Raw */
+				raw_length = tile_width * tile_height * bytes_per_pixel;
 
-			num_subrects_tree =
-				proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
-
-			for(i = 1; i <= num_subrects; i++) {
-				ti = proto_tree_add_text(num_subrects_tree, tvb,
-							 *offset, subrect_len,
-							 "Subrectangle #%d", i);
-
-				subrect_tree =
-					proto_item_add_subtree(ti, ett_vnc_hextile_subrect);
-
-				if(subencoding_mask & 0x16) {
-					/* Subrects Colored */
-					proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_pixel_value, tvb, *offset, bytes_per_pixel, FALSE);
-
+				proto_tree_add_item(tile_tree, hf_vnc_hextile_raw_value, tvb,
+						    *offset, raw_length, FALSE);
+				VNC_BYTES_NEEDED(raw_length);
+				*offset += raw_length;
+			} else {
+				if(subencoding_mask & 0x2) { /* Background Specified */
+					VNC_BYTES_NEEDED(bytes_per_pixel);
+					proto_tree_add_item(tile_tree, hf_vnc_hextile_bg_value,
+							    tvb, *offset, bytes_per_pixel,
+							    FALSE);
 					*offset += bytes_per_pixel;
 				}
 
-				proto_tree_add_item(subrect_tree,
-						    hf_vnc_hextile_subrect_x_pos, tvb, *offset, 1, FALSE);
+				if(subencoding_mask & 0x4) { /* Foreground Specified */
+					VNC_BYTES_NEEDED(bytes_per_pixel);
+					proto_tree_add_item(tile_tree, hf_vnc_hextile_fg_value,
+							    tvb, *offset, bytes_per_pixel,
+							    FALSE);
+					*offset += bytes_per_pixel;
+				}
 
-				proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_y_pos, tvb, *offset, 1, FALSE);
+				if(subencoding_mask & 0x8) { /* Any Subrects */
+					VNC_BYTES_NEEDED(3); /* 1 byte for number of subrects field, +2 at least for 1 subrect */
+					ti = proto_tree_add_item(tile_tree,
+								 hf_vnc_hextile_num_subrects,
+								 tvb, *offset, 1,
+								 FALSE);
+					num_subrects = tvb_get_guint8(tvb, *offset);
+					*offset += 1;
 
-				*offset += 1;
+					if(subencoding_mask & 0x10)
+						subrect_len = bytes_per_pixel + 2;
+					else
+						subrect_len = 2;
+					VNC_BYTES_NEEDED(subrect_len * num_subrects);
 
-				proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_width, tvb, *offset, 1, FALSE);
+					num_subrects_tree =
+						proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
 
-				proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_height, tvb, *offset, 1, FALSE);
+					for(i = 1; i <= num_subrects; i++) {
+						ti = proto_tree_add_text(num_subrects_tree, tvb,
+									 *offset, subrect_len,
+									 "Subrectangle #%d", i);
+						subrect_tree =
+							proto_item_add_subtree(ti, ett_vnc_hextile_subrect);
 
-				*offset += 1;
+						if(subencoding_mask & 0x10) {
+							/* Subrects Colored */
+							proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_pixel_value, tvb, *offset, bytes_per_pixel, FALSE);
+
+							*offset += bytes_per_pixel;
+						}
+
+						proto_tree_add_item(subrect_tree,
+								    hf_vnc_hextile_subrect_x_pos, tvb, *offset, 1, FALSE);
+
+						proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_y_pos, tvb, *offset, 1, FALSE);
+
+						*offset += 1;
+
+						proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_width, tvb, *offset, 1, FALSE);
+
+						proto_tree_add_item(subrect_tree, hf_vnc_hextile_subrect_height, tvb, *offset, 1, FALSE);
+
+						*offset += 1;
+					}
+				}
 			}
 		}
 	}
@@ -3307,6 +3327,7 @@ proto_register_vnc(void)
 		&ett_vnc_hextile_subencoding_mask,
 		&ett_vnc_hextile_num_subrects,
 		&ett_vnc_hextile_subrect,
+		&ett_vnc_hextile_tile,
 		&ett_vnc_zrle_subencoding,
 		&ett_vnc_colormap_num_groups,
 		&ett_vnc_desktop_screen,
