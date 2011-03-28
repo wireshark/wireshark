@@ -1967,7 +1967,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 						subrect_len = bytes_per_pixel + 2;
 					else
 						subrect_len = 2;
-					VNC_BYTES_NEEDED(subrect_len * num_subrects);
+					VNC_BYTES_NEEDED((guint)(subrect_len * num_subrects));
 
 					num_subrects_tree =
 						proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
