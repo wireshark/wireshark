@@ -866,8 +866,10 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
  * @param filename Name of the file to open
  * @param err a positive "errno" value if the capture file can't be opened;
  * a negative number, indicating the type of error, on other failures.
- * @param err_info
- * @param do_random
+ * @param err_info for some errors, a string giving more details of
+ * the error
+ * @param do_random TRUE if random access to the file will be done,
+ * FALSE if not
  */
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
