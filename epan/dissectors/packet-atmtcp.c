@@ -1,6 +1,6 @@
 /* packet-atmtcp.c
  * Routines for ATM over TCP dissection
- * Copyright 2011, Alexis La Goutte
+ * Copyright 2011, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
  * $Id$
  *
@@ -76,14 +76,14 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* VPI */
         proto_tree_add_item(atmtcp_tree, hf_atmtcp_vpi, tvb, offset, 2, ENC_NA);
     }
-    offset +=2;
+    offset += 2;
             
 
     if (tree) {
         /* VCI */
         proto_tree_add_item(atmtcp_tree, hf_atmtcp_vci, tvb, offset, 2, ENC_NA);
     }
-    offset +=2;
+    offset += 2;
 
 
     if (tree) {
@@ -91,11 +91,18 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(atmtcp_tree, hf_atmtcp_length, tvb, offset, 4, ENC_NA);
     }
     length = tvb_get_ntohl(tvb, offset);
-
-    offset +=4;
+    if(length == ATMTCP_HDR_MAGIC)
+    {
+    	col_append_fstr(pinfo->cinfo, COL_INFO, " Command");
+    }
+    else
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Data");
+    }
+    offset += 4;
 
     /* Data (for the moment...) */
-    next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     return tvb_length(tvb);
 }
