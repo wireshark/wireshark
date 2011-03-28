@@ -587,12 +587,12 @@ capture_opts_print_interfaces(GList *if_list)
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
-        printf("%d. %s", i++, if_info->name);
+        fprintf_stderr("%d. %s", i++, if_info->name);
 
         /* Print the description if it exists */
         if (if_info->description != NULL)
-            printf(" (%s)", if_info->description);
-        printf("\n");
+            fprintf_stderr(" (%s)", if_info->description);
+        fprintf_stderr("\n");
     }
 }
 
