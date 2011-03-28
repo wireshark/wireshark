@@ -96,7 +96,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 		}
 	}
 	
-	item = proto_tree_add_item(tree,proto_user_encap,tvb,0,0,FALSE);
+	item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,FALSE);
 	if (!encap) {
 		char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, check your Preferences->Protocols->DLT_USER",
 									 pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
@@ -115,15 +115,27 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 		tvbuff_t* hdr_tvb = tvb_new_subset(tvb, 0, encap->header_size, encap->header_size);
 		call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
 		offset = encap->header_size;
+		if (encap->header_proto_name) {
+			const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->header_proto_name));
+			proto_item_append_text(item, ", Header: %s (%s)", encap->header_proto_name, proto_name);
+		}
 	}
 	
 	payload_tvb = tvb_new_subset(tvb, encap->header_size, len, len);
 	call_dissector(encap->payload_proto, payload_tvb, pinfo, tree);
+	if (encap->payload_proto_name) {
+		const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->payload_proto_name));
+		proto_item_append_text(item, ", Payload: %s (%s)", encap->payload_proto_name, proto_name);
+	}
 
 	if (encap->trailer_size) {
 		tvbuff_t* trailer_tvb = tvb_new_subset(tvb, encap->header_size + len, encap->trailer_size, encap->trailer_size);
 		call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
 		offset = encap->trailer_size;
+		if (encap->trailer_proto_name) {
+			const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->trailer_proto_name));
+			proto_item_append_text(item, ", Trailer: %s (%s)", encap->trailer_proto_name, proto_name);
+		}
 	}
 }
 
