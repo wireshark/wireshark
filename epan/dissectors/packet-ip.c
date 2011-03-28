@@ -1979,7 +1979,7 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_fragments,
-		{ "IP Fragments", "ip.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "IP Fragments", "ip.fragments", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ip_reassembled_in,
