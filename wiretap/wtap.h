@@ -844,7 +844,7 @@ struct file_type_info {
     gboolean can_compress;
 
     /* does this type support name resolution records? */
-    /* should be NULL is this file type doesn't have write support */
+    /* should be FALSE is this file type doesn't support name resolution records */
     gboolean has_name_resolution;
 
     /* can this type write this encapsulation format? */
@@ -860,12 +860,14 @@ struct file_type_info {
 typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 
 
-/*
- * On failure, "wtap_open_offline()" returns NULL, and puts into the
+/** On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
  *
- * a positive "errno" value if the capture file can't be opened;
+ * @param filename Name of the file to open
+ * @param err a positive "errno" value if the capture file can't be opened;
  * a negative number, indicating the type of error, on other failures.
+ * @param err_info
+ * @param do_random
  */
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
