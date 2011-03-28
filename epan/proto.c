@@ -3949,7 +3949,6 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
 	char representation[ITEM_LABEL_LENGTH];
-	size_t curlen;
 	va_list	ap;
 
 	if (pi==NULL) {
@@ -3976,11 +3975,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 		g_vsnprintf(fi->rep->representation,
 			ITEM_LABEL_LENGTH, format, ap);
 		va_end(ap);
-		curlen = strlen(fi->rep->representation);
-		if (ITEM_LABEL_LENGTH > curlen) {
-			strncpy(fi->rep->representation + curlen, representation,
-				ITEM_LABEL_LENGTH - (gulong) curlen);
-		}
+		g_strlcat(fi->rep->representation, representation, ITEM_LABEL_LENGTH);
 	}
 }
 
