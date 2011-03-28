@@ -173,11 +173,11 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 		} else {
 			chunk = c->mate_huge;
 			len = SCS_HUGE_SIZE;
-			g_warning("mate SCS: string truncated to huge size");
+			g_warning("mate SCS: string truncated due to huge size");
 		}
 
 		orig = g_mem_chunk_alloc(chunk);
-		strncpy(orig,s,len);
+		g_strlcpy(orig,s,len);
 
 		g_hash_table_insert(c->hash,orig,ip);
 	}
