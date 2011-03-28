@@ -2190,6 +2190,30 @@ main(int argc, char *argv[])
 	  exit(1);
 	}
 	break;
+      case 'D':        /* Print a list of capture devices and exit */
+#ifdef HAVE_LIBPCAP
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+          switch (err) {
+          case CANT_GET_INTERFACE_LIST:
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
+            break;
+
+          case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+          }
+          exit(2);
+        }
+        capture_opts_print_interfaces(if_list);
+        free_interface_list(if_list);
+        exit(0);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
         exit(0);
@@ -2449,30 +2473,6 @@ main(int argc, char *argv[])
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
 	break;
-      case 'D':        /* Print a list of capture devices and exit */
-#ifdef HAVE_LIBPCAP
-        if_list = capture_interface_list(&err, &err_str);
-        if (if_list == NULL) {
-          switch (err) {
-          case CANT_GET_INTERFACE_LIST:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            break;
-
-          case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
-          }
-          exit(2);
-        }
-        capture_opts_print_interfaces(if_list);
-        free_interface_list(if_list);
-        exit(0);
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = TRUE;
         break;
