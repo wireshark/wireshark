@@ -2259,7 +2259,7 @@ dissect_wimaxasncp(
 
         if (ui8 == 0)
         {
-            item = proto_tree_add_uint_format(
+            proto_tree_add_uint_format(
                 wimaxasncp_tree, hf_wimaxasncp_flags,
                 tvb, offset, 1, ui8,
                 "Flags: 0x%02x", ui8);
@@ -2329,7 +2329,7 @@ dissect_wimaxasncp(
     if( function_type_name )
     {
         /* add the item to the tree */
-        function_type_item = proto_tree_add_uint_format(
+        proto_tree_add_uint_format(
             wimaxasncp_tree, hf_wimaxasncp_function_type,
             tvb, offset, 1, function_type,
             "%s (%u)", function_type_name, function_type);
