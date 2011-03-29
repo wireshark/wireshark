@@ -49,7 +49,9 @@ my %APIs = (
 		# of these:
 		'gets',
 		'sprintf',
+		'g_sprintf',
 		'vsprintf',
+		'g_vsprintf',
 		'strcpy',
 		'strncpy',
 		'strcat',
