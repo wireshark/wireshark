@@ -102,6 +102,7 @@ static int hf_mongo_query_flags_oplogreplay = -1;
 static int hf_mongo_query_flags_nocursortimeout = -1;
 static int hf_mongo_query_flags_awaitdata = -1;
 static int hf_mongo_query_flags_exhaust = -1;
+static int hf_mongo_query_flags_partial = -1;
 static int hf_mongo_number_to_skip = -1;
 static int hf_mongo_number_to_return = -1;
 static int hf_mongo_query = -1;
@@ -256,6 +257,7 @@ dissect_mongo_query(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	proto_tree_add_item(flags_tree, hf_mongo_query_flags_nocursortimeout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_mongo_query_flags_awaitdata, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_mongo_query_flags_exhaust, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_mongo_query_flags_partial, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	offset += dissect_fullcollectionname(tvb, offset, tree);
@@ -583,6 +585,11 @@ proto_register_mongo(void)
 			{ "Exhaust",           "mongo.query.flags.exhaust",
 			FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
 			"Stream the data down full blast in multiple more packages, on the assumption that the client will fully read all data queried", HFILL }
+		},
+		{ &hf_mongo_query_flags_partial,
+			{ "Partial",           "mongo.query.flags.partial",
+			FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
+			"Get partial results from a mongos if some shards are down (instead of throwing an error)", HFILL }
 		},
 		{ &hf_mongo_number_to_skip,
 			{ "Number To Skip",           "mongo.number_to_skip",
