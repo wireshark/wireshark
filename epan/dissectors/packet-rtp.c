@@ -1318,7 +1318,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
 			encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
 			if (encoding_name_and_rate_pt) {
-				rtp_info->info_payload_type_str = encoding_name_and_rate_pt->encoding_name;
+				rtp_info->info_payload_type_str = payload_type_str = encoding_name_and_rate_pt->encoding_name;
 				rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
 			}
 		}

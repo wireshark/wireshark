@@ -54,7 +54,6 @@
 
 /* Wireshark ID of the H.223 protocol */
 static int proto_h223 = -1;
-static int proto_h223_bitswapped = -1;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
@@ -1599,13 +1598,11 @@ void proto_register_h223 (void)
 
     proto_h223 =
         proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
-    proto_h223_bitswapped =
-        proto_register_protocol ("Bitswapped ITU-T Recommendation H.223", "H.223 (Bitswapped)", "h223_bitswapped");
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("h223", dissect_h223, proto_h223);
-    register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
+    register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223);
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
