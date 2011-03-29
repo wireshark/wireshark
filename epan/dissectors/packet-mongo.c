@@ -41,7 +41,7 @@
 #include "packet-tcp.h"
 
 /* This is not IANA assigned nor registered */
-#define TCP_PORT_MANGO 27017
+#define TCP_PORT_MONGO 27017
 
 #define OP_REPLY 	1
 #define OP_MSG 		1000
@@ -113,7 +113,7 @@ static int hf_mongo_delete_flags = -1;
 static int hf_mongo_delete_flags_singleremove = -1;
 static int hf_mongo_number_of_cursor_ids = -1;
 
-static guint global_mongo_tcp_port = TCP_PORT_MANGO;
+static guint global_mongo_tcp_port = TCP_PORT_MONGO;
 
 static dissector_handle_t data_handle;
 
