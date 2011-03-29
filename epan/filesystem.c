@@ -781,7 +781,7 @@ init_plugin_dir(void)
 	 * in which the Wireshark binary resides.
 	 */
 	plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(),
-	    VERSION);
+				     VERSION);
 
 	/*
 	 * Make sure that pathname refers to a directory.
@@ -926,7 +926,7 @@ has_global_profiles(void)
     {
 		while ((file = ws_dir_read_name(dir)) != NULL) {
 			filename = g_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
-										ws_dir_get_name(file));
+						    ws_dir_get_name(file));
 			if (test_for_directory(filename) == EISDIR) {
 				has_global = TRUE;
 				g_free (filename);
@@ -1061,8 +1061,8 @@ get_global_profiles_dir(void)
 	static char *global_profiles_dir = NULL;
 
 	if (!global_profiles_dir) {
-		global_profiles_dir = g_strdup_printf ("%s%s%s", get_datafile_dir(), 
-											   G_DIR_SEPARATOR_S, PROFILES_DIR);
+		global_profiles_dir = g_strdup_printf ("%s%s%s", get_datafile_dir(),
+						       G_DIR_SEPARATOR_S, PROFILES_DIR);
 	}
 
 	return global_profiles_dir;
@@ -1091,7 +1091,7 @@ profile_exists(const gchar *profilename, gboolean global)
 {
 	if (global) {
 		gchar *path = g_strdup_printf ("%s%s%s", get_global_profiles_dir(),
-									   G_DIR_SEPARATOR_S, profilename);
+					       G_DIR_SEPARATOR_S, profilename);
 		if (test_for_directory (path) == EISDIR) {
 			g_free (path);
 			return TRUE;
@@ -1281,7 +1281,7 @@ hash_table_get_keys(gpointer key, gpointer value _U_, gpointer user_data)
 
 int
 copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_global,
-						  char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
+			  char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
 	gchar *from_dir;
 	gchar *to_dir = g_strdup (get_persconffile_dir(toname));
@@ -1575,8 +1575,7 @@ char *
 get_datafile_path(const char *filename)
 {
 
-	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
-		filename);
+	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), filename);
 }
 
 /* Get the personal plugin dir */
@@ -1649,9 +1648,9 @@ file_open_error_message(int err, gboolean for_writing)
 
 	default:
 		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-				"The file \"%%s\" could not be %s: %s.",
-				for_writing ? "created" : "opened",
-				strerror(err));
+			   "The file \"%%s\" could not be %s: %s.",
+			   for_writing ? "created" : "opened",
+			   strerror(err));
 		errmsg = errmsg_errno;
 		break;
 	}
@@ -1686,8 +1685,8 @@ file_write_error_message(int err)
 
 	default:
 		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-		    "An error occurred while writing to the file \"%%s\": %s.",
-		    strerror(err));
+			   "An error occurred while writing to the file \"%%s\": %s.",
+			   strerror(err));
 		errmsg = errmsg_errno;
 		break;
 	}
@@ -1792,7 +1791,7 @@ gboolean
 copy_file_binary_mode(const char *from_filename, const char *to_filename)
 {
   int           from_fd, to_fd, nread, nwritten, err;
-  guint8        pd[65536];
+  guint8        *pd = NULL;
 
   /* Copy the raw bytes of the file. */
   from_fd = ws_open(from_filename, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
@@ -1813,7 +1812,9 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
     goto done;
   }
 
-  while ((nread = ws_read(from_fd, pd, sizeof pd)) > 0) {
+#define FS_READ_SIZE 65536
+  pd = g_malloc(FS_READ_SIZE);
+  while ((nread = ws_read(from_fd, pd, FS_READ_SIZE)) > 0) {
     nwritten = ws_write(to_fd, pd, nread);
     if (nwritten < nread) {
       if (nwritten < 0)
@@ -1839,9 +1840,12 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
     goto done;
   }
 
+  g_free(pd);
+  pd = NULL;
   return TRUE;
 
 done:
+  g_free(pd);
   return FALSE;
 }
 
