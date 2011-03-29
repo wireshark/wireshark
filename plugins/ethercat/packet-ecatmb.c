@@ -569,6 +569,7 @@ static void SoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
             break;
          case 6:
             g_snprintf ( szText, nMax, "SoE: EMGCY");
+			break;
          default:
             g_snprintf ( szText, nMax, "SoE:");
          }
