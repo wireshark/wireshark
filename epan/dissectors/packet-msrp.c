@@ -540,28 +540,24 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
 	if (is_msrp_response){
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s ",
-					tvb_format_text(tvb, token_3_start, token_3_len));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s ",
+				tvb_format_text(tvb, token_3_start, token_3_len));
 
-			if (token_4_len )
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					tvb_format_text(tvb, token_4_start, token_4_len));
+		if (token_4_len )
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				tvb_format_text(tvb, token_4_start, token_4_len));
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
-					tvb_format_text(tvb, token_2_start, token_2_len));
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
+				tvb_format_text(tvb, token_2_start, token_2_len));
 	}else{
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			proto_tree_add_text(tree, tvb, token_3_start, token_3_len,
-					"Col %s L=%u", tvb_format_text(tvb, token_3_start, token_3_len),token_3_len);
+		proto_tree_add_text(tree, tvb, token_3_start, token_3_len,
+				"Col %s L=%u", tvb_format_text(tvb, token_3_start, token_3_len),token_3_len);
 
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s ",
-					tvb_format_text(tvb, token_3_start, token_3_len));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s ",
+				tvb_format_text(tvb, token_3_start, token_3_len));
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
-					tvb_format_text(tvb, token_2_start, token_2_len));
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Transaction ID: %s",
+				tvb_format_text(tvb, token_2_start, token_2_len));
 	}
 
 	/* Find the end line to be able to process the headers
