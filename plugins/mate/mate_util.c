@@ -972,6 +972,7 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 
 		case AVP_OP_LOWER:
 			lower = TRUE;
+			/* FALLTHRU */
 		case AVP_OP_HIGHER:
 
 			fs = (float) strtod(src->v, NULL);
