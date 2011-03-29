@@ -301,6 +301,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case MAC_MGMT_MSG_DSD_RSP:
 			/* Dynamic Service Deletion response message handler */
 			dissect_mac_mgmt_msg_dsd_rsp_decoder(tvb, pinfo, tree);
+		break;
 		case MAC_MGMT_MSG_MCA_REQ:
 			/* find the Multicast Assignment request message handler */
 			mgt_msg_handle = find_dissector("mac_mgmt_msg_mca_req_handler");
