@@ -16,22 +16,22 @@
 
 %option outfile="k12text.c"
 
-/* Options useful for debugging                    */
-/* noline:  Prevent generation of #line directives */
-/*          Seems to be required when using the    */
-/*           Windows VS debugger so as to be able  */
-/*           to properly step through the code and */
-/*           set breakpoints & etc using the       */
-/*           k12text.c file rather than the        */
-/*           k12text.l file                        */
-/*     XXX: %option noline gives an error message: */
-/*          "unrecognized %option: line"           */
-/*          with flex 2.5.35; the --noline         */
-/*          command-line option works OK.          */
-/*                                                 */
-/* debug:   Do output of "rule acceptance" info    */
-/*           during parse                          */ 
-/*                                                 */
+/* Options useful for debugging				*/
+/* noline:  Prevent generation of #line directives	*/
+/*	    Seems to be required when using the		*/
+/*	    Windows VS debugger so as to be able	*/
+/*	    to properly step through the code and	*/
+/*	    set breakpoints & etc using the		*/
+/*	    k12text.c file rather than the		*/
+/*	    k12text.l file				*/
+/*	XXX: %option noline gives an error message:	*/
+/*	    "unrecognized %option: line"		*/
+/*	    with flex 2.5.35; the --noline		*/
+/*	    command-line option works OK.		*/
+/*							*/
+/* debug:   Do output of "rule acceptance" info		*/
+/*	    during parse				*/
+/*							*/
 /* %option noline  */
 /* %option debug   */
 
@@ -164,9 +164,11 @@ static void finalize_frame(void) {
 	ok_frame = TRUE;
 }
 
-/* Fill in pseudo-header according to the encapsulation type             */
+/* Fill in pseudo-header according to the encapsulation type	*/
 
-static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header) {
+static void
+k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header)
+{
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
 	switch(wth->phdr.pkt_encap) {
 	    case WTAP_ENCAP_ETHERNET:
@@ -177,12 +179,12 @@ static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseud
 		    /* no pseudo_header to fill in for these types */
 		    break;
 #if 0
-	    case WTAP_ENCAP_MTP2:      /* not (yet) supported       */
-	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported       */
-		    /* XXX: I don't know how to fill in the         */
-                    /* pseudo_header for these types. So: The Lexer */
-                    /* has recognition for these types commented    */
-		    /* out ....                                     */
+	    case WTAP_ENCAP_MTP2:      /* not (yet) supported		*/
+	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported		*/
+		    /* XXX: I don't know how to fill in the		*/
+		    /* pseudo_header for these types. So: The Lexer	*/
+		    /* has recognition for these types commented	*/
+		    /* out ....						*/
 		    break;
 #endif
 	    case WTAP_ENCAP_UNKNOWN:
@@ -191,14 +193,16 @@ static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseud
 	}
 }
 
-/* Note: k12text_reset is called each time data is to be processed from  */
-/*       a file. This ensures that no "state" from a previous read is    */
-/*       used (such as the lexer look-ahead buffer, file_handle, file    */
-/*       position and so on. This allows a single lexer buffer to be     */
-/*       used even when multiple files are open simultaneously (as for   */
-/*       a file merge).                                                  */
+/* Note: k12text_reset is called each time data is to be processed from	*/
+/*       a file. This ensures that no "state" from a previous read is	*/
+/*       used (such as the lexer look-ahead buffer, file_handle, file	*/
+/*       position and so on. This allows a single lexer buffer to be	*/
+/*       used even when multiple files are open simultaneously (as for	*/
+/*       a file merge).							*/
 
-static void k12text_reset(FILE_T fh) {
+static void
+k12text_reset(FILE_T fh)
+{
 	yy_fh = fh;
 	yyrestart(0);
 	g_encap = WTAP_ENCAP_UNKNOWN;
@@ -216,17 +220,19 @@ static void k12text_reset(FILE_T fh) {
 	ii=0;
 }
 
-static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset) {
+static gboolean
+k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
+{
 
-	/* We seek to the file position after the end of the previous frame processed by         */
-	/* k12text_read (kept in wth->data_offset). We do this each time since the lexer         */
-	/* undoubtedly did some amount of look-ahead when processing the previous frame.         */ 
-	/* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer. */
+	/* We seek to the file position after the end of the previous frame processed by		*/
+	/* k12text_read (kept in wth->data_offset). We do this each time since the lexer		*/
+	/* undoubtedly did some amount of look-ahead when processing the previous frame.		*/
+	/* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer.	*/
 
 	if ( file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	k12text_reset(wth->fh);          /* init lexer buffer and vars set by lexer */
+	k12text_reset(wth->fh);		/* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
@@ -259,12 +265,14 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 	return TRUE;
 }
 
-static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err, char **err_info) {
+static gboolean
+k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err, char **err_info)
+{
 
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	k12text_reset(wth->random_fh);            /* init lexer buffer and vars set by lexer */
+	k12text_reset(wth->random_fh);		/* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
@@ -295,7 +303,9 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	return TRUE;
 }
 
-int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
+int
+k12text_open(wtap *wth, int *err, gchar **err_info _U_)
+{
 
 	k12text_reset(wth->fh);       /* init lexer buffer and vars set by lexer */
 
@@ -331,17 +341,23 @@ static const struct { int e; const char* s; } encaps[] = {
 	{ 0, NULL }
 };
 
-static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
-                         const union wtap_pseudo_header *pseudo_header _U_,
-                         const guchar *pd, int *err) {
-	char buf[196808];
-	size_t left = 196808;
+static gboolean
+k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
+	     const union wtap_pseudo_header *pseudo_header _U_,
+	     const guchar *pd, int *err) {
+#define K12BUF_SIZE 196808
+	char *buf;
+	size_t left = K12BUF_SIZE;
 	gint wl;
-	char* p=buf;
+	char *p;
 	const char* str_enc = "";
 	guint i;
 	guint ns;
 	guint ms;
+	gboolean ret;
+
+	buf = g_malloc(K12BUF_SIZE);
+	p = buf;
 
 	ms = phdr->ts.nsecs / 1000000;
 	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
@@ -351,34 +367,40 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 		if (phdr->pkt_encap == encaps[i].e) break;
 	}
 
-	strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
+	strftime(p, 90, "+---------+---------------+----------+\r\n%H:%M:%S,",
+		 gmtime(&phdr->ts.secs));
 	wl = strlen(p);
 	p += wl;
 	left -= wl;
 
-	wl = g_snprintf(p,left,"%.3d,%.3d   %s\r\n|0   |",ms,ns,str_enc);
-	p+= wl;
+	wl = g_snprintf(p, left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
+	p += wl;
 	left -= wl;
 
-	for(i=0;i < phdr->caplen && left > 2; i++) {
-		wl = g_snprintf(p,left,"%.2x|",pd[i]);
+	for(i = 0; i < phdr->caplen && left > 2; i++) {
+		wl = g_snprintf(p, left, "%.2x|", pd[i]);
 		p += wl;
 		left -= wl;
 	}
 
-	wl = g_snprintf(p,left,"\r\n\r\n");
+	wl = g_snprintf(p, left, "\r\n\r\n");
 	p+= wl;
 	left -= wl;
 
-	return wtap_dump_file_write(wdh, buf, strlen(buf), err);
+	ret = wtap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);
+
+	g_free(buf);
+	return ret;
 }
 
 
-gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
+gboolean
+k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+{
 
     if (cant_seek) {
-        *err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-        return FALSE;
+	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+	return FALSE;
     }
 
     wdh->subtype_write = k12text_dump;
@@ -386,9 +408,11 @@ gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
     return TRUE;
 }
 
-int k12text_dump_can_write_encap(int encap) {
+int
+k12text_dump_can_write_encap(int encap)
+{
     switch (encap) {
-        case WTAP_ENCAP_PER_PACKET:
+	case WTAP_ENCAP_PER_PACKET:
 	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_MTP3:
 	case WTAP_ENCAP_CHDLC:
@@ -403,7 +427,7 @@ int k12text_dump_can_write_encap(int encap) {
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */
