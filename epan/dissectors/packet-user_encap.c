@@ -116,16 +116,22 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 		call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
 		offset = encap->header_size;
 		if (encap->header_proto_name) {
-			const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->header_proto_name));
-			proto_item_append_text(item, ", Header: %s (%s)", encap->header_proto_name, proto_name);
+			int proto_id = proto_get_id_by_filter_name(encap->header_proto_name);
+			if (proto_id != -1) {
+				const char *proto_name = proto_get_protocol_name(proto_id);
+				proto_item_append_text(item, ", Header: %s (%s)", encap->header_proto_name, proto_name);
+			}
 		}
 	}
 	
 	payload_tvb = tvb_new_subset(tvb, encap->header_size, len, len);
 	call_dissector(encap->payload_proto, payload_tvb, pinfo, tree);
 	if (encap->payload_proto_name) {
-		const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->payload_proto_name));
-		proto_item_append_text(item, ", Payload: %s (%s)", encap->payload_proto_name, proto_name);
+		int proto_id = proto_get_id_by_filter_name(encap->payload_proto_name);
+		if (proto_id != -1) {
+			const char *proto_name = proto_get_protocol_name(proto_id);
+			proto_item_append_text(item, ", Payload: %s (%s)", encap->payload_proto_name, proto_name);
+		}
 	}
 
 	if (encap->trailer_size) {
@@ -133,8 +139,11 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 		call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
 		offset = encap->trailer_size;
 		if (encap->trailer_proto_name) {
-			const char *proto_name = proto_get_protocol_name(proto_get_id_by_filter_name(encap->trailer_proto_name));
-			proto_item_append_text(item, ", Trailer: %s (%s)", encap->trailer_proto_name, proto_name);
+			int proto_id = proto_get_id_by_filter_name(encap->trailer_proto_name);
+			if (proto_id != -1) {
+				const char *proto_name = proto_get_protocol_name(proto_id);
+				proto_item_append_text(item, ", Trailer: %s (%s)", encap->trailer_proto_name, proto_name);
+			}
 		}
 	}
 }
