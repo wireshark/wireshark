@@ -1187,7 +1187,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "User interface:\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
-  fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display) filter\n");
+  fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
+  fprintf(output, "                           filter\n");
   fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");

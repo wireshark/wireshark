@@ -307,7 +307,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "     header=y|n            switch headers on and off\n");
   fprintf(output, "     separator=/t|/s|<char> select tab, space, printable character as separator\n");
   fprintf(output, "     occurrence=f|l|a      print first, last or all occurrences of each field\n");
-  fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as aggregator\n");
+  fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
+  fprintf(output, "                           aggregator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
