@@ -203,12 +203,11 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	 * and allow the minor version number to be omitted, and
 	 * report aggregate statistics for all minor version numbers
 	 * if it's omitted?
-	 *
-	 * XXX - should this be called "srt" rather than "rtt"?  The
-	 * equivalent tap for Wireshark calls it "srt", for "Service
-	 * Response Time", rather than "rtt" for "Round-Trip Time".
 	 */
-	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+	if(sscanf(optarg,
+		"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n",
+		&d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,
+		&major,&minor,&pos)==13){
 		uuid.Data1=d1;
 		uuid.Data2=d2;
 		uuid.Data3=d3;
@@ -226,7 +225,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tshark: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+		fprintf(stderr, "tshark: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 	if (major < 0 || major > 65535) {
@@ -287,7 +286,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tshark: Couldn't register dcerpc,rtt tap: %s\n",
+		fprintf(stderr, "tshark: Couldn't register dcerpc,srt tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -297,5 +296,5 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_stat_cmd_arg("dcerpc,rtt,", dcerpcstat_init,NULL);
+	register_stat_cmd_arg("dcerpc,srt,", dcerpcstat_init,NULL);
 }
