@@ -51,7 +51,7 @@
  *   exactly 32 bytes must have been read into this packet before this. If the offset
  *   is wrong, the packet is immediately terminated
  *
- * A packet start is signalled by a zero offset.
+ * A packet start is signaled by a zero offset.
  *
  * Lines starting with #TEXT2PCAP are directives. These allow the user
  * to embed instructions into the capture file which allows text2pcap
@@ -789,7 +789,7 @@ parse_preamble (void)
 	 */
 	packet_preamble[packet_preamble_len] = '\0';
 
-	/* Ensure preamble has more than two chars before atempting to parse.
+	/* Ensure preamble has more than two chars before attempting to parse.
 	 * This should cover line breaks etc that get counted.
 	 */
 	if ( strlen(packet_preamble) > 2 ) {

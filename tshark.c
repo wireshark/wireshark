@@ -699,7 +699,7 @@ add_decode_as(const gchar *cl_param)
        than the ones listed above. */
     g_assert_not_reached();
   }
-  g_free(decoded_param); /* "Decode As" rule has been succesfully added */
+  g_free(decoded_param); /* "Decode As" rule has been successfully added */
   return TRUE;
 }
 
@@ -2226,7 +2226,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
                              filtering_tap_listeners, tap_flags);
       }
       if (ret != FALSE) {
-        /* packet sucessfully read and gone through the "Read Filter" */
+        /* packet successfully read and gone through the "Read Filter" */
         packet_count++;
       }
     }
