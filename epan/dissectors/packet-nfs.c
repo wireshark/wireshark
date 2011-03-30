@@ -1627,37 +1627,37 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		item = proto_tree_add_text(tree, tvb, offset + 0, 8,
 					   "mount (inode %u)", mount);
 		subtree = proto_item_add_subtree(item, ett_nfs_fh_mount);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_mount_fileid,
+		proto_tree_add_uint(subtree, hf_nfs_fh_mount_fileid,
 					   tvb, offset + 0, 4, mount);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_mount_generation,
+		proto_tree_add_uint(subtree, hf_nfs_fh_mount_generation,
 					   tvb, offset + 4, 4, mount_gen);
 		item = proto_tree_add_text(tree, tvb, offset + 8, 16,
 					   "file (inode %u)", inum);
 		subtree = proto_item_add_subtree(item, ett_nfs_fh_file);
-		item = proto_tree_add_uint_format(subtree, hf_nfs_fh_flags,
+		proto_tree_add_uint_format(subtree, hf_nfs_fh_flags,
 						  tvb, offset + 8, 2, flags,
 						  "Flags: %#02x%s", flags,
 						  flag_string);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
 					   offset + 10, 1, snapid);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
 					   offset + 11, 1, unused);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
 					   offset + 12, 4, inum);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
 					   offset + 16, 4, generation);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
+		proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
 					   offset + 20, 4, fsid);
 		item = proto_tree_add_text(tree, tvb, offset + 24, 8,
 					   "export (inode %u)", export);
 		subtree = proto_item_add_subtree(item, ett_nfs_fh_export);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
+		proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
 					   tvb, offset + 24, 4, export);
-		item = proto_tree_add_uint(subtree,
+		proto_tree_add_uint(subtree,
 					   hf_nfs_fh_export_generation,
 					   tvb, offset + 28, 3,
 					   export_snapgen & 0xffffff);
-		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_snapid,
+		proto_tree_add_uint(subtree, hf_nfs_fh_export_snapid,
 					   tvb, offset + 31, 1,
 					   export_snapgen >> 24);
 	}
