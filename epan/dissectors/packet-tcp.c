@@ -4941,6 +4941,7 @@ proto_register_tcp(void)
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol",
         "TCP", "tcp");
+    register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -5001,7 +5002,7 @@ proto_reg_handoff_tcp(void)
 {
     dissector_handle_t tcp_handle;
 
-    tcp_handle = create_dissector_handle(dissect_tcp, proto_tcp);
+    tcp_handle = find_dissector("tcp");
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
     data_handle = find_dissector("data");
     tcp_tap = register_tap("tcp");
