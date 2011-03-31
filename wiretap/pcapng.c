@@ -1119,8 +1119,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		block_read += bytes_read;
 
 		if (pn->byte_swapped) {
-			nrb.record_type = BSWAP32(nrb.record_type);
-			nrb.record_len  = BSWAP32(nrb.record_len);
+			nrb.record_type = BSWAP16(nrb.record_type);
+			nrb.record_len  = BSWAP16(nrb.record_len);
 		}
 
 		switch(nrb.record_type) {
