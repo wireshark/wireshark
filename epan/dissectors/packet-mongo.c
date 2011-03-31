@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 /* This is not IANA assigned nor registered */
@@ -112,10 +113,9 @@ static int hf_mongo_document_length = -1;
 static int hf_mongo_delete_flags = -1;
 static int hf_mongo_delete_flags_singleremove = -1;
 static int hf_mongo_number_of_cursor_ids = -1;
+static int hf_mongo_unknown = -1;
 
 static guint global_mongo_tcp_port = TCP_PORT_MONGO;
-
-static dissector_handle_t data_handle;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -338,7 +338,6 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *mongo_tree;
 	guint offset = 0, opcode;
-	tvbuff_t *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MONGO");
 
@@ -398,11 +397,14 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_mongo_kill_cursors(tvb, offset, mongo_tree);
 		break;
 		default:
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			/* No default Action */
 		break;
 		}
-
+		if(offset < tvb_reported_length(tvb))
+		{
+			ti = proto_tree_add_item(mongo_tree, hf_mongo_unknown, tvb, offset, -1, ENC_NA);
+			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+		}
 	}
 
 }
@@ -626,6 +628,11 @@ proto_register_mongo(void)
 			FT_INT32, BASE_DEC, NULL, 0x0,
 			"Number of cursorIDs in message", HFILL }
 		},
+		{ &hf_mongo_unknown,
+			{ "Unknown",           "mongo.unknown",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Unknown Data type", HFILL }
+		},
 	};
 
 	static gint *ett[] = {
@@ -659,7 +666,6 @@ proto_reg_handoff_mongo(void)
 	if (!initialized) {
 
 		mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
-		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {
 
