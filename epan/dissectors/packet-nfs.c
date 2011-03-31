@@ -7945,7 +7945,7 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 						   &b1, &b2, &b3, &b4, &b5, &b6) == 6) {
 			/* IPv4: h1.h2.h3.h4.p1.p2 */
 			port = (b5<<8) | b6;
-			proto_tree_add_text(tree, tvb, addr_offset, offset,
+			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset,
 				"[callback IPv4 address %u.%u.%u.%u, protocol=%s, port=%u]",
 				b1, b2, b3, b4, protocol, port);
 		} else if (universal_ip_address && sscanf(universal_ip_address, "%u.%u",
@@ -7958,7 +7958,7 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 						"%2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x.%u.%u",
 						&b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8, &b9, &b10) == 10) {
 			port = (b9<<8) | b10;
-			proto_tree_add_text(tree, tvb, addr_offset, offset,
+			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset,
 				"[callback IPv6 address %2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x, protocol=%s, port=%u]",
 				b1, b2, b3, b4, b5, b6, b7, b8, protocol, port);
 		} else {
