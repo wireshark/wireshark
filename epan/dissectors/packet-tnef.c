@@ -250,7 +250,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 	 guint32 length, count, i;
 
 	 count = tvb_get_letohl(tvb, offset);
-	 item = proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, TRUE);
+	 proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, TRUE);
 
 	 if(count > 1) {
 		 if(single) {
@@ -309,30 +309,29 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
 
 static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *item;
 	gint offset;
 
 	offset = 0;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, TRUE);
 	offset +=2;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, TRUE);
 	offset +=2;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, TRUE);
 	offset +=2;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, TRUE);
 	offset +=2;
 	
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, TRUE);
 	offset +=2;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, TRUE);
 	offset +=2;
 
-	item = proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, TRUE);
 	offset +=2;
 }
 
@@ -360,7 +359,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	pinfo->private_data = &di;
 	
 	/* first the count */
-	item = proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, TRUE);
 	count = tvb_get_letohl(tvb, offset);
 	
 	offset += 4;
@@ -490,7 +489,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		if((padding = (4 - (offset - start_offset) % 4)) != 4) {
 			
 			/* we need to pad */
-			item = proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
+			proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
 			
 			offset += padding;
 		}
@@ -538,7 +537,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  item = proto_tree_add_item(tree, hf_tnef_key, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_tnef_key, tvb, offset, 2, TRUE);
   offset += 2;
 
   while(tvb_length_remaining(tvb, offset) > 9 ) { /* there must be at least a level (1), tag (4) and length (4) to be valid */
