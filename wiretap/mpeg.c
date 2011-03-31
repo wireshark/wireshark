@@ -69,7 +69,8 @@ mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 			byte = file_getc(wth->fh);
 		count++;
 	}
-	file_seek(wth->fh, offset, SEEK_SET, err);
+	if (file_seek(wth->fh, offset, SEEK_SET, err) == -1)
+		return 0;
 	return count;
 }
 
