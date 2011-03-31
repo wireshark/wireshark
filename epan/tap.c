@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -51,9 +51,9 @@ static tap_dissector_t *tap_dissector_list=NULL;
 
 /*
  * This is the list of free and used packets queued for a tap.
- * It is implemented here explicitely instead of using GLib objects
+ * It is implemented here explicitly instead of using GLib objects
  * in order to be as fast as possible as we need to build and tear down the
- * queued list at least once for each packet we see, thus we must be able
+ * queued list at least once for each packet we see and thus we must be able
  * to build and tear it down as fast as possible.
  */
 typedef struct _tap_packet_t {
@@ -97,8 +97,8 @@ tap_init(void)
  * Functions called from dissector when made tappable
  * ********************************************************************** */
 /* the following two functions are used from dissectors to
-   1, register the ability to tap packets from this subdissector
-   2, push packets encountered by the subdissector to anyone tapping
+   1. register the ability to tap packets from this subdissector
+   2. push packets encountered by the subdissector to anyone tapping
 */
 
 /* This function registers that a dissector has the packet tap ability
@@ -112,7 +112,7 @@ tap_init(void)
    tap_packet(unsigned int *tap_id,...
    call so that the tap subsystem knows to which tap point this tapped
    packet is associated.
-*/  
+*/
 int
 register_tap(const char *name)
 {
@@ -150,18 +150,18 @@ register_tap(const char *name)
    from and who is listening to it)
    The second is the packet_info structure which many tap readers will find
    interesting.
-   The third argument is specific to each tap point or NULL if no additional 
+   The third argument is specific to each tap point or NULL if no additional
    data is available to this tap.  A tap point in say IP will probably want to
    push the IP header structure here. Same thing for TCP and ONCRPC.
-  
+
    The pinfo and the specific pointer are what is supplied to every listener
    in the read_callback() call made to every one currently listening to this
    tap.
- 
-   The tap reader is responsible to know how to parse any structure pointed 
+
+   The tap reader is responsible to know how to parse any structure pointed
    to by the tap specific data pointer.
 */
-void 
+void
 tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 {
 	tap_packet_t *tpt;
@@ -233,7 +233,7 @@ tap_queue_init(epan_dissect_t *edt)
 /* this function is called after a packet has been fully dissected to push the tapped
    data to all extensions that has callbacks registered.
 */
-void 
+void
 tap_push_tapped_queue(epan_dissect_t *edt)
 {
 	tap_packet_t *tp;
@@ -274,7 +274,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 /* This function can be used by a dissector to fetch any tapped data before
  * returning.
  * This can be useful if one wants to extract the data inside dissector  BEFORE
- * it exists as an alternative to the callbacks that are all called AFTER the 
+ * it exists as an alternative to the callbacks that are all called AFTER the
  * dissection has completed.
  *
  * Example: SMB2 uses this mechanism to extract the data tapped from NTLMSSP
@@ -285,7 +285,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
  * use "filters" and should specify the "filter" as NULL when registering
  * the tap listener.
  */
-const void * 
+const void *
 fetch_tapped_data(int tap_id, int idx)
 {
 	tap_packet_t *tp;
@@ -334,9 +334,9 @@ reset_tap_listeners(void)
 
 /* This function is called when we need to redraw all tap listeners, for example
    when we open/start a new capture or if we need to rescan the packet list.
-   this one should be called from a low priority thread say once every 3 seconds
- 
-   If draw_all is true, redraw all aplications regardless if they have 
+   It should be called from a low priority thread say once every 3 seconds
+
+   If draw_all is true, redraw all aplications regardless if they have
    changed or not.
 */
 void
@@ -358,15 +358,15 @@ draw_tap_listeners(gboolean draw_all)
 
 /* **********************************************************************
  * Functions used by tap to
- * 1, register that a really simple extension is available for use by
- *    Wireshark. 
- * 2, start tapping from a subdissector 
- * 3, close an already open tap
+ * 1. register that a really simple extension is available for use by
+ *    Wireshark.
+ * 2. start tapping from a subdissector
+ * 3. close an already open tap
  * ********************************************************************** */
 /* this function will return the tap_id for the specific protocol tap
    or 0 if no such tap was found.
  */
-int 
+int
 find_tap_id(const char *name)
 {
 	tap_dissector_t *td;
@@ -448,7 +448,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 				tl=tl2->next;
 				break;
 			}
-			
+
 		}
 	}
 
@@ -493,7 +493,7 @@ remove_tap_listener(void *tapdata)
 				tl2->next=tl2->next->next;
 				break;
 			}
-			
+
 		}
 	}
 
