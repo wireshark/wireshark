@@ -281,7 +281,7 @@ since_attr since=\042
 
 	if (!e) {
 		temp_str = g_strdup_printf(
-			"cannot find entity: '%s'\n", e->name);
+			"cannot find entity: '%s'\n", yytext);
 		dict_error = g_string_append(dict_error, temp_str);
 		g_free(temp_str);
 		yyterminate();
