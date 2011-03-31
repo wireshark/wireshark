@@ -41,7 +41,6 @@
 static int proto_erf        = -1;
 
 static int hf_erf_ts   = -1;
-static int hf_erf_types     = -1;
 static int hf_erf_type      = -1;
 static int hf_erf_ehdr      = -1;
 static int hf_erf_ehdr_t      = -1;
@@ -129,7 +128,6 @@ static int hf_erf_mc_atm_res3    = -1;
 
 /* MC Raw link Header */
 static int hf_erf_mc_rawl_cn   = -1;
-static int hf_erf_mc_rawl_res1 = -1;
 static int hf_erf_mc_rawl_res2 = -1;
 static int hf_erf_mc_rawl_lbe  = -1;
 static int hf_erf_mc_rawl_first = -1;
@@ -1213,7 +1211,6 @@ proto_register_erf(void)
   static hf_register_info hf[] = {
     /* ERF Header */
     { &hf_erf_ts, { "Timestamp", "erf.ts", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_erf_types, { "types", "erf.types", FT_UINT8, BASE_DEC,  NULL, ERF_HDR_TYPES_MASK, NULL, HFILL } },
     { &hf_erf_type, { "type", "erf.types.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), ERF_HDR_TYPE_MASK, NULL, HFILL } },
     { &hf_erf_ehdr, { "Extension header present", "erf.types.ext_header", FT_UINT8, BASE_DEC,  NULL, ERF_HDR_EHDR_MASK, NULL, HFILL } },
     { &hf_erf_flags,{ "flags", "erf.flags", FT_UINT8, BASE_DEC, NULL, ERF_HDR_FLAGS_MASK, NULL, HFILL } },
@@ -1299,7 +1296,6 @@ proto_register_erf(void)
 
     /* MC RAW Link Header */
     { &hf_erf_mc_rawl_cn,   { "connection number", "erf.mcrawl.cn", FT_UINT8, BASE_DEC, NULL, MC_RAWL_CN_MASK, NULL, HFILL } },
-    { &hf_erf_mc_rawl_res1, { "reserved", "erf.mcrawl.res1", FT_UINT16, BASE_DEC, NULL, MC_RAWL_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_rawl_res2,  { "reserved", "erf.mcrawl.res2", FT_UINT8, BASE_DEC, NULL, MC_RAWL_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_rawl_lbe,  { "Lost byte error", "erf.mcrawl.lbe", FT_UINT8, BASE_DEC, NULL, MC_RAWL_LBE_MASK, NULL, HFILL } },
     { &hf_erf_mc_rawl_first, { "First record", "erf.mcrawl.first", FT_UINT8, BASE_DEC, NULL, MC_RAWL_FIRST_MASK, NULL, HFILL } },

@@ -1278,7 +1278,6 @@ static int      hf_pie_ntop_client_nw_delay_usec = -1;
 static int      hf_pie_ntop_server_nw_delay_sec	 = -1;
 static int      hf_pie_ntop_server_nw_delay_usec = -1;
 static int      hf_pie_ntop_appl_latency_sec	 = -1;
-static int      hf_pie_ntop_appl_latency_usec	 = -1;
 static int      hf_pie_ntop_icmp_flags		 = -1;
 static int      hf_pie_ntop_src_ip_country	 = -1;
 static int      hf_pie_ntop_src_ip_city		 = -1;
@@ -7074,12 +7073,6 @@ proto_register_netflow(void)
                 /* ntop, 35632 / 86 */
                 {&hf_pie_ntop_appl_latency_sec,
 		 {"Appl_latency_sec","cflow.pie.ntop.appl_latency_sec",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}
-		},
-                /* ntop, 35632 / 87 */
-                {&hf_pie_ntop_appl_latency_usec,
-		 {"Appl_latency_usec","cflow.pie.ntop.appl_latency_usec",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}
 		},
