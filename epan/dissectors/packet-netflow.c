@@ -2314,7 +2314,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 	proto_tree     *string_tree;
 
-        gchar *         gen_str = NULL;
+	gchar *         gen_str = NULL;
 	int             gen_str_offset = 0;
 
 	proto_item     *ti;
@@ -4407,23 +4407,27 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case (NTOP_BASE + 130):		  /* SIP_CALL_ID */
 		case ((VENDOR_NTOP << 16) | 130): /* SIP_CALL_ID */
-			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_call_id,
-						 tvb, offset, length, FALSE);
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_sip_call_id,
+						   tvb, offset, length, gen_str);
 			break;
 		case (NTOP_BASE + 131):	          /* SIP_CALLING_PARTY */
 		case ((VENDOR_NTOP << 16) | 131): /* SIP_CALLING_PARTY */
-			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_calling_party,
-						 tvb, offset, length, FALSE);
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_sip_calling_party,
+						   tvb, offset, length, gen_str);
 			break;
 		case (NTOP_BASE + 132):	          /* SIP_CALLED_PARTY */
 		case ((VENDOR_NTOP << 16) | 132): /* SIP_CALLED_PARTY */
-			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_called_party,
-						 tvb, offset, length, FALSE);
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_sip_called_party,
+						   tvb, offset, length, gen_str);
 			break;
 		case (NTOP_BASE + 133):		  /* SIP_RTP_CODECS */
 		case ((VENDOR_NTOP << 16) | 133): /* SIP_RTP_CODECS */
-			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_codecs,
-						 tvb, offset, length, FALSE);
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_sip_rtp_codecs,
+						   tvb, offset, length, gen_str);
 			break;
 		case (NTOP_BASE + 134):	          /* SIP_INVITE_TIME */
 		case ((VENDOR_NTOP << 16) | 134): /* SIP_INVITE_TIME */
@@ -7197,25 +7201,25 @@ proto_register_netflow(void)
                 /* ntop, 35632 / 130 */
                 {&hf_pie_ntop_sip_call_id,
 		 {"Sip_call_id","cflow.pie.ntop.sip_call_id",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
                 /* ntop, 35632 / 131 */
                 {&hf_pie_ntop_sip_calling_party,
 		 {"Sip_calling_party","cflow.pie.ntop.sip_calling_party",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
                 /* ntop, 35632 / 132 */
                 {&hf_pie_ntop_sip_called_party,
 		 {"Sip_called_party","cflow.pie.ntop.sip_called_party",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
                 /* ntop, 35632 / 133 */
                 {&hf_pie_ntop_sip_rtp_codecs,
 		 {"Sip_rtp_codecs","cflow.pie.ntop.sip_rtp_codecs",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
                 /* ntop, 35632 / 134 */
