@@ -3128,15 +3128,15 @@ PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
 PRIVATE FILE *tplt_open(struct lemon *lemp)
 {
   static char templatename[] = "lempar.c";
-  char* buf;
   FILE *in;
   char *tpltname = NULL;
   char *cp;
 
   if (lemp->templatename) {
 	  tpltname = strdup(lemp->templatename);
-  }
-  else {
+  } else {
+	  char* buf;
+
 	  cp = strrchr(lemp->filename,'.');
 	  buf = malloc(1000);
 	  if( cp ){
@@ -3145,13 +3145,13 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	    sprintf(buf,"%s.lt",lemp->filename);
 	  }
 	  if( access(buf,004)==0 ){
-	    tpltname = buf;
+	    tpltname = strdup(buf);
 	  }else if( access(templatename,004)==0 ){
 	    tpltname = strdup(templatename);
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
-		free(buf);
 	  }
+	  free(buf);
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
