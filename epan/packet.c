@@ -1682,6 +1682,17 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
  */
 static GHashTable *registered_dissectors = NULL;
 
+/* Get the long name of the protocol for a dissector handle, if it has
+   a protocol. */
+const char *
+dissector_handle_get_long_name(const dissector_handle_t handle)
+{
+	if (handle == NULL || handle->protocol == NULL) {
+		return NULL;
+	}
+	return proto_get_protocol_long_name(handle->protocol);
+}
+
 /* Get the short name of the protocol for a dissector handle, if it has
    a protocol. */
 const char *

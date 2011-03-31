@@ -313,6 +313,9 @@ extern void register_dissector(const char *name, dissector_t dissector,
 extern void new_register_dissector(const char *name, new_dissector_t dissector,
     const int proto);
 
+/* Get the long name of the protocol for a dissector handle. */
+extern const char *dissector_handle_get_long_name(const dissector_handle_t handle);
+
 /* Get the short name of the protocol for a dissector handle. */
 extern const char *dissector_handle_get_short_name(const dissector_handle_t handle);
 
