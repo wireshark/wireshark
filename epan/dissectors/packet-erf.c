@@ -208,7 +208,8 @@ static gboolean erf_rawcell_first = FALSE;
 
 typedef enum {
   ERF_AAL5_GUESS = 0,
-  ERF_AAL5_LLC = 1
+  ERF_AAL5_LLC = 1,
+  ERF_AAL5_UNSPEC = 2
 } erf_aal5_type_val;
 static gint erf_aal5_type = ERF_AAL5_GUESS;
 static dissector_handle_t atm_untruncated_handle;
@@ -1030,6 +1031,12 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->pseudo_header->atm.type = TRAF_LLCMX;
         pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
         break;
+
+      case ERF_AAL5_UNSPEC:
+        pinfo->pseudo_header->atm.aal = AAL_5;
+        pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        break;
       }
 
       call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
@@ -1070,6 +1077,12 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case ERF_AAL5_LLC:
       pinfo->pseudo_header->atm.type = TRAF_LLCMX;
+      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      break;
+
+    case ERF_AAL5_UNSPEC:
+      pinfo->pseudo_header->atm.aal = AAL_5;
+      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
       pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
       break;
     }
@@ -1355,6 +1368,7 @@ proto_register_erf(void)
   static enum_val_t erf_aal5_options[] = {
     { "guess", "Attempt to guess", ERF_AAL5_GUESS },
     { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
+    { "unspec", "Unspecified", ERF_AAL5_UNSPEC },
     { NULL, NULL, 0 }
   };
 
