@@ -329,7 +329,7 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
       /*
        * If we have a separator, append it if the column isn't empty.
        */
-      if (separator != NULL) {
+      if (sep_len != 0) {
         if (len != 0) {
           g_strlcat(cinfo->col_buf[i], separator, max_len);
           len += sep_len;
