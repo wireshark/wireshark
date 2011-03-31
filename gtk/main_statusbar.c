@@ -107,6 +107,22 @@ statusbar_push_file_msg(const gchar *msg_format, ...)
     G_GNUC_PRINTF(1, 2);
 
 /*
+ * Return TRUE if there are any higher priority status level messages pushed.
+ * Return FALSE otherwise.
+ */
+static gboolean
+higher_priority_status_level(int level)
+{
+    int i;
+
+    for (i = level + 1; i < NUM_STATUS_LEVELS; i++) {
+        if (status_levels[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
+/*
  * Push a formatted message referring to file access onto the statusbar.
  */
 static void
@@ -114,13 +130,10 @@ statusbar_push_file_msg(const gchar *msg_format, ...)
 {
     va_list ap;
     gchar *msg;
-    int i;
 
     /*g_warning("statusbar_push: %s", msg);*/
-    for (i = STATUS_LEVEL_FILE + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
+    if (higher_priority_status_level(STATUS_LEVEL_FILE))
+        return;
     status_levels[STATUS_LEVEL_FILE]++;
 
     va_start(ap, msg_format);
@@ -153,12 +166,9 @@ statusbar_push_field_msg(const gchar *msg_format, ...)
 {
     va_list ap;
     gchar *msg;
-    int i;
 
-    for (i = STATUS_LEVEL_HELP + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
+    if (higher_priority_status_level(STATUS_LEVEL_HELP))
+        return;
     status_levels[STATUS_LEVEL_HELP]++;
 
     va_start(ap, msg_format);
@@ -189,12 +199,9 @@ statusbar_push_filter_msg(const gchar *msg_format, ...)
 {
     va_list ap;
     gchar *msg;
-    int i;
 
-    for (i = STATUS_LEVEL_FILTER + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
+    if (higher_priority_status_level(STATUS_LEVEL_FILTER))
+        return;
     status_levels[STATUS_LEVEL_FILTER]++;
 
     va_start(ap, msg_format);
@@ -404,8 +411,6 @@ statusbar_widgets_show_or_hide(GtkWidget *statusbar)
 static void
 info_bar_new(void)
 {
-    int i;
-
     info_bar_event = gtk_event_box_new();
     info_bar = gtk_statusbar_new();
     gtk_container_add(GTK_CONTAINER(info_bar_event), info_bar);
@@ -416,9 +421,7 @@ info_bar_new(void)
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
 
-    for (i = 0; i < NUM_STATUS_LEVELS; i++) {
-        status_levels[i] = 0;
-    }
+    memset(status_levels, 0, sizeof(status_levels));
 
     gtk_widget_show(info_bar);
     gtk_widget_show(info_bar_event);
