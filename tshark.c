@@ -187,44 +187,44 @@ static void write_failure_message(const char *filename, int err);
 capture_file cfile;
 
 struct string_elem {
-    const char *sstr;   /* The short string */
-    const char *lstr;   /* The long string */
+  const char *sstr;   /* The short string */
+  const char *lstr;   /* The long string */
 };
 
 static gint
 string_compare(gconstpointer a, gconstpointer b)
 {
-    return strcmp(((struct string_elem *)a)->sstr, 
-        ((struct string_elem *)b)->sstr);
-}    
+  return strcmp(((struct string_elem *)a)->sstr,
+                ((struct string_elem *)b)->sstr);
+}
 
 static void
 string_elem_print(gpointer data, gpointer not_used _U_)
-{    
-    fprintf(stderr, "    %s - %s\n",
-        ((struct string_elem *)data)->sstr,
-        ((struct string_elem *)data)->lstr);
+{
+  fprintf(stderr, "    %s - %s\n",
+          ((struct string_elem *)data)->sstr,
+          ((struct string_elem *)data)->lstr);
 }
 
 static void
 list_capture_types(void) {
-    int i;
-    struct string_elem *captypes;
-    GSList *list = NULL;
+  int i;
+  struct string_elem *captypes;
+  GSList *list = NULL;
 
-    captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
+  captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
 
-    fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
-    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-        if (wtap_dump_can_open(i)) {
-            captypes[i].sstr = wtap_file_type_short_string(i);
-            captypes[i].lstr = wtap_file_type_string(i);
-            list = g_slist_insert_sorted(list, &captypes[i], string_compare);
-        }
+  fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i)) {
+      captypes[i].sstr = wtap_file_type_short_string(i);
+      captypes[i].lstr = wtap_file_type_string(i);
+      list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
-    g_slist_foreach(list, string_elem_print, NULL);
-    g_slist_free(list);
-    g_free(captypes);
+  }
+  g_slist_foreach(list, string_elem_print, NULL);
+  g_slist_free(list);
+  g_free(captypes);
 }
 
 static void
@@ -1080,288 +1080,288 @@ main(int argc, char *argv[])
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
-      case 'a':        /* autostop criteria */
-      case 'b':        /* Ringbuffer option */
-      case 'c':        /* Capture x packets */
-      case 'f':        /* capture filter */
-      case 'i':        /* Use interface x */
-      case 'p':        /* Don't capture in promiscuous mode */
+    case 'a':        /* autostop criteria */
+    case 'b':        /* Ringbuffer option */
+    case 'c':        /* Capture x packets */
+    case 'f':        /* capture filter */
+    case 'i':        /* Use interface x */
+    case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_PCAP_CREATE
-      case 'I':        /* Capture in monitor mode, if available */
+    case 'I':        /* Capture in monitor mode, if available */
 #endif
-      case 's':        /* Set the snapshot (capture) length */
-      case 'w':        /* Write to capture file x */
-      case 'y':        /* Set the pcap data link type */
+    case 's':        /* Set the snapshot (capture) length */
+    case 'w':        /* Write to capture file x */
+    case 'y':        /* Set the pcap data link type */
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      case 'B':        /* Buffer size */
+    case 'B':        /* Buffer size */
 #endif /* _WIN32 or HAVE_PCAP_CREATE */
 #ifdef HAVE_LIBPCAP
-        status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
-        if(status != 0) {
-            return status;
-        }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'C':
-        /* Configuration profile settings were already processed just ignore them this time*/
-        break;
-      case 'd':        /* Decode as rule */
-        if (!add_decode_as(optarg))
-          return 1;
-        break;
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-      case 'K':        /* Kerberos keytab file */
-        read_keytab_file(optarg);
-        break;
-#endif
-      case 'D':        /* Print a list of capture devices and exit */
-#ifdef HAVE_LIBPCAP
-        if_list = capture_interface_list(&err, &err_str);
-        if (if_list == NULL) {
-          switch (err) {
-          case CANT_GET_INTERFACE_LIST:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            break;
-
-          case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
-          }
-          return 2;
-        }
-        capture_opts_print_interfaces(if_list);
-        free_interface_list(if_list);
-        return 0;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-      case 'e':
-        /* Field entry */
-        output_fields_add(output_fields, optarg);
-        break;
-      case 'E':
-        /* Field option */
-        if(!output_fields_set_option(output_fields, optarg)) {
-          cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
-          output_fields_list_options(stderr);
-          return 1;
-        }
-        break;
-      case 'F':
-        out_file_type = wtap_short_string_to_file_type(optarg);
-        if (out_file_type < 0) {
-          cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
-          list_capture_types();
-          return 1;
-        }
-        break;
-      case 'W':        /* Select extra information to save in our capture file */
-        /* This is patterned after the -N flag which may not be the best idea. */
-        if (strchr(optarg, 'n'))
-            out_file_name_res = TRUE;
-        break;
-      case 'H':        /* Read address to name mappings from a hosts file */
-        if (! read_hosts_file(optarg))
-        {
-          cmdarg_err("Can't read host entries from \"%s\"", optarg);
-          return 1;
-        }
-        out_file_name_res = TRUE;
-        break;
-
-      case 'h':        /* Print help and exit */
-        print_usage(TRUE);
-        return 0;
-        break;
-      case 'l':        /* "Line-buffer" standard output */
-        /* This isn't line-buffering, strictly speaking, it's just
-           flushing the standard output after the information for
-           each packet is printed; however, that should be good
-           enough for all the purposes to which "-l" is put (and
-           is probably actually better for "-V", as it does fewer
-           writes).
-
-           See the comment in "process_packet()" for an explanation of
-           why we do that, and why we don't just use "setvbuf()" to
-           make the standard output line-buffered (short version: in
-           Windows, "line-buffered" is the same as "fully-buffered",
-           and the output buffer is only flushed when it fills up). */
-        line_buffered = TRUE;
-        break;
-      case 'L':        /* Print list of link-layer types and exit */
-#ifdef HAVE_LIBPCAP
-        list_link_layer_types = TRUE;
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-#if GLIB_CHECK_VERSION(2,10,0)
-      case 'P':        /* Perform two pass analysis */
-        perform_two_pass_analysis = TRUE;
-        break;
-#endif
-      case 'n':        /* No name resolution */
-        gbl_resolv_flags = RESOLV_NONE;
-        break;
-      case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (gbl_resolv_flags == RESOLV_ALL)
-          gbl_resolv_flags = RESOLV_NONE;
-        badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
-        if (badopt != '\0') {
-          cmdarg_err("-N specifies unknown resolving option '%c';",
-                     badopt);
-          cmdarg_err_cont( "           Valid options are 'm', 'n', 't', and 'C'");
-          return 1;
-        }
-        break;
-      case 'o':        /* Override preference from command line */
-        switch (prefs_set_pref(optarg)) {
-
-        case PREFS_SET_OK:
-          break;
-
-        case PREFS_SET_SYNTAX_ERR:
-          cmdarg_err("Invalid -o flag \"%s\"", optarg);
-          return 1;
-          break;
-
-        case PREFS_SET_NO_SUCH_PREF:
-        case PREFS_SET_OBSOLETE:
-          cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
-          return 1;
-          break;
-        }
-        break;
-      case 'q':        /* Quiet */
-        quiet = TRUE;
-        break;
-      case 'r':        /* Read capture file x */
-        cf_name = g_strdup(optarg);
-        break;
-      case 'R':        /* Read file filter */
-        rfilter = optarg;
-        break;
-      case 'S':        /* show packets in real time */
-        print_packet_info = TRUE;
-        break;
-      case 't':        /* Time stamp type */
-        if (strcmp(optarg, "r") == 0)
-          timestamp_set_type(TS_RELATIVE);
-        else if (strcmp(optarg, "a") == 0)
-          timestamp_set_type(TS_ABSOLUTE);
-        else if (strcmp(optarg, "ad") == 0)
-          timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
-        else if (strcmp(optarg, "d") == 0)
-          timestamp_set_type(TS_DELTA);
-        else if (strcmp(optarg, "dd") == 0)
-          timestamp_set_type(TS_DELTA_DIS);
-        else if (strcmp(optarg, "e") == 0)
-          timestamp_set_type(TS_EPOCH);
-        else {
-          cmdarg_err("Invalid time stamp type \"%s\"",
-            optarg);
-          cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
-          cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
-          return 1;
-        }
-        break;
-      case 'T':        /* printing Type */
-        if (strcmp(optarg, "text") == 0) {
-          output_action = WRITE_TEXT;
-          print_format = PR_FMT_TEXT;
-        } else if (strcmp(optarg, "ps") == 0) {
-          output_action = WRITE_TEXT;
-          print_format = PR_FMT_PS;
-        } else if (strcmp(optarg, "pdml") == 0) {
-          output_action = WRITE_XML;
-          verbose = TRUE;
-        } else if (strcmp(optarg, "psml") == 0) {
-          output_action = WRITE_XML;
-          verbose = FALSE;
-        } else if(strcmp(optarg, "fields") == 0) {
-          output_action = WRITE_FIELDS;
-          verbose = TRUE; /* Need full tree info */
-        } else {
-          cmdarg_err("Invalid -T parameter.");
-          cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
-          return 1;
-        }
-        break;
-      case 'u':        /* Seconds type */
-        if (strcmp(optarg, "s") == 0)
-          timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-        else if (strcmp(optarg, "hms") == 0)
-          timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
-        else {
-          cmdarg_err("Invalid seconds type \"%s\"", optarg);
-          cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
-          return 1;
-        }
-        break;
-      case 'v':         /* Show version and exit */
-      {
-        GString             *comp_info_str;
-        GString             *runtime_info_str;
-        /* Assemble the compile-time version information string */
-        comp_info_str = g_string_new("Compiled ");
-        get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
-
-        /* Assemble the run-time version information string */
-        runtime_info_str = g_string_new("Running ");
-        get_runtime_version_info(runtime_info_str, NULL);
-        show_version(comp_info_str, runtime_info_str);
-        g_string_free(comp_info_str, TRUE);
-        g_string_free(runtime_info_str, TRUE);
-        return 0;
-        break;
+      status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      if(status != 0) {
+        return status;
       }
-      case 'V':        /* Verbose */
-        verbose = TRUE;
-        /*  The user asked for a verbose output, so let's ensure they get it,
-         *  even if they're writing to a file.
-         */
-        print_packet_info = TRUE;
-        break;
-      case 'x':        /* Print packet data in hex (and ASCII) */
-        print_hex = TRUE;
-        /*  The user asked for hex output, so let's ensure they get it,
-         *  even if they're writing to a file.
-         */
-        print_packet_info = TRUE;
-        break;
-      case 'X':
-        break;
-      case 'z':
-        /* We won't call the init function for the stat this soon
-           as it would disallow MATE's fields (which are registered
-           by the preferences set callback) from being used as
-           part of a tap filter.  Instead, we just add the argument
-           to a list of stat arguments. */
-        if (!process_stat_cmd_arg(optarg)) {
-          cmdarg_err("invalid -z argument.");
-          cmdarg_err_cont("  -z argument must be one of :");
-          list_stat_cmd_args();
-          return 1;
-        }
-        break;
-      default:
-      case '?':        /* Bad flag - print usage message */
-        switch(optopt) {
-        case 'F':
-          list_capture_types();
+#else
+      capture_option_specified = TRUE;
+      arg_error = TRUE;
+#endif
+      break;
+    case 'C':
+      /* Configuration profile settings were already processed just ignore them this time*/
+      break;
+    case 'd':        /* Decode as rule */
+      if (!add_decode_as(optarg))
+        return 1;
+      break;
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+    case 'K':        /* Kerberos keytab file */
+      read_keytab_file(optarg);
+      break;
+#endif
+    case 'D':        /* Print a list of capture devices and exit */
+#ifdef HAVE_LIBPCAP
+      if_list = capture_interface_list(&err, &err_str);
+      if (if_list == NULL) {
+        switch (err) {
+        case CANT_GET_INTERFACE_LIST:
+          cmdarg_err("%s", err_str);
+          g_free(err_str);
           break;
-        default:
-          print_usage(TRUE);
+
+        case NO_INTERFACES_FOUND:
+          cmdarg_err("There are no interfaces on which a capture can be done");
+          break;
         }
+        return 2;
+      }
+      capture_opts_print_interfaces(if_list);
+      free_interface_list(if_list);
+      return 0;
+#else
+      capture_option_specified = TRUE;
+      arg_error = TRUE;
+#endif
+      break;
+    case 'e':
+      /* Field entry */
+      output_fields_add(output_fields, optarg);
+      break;
+    case 'E':
+      /* Field option */
+      if(!output_fields_set_option(output_fields, optarg)) {
+        cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
+        output_fields_list_options(stderr);
+        return 1;
+      }
+      break;
+    case 'F':
+      out_file_type = wtap_short_string_to_file_type(optarg);
+      if (out_file_type < 0) {
+        cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
+        list_capture_types();
+        return 1;
+      }
+      break;
+    case 'W':        /* Select extra information to save in our capture file */
+      /* This is patterned after the -N flag which may not be the best idea. */
+      if (strchr(optarg, 'n'))
+        out_file_name_res = TRUE;
+      break;
+    case 'H':        /* Read address to name mappings from a hosts file */
+      if (! read_hosts_file(optarg))
+      {
+        cmdarg_err("Can't read host entries from \"%s\"", optarg);
+        return 1;
+      }
+      out_file_name_res = TRUE;
+      break;
+
+    case 'h':        /* Print help and exit */
+      print_usage(TRUE);
+      return 0;
+      break;
+    case 'l':        /* "Line-buffer" standard output */
+      /* This isn't line-buffering, strictly speaking, it's just
+         flushing the standard output after the information for
+         each packet is printed; however, that should be good
+         enough for all the purposes to which "-l" is put (and
+         is probably actually better for "-V", as it does fewer
+         writes).
+
+         See the comment in "process_packet()" for an explanation of
+         why we do that, and why we don't just use "setvbuf()" to
+         make the standard output line-buffered (short version: in
+         Windows, "line-buffered" is the same as "fully-buffered",
+         and the output buffer is only flushed when it fills up). */
+      line_buffered = TRUE;
+      break;
+    case 'L':        /* Print list of link-layer types and exit */
+#ifdef HAVE_LIBPCAP
+      list_link_layer_types = TRUE;
+#else
+      capture_option_specified = TRUE;
+      arg_error = TRUE;
+#endif
+      break;
+#if GLIB_CHECK_VERSION(2,10,0)
+    case 'P':        /* Perform two pass analysis */
+      perform_two_pass_analysis = TRUE;
+      break;
+#endif
+    case 'n':        /* No name resolution */
+      gbl_resolv_flags = RESOLV_NONE;
+      break;
+    case 'N':        /* Select what types of addresses/port #s to resolve */
+      if (gbl_resolv_flags == RESOLV_ALL)
+        gbl_resolv_flags = RESOLV_NONE;
+      badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
+      if (badopt != '\0') {
+        cmdarg_err("-N specifies unknown resolving option '%c';",
+                   badopt);
+        cmdarg_err_cont( "           Valid options are 'm', 'n', 't', and 'C'");
+        return 1;
+      }
+      break;
+    case 'o':        /* Override preference from command line */
+      switch (prefs_set_pref(optarg)) {
+
+      case PREFS_SET_OK:
+        break;
+
+      case PREFS_SET_SYNTAX_ERR:
+        cmdarg_err("Invalid -o flag \"%s\"", optarg);
         return 1;
         break;
+
+      case PREFS_SET_NO_SUCH_PREF:
+      case PREFS_SET_OBSOLETE:
+        cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
+        return 1;
+        break;
+      }
+      break;
+    case 'q':        /* Quiet */
+      quiet = TRUE;
+      break;
+    case 'r':        /* Read capture file x */
+      cf_name = g_strdup(optarg);
+      break;
+    case 'R':        /* Read file filter */
+      rfilter = optarg;
+      break;
+    case 'S':        /* show packets in real time */
+      print_packet_info = TRUE;
+      break;
+    case 't':        /* Time stamp type */
+      if (strcmp(optarg, "r") == 0)
+        timestamp_set_type(TS_RELATIVE);
+      else if (strcmp(optarg, "a") == 0)
+        timestamp_set_type(TS_ABSOLUTE);
+      else if (strcmp(optarg, "ad") == 0)
+        timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
+      else if (strcmp(optarg, "d") == 0)
+        timestamp_set_type(TS_DELTA);
+      else if (strcmp(optarg, "dd") == 0)
+        timestamp_set_type(TS_DELTA_DIS);
+      else if (strcmp(optarg, "e") == 0)
+        timestamp_set_type(TS_EPOCH);
+      else {
+        cmdarg_err("Invalid time stamp type \"%s\"",
+                   optarg);
+        cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
+        cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
+        return 1;
+      }
+      break;
+    case 'T':        /* printing Type */
+      if (strcmp(optarg, "text") == 0) {
+        output_action = WRITE_TEXT;
+        print_format = PR_FMT_TEXT;
+      } else if (strcmp(optarg, "ps") == 0) {
+        output_action = WRITE_TEXT;
+        print_format = PR_FMT_PS;
+      } else if (strcmp(optarg, "pdml") == 0) {
+        output_action = WRITE_XML;
+        verbose = TRUE;
+      } else if (strcmp(optarg, "psml") == 0) {
+        output_action = WRITE_XML;
+        verbose = FALSE;
+      } else if(strcmp(optarg, "fields") == 0) {
+        output_action = WRITE_FIELDS;
+        verbose = TRUE; /* Need full tree info */
+      } else {
+        cmdarg_err("Invalid -T parameter.");
+        cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
+        return 1;
+      }
+      break;
+    case 'u':        /* Seconds type */
+      if (strcmp(optarg, "s") == 0)
+        timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+      else if (strcmp(optarg, "hms") == 0)
+        timestamp_set_seconds_type(TS_SECONDS_HOUR_MIN_SEC);
+      else {
+        cmdarg_err("Invalid seconds type \"%s\"", optarg);
+        cmdarg_err_cont("It must be \"s\" for seconds or \"hms\" for hours, minutes and seconds.");
+        return 1;
+      }
+      break;
+    case 'v':         /* Show version and exit */
+    {
+      GString             *comp_info_str;
+      GString             *runtime_info_str;
+      /* Assemble the compile-time version information string */
+      comp_info_str = g_string_new("Compiled ");
+      get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+
+      /* Assemble the run-time version information string */
+      runtime_info_str = g_string_new("Running ");
+      get_runtime_version_info(runtime_info_str, NULL);
+      show_version(comp_info_str, runtime_info_str);
+      g_string_free(comp_info_str, TRUE);
+      g_string_free(runtime_info_str, TRUE);
+      return 0;
+      break;
+    }
+    case 'V':        /* Verbose */
+      verbose = TRUE;
+      /*  The user asked for a verbose output, so let's ensure they get it,
+       *  even if they're writing to a file.
+       */
+      print_packet_info = TRUE;
+      break;
+    case 'x':        /* Print packet data in hex (and ASCII) */
+      print_hex = TRUE;
+      /*  The user asked for hex output, so let's ensure they get it,
+       *  even if they're writing to a file.
+       */
+      print_packet_info = TRUE;
+      break;
+    case 'X':
+      break;
+    case 'z':
+      /* We won't call the init function for the stat this soon
+         as it would disallow MATE's fields (which are registered
+         by the preferences set callback) from being used as
+         part of a tap filter.  Instead, we just add the argument
+         to a list of stat arguments. */
+      if (!process_stat_cmd_arg(optarg)) {
+        cmdarg_err("invalid -z argument.");
+        cmdarg_err_cont("  -z argument must be one of :");
+        list_stat_cmd_args();
+        return 1;
+      }
+      break;
+    default:
+    case '?':        /* Bad flag - print usage message */
+      switch(optopt) {
+      case 'F':
+        list_capture_types();
+        break;
+      default:
+        print_usage(TRUE);
+      }
+      return 1;
+      break;
     }
   }
 
@@ -1848,13 +1848,13 @@ main(int argc, char *argv[])
 typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 
 typedef struct pipe_input_tag {
-    gint                source;
-    gpointer            user_data;
-    int                 *child_process;
-    pipe_input_cb_t     input_cb;
-    guint               pipe_input_id;
+  gint                source;
+  gpointer            user_data;
+  int                 *child_process;
+  pipe_input_cb_t     input_cb;
+  guint               pipe_input_id;
 #ifdef _WIN32
-    GStaticMutex        callback_running;
+  GStaticMutex        callback_running;
 #endif
 } pipe_input_t;
 
@@ -1870,11 +1870,11 @@ pipe_timer_cb(gpointer data)
   DWORD avail = 0;
   gboolean result, result1;
   DWORD childstatus;
-  pipe_input_t *pipe_input = data;
+  pipe_input_t *pipe_input_p = data;
   gint iterations = 0;
 
 
-  g_static_mutex_lock (&pipe_input->callback_running);
+  g_static_mutex_lock (&pipe_input_p->callback_running);
 
   /* try to read data from the pipe only 5 times, to avoid blocking */
   while(iterations < 5) {
@@ -1882,11 +1882,11 @@ pipe_timer_cb(gpointer data)
 
     /* Oddly enough although Named pipes don't work on win9x,
        PeekNamedPipe does !!! */
-    handle = (HANDLE) _get_osfhandle (pipe_input->source);
+    handle = (HANDLE) _get_osfhandle (pipe_input_p->source);
     result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
     /* Get the child process exit status */
-    result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+    result1 = GetExitCodeProcess((HANDLE)*(pipe_input_p->child_process),
                                  &childstatus);
 
     /* If the Peek returned an error, or there are bytes to be read
@@ -1897,10 +1897,10 @@ pipe_timer_cb(gpointer data)
       /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
 
       /* And call the real handler */
-      if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+      if (!pipe_input_p->input_cb(pipe_input_p->source, pipe_input_p->user_data)) {
         g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
         /* pipe closed, return false so that the timer is stopped */
-        g_static_mutex_unlock (&pipe_input->callback_running);
+        g_static_mutex_unlock (&pipe_input_p->callback_running);
         return FALSE;
       }
     }
@@ -1915,7 +1915,7 @@ pipe_timer_cb(gpointer data)
 
   /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
-  g_static_mutex_unlock (&pipe_input->callback_running);
+  g_static_mutex_unlock (&pipe_input_p->callback_running);
 
   /* we didn't stopped the timer, so let it run */
   return TRUE;
