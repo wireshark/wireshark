@@ -357,7 +357,7 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
         if (!strncmp(line_in_file, "#####", 5)) {
             break;
         }
-        if (sscanf(line_in_file, "%s %d", tpncp_name, &tpncp_id) == 2) {
+        if (sscanf(line_in_file, "%255s %d", tpncp_name, &tpncp_id) == 2) {
             string[i].strptr = g_strdup(tpncp_name);
             string[i].value = tpncp_id;
             if (i < (MAX_TPNCP_DB_SIZE-1)) {
@@ -392,7 +392,7 @@ static gint fill_enums_id_vals(FILE *file) {
         if (!strncmp(line_in_file, "#####", 5)) {
             break;
         }
-        if (sscanf(line_in_file, "%s %s %d", enum_name, enum_str, &enum_id) == 3) {
+        if (sscanf(line_in_file, "%255s %255s %d", enum_name, enum_str, &enum_id) == 3) {
             if (strcmp(enum_type, enum_name)) {
                 if (!first_entry) {
                     tpncp_enums_id_vals[enum_val][i].strptr = NULL;
