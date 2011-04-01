@@ -2030,9 +2030,6 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
                                p_rlc_lte_info->channelId);
     }
-    proto_item_append_text(top_ti, "[%s] ",
-                           val_to_str_const(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
-
 
     /* Append context highlights to info column */
     write_pdu_label_and_info(top_ti, NULL, pinfo,
