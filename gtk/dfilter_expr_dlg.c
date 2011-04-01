@@ -356,7 +356,7 @@ build_boolean_values(GtkWidget *value_list_scrolled_win, GtkWidget *value_list,
      */
     if (values == NULL)
         values = &true_false;
-    add_value_list_item(value_list, values->true_string, (const gpointer) values);
+    add_value_list_item(value_list, values->true_string, (gpointer) values);
     add_value_list_item(value_list, values->false_string, NULL);
 
     /*
@@ -397,8 +397,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
      * Build the list.
      */
     while (values->strptr != NULL) {
-        add_value_list_item(value_list, values->strptr,
-                            (const gpointer) values);
+        add_value_list_item(value_list, values->strptr, (gpointer) values);
         values++;
     }
 

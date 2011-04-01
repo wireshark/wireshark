@@ -901,7 +901,7 @@ proto_register_imf(void)
 
   /* register the fields for lookup */
   for(f = imf_fields; f->name; f++)
-    g_hash_table_insert(imf_field_table, (const gpointer)f->name, (const gpointer)f);
+    g_hash_table_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
 
 }
 
