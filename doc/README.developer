@@ -703,6 +703,8 @@ indentation logic at the beginning of this new file, especially if
 you're using non-mod-8 tabs.  The tabs-vs-spaces document above provides
 examples of Emacs and vi modelines for this purpose.
 
+Please do not leave trailing whitespace (spaces/tabs) on lines.
+
 When editing an existing file, try following the existing indentation
 logic and even if it very tempting, never ever use a restyler/reindenter
 utility on an existing file.  If you run across wildly varying
@@ -1750,6 +1752,11 @@ The type of value this field holds. The current field types are:
 				types, are to be used for text strings,
 				not raw binary data.
 	FT_STRINGZ		A NUL-terminated string of characters.
+				The string length is normally the length
+				given in the proto_tree_add_item() call.
+				However if the length given in the call
+				is -1, then the length used is that
+				returned by calling tvb_strsize().
 	FT_EBCDIC		A string of characters, not necessarily
 				NUL-terminated, but possibly NUL-padded.
 				The data from the packet is converted from
