@@ -212,10 +212,16 @@ static const inap_err_t inap_err_tab[] = {
 #.FN_BODY ScriptRunArg/uIScriptSpecificInfo
 /* FIX ME */
 
+#.FN_PARS ExtensionField/type  FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #.FN_BODY ExtensionField/value
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
+  }else{
+	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 offset = tvb_length_remaining(tvb,offset);
+  }	
 
 
 

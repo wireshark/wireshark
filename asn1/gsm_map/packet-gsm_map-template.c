@@ -2108,7 +2108,7 @@ void proto_reg_handoff_gsm_map(void) {
     static range_t *ssn_range;
 
     if (!map_prefs_initialized) {
-	map_prefs_initialized = TRUE;
+        map_prefs_initialized = TRUE;
         data_handle = find_dissector("data");
         ranap_handle = find_dissector("ranap");
         dtap_handle = find_dissector("gsm_a_dtap");

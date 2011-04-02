@@ -61,10 +61,12 @@ static int proto_inap = -1;
 static range_t *global_ssn_range;
 
 static dissector_handle_t	inap_handle;
+static dissector_handle_t	data_handle;
 
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode=0;
+static const char *obj_id = NULL;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -126,8 +128,11 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 	int				offset = 0;
+	guint			length;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+	length = tvb_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "INAP");
 
@@ -168,7 +173,9 @@ void proto_reg_handoff_inap(void) {
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
 	    inap_handle = find_dissector("inap");
+		data_handle = find_dissector("data");
 	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
+		oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);

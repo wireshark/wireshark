@@ -1031,10 +1031,12 @@ static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 static range_t *global_ssn_range;
 
 static dissector_handle_t	inap_handle;
+static dissector_handle_t	data_handle;
 
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode=0;
+static const char *obj_id = NULL;
 
 static int inap_opcode_type;
 #define INAP_OPCODE_INVOKE        1
@@ -1287,7 +1289,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 80 "packet-inap-template.c"
+#line 82 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-table.c ---*/
@@ -1413,7 +1415,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 82 "packet-inap-template.c"
+#line 84 "packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -1507,9 +1509,14 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "inap.cnf"
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 218 "inap.cnf"
+  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
+  }else{
+	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 offset = tvb_length_remaining(tvb,offset);
+  }	
 
 
 
@@ -2178,7 +2185,7 @@ dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "inap.cnf"
+#line 250 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2333,7 +2340,7 @@ dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "inap.cnf"
+#line 229 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2384,7 +2391,7 @@ dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 233 "inap.cnf"
+#line 239 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4513,7 +4520,7 @@ dissect_inap_GlobalCallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 286 "inap.cnf"
+#line 292 "inap.cnf"
 /*
  * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
  */
@@ -4687,7 +4694,7 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 266 "inap.cnf"
+#line 272 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4750,7 +4757,7 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 276 "inap.cnf"
+#line 282 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4771,7 +4778,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 255 "inap.cnf"
+#line 261 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -7805,7 +7812,6 @@ dissect_inap_T_uIScriptSpecificInfo_02(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 
-
   return offset;
 }
 
@@ -8964,7 +8970,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 96 "packet-inap-template.c"
+#line 98 "packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9320,7 +9326,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 117 "packet-inap-template.c"
+#line 119 "packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -9333,8 +9339,11 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 	int				offset = 0;
+	guint			length;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+	length = tvb_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "INAP");
 
@@ -9375,7 +9384,9 @@ void proto_reg_handoff_inap(void) {
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
 	    inap_handle = find_dissector("inap");
+		data_handle = find_dissector("data");
 	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
+		oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
@@ -11637,7 +11648,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 193 "packet-inap-template.c"
+#line 200 "packet-inap-template.c"
   };
 
 
@@ -11891,7 +11902,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 206 "packet-inap-template.c"
+#line 213 "packet-inap-template.c"
   };
 
   /* Register protocol */
