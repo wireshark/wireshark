@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-03-21)
+(last updated 2011-03-31)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -2087,7 +2087,7 @@ pkix-3-ca-ra    829/udp    PKIX-3 CA/RA
 #			   Carlisle Adams <Cadams&entrust.com>
 netconf-ssh     830/tcp    NETCONF over SSH
 netconf-ssh     830/udp    NETCONF over SSH
-#                          [RFC4742]
+#                          [RFC-ietf-netconf-rfc4742bis-08.txt]
 netconf-beep    831/tcp    NETCONF over BEEP 
 netconf-beep    831/udp    NETCONF over BEEP
 #                          [RFC4744]
@@ -2603,7 +2603,7 @@ winpoplanmess   1152/udp   Winpopup LAN Messenger
 #                          Vitali Fomine <info&winpopup-lan-messenger.com> November 2005
 c1222-acse      1153/tcp   ANSI C12.22 Port
 c1222-acse      1153/udp   ANSI C12.22 Port
-#                          [RFC-c1222-transport-over-ip-07.txt]
+#                          [RFC6142]
 resacommunity   1154/tcp   Community Service
 resacommunity   1154/udp   Community Service
 #                          StÈphane MONS <stephane.mons&free.fr> September 2005
@@ -12464,7 +12464,7 @@ targus-getdata3 5203/udp   TARGUS GetData 3
 #                          Bill Rettig <WRettig&efji.com> 19 May 2010
 #               5221/udp   Reserved
 xmpp-client     5222/tcp   XMPP Client Connection
-#                          [RFC-ietf-xmpp-3920bis-22.txt]
+#                          [RFC6120]
 #               5222/udp   Reserved
 hpvirtgrp	5223/tcp   HP Virtual Machine Group Management
 hpvirtgrp	5223/udp   HP Virtual Machine Group Management
@@ -12538,7 +12538,7 @@ kpdp            5253/tcp   Kohler Power Device Protocol
 #                          Abhay Rajaram <Abhay_Rajaram&3Com.com> March 2003
 #               5266-5268  Unassigned
 xmpp-server     5269/tcp   XMPP Server Connection
-#                          [RFC-ietf-xmpp-3920bis-22.txt]
+#                          [RFC6120]
 #               5269/udp   Reserved
 xmp             5270/tcp   Cartographer XMP
 xmp             5270/udp   Cartographer XMP
@@ -17043,14 +17043,11 @@ References
            Transfer Part 3 (MTP3) - User Adaptation Layer (M3UA)", RFC 4666, September 
            2006.
 
-[RFC4744]  E. Lear and K. Crozier, "Using the NETCONF Protocol over Blocks Extensible 
-           Exchange Protocol (BEEP)", RFC 4744, December 2006.
-
-[RFC4742]  M. Wasserman and T. Goddard, "Using the NETCONF Configuration Protocol over 
-           Secure Shell (SSH)", RFC 4742, December 2006.
-
 [RFC4743]  T. Goddard, "Using the Network Configuration Protocol (NETCONF) Over the 
            Simple Object Access Protocol (SOAP)", RFC 4743, December 2006.
+
+[RFC4744]  E. Lear and K. Crozier, "Using the NETCONF Protocol over Blocks Extensible 
+           Exchange Protocol (BEEP)", RFC 4744, December 2006.
 
 [RFC4727]  B. Fenner, "Experimental values In IPv4, IPv6, ICMPv4, ICMPv6,
            UDP and TCP Headers",  RFC 4727, November 2006.
@@ -17176,10 +17173,12 @@ References
 
 [RFC6046]  K. Moriarty and B. Trammell, "Transport of Real-time Inter-network Defense 
            (RID) Messages", RFC 6045, November 2010.
+
+[RFC6120]  P. Saint-Andre, "Extensible Messaging and Presence Protocol (XMPP): Core", 
+           RFC 6120, March 2011.
             
-[RFC-c1222-transport-over-ip-07.txt]
-            A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
-            RFC XXXX, Month Year. 
+[RFC6142]   A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
+            RFC 6142, March 2011.
 
 [RFC6143]  T. Richardson, J. Levine, "The Remote Framebuffer Protocol", RFC 6143, 
            March 2011.
@@ -17187,13 +17186,14 @@ References
 [RFC-chroboczek-babel-routing-protocol-05.txt]
             J. Chroboczek, "The Babel Routing Protocol", RFC XXXX, Month Year. 
 
-[RFC-ietf-xmpp-3920bis-22.txt]
-            P. Saint-Andre, "Extensible Messaging and Presence Protocol (XMPP): Core", 
-            RFC XXXX, Month Year.
 
 [RFC-ietf-mediactrl-sip-control-framework-12.txt]
             C. Boulton, T. Melanchuk, S. McGlashan, "Media Control Channel Framework", 
             RFC XXXX, Month Year.
+
+[RFC-ietf-netconf-rfc4742bis-08.txt]
+            M. Wasserman, T. Goddard, "Using the NETCONF Configuration Protocol over 
+            Secure Shell (SSH)", RFC XXXX, Month Year.
 
 []
 
