@@ -467,7 +467,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
             switch (msg_info->release_cause) {
                 case 97:
                 case 99:
-                case 110: {
+                case 110:
                     proto_tree_add_item(tree, hf_alcap_cau_diag_msg, tvb, ++offset, 1, FALSE);
 
                     while(diag_len >= 2) {
@@ -475,7 +475,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
                         proto_tree_add_item(tree, hf_alcap_cau_diag_field_num, tvb, ++offset, 1, FALSE);
                         diag_len -= 2;
                     }
-                }
+                    break;
                 default:
                     /* XXX - TODO Q.2610 */
                     pi = proto_tree_add_text(tree,tvb,offset,diag_len,"Undecoded");
