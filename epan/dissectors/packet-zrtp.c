@@ -536,7 +536,6 @@ static void
 dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part) {
   proto_item   *ti;
   unsigned int data_offset=24;
-  proto_tree *zrtp_msg_encrypted_tree;
   int linelen;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -547,14 +546,13 @@ dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int par
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
   ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
-  zrtp_msg_encrypted_tree = proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
+  proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
 }
 
 static void
 dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_item   *ti;
   unsigned int data_offset=24;
-  proto_tree *zrtp_msg_encrypted_tree;
   int linelen;
 
   col_set_str(pinfo->cinfo, COL_INFO, "SASrelay Packet");
@@ -563,7 +561,7 @@ dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
   ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
-  zrtp_msg_encrypted_tree = proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
+  proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
 }
 
 static void
@@ -571,7 +569,6 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part
   proto_item   *ti;
   unsigned int msg_offset=12;
   unsigned int data_offset=56;
-  proto_tree *zrtp_msg_pvr_tree;
   int linelen, pvr_len;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -586,7 +583,7 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part
   linelen = tvb_reported_length_remaining(tvb,data_offset+32);
   pvr_len = linelen-8-4;
   ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,(part==1)?"pvr Data":"pvi Data");
-  zrtp_msg_pvr_tree = proto_item_add_subtree(ti,ett_zrtp_msg_pvr);
+  proto_item_add_subtree(ti,ett_zrtp_msg_pvr);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+32+pvr_len,8,FALSE);
 }
 
