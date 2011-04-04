@@ -500,7 +500,6 @@ static dissector_handle_t data_handle;
 static dissector_handle_t gsm_map_handle;
 static dissector_handle_t rp_handle;
 
-packet_info *gsm_a_dtap_pinfo;
 static proto_tree *g_tree;
 
 /*
@@ -6039,7 +6038,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 	oct_2 = 0;
 
-	gsm_a_dtap_pinfo = pinfo;
 	g_tree = tree;
 
 	/*

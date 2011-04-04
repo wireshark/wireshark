@@ -2026,7 +2026,7 @@ de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  */
 
 guint16
-de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	octs[3];
 	guint16	value;
@@ -2051,7 +2051,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 
 	mcc_mnc_aux(octs, mcc, mnc);
 
-	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, curr_offset, TRUE);
+	curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, subtree, curr_offset, TRUE);
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
@@ -2076,7 +2076,7 @@ static const true_false_string gsm_a_present_vals = {
 };
 
 guint16
-de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -2250,7 +2250,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 			/* MCC/MNC*/
 			/* MCC, Mobile country code (octet 6a, octet 6b bits 1 to 4)*/
 			/* MNC, Mobile network code (octet 6b bits 5 to 8, octet 6c) */
-			curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset,TRUE);
+			curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset,TRUE);
 		}
 		if((oct&0x20)==0x20){
 			/* MBMS Session Identity (octet 7)
@@ -2275,7 +2275,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 		break;
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2324,7 +2324,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
  * 3GPP TS 24.008 version 7.8.0 Release 7
  */
 guint16
-de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	curr_offset = offset;
@@ -2381,7 +2381,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset,pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2399,7 +2399,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 	}
 
 guint16
-de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint32 bit_offset; /* Offset in bits */
@@ -3023,7 +3023,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
 	/* translate to byte offset (we already know that we are on an octet boundary) */
 	curr_offset = bit_offset >> 3;
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(len);
 }
@@ -3204,7 +3204,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
  * [3] 10.5.1.13 PLMN list
  */
 guint16
-de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	octs[3];
 	guint32	curr_offset;
@@ -3239,7 +3239,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	g_snprintf(add_string, string_len, " - %u PLMN%s",
 		num_plmn, plurality(num_plmn, "", "s"));
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3254,7 +3254,7 @@ static const value_string gsm_a_pld_xid_vals[] = {
 	{ 0,			NULL }
 };
 guint16
-de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -3275,7 +3275,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, FALSE);
 	curr_offset+=4;
 	
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }

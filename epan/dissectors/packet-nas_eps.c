@@ -3450,7 +3450,7 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 8.3.1	Activate dedicated EPS bearer context accept
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3463,7 +3463,7 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	curr_len = len;
 	
 	/* This message is sent by the UE to the network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
@@ -3475,7 +3475,7 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.2	Activate dedicated EPS bearer context reject
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3485,7 +3485,7 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	curr_len = len;
 
 	/* This message is sent by UE to the network to reject activation of a dedicated EPS bearer context */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.2	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3498,7 +3498,7 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.3	Activate dedicated EPS bearer context request
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3508,7 +3508,7 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	curr_len = len;
 
 	/* This message is sent by the network to the UE to request activation of a dedicated EPS bearer context... */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 
 	/* Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
@@ -3546,7 +3546,7 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.4	Activate default EPS bearer context accept
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3559,7 +3559,7 @@ nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
 		return;
 
 	/* This message is sent by the UE to the network to acknowledge activation of a default EPS bearer context */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
@@ -3571,7 +3571,7 @@ nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.5	Activate default EPS bearer context reject
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3581,7 +3581,7 @@ nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	curr_len = len;
 
 	/* This message is sent by UE to the network to reject activation of a default EPS bearer context. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3595,7 +3595,7 @@ nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.6 Activate default EPS bearer context request
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3605,7 +3605,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
 	curr_len = len;
 
 	/* This message is sent by the network to the UE to request activation of a default EPS bearer context. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, NULL);
@@ -3637,7 +3637,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
  * 8.3.7	Bearer resource allocation reject
  */
 static void
-nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3647,7 +3647,7 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* This message is sent by the network to the UE to reject the allocation of a dedicated bearer resource. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3661,7 +3661,7 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  * 8.3.8	Bearer resource allocation request
  */
 static void
-nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3671,7 +3671,7 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* This message is sent by the UE to the network to request the allocation of a dedicated bearer resource. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
@@ -3697,7 +3697,7 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  * 8.3.9	Bearer resource modification reject
  */
 static void
-nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3707,7 +3707,7 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* This message is sent by the network to the UE to reject the modification of a dedicated bearer resource. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3720,7 +3720,7 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  * 8.3.10	Bearer resource modification request
  */
 static void
-nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3730,7 +3730,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* This message is sent by the UE to the network to request the modification of a dedicated bearer resource. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
@@ -3757,7 +3757,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  * 8.3.11 Deactivate EPS bearer context accept
  */
 static void
-nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3770,7 +3770,7 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 		return;
 
 	/* This message is sent by the UE to acknowledge deactivation of the EPS bearer context... */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
@@ -3781,7 +3781,7 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *p
  * 8.3.12 Deactivate EPS bearer context request
  */
 static void
-nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3791,7 +3791,7 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	curr_len = len;
 
 	/* This message is sent by the network to request deactivation of an active EPS bearer context. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3820,7 +3820,7 @@ nas_esm_inf_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.3.14 ESM information response
  */
 static void
-nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3833,7 +3833,7 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 		return;
 
 	/* This message is sent by the UE to the network in response to an ESM INFORMATION REQUEST... */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 28	Access point name	Access point name 9.9.4.1	O	TLV	3-102 */
 	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
@@ -3864,7 +3864,7 @@ nas_esm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * 8.3.16 Modify EPS bearer context accept
  */
 static void
-nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3877,7 +3877,7 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 		return;
 
 	/* This message is sent by the UE to the network to acknowledge the modification of an active EPS bearer context. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
@@ -3888,7 +3888,7 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 8.3.17 Modify EPS bearer context reject
  */
 static void
-nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3898,7 +3898,7 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 	curr_len = len;
 
 	/* This message is sent by the UE or the network to reject a modification of an active EPS bearer context. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3911,7 +3911,7 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 8.3.18 Modify EPS bearer context request
  */
 static void
-nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3924,7 +3924,7 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 		return;
 
 	/*This message is sent by the network to inform the UE about events which are relevant for the upper layer... */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 5B	New EPS QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
 	ELEM_OPT_TLV( 0x5B , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - New EPS QoS" );
@@ -3965,7 +3965,7 @@ nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 8.3.19 PDN connectivity reject
  */
 static void
-nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3975,7 +3975,7 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_len = len;
 
 	/*This message is sent by the network to the UE to reject establishment of a PDN connection. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -3989,7 +3989,7 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 8.3.20 PDN connectivity request
  */
 static void
-nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3999,7 +3999,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_len = len;
 
 	/*This message is sent by the UE to the network to initiate establishment of a PDN connection. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* PDN type PDN type 9.9.4.10 M V 1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
@@ -4025,7 +4025,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 8.3.20 PDN disconnect reject
  */
 static void
-nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4035,7 +4035,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_len = len;
 
 	/*This message is sent by the UE to the network to initiate establishment of a PDN connection. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
@@ -4048,7 +4048,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 8.3.21 PDN disconnect request
  */
 static void
-nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -4058,7 +4058,7 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_len = len;
 
 	/* This message is sent by the network to the UE to reject release of a PDN connection. */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
 	bit_offset = curr_offset<<3;
@@ -4240,8 +4240,6 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 	else
 	{
-		/* If calling any "gsm" ie dissectors needing pinfo */
-		gsm_a_dtap_pinfo = pinfo;
 		(*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
 	}
 
@@ -4315,8 +4313,6 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	}
 	else
 	{
-		/* If calling any "gsm" ie dissectors needing pinfo */
-		gsm_a_dtap_pinfo = pinfo;
 		(*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
 	}
 
@@ -4447,8 +4443,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (gsm_a_dtap_handle){
 				tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-				gsm_a_dtap_pinfo = pinfo;
-				call_dissector(gsm_a_dtap_handle, new_tvb, gsm_a_dtap_pinfo, nas_eps_tree);
+				call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, nas_eps_tree);
 				break;
 			} /* else fall through default */
 		default:
@@ -4497,8 +4492,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (gsm_a_dtap_handle){
 				tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-				gsm_a_dtap_pinfo = pinfo;
-				call_dissector(gsm_a_dtap_handle, new_tvb, gsm_a_dtap_pinfo, nas_eps_tree);
+				call_dissector(gsm_a_dtap_handle, new_tvb,pinfo, nas_eps_tree);
 				break;
 			} /* else fall through default */
 		default:

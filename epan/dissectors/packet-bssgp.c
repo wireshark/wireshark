@@ -6294,8 +6294,6 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-		/* If calling any "gsm" ie dissectors needing pinfo */
-		gsm_a_dtap_pinfo = pinfo;
 		(*msg_fcn)(tvb, bssgp_tree, pinfo, offset, len - offset);
 	}
 }
