@@ -3095,6 +3095,7 @@ create_console(void)
      */
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
       if (AllocConsole()) {
+        console_wait = TRUE;
         SetConsoleTitle(_T("Wireshark Debug Console"));
       } else {
         return;   /* couldn't create console */
@@ -3104,6 +3105,8 @@ create_console(void)
     ws_freopen("CONIN$", "r", stdin);
     ws_freopen("CONOUT$", "w", stdout);
     ws_freopen("CONOUT$", "w", stderr);
+    fprintf(stdout, "\n");
+    fprintf(stderr, "\n");
 
     /* Now register "destroy_console()" as a routine to be called just
        before the application exits, so that we can destroy the console
