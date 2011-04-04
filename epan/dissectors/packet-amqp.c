@@ -31,7 +31,7 @@
 /*
  * See
  *
- *	http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+ *     http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
  *
  * for specifications for various versions of the AMQP protocol.
  */
@@ -2263,10 +2263,10 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
                                        offset - element_start,
                                        "(unknown type %d)",
                                        type);
-	    /*  Don't bother continuing through the loop: we don't know how
-	     *  much to increment the offset by and the type doesn't change
-	     *  so there's nothing interesting to do...
-	     */
+            /*  Don't bother continuing through the loop: we don't know how
+             *  much to increment the offset by and the type doesn't change
+             *  so there's nothing interesting to do...
+             */
             return;
         }
 
@@ -2569,7 +2569,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
         if (flag1 & 0x01) {
             /*  virtual-host (str8)  */
-            ti = proto_tree_add_item(args_tree,
+            proto_tree_add_item(args_tree,
                                      hf_amqp_method_connection_open_virtual_host,
                                      tvb,
                                      offset + 1,
@@ -5609,12 +5609,15 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 struct_length;
     int offset;
     emem_strbuf_t *strbuf;
+
+#if 0  /* XXX: Not currently used ?? *(/
     conversation_t *conv;
     amqp_conv *conn;
 
     /* Find (or build) conversation to remember the protocol version */
     conv = find_or_create_conversation(pinfo);
     conn = conversation_get_proto_data(conv, proto_amqp);
+#endif
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
     col_clear(pinfo->cinfo, COL_INFO);
