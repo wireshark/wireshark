@@ -22,6 +22,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -244,6 +248,13 @@ test(tvbuff_t *tvb, gchar* name,
 	return TRUE;
 }
 
+gboolean
+skip(tvbuff_t *tvb _U_, gchar* name,
+		guint8* expected_data _U_, guint expected_length _U_)
+{
+	printf("Skipping TVB=%s\n", name);
+	return FALSE;
+}
 
 
 void
@@ -259,12 +270,10 @@ run_tests(void)
 	guint8		*subset[6];
 	guint		subset_length[6];
 	guint8		temp;
-#if 0
 	guint8		*comp[6];
 	tvbuff_t	*tvb_comp[6];
 	guint		comp_length[6];
 	int		len;
-#endif
 	
 	for (i = 0; i < 3; i++) {
 		small[i] = g_new(guint8, 16);
@@ -329,7 +338,6 @@ run_tests(void)
 	test(tvb_subset[4], "Subset 4", subset[4], subset_length[4]);
 	test(tvb_subset[5], "Subset 5", subset[5], subset_length[5]);
 
-#if 0
 	/* Composite tvbuffs don't work at the moment -- tests commented out until
 	 * they do. */
 	
@@ -408,12 +416,11 @@ run_tests(void)
 
 	/* Test the TVBUFF_COMPOSITE objects. */
 	test(tvb_comp[0], "Composite 0", comp[0], comp_length[0]);
-	test(tvb_comp[1], "Composite 1", comp[1], comp_length[1]);
+	skip(tvb_comp[1], "Composite 1", comp[1], comp_length[1]);
 	test(tvb_comp[2], "Composite 2", comp[2], comp_length[2]);
-	test(tvb_comp[3], "Composite 3", comp[3], comp_length[3]);
-	test(tvb_comp[4], "Composite 4", comp[4], comp_length[4]);
-	test(tvb_comp[5], "Composite 5", comp[5], comp_length[5]);
-#endif
+	skip(tvb_comp[3], "Composite 3", comp[3], comp_length[3]);
+	skip(tvb_comp[4], "Composite 4", comp[4], comp_length[4]);
+	skip(tvb_comp[5], "Composite 5", comp[5], comp_length[5]);
 }
 
 int
