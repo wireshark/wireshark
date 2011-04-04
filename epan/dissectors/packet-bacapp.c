@@ -31,9 +31,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -8507,9 +8504,9 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
 	if (ack == 0) /* The following are for ConfirmedRequest, not Complex ack */
 	{
 	    proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, offset++, 1, TRUE);
-		proto_tree_add_item(bacapp_tree, hf_bacapp_response_segments, tvb,
+	    proto_tree_add_item(bacapp_tree, hf_bacapp_response_segments, tvb,
 							offset, 1, TRUE);
-		proto_tree_add_item(bacapp_tree, hf_bacapp_max_adpu_size, tvb,
+	    proto_tree_add_item(bacapp_tree, hf_bacapp_max_adpu_size, tvb,
 							offset, 1, TRUE);
 	}
 	offset++;
@@ -8566,9 +8563,7 @@ fSimpleAckPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, gu
 {	/* BACnet-Simple-Ack-PDU */
 	/* ASHRAE 135-2001 20.1.4 */
 
-	proto_item *tc;
-
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
+	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 
 	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
@@ -8807,7 +8802,7 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tree, guint offs
 {	/* BACnet-Error-PDU */
 	/* ASHRAE 135-2001 20.1.7 */
 
-	proto_item *tc, *tt;
+	proto_item *tc;
 	proto_tree *bacapp_tree_control;
 	guint8 tmp;
 
@@ -8817,7 +8812,7 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tree, guint offs
 	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
 	tmp = tvb_get_guint8(tvb, offset);
-	tt = proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
+	proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
 				 offset++, 1, TRUE);
 	/* Error Handling follows... */
 	return fBACnetError (tvb, pinfo, bacapp_tree, offset, tmp);
@@ -8832,7 +8827,7 @@ fRejectPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint
 	proto_tree *bacapp_tree_control;
 
 	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
-				 bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
+	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
 	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
