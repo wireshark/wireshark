@@ -580,7 +580,7 @@ static proto_tree *g_tree;
 static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
 
 static guint16
-be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 #if 0
 This enum has been moved to packet-gsm_a_common to
@@ -717,7 +717,7 @@ gint ett_gsm_bssmap_elem[NUM_GSM_BSSMAP_ELEM];
  * [2] 3.2.2.2 Circuit Identity Code
  */
 static guint16
-be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_cic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32 curr_offset;
     guint32 value;
@@ -758,7 +758,7 @@ be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
  * 3.2.2.4  Resource Available
  */
 static guint16
-be_res_avail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_res_avail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint16 value;
@@ -781,7 +781,7 @@ be_res_avail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [2] 3.2.2.5 Cause
  */
 static guint16
-be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint32 value;
@@ -968,7 +968,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * [2] 3.2.2.7 TMSI
  */
 static guint16
-be_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32 curr_offset;
     guint32 value;
@@ -995,7 +995,7 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * [2] 3.2.2.8 Number Of MSs
  */
 static guint16
-be_num_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1013,7 +1013,7 @@ be_num_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
  */
 
 static guint16
-be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -1059,7 +1059,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [2] 3.2.2.10 Encryption Information
  */
 static guint16
-be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint8  mask;
@@ -1115,7 +1115,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [2] 3.2.2.11 Channel Type
  */
 guint16
-be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint8  sdi;
@@ -1490,7 +1490,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * 3.2.2.12 Periodicity
  */
 static guint16
-be_periodicity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_periodicity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1508,7 +1508,7 @@ static const true_false_string bssmap_tarr_vals = {
    "No extra Resource Information is requested"
 };
 static guint16
-be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1528,7 +1528,7 @@ be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 3.2.2.14 Total Resource Accessible
  */
 static guint16
-be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1549,7 +1549,7 @@ be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * The octets 3-5 are coded as specified in 3GPP TS 23.003, 'Identification of Localised Service Area'. Bit 8 of octet 3 is the MSB.
  */
 static guint16
-be_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1573,7 +1573,7 @@ be_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
  * 3.2.2.16 LSA Identifier List
  */
 static guint16
-be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1597,7 +1597,7 @@ be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * Formats everything after the discriminator, shared function
  */
 guint16
-be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
+be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
 {
     guint32 value;
     guint32 curr_offset;
@@ -1719,7 +1719,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 static guint16
-be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint8  disc;
@@ -1738,7 +1738,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
     NO_MORE_DATA_CHECK(len);
 
     curr_offset +=
-    be_cell_id_aux(tvb, tree, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
+    be_cell_id_aux(tvb, tree, pinfo, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
 
     /* no length check possible */
 
@@ -1759,7 +1759,7 @@ static const true_false_string bssmap_pvi_value = {
 };
 
 guint16
-be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -1820,7 +1820,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
  * 3.2.2.21 Interference Band To Be Used
  */
 static guint16
-be_int_band(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_int_band(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1846,7 +1846,7 @@ static const true_false_string bssmap_lsa_only_value = {
 };
 
 static guint16
-be_lsa_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1876,7 +1876,7 @@ be_lsa_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * [2] 3.2.2.24 Layer 3 Information
  */
 static guint16
-be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     tvbuff_t    *l3_tvb;
@@ -1932,7 +1932,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.25 DLCI
  */
 static guint16
-be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_dlci(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -1964,7 +1964,7 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
  * [2] 3.2.2.26 Downlink DTX Flag
  */
 static guint16
-be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint   oct;
     guint32 curr_offset;
@@ -1992,7 +1992,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * [2] 3.2.2.27 Cell Identifier List
  */
 guint16
-be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint16 consumed;
@@ -2030,7 +2030,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
             add_string[0] = '\0';
 
         consumed =
-            be_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
+            be_cell_id_aux(tvb, subtree, pinfo, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
 
         if (add_string && add_string[0] != '\0')
         {
@@ -2071,7 +2071,7 @@ static const value_string gsm_a_bssap_cell_id_list_seg_cell_id_disc_vals[] = {
 };
 
 static guint16
-be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2097,7 +2097,7 @@ be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  * 3.2.2.27b    Cell Identifier List Segment for established cells
  */
 static guint16
-be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2117,7 +2117,7 @@ be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
  * 3.2.2.27c    Cell Identifier List Segment for cells to be established
  */
 static guint16
-be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2140,7 +2140,7 @@ be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * 3.2.2.27e    Cell Identifier List Segment for released cells - no user present
  */
 static guint16
-be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2160,7 +2160,7 @@ be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
  * 3.2.2.27f    Cell Identifier List Segment for not established cells - no establishment possible
  */
 static guint16
-be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2192,7 +2192,7 @@ static const value_string gsm_a_bssap_resource_indication_vals[] = {
     { 0,    NULL }
 };
 static guint16
-be_res_ind_method(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_res_ind_method(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2214,7 +2214,7 @@ be_res_ind_method(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 3.2.2.31 Circuit Identity Code List
  */
 static guint16
-be_cic_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cic_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2229,7 +2229,7 @@ be_cic_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * 3.2.2.32 Diagnostics
  */
 static guint16
-be_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_diag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2303,7 +2303,7 @@ static const value_string gsm_a_bssmap_trace_invoking_event_vals[] = {
     { 0, NULL },
 };
 static guint16
-be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2328,7 +2328,7 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * [2] 3.2.2.34 Cipher Response Mode
  */
 static guint16
-be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2358,7 +2358,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [2] 3.2.2.35 Layer 3 Message Contents
  */
 static guint16
-be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     tvbuff_t    *l3_tvb;
@@ -2385,7 +2385,7 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [2] 3.2.2.36 Channel Needed
  */
 static guint16
-be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cha_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2403,7 +2403,7 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * coded as the MSC/BSS Trace Type specified in 3GPP TS 52.008
  */
 static guint16
-be_trace_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     gint bit_offset;
@@ -2432,7 +2432,7 @@ be_trace_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * [2] 3.2.2.38 TriggerID
  */
 static guint16
-be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2448,7 +2448,7 @@ be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
     /* 3.2.2.39 Trace Reference */
 static guint16
-be_trace_reference(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_reference(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2464,7 +2464,7 @@ be_trace_reference(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
     /* 3.2.2.40 TransactionID */
 static guint16
-be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2495,7 +2495,7 @@ be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * For the OMC identity, see 3GPP TS 52.021
  */
 static guint16
-be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2512,7 +2512,7 @@ be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * [2] 3.2.2.43 Forward Indicator
  */
 static guint16
-be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_for_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2551,7 +2551,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * [2] 3.2.2.44 Chosen Encryption Algorithm
  */
 static guint16
-be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2595,7 +2595,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [2] 3.2.2.45 Circuit Pool
  */
 static guint16
-be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2642,7 +2642,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * [2] 3.2.2.49 Current Channel Type 1
  */
 static guint16
-be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2667,7 +2667,7 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * [2] 3.2.2.50 Queuing Indicator
  */
 static guint16
-be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_que_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2698,7 +2698,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * [2] 3.2.2.51 Speech Version
  */
 static guint16
-be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint32 curr_offset;
@@ -2757,7 +2757,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 3.2.2.52 Assignment Requirement
  */
 static guint16
-be_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2799,7 +2799,7 @@ static const value_string gsm_a_bssmap_call_priority_vals[] = {
 };
 
 guint16
-be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, offset << 3, 5, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_emlpp_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2823,7 +2823,7 @@ static const value_string gsm_a_bssmap_smi_vals[] = {
 };
 
 static guint16
-be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2853,7 +2853,7 @@ bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     g_tree = tree;
 
     len = tvb_length(tvb);
-    be_field_element_dissect(tvb, tree, 0, len, NULL, 0);
+    be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
     g_pinfo = NULL;
     g_tree = NULL;
@@ -2881,7 +2881,7 @@ static const value_string lcs_priority_vals[] = {
 };
 
 static guint16
-be_lcs_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_lcs_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2898,7 +2898,7 @@ be_lcs_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * 3.2.2.63 Location Type (Location Type element of 3GPP TS 49.031 BSSAP-LE.)
  */
 static guint16
-be_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8 location_information;
@@ -2926,7 +2926,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * according to 3GPP TS 23.032.
  */
 static guint16
-be_loc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *data_tvb;
     guint32 curr_offset;
@@ -2943,7 +2943,7 @@ be_loc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * Positioning Data element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_pos_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_pos_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8 i;
@@ -3009,7 +3009,7 @@ static const value_string gsm_a_apdu_protocol_id_strings[] = {
 };
 
 static guint16
-be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  apdu_protocol_id;
@@ -3071,7 +3071,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * Requested GPS Data element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3092,7 +3092,7 @@ be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
   * Return Error Request element of 3GPP TS 49.031 BSSAP-LE.
   */
 static guint16
-be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3107,7 +3107,7 @@ be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * Return Error Cause element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3122,7 +3122,7 @@ be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * Segmentation element of 3GPP TS 49.031 BSSAP-LE.
  */
 static guint16
-be_seg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3147,7 +3147,7 @@ static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 0, NULL },
 };
 static guint16
-be_serv_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3165,7 +3165,7 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  */
 
 static guint16
-be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *container_tvb;
     guint32 curr_offset;
@@ -3185,7 +3185,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 3.2.2.77 Source RNC to target RNC transparent information (cdma2000)
  */
 static guint16
-be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3203,7 +3203,7 @@ be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  */
 
 static guint16
-be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3234,7 +3234,7 @@ bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     g_tree = tree;
 
     len = tvb_length(tvb);
-    be_field_element_dissect(tvb, tree, 0, len, NULL, 0);
+    be_field_element_dissect(tvb, tree, pinfo, 0, len, NULL, 0);
 
     g_pinfo = NULL;
     g_tree = NULL;
@@ -3245,7 +3245,7 @@ bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 3.2.2.81 Inter-System Information
  */
 static guint16
-be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3259,7 +3259,7 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * 3.2.2.82 SNA Access Information
  */
 static guint16
-be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3297,7 +3297,7 @@ static const value_string gsm_a_bssmap_paging_cause_vals[] = {
 };
 
 static guint16
-be_paging_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_paging_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3319,7 +3319,7 @@ be_paging_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 3.2.2.87 Velocity Estimate
  */
 static guint16
-be_vel_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_vel_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3362,7 +3362,7 @@ static const true_false_string gsm_bssmap_bss_tcp_vals = {
 };
 
 static guint16
-be_vgcs_feat_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_vgcs_feat_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3391,7 +3391,7 @@ static const value_string gsm_a_bssmap_talker_pri_vals[] = {
 };
 
 static guint16
-be_talker_pri(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_talker_pri(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3413,7 +3413,7 @@ be_talker_pri(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 3.2.2.91 Talker Identity
  */
 static guint16
-be_talker_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_talker_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3430,7 +3430,7 @@ be_talker_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * 3.2.2.92 SMS to VGCS
  */
 static guint16
-be_sms_to_vgcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_sms_to_vgcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3448,7 +3448,7 @@ be_sms_to_vgcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 3.2.2.93 VGCS talker mode
  */
 static guint16
-be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3467,7 +3467,7 @@ be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  * XXX move to packet-gsm_bssmap_le.c
  */
 guint16
-be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3509,7 +3509,7 @@ static const value_string gsm_a_bssmap_usage_vals[] = {
 };
 
 guint16
-be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3526,7 +3526,7 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * 3.2.2.97 GANSS Location Type
  */
 guint16
-be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3546,7 +3546,7 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 3.2.2.100    Application Data Information
  */
 static guint16
-be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3564,7 +3564,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
   * 3.2.2.102   AoIP Transport Layer Address
   */
 static guint16
-be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3664,7 +3664,7 @@ static const value_string bssap_extended_codec_values[] = {
 };
 
 static guint16
-be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, consumed = 0;
     guint8 codec;
@@ -3780,7 +3780,7 @@ static const true_false_string bssmap_pt2_vals = {
     "PCM over A-Interface with TDM as transport is not selected for this Codec Type"
 };
 static guint16
-be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, consumed = 0;
     guint8 codec;
@@ -3879,7 +3879,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * 3.2.2.105    Call Identifier
  */
 static guint16
-be_call_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_call_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3899,7 +3899,7 @@ be_call_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * 3.2.2.106    Call Identifier List
  */
 static guint16
-be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     curr_offset = offset;
@@ -3915,7 +3915,7 @@ be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
     return(len);
 }
 
-guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
     be_res_avail,       /* Resource Available */
@@ -4053,7 +4053,7 @@ static const value_string fe_extra_info_ue_prob_vals[] = {
 };
 
 static guint16
-be_fe_extra_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_extra_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4069,7 +4069,7 @@ be_fe_extra_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 /* 3.2.3.2  Current Channel type 2 */
 static guint16
-be_fe_cur_chan_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_cur_chan_type2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4086,7 +4086,7 @@ be_fe_cur_chan_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 /* 3.2.3.3  Target cell radio information */
 static guint16
-be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4100,7 +4100,7 @@ be_fe_target_radio_cell_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 
 /* 3.2.3.4  GPRS Suspend Information */
 static guint16
-be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset = offset;
 
@@ -4136,7 +4136,7 @@ static const value_string gsm_a_bssmap_dtm_info_egprs_ind_vals[] = {
 };
 
 static guint16
-be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4152,7 +4152,7 @@ be_fe_dual_transfer_mode_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 /* 3.2.3.7  Inter RAT Handover Info */
 static guint16
-be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t    *container_tvb;
 
@@ -4180,20 +4180,20 @@ static const value_string gsm_a_bssmap_cell_load_nrt_vals[] = {
 
 /* 3.2.3.11 Cell Load Information Group */
 static guint16
-be_fe_cell_load_info_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_cell_load_info_group(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
-    curr_offset += be_cell_id(tvb, tree, curr_offset, len, NULL, 0);
-    curr_offset += be_field_element_dissect(tvb, tree, curr_offset, len + offset - curr_offset, NULL, 0);
+    curr_offset += be_cell_id(tvb, tree, pinfo, curr_offset, len, NULL, 0);
+    curr_offset += be_field_element_dissect(tvb, tree, pinfo, curr_offset, len + offset - curr_offset, NULL, 0);
 
     return(curr_offset - offset);
 }
 
 /* 3.2.3.12 Cell Load Information */
 static guint16
-be_fe_cell_load_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_cell_load_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4212,7 +4212,7 @@ be_fe_cell_load_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 /* 3.2.3.13 PS Indication */
 static guint16
-be_fe_ps_indication(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_ps_indication(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4225,7 +4225,7 @@ be_fe_ps_indication(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 /* 3.2.3.14 DTM Handover Command Indication */
 static guint16
-be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -4236,7 +4236,7 @@ be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     return(curr_offset - offset);
 }
 
-static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
+static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
     be_fe_extra_info,              /* { 0x01,       "Extra information" }, */
     be_fe_cur_chan_type2,          /* { 0x02,       "Current Channel Type 2" }, */
     be_fe_target_radio_cell_info,  /* { 0x03,       "Target cell radio information" }, */
@@ -4257,7 +4257,7 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
 };
 
 static guint16
-be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, ie_len, fe_start_offset;
     gint idx;
@@ -4303,7 +4303,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         else
         {
             /* dissect the field element */
-            curr_offset += (*bssmap_bss_to_bss_element_fcn[idx])(tvb, bss_to_bss_tree, curr_offset, ie_len, NULL, 0);
+            curr_offset += (*bssmap_bss_to_bss_element_fcn[idx])(tvb, bss_to_bss_tree, pinfo, curr_offset, ie_len, NULL, 0);
 
             EXTRANEOUS_DATA_CHECK(ie_len, curr_offset - fe_start_offset);
         }

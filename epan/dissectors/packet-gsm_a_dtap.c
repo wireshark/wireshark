@@ -523,7 +523,7 @@ static dgt_set_t Dgt_mbcd = {
  * [9] 10.5.3.1 Authentication parameter RAND
  */
 static guint16
-de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* The RAND value is 16 octets long */
 	proto_tree_add_item(tree, hf_gsm_a_dtap_rand, tvb, offset, 16, FALSE);
@@ -536,7 +536,7 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * [9] 10.5.3.1.1 Authentication Parameter AUTN (UMTS and EPS authentication challenge)
  */
 static guint16
-de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item 	*item;
 	proto_tree	*subtree;
@@ -551,7 +551,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_autn_mac, tvb, offset + 8, 8, FALSE);
 	}
 	else
-		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN,
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 			"AUTN length not equal to 16");
 	
 	return(len);
@@ -561,7 +561,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [9] 10.5.3.2 Authentication Response parameter
  */
 static guint16
-de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     /* This IE contains either the SRES or the 4 most significant octets of the RES */
 	proto_tree_add_item(tree, hf_gsm_a_dtap_sres, tvb, offset, 4, FALSE);
@@ -574,7 +574,7 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * [9] 10.5.3.2.1 Authentication Response Parameter (extension) (UMTS authentication challenge only)
  */
 static guint16
-de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	/* This IE contains all but 4 most significant octets of RES */
 	proto_tree_add_item(tree, hf_gsm_a_dtap_xres, tvb, offset, len, FALSE);
@@ -586,7 +586,7 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [9] 10.5.3.2.2 Authentication Failure parameter (UMTS and EPS authentication challenge)
  */
 static guint16
-de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item 	*item;
 	proto_tree	*subtree;
@@ -600,7 +600,7 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_auts_mac_s, tvb, offset + 6, 8, FALSE);
 	}
 	else
-		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN,
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 			"AUTS length not equal to 14");
 	
 	return(len);
@@ -622,7 +622,7 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.5a Network Name
  */
 static guint16
-de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -701,7 +701,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		num_text_bits = ((len - 1) << 3) - num_spare_bits;
 		if (num_spare_bits && (num_text_bits % 7))
 		{
-			expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits");
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits");
 		}
 		/* 
 		 * If the number of spare bits is 7, then we have unpacked one extra
@@ -778,7 +778,7 @@ static const range_string gsm_a_dtap_rej_cause_vals[] = {
 };
 
 guint16
-de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	const gchar *str;
@@ -810,7 +810,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [3] 10.5.3.8 Time Zone
  */
 guint16
-de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -846,7 +846,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [3] 10.5.3.9 Time Zone and Time
  */
 static guint16
-de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct, oct2, oct3;
 	guint32	curr_offset;
@@ -919,7 +919,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 3GPP TS 24.008 version 6.8.0 Release 6
  */
 static guint16
-de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -942,7 +942,7 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [3] 10.5.3.12 Daylight Saving Time
  */
 static guint16
-de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -981,7 +981,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * 10.5.3.13 Emergency Number List 
  */
 static guint16
-de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8 en_len, oct, i;
@@ -1047,7 +1047,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 			malformed_number = TRUE;
 
 		if(malformed_number)
-			expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
 
 		curr_offset = curr_offset + en_len;
 		count++;
@@ -1061,7 +1061,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [3] 10.5.4.4 Auxiliary states
  */
 static guint16
-de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_aux_states(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -1159,7 +1159,7 @@ static const value_string gsm_a_itc_values[] = {
 };
 
 guint16
-de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint8	itc;
@@ -2155,10 +2155,10 @@ bc_octet_7:
 
 
 guint16
-de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	is_uplink = IS_UPLINK_TRUE;
-	return de_bearer_cap(tvb, tree, offset, len, add_string, string_len);
+	return de_bearer_cap(tvb, tree, pinfo, offset, len, add_string, string_len);
 
 }
 
@@ -2176,8 +2176,7 @@ const true_false_string gsm_a_dtap_enicm_value = {
 };
 
 static guint16
-de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
-{
+de_cc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_){
 	guint8	oct;
 	guint32	curr_offset;
 
@@ -2283,7 +2282,7 @@ static const value_string gsm_a_dtap_call_state_vals[] = {
 };
 
 static guint16
-de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct, coding_standard, call_state;
 	proto_tree	*subtree;
@@ -2376,7 +2375,7 @@ const value_string gsm_a_screening_ind_values[] = {
 };
 
 static guint16
-de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int header_field, gboolean *address_extracted)
+de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gboolean *address_extracted)
 {
 	guint8	*poctets;
 	guint8	extension, oct;
@@ -2433,7 +2432,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int heade
 		malformed_number = TRUE;
 
 	if(malformed_number)
-		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
 
 	return(len);
 }
@@ -2455,7 +2454,7 @@ const value_string gsm_a_odd_even_ind_values[] = {
 
 
 static guint16
-de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean *address_extracted)
+de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gboolean *address_extracted)
 {
 	guint32	curr_offset, ia5_string_len, i;
 	guint8 type_of_sub_addr, afi, dig1, dig2, oct;
@@ -2508,7 +2507,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean
 				"Subaddress: %s", a_bigbuf);
 
 			if(invalid_ia5_char)
-				expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)");
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)");
 
 			return(len);
 		}	
@@ -2525,11 +2524,11 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean
  * [3] 10.5.4.7 Called party BCD number
  */
 guint16
-de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_cld_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_cld_party_bcd_num, &addr_extr);
 
 	if(addr_extr) {
 		if (sccp_assoc && ! sccp_assoc->called_party) {
@@ -2547,11 +2546,11 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.4.8 Called party subaddress
  */
 static guint16
-de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	gboolean	addr_extr;
 
-	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2563,11 +2562,11 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [3] 10.5.4.9 Calling party BCD number
  */
 static guint16
-de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_clg_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_clg_party_bcd_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2579,11 +2578,11 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.4.10 Calling party subaddress
  */
 static guint16
-de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	gboolean	addr_extr;
 
-	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2607,7 +2606,7 @@ static const value_string gsm_a_dtap_cause_ss_diagnostics_vals[] = {
 };
 
 static guint16
-de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint8	cause;
@@ -2812,11 +2811,11 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * 10.5.4.13 Connected number
  */
 static guint16
-de_conn_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_conn_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_conn_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2828,11 +2827,11 @@ de_conn_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * 10.5.4.14 Connected subaddress
  */
 static guint16
-de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	gboolean	addr_extr;
 
-	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2845,7 +2844,7 @@ de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  */
 
 static guint16
-de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
+de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
 {
 	guint	saved_offset;
 	gint8 class;
@@ -2859,13 +2858,13 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 	void *save_private_data;
 	static gint comp_type_tag;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, gsm_a_dtap_pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	save_private_data= gsm_a_dtap_pinfo->private_data;
+	save_private_data= pinfo->private_data;
 	saved_offset = offset;
-	gsm_a_dtap_pinfo->private_data = NULL;
-	col_append_str(gsm_a_dtap_pinfo->cinfo, COL_PROTOCOL,"/");
-	col_set_fence(gsm_a_dtap_pinfo->cinfo, COL_PROTOCOL);
+	pinfo->private_data = NULL;
+	col_append_str(pinfo->cinfo, COL_PROTOCOL,"/");
+	col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 	while ( fac_len > (offset - saved_offset)){
 
 		/* Get the length of the component there can be more than one component in a facility message */
@@ -2879,19 +2878,19 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		TODO Call gsm map here
 		*/
 		SS_tvb = tvb_new_subset(tvb, offset, component_len, component_len);
-		col_append_str(gsm_a_dtap_pinfo->cinfo, COL_INFO,"(GSM MAP) ");
-		col_set_fence(gsm_a_dtap_pinfo->cinfo, COL_INFO);
-		call_dissector(gsm_map_handle, SS_tvb, gsm_a_dtap_pinfo, tree);
+		col_append_str(pinfo->cinfo, COL_INFO,"(GSM MAP) ");
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		call_dissector(gsm_map_handle, SS_tvb, pinfo, tree);
 		offset = offset + component_len;
 	}
-	gsm_a_dtap_pinfo->private_data = save_private_data;
+	pinfo->private_data = save_private_data;
 	return(fac_len);
 }
 /*
  * 10.5.4.16 High layer compatibility
  */
 static guint16
-de_hlc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_hlc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -2907,7 +2906,7 @@ de_hlc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
  * [3] 10.5.4.17 Keypad facility
  */
 static guint16
-de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct, keypad_char;
 	guint32	curr_offset;
@@ -2930,7 +2929,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	if (((keypad_char < '0') || (keypad_char > '9')) &&
 		((keypad_char < 'A') || (keypad_char > 'D')) &&
 		(keypad_char != '*') && (keypad_char != '#'))
-		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit");
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit");
 	curr_offset++;
 
 	if (add_string)
@@ -2945,7 +2944,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * 10.5.4.18 Low layer compatibility
  */
 static guint16
-de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_llc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -2972,7 +2971,7 @@ static const value_string gsm_a_dtap_notification_description_vals[] = {
 };
 
 static guint16
-de_notif_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_notification_description, tvb, offset, 1, FALSE);
@@ -3005,7 +3004,7 @@ static const value_string gsm_a_dtap_progress_description_vals[] = {
 };
 
 static guint16
-de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_prog_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct, coding_standard, progress_description;
 	guint32	curr_offset;
@@ -3060,7 +3059,7 @@ static const range_string gsm_a_dtap_recall_type_vals[] = {
 };
 
 static guint16
-de_recall_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_recall_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3), 5, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_recall_type, tvb, offset, 1, FALSE);
@@ -3072,11 +3071,11 @@ de_recall_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 10.5.4.21b Redirecting party BCD number
  */
 static guint16
-de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_red_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_red_party_bcd_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -3088,11 +3087,11 @@ de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * 10.5.4.21c Redirecting party subaddress
  */
 static guint16
-de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	gboolean	addr_extr;
 
-	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -3104,7 +3103,7 @@ de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [3] 10.5.4.22 Repeat indicator
  */
 static guint16
-de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -3148,9 +3147,9 @@ static void
 dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 
 static guint16
-de_setup_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_setup_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	dtap_cc_setup(tvb, tree, gsm_a_dtap_pinfo, offset, len);
+	dtap_cc_setup(tvb, tree, pinfo, offset, len);
 
 	return (len);
 }
@@ -3174,7 +3173,7 @@ static const value_string gsm_a_dtap_signal_value_vals[] = {
 };
 
 static guint16
-de_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_signal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_a_dtap_signal_value, tvb, offset, 1, FALSE);
 	
@@ -3185,7 +3184,7 @@ de_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
  * 10.5.4.24 SS Version Indicator
  */
 static guint16
-de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -3261,7 +3260,7 @@ static const range_string gsm_a_dtap_u2u_prot_discr_vals[] = {
 };
 
 static guint16
-de_u2u(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	proto_tree	*subtree;
@@ -3294,7 +3293,7 @@ static const value_string gsm_a_alerting_pattern_vals[] = {
 };
 
 static guint16
-de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_alert_pat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -3316,7 +3315,7 @@ const true_false_string gsm_a_ccbs_activation_value = {
 	"Activation of CCBS not possible"
 };
 static guint16
-de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_allowed_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -3335,7 +3334,7 @@ de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 10.5.4.28 Stream Identifier
  */
 static guint16
-de_stream_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_stream_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
 	guint8 oct;
@@ -3375,7 +3374,7 @@ static const true_false_string gsm_a_mcs_value = {
 	"This value indicates that the network does not support the multicall"
 };
 static guint16
-de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -3401,7 +3400,7 @@ static const value_string gsm_a_cause_of_no_cli_values[] = {
 	{ 0, NULL }
 };
 static guint16
-de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
 	guint8 oct;
@@ -3442,7 +3441,7 @@ static const value_string gsm_a_sysid_values[] = {
 	{ 0, NULL }
 };
 static guint16
-de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8 length;
@@ -3541,7 +3540,7 @@ Bit 7 automatically initiated eCall
 Bit 8 is spare and set to "0"
 */
 guint16
-de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -3571,7 +3570,7 @@ de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * [5] 8.1.4.1 3GPP TS 24.011 version 6.1.0 Release 6
  */
 static guint16
-de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	tvbuff_t	*rp_tvb;
@@ -3586,7 +3585,7 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	 */
 	rp_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-	call_dissector(rp_handle, rp_tvb, gsm_a_dtap_pinfo, g_tree);
+	call_dissector(rp_handle, rp_tvb, pinfo, g_tree);
 
 	curr_offset += len;
 
@@ -3599,7 +3598,7 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [5] 8.1.4.2
  */
 static guint16
-de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_cp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -3642,7 +3641,7 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 }
 
 static guint16
-de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3687,7 +3686,7 @@ de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 }
 
 static guint16
-de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3707,7 +3706,7 @@ de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
 }
 
 static guint16
-de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3749,7 +3748,7 @@ de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 
 static guint16
-de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3795,7 +3794,7 @@ de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 }
 
 static guint16
-de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3829,7 +3828,7 @@ de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 }
 
 static guint16
-de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint16	value;
@@ -3853,7 +3852,7 @@ de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static guint16
-de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3875,7 +3874,7 @@ de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 
 static guint16
-de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3897,7 +3896,7 @@ de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static guint16
-de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3946,7 +3945,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 static guint16
-de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	oct;
@@ -3971,7 +3970,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 }
 
 static guint16
-de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint32 value;
@@ -3994,7 +3993,7 @@ static const value_string epc_ue_test_loop_mode_vals[] = {
 	{ 0, NULL }
 };
 static guint16
-de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint32 bit_offset;
@@ -4014,7 +4013,7 @@ de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 }
 
 static guint16
-de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint32 count, nb_lb;
@@ -4043,7 +4042,7 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 }
 
 static guint16
-de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -4055,7 +4054,7 @@ de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	return(curr_offset - offset);
 }
 
-guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
 	de_auth_param_rand,	/* Authentication Parameter RAND */
 	de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS and EPS authentication challenge) */

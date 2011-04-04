@@ -367,7 +367,7 @@ static const value_string gsm_a_gm_res_of_attach_vals[] = {
 };
 
 static guint16
-de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_a_gm_fop, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_gm_res_of_attach, tvb, offset, 1, FALSE);
@@ -387,7 +387,7 @@ static const value_string gsm_a_gm_type_of_attach_vals[] = {
 };
 
 static guint16
-de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
@@ -423,7 +423,7 @@ const value_string gsm_a_gm_type_of_ciph_alg_vals[] = {
 };
 
 static guint16
-de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_ciph_alg, tvb, offset, 1, FALSE);
@@ -441,7 +441,7 @@ const true_false_string gsm_a_gm_tmsi_flag_value = {
 };
 
 static guint16
-de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_gm_tmsi_flag, tvb, offset, 1, FALSE);
@@ -454,7 +454,7 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * [7] 10.5.5.5
  */
 static guint16
-de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8        oct;
 	guint32	      curr_offset;
@@ -559,7 +559,7 @@ static const range_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
 	{ 0, 0, NULL },
 };
 guint16
-de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8        oct;
 	guint32	      curr_offset;
@@ -646,7 +646,7 @@ static const range_string gsm_a_gm_force_to_standby_vals[] = {
 };
 
 static guint16
-de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	bit_offset;
 
@@ -663,7 +663,7 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * [9] 10.5.5.7 Force to standby (higher nibble)
  */
 static guint16
-de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	bit_offset;
 
@@ -680,7 +680,7 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * [7] 10.5.5.8
  */
 static guint16
-de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32       curr_offset;
 	proto_item   *curr_item;
@@ -701,7 +701,7 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * [7] 10.5.5.8a
  */
 static guint16
-de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
+de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len _U_)
 {
 	guint32       curr_offset;
 	proto_item   *curr_item;
@@ -712,7 +712,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 	curr_offset+=3;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -729,7 +729,7 @@ static const value_string gsm_a_gm_type_of_identity_vals[] = {
 };
 
 static guint16
-de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_identity, tvb, offset, 1, FALSE);
@@ -749,7 +749,7 @@ static const range_string gsm_a_gm_imeisv_req_vals[] = {
 };
 
 static guint16
-de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	bit_offset;
 
@@ -766,7 +766,7 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [7] 10.5.5.11
  */
 static guint16
-de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -810,7 +810,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	} while ( curr_len > 1 );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -897,7 +897,7 @@ static const true_false_string gsm_a_gmm_net_cap_epc_vals = {
 };
 
 guint16
-de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	proto_tree	*subtree;
@@ -970,7 +970,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
 
 	curr_offset++;
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -1032,7 +1032,7 @@ static const value_string gsm_a_gm_revision_level_indicator_vals[] = {
 	{ 0, NULL }
 };
 guint16
-de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32      curr_offset;
 	guint        curr_len;
@@ -2332,7 +2332,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2402,7 +2402,7 @@ static const range_string gmm_cause_vals[] = {
 /* NOTE: The listed reject cause values are defined in annex G. */
 
 static guint16
-de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32       curr_offset;
 
@@ -2421,7 +2421,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [7] 10.5.5.15 Routing area identification
  */
 guint16
-de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree   *subtree;
 	proto_item   *item;
@@ -2451,7 +2451,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 		mcc,mnc,lac,rac);
 
 	subtree = proto_item_add_subtree(item, ett_gmm_rai);
-	dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, offset, TRUE);
+	dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
 
 	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, FALSE);
 	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, FALSE);
@@ -2475,7 +2475,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * [7] 10.5.5.17
  */
 static guint16
-de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8        oct;
 	guint32       curr_offset;
@@ -2520,7 +2520,7 @@ static const value_string gsm_a_gm_update_type_vals[] = {
 };
 
 static guint16
-de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
@@ -2544,7 +2544,7 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * [9] 10.5.5.19 A&C reference number (lower nibble)
  */
 static guint16
-de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE LOWER NIBBLE */
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, (offset << 3) + 4, 4, FALSE);
@@ -2557,7 +2557,7 @@ de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * [9] 10.5.5.19 A&C reference number (higher nibble)
  */
 static guint16
-de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, offset << 3, 4, FALSE);
@@ -2579,7 +2579,7 @@ static const value_string gsm_a_gm_serv_type_vals[] = {
 };
 
 static guint16
-de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	bit_offset;
 
@@ -2635,7 +2635,7 @@ static const true_false_string gsm_a_gm_gps_c_vals = {
 };
 
 static guint16
-de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -2650,7 +2650,7 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2659,7 +2659,7 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [7] 10.5.5.23
  */
 static guint16
-de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -2690,7 +2690,7 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 /* [7] 10.5.5.24 Inter RAT information container */
 static guint16
-de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	tvbuff_t *rrc_irat_ho_info_tvb;
@@ -2701,7 +2701,7 @@ de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are defined in 3GPP TS 25.331 [23c].*/
 	rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 	if (rrc_irat_ho_info_handle)
-		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, gsm_a_dtap_pinfo , tree);
+		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb,pinfo , tree);
 	else
 		proto_tree_add_text(tree, tvb, curr_offset, len,"INTER RAT HANDOVER INFO - Not decoded");
 
@@ -2713,7 +2713,7 @@ defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are d
  * [7] 10.5.7.1
  */
 static guint16
-de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint16	pdp_nr;
@@ -2750,7 +2750,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2759,7 +2759,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * [7] 10.5.7.2
  */
 static guint16
-de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -2801,7 +2801,7 @@ static const value_string gsm_a_gm_gprs_timer_unit_vals[] = {
 };
 
 static guint16
-de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint16	val;
@@ -2843,7 +2843,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * [7] 10.5.7.4
  */
 static guint16
-de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
+de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
 {
 	guint8	oct;
 	guint16	val;
@@ -2884,7 +2884,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [7] 10.5.7.5
  */
 static guint16
-de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -2921,7 +2921,7 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [8] 10.5.7.6 MBMS context status
  */
 static guint16
-de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
         guint   i;
@@ -2963,7 +2963,7 @@ de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 #define MAX_APN_LENGTH		50
 
 guint16
-de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
+de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -2989,7 +2989,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	curr_offset+= len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2998,7 +2998,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [7] 10.5.6.2
  */
 static guint16
-de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
+de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -3063,7 +3063,7 @@ static const value_string gsm_a_gm_link_dir_vals[] = {
 };
 
 guint16
-de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item   *generated_item = NULL;
 	guint32	curr_offset;
@@ -3077,7 +3077,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	link_dir = gsm_a_dtap_pinfo->link_dir;
+	link_dir = pinfo->link_dir;
 	generated_item =proto_tree_add_int(tree, hf_gsm_a_gm_link_dir, tvb, curr_offset, 0, link_dir);
 	PROTO_ITEM_SET_GENERATED(generated_item);
 
@@ -3161,7 +3161,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 					 * dissect the embedded message
 					 */
 					l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-					call_dissector(handle, l3_tvb ,  gsm_a_dtap_pinfo  , tree );
+					call_dissector(handle, l3_tvb , pinfo  , tree );
 				}
 				else
 				{
@@ -3169,7 +3169,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 					* dissect the embedded DATA message
 					*/
 					l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-					call_dissector(data_handle, l3_tvb, gsm_a_dtap_pinfo , tree);
+					call_dissector(data_handle, l3_tvb, pinfo , tree);
 				}
 			}
 		}
@@ -3179,7 +3179,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	}
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3195,7 +3195,7 @@ static const value_string gsm_a_sm_pdp_type_org_vals[] = {
 };
 
 static guint16
-de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -3280,7 +3280,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 			curr_offset+=4;
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3458,7 +3458,7 @@ qos_calc_ext_bitrate(guint8 oct)
 }
 
 guint16
-de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guchar	   oct, tmp_oct;
@@ -3717,7 +3717,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	curr_offset+= 1;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3771,7 +3771,7 @@ static const value_string gsm_a_sm_cause_vals[] = {
 };
 
 static guint16
-de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	const gchar	*str;
@@ -3794,7 +3794,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * [9] 10.5.6.6a SM cause 2
  */
 static guint16
-de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	const gchar	*str;
@@ -3816,7 +3816,7 @@ de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * [7] 10.5.6.7
  */
 static guint16
-de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -3857,7 +3857,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3875,7 +3875,7 @@ static const value_string gsm_a_sm_llc_sapi_vals[] = {
 };
 
 static guint16
-de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 4, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_sm_llc_sapi, tvb, offset, 1, FALSE);
@@ -3893,7 +3893,7 @@ const true_false_string gsm_a_sm_tdi_value = {
 };
 
 static guint16
-de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_sm_tdi, tvb, offset, 1, FALSE);
@@ -3916,7 +3916,7 @@ static const range_string gsm_a_sm_packet_flow_id_vals[] = {
 };
 
 guint16
-de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint value;
@@ -3930,7 +3930,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     if (add_string)
         g_snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3972,7 +3972,7 @@ static const value_string gsm_a_tft_param_id_vals[] = {
 };
 
 guint16
-de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	      curr_offset;
 	guint	      curr_len;
@@ -4239,7 +4239,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(len);
 }
@@ -4248,7 +4248,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [9] 10.5.6.13 Temporary Mobile Group Identity (TMGI)
  */
 static guint16
-de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -4260,7 +4260,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	NO_MORE_DATA_CHECK(len);
 	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset, TRUE);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4269,7 +4269,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [9] 10.5.6.14 MBMS bearer capabilities
  */
 static guint16
-de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset, temp32;
 	guint8 oct;
@@ -4309,7 +4309,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset+= 1;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4318,7 +4318,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [9] 10.5.6.15 MBMS protocol configuration options
  */
 static guint16
-de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -4326,7 +4326,7 @@ de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, FALSE);
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4335,7 +4335,7 @@ de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * [9] 10.5.6.16 Enhanced network service access point identifier
  */
 static guint16
-de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	const gchar *str;
@@ -4368,7 +4368,7 @@ static const value_string gsm_a_sm_req_type_vals[] = {
 };
 
 static guint16
-de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3) + 4, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_sm_req_type, tvb, offset, 1, FALSE);
@@ -4377,7 +4377,7 @@ de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	return(1);
 }
 
-guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	de_gmm_attach_res,	/* Attach Result */
 	de_gmm_attach_type,	/* Attach Type */
@@ -4439,7 +4439,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * [7] 9.4.1
  */
 static void
-dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4448,7 +4448,7 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, NULL);
 
@@ -4477,14 +4477,14 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.2
  */
 static void
-dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4493,7 +4493,7 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 	curr_len++;
@@ -4531,14 +4531,14 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.3
  */
 static void
-dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 
 	guint32	curr_offset;
@@ -4548,16 +4548,16 @@ dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.4
  */
 static void
-dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4566,20 +4566,20 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x2A , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.5
  */
 static void
-dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4588,7 +4588,7 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 	/* Force to standy might be wrong - To decode it correct, we need the direction */
@@ -4603,14 +4603,14 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.6
  */
 static void
-dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4619,7 +4619,7 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	if ( curr_len != 0 )
 	{
@@ -4630,14 +4630,14 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 		ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.7
  */
 static void
-dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4646,7 +4646,7 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , " - Allocated P-TMSI" );
 
@@ -4660,14 +4660,14 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI Signature" );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.8
  */
 static void
-dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 /*    guint32	consumed; */
@@ -4676,16 +4676,16 @@ dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.9
  */
 static void
-dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4695,7 +4695,7 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ, NULL);
 	curr_offset--;
@@ -4733,20 +4733,20 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 	if ( curr_len == 0  )
 	{
-		EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+		EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 	return;
 	}
 
 	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.10
  */
 static void
-dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4755,7 +4755,7 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
 	curr_offset--;
@@ -4769,14 +4769,14 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	ELEM_OPT_TLV( 0x29 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.11
  */
 static void
-dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -4784,16 +4784,16 @@ dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.10a
  */
 static void
-dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4802,20 +4802,20 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.12
  */
 static void
-dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -4823,7 +4823,7 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 /*  If the half octect that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
 #if 0
@@ -4833,20 +4833,20 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
 #endif
 
-	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset, NULL);
-	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, curr_offset, NULL);
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset, NULL);
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, curr_offset, NULL);
 
 	curr_offset+=1;
 	curr_len-=1;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.13
  */
 static void
-dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4855,18 +4855,18 @@ dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.14
  */
 static void
-dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4875,7 +4875,7 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* is included in update type
 	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, NULL);
@@ -4905,14 +4905,14 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.15
  */
 static void
-dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4921,7 +4921,7 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_UPD_RES, NULL);
 	curr_offset--;
@@ -4957,14 +4957,14 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.16
  */
 static void
-dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4973,21 +4973,21 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 	/* [7] 10.5.5.11 */
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , NULL);
 	/* Inter RAT information container 10.5.5.24 TS 24.008 version 6.8.0 Release 6 */
 	/*TO DO: Implement */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.17
  */
 static void
-dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4996,7 +4996,7 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
@@ -5008,14 +5008,14 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.18
  */
 static void
-dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5024,18 +5024,18 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [8] 9.4.19 GMM Information
  */
 static void
-dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5044,7 +5044,7 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_OPT_TLV( 0x43 , GSM_A_PDU_TYPE_DTAP, DE_NETWORK_NAME , " - Full Name" );
 
@@ -5058,14 +5058,14 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	ELEM_OPT_TLV( 0x49 , GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.20
  */
 static void
-dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5074,7 +5074,7 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* Is included in SRVC TYPE
 	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, NULL);
@@ -5092,14 +5092,14 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.21
  */
 static void
-dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5108,21 +5108,21 @@ dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * [7] 9.4.22
  */
 static void
-dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5131,11 +5131,11 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5143,7 +5143,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * Direction:			MS to network
  */
 static void
-dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5152,9 +5152,9 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* MS to network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
 
@@ -5170,7 +5170,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TV_SHORT(0xA0, GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5178,7 +5178,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5187,9 +5187,9 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS*/
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
 
@@ -5212,7 +5212,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV( 0x39 , GSM_A_PDU_TYPE_GM, DE_SM_CAUSE_2, NULL );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5220,7 +5220,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5229,15 +5229,15 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS*/
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5245,7 +5245,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * Direction:			MS to network
  */
 static void
-dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5254,9 +5254,9 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* MS to Network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
 
@@ -5271,7 +5271,7 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5279,7 +5279,7 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5288,9 +5288,9 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS*/
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
 
@@ -5309,7 +5309,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5317,7 +5317,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5326,15 +5326,15 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS*/
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5342,7 +5342,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			network to MS
  */
 static void
-dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5351,9 +5351,9 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS*/
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Offered PDP address" );
 
@@ -5361,7 +5361,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5369,7 +5369,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * Direction:			MS to network
  */
 static void
-dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5378,15 +5378,15 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* MS to  Network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5394,7 +5394,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			network to MS
  */
 static void
-dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5403,9 +5403,9 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM,DE_RAD_PRIO, NULL);
 #if 0
@@ -5425,7 +5425,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5433,7 +5433,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			MS to network
  */
 static void
-dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5442,9 +5442,9 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* MS to Network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_OPT_TV( 0x32 , GSM_A_PDU_TYPE_GM, DE_LLC_SAPI , " - Requested LLC SAPI" );
 
@@ -5454,7 +5454,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5462,7 +5462,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  * Direction:			MS to network
  */
 static void
-dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5471,13 +5471,13 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* MS to Network */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5485,7 +5485,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  * Direction:			Network to MS
  */
 static void
-dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5494,9 +5494,9 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network to MS */
-	gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
 
@@ -5508,7 +5508,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5516,7 +5516,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Direction:			both
  */
 static void
-dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5525,16 +5525,16 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	/* Network or the MS */
-	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
+	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5542,7 +5542,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * Direction:			both
  */
 static void
-dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5551,8 +5551,8 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
@@ -5563,7 +5563,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5571,7 +5571,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * Direction:			both
  */
 static void
-dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5580,15 +5580,15 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5596,7 +5596,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * Direction:			both
  */
 static void
-dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5605,12 +5605,12 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-	gsm_a_dtap_pinfo->link_dir = LINK_DIR_UNKNOWN;
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5618,7 +5618,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * Direction:			MS to network
  */
 static void
-dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5627,7 +5627,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.16 M V */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI, " - Requested MBMS NSAPI");
@@ -5647,7 +5647,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	/* 35 MBMS protocol configuration options MBMS protocol configuration options 10.5.6.15 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5655,7 +5655,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5664,7 +5664,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
 
@@ -5672,7 +5672,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5680,7 +5680,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * Direction:			network to MS
  */
 static void
-dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5689,13 +5689,13 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5703,7 +5703,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * Direction:			network to MS
  */
 static void
-dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5712,7 +5712,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
+	pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Linked NSAPI");
 
@@ -5722,7 +5722,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5730,7 +5730,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * Direction:			MS to network
  */
 static void
-dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5739,18 +5739,18 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
+	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
-static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 	dtap_gmm_attach_req,		/* Attach Request */
 	dtap_gmm_attach_acc,		/* Attach Accept */
 	dtap_gmm_attach_com,		/* Attach Complete */
@@ -5779,7 +5779,7 @@ static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 #define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_a_dtap_msg_sm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
-static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 	dtap_sm_act_pdp_req,		/* Activate PDP Context Request */
 	dtap_sm_act_pdp_acc,		/* Activate PDP Context Accept */
 	dtap_sm_act_pdp_rej,		/* Activate PDP Context Reject */

@@ -98,7 +98,7 @@ static const value_string sgsap_eps_location_update_type_values[] = {
 };
 
 static guint16
-de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8 oct;
@@ -122,7 +122,7 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * See subclause 18.4.5 in 3GPP TS 29.018 [16].
  */
 static guint16
-de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -144,7 +144,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * as specified in subclause 8.21.5 of 3GPP TS 29.274 [17A] (GTPv2-C)
  */
 static guint16
-de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32    curr_offset;
 
@@ -169,7 +169,7 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * not fill the field reserved for it, the rest of the bits are set to '0'.
  */
 static guint16
-de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32    curr_offset;
 
@@ -191,7 +191,7 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * (see 3GPP TS 23.003).
  */
 static guint16
-de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	const char  *imeisv_str;
     guint32		curr_offset;
@@ -228,7 +228,7 @@ static const value_string sgsap_imsi_det_from_eps_serv_type_values[] = {
 };
 
 static guint16
-de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -252,7 +252,7 @@ static const value_string sgsap_imsi_det_from_non_eps_serv_type_values[] = {
 };
 
 static guint16
-de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -279,7 +279,7 @@ static const value_string sgsap_lcs_indic_values[] = {
 };
 
 static guint16
-de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -307,13 +307,13 @@ de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * indicatior of the other information elements.
  */
 static guint16
-de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
-	dtap_mm_mm_info(tvb, tree, gpinfo, curr_offset, len);
+	dtap_mm_mm_info(tvb, tree, pinfo, curr_offset, len);
 
 	return(len);
 }
@@ -322,7 +322,7 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * 9.4.13	MME name
  */
 static guint16
-de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint   name_len, tmp;
@@ -374,7 +374,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
  */
 static guint16
-de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *new_tvb;
 	guint32	curr_offset;
@@ -412,7 +412,7 @@ static const value_string sgsap_service_indicator_values[] = {
 };
 
 static guint16
-de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8 oct;
@@ -455,7 +455,7 @@ static const value_string sgsap_sgs_cause_values[] = {
 static value_string_ext sgsap_sgs_cause_values_ext = VALUE_STRING_EXT_INIT(sgsap_sgs_cause_values);
 
 static guint16
-de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8 oct;
@@ -511,7 +511,7 @@ static const value_string sgsap_ue_emm_mode_values[] = {
 };
 
 static guint16
-de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -526,7 +526,7 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  * 9.4.22	VLR name
  */
 static guint16
-de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint     name_len, tmp;
@@ -678,7 +678,7 @@ typedef enum
 sgsap_elem_idx_t;
 #endif /* 0 */
 
-guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	NULL/*DE_SGSAP_IMSI*/,									/* 9.4.6 IMSI*/
 	de_sgsap_vlr_name,										/* 9.4.22 VLR name*/
 	NULL/*DE_SGSAP_TMSI*/,									/* 9.4.20 TMSI */

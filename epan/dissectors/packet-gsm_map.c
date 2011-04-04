@@ -3129,7 +3129,7 @@ if (!actx->value_ptr)
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */			
-			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
@@ -3464,7 +3464,7 @@ dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
                 return offset; 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId); 
-	be_cell_id_aux(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
+	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
 
 
 
@@ -7837,7 +7837,7 @@ dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t 
                 return offset; 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
-	be_chan_type(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
+	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 
 
@@ -9945,7 +9945,7 @@ dissect_gsm_map_ms_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 	 if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 3, NULL,0);
+	de_sm_qos(parameter_tvb, tree, actx->pinfo, 0, 3, NULL,0);
 
 
 
@@ -11565,7 +11565,7 @@ dissect_gsm_map_ms_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 	 if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RAIdentity);
-	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
+	de_gmm_rai(parameter_tvb, subtree, actx->pinfo, 0, 3, NULL,0);
 
 
 
@@ -15369,7 +15369,7 @@ if (!actx->value_ptr)
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */			
-			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
@@ -18587,7 +18587,7 @@ void proto_reg_handoff_gsm_map(void) {
     static range_t *ssn_range;
 
     if (!map_prefs_initialized) {
-	map_prefs_initialized = TRUE;
+        map_prefs_initialized = TRUE;
         data_handle = find_dissector("data");
         ranap_handle = find_dissector("ranap");
         dtap_handle = find_dissector("gsm_a_dtap");

@@ -1,7 +1,7 @@
 /* packet-rsl.c
  * Routines for Radio Signalling Link (RSL) dissection.
  *
- * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007, 2011, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -785,7 +785,7 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	ie_offset = offset;
 
 	/* 3GPP TS 44.018 "Channel Description" */
-	de_rr_ch_dsc(tvb, ie_tree, offset, length, NULL, 0);
+	de_rr_ch_dsc(tvb, ie_tree, pinfo, offset, length, NULL, 0);
 	/*
 	 * The 3GPP TS 24.008 "Mobile Allocation" shall for compatibility reasons be
 	 * included but empty, i.e. the length shall be zero.
@@ -1148,7 +1148,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
  * 9.3.12 MS Identity
  */
 static int
-dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -1172,7 +1172,7 @@ dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 	offset++;
 
-	de_mid(tvb, ie_tree, offset, length, NULL, 0);
+	de_mid(tvb, ie_tree, pinfo, offset, length, NULL, 0);
 
 	offset = offset + length;
 
@@ -2295,7 +2295,7 @@ dissect_rsl_ie_smscb_ch_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  * 9.3.45 Group call reference
  */
 static int
-dissect_rsl_ie_grp_call_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_grp_call_ref(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -2325,7 +2325,7 @@ dissect_rsl_ie_grp_call_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	 * in the Descriptive group or broadcast call reference
 	 * information element as defined in 3GPP TS 24.008.
 	 */
-	de_d_gb_call_ref(tvb, ie_tree, offset, length, NULL, 0);
+	de_d_gb_call_ref(tvb, ie_tree, pinfo, offset, length, NULL, 0);
 
 	offset = offset + length;
 
@@ -2569,7 +2569,7 @@ dissect_rsl_ie_main_ch_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 
 static int
-dissect_rsl_ie_multirate_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_multirate_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -2597,7 +2597,7 @@ dissect_rsl_ie_multirate_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	 * 3GPP TS 44.018 element identifier or 3GPP TS 44.018 octet length value
 	 */
 
-	de_rr_multirate_conf(tvb, ie_tree, offset, length, NULL, 0);
+	de_rr_multirate_conf(tvb, ie_tree, pinfo, offset, length, NULL, 0);
 
 	offset = offset + length;
 

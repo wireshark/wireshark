@@ -285,7 +285,7 @@ static guint radius_call_hash(gconstpointer k)
 }
 
 
-static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	int len;
 	guint32 ip;
 	guint32 ip_h;
@@ -316,7 +316,7 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb) {
 	return str;
 }
 
-static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	int len;
 	guint32 ip;
 	guint32 ip_h;
@@ -353,7 +353,7 @@ static const value_string ascenddf_inout[] = { {0, "out"}, {1, "in"}, {0, NULL} 
 static const value_string ascenddf_proto[] = { {1, "icmp"}, {6, "tcp"}, {17, "udp"}, {0, NULL} };
 static const value_string ascenddf_portq[] = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
 
-static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	const gchar *str;
 	GString	*filterstr;
 	int len;
@@ -414,7 +414,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb) 
 	return str;
 }
 
-static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	int len;
 	guint32 net;
 	const gchar *str;
@@ -435,7 +435,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb) 
 	return str;
 }
 
-static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	guint vpi, vci;
 
 	if ( tvb_length(tvb) != 4 )
@@ -841,7 +841,7 @@ static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_i
 
 		tvb_value = tvb_new_subset(tvb, offset, avp_length, (gint) avp_length);
 
-		str = dictionary_entry->dissector(avp_tree,tvb_value);
+		str = dictionary_entry->dissector(avp_tree,tvb_value,pinfo);
 
 		proto_item_append_text(avp_item, ": %s",str);
 	} else {

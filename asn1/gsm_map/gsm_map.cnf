@@ -525,7 +525,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 	 if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 3, NULL,0);
+	de_sm_qos(parameter_tvb, tree, actx->pinfo, 0, 3, NULL,0);
 
 #.FN_BODY Ext-QoS-Subscribed VAL_PTR = &parameter_tvb
 
@@ -571,7 +571,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	 if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RAIdentity);
-	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
+	de_gmm_rai(parameter_tvb, subtree, actx->pinfo, 0, 3, NULL,0);
 
 #.FN_BODY LAIFixedLength VAL_PTR = &parameter_tvb
 
@@ -595,7 +595,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
                 return offset; 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
-	be_chan_type(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
+	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 #.FN_BODY RANAP-ServiceHandover VAL_PTR = &parameter_tvb
     tvbuff_t        *parameter_tvb;
@@ -668,7 +668,7 @@ if (!actx->value_ptr)
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */			
-			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
@@ -749,7 +749,7 @@ if (!actx->value_ptr)
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */			
-			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
@@ -804,7 +804,7 @@ if (!actx->value_ptr)
                 return offset; 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId); 
-	be_cell_id_aux(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
+	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
 
 #.FN_BODY Ext-GeographicalInformation VAL_PTR = &parameter_tvb 
     tvbuff_t	*parameter_tvb; 

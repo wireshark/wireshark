@@ -1061,25 +1061,21 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * Dissected in packet-gsm_a_gm.c
  */
 static void
-dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
-    /* pinfo needed */
-    gsm_a_dtap_pinfo = pinfo;
 	switch(message_type){
 		case GTPV2_CREATE_SESSION_REQUEST:
 			/* PCO options as MS to network direction */
-			gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+			pinfo->link_dir = P2P_DIR_UL;
 			break;
 		case GTPV2_CREATE_SESSION_RESPONSE:
 			/* PCO options as Network to MS direction: */
-			gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+			pinfo->link_dir = P2P_DIR_DL;
 			break;
 		default:
 			break;
 	}
-    de_sm_pco(tvb, tree, 0, length, NULL, 0);
-	/* Restore previous values */
-	gsm_a_dtap_pinfo = pinfo;
+    de_sm_pco(tvb, tree, pinfo, 0, length, NULL, 0);
 }
 
 /*
@@ -1231,27 +1227,27 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  */
 
 static void
-dissect_gtpv2_bearer_tft(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_bearer_tft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
 	/* The detailed coding of Traffic Aggregate
 	 * Description is specified in 3GPP TS 24.008 [5] ,
 	 * clause 10.5.6.12, beginning with octet 3..
 	 * Use the decoding in packet-gsm_a_gm.c
 	 */
-	de_sm_tflow_temp(tvb, tree, 0, length, NULL, 0);
+	de_sm_tflow_temp(tvb, tree, pinfo, 0, length, NULL, 0);
 
 }
  /* 8.20 Traffic Aggregate Description (TAD)
  */
 static void
-dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
 	/* The detailed coding of Traffic Aggregate
 	 * Description is specified in 3GPP TS 24.008 [5] ,
 	 * clause 10.5.6.12, beginning with octet 3..
 	 * Use the decoding in packet-gsm_a_gm.c
 	 */
-	de_sm_tflow_temp(tvb, tree, 0, length, NULL, 0);
+	de_sm_tflow_temp(tvb, tree, pinfo, 0, length, NULL, 0);
 }
 
 /*
@@ -2096,7 +2092,7 @@ dissect_gtpv2_drx_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static void
 dissect_gtpv2_ue_net_capability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-	de_emm_ue_net_cap(tvb, tree, 0, length, NULL, 0);
+	de_emm_ue_net_cap(tvb, tree, pinfo, 0, length, NULL, 0);
 
 }
 /*
@@ -2434,7 +2430,7 @@ static const value_string gtpv2_ue_time_zone_dst_vals[] = {
     {0, NULL}
 };
 static void
-dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset = 0;
 
@@ -2443,7 +2439,7 @@ dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	 * UE currently resides. The "Time Zone" field uses the same format as the "Time Zone" IE in 3GPP TS 24.008 [5].
 	 * (packet-gsm_a_dtap.c)
 	 */
-	de_time_zone(tvb, tree, offset, 1, NULL, 0);
+	de_time_zone(tvb, tree, pinfo, offset, 1, NULL, 0);
     offset= offset+ 1;
     proto_tree_add_item(tree, hf_gtpv2_ue_time_zone_dst, tvb, offset, 1, FALSE);
 
@@ -2851,14 +2847,14 @@ static const value_string gtpv2_source_ident_types[] = {
 	{0,	NULL}
 };
 static void
-dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item *expert_item;
     int          offset=0;
 	guint8       source_type;
 
     /* Octet 5 to 12 Target Cell ID */
-	de_cell_id(tvb, tree, offset, 8, NULL, 0);
+	de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);
 	offset+=8;
     /* Octet 13 Source Type */
 	source_type = tvb_get_guint8(tvb, offset);
@@ -2870,7 +2866,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			/* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
              * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
              */
-            de_cell_id(tvb, tree, offset, 8, NULL, 0);
+            de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);
             offset+=8;
 			break;
 		case 1:
@@ -3018,13 +3014,13 @@ dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * 8.63 Channel needed
  */
 static void
-dissect_gtpv2_channel_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_channel_needed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
 
 	/* The Channel needed shall be coded as depicted in Figure 8.63-1. Channel needed is coded as the IEI part and the value
 	 * part of the Channel Needed IE defined in 3GPP TS 44.018[28]
 	 */
-	de_rr_chnl_needed(tvb, tree, 0, length, NULL, 0);
+	de_rr_chnl_needed(tvb, tree, pinfo, 0, length, NULL, 0);
 }
 
 /*
@@ -3034,10 +3030,10 @@ dissect_gtpv2_channel_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  * length indicator).
  */
 static void
-dissect_gtpv2_emlpp_pri(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_emlpp_pri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
 
-	be_emlpp_prio(tvb, tree, 0, length, NULL, 0);
+	be_emlpp_prio(tvb, tree, pinfo, 0, length, NULL, 0);
 
 }
 /*

@@ -959,7 +959,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 	 * length, if present.(10.5.1.4)
 	 */
-		de_mid(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_mid(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 
 	case 2:
@@ -987,7 +987,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 		 * length, if present.
 		 */
-		de_lai(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_lai(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 6:
 		/* GSM Coverage Indicator */
@@ -1047,7 +1047,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.13 GAN Cell Description
 		 * The rest of the IE is coded as in [TS 44.018], Cell Description IE, not including IEI and length, if present
 		 */
-		de_rr_cell_dsc(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_cell_dsc(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 14:
 		/*
@@ -1082,7 +1082,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.15 Cell Identifier List
 		 * The rest of the IE is coded as in [TS 48.008], not including IEI and length, if present
 		 */
-		be_cell_id_list(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		be_cell_id_list(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 16:		/* TU3907 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
@@ -1092,7 +1092,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 18:		/* 11.2.18 Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
-		de_gmm_rai(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_gmm_rai(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 19:		/* 11.2.19 GAN Band */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gan_band, tvb, ie_offset, 1, FALSE);
@@ -1137,26 +1137,26 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.27 Channel Mode
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_ch_mode(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_ch_mode(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 28:
 		/* 11.2.28 Mobile Station Classmark 2
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
-		de_ms_cm_2(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_ms_cm_2(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 29:
 		/* 11.2.29 RR Cause
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_cause(tvb, urr_ie_tree, ie_offset, 1, NULL, 0);
+		de_rr_cause(tvb, urr_ie_tree, pinfo, ie_offset, 1, NULL, 0);
 		break;
 	case 30:
 		/* 11.2.30 Cipher Mode Setting
 		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018]
 		 * as part of the Cipher Mode Setting IE.
 		 */
-		de_rr_cip_mode_set(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_cip_mode_set(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 31:
 		/* 11.2.31 GPRS Resumption
@@ -1187,19 +1187,19 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * [TS 44.018]:10.5.2.41a
 		 * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
 		 */
-		de_rr_tlli(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_tlli(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 35:
 		/* 11.2.35 Packet Flow Identifier
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present.
 		 */
-		de_sm_pflow_id(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_sm_pflow_id(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 36:
 		/* 11.2.36 Suspension Cause
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present.
 		 */
-		de_rr_sus_cau(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_sus_cau(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 37:		/* 11.2.37 TU3920 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
@@ -1288,13 +1288,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Multi-rate Configuration
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_multirate_conf(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
+		de_rr_multirate_conf(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 56:
 		/* 11.2.56 Mobile Station Classmark 3
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
-		de_ms_cm_3(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_ms_cm_3(tvb, urr_ie_tree, pinfo, offset, ie_len, NULL, 0);
 		break;
 	case 57:
 		/* 11.2.57 LLC-PDU
@@ -1303,12 +1303,9 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, FALSE);
 		llc_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
 		  if (llc_handle) {
-			  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-					col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-			  }
-
-			  call_dissector(llc_handle, llc_tvb, pinfo, urr_ie_tree);
+			col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+			col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+			call_dissector(llc_handle, llc_tvb, pinfo, urr_ie_tree);
 		  }else{
 			  if (data_handle)
 				  call_dissector(data_handle, llc_tvb, pinfo, urr_ie_tree);
@@ -1375,7 +1372,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.65 Classmark Enquiry Mask
 		 * The rest of the IE is the Classmark Enquiry Mask coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_cm_enq_mask(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_rr_cm_enq_mask(tvb, urr_ie_tree, pinfo, offset, ie_len, NULL, 0);
 		break;
 	case 66:
 		/* 11.2.66 UTRAN Cell Identifier List
@@ -1721,8 +1718,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
 		while ((msg_len + 1) > offset ){
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
@@ -1732,10 +1728,8 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
-			col_set_fence(pinfo->cinfo,COL_INFO);
-		}
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
+		col_set_fence(pinfo->cinfo,COL_INFO);
 		offset++;
 		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
 		offset = offset + 3;
@@ -1785,10 +1779,8 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
-		col_set_fence(pinfo->cinfo,COL_INFO);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
+	col_set_fence(pinfo->cinfo,COL_INFO);
 	msg_len = tvb_length_remaining(tvb,offset) - 1;
 
 	switch  ( octet ){

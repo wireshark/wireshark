@@ -109,20 +109,20 @@ const value_string gsm_bsslap_elem_strings[] = {
 	{  BSSLAP_PARAM_RRLP_IE,				"RRLP IE" },
 	{  BSSLAP_PARAM_CELL_IDENTITY_LIST,		"Cell Identity List" },
 	{  BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT,	"Enhanced Measurement Report" },
-	{  BSSLAP_PARAM_LOCATION_AREA_CODE,		"Location Area Code" },
-	{  BSSLAP_PARAM_FREQUENCY_LIST,			"Frequency List" },
-	{  BSSLAP_PARAM_MS_POWER,				"MS Power" },
-	{  BSSLAP_PARAM_DELTA_TIMER,			"Delta Timer" },
-	{  BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,	"Serving Cell Identifier" },
-	{  BSSLAP_PARAM_ENCRYPTION_KEY,			"Encryption Key (Kc)" },
-	{  BSSLAP_PARAM_CIPHER_MODE_SETTING,	"Cipher Mode Setting" },
-	{  BSSLAP_PARAM_CHANNEL_MODE,			"Channel Mode" },
-	{  BSSLAP_PARAM_MULTIRATE_CONFIGURATION,	"MultiRate Configuration" },
-	{  BSSLAP_PARAM_POLLING_REPETITION,		"Polling Repetition" },
-	{  BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION,	"Packet Channel Description" },
-	{  BSSLAP_PARAM_TLLI,					"TLLI" },
-	{  BSSLAP_PARAM_TFI,					"TFI" },
-	{  BSSLAP_PARAM_STARTING_TIME,			"Starting Time" },
+	{  BSSLAP_PARAM_LOCATION_AREA_CODE,				"Location Area Code" },
+	{  BSSLAP_PARAM_FREQUENCY_LIST,					"Frequency List" },
+	{  BSSLAP_PARAM_MS_POWER,						"MS Power" },
+	{  BSSLAP_PARAM_DELTA_TIMER,					"Delta Timer" },
+	{  BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,		"Serving Cell Identifier" },
+	{  BSSLAP_PARAM_ENCRYPTION_KEY,					"Encryption Key (Kc)" },
+	{  BSSLAP_PARAM_CIPHER_MODE_SETTING,			"Cipher Mode Setting" },
+	{  BSSLAP_PARAM_CHANNEL_MODE,					"Channel Mode" },
+	{  BSSLAP_PARAM_MULTIRATE_CONFIGURATION,		"MultiRate Configuration" },
+	{  BSSLAP_PARAM_POLLING_REPETITION,				"Polling Repetition" },
+	{  BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION,		"Packet Channel Description" },
+	{  BSSLAP_PARAM_TLLI,							"TLLI" },
+	{  BSSLAP_PARAM_TFI,							"TFI" },
+	{  BSSLAP_PARAM_STARTING_TIME,					"Starting Time" },
 	{ 0,		NULL },
 };
 
@@ -169,7 +169,7 @@ gint ett_gsm_bsslap_elem[NUM_GSM_BSSLAP_ELEM];
  * 5.2 Timing Advance IE
  */
 static guint16
-de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_ta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -184,7 +184,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add
  */
 #if 0
 static guint16
-de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -213,7 +213,7 @@ static const value_string gsm_bsslap_cause_vals[] = {
 };
 
 static guint16
-de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -231,7 +231,7 @@ static const true_false_string gsm_bsslap_rrlp_flg_vals = {
 	"Position Command (SMLC to BSC) or final response (BSC to SMLC)"
 };
 static guint16
-de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -242,7 +242,7 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	return(curr_offset - offset);
 }
 static guint16
-de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
    tvbuff_t *rrlp_tvb;
@@ -255,7 +255,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
    {
       rrlp_tvb = tvb_new_subset(tvb, curr_offset, length, length);
       if (bsslap_rrlp_handle)
-         call_dissector(bsslap_rrlp_handle, rrlp_tvb, gsm_a_dtap_pinfo, tree);
+         call_dissector(bsslap_rrlp_handle, rrlp_tvb, pinfo, tree);
    }
 
    curr_offset += length;
@@ -278,7 +278,7 @@ static const value_string gsm_a_bsslap_cell_id_disc_vals[] = {
 
 
 static guint16
-de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint8	consumed;
@@ -305,11 +305,11 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		switch(cell_id_disc){
 			case 0:
 				/* The whole Cell Global Identification, CGI, is used to identify the 2G cells. */
-				consumed+= be_cell_id_aux(tvb, subtree, curr_offset, len, NULL, 0, 0);
+				consumed+= be_cell_id_aux(tvb, subtree, pinfo, curr_offset, len, NULL, 0, 0);
 				break;
 			case 1:
 				/* Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells. */
-				consumed+= be_cell_id_aux(tvb, subtree, curr_offset, len, NULL, 0, 1);
+				consumed+= be_cell_id_aux(tvb, subtree, pinfo, curr_offset, len, NULL, 0, 1);
 				break;
 			case 2:
 				/* 3G Cell identification container 1 */
@@ -338,7 +338,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * "RR short PD", "Message type" and "Short layer 2 header")...
  */
 static guint16
-de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -352,7 +352,7 @@ de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * 5.19 Location Area Code IE
  */
 static guint16
-de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_lac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -366,7 +366,7 @@ de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
  * 5.21 MS Power IE
  */
 static guint16
-de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_ms_pow(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -381,7 +381,7 @@ de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
  * 5.22 Delta Timer IE
  */
 static guint16
-de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_delta_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -399,7 +399,7 @@ de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 5.24 Encryption Key
  */
 static guint16
-de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -425,7 +425,7 @@ de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * 5.28 Polling Repetition IE
  */
 static guint16
-de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_poll_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -442,7 +442,7 @@ de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * padding bits (binary 0) as required to achieve 4 complete octets
  */
 static guint16
-de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -461,7 +461,7 @@ de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * This field is encoded as a binary number. Range 0 to 31
  */
 static guint16
-de_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_tfi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -520,7 +520,7 @@ bsslap_elem_idx_t;
 */
 elem_fcn bsslap_elem_fcn[];
 
-guint16 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* BSS LAP Elements 5 */
 	NULL,	/* Reserved */
 	de_ta,	/* Timing Advance */
@@ -561,7 +561,7 @@ static gint ett_gsm_bsslap_msg[NUM_GSM_BSSLAP_MSG];
 
 /* 4.2.2 TA Response ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -590,7 +590,7 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* 4.2.4 (void)   ETSI TS 148 071 V7.2.0 (2007-06) */
 /* 4.2.5 Reject   ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -607,7 +607,7 @@ dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* 4.2.6 Reset   ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -655,7 +655,7 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* 4.2.7 Abort  ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -671,7 +671,7 @@ dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 4.2.8 TA Layer3  ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -692,7 +692,7 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 4.2.9 MS Position Command  ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -709,7 +709,7 @@ dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 4.2.10 MS Position Response   ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -734,7 +734,7 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 4.2.11 U-TDOA Request   ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -752,7 +752,7 @@ dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 4.2.12 U-TDOA Response  ETSI TS 148 071 V7.2.0 (2007-06) */
 static void
-dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -803,7 +803,6 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	offset=0;
 	guint8 octet;
 
-	gsm_a_dtap_pinfo = pinfo;
 /* Make entries in Protocol column and Info column on summary display */
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
 	if (tree) {
@@ -820,31 +819,31 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Only message type IE */
 			break;
 		case BSSLAP_TA_RESPONSE:
-			dissect_gsm_bsslap_ta_res(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ta_res(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_REJECT:
-			dissect_gsm_bsslap_reject(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_reject(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_RESET:
-			dissect_gsm_bsslap_reset(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_reset(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_ABORT:
-			dissect_gsm_bsslap_abort(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_abort(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_TA_LAYER3:
-			dissect_gsm_bsslap_ta_layer3(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ta_layer3(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_MS_POS_CMD:
-			dissect_gsm_bsslap_ms_pos_cmd(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ms_pos_cmd(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_MS_POS_RES:
-			dissect_gsm_bsslap_ms_pos_res(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ms_pos_res(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_U_TDOA_REQ:
-			dissect_gsm_bsslap_u_tdoa_req(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_u_tdoa_req(tvb, sub_tree, pinfo, offset);
 			break;
 		case BSSLAP_U_TDOA_RES:
-			dissect_gsm_bsslap_u_tdoa_res(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_u_tdoa_res(tvb, sub_tree, pinfo, offset);
 			break;
 		default:
 			break;

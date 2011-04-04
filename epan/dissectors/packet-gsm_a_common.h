@@ -54,7 +54,7 @@
 #include "packet-sccp.h"
 
 /* PROTOTYPES/FORWARDS */
-typedef guint16 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+typedef guint16 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 #if 0
 /* XXX moved to tvbuff.h, clean up later */
@@ -79,7 +79,7 @@ int my_dgt_tbcd_unpack(
 extern const value_string protocol_discriminator_vals[];
 extern const value_string gsm_a_pd_short_str_vals[];
 
-extern guint16 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+extern guint16 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 /* Needed to share the packet-gsm_a_common.c functions */
 extern const value_string gsm_bssmap_elem_strings[];
@@ -160,7 +160,7 @@ extern packet_info *gsm_a_dtap_pinfo;
 
 /* TS 23 032 */
 void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-guint16 dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+guint16 dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 
 /* common field values */
@@ -333,17 +333,17 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 /*
  * Type Length Value (TLV) element dissector
  */
-extern guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+extern guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Extendable Length Value (TLVE) element dissector
  */
-extern guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+extern guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Length Value (TLV-E) element dissector
  */
-extern guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+extern guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Value (TV) element dissector
@@ -351,7 +351,7 @@ extern guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+extern guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Type Value (TV) element dissector
@@ -360,22 +360,22 @@ extern guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_typ
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+extern guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Type (T) element dissector
  */
-extern guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+extern guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Length Value (LV) element dissector
  */
-extern guint16 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+extern guint16 elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Length Value (LV-E) element dissector
  */
-extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Value (V) element dissector
@@ -383,7 +383,7 @@ extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Short Value (V_SHORT) element dissector
@@ -393,7 +393,7 @@ extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, g
  * This is expected to be used upper nibble first, as the tables of 24.008.
  */
 
-extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset);
+extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset);
 
 
 /* XXX: Most (if not all) the functions which make use of the following macros have the variables 'consumed',
@@ -406,7 +406,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_TLV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
-	if ((consumed = elem_tlv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tlv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -431,7 +431,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
  */
 #define ELEM_MAND_TELV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
-	if ((consumed = elem_telv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+	if ((consumed = elem_telv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -451,7 +451,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_TLV_E(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
-	if ((consumed = elem_tlv_e(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tlv_e(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -470,7 +470,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 }
 #define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_tlv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tlv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -480,7 +480,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_OPT_TELV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_telv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_telv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -490,7 +490,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_OPT_TLV_E(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_tlv_e(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tlv_e(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -500,7 +500,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
-	if ((consumed = elem_tv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -520,7 +520,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_OPT_TV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_tv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -530,7 +530,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_OPT_TV_SHORT(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_tv_short(tvb, tree, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_tv_short(tvb, tree, pinfo, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -540,7 +540,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_OPT_T(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
-	if ((consumed = elem_t(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	if ((consumed = elem_t(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -550,7 +550,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
 {\
-	if ((consumed = elem_lv(tvb, tree, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
+	if ((consumed = elem_lv(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -564,7 +564,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_LV_E(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
 {\
-	if ((consumed = elem_lv_e(tvb, tree, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
+	if ((consumed = elem_lv_e(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -578,7 +578,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx, EMV_elem_name_addition) \
 {\
-	if ((consumed = elem_v(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset, EMV_elem_name_addition)) > 0) \
+	if ((consumed = elem_v(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx, curr_offset, EMV_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -592,7 +592,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 
 #define ELEM_MAND_V_SHORT(EMV_pdu_type, EMV_elem_idx) \
 {\
-	if ((consumed = elem_v_short(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
+	if ((consumed = elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \
@@ -647,53 +647,53 @@ void bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info
 
 void dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
-guint16 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
-guint16 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len);
+guint16 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
+guint16 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
-guint16 de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
-guint16 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
-guint16 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-guint16 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
-guint16 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
-guint16 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
-guint16 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+guint16 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);

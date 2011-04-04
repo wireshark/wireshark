@@ -205,7 +205,7 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 /* AVP Code: 913 MBMS-Required-QoS */
 static int
-dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
 
 	int offset = 0;
 	guint length;
@@ -223,7 +223,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo _U
 	proto_tree_add_item(tree, hf_diameter_3gpp_mbms_required_qos_prio, tvb, offset, 1, FALSE);
 	offset++;
 	length = tvb_length(tvb) - 1;
-	de_sm_qos(tvb, tree, offset, length, NULL, 0);
+	de_sm_qos(tvb, tree,  pinfo, offset,length, NULL, 0);
 	return offset+length;
 
 }

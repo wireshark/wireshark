@@ -718,7 +718,7 @@ check_optional_ie(tvbuff_t *tvb, int offset, guint8 expected_ie){
 
 /* 18.4.1 Cell global identity */
 static int
-dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -745,13 +745,13 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  Routing Area Identification IE defined in 3GPP TS 24.008, not
      *  including 3GPP TS 24.008 IEI
      */
-    de_gmm_rai(tvb, cgi_tree, offset, ie_len, NULL, 0);
+    de_gmm_rai(tvb, cgi_tree, pinfo, offset, ie_len, NULL, 0);
     /*  Octets 9 and 10 contain the value part (starting with octet 2) of the
      *  Cell Identity IE defined in 3GPP TS 24.008, not including
      *  3GPP TS 24.008 IEI
      */
     offset = offset + 6;
-    de_cell_id(tvb, cgi_tree, offset, ie_len, NULL, 0);
+    de_cell_id(tvb, cgi_tree, pinfo, offset, ie_len, NULL, 0);
     offset = offset + 2;
 
     return offset;
@@ -759,7 +759,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.2 Channel needed */
 static int
-dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -778,7 +778,7 @@ dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, int offset)
      * value part of the Channel Needed IE defined in 3GPP TS 44.018.
      * 10.5.2.8 Channel Needed
      */
-    de_rr_chnl_needed(tvb, ie_tree, offset, ie_len, NULL, 0);
+    de_rr_chnl_needed(tvb, ie_tree, pinfo, offset, ie_len, NULL, 0);
 
     return offset + ie_len;
 
@@ -1155,7 +1155,7 @@ dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.14 Location area identifier */
 static int
-dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -1174,7 +1174,7 @@ dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  including 3GPP TS 48.018 IEI and 3GPP TS 48.018 length
      *  indicator).
      */
-    de_lai(tvb, ie_tree, offset, ie_len, NULL, 0);
+    de_lai(tvb, ie_tree, pinfo, offset, ie_len, NULL, 0);
 
     return offset + ie_len;
 
@@ -1242,7 +1242,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 /* 18.4.17 Mobile identity */
 static int
-dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -1260,7 +1260,7 @@ dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  the mobile identity IE defined in 3GPP TS 24.008 (not including
      *  3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator).
      */
-    de_mid(tvb, ie_tree, offset, ie_len, NULL, 0);
+    de_mid(tvb, ie_tree, pinfo, offset, ie_len, NULL, 0);
 
 
     return offset + ie_len;
@@ -1268,7 +1268,7 @@ dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.18 Mobile station classmark 1 */
 static int
-dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -1286,7 +1286,7 @@ dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  the mobile station classmark 1 IE defined in 3GPP TS 24.008 (not
      *  including 3GPP TS 24.008 IEI)
      */
-    de_ms_cm_1(tvb, ie_tree, offset, ie_len, NULL, 0);
+    de_ms_cm_1(tvb, ie_tree, pinfo, offset, ie_len, NULL, 0);
 
     return offset + ie_len;
 
@@ -1351,7 +1351,7 @@ dissect_bssap_ptmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.21 Reject cause */
 static int
-dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -1369,7 +1369,7 @@ dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  the reject cause IE defined in 3GPP TS 24.008, not including
      *  3GPP TS 24.008 IEI.
      */
-    de_rej_cause(tvb, ie_tree, offset, ie_len, NULL, 0);
+    de_rej_cause(tvb, ie_tree, pinfo, offset, ie_len, NULL, 0);
 
     return offset + ie_len;
 
@@ -1686,13 +1686,13 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Location area identifier Location area identifier 18.4.14 O TLV 7 */
         if ( check_optional_ie(tvb, offset, BSSAP_LOC_AREA_ID))
-            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
         /* Channel needed Channel needed 18.4.2 O TLV 3 */
         if ( check_optional_ie(tvb, offset, BSSAP_CHANNEL_NEEDED))
-            offset = dissect_bssap_channel_needed(tvb, bssap_tree, offset);
+            offset = dissect_bssap_channel_needed(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
@@ -1767,17 +1767,17 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* New Cell global identity Cell global identity 18.4.1 M TLV 10 */
         if ( check_ie(tvb, tree, &offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         /* Mobile station classmark Mobile station classmark 1 18.4.18 M TLV 3 */
         if ( check_ie(tvb, tree, &offset, BSSAP_MOBILE_STN_CLS_MRK1))
-            offset = dissect_bssap_mobile_stn_cls_mrk1(tvb, bssap_tree, offset);
+            offset = dissect_bssap_mobile_stn_cls_mrk1(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
         /* Old location area identifier Location area identifier 18.4.14 O TLV 7 */
         if ( check_optional_ie(tvb, offset, BSSAP_LOC_AREA_ID))
-            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
@@ -1807,14 +1807,14 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Location area identifier Location area identifier 18.4.14 M TLV 7 */
         if ( check_ie(tvb, tree, &offset, BSSAP_LOC_AREA_ID))
-            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_loc_area_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
         /* New TMSI, or IMSI Mobile identity 18.4.17 O TLV 6-10 */
         if ( check_optional_ie(tvb, offset, BSSAP_MOBILE_ID))
-            offset = dissect_bssap_mobile_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_mobile_id(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
         proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
@@ -1825,7 +1825,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
         /* Reject cause Reject cause 18.4.21 M TLV 3 */
         if ( check_ie(tvb, tree, &offset, BSSAP_REJECT_CAUSE))
-            offset = dissect_bssap_reject_cause(tvb, bssap_tree, offset);
+            offset = dissect_bssap_reject_cause(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
         proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
@@ -1840,7 +1840,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Cell global identity Cell global identity 18.4.1 O TLV 10 */
         if ( check_optional_ie(tvb, offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
@@ -1893,7 +1893,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Cell global identity Cell global identity 18.4.1 O TLV 10 */
         if ( check_optional_ie(tvb, offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
@@ -1923,7 +1923,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Cell global identity Cell global identity 18.4.1 O TLV 10 */
         if ( check_optional_ie(tvb, offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
@@ -1962,7 +1962,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Cell global identity Cell global identity 18.4.1 O TLV 10 */
         if ( check_optional_ie(tvb, offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
@@ -2074,7 +2074,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Cell global identity Cell global identity 18.4.1 O TLV 10 */
         if ( check_optional_ie(tvb, offset, BSSAP_CELL_GBL_ID))
-            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
+            offset = dissect_bssap_cell_global_id(tvb, bssap_tree, pinfo, offset);
 
         if (tvb_length_remaining(tvb,offset) == 0)
             return;

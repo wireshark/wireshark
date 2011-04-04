@@ -66,7 +66,7 @@ typedef struct _radius_vendor_info_t {
 typedef struct _radius_attr_info_t radius_attr_info_t;
 typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_info*, tvbuff_t*, int, int, proto_item* );
 
-typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*);
+typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info*);
 
 struct _radius_attr_info_t {
 	const gchar *name;

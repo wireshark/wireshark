@@ -107,12 +107,12 @@ if(ue_eutra_cap_tvb){
 		break;
 	case 2:
 		/* geran-cs */
-		de_ms_cm_2(ue_eutra_cap_tvb, tree, 0, 5, NULL, 0);
-		de_ms_cm_3(ue_eutra_cap_tvb, tree, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
+		de_ms_cm_2(ue_eutra_cap_tvb, tree, actx->pinfo, 0, 5, NULL, 0);
+		de_ms_cm_3(ue_eutra_cap_tvb, tree, actx->pinfo, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
 		break;
 	case 3:
 		/* geran-ps */
-		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
+		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, actx->pinfo, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
 		break;
 	case 4:
 		/* cdma2000-1XRTT */

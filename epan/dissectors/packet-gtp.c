@@ -3216,7 +3216,7 @@ static int decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo _
  */
 
 
-static const gchar *dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * tvb)
+static const gchar *dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
 {
     guint8 sel_mode;
 
@@ -3745,7 +3745,7 @@ static int decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guin
  * TODO:        - check if for quintuplets first 2 bytes are length, according to AuthQuint
  *              - finish displaying last 3 parameters
  */
-static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 length, quint_len, con_len;
@@ -3832,7 +3832,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
 /*
  * 3GPP TS 24.008 10.5.5.6 ( see packet-gsm_a.c )
  */
-    de_gmm_drx_param(tvb, ext_tree_mm, offset, 2, NULL, 0);
+    de_gmm_drx_param(tvb, ext_tree_mm, pinfo, offset, 2, NULL, 0);
     offset = offset + 2;
 
     len = tvb_get_guint8(tvb, offset);
@@ -3846,7 +3846,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
 /*
  * GPP TS 24.008 10.5.5.12 ( see packet-gsm_a.c )
  */
-    de_gmm_ms_net_cap(tvb, tf_tree, offset, len, NULL, 0);
+    de_gmm_ms_net_cap(tvb, tf_tree, pinfo, offset, len, NULL, 0);
     offset = offset + len;
 
 /* 3GPP TS 29.060 version 9.4.0 Release 9
@@ -3882,7 +3882,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
             len = tvb_get_guint8(tvb,offset);
             proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Length %u",len);
             offset++;
-            de_mid(tvb, ext_tree_mm, offset, len, NULL, 0);
+            de_mid(tvb, ext_tree_mm, pinfo, offset, len, NULL, 0);
         }else{
             proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
         }
@@ -4282,7 +4282,7 @@ dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     return tvb_length(tvb);
 }
 
-static const gchar *dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb)
+static const gchar *dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
 {
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
     return tvb_get_ephemeral_string(tvb, 0, tvb_length(tvb));
@@ -5252,7 +5252,7 @@ static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * Type = 152 (Decimal)
  */
 
-static const gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb)
+static const gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
 {
 
     int offset = 0;
@@ -5266,10 +5266,10 @@ static const gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb)
 
     if (geo_loc_type == 0)
         /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-        be_cell_id_aux(tvb, tree, offset, length - 1, NULL, 0, 0);
+        be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 0);
     if (geo_loc_type == 1) {
         /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-        be_cell_id_aux(tvb, tree, offset, length - 1, NULL, 0, 4);
+        be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4);
         offset = offset + 5;
         proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
@@ -5278,7 +5278,7 @@ static const gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb)
     return tvb_bytes_to_str(tvb, 0, length);
 }
 
-static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 length;
@@ -5301,10 +5301,10 @@ static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinf
 
     if (geo_loc_type == 0)
         /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-        be_cell_id_aux(tvb, ext_tree, offset, length - 1, NULL, 0, 0);
+        be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 0);
     if (geo_loc_type == 1) {
         /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-        be_cell_id_aux(tvb, ext_tree, offset, length - 1, NULL, 0, 4);
+        be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4);
         offset = offset + 5;
         proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
@@ -5466,7 +5466,7 @@ static int decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinf
  * in 3GPP T S 24.008 [5] (i.e. the IEI and octet length indicator are not included).
  */
 
-static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 length;
@@ -5486,7 +5486,7 @@ static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 
     tmgi_tree = proto_item_add_subtree(ti, ett_gtp_tmgi);
     next_tvb = tvb_new_subset(tvb, offset, length, length);
-    de_mid(next_tvb, tmgi_tree, 0, length, NULL, 0);
+    de_mid(next_tvb, tmgi_tree, pinfo, 0, length, NULL, 0);
     return 3 + length;
 
 }
