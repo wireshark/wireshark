@@ -277,7 +277,7 @@ manual_override:
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, FALSE); local_offset += 2;
             break;
         case HelloAck:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, FALSE);
             break;
         case DisConn:
             break;
@@ -286,13 +286,13 @@ manual_override:
         case SendSm:
             break;
         case RdmaWrCompl:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rwch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rwch, tvb, local_offset, 48, FALSE);
             break;
         case RdmaRdCompl:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rrch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rrch, tvb, local_offset, 48, FALSE);
             break;
         case ModeChange:
-            SDP_EH_header_item = proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, FALSE);
             break;
         case SrcAvailCancel:
             break;
@@ -301,24 +301,24 @@ manual_override:
         case SinkCancelAck:
             break;
         case ChRcvBuf:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbh, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbh, tvb, local_offset, 48, FALSE);
             break;
         case ChRcvBufAck:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbah, tvb, local_offset, 48, FALSE);
             break;
         case SuspComm:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_suspch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_suspch, tvb, local_offset, 48, FALSE);
             break;
         case SuspCommAck:
             break;
         case SinkAvail:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_sinkah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_sinkah, tvb, local_offset, 48, FALSE);
             break;
         case SrcAvail:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_srcah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_srcah, tvb, local_offset, 48, FALSE);
             break;
         case Data:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_data, tvb, local_offset, -1, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_data, tvb, local_offset, -1, FALSE);
             break;
         default:
             break;

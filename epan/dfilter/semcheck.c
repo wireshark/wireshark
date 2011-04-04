@@ -957,7 +957,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 	drange_node		*rn;
 	df_func_def_t   *funcdef;
 	df_func_def_t   *funcdef2;
-	GSList          *params;
+	/* GSList          *params; */
 
 	check_function(st_arg1);
 	type2 = stnode_type_id(st_arg2);
@@ -965,7 +965,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 	funcdef = sttype_function_funcdef(st_arg1);
 	ftype1 = funcdef->retval_ftype;
 
-	params = sttype_function_params(st_arg1);
+	/* params = */sttype_function_params(st_arg1);  /* XXX: is this done for the side-effect ? */
 
 	DebugLog(("    5 check_relation_LHS_FUNCTION(%s)\n", relation_string));
 

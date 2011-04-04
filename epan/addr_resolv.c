@@ -506,7 +506,7 @@ parse_service_line (char *line)
 
   port = cp;
 
-  if ((cp = strtok(cp, "/")) == NULL)
+  if (strtok(cp, "/") == NULL)
     return;
 
   if ((cp = strtok(NULL, "/")) == NULL)

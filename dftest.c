@@ -62,7 +62,6 @@ main(int argc, char **argv)
 	char		*gpf_path, *pf_path;
 	int		gpf_open_errno, gpf_read_errno;
 	int		pf_open_errno, pf_read_errno;
-	e_prefs		*prefs_p;
 	dfilter_t	*df;
 
 	/*
@@ -98,7 +97,7 @@ main(int argc, char **argv)
 	/* set the c-language locale to the native environment. */
 	setlocale(LC_ALL, "");
 
-	prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+	read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
 		&pf_open_errno, &pf_read_errno, &pf_path);
 	if (gpf_path != NULL) {
 		if (gpf_open_errno != 0) {
