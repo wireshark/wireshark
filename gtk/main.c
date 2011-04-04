@@ -217,7 +217,6 @@ static guint  tap_update_timer_id;
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
-static gboolean console_wait;	/* "Press any key..." */
 static void destroy_console(void);
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 #endif
@@ -3057,7 +3056,6 @@ WinMain (struct HINSTANCE__ *hInstance,
   ws_load_library("riched20.dll");
 
   has_console = FALSE;
-  console_wait = FALSE;
   return main (__argc, __argv);
 }
 
@@ -3096,7 +3094,12 @@ create_console(void)
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
       if (AllocConsole()) {
         SetConsoleTitle(_T("Wireshark Debug Console"));
-        console_wait = TRUE;
+        /* Now register "destroy_console()" as a routine to be called just
+           before the application exits, so that we can destroy the console
+           after the user has typed a key (so that the console doesn't just
+           disappear out from under them, giving the user no chance to see
+           the message(s) we put in there). */
+        atexit(destroy_console);
       } else {
         return;   /* couldn't create console */
       }
@@ -3108,21 +3111,13 @@ create_console(void)
 
     /* Well, we have a console now. */
     has_console = TRUE;
-
-    /* Now register "destroy_console()" as a routine to be called just
-       before the application exits, so that we can destroy the console
-       after the user has typed a key (so that the console doesn't just
-       disappear out from under them, giving the user no chance to see
-       the message(s) we put in there). */
-    atexit(destroy_console);
-
   }
 }
 
 static void
 destroy_console(void)
 {
-  if (console_wait) {
+  if (has_console) {
     printf("\n\nPress any key to exit\n");
     _getch();
     FreeConsole();
