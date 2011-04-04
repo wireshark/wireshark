@@ -1,8 +1,8 @@
 /* packet-ancp.c
  *
- * Dissector for ANCP - Access Node Control Protocol 
+ * Dissector for ANCP - Access Node Control Protocol
  *
- * More info on the protocol can be found on IETF: 
+ * More info on the protocol can be found on IETF:
  * http://tools.ietf.org/wg/ancp/
  * http://tools.ietf.org/html/draft-ietf-ancp-protocol-09
  *
@@ -45,9 +45,9 @@
 #define ANCP_GSMP_ETHER_TYPE  0x880C
 #define TECH_TYPE_DSL         0x5
 
-#define ANCP_RESULT_MASK     0xF0 
+#define ANCP_RESULT_MASK     0xF0
 #define ANCP_CODE_MASK       0x0FFF
-#define ANCP_I_FLAG_MASK     0x80 
+#define ANCP_I_FLAG_MASK     0x80
 #define ANCP_SUBMSG_MASK     0x7FFF
 #define ADJ_CODE_MASK        0x7F /* excluding MSB M-Flag */
 
@@ -255,7 +255,7 @@ static const value_string dsl_line_attr_units[] = {
     { 0x8D,  "msec" },
     { 0x8E,  "msec" },
     { 0x8F,  "" },
-    { 0x90,  "" }, 
+    { 0x90,  "" },
     { 0,  NULL }
 };
 
@@ -298,15 +298,15 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
     gint16  num_tlvs, num_stlvs;
     gint    val;
 
-    sti = proto_tree_add_item(ancp_tree, hf_ancp_port, tvb, offset, 4, 
+    proto_tree_add_item(ancp_tree, hf_ancp_port, tvb, offset, 4,
             FALSE);
     offset += 4;
 
-    sti = proto_tree_add_item(ancp_tree, hf_ancp_port_sess_num, tvb, offset, 4, 
+    proto_tree_add_item(ancp_tree, hf_ancp_port_sess_num, tvb, offset, 4,
             FALSE);
     offset += 4;
 
-    sti = proto_tree_add_item(ancp_tree, hf_ancp_evt_seq_num, tvb, offset, 4, 
+    proto_tree_add_item(ancp_tree, hf_ancp_evt_seq_num, tvb, offset, 4,
             FALSE);
     offset += 4;
 
@@ -316,26 +316,26 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
     /* Start of the Extension Block */
     proto_tree_add_item(ancp_tree, hf_ancp_reserved, tvb, offset, 1, FALSE);
     offset += 1;
-    /* 
+    /*
      * We have already displayed the message type in the common header dissect
-     * need not display this again here - skip it 
+     * need not display this again here - skip it
      */
     offset += 1; /* Message type in Ext Blk */
 
     proto_tree_add_item(ancp_tree, hf_ancp_tech_type, tvb, offset, 1, FALSE);
     tech_type = tvb_get_guint8(tvb, offset);
     offset += 1;
-    
+
     proto_tree_add_item(ancp_tree, hf_ancp_blk_len, tvb, offset, 1, FALSE);
     offset += 1;
 
     if (tech_type == TECH_TYPE_DSL) {
-        proto_tree_add_item(ancp_tree, hf_ancp_num_ext_tlvs, tvb, 
+        proto_tree_add_item(ancp_tree, hf_ancp_num_ext_tlvs, tvb,
                 offset, 2, FALSE);
         num_tlvs = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
-        sti = proto_tree_add_item(ancp_tree, hf_ancp_len, tvb, 
+        sti = proto_tree_add_item(ancp_tree, hf_ancp_len, tvb,
                 offset, 2, FALSE);
         blk_len = tvb_get_ntohs(tvb, offset);
         proto_item_append_text(sti, " (Extension Block)");
@@ -345,30 +345,30 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
         tlv_tree = proto_item_add_subtree(sti, ett_ancp_len);
 
         for( ;num_tlvs; num_tlvs--) {
-            sti = proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_type, tvb, 
+            proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_type, tvb,
                     offset, 2, FALSE);
             ttype = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
-            sti = proto_tree_add_item(tlv_tree, hf_ancp_len, tvb, 
+            sti = proto_tree_add_item(tlv_tree, hf_ancp_len, tvb,
                     offset, 2, FALSE);
             tlen = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
-            /* 
+            /*
              * Extension Block is common for event message and port
              * management message, but the TLVs that can appear
              * are different
              */
             switch (ttype) {
-                case TLV_DSL_LINE_ATTRIBUTES: 
+                case TLV_DSL_LINE_ATTRIBUTES:
                     /* Create a DSL Attribute SubTree */
-                    dsl_tree = proto_item_add_subtree(sti, 
+                    dsl_tree = proto_item_add_subtree(sti,
                             ett_ancp_ext_tlv_type);
                     num_stlvs = tlen / 8; /* TODO - better way? */
                     for ( ;num_stlvs; num_stlvs--) {
-                        sti = proto_tree_add_item(dsl_tree, 
-                                hf_ancp_dsl_line_stlv_type, tvb, offset, 
+                        proto_tree_add_item(dsl_tree,
+                                hf_ancp_dsl_line_stlv_type, tvb, offset,
                                 2, FALSE);
                         stlvtype = tvb_get_ntohs(tvb, offset);
                         offset += 2;
@@ -376,38 +376,38 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                         stlvlen = tvb_get_ntohs(tvb, offset);
                         offset += 2; /* Sub TLV Length */
 
-                        sti = proto_tree_add_item(dsl_tree, 
-                                hf_ancp_dsl_line_stlv_value, tvb, offset, 
+                        sti = proto_tree_add_item(dsl_tree,
+                                hf_ancp_dsl_line_stlv_value, tvb, offset,
                                 stlvlen, FALSE);
                         val = tvb_get_ntohl(tvb, offset);
                         offset += stlvlen; /* Except loop-encap, rest are 4B */
 
                         switch (stlvtype) {
                             case TLV_DSL_LINE_STATE:
-                                proto_item_append_text(sti, " (%s)", 
-                                        val_to_str(val, dsl_line_state_names, 
+                                proto_item_append_text(sti, " (%s)",
+                                        val_to_str(val, dsl_line_state_names,
                                             "Unknown (0x%02x)"));
                                 break;
                             case TLV_DSL_TYPE:
-                                proto_item_append_text(sti, " (%s)", 
-                                        val_to_str(val, dsl_line_type_names, 
+                                proto_item_append_text(sti, " (%s)",
+                                        val_to_str(val, dsl_line_type_names,
                                             "Unknown (0x%02x)"));
                                 break;
 
                             default:
                                 /* Add Unit */
-                                proto_item_append_text(sti, " %s", 
-                                        val_to_str(stlvtype, 
-                                            dsl_line_attr_units, 
+                                proto_item_append_text(sti, " %s",
+                                        val_to_str(stlvtype,
+                                            dsl_line_attr_units,
                                             "Unknown (0x%02x)"));
                                 break;
-                        } 
+                        }
                         SKIPPADDING(offset, stlvlen);
                     }
                     break;
                 case TLV_PING_OPAQUE_DATA:
                     /* 2 32b values*/
-                    proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque, 
+                    proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque,
                             tvb, offset, 4, FALSE);
                     offset += 4;
                     proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque,
@@ -416,16 +416,16 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                     break;
                 case TLV_PING_PARAMS:
                     /* Count (1B) Timeout (1B), 2B empty */
-                    proto_tree_add_item(tlv_tree, 
+                    proto_tree_add_item(tlv_tree,
                             hf_ancp_oam_loopb_cnt, tvb, offset, 1, FALSE);
                     offset += 1;
-                    proto_tree_add_item(tlv_tree, 
+                    proto_tree_add_item(tlv_tree,
                             hf_ancp_oam_timeout, tvb, offset, 1, FALSE);
                     offset += 1;
                     /* Lets not bother about 2B until IETF WG figures out */
-                    offset += 2;    
+                    offset += 2;
                     break;
-                default: 
+                default:
                     /* Assume TLV value is string - covers ALCID, OAM resp */
                     proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_value_str,
                             tvb, offset, tlen, FALSE);
@@ -434,11 +434,11 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                     break;
             } /* end switch {ttype} */
         } /* end for {numtlvs} */
-    } /* end if {DSL} */ 
+    } /* end if {DSL} */
 }
 
 static void
-dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree, 
+dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
                      gint offset, struct ancp_tap_t *ancp_info
 )
 {
@@ -483,14 +483,14 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     proto_item_append_text(sti, " (Type = %d, Flag = %d)",
             byte >> 4, byte & 0x0F);
 
-    proto_tree_add_item(ancp_tree, hf_ancp_sender_instance, tvb, offset, 3, 
+    proto_tree_add_item(ancp_tree, hf_ancp_sender_instance, tvb, offset, 3,
             FALSE);
     offset += 3;
 
     proto_tree_add_item(ancp_tree, hf_ancp_p_id, tvb, offset, 1, FALSE);
     offset += 1;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_receiver_instance, tvb, offset, 3, 
+    proto_tree_add_item(ancp_tree, hf_ancp_receiver_instance, tvb, offset, 3,
             FALSE);
     offset += 3;
 
@@ -498,7 +498,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
             offset, 1, FALSE);
     offset += 1;
 
-    sti = proto_tree_add_item(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1, 
+    sti = proto_tree_add_item(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1,
             FALSE);
     numcaps = tvb_get_guint8(tvb, offset);
     offset += 1;
@@ -506,7 +506,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     /* Start the capability subtree */
     ancp_cap_tree = proto_item_add_subtree(sti, ett_ancp_tot_len);
 
-    sti = proto_tree_add_item(ancp_cap_tree, hf_ancp_tot_len, tvb,
+    proto_tree_add_item(ancp_cap_tree, hf_ancp_tot_len, tvb,
             offset, 2, FALSE);
     tlv_len = tvb_get_ntohs(tvb, offset);
     offset += 2;
@@ -518,34 +518,34 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 
         tlv_len = tvb_get_ntohs(tvb, offset);
         offset += 2;
-        proto_item_append_text(sti, " (%d bytes)", tlv_len); 
+        proto_item_append_text(sti, " (%d bytes)", tlv_len);
         /* TODO - if there are non boolean caps, validate before use */
     }
 }
 
-static void 
+static void
 ancp_stats_tree_init(stats_tree *st)
 {
     st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
-    st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, 
+    st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types,
             st_node_packets);
-    st_node_adj_pack_types = stats_tree_create_node(st, st_str_adj_pack_types, 
+    st_node_adj_pack_types = stats_tree_create_node(st, st_str_adj_pack_types,
             st_node_packets, TRUE);
 }
 
 static int
-ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, 
+ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                        epan_dissect_t* edt _U_ , const void* p)
 {
     struct ancp_tap_t *pi = (struct ancp_tap_t *) p;
 
     tick_stat_node(st, st_str_packets, 0, FALSE);
     stats_tree_tick_pivot(st, st_node_packet_types,
-            val_to_str(pi->ancp_mtype, mtype_names, 
+            val_to_str(pi->ancp_mtype, mtype_names,
                 "Unknown packet type (%d)"));
-    if (pi->ancp_mtype == ANCP_MTYPE_ADJ) 
+    if (pi->ancp_mtype == ANCP_MTYPE_ADJ)
         stats_tree_tick_pivot(st, st_node_adj_pack_types,
-                val_to_str(pi->ancp_adjcode, adj_code_names, 
+                val_to_str(pi->ancp_adjcode, adj_code_names,
                     "Unknown Adjacency packet (%d)"));
     return 1;
 }
@@ -579,21 +579,21 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_ancp, tvb, 0, -1, FALSE);
 
         ancp_tree = proto_item_add_subtree(ti, ett_ancp_len);
-        
+
         offset = 2; /* skip ether type */
 
-        sti = proto_tree_add_item(ancp_tree, hf_ancp_len, tvb, offset, 2, 
+        proto_tree_add_item(ancp_tree, hf_ancp_len, tvb, offset, 2,
                 FALSE);
         len = tvb_get_ntohs(tvb, offset);
         offset += 2;
-        
-        sti = proto_tree_add_item(ancp_tree, hf_ancp_ver, tvb, offset, 1, 
+
+        sti = proto_tree_add_item(ancp_tree, hf_ancp_ver, tvb, offset, 1,
                 FALSE);
         byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         proto_item_append_text(sti, " (%d.%d)", byte >> 4, byte & 0x0F);
 
-        sti = proto_tree_add_item(ancp_tree, hf_ancp_mtype, tvb, offset, 1, 
+        sti = proto_tree_add_item(ancp_tree, hf_ancp_mtype, tvb, offset, 1,
                 FALSE);
         mtype = tvb_get_guint8(tvb, offset); /* ANCP message type */
         ancp_info->ancp_mtype = mtype; /* stats */
@@ -604,10 +604,10 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (mtype != ANCP_MTYPE_ADJ) {
             /* Dissect common header */
-            proto_tree_add_item(ancp_tree, hf_ancp_result, tvb, offset, 1, 
+            proto_tree_add_item(ancp_tree, hf_ancp_result, tvb, offset, 1,
                     FALSE); /* treat as 1B, but dont change offset */
 
-            proto_tree_add_item(ancp_tree, hf_ancp_code, tvb, offset, 2, 
+            proto_tree_add_item(ancp_tree, hf_ancp_code, tvb, offset, 2,
                     FALSE);
             offset += 2;
 
@@ -619,29 +619,29 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset, 3, FALSE);
             offset += 3;
 
-            proto_tree_add_item(ancp_tree, hf_ancp_i_flag, tvb, offset, 1, 
+            proto_tree_add_item(ancp_tree, hf_ancp_i_flag, tvb, offset, 1,
                     FALSE); /* treat as 1B, but dont change offset */
-            
-            sti = proto_tree_add_item(ancp_tree, hf_ancp_submsg_num, tvb, 
+
+            sti = proto_tree_add_item(ancp_tree, hf_ancp_submsg_num, tvb,
                     offset, 2, FALSE);
             offset += 2;
 
-            /* 
-             * Lets not display the 'Length' field now, it is anyway same 
+            /*
+             * Lets not display the 'Length' field now, it is anyway same
              * as GSMP Length
              * which we have already displayed at the start of the dissect
              */
             offset += 2; /* Length */
         }
-      
+
         switch(mtype) {
             case ANCP_MTYPE_ADJ:
                 dissect_ancp_adj_msg(tvb, pinfo, ancp_tree, offset, ancp_info);
                 break;
             case ANCP_MTYPE_PORT_DN:
-                /* FALL THRU */ 
+                /* FALL THRU */
             case ANCP_MTYPE_PORT_MGMT:
-                /* FALL THRU */ 
+                /* FALL THRU */
             case ANCP_MTYPE_PORT_UP:
                 dissect_ancp_port_up_dn_mgmt(tvb, ancp_tree, offset);
                 break;
@@ -653,7 +653,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(ancp_tap, pinfo, ancp_info);
 }
 
-static guint 
+static guint
 get_ancp_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     return (guint)tvb_get_ntohs(tvb, offset + 2) + 4; /* 2B len + 4B hdr */
@@ -779,7 +779,7 @@ proto_register_ancp(void)
                 NULL, HFILL }
         },
         { &hf_ancp_code,
-            { "Code", "ancp.code", 
+            { "Code", "ancp.code",
                 FT_UINT16, BASE_HEX,
                 VALS(codetype_names), ANCP_CODE_MASK,
                 NULL, HFILL }
@@ -938,7 +938,7 @@ proto_register_ancp(void)
     proto_register_subtree_array(ett, array_length(ett));
     ancp_tap = register_tap("ancp");
 }
- 
+
 void
 proto_reg_handoff_ancp(void)
 {
@@ -949,4 +949,4 @@ proto_reg_handoff_ancp(void)
     stats_tree_register("ancp", "ancp", "ANCP", 0,
             ancp_stats_tree_packet, ancp_stats_tree_init, NULL);
 }
- 
+
