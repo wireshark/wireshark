@@ -147,61 +147,61 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         if [ "$OSTYPE" == "cygwin" ] ; then
             CF=`cygpath --windows "$CF"`
         fi
-    echo -n "    $CF: "
+	echo -n "    $CF: "
 
-    "$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
-    RETVAL=$?
-    if [ $RETVAL -eq 1 ] ; then
-        echo "Not a valid capture file"
-        rm -f $TMP_DIR/$ERR_FILE
-        continue
-    elif [ $RETVAL -ne 0 ] ; then
-        # Some other error
-        echo ""
-        echo " ERROR"
-        echo -e "Processing failed.  Capture info follows:\n"
-        echo "  Input file: $CF"
-        echo -e "stderr follows:\n"
-        cat $TMP_DIR/$ERR_FILE
-        exit 1
-    fi
+	"$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
+	RETVAL=$?
+	if [ $RETVAL -eq 1 ] ; then
+	    echo "Not a valid capture file"
+	    rm -f $TMP_DIR/$ERR_FILE
+	    continue
+	elif [ $RETVAL -ne 0 ] ; then
+	    # Some other error
+	    echo ""
+	    echo " ERROR"
+	    echo -e "Processing failed.  Capture info follows:\n"
+	    echo "  Input file: $CF"
+	    echo -e "stderr follows:\n"
+	    cat $TMP_DIR/$ERR_FILE
+	    exit 1
+	fi
 
-    DISSECTOR_BUG=0
+	DISSECTOR_BUG=0
 
-    "$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
-    if [ $? -ne 0 ] ; then
-        "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/$TMP_FILE \
-        > /dev/null 2>&1
-        if [ $? -ne 0 ] ; then
-        echo "Invalid format for editcap"
-        continue
-        fi
-    fi
+	"$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+	    "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/$TMP_FILE \
+	    > /dev/null 2>&1
+	    if [ $? -ne 0 ] ; then
+	    echo "Invalid format for editcap"
+	    continue
+	    fi
+	fi
 
-    export WIRESHARK_DEBUG_SCRUB_MEMORY=
-    export WIRESHARK_DEBUG_SE_USE_CANARY=
-    export WIRESHARK_EP_VERIFY_POINTERS=
-    export WIRESHARK_SE_VERIFY_POINTERS=
-    export G_SLICE=debug-blocks             # since GLib 2.13
-    export MALLOC_CHECK_=3
-    "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-        > /dev/null 2>> $TMP_DIR/$ERR_FILE
-    RETVAL=$?
-    # Uncomment the next two lines to enable dissector bug
-    # checking.
-    #grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
-    #    > /dev/null 2>&1 && DISSECTOR_BUG=1
-    if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-            echo ""
-        echo " ERROR"
-        echo -e "Processing failed.  Capture info follows:\n"
-        echo "  Output file: $TMP_DIR/$TMP_FILE"
-        echo -e "stderr follows:\n"
-        cat $TMP_DIR/$ERR_FILE
-        exit 1
-    fi
-    echo " OK"
-        rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
+	export WIRESHARK_DEBUG_SCRUB_MEMORY=
+	export WIRESHARK_DEBUG_SE_USE_CANARY=
+	export WIRESHARK_EP_VERIFY_POINTERS=
+	export WIRESHARK_SE_VERIFY_POINTERS=
+	export G_SLICE=debug-blocks             # since GLib 2.13
+	export MALLOC_CHECK_=3
+	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
+	RETVAL=$?
+	# Uncomment the next two lines to enable dissector bug
+	# checking.
+	#grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
+	#    > /dev/null 2>&1 && DISSECTOR_BUG=1
+	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
+		echo ""
+	    echo " ERROR"
+	    echo -e "Processing failed.  Capture info follows:\n"
+	    echo "  Output file: $TMP_DIR/$TMP_FILE"
+	    echo -e "stderr follows:\n"
+	    cat $TMP_DIR/$ERR_FILE
+	    exit 1
+	fi
+	echo " OK"
+	    rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
 
