@@ -33,11 +33,8 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
-#include <time.h>
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -538,7 +535,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
                   struct beep_proto_data *beep_frame_data)
 {
   proto_tree     *ti = NULL, *hdr = NULL;
-  proto_item     *hidden_item;
+  /*proto_item     *hidden_item;*/
   int            st_offset, msgno, ansno, seqno, size, channel, ackno, window, cc,
                  more;
 
@@ -566,7 +563,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       hdr = proto_item_add_subtree(ti, ett_header);
 
-      hidden_item = proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, TRUE);
+      /*hidden_item = */proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, TRUE);
       proto_tree_add_text(hdr, tvb, offset, 3, "%s", cmd_temp);
     }
 
@@ -685,7 +682,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
-      hidden_item = proto_tree_add_boolean(tree, hf_beep_seq, tvb, offset, 3, TRUE);
+        /*hidden_item = */proto_tree_add_boolean(tree, hf_beep_seq, tvb, offset, 3, TRUE);
       proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
     }
 
@@ -738,7 +735,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       tr = proto_item_add_subtree(ti, ett_trailer);
 
-      hidden_item = proto_tree_add_boolean(tr, hf_beep_end, tvb, offset, 3, TRUE);
+      /*hidden_item = */proto_tree_add_boolean(tr, hf_beep_end, tvb, offset, 3, TRUE);
       proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
 
     }
