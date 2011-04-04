@@ -27,13 +27,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
 #include "packet-aim.h"
 
@@ -50,12 +46,12 @@
 #define FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS              0x0006
 
 static const value_string aim_snac_generic_motd_motdtypes[] = {
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE, "Mandatory Upgrade Needed Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE, "Advisable Upgrade Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN, "AIM/ICQ Service System Announcements" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL, "Standard Notice" },
-  { FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS, "News from AOL service" },
-  { 0, NULL }
+	{ FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE, "Mandatory Upgrade Needed Notice" },
+	{ FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE, "Advisable Upgrade Notice" },
+	{ FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN, "AIM/ICQ Service System Announcements" },
+	{ FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL, "Standard Notice" },
+	{ FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS, "News from AOL service" },
+	{ 0, NULL }
 };
 
 #define RATEINFO_STATE_LIMITED			0x01
@@ -247,7 +243,7 @@ static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_
 	int offset = 0;
 	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Supported services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	
+
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
@@ -282,7 +278,7 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
-		ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
+		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
 		offset += 4;
 	}
 	return offset;
@@ -297,7 +293,7 @@ static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	while(tvb_length_remaining(tvb, offset) > 0) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
-		ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
+		proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
 		offset += 4;
 	}
 	return offset;
@@ -306,7 +302,7 @@ static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
+	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset,
 						2, tvb_get_ntohs(tvb, offset));
 	offset+=2;
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, aim_motd_tlvs);
@@ -358,7 +354,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 	for(i = 0; i < n; i++) {
 		guint16 famnum = tvb_get_ntohs(tvb, offset);
 		const aim_family *family = aim_get_family(famnum);
-		proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
+		proto_tree_add_text(entry, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
 		offset += 2;
 	}
 
@@ -368,7 +364,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	guint32 flags = tvb_get_ntoh24(tvb, offset); 
+	guint32 flags = tvb_get_ntoh24(tvb, offset);
 	proto_item *ti = proto_tree_add_uint(gen_tree, hf_generic_priv_flags, tvb, offset, 4, flags);
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_priv_flags);
 	proto_tree_add_boolean(entry, hf_generic_allow_idle_see, tvb, offset, 4, flags);
@@ -471,11 +467,11 @@ proto_register_aim_generic(void)
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
-		{ &hf_generic_servicereq_service, 
+		{ &hf_generic_servicereq_service,
 			{ "Requested Service", "aim_generic.servicereq.service", FT_UINT16,
 				BASE_HEX, NULL, 0x0, NULL, HFILL },
 	},
-	{ &hf_generic_motd_motdtype, 
+	{ &hf_generic_motd_motdtype,
 	  { "MOTD Type", "aim_generic.motd.motdtype", FT_UINT16,
 		  BASE_HEX, VALS(aim_snac_generic_motd_motdtypes), 0x0, NULL, HFILL },
 	},
@@ -501,12 +497,12 @@ proto_register_aim_generic(void)
 	  { "Current Level", "aim_generic.rateinfo.class.currentlevel", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	},
 	{ &hf_generic_rateinfo_maxlevel,
-      { "Max Level", "aim_generic.rateinfo.class.maxlevel", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
+	  { "Max Level", "aim_generic.rateinfo.class.maxlevel", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	},
 	{ &hf_generic_rateinfo_lasttime,
 	  { "Last Time", "aim_generic.rateinfo.class.lasttime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	},
-	{ &hf_generic_rateinfo_curstate, 
+	{ &hf_generic_rateinfo_curstate,
 	  { "Current State", "aim_generic.rateinfo.class.curstate", FT_UINT8, BASE_HEX, VALS(rateinfo_states), 0x0, NULL, HFILL },
 	},
 	{ &hf_generic_rateinfo_classid,
@@ -542,10 +538,10 @@ proto_register_aim_generic(void)
 	{ &hf_generic_idle_time,
 		{ "Idle time (seconds)", "aim_generic.idle_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	},
-	{ &hf_generic_client_ver_req_offset, 
+	{ &hf_generic_client_ver_req_offset,
 		{ "Client Verification Request Offset", "aim_generic.client_verification.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	},
-	{ &hf_generic_client_ver_req_length, 
+	{ &hf_generic_client_ver_req_length,
 		{ "Client Verification Request Length", "aim_generic.client_verification.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	},
 	{ &hf_generic_client_ver_req_hash,
@@ -567,29 +563,29 @@ proto_register_aim_generic(void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
-	&ett_generic,
-	&ett_generic_migratefamilies,
-	&ett_generic_rateinfo_class,
-	&ett_generic_rateinfo_group,
-	&ett_generic_rateinfo_groups,
-	&ett_generic_rateinfo_classes,
-	&ett_generic_clientready,
-	&ett_generic_clientready_item,
-	&ett_generic_serverready,
-	&ett_generic_priv_flags,
-  };
+	static gint *ett[] = {
+		&ett_generic,
+		&ett_generic_migratefamilies,
+		&ett_generic_rateinfo_class,
+		&ett_generic_rateinfo_group,
+		&ett_generic_rateinfo_groups,
+		&ett_generic_rateinfo_classes,
+		&ett_generic_clientready,
+		&ett_generic_clientready_item,
+		&ett_generic_serverready,
+		&ett_generic_priv_flags,
+	};
 
 /* Register the protocol name and description */
-  proto_aim_generic = proto_register_protocol("AIM Generic Service", "AIM Generic", "aim_generic");
+	proto_aim_generic = proto_register_protocol("AIM Generic Service", "AIM Generic", "aim_generic");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_generic, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_aim_generic, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_generic(void)
 {
-  aim_init_family(proto_aim_generic, ett_generic, FAMILY_GENERIC, aim_fnac_family_generic);
+	aim_init_family(proto_aim_generic, ett_generic, FAMILY_GENERIC, aim_fnac_family_generic);
 }
