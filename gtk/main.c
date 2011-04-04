@@ -217,6 +217,7 @@ static guint  tap_update_timer_id;
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
+static gboolean console_wait;	/* "Press any key..." */
 static void destroy_console(void);
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 #endif
@@ -3056,6 +3057,7 @@ WinMain (struct HINSTANCE__ *hInstance,
   ws_load_library("riched20.dll");
 
   has_console = FALSE;
+  console_wait = FALSE;
   return main (__argc, __argv);
 }
 
@@ -3086,8 +3088,19 @@ create_console(void)
   if (!has_console) {
     /* We have no console to which to print the version string, so
        create one and make it the standard input, output, and error. */
-    if (!AllocConsole())
-      return;   /* couldn't create console */
+    
+    /*
+     * See if we have an existing console (i.e. we were run from a
+     * command prompt)
+     */
+    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+      if (AllocConsole()) {
+        SetConsoleTitle(_T("Wireshark Debug Console"));
+        console_wait = TRUE;
+      } else {
+        return;   /* couldn't create console */
+      }
+    }
 
     ws_freopen("CONIN$", "r", stdin);
     ws_freopen("CONOUT$", "w", stdout);
@@ -3103,14 +3116,13 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-    SetConsoleTitle(_T("Wireshark Debug Console"));
   }
 }
 
 static void
 destroy_console(void)
 {
-  if (has_console) {
+  if (console_wait) {
     printf("\n\nPress any key to exit\n");
     _getch();
     FreeConsole();
