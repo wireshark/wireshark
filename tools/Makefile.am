@@ -97,6 +97,7 @@ EXTRA_DIST = \
 	idl2wrs.sh					\
 	idl2wrs.sh.in					\
 	lex.py						\
+	list_protos_in_cap.sh				\
 	Makefile.nmake					\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
