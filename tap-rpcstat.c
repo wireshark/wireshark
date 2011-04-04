@@ -108,19 +108,17 @@ rpcstat_reset(void *prs)
  * possible into (*draw) instead since that function executes asynchronously
  * and does not affect the main threads performance.
  *
- * If it is possible, try to do all "filtering" explicitely as we do below in
+ * If it is possible, try to do all "filtering" explicitly as we do below in
  * this example since you will get MUCH better performance than applying
  * a similar display-filter in the register call.
  *
  * The third parameter is tap dependant. Since we register this one to the "rpc"
- * tap the third parameters type is rpc_call_info_value.
- *
+ * tap the third parameter type is rpc_call_info_value.
  *
  * The filtering we do is just to check the rpc_call_info_value struct that
- * we were called for the proper program and version. We didnt apply a filter
+ * we were called for the proper program and version. We didn't apply a filter
  * when we registered so we will be called for ALL rpc packets and not just
  * the ones we are collecting stats for.
- *
  *
  * function returns :
  *  0: no updates, no need to call (*draw) later
@@ -192,7 +190,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
  * data to the output device. Since this is tshark only output is
  * stdout.
  * TShark will only call this callback once, which is when tshark has
- * finished reading all packets and exists.
+ * finished reading all packets and exits.
  * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
  * This function may even be called in parallell with (*reset) or (*draw)
@@ -261,7 +259,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 
 
 /* When called, this function will create a new instance of rpcstat.
- * program and version are whick onc-rpc program/version we want to
+ * program and version are which onc-rpc program/version we want to
  * collect statistics for.
  * This function is called from tshark when it parses the -z rpc, arguments
  * and it creates a new instance to store statistics in and registers this
@@ -303,7 +301,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 	rpc_max_proc=-1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	if(rpc_min_proc==-1){
-		fprintf(stderr,"tshark: Invalid -z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
+		fprintf(stderr,"tshark: Invalid -z rpc,srt,%d,%d\n",rpc_program,rpc_version);
 		fprintf(stderr,"   Program:%d version:%d isn't supported by tshark.\n", rpc_program, rpc_version);
 		exit(1);
 	}
@@ -328,7 +326,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
  * we gain performance.
  * In this case we do the filtering for protocol and version inside the
  * callback itself but use whatever filter the user provided.
- * (Perhaps the user only want the stats for nis+ traffic for certain objects?)
+ * (Perhaps the user only wants the stats for nis+ traffic for certain objects?)
  *
  */
 
