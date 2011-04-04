@@ -27,9 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -245,10 +242,10 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
   guint16 len;
 
   len = tvb_get_ntohs(tvb, offset);
-  
+
   if (ret_len)
     *ret_len = len;
-    
+
   return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
 
@@ -404,38 +401,38 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
   /*
    * In a resued connection this is never reset.
    */
-    guint16 content_length;
-    guint16 packet_length;
+  guint16 content_length;
+  guint16 packet_length;
 
-    int pos = 0;
+  int pos = 0;
 
-    /* MAGIC
+  /* MAGIC
+   */
+  proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
+  pos+=2;
+
+  /* PACKET LENGTH
+   */
+  packet_length = tvb_get_ntohs(tvb, pos);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
+  pos+=2;
+
+  if (packet_length == 0)
+  {
+    /*
+     * We've got an empty packet:
+     * 0x12 0x34 0x00 0x00
+     * It signals that there is no more data in the body
      */
-    proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
-    pos+=2;
+    cd->content_length = 0;
+    return;
+  }
 
-    /* PACKET LENGTH
-     */
-    packet_length = tvb_get_ntohs(tvb, pos);
-    proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
-    pos+=2;
-
-    if (packet_length == 0)
-    {
-        /*
-         * We've got an empty packet:
-         * 0x12 0x34 0x00 0x00
-         * It signals that there is no more data in the body
-         */
-        cd->content_length = 0;
-        return;
-    }
-
-    /* BODY (AS STRING)
-     */
-    content_length = tvb_get_ntohs( tvb, pos);
-    cd->content_length -= content_length;
-    proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, 0);
+  /* BODY (AS STRING)
+   */
+  content_length = tvb_get_ntohs( tvb, pos);
+  cd->content_length -= content_length;
+  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, 0);
 }
 
 
@@ -460,11 +457,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   guint16 ver_len;
   const gchar *uri;
   guint16 uri_len;
-  const gchar *raddr;
   guint16 raddr_len;
-  const gchar *rhost;
   guint16 rhost_len;
-  const gchar *srv;
   guint16 srv_len;
   guint nhdr;
   guint i;
@@ -531,7 +525,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE ADDRESS
    */
-  raddr = ajp13_get_nstring(tvb, pos, &raddr_len);
+  ajp13_get_nstring(tvb, pos, &raddr_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, 0);
@@ -539,7 +533,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE HOST
    */
-  rhost = ajp13_get_nstring(tvb, pos, &rhost_len);
+  ajp13_get_nstring(tvb, pos, &rhost_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, 0);
@@ -547,7 +541,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* SERVER NAME
    */
-  srv = ajp13_get_nstring(tvb, pos, &srv_len);
+  ajp13_get_nstring(tvb, pos, &srv_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, 0);
