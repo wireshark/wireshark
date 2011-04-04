@@ -1214,7 +1214,7 @@ dissect_bssap_location_information_age(tvbuff_t *tvb, proto_tree *tree, int offs
 }
 /* 18.4.16 MM information */
 static int
-dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
@@ -1234,7 +1234,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  indicator and Message type. This field includes the IEI and length
      *  indicatior of the other information elements.
      */
-    dtap_mm_mm_info(tvb, ie_tree, offset, ie_len);
+    dtap_mm_mm_info(tvb, ie_tree, pinfo, offset, ie_len);
 
 
     return offset + ie_len;
@@ -1662,9 +1662,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(bssap_tree, hf_bssap_plus_message_type, tvb, offset, 1,FALSE);
     offset++;
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_add_str(pinfo->cinfo,COL_INFO, val_to_str(message_type,bssap_plus_message_type_values,"Unknown %u"));
-    }
+    col_add_str(pinfo->cinfo,COL_INFO, val_to_str(message_type,bssap_plus_message_type_values,"Unknown %u"));
 
     switch(message_type){
     case BSSAP_PAGING_REQUEST:
@@ -2110,7 +2108,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             return;
         /* MM information MM information 18.4.16 O TLV 3-n */
         if ( check_optional_ie(tvb, offset, BSSAP_MM_INFORMATION))
-            offset = dissect_bssap_MM_information(tvb, bssap_tree, offset);
+            offset = dissect_bssap_MM_information(tvb, bssap_tree, pinfo, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
         proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");

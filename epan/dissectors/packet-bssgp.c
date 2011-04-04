@@ -1814,7 +1814,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, guint32 
 				 * System Information message contains the Message type octet followed by all the IEs composing the message
 				 * payload. Each message is 21 octets long.
 				 */
-				void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+				void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 				gint			ett_tree;
 				int				hf_idx;
 				const gchar		*msg_str;
@@ -1830,7 +1830,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, guint32 
 					if (msg_fcn_p == NULL){
 						proto_tree_add_text(si_tree, tvb, curr_offset, 21, "Unknown SI message");
 					}else{
-						(*msg_fcn_p)(tvb, si_tree, curr_offset+1, 20);
+						(*msg_fcn_p)(tvb, si_tree, gpinfo, curr_offset+1, 20);
 					}
 					curr_offset+=21;
 				}
@@ -2307,7 +2307,7 @@ de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 
  */
 static guint16
-de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *new_tvb;
 	guint32	curr_offset;
@@ -3066,7 +3066,7 @@ de_bssgp_flow_control_gran(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 11.3.103 	eNB Identifier
  */
 static guint16
-de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	tvbuff_t	*new_tvb;
 	guint32	curr_offset;
@@ -3818,7 +3818,7 @@ de_bssgp_target_BSS_to_source_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, g
  * 10.2.1 DL-UNITDATA
  */
 static void
-bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3828,7 +3828,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* This PDU is sent to the BSS to transfer an LLC-PDU across the radio interface to an MS. */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI (current) TLLI/11.3.35 M V 4 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, " - current");
@@ -3863,13 +3863,13 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* LLC-PDU (note 4) LLC-PDU/11.3.15 M TLV 2-? */
 	ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.2.2	UL-UNITDATA
  */
 static void
-bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3881,7 +3881,7 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* This PDU transfers an MS's LLC-PDU and its associated radio interface information across the Gb-interface.
 	 * Direction: BSS to SGSN
 	 */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 	/* TLLI TLLI/11.3.35 M V 4 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
 	/* QoS Profile QoS Profile/11.3.28 M V 3 */
@@ -3897,13 +3897,13 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
 	ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.2.3	RA-CAPABILITY
  */
 static void
-bssgp_ra_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ra_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3913,14 +3913,14 @@ bssgp_ra_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* This PDU informs the BSS of the new Radio Access Capability of an MS. */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* MS Radio Access Capability MS Radio Access Capability/11.3.22 M TLV 7-? */
 	ELEM_MAND_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -3930,7 +3930,7 @@ bssgp_ra_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 10.2.5	DL-MBMS-UNITDATA
  */
 static void
-bssgp_dl_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_dl_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3942,7 +3942,7 @@ bssgp_dl_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	/* This PDU is sent to the BSS to transfer an LLC-PDU across the radio interface.
 	 * Direction: SGSN to BSS
 	 */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* PDU Lifetime PDU Lifetime/11.3.25 M TLV 4  */
 	ELEM_MAND_TELV(0x16, BSSGP_PDU_TYPE, DE_BSSGP_PDU_LIFETIME, NULL);
@@ -3956,14 +3956,14 @@ bssgp_dl_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.2.6	UL-MBMS-UNITDATA
  */
 static void
-bssgp_ul_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ul_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3974,7 +3974,7 @@ bssgp_ul_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	/* This PDU transfers an LLC-PDU for an MBMS session across the Gb-interface.
 	 * Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -3985,7 +3985,7 @@ bssgp_ul_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	/* LLC-PDU (note 1) LLC-PDU/11.3.15 M TLV 2-? */
 	ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -3994,7 +3994,7 @@ bssgp_ul_mbms_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  */
 
 static void
-bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4004,7 +4004,7 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 	/* This PDU indicates that a BSS shall initiate the packet paging procedure for an MS within a group of cells.
 	 * Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* IMSI IMSI/11.3.14 M TLV 5 -10 */
 	ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
@@ -4027,14 +4027,14 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* P-TMSI TMSI/11.3.36 O TLV 6 */
 	ELEM_OPT_TELV(BSSGP_IEI_TMSI,GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.3.2	PAGING CS
  */
 static void
-bssgp_paging_cs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_paging_cs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4045,7 +4045,7 @@ bssgp_paging_cs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* This PDU indicates that a BSS shall initiate a circuit-switched paging procedure for an MS within a group of cells.
 	 * Direction: SGSN to BSS
 	 */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 	/* IMSI IMSI/11.3.14 M TLV 5 -10 */
 	ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
 	/* DRX Parameters DRX Parameters/11.3.11 M TLV 4 */
@@ -4069,14 +4069,14 @@ bssgp_paging_cs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Global CN-Id (note 2) Global CN-Id/11.3.69 O TLV 7 */
 	ELEM_OPT_TELV(0x53, SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.3.3	RA-CAPABILITY-UPDATE
  */
 static void
-bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4086,7 +4086,7 @@ bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 	/* This PDU requests that the SGSN send an MS's current Radio Access capability or IMSI to the BSS. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4099,7 +4099,7 @@ bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* MS Radio Access Capability MS Radio Access Capability/11.3.22 C TLV 7-? */
 	ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -4107,7 +4107,7 @@ bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-bssgp_ra_cap_upd_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ra_cap_upd_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4117,7 +4117,7 @@ bssgp_ra_cap_upd_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 	/* This PDU provides the BSS with an MS's current Radio Access capability and IMSI */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4130,14 +4130,14 @@ bssgp_ra_cap_upd_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* MS Radio Access Capability MS Radio Access Capability/11.3.22 C TLV 7-? */
 	ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.3.5	RADIO-STATUS
  */
 static void
-bssgp_ra_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ra_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4148,7 +4148,7 @@ bssgp_ra_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU indicates that an exception condition related to the radio interface has occurred. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI (note) TLLI/11.3.35 C TLV 6 */
 	ELEM_OPT_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4159,13 +4159,13 @@ bssgp_ra_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Radio Cause Radio Cause/11.3.29 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_RADIO_CAUSE, BSSGP_PDU_TYPE, DE_BSSGP_RA_CAUSE , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.6	SUSPEND
  */
 static void
-bssgp_suspend(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_suspend(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4176,20 +4176,20 @@ bssgp_suspend(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU indicates that an MS wishes to suspend its GPRS service. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Routeing Area Routeing Area/11.3.31 M TLV 8 */
 	ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.7	SUSPEND-ACK
  */
 void
-bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4200,7 +4200,7 @@ bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU positively acknowledges the reception of a SUSPEND PDU for an MS. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4210,13 +4210,13 @@ bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BBSGP_SUSPEND_REF_NO, NULL);
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.8	SUSPEND-NACK
  */
 static void
-bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4228,7 +4228,7 @@ bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU negatively acknowledges the reception of a SUSPEND PDU for an MS. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4237,13 +4237,13 @@ bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Cause Cause/11.3.8 O TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.9	RESUME
  */
 static void
-bssgp_resume(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_resume(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4254,7 +4254,7 @@ bssgp_resume(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU indicates that an MS wishes to RESUME its GPRS service. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4263,14 +4263,14 @@ bssgp_resume(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Suspend Reference Number Suspend Reference Number/11.3.33 M TLV 3 */
 	ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BBSGP_SUSPEND_REF_NO, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.10	RESUME-ACK
  */
 
 static void
-bssgp_resume_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_resume_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4281,21 +4281,21 @@ bssgp_resume_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU positively acknowledges the reception of a RESUME PDU for an MS. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Routeing Area Routeing Area/11.3.31 M TLV 8 */
 	ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.3.11	RESUME-NACK
  */
 
 static void
-bssgp_resume_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_resume_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4306,7 +4306,7 @@ bssgp_resume_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU negatively acknowledges the reception of a RESUME PDU for an MS. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4315,14 +4315,14 @@ bssgp_resume_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Cause Cause/11.3.8 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4	PDU functional definitions and contents at NM SAP
  * 10.4.1	FLUSH-LL
  */
 static void
-bssgp_flush_ll(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flush_ll(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4333,7 +4333,7 @@ bssgp_flush_ll(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU informs a BSS that an MS has moved from one cell to another. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4344,13 +4344,13 @@ bssgp_flush_ll(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* NSEI (new) NSEI/11.3.48 O (note) TLV 4 */
 	ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - New");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.2	FLUSH-LL-ACK
  */
 static void
-bssgp_flush_ll_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flush_ll_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4362,7 +4362,7 @@ bssgp_flush_ll_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* This PDU indicates that LLC-PDU(s) buffered for an MS in the old cell
 	 * have been either deleted or transferred to the new cell within the routing area. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4376,13 +4376,13 @@ bssgp_flush_ll_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - New");
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.3	LLC-DISCARDED
  */
 static void
-bssgp_llc_discarded(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_llc_discarded(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4392,7 +4392,7 @@ bssgp_llc_discarded(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4405,14 +4405,14 @@ bssgp_llc_discarded(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* PFI (note) PFI/11.3.42 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.4	FLOW-CONTROL-BVC
  */
 static void
-bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4425,7 +4425,7 @@ bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	 * BVC's maximum acceptable SGSN to BSS throughput on the Gb interface.
 	 */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* Tag Tag/11.3.34 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG , NULL);
@@ -4444,14 +4444,14 @@ bssgp_flow_control_bvc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */
 	ELEM_OPT_TELV(0x7e, BSSGP_PDU_TYPE, DE_BSSGP_FLOW_CONTROL_GRAN , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.5	FLOW-CONTROL-BVC-ACK
  */
 static void
-bssgp_flow_control_bvc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_control_bvc_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4465,19 +4465,19 @@ bssgp_flow_control_bvc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	 */
 
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* Tag Tag/11.3.34 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.6	FLOW-CONTROL-MS
  */
 static void
-bssgp_flow_control_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_control_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4491,7 +4491,7 @@ bssgp_flow_control_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	 */
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4506,13 +4506,13 @@ bssgp_flow_control_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */
 	ELEM_OPT_TELV(0x7e, BSSGP_PDU_TYPE, DE_BSSGP_FLOW_CONTROL_GRAN , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.7	FLOW-CONTROL-MS-ACK
  */
 static void
-bssgp_flow_control_ms_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_control_ms_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4524,21 +4524,21 @@ bssgp_flow_control_ms_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* This PDU informs the flow control mechanism at the BSS that the SGSN has received
 	 * the FLOW-CONTROL-MS PDU indicated by the TLLI and the Tag. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6  */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Tag Tag/11.3.34 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.8	BVC-BLOCK
  */
 
 static void
-bssgp_bvc_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4549,21 +4549,21 @@ bssgp_bvc_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU indicates that the contained BVC shall be blocked at the recipient entity. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* BVCI BVCI/11.3.6 M TLV 4 */
 	ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
 	/* Cause Cause/11.3.8 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.9	BVC-BLOCK-ACK
  */
 static void
-bssgp_bvc_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4574,19 +4574,19 @@ bssgp_bvc_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU acknowledges that a BVC has been blocked. */
 	/* SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* BVCI BVCI/11.3.6 M TLV 4 */
 	ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.10	BVC-UNBLOCK
  */
 static void
-bssgp_bvc_un_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_un_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4597,20 +4597,20 @@ bssgp_bvc_un_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU indicates that the identified BVC shall be unblocked at the recipient entity. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* BVCI BVCI/11.3.6 M TLV 4 */
 	ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.11	BVC-UNBLOCK-ACK
  */
 
 static void
-bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4621,12 +4621,12 @@ bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	/* This PDU acknowledges that a BVC has been unblocked. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* BVCI BVCI/11.3.6 M TLV 4 */
 	ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -4634,7 +4634,7 @@ bssgp_bvc_un_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  */
 
 static void
-bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4657,7 +4657,7 @@ bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Extended Feature Bitmap (note 3) Extended Feature Bitmap/11.3.84 O TLV 3 */
 	ELEM_OPT_TELV(0x69, BSSGP_PDU_TYPE, DE_BSSGP_EXT_FEATURE_BITMAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -4665,7 +4665,7 @@ bssgp_bvc_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-bssgp_bvc_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_bvc_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4686,14 +4686,14 @@ bssgp_bvc_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Extended Feature Bitmap (note 3) Extended Feature Bitmap/11.3.84 O TLV 3 */
 	ELEM_OPT_TELV(0x69, BSSGP_PDU_TYPE, DE_BSSGP_EXT_FEATURE_BITMAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.14	STATUS
  */
 static void
-bssgp_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4712,13 +4712,13 @@ bssgp_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* PDU In Error (note) PDU In Error/11.3.24 O TLV 3-? */
 	ELEM_MAND_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.15	SGSN-INVOKE-TRACE
  */
 static void
-bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4730,7 +4730,7 @@ bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* This PDU indicates that the BSS shall begin the production of a trace record for an MS. */
 	/* Direction: SGSN to BSS */
 
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* Trace Type Trace Type/11.3.38 M TLV 3 */
 	ELEM_MAND_TELV(0x22, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , NULL);
@@ -4745,14 +4745,14 @@ bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* TransactionId TransactionId/11.3.39 O TLV 4 */
 	ELEM_OPT_TELV(0x23, BSSGP_PDU_TYPE, DE_BSSGP_TRANSACTION_ID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.16	DOWNLOAD-BSS-PFC
  */
 static void
-bssgp_download_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_download_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4763,21 +4763,21 @@ bssgp_download_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	/* This PDU requests a SGSN to initiate a CREATE-BSS-PFC procedure. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* PFI PFI/11.3.42 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.17	CREATE-BSS-PFC
  */
 static void
-bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4788,7 +4788,7 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU allows the SGSN to request that a BSS create or modify a BSS Packet Flow Context. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4817,14 +4817,14 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 	ELEM_OPT_TELV(0x81, BSSGP_PDU_TYPE, DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.18	CREATE-BSS-PFC-ACK
  */
 static void
-bssgp_create_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_create_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4837,7 +4837,7 @@ bssgp_create_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	 * or modification of a BSS Packet Flow Context.
 	 */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4848,13 +4848,13 @@ bssgp_create_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	/* Cause Cause/11.3.8 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.19	CREATE-BSS-PFC-NACK
  */
 static void
-bssgp_create_bss_pfc_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_create_bss_pfc_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4867,7 +4867,7 @@ bssgp_create_bss_pfc_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	 * creation of a BSS Packet Flow Context
 	 */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4876,13 +4876,13 @@ bssgp_create_bss_pfc_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* Cause Cause/11.3.8 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.20	MODIFY-BSS-PFC
  */
 static void
-bssgp_modify_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_modify_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4893,7 +4893,7 @@ bssgp_modify_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU allows the BSS to request a modification of a BSS Packet Flow Context. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4902,14 +4902,14 @@ bssgp_modify_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* ABQP ABQP/11.3.43 M TLV 13-? */
 	ELEM_MAND_TELV(0x3a , GSM_A_PDU_TYPE_GM, DE_QOS , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.21	MODIFY-BSS-PFC-ACK
  */
 static void
-bssgp_modify_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_modify_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4920,7 +4920,7 @@ bssgp_modify_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	/* This PDU allows the SGSN to acknowledge a modification to a BSS Packet Flow Context. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -4932,13 +4932,13 @@ bssgp_modify_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	ELEM_MAND_TELV(0x3a , GSM_A_PDU_TYPE_GM, DE_QOS , NULL);
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.22	DELETE-BSS-PFC
  */
 static void
-bssgp_delete_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_delete_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4949,20 +4949,20 @@ bssgp_delete_bss_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU allows the SGSN to request that a BSS delete a BSS Packet Flow Context. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* PFI PFI/11.3.42 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.23	DELETE-BSS-PFC-ACK
  */
 static void
-bssgp_delete_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_delete_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4973,20 +4973,20 @@ bssgp_delete_bss_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	/* This PDU allows the BSS to acknowledge a request for the deletion of a BSS Packet Flow Context. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* PFI PFI/11.3.42 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.24	FLOW-CONTROL-PFC
  */
 static void
-bssgp_flow_cntrl_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_cntrl_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4997,7 +4997,7 @@ bssgp_flow_cntrl_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU provides the SGSN with flow control information regarding one or more PFC(s) of a given Mobile Station. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5014,13 +5014,13 @@ bssgp_flow_cntrl_pfc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Flow Control Granularity (note) Flow Control Granularity/11.3.102 O TLV 3 */
 	ELEM_OPT_TELV(0x7e, BSSGP_PDU_TYPE, DE_BSSGP_FLOW_CONTROL_GRAN , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.25	FLOW-CONTROL-PFC-ACK
  */
 static void
-bssgp_flow_cntrl_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_flow_cntrl_pfc_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5033,20 +5033,20 @@ bssgp_flow_cntrl_pfc_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	 * PDU indicated by the TLLI and the Tag.
 	 */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Tag Tag/11.3.34 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.26	DELETE-BSS-PFC-REQ
  */
 static void
-bssgp_delete_bss_pfc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_delete_bss_pfc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5057,7 +5057,7 @@ bssgp_delete_bss_pfc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	/* This PDU allows the BSS to inform the SGSN that the BSS Packet Flow Context cannot be supported anymore */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5066,13 +5066,13 @@ bssgp_delete_bss_pfc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	/* Cause Cause/11.3.8 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.27	PS-HANDOVER-REQUIRED
  */
 static void
-bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5083,7 +5083,7 @@ bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU initiates the allocation of resources in the target system for an MS. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5116,13 +5116,13 @@ bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* TAC (note 6) Tracking Area Code/11.3.110 C TLV 5 */
 	ELEM_OPT_TELV(0x86, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.28	PS-HANDOVER-REQUIRED-ACK
  */
 static void
-bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5135,7 +5135,7 @@ bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	 * that the BSS may initiate the channel change attempt for the corresponding MS.
 	 */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5150,14 +5150,14 @@ bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	 */
 	ELEM_MAND_TELV(0x6b,BSSGP_PDU_TYPE, DE_BSSGP_TRG_TO_SRC_TRANSP_CONT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.29	PS-HANDOVER-REQUIRED-NACK
  */
 static void
-bssgp_ps_ho_required_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5168,20 +5168,20 @@ bssgp_ps_ho_required_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	/* This PDU informs the source BSS about failed resource allocation in the target system. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Cause Cause/11.3.8 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.30	PS-HANDOVER-REQUEST
  */
 static void
-bssgp_ps_ho_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5192,7 +5192,7 @@ bssgp_ps_ho_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU initiates the allocation of resources for one or more PFCs in the target BSS for an MS. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5219,14 +5219,14 @@ bssgp_ps_ho_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Reliable Inter RAT Handover Info (note 3) Reliable Inter RAT Handover Info/11.3.107 C TLV 3 */
 	ELEM_OPT_TELV(0x83,BSSGP_PDU_TYPE, DE_BSSGP_RELIABLE_INTER_RAT_HO_INF, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.31	PS-HANDOVER-REQUEST-ACK
  */
 static void
-bssgp_ps_ho_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_request_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5237,7 +5237,7 @@ bssgp_ps_ho_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	/* This PDU acknowledges the successful allocation of resources in the target BSS. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5246,13 +5246,13 @@ bssgp_ps_ho_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Target BSS to Source BSS Transparent Container Target BSS to Source BSS Transparent Container/11.3.80 M TLV 3-? */
 	ELEM_MAND_TELV(0x65,BSSGP_PDU_TYPE, DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.32	PS-HANDOVER-REQUEST-NACK
  */
 static void
-bssgp_ps_ho_request_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_request_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5263,21 +5263,21 @@ bssgp_ps_ho_request_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	/* This PDU informs the SGSN about failed resource allocation in the target BSS. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* Cause Cause/11.3.8 M TLV 3 */
 	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.33	PS-HANDOVER-COMPLETE
  */
 static void
-bssgp_ps_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5288,7 +5288,7 @@ bssgp_ps_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU informs the SGSN about successful channel change for an MS. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5299,13 +5299,13 @@ bssgp_ps_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Request for Inter RAT Handover Info (note 2) Request for Inter RAT Handover Info/11.3.106 C TLV 3 */
 	ELEM_OPT_TELV(0x82, BSSGP_PDU_TYPE, DE_BSSGP_REQ_FOR_INTER_RAT_HO_INFO , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.4.34	PS-HANDOVER-CANCEL
  */
 static void
-bssgp_ps_ho_cancel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_cancel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5316,7 +5316,7 @@ bssgp_ps_ho_cancel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU cancels the handover for an MS. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5331,14 +5331,14 @@ bssgp_ps_ho_cancel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Target eNB Identifier (note 1) (note 2) eNB Identifier/11.3.103 C TLV 3-n */
 	ELEM_OPT_TELV(0x7f,BSSGP_PDU_TYPE, DE_BSSGP_ENB_ID, " - Target");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.4.35	PS-HANDOVER-COMPLETE-ACK
  */
 static void
-bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5354,7 +5354,7 @@ bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	 */
 
 	/* SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5363,14 +5363,14 @@ bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	/* E-UTRAN Inter RAT Handover Info E-UTRAN Inter RAT Handover Info/11.3.104 C (note 1) TLV 3-? */
 	ELEM_OPT_TELV(0x80, BSSGP_PDU_TYPE, DE_BSSGP_E_UTRAN_INTER_RAT_HO_INFO, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.5	PDU functional definitions and contents at LCS SAP
  * 10.5.1	PERFORM-LOCATION-REQUEST
  */
 static void
-bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5381,7 +5381,7 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	/* This PDU informs the SGSN about failed resource allocation in the target BSS. */
 	/* BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5414,14 +5414,14 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* Requested GANSS Assistance Data (note 6) Requested GANSS Assistance Data/11.3.99 O TLV 3-? */
 	ELEM_OPT_TLV(0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.5.2	PERFORM-LOCATION-RESPONSE
  */
 static void
-bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5432,7 +5432,7 @@ bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	/*This PDU allows the BSS to respond to the SGSN after the completion of the location procedure. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5451,14 +5451,14 @@ bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* GANSS Positioning Data GANSS Positioning Data /11.3.101 O TLV 3-? */
 	ELEM_OPT_TELV(0x7d, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_POS_DTA, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.5.3	PERFORM-LOCATION-ABORT
  */
 static void
-bssgp_perform_loc_response_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_perform_loc_response_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5469,7 +5469,7 @@ bssgp_perform_loc_response_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 	/*This PDU allows the SGSN to request the BSS to ABORT the LCS procedure */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 	
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5478,14 +5478,14 @@ bssgp_perform_loc_response_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	/* LCS Cause LCS Cause/11.3.58 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.5.4	POSITION-COMMAND
  */
 static void
-bssgp_pos_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_pos_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5496,7 +5496,7 @@ bssgp_pos_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU allows the BSS to request the SGSN to perform the position command procedure. */
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5507,14 +5507,14 @@ bssgp_pos_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* RRLP APDU RRLP APDU/11.3.49 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_RRLP_APDU, BSSGP_PDU_TYPE, DE_BSSGP_RRLP_APDU , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.5.5	POSITION-RESPONSE
  */
 static void
-bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5525,7 +5525,7 @@ bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* This PDU allows the SGSN to respond to the position command request procedure. */
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
@@ -5538,7 +5538,7 @@ bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* LCS Cause b) LCS Cause/11.3.58 O TLV 3-? */
 	ELEM_OPT_TELV(BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5546,7 +5546,7 @@ bssgp_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 10.6.1	RAN-INFORMATION-REQUEST
  */
 static void
-bssgp_ran_inf_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ran_inf_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5565,14 +5565,14 @@ bssgp_ran_inf_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* RIM Container RAN-INFORMATION-REQUEST RIM Container/11.3.62a.1 M TLV 3-? */
 	ELEM_OPT_TELV(BSSGP_IEI_RAN_INF_REQUEST_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_REQUEST_RIM_CONT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.6.2	RAN-INFORMATION
  */
 static void
-bssgp_ran_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ran_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5592,14 +5592,14 @@ bssgp_ran_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_RIM_CONT , " - Source Cell Identifier");
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.6.3	RAN-INFORMATION-ACK
  */
 static void
-bssgp_ran_inf_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ran_inf_request_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5621,7 +5621,7 @@ bssgp_ran_inf_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* RIM Container RAN-INFORMATION-ACK RIM Container/11.3.62a.3 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_ACK_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_ACK_RIM_CONT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5629,7 +5629,7 @@ bssgp_ran_inf_request_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  */
 
 static void
-bssgp_ran_inf_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ran_inf_err(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5651,13 +5651,13 @@ bssgp_ran_inf_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* RIM Container RAN-INFORMATION-ERROR RIM Container/11.3.62a.4 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_ERROR_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INFORMATION_ERROR_RIM_CONT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.6.5	RAN-INFORMATION-APPLICATION-ERROR
  */
 static void
-bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5679,7 +5679,7 @@ bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* RIM Container RAN-INFORMATION-APPLICATION ERROR RIM Container/11.3.62a.5 M TLV 3-? */
 	ELEM_MAND_TELV(BSSGP_IEI_RAN_INF_APP_ERROR_RIM_CONTAINER, BSSGP_PDU_TYPE, DE_BSSGP_RAN_INF_APP_ERROR_RIM_CONT , NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
@@ -5687,7 +5687,7 @@ bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * 10.7.1	MBMS-SESSION-START-REQUEST
  */
 static void
-bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5699,7 +5699,7 @@ bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	/* This PDU allows a SGSN to request BSS to start an MBMS session. */
 
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TMGI TMGI/11.3.77 M TLV 3-8  */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5723,13 +5723,13 @@ bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.7.2	MBMS-SESSION-START-RESPONSE
  */
 static void
-bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5743,7 +5743,7 @@ bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 	 */
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5752,14 +5752,14 @@ bssgp_mbms_session_start_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
 	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 /*
  * 10.7.3	MBMS-SESSION-STOP-REQUEST
  */
 static void
-bssgp_mbms_session_stop_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_stop_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5771,7 +5771,7 @@ bssgp_mbms_session_stop_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	/* This PDU allows a SGSN to request BSS to stop an MBMS session. */
 
 	/* Direction: SGSN to BSS */
-	gpinfo->link_dir = P2P_DIR_DL;
+	pinfo->link_dir = P2P_DIR_DL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5780,13 +5780,13 @@ bssgp_mbms_session_stop_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	/* MBMS Stop Cause MBMS Stop Cause/11.3.78 M TLV 3 */
 	ELEM_OPT_TELV(0x63, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_STOP_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.7.4	MBMS-SESSION-STOP-RESPONSE
  */
 static void
-bssgp_mbms_session_stop_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_stop_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5798,7 +5798,7 @@ bssgp_mbms_session_stop_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	/* This PDU allows a BSS to acknowledge to SGSN that it will stop an MBMS session. */
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5807,13 +5807,13 @@ bssgp_mbms_session_stop_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
 	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.7.5	MBMS-SESSION-UPDATE-REQUEST
  */
 static void
-bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5827,7 +5827,7 @@ bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 	 */
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5850,13 +5850,13 @@ bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 	/* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
 	ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 /*
  * 10.7.6	MBMS-SESSION-UPDATE-RESPONSE
  */
 static void
-bssgp_mbms_session_uptate_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_mbms_session_uptate_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5870,7 +5870,7 @@ bssgp_mbms_session_uptate_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	 */
 
 	/* Direction: BSS to SGSN */
-	gpinfo->link_dir = P2P_DIR_UL;
+	pinfo->link_dir = P2P_DIR_UL;
 
 	/* TMGI TMGI/ 11.3.77 M TLV 3-8 */
 	ELEM_MAND_TELV(0x5c, GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
@@ -5879,7 +5879,7 @@ bssgp_mbms_session_uptate_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	/* MBMS Response MBMS Response/ 11.3.74 M TLV 3 */
 	ELEM_OPT_TELV(0x60, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_RESPONSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
 static const value_string bssgp_msg_strings[] = {
@@ -6050,7 +6050,7 @@ static value_string_ext bssgp_msg_strings_ext = VALUE_STRING_EXT_INIT(bssgp_msg_
 
 #define	NUM_BSSGP_MSG (sizeof(bssgp_msg_strings)/sizeof(value_string))
 static gint ett_bssgp_msg[NUM_BSSGP_MSG];
-static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
 /* 0x00 to 0x10 */
     bssgp_dl_unitdata,					/* 10.2.1 DL-UNITDATA */
     bssgp_ul_unitdata,					/* 10.2.2 UL-UNITDATA */
@@ -6244,7 +6244,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const gchar		*msg_str = NULL;
   gint				ett_tree;
   int				hf_idx;
-  void				(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+  void				(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
   /* Save pinfo */
   gpinfo = pinfo;
@@ -6296,7 +6296,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn)(tvb, bssgp_tree, offset, len - offset);
+		(*msg_fcn)(tvb, bssgp_tree, pinfo, offset, len - offset);
 	}
 }
 

@@ -3145,12 +3145,12 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 10.5.4.22b SETUP Container $(CCBS)$
  */
 static void
-dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 
 static guint16
 de_setup_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	dtap_cc_setup(tvb, tree, offset, len);
+	dtap_cc_setup(tvb, tree, gsm_a_dtap_pinfo, offset, len);
 
 	return (len);
 }
@@ -4141,7 +4141,7 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * [4] 9.2.2 Authentication request
  */
 static void
-dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4207,7 +4207,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.2.3 Authentication response
  */
 static void
-dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4229,7 +4229,7 @@ dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.2.3a Authentication Failure
  */
 static void
-dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4251,7 +4251,7 @@ dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.4 CM Re-establishment request
  */
 static void
-dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4319,7 +4319,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [3] 9.2.5a CM service prompt $(CCBS)
  */
 static void
-dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4339,7 +4339,7 @@ dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [4] 9.2.6 CM service reject
  */
 static void
-dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4359,7 +4359,7 @@ dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.2.8 Abort
  */
 static void
-dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4379,7 +4379,7 @@ dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.9 CM service request
  */
 static void
-dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4474,7 +4474,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.10 Identity request
  */
 static void
-dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -4532,7 +4532,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.11 Identity response
  */
 static void
-dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4552,7 +4552,7 @@ dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.12 IMSI detach indication
  */
 static void
-dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4574,7 +4574,7 @@ dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.13 Location updating accept
  */
 static void
-dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4607,7 +4607,7 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.14 Location updating reject
  */
 static void
-dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4627,7 +4627,7 @@ dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.15 Location updating request
  */
 static void
-dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4732,7 +4732,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.2.15a MM information
  */
 void
-dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4762,7 +4762,7 @@ dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.2.16 MM Status
  */
 static void
-dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4782,7 +4782,7 @@ dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.2.17 TMSI reallocation command
  */
 static void
-dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4813,7 +4813,7 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * [4] 9.3.1 Alerting
  */
 static void
-dtap_cc_alerting(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_alerting(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4841,7 +4841,7 @@ dtap_cc_alerting(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.2 Call confirmed
  */
 static void
-dtap_cc_call_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_call_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4873,7 +4873,7 @@ dtap_cc_call_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.3 Call proceeding
  */
 static void
-dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4905,7 +4905,7 @@ dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.4 Congestion control
  */
 static void
-dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4964,7 +4964,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * [4] 9.3.5 Connect
  */
 static void
-dtap_cc_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_connect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4998,7 +4998,7 @@ dtap_cc_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.7 Disconnect
  */
 static void
-dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5030,7 +5030,7 @@ dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.8 Emergency setup
  */
 static void
-dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5056,7 +5056,7 @@ dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.9 Facility
  */
 static void
-dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5086,7 +5086,7 @@ dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.12 Hold Reject
  */
 static void
-dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5106,7 +5106,7 @@ dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.13 Modify
  */
 static void
-dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5134,7 +5134,7 @@ dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.14 Modify complete
  */
 static void
-dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5160,7 +5160,7 @@ dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * [4] 9.3.15 Modify reject
  */
 static void
-dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5186,7 +5186,7 @@ dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.16 Notify
  */
 static void
-dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5206,7 +5206,7 @@ dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.17 Progress
  */
 static void
-dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5228,7 +5228,7 @@ dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.17a CC-Establishment $(CCBS)$
  */
 static void
-dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5248,7 +5248,7 @@ dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.17b CC-Establishment confirmed $(CCBS)$
  */
 static void
-dtap_cc_cc_est_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_cc_est_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5276,7 +5276,7 @@ dtap_cc_cc_est_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.18 Release
  */
 static void
-dtap_cc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_release(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5306,7 +5306,7 @@ dtap_cc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.18a Recall $(CCBS)$
  */
 static void
-dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5328,7 +5328,7 @@ dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.19 Release complete
  */
 static void
-dtap_cc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_release_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5356,7 +5356,7 @@ dtap_cc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * [4] 9.3.22 Retrieve
  */
 static void
-dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5385,7 +5385,7 @@ dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 3GPP TS 24.008 version 7.5.0 Release 7
  */
 static void
-dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5475,7 +5475,7 @@ dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.23a Start CC $(CCBS)$
  */
 static void
-dtap_cc_start_cc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_start_cc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5495,7 +5495,7 @@ dtap_cc_start_cc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.24 Start DTMF
  */
 static void
-dtap_cc_start_dtmf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_start_dtmf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5515,7 +5515,7 @@ dtap_cc_start_dtmf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.25 Start DTMF Acknowledge
  */
 static void
-dtap_cc_start_dtmf_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_start_dtmf_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5535,7 +5535,7 @@ dtap_cc_start_dtmf_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [4] 9.3.26 Start DTMF reject
  */
 static void
-dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5555,7 +5555,7 @@ dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [4] 9.3.27 Status
  */
 static void
-dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5590,7 +5590,7 @@ dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.3.31 User information
  */
 static void
-dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5613,7 +5613,7 @@ dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [6] 2.4.2
  */
 static void
-dtap_ss_register(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_ss_register(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5636,7 +5636,7 @@ dtap_ss_register(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [5] 7.2.1
  */
 static void
-dtap_sms_cp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_sms_cp_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5656,7 +5656,7 @@ dtap_sms_cp_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [5] 7.2.3
  */
 static void
-dtap_sms_cp_error(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_sms_cp_error(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5673,7 +5673,7 @@ dtap_sms_cp_error(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 static void
-dtap_tp_close_tch_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_close_tch_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5688,7 +5688,7 @@ dtap_tp_close_tch_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 }
 
 static void
-dtap_tp_open_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_open_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5704,7 +5704,7 @@ dtap_tp_open_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static void
-dtap_tp_multi_slot_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_multi_slot_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5719,7 +5719,7 @@ dtap_tp_multi_slot_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 }
 
 static void
-dtap_tp_multi_slot_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_multi_slot_loop_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5734,7 +5734,7 @@ dtap_tp_multi_slot_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 }
 
 static void
-dtap_tp_test_interface(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_test_interface(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5749,7 +5749,7 @@ dtap_tp_test_interface(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 static void
-dtap_tp_gprs_test_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_gprs_test_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5766,7 +5766,7 @@ dtap_tp_gprs_test_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 }
 
 static void
-dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5781,7 +5781,7 @@ dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, gu
 }
 
 static void
-dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5796,7 +5796,7 @@ dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 }
 
 static void
-dtap_tp_reset_ue_positioning_ue_stored_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_reset_ue_positioning_ue_stored_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5811,7 +5811,7 @@ dtap_tp_reset_ue_positioning_ue_stored_information(tvbuff_t *tvb, proto_tree *tr
 }
 
 static void
-dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5826,7 +5826,7 @@ dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *
 }
 
 static void
-dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32 curr_offset;
 	guint32 consumed;
@@ -5847,7 +5847,7 @@ dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 }
 
 static void
-dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32 curr_offset;
 	guint32 consumed;
@@ -5863,7 +5863,7 @@ dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
-static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	dtap_mm_imsi_det_ind,	/* IMSI Detach Indication */
 	dtap_mm_loc_upd_acc,	/* Location Updating Accept */
 	dtap_mm_loc_upd_rej,	/* Location Updating Reject */
@@ -5892,7 +5892,7 @@ static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 #define	NUM_GSM_DTAP_MSG_CC (sizeof(gsm_a_dtap_msg_cc_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_cc[NUM_GSM_DTAP_MSG_CC];
-static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	dtap_cc_alerting,	/* Alerting */
 	dtap_cc_call_conf,	/* Call Confirmed */
 	dtap_cc_call_proceed,	/* Call Proceeding */
@@ -5933,7 +5933,7 @@ static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 #define	NUM_GSM_DTAP_MSG_SMS (sizeof(gsm_a_dtap_msg_sms_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sms[NUM_GSM_DTAP_MSG_SMS];
-static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	dtap_sms_cp_data,	/* CP-DATA */
 	NULL /* no associated data */,	/* CP-ACK */
 	dtap_sms_cp_error,	/* CP-ERROR */
@@ -5942,7 +5942,7 @@ static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 
 #define	NUM_GSM_DTAP_MSG_SS (sizeof(gsm_a_dtap_msg_ss_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_ss[NUM_GSM_DTAP_MSG_SS];
-static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	dtap_cc_release_complete,	/* Release Complete */
 	dtap_cc_facility,	/* Facility */
 	dtap_ss_register,	/* Register */
@@ -5951,7 +5951,7 @@ static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 #define	NUM_GSM_DTAP_MSG_TP (sizeof(gsm_a_dtap_msg_tp_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_tp[NUM_GSM_DTAP_MSG_TP];
-static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	dtap_tp_close_tch_loop_cmd,	/* CLOSE TCH LOOP CMD */
 	NULL,	/* CLOSE TCH LOOP ACK */
 	dtap_tp_open_loop_cmd,	/* OPEN LOOP CMD */
@@ -5995,7 +5995,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static gsm_a_tap_rec_t	tap_rec[4];
 	static gsm_a_tap_rec_t	*tap_p;
 	static guint			tap_current=0;
-	void			(*dtap_msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*dtap_msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 	guint8			oct;
 	guint8			pd;
 	guint32			offset;
@@ -6281,7 +6281,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-		(*dtap_msg_fcn)(tvb, dtap_tree, offset, len - offset);
+		(*dtap_msg_fcn)(tvb, dtap_tree, pinfo, offset, len - offset);
 	}
 }
 

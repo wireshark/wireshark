@@ -750,7 +750,7 @@ guint16 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
  * 9.1 PERFORM LOCATION REQUEST
  */
 static void
-bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -800,7 +800,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 9.2 PERFORM LOCATION RESPONSE
  */
 static void
-bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -829,7 +829,7 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 9.8 CONNECTION ORIENTED INFORMATION
  */
 static void
-bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -866,7 +866,7 @@ Return Error Cause	3.2.2.73	Both	C (note 3)	3-n
  * 9.12 PERFORM LOCATION INFORMATION
  */
 static void
-bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -883,7 +883,7 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-static void (*bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	NULL,
 	NULL,
 	NULL,
@@ -1007,7 +1007,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-		(*bssmap_le_msg_fcn[idx])(tvb, bssmap_le_tree, offset, len - offset);
+		(*bssmap_le_msg_fcn[idx])(tvb, bssmap_le_tree, pinfo, offset, len - offset);
 	}
 }
 

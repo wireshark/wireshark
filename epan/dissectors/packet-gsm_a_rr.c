@@ -7784,7 +7784,7 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * 9.1.1 Additional Assignment
  */
 static void
-dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -7809,7 +7809,7 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.2 Assignment command
  */
 static void
-dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -7903,7 +7903,7 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.3 Assignment complete
  */
 static void
-dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -7923,7 +7923,7 @@ dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.4 Assignment failure
  */
 static void
-dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -7943,7 +7943,7 @@ dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.5 Channel Mode Modify
  */
 static void
-dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -7972,7 +7972,7 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.6 Channel Mode Modify Acknowledge
  */
 static void
-dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -7995,7 +7995,7 @@ dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 9.1.7 Channel Release
  */
 static void
-dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8044,7 +8044,7 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.9 Ciphering Mode Command
  */
 static void
-dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8066,7 +8066,7 @@ dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.10 Ciphering Mode Complete
  */
 void
-dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8087,7 +8087,7 @@ dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * 9.1.11 Classmark change
  */
 static void
-dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8109,7 +8109,7 @@ dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.11 UTRAN Classmark Change
  */
 static void
-dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8128,7 +8128,7 @@ dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
  * 9.1.12 Classmark enquiry
  */
 static void
-dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8148,7 +8148,7 @@ dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.12b Configuration change command
  */
 static void
-dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -8196,7 +8196,7 @@ dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 9.1.12d	Configuration change reject
  */
 static void
-dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -8216,7 +8216,7 @@ dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 9.1.13 Frequency Redefinition
  */
 static void
-dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -8253,7 +8253,7 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.13b GPRS suspension request
  */
 static void
-dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8285,7 +8285,7 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [3] 9.1.15
  */
 void
-dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8415,7 +8415,7 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.15a Inter System To UTRAN Handover Command
  */
 static void
-dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8434,7 +8434,7 @@ dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * [3] 9.1.16
  */
 static void
-dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8456,7 +8456,7 @@ dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.17 Handover failure
  */
 static void
-dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8476,7 +8476,7 @@ dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.18 Immediate assignment See 3GPP TS 44.018
  */
 static void
-dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8536,7 +8536,7 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.19 Immediate assignment extended
  */
 static void
-dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8577,7 +8577,7 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.20 Immediate assignment reject
  */
 static void
-dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8618,7 +8618,7 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.21 Measurement report
  */
 static void
-dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8635,7 +8635,7 @@ dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 9.1.22 Paging Request Type 1
  */
 static void
-dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8666,7 +8666,7 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 9.1.23 Paging Request Type 2
  */
 static void
-dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8700,7 +8700,7 @@ dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 9.1.24 Paging Request Type 3
  */
 static void
-dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8737,7 +8737,7 @@ dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * [4] 9.1.25 Paging response
  */
 static void
-dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8809,7 +8809,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.26 Partial Release
  */
 static void
-dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -8833,7 +8833,7 @@ dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.28 Physical Information
  */
 static void
-dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8851,7 +8851,7 @@ dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.29
  */
 static void
-dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8869,7 +8869,7 @@ dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.31
  */
 static void
-dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8889,7 +8889,7 @@ dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.32
  */
 static void
-dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8909,7 +8909,7 @@ dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.33
  */
 static void
-dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8927,7 +8927,7 @@ dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [4] 9.1.34
  */
 static void
-dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8945,7 +8945,7 @@ dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [4] 9.1.34a
  */
 static void
-dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8961,7 +8961,7 @@ dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * [4] 9.1.35
  */
 static void
-dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -8989,7 +8989,7 @@ dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.36
  */
 static void
-dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9015,7 +9015,7 @@ dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.37
  */
 static void
-dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9031,7 +9031,7 @@ dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.38
  */
 static void
-dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9047,7 +9047,7 @@ dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [4] 9.1.39
  */
 static void
-dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9063,7 +9063,7 @@ dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * [4] 9.1.40
  */
 static void
-dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9087,7 +9087,7 @@ dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.43a
  */
 static void
-dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9103,7 +9103,7 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [4] 9.1.51 Extended Measurement Order
  */
 static void
-dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -9120,7 +9120,7 @@ dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [4] 9.1.52 Extended Measurement Report
  */
 static void
-dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -9137,7 +9137,7 @@ dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 9.1.53 Application Information
  */
 static void
-dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32	curr_offset;
     guint32	consumed;
@@ -9168,7 +9168,7 @@ static const value_string gsm_a_rr_3g_wait_vals[] = {
 
 
 static void
-sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_)
+sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_)
 {
     proto_tree *subtree = NULL, *subtree2 = NULL;
     proto_item *item, *item2;
@@ -9540,7 +9540,7 @@ static const value_string gsm_a_rr_cv_bep_vals[] = {
 };
 
 static void
-sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     proto_tree *subtree;
     proto_item *item;
@@ -9622,7 +9622,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 #define	NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
-static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
     NULL,	/* Reserved */
     dtap_rr_add_ass,		/* Additional Assignment */
     dtap_rr_imm_ass,		/* 9.1.18 Immediate assignment  */
@@ -9747,7 +9747,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t	*tap_p;
     static guint		tap_current=0;
 
-    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
     guint8			oct;
     guint8			pd;
     guint32			offset, saved_offset;
@@ -9944,7 +9944,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(ccch_tree, tvb, offset, len - offset,
                             "Message Elements");
     }else{
-        (*msg_fcn_p)(tvb, ccch_tree, offset, len - offset);
+        (*msg_fcn_p)(tvb, ccch_tree, pinfo, offset, len - offset);
     }
 }
 
@@ -9963,7 +9963,7 @@ const value_string gsm_a_sacch_msg_rr_strings[] = {
 
 #define	NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_sacch_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_sacch_msg_rr[NUM_GSM_SACCH_MSG_RR];
-static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     NULL,			/* System Information Type 10 */
     NULL,			/* Notification/FACCH */
     NULL, 			/* Uplink Free  */
@@ -10000,7 +10000,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t	*tap_p;
     static guint		tap_current=0;
 
-    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
     guint8			oct, short_pd, mess_type;
     guint32			offset;
     guint32			len;
@@ -10099,7 +10099,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(sacch_tree, tvb, offset, len - offset,
                             "Message Elements");
     }else{
-        (*msg_fcn_p)(tvb, sacch_tree, offset, len - offset);
+        (*msg_fcn_p)(tvb, sacch_tree, pinfo, offset, len - offset);
     }
 }
 

@@ -313,7 +313,7 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	curr_offset = offset;
 
-	dtap_mm_mm_info(tvb, tree, curr_offset, len);
+	dtap_mm_mm_info(tvb, tree, gpinfo, curr_offset, len);
 
 	return(len);
 }
@@ -728,7 +728,7 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
  * 8.1	SGsAP-ALERT-ACK message
  */
 static void
-sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -747,7 +747,7 @@ sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2	SGsAP-ALERT-REJECT message
  */
 static void
-sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -768,7 +768,7 @@ sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3	SGsAP-ALERT-REQUEST message
  */
 static void
-sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -787,7 +787,7 @@ sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.4	SGsAP-DOWNLINK-UNITDATA message
  */
 static void
-sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -810,7 +810,7 @@ sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -829,7 +829,7 @@ sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -852,7 +852,7 @@ sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.7	SGsAP-IMSI-DETACH-ACK message
  */
 static void
-sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -870,7 +870,7 @@ sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.8	SGsAP-IMSI-DETACH-INDICATION message
  */
 static void
-sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -893,7 +893,7 @@ sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.9	SGsAP-LOCATION-UPDATE-ACCEPT message
  */
 static void
-sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -916,7 +916,7 @@ sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 8.10	SGsAP-LOCATION-UPDATE-REJECT message
  */
 static void
-sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -940,7 +940,7 @@ sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  */
 
 static void
-sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -971,7 +971,7 @@ sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 8.12	SGsAP-MM-INFORMATION-REQUEST
  */
 static void
-sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -992,7 +992,7 @@ sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.13	SGsAP-PAGING-REJECT message
  */
 static void
-sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1012,7 +1012,7 @@ sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.14	SGsAP-PAGING-REQUEST message
  */
 static void
-sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1052,7 +1052,7 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.15	SGsAP-RESET-ACK message
  */
 static void
-sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1073,7 +1073,7 @@ sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.16	SGsAP-RESET-INDICATION message
  */
 static void
-sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1093,7 +1093,7 @@ sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.17	SGsAP-SERVICE-REQUEST message
  */
 static void
-sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1126,7 +1126,7 @@ sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.18	SGsAP-STATUS message
  */
 static void
-sgsap_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1149,7 +1149,7 @@ sgsap_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.19	SGsAP-TMSI-REALLOCATION-COMPLETE message
  */
 static void
-sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1168,7 +1168,7 @@ sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 8.20	SGsAP-UE-ACTIVITY-INDICATION message
  */
 static void
-sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1187,7 +1187,7 @@ sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.21	SGsAP-UE-UNREACHABLE message
  */
 static void
-sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1208,7 +1208,7 @@ sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.22	SGsAP-UPLINK-UNITDATA message
  */
 static void
-sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1238,7 +1238,7 @@ sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.23	SGsAP-RELEASE-REQUEST message
  */
 static void
-sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -1319,7 +1319,7 @@ static value_string_ext sgsap_msg_strings_ext = VALUE_STRING_EXT_INIT(sgsap_msg_
 
 #define	NUM_SGSAP_MSG (sizeof(sgsap_msg_strings)/sizeof(value_string))
 static gint ett_sgsap_msg[NUM_SGSAP_MSG];
-static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	sgsap_paging_req,			/* 0x01,	"SGsAP-PAGING-REQUEST"	8.14 */
 	sgsap_paging_rej,			/* 0x02,	"SGsAP-PAGING-REJECT"	8.13 */
 /*
@@ -1396,7 +1396,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar		*msg_str;
 	gint			ett_tree;
 	int				hf_idx;
-	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 	guint8			oct;
 
 	/* Save pinfo */
@@ -1444,7 +1444,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn)(tvb, sgsap_tree, offset, len - offset);
+		(*msg_fcn)(tvb, sgsap_tree, pinfo, offset, len - offset);
 	}
 
 }

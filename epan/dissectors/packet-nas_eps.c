@@ -2498,7 +2498,7 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  */
 
 static void
-nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -2552,7 +2552,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.2	Attach complete
  */
 static void
-nas_emm_attach_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_attach_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2572,7 +2572,7 @@ nas_emm_attach_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.3	Attach reject
  */
 static void
-nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2593,7 +2593,7 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.4	Attach request
  */
 static void
-nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -2657,7 +2657,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.5	Authentication failure
  */
 static void
-nas_emm_attach_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_attach_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2682,7 +2682,7 @@ nas_emm_attach_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -2723,7 +2723,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.8	Authentication response
  */
 static void
-nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2745,7 +2745,7 @@ nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2782,7 +2782,7 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 
 static void
-nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset,bit_offset;
 	guint32	consumed;
@@ -2815,7 +2815,7 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * 8.2.11.2	Detach request (UE terminated detach)
  */
 static void
-nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -2852,7 +2852,7 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	return;
 }
 static void
-nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -2860,20 +2860,20 @@ nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	if (gpinfo){
-		if(gpinfo->link_dir==P2P_DIR_UL){
-			nas_emm_detach_req_UL(tvb, tree, offset, len);
+	if (pinfo){
+		if(pinfo->link_dir==P2P_DIR_UL){
+			nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
 			return;
-		}else if(gpinfo->link_dir==P2P_DIR_DL){
-			nas_emm_detach_req_DL(tvb, tree, offset, len);
+		}else if(pinfo->link_dir==P2P_DIR_DL){
+			nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
 			return;
 		}
 	}
 	proto_tree_add_text(tree, tvb, curr_offset, len,"UL/DL not known, can't properly dissect");
 	proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE terminated detach");
-	nas_emm_detach_req_DL(tvb, tree, offset, len);
+	nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
 	proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE originating detach");
-	nas_emm_detach_req_UL(tvb, tree, offset, len);
+	nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
 
 	return;
 
@@ -2883,7 +2883,7 @@ nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.12	Downlink NAS Transport
  */
 static void
-nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2901,7 +2901,7 @@ nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.13	EMM information
  */
 static void
-nas_emm_emm_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_emm_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2929,7 +2929,7 @@ nas_emm_emm_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.14	EMM status
  */
 static void
-nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -2948,7 +2948,7 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.15	Extended service request
  */
 static void
-nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset,bit_offset;
 	guint32	consumed;
@@ -2982,7 +2982,7 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.16	GUTI reallocation command
  */
 static void
-nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3009,7 +3009,7 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  */
 
 static void
-nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3041,7 +3041,7 @@ nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.19	Identity response
  */
 static void
-nas_emm_id_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_id_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3062,7 +3062,7 @@ nas_emm_id_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.20	Security mode command
  */
 static void
-nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3101,7 +3101,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.21	Security mode complete
  */
 static void
-nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3122,7 +3122,7 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * 8.2.22	Security mode reject
  */
 static void
-nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3141,7 +3141,7 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 #if 0
 static int
-nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -3181,7 +3181,7 @@ nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.24	Service reject
  */
 static void
-nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3211,7 +3211,7 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * Message authentication code (short) Short MAC 9.9.3.28 M V 2
  */
 static void
-nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3233,7 +3233,7 @@ nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.26	Tracking area update accept
  */
 static void
-nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3294,7 +3294,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 8.2.28	Tracking area update reject
  */
 static void
-nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3312,7 +3312,7 @@ nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 8.2.29	Tracking area update request
  */
 static void
-nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 
 	guint32	curr_offset, bit_offset;
@@ -3386,7 +3386,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * 8.2.30	Uplink NAS Transport
  */
 static void
-nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3405,7 +3405,7 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.31	Downlink generic NAS transport
  */
 static void
-nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3425,7 +3425,7 @@ nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * 8.2.32	Uplink generic NAS transport
  */
 static void
-nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3450,7 +3450,7 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * 8.3.1	Activate dedicated EPS bearer context accept
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3475,7 +3475,7 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.2	Activate dedicated EPS bearer context reject
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3498,7 +3498,7 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.3	Activate dedicated EPS bearer context request
  */
 static void
-nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3546,7 +3546,7 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.4	Activate default EPS bearer context accept
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3571,7 +3571,7 @@ nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.5	Activate default EPS bearer context reject
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3595,7 +3595,7 @@ nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.6 Activate default EPS bearer context request
  */
 static void
-nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3637,7 +3637,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
  * 8.3.7	Bearer resource allocation reject
  */
 static void
-nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3661,7 +3661,7 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 8.3.8	Bearer resource allocation request
  */
 static void
-nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3697,7 +3697,7 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 8.3.9	Bearer resource modification reject
  */
 static void
-nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3720,7 +3720,7 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 8.3.10	Bearer resource modification request
  */
 static void
-nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -3757,7 +3757,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * 8.3.11 Deactivate EPS bearer context accept
  */
 static void
-nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3781,7 +3781,7 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * 8.3.12 Deactivate EPS bearer context request
  */
 static void
-nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3806,7 +3806,7 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * No IE:s
  */
 static void
-nas_esm_inf_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_inf_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -3820,7 +3820,7 @@ nas_esm_inf_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.14 ESM information response
  */
 static void
-nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3846,7 +3846,7 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.15 ESM status
  */
 static void
-nas_esm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3864,7 +3864,7 @@ nas_esm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.16 Modify EPS bearer context accept
  */
 static void
-nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3888,7 +3888,7 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
  * 8.3.17 Modify EPS bearer context reject
  */
 static void
-nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3911,7 +3911,7 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
  * 8.3.18 Modify EPS bearer context request
  */
 static void
-nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3949,7 +3949,7 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
  * 8.3.18A Notification
  */
 static void
-nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint	curr_len;
@@ -3965,7 +3965,7 @@ nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.19 PDN connectivity reject
  */
 static void
-nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -3989,7 +3989,7 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.20 PDN connectivity request
  */
 static void
-nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4025,7 +4025,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.20 PDN disconnect reject
  */
 static void
-nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -4048,7 +4048,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.3.21 PDN disconnect request
  */
 static void
-nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset, bit_offset;
 	guint32	consumed;
@@ -4081,7 +4081,7 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 #define	NUM_NAS_MSG_ESM (sizeof(nas_msg_esm_strings)/sizeof(value_string))
 static gint ett_nas_msg_esm[NUM_NAS_MSG_ESM];
-static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	nas_esm_act_def_eps_bearer_ctx_req,	/* Activate default EPS bearer context request*/
 	nas_esm_act_def_eps_bearer_ctx_acc,	/* Activate default EPS bearer context accept*/
 	nas_esm_act_def_eps_bearer_ctx_rej,	/* Activate default EPS bearer context reject*/
@@ -4126,7 +4126,7 @@ get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 
 #define	NUM_NAS_MSG_EMM (sizeof(nas_msg_emm_strings)/sizeof(value_string))
 static gint ett_nas_msg_emm[NUM_NAS_MSG_EMM];
-static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
 	nas_emm_attach_req,			/* Attach request */
 	nas_emm_attach_acc,			/* Attach accept */
 	nas_emm_attach_comp,		/* Attach complete */
@@ -4189,7 +4189,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
-	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 	guint8			oct;
 
 	len = tvb_length(tvb);
@@ -4242,7 +4242,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn_p)(tvb, tree, offset, len - offset);
+		(*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
 	}
 
 }
@@ -4256,7 +4256,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
-	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 	guint8			security_header_type, oct;
 
 	len = tvb_length(tvb);
@@ -4317,7 +4317,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn_p)(tvb, tree, offset, len - offset);
+		(*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
 	}
 
 }
@@ -4393,7 +4393,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
 		if (security_header_type == 12){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " SERVICE REQUEST ");
-			nas_emm_service_req(tvb, nas_eps_tree, offset, len-offset);
+			nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
 			return;
 		}
 		/* Message authentication code */
