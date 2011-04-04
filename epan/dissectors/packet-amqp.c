@@ -5610,7 +5610,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     emem_strbuf_t *strbuf;
 
-#if 0  /* XXX: Not currently used ?? *(/
+#if 0  /* XXX: Not currently used ?? */
     conversation_t *conv;
     amqp_conv *conn;
 
