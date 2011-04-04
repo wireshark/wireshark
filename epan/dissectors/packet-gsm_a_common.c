@@ -1554,7 +1554,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 /*
  * Type (T) element dissector
  */
-guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
 	guint8		oct;
 	guint32		curr_offset;
