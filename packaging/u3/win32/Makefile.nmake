@@ -106,9 +106,9 @@ u3util.exe:	u3util.obj ../../../config.nmake
 	$(LINK) @<<
 		/OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll)
 <<
-#!IF $(MSC_VER_REQUIRED) >= 1400
+!IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "u3util.exe.manifest" -outputresource:u3util.exe;1
-#!ENDIF
+!ENDIF
 
 clean:
 	cd ../tools
