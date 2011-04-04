@@ -34,9 +34,6 @@
 # include "config.h"
 #endif
 
-/* #include <stdlib.h> */
-#include <gmodule.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -44,8 +41,6 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/emem.h>
@@ -558,7 +553,6 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     const gchar	*str = NULL;
 
     /*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/
-    proto_item *ucs2_item;
     gchar *utf8_text = NULL;
     GIConv cd;
     GError *l_conv_error = NULL;
@@ -742,11 +736,11 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             utf8_text = g_convert_with_iconv(tvb->real_data +  offset, num_fields , cd , NULL , NULL , &l_conv_error);
             if(!l_conv_error)
             {
-                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+                proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
             }
             else
             {
-                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
+                proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
             }
             if(utf8_text)
                 g_free(utf8_text);
@@ -769,11 +763,11 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             utf8_text = g_convert_with_iconv(ansi_637_bigbuf , num_fields , cd , NULL , NULL , &l_conv_error);
             if(!l_conv_error)
             {
-                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+                proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
             }
             else
             {
-                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
+                proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
             }
             if(utf8_text)
                 g_free(utf8_text);
