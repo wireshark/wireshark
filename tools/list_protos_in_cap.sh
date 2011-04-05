@@ -27,7 +27,7 @@ for i in "$TSHARK" "$CAPINFOS"
 do
     if [ ! -x $i ]
     then
-        echo "Couldn't find $i"
+        echo "Couldn't find $i"  1>&2
         NOTFOUND=1
     fi
 done
@@ -61,15 +61,27 @@ FIN
 fi
 
 for CF in "$@" ; do
-    "$CAPINFOS" "$CF" > /dev/null
     if [ "$OSTYPE" == "cygwin" ] ; then
 	CF=`cygpath --windows "$CF"`
     fi
+
+    if [ ! -f "$CF" ] ; then
+        echo "Doesn't exist or not a file: $CF"  1>&2
+        continue
+    fi
+
+    "$CAPINFOS" "$CF" > /dev/null
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+	echo "Not a valid capture file (or some other problem)" 1>&2
+	continue
+    fi
+
     printf "$CF "
 
     # Extract the protocol names.
-    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | tr ':' '\n' \
-	| sort -u | tr '\n' ' '
+    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | tr ':\r' '\n' \
+	| sort -u | tr '\n\r' ' '
 
     printf "\n"
 done
