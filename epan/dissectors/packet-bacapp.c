@@ -3945,14 +3945,8 @@ static int hf_BACnetExtendedTagNumber = -1;
 static int hf_BACnetNamedTag = -1;
 static int hf_BACnetTagClass = -1;
 static int hf_BACnetCharacterSet = -1;
-static int hf_bacapp_tag = -1;
 static int hf_bacapp_tag_lvt = -1;
-static int hf_bacapp_tag_value8 = -1;
-static int hf_bacapp_tag_value16 = -1;
-static int hf_bacapp_tag_value32 = -1;
 static int hf_bacapp_tag_ProcessId = -1;
-static int hf_bacapp_tag_initiatingObjectType = -1;
-static int hf_bacapp_vpart = -1;
 static int hf_bacapp_uservice = -1;
 static int hf_BACnetPropertyIdentifier = -1;
 static int hf_BACnetVendorIdentifier = -1;
@@ -9504,16 +9498,6 @@ proto_register_bacapp(void)
 			{ "Abort Reason",           "bacapp.abort_reason",
 			FT_UINT8, BASE_DEC, VALS(BACnetAbortReason), 0x00, NULL, HFILL }
 		},
-		{ &hf_bacapp_vpart,
-			{ "BACnet APDU variable part:",           "bacapp.variable_part",
-			FT_NONE, BASE_NONE, NULL, 0, "BACnet APDU variable part", HFILL }
-		},
-		{ &hf_bacapp_tag,
-			{ "BACnet Tag",
-			"bacapp.tag",
-			FT_BYTES, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
 		{ &hf_BACnetApplicationTagNumber,
 			{ "Application Tag Number",
 			"bacapp.application_tag_number",
@@ -9554,24 +9538,6 @@ proto_register_bacapp(void)
 			FT_UINT8, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-		{ &hf_bacapp_tag_value8,
-			{ "Tag Value",
-			"bacapp.tag_value8",
-			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_bacapp_tag_value16,
-			{ "Tag Value 16-bit",
-			"bacapp.tag_value16",
-			FT_UINT16, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_bacapp_tag_value32,
-			{ "Tag Value 32-bit",
-			"bacapp.tag_value32",
-			FT_UINT32, BASE_DEC, NULL, 0,
-			NULL, HFILL }
-		},
 		{ &hf_bacapp_tag_ProcessId,
 			{ "ProcessIdentifier",           "bacapp.processId",
 			FT_UINT32, BASE_DEC, NULL, 0, "Process Identifier", HFILL }
@@ -9587,10 +9553,6 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_tag_PORT,
 			{ "Port",           "bacapp.Port",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_bacapp_tag_initiatingObjectType,
-			{ "ObjectType",           "bacapp.objectType",
-			FT_UINT16, BASE_DEC, VALS(BACnetObjectType), 0x00, "Object Type", HFILL }
 		},
 		{&hf_msg_fragments,
 			{"Message fragments", "bacapp.fragments",
