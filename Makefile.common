@@ -115,6 +115,7 @@ TSHARK_TAP_SRC =	\
 	tap-h225rassrt.c	\
 	tap-hosts.c	\
 	tap-httpstat.c	\
+	tap-icmpstat.c	\
 	tap-iostat.c	\
 	tap-iousers.c	\
 	tap-mgcpstat.c	\

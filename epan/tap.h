@@ -34,8 +34,9 @@ typedef void (*tap_draw_cb)(void *tapdata);
 /*
  * Flags to indicate what a tap listener's packet routine requires.
  */
-#define TL_REQUIRES_PROTO_TREE		0x00000001	/**< full protocol tree */
-#define TL_REQUIRES_COLUMNS			0x00000002	/**< columns */
+#define TL_REQUIRES_NOTHING	0x00000000	/**< nothing */
+#define TL_REQUIRES_PROTO_TREE	0x00000001	/**< full protocol tree */
+#define TL_REQUIRES_COLUMNS	0x00000002	/**< columns */
 
 extern void tap_init(void);
 extern int register_tap(const char *name);

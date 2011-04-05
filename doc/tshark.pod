@@ -710,6 +710,16 @@ and IPv6 addresses are dumped by default.
 Addresses are collected from a number of sources, including standard "hosts"
 files and captured traffic.
 
+=item B<-z> icmp,srt[,I<filter>]
+
+Compute total ICMP echo requests, replies, loss, and percent loss, as well as
+min, max and average SRT statistics typical of ping statistics.
+
+Example: S<B<-z icmp,srt,ip.src==1.2.3.4>> will collect ICMP SRT statistics
+for ICMP echo request packets originating from a specific host.
+
+This option can be used multiple times on the command line.
+
 =item B<-z> io,phs[,I<filter>]
 
 Create Protocol Hierarchy Statistics listing both number of packets and bytes.
