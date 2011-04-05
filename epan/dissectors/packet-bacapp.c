@@ -3,6 +3,8 @@
  * Copyright 2001, Hartmut Mueller <hartmut[AT]abmlinux.org>, FH Dortmund
  * Enhanced by Steve Karg, 2005, <skarg[AT]users.sourceforge.net>, Atlanta
  * Enhanced by Herbert Lischka, 2005, <lischka[AT]kieback-peter.de>, Berlin
+ * Enhanced by Felix Kraemer, 2010, <sauter-cumulus[AT]de.sauter-bc.com>,
+ * 	Sauter-Cumulus GmbH, Freiburg
  *
  * $Id$
  *
@@ -36,6 +38,10 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/stats_tree.h>
+#include "packet-bacapp.h"
+
+static int bacapp_tap = -1;
 
 /* formerly bacapp.h  contains definitions and forward declarations */
 
@@ -3986,6 +3992,217 @@ static guint8 bacapp_seq = 0;
 /* Defined to allow vendor identifier registration of private transfer dissectors */
 static dissector_table_t bacapp_dissector_table;
 
+
+/* Stat: BACnet Packets sorted by IP */
+bacapp_info_value_t bacinfo;
+
+static const gchar* st_str_packets_by_ip = "BACnet Packets by IP";
+static const gchar* st_str_packets_by_ip_dst = "By Destination";
+static const gchar* st_str_packets_by_ip_src = "By Source";
+static int st_node_packets_by_ip = -1;
+static int st_node_packets_by_ip_dst = -1;
+static int st_node_packets_by_ip_src = -1;
+
+static void
+bacapp_packet_stats_tree_init(stats_tree* st)
+{
+	st_node_packets_by_ip = stats_tree_create_pivot(st, st_str_packets_by_ip, 0);
+	st_node_packets_by_ip_src = stats_tree_create_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, TRUE);
+	st_node_packets_by_ip_dst = stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
+}
+
+static int
+bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+{
+	int packets_for_this_dst;
+	int packets_for_this_src;
+	int service_for_this_dst;
+	int service_for_this_src;
+	int src_for_this_dst;
+	int dst_for_this_src;
+	int objectid_for_this_dst;
+	int objectid_for_this_src;
+	int instanceid_for_this_dst;
+	int instanceid_for_this_src;
+	gchar *dststr;
+	gchar *srcstr;
+	const bacapp_info_value_t *binfo = p;
+
+	srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
+	dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+
+	tick_stat_node(st, st_str_packets_by_ip, 0, TRUE);
+	packets_for_this_dst = tick_stat_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
+	packets_for_this_src = tick_stat_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, TRUE);
+	src_for_this_dst = tick_stat_node(st, dststr, packets_for_this_dst, TRUE);
+	dst_for_this_src = tick_stat_node(st, srcstr, packets_for_this_src, TRUE);
+	service_for_this_src = tick_stat_node(st, dststr, dst_for_this_src, TRUE);
+	service_for_this_dst = tick_stat_node(st, srcstr, src_for_this_dst, TRUE);
+	if (binfo->service_type) {
+		objectid_for_this_dst = tick_stat_node(st, binfo->service_type, service_for_this_dst, TRUE);
+		objectid_for_this_src = tick_stat_node(st, binfo->service_type, service_for_this_src, TRUE);
+		if (binfo->object_ident) {
+			instanceid_for_this_dst=tick_stat_node(st, binfo->object_ident, objectid_for_this_dst, TRUE);
+			tick_stat_node(st, binfo->instance_ident, instanceid_for_this_dst, FALSE);
+			instanceid_for_this_src=tick_stat_node(st, binfo->object_ident, objectid_for_this_src, TRUE);
+			tick_stat_node(st, binfo->instance_ident, instanceid_for_this_src, FALSE);
+		}
+	}
+
+	return 1;
+}
+
+/* Stat: BACnet Packets sorted by Service */
+static const gchar* st_str_packets_by_service = "BACnet Packets by Service";
+static int st_node_packets_by_service = -1;
+
+static void
+bacapp_service_stats_tree_init(stats_tree* st)
+{
+	st_node_packets_by_service = stats_tree_create_pivot(st, st_str_packets_by_service, 0);
+}
+
+static int
+bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+{
+	int servicetype;
+	int src,dst;
+	int objectid;
+
+	gchar *dststr;
+	gchar *srcstr;
+	const bacapp_info_value_t *binfo = p;
+
+	srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
+	dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+
+	tick_stat_node(st, st_str_packets_by_service, 0, TRUE);
+	if (binfo->service_type) {
+		servicetype = tick_stat_node(st, binfo->service_type, st_node_packets_by_service, TRUE);
+		src = tick_stat_node(st, srcstr, servicetype, TRUE);
+		dst = tick_stat_node(st, dststr, src, TRUE);
+		if (binfo->object_ident) {
+			objectid = tick_stat_node(st, binfo->object_ident, dst, TRUE);
+			tick_stat_node(st, binfo->instance_ident, objectid, FALSE);
+		}
+	}
+
+	return 1;
+}
+
+/* Stat: BACnet Packets sorted by Object Type */
+static const gchar* st_str_packets_by_objectid = "BACnet Packets by Object Type";
+static int st_node_packets_by_objectid = -1;
+
+static void
+bacapp_objectid_stats_tree_init(stats_tree* st)
+{
+	st_node_packets_by_objectid = stats_tree_create_pivot(st, st_str_packets_by_objectid, 0);
+}
+
+static int
+bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+{
+	int servicetype;
+	int src,dst;
+	int objectid;
+
+	gchar *dststr;
+	gchar *srcstr;
+	const bacapp_info_value_t *binfo = p;
+
+	srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
+	dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+
+	tick_stat_node(st, st_str_packets_by_objectid, 0, TRUE);
+	if (binfo->object_ident) {
+		objectid = tick_stat_node(st, binfo->object_ident, st_node_packets_by_objectid, TRUE);
+		src = tick_stat_node(st, srcstr, objectid, TRUE);
+		dst = tick_stat_node(st, dststr, src, TRUE);
+		if (binfo->service_type) {
+			servicetype = tick_stat_node(st, binfo->service_type, dst, TRUE);
+			tick_stat_node(st, binfo->instance_ident, servicetype, FALSE);
+		}
+	}
+
+	return 1;
+}
+
+/* Stat: BACnet Packets sorted by Instance No */
+static const gchar* st_str_packets_by_instanceid = "BACnet Packets by Instance ID";
+static int st_node_packets_by_instanceid = -1;
+
+static void
+bacapp_instanceid_stats_tree_init(stats_tree* st)
+{
+	st_node_packets_by_instanceid = stats_tree_create_pivot(st, st_str_packets_by_instanceid, 0);
+}
+
+static int
+bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+{
+	int servicetype;
+	int src,dst;
+	int instanceid;
+
+	gchar *dststr;
+	gchar *srcstr;
+	const bacapp_info_value_t *binfo = p;
+
+	srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
+	dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+
+	tick_stat_node(st, st_str_packets_by_instanceid, 0, TRUE);
+	if (binfo->object_ident) {
+		instanceid = tick_stat_node(st, binfo->instance_ident, st_node_packets_by_instanceid, TRUE);
+		src = tick_stat_node(st, srcstr, instanceid, TRUE);
+		dst = tick_stat_node(st, dststr, src, TRUE);
+		if (binfo->service_type) {
+			servicetype = tick_stat_node(st, binfo->service_type, dst, TRUE);
+			tick_stat_node(st, binfo->object_ident, servicetype, FALSE);
+		}
+	}
+	return 1;
+}
+
+
+/* register all BACnet Ststistic trees */
+static void
+register_bacapp_stat_trees(void)
+{
+	stats_tree_register("bacapp","bacapp_ip","BACnet/Packets sorted by IP", 0,
+		bacapp_stats_tree_packet, bacapp_packet_stats_tree_init, NULL);
+	stats_tree_register("bacapp","bacapp_service","BACnet/Packets sorted by Service", 0,
+		bacapp_stats_tree_service, bacapp_service_stats_tree_init, NULL);
+	stats_tree_register("bacapp","bacapp_objectid","BACnet/Packets sorted by Object Type", 0,
+		bacapp_stats_tree_objectid, bacapp_objectid_stats_tree_init, NULL);
+	stats_tree_register("bacapp","bacapp_instanceid","BACnet/Packets sorted by Instance ID", 0,
+		bacapp_stats_tree_instanceid, bacapp_instanceid_stats_tree_init, NULL);
+}
+
+/* 'data' must be ep_ allocated */
+static gint
+updateBacnetInfoValue(gint whichval, gchar *data)
+{
+	if (whichval == BACINFO_SERVICE) {
+		bacinfo.service_type = data;
+		return 0;
+	}
+	if (whichval == BACINFO_INVOKEID) {
+		bacinfo.invoke_id = data;
+		return 0;
+	}
+	if (whichval == BACINFO_OBJECTID) {
+		bacinfo.object_ident = data;
+		return 0;
+	}
+	if (whichval == BACINFO_INSTANCEID) {
+		bacinfo.instance_ident = data;
+		return 0;
+	}
+	return -1;
+}
+
 static const fragment_items msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_msg_fragment,
@@ -4203,8 +4420,8 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 		} else
 			*lvt = value;
 	}
-	if (tree)
-	{
+
+	if (tree) {
 		if (tag_is_opening(tag))
 			ti = proto_tree_add_text(tree, tvb, offset, tag_len, "{[%u]", *tag_no );
 		else if (tag_is_closing(tag))
@@ -4293,8 +4510,7 @@ fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	guint bool_len = 1;
 
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	if (tag_info && lvt == 1)
-	{
+	if (tag_info && lvt == 1) {
 		lvt = tvb_get_guint8(tvb, offset+1);
 		++bool_len;
 	}
@@ -4537,13 +4753,11 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	month = tvb_get_guint8(tvb, offset+tag_len+1);
 	day = tvb_get_guint8(tvb, offset+tag_len+2);
 	weekday = tvb_get_guint8(tvb, offset+tag_len+3);
-	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255))
-	{
+	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255)) {
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%sany", label);
 	}
-	else if (year != 255)
-	{
+	else if (year != 255) {
 		year += 1900;
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%s %d, %d, (Day of Week = %s)",
@@ -4553,9 +4767,7 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 			day, year, val_to_str(weekday,
 				day_of_week,
 				"(%d) not found"));
-	}
-	else
-	{
+	} else {
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%s %d, any year, (Day of Week = %s)",
 			label, val_to_str(month, months, "month (%d) not found"),
@@ -4658,8 +4870,8 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
-static guint fTimeStamp (tvbuff_t *tvb, proto_tree *tree,
-	guint offset, const gchar *label)
+static guint
+fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
@@ -4738,8 +4950,7 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 
 	offset += fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
-	if (lvt > 0)
-	{
+	if (lvt > 0) {
 		tmp = tvb_bytes_to_str(tvb, offset, lvt);
 		ti = proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", label, tmp);
 		offset += lvt;
@@ -4766,8 +4977,7 @@ fMacAddress (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, 
 
 	ti = proto_tree_add_text(tree, tvb, offset, 6, "%s", label); /* just add the label, with the tagHeader information in its subtree */
 
-	if (lvt > 0)
-	{
+	if (lvt > 0) {
 		if (lvt == 6) { /* we have 6 Byte IP Address with 4 Octets IPv4 and 2 Octets Port Information */
 
 			guint32 ip = tvb_get_ipv4(tvb, offset);
@@ -4855,6 +5065,14 @@ fObjectIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 				ASHRAE_Reserved_Fmt,
 				Vendor_Proprietary_Fmt),
 				object_id_instance(object_id));
+
+	/* update BACnet Statistics */
+	updateBacnetInfoValue(BACINFO_OBJECTID,
+			      ep_strdup(val_to_split_str(object_type, 128,
+					BACnetObjectType, ASHRAE_Reserved_Fmt,
+					Vendor_Proprietary_Fmt)));
+	updateBacnetInfoValue(BACINFO_INSTANCEID, ep_strdup_printf("Instance ID: %u",
+			      object_id_instance(object_id)));
 
 	/* here are the details of how we arrived at the above text */
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
@@ -5167,8 +5385,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 
 		character_set = tvb_get_guint8(tvb, offset+offs);
 		/* Account for code page if DBCS */
-		if (character_set == 1)
-		{
+		if (character_set == 1) {
 		    extra = 3;
 		}
 		offset += (offs+extra);
@@ -5234,8 +5451,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 		fTagHeaderTree (tvb, subtree, start, &tag_no, &tag_info, &lvt);
 		proto_tree_add_item(subtree, hf_BACnetCharacterSet, tvb, start+offs, 1, FALSE);
 
-		if (character_set == 1)
-		{
+		if (character_set == 1) {
 		    proto_tree_add_text(subtree, tvb, start+offs+1, 2, "Code Page: %d", tvb_get_ntohs(tvb, start+offs+1));
 		}
 	}
@@ -5295,8 +5511,7 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 		}
 	}
 
-	if (src == NULL)
-	{
+	if (src == NULL) {
 		bf_arr[MIN(255,numberOfBytes*8-unused)] = 0;
 		proto_tree_add_text(subtree, tvb, offset, lvt, "B'%s'", bf_arr);
 	}
@@ -5325,8 +5540,7 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 		tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-		if (!tag_is_context_specific(tag_info))
-		{
+		if (!tag_is_context_specific(tag_info)) {
 			switch (tag_no) {
 				case 0:	/** NULL 20.2.2 */
 					offset = fNullTag(tvb, tree, offset, label);
@@ -5436,8 +5650,7 @@ fContextTaggedValue(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *
 	tag_len = fTagHeader(tvb, offset, &tag_no, &tag_info, &lvt);
 	/* cap the the suggested length in case of bad data */
 	tvb_len = tvb_reported_length_remaining(tvb, offset+tag_len);
-	if ((tvb_len >= 0) && ((guint32)tvb_len < lvt))
-	{
+	if ((tvb_len >= 0) && ((guint32)tvb_len < lvt)) {
 		lvt = tvb_len;
 	}
 	ti = proto_tree_add_text(tree, tvb, offset+tag_len, lvt,
@@ -5457,16 +5670,13 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	guint lastoffset = 0, depth = 0;
 	char ar[256];
 
-	if (propertyIdentifier >= 0)
-	{
+	if (propertyIdentifier >= 0) {
 		g_snprintf (ar, sizeof(ar), "%s: ",
 			val_to_split_str(propertyIdentifier, 512,
 				BACnetPropertyIdentifier,
 				ASHRAE_Reserved_Fmt,
 				Vendor_Proprietary_Fmt));
-	}
-	else
-	{
+	} else {
 		g_snprintf (ar, sizeof(ar), "Abstract Type: ");
 	}
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
@@ -5537,8 +5747,7 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 			}
 			break;
 		case 38:	/* exception-schedule */
-			if (object_type < 128)
-			{
+			if (object_type < 128) {
 				if (propertyArrayIndex == 0) {
 					/* BACnetARRAY index 0 refers to the length
 					of the array, not the elements of the array */
@@ -5555,8 +5764,7 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 			offset = fDeviceObjectPropertyReference (tvb, pinfo, tree, offset);
 			break;
 		case 123:	/* weekly-schedule -- accessed as a BACnetARRAY */
-			if (object_type < 128)
-			{
+			if (object_type < 128) {
 				if (propertyArrayIndex == 0) {
 					/* BACnetARRAY index 0 refers to the length
 					of the array, not the elements of the array */
@@ -5588,25 +5796,17 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 			offset = fCOVSubscription (tvb, pinfo, tree, offset);
 			break;
 		default:
-			if (tag_info)
-			{
-				if (tag_is_opening(tag_info))
-				{
+			if (tag_info) {
+				if (tag_is_opening(tag_info)) {
 					++depth;
 					offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
-				}
-				else if (tag_is_closing(tag_info))
-				{
+				} else if (tag_is_closing(tag_info)) {
 					--depth;
 					offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
-				}
-				else
-				{
+				} else {
 					offset = fContextTaggedValue(tvb, tree, offset, ar);
 				}
-			}
-			else
-			{
+			} else {
 				offset = fApplicationTypes (tvb, pinfo, tree, offset, ar);
 			}
 			break;
@@ -5649,8 +5849,7 @@ fPropertyIdentifierValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint32 lvt;
 
 	offset = fPropertyReference(tvb, pinfo, tree, offset, tagoffset, 0);
-	if (offset > lastoffset)
-	{
+	if (offset > lastoffset) {
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_no == tagoffset+2) {  /* Value - might not be present in ReadAccessResult */
 			offset = fPropertyValue (tvb, pinfo, tree, offset, tag_info);
@@ -5669,8 +5868,7 @@ fBACnetPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fPropertyIdentifierValue(tvb, pinfo, tree, offset, 0);
-		if (offset > lastoffset)
-		{
+		if (offset > lastoffset) {
 			/* detect optional priority
 			by looking to see if the next tag is context tag number 3 */
 			fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -5780,8 +5978,7 @@ fDailySchedule (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint of
 	guint32 lvt;
 
 	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	if (tag_is_opening(tag_info) && tag_no == 0)
-	{
+	if (tag_is_opening(tag_info) && tag_no == 0) {
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt); /* opening context tag 0 */
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
 			lastoffset = offset;
@@ -5795,9 +5992,7 @@ fDailySchedule (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint of
 			offset = fTimeValue (tvb, pinfo, subtree, offset);
 			if (offset == lastoffset) break;    /* nothing happened, exit loop */
 		}
-	}
-	else if (tag_no == 0 && lvt == 0)
-	{
+	} else if (tag_no == 0 && lvt == 0) {
 		/* not sure null (empty array element) is legal */
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	}
@@ -6002,8 +6197,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	next_tvb = tvb_new_subset_remaining(tvb,offset);
 	if (dissector_try_uint(bacapp_dissector_table,
-	    vendor_identifier, next_tvb, pinfo, tree))
-	{
+	    vendor_identifier, next_tvb, pinfo, tree)) {
 		/* we parsed it so skip over length and we are done */
 		offset += tvb_length(next_tvb);
 		return offset;
@@ -6016,14 +6210,11 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		lastoffset = offset;
 		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			if (tag_no == 2) /* Make sure it's the expected tag */
-			{
+			if (tag_no == 2) { /* Make sure it's the expected tag */
 				offset += len;
 				subtree = tree;
 				continue;
-			}
-			else
-			{
+			} else {
 				break; /* End loop if incorrect closing tag */
 			}
 		}
@@ -7729,8 +7920,7 @@ fSpecialEvent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint off
 
 		switch (tag_no) {
 		case 0:	/* calendaryEntry */
-			if (tag_is_opening(tag_info))
-			{
+			if (tag_is_opening(tag_info)) {
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fCalendaryEntry (tvb, subtree, offset);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -7981,8 +8171,7 @@ fCreateObjectRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gui
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
-		if (tag_no < 2)
-		{
+		if (tag_no < 2) {
 			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 			switch (tag_no) {
 			case 0:	/* objectSpecifier */
@@ -8109,25 +8298,22 @@ fAccessMethod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 
 	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
-	if (tag_is_opening(tag_info))
-	{
+	if (tag_is_opening(tag_info)) {
 		tt = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(tag_no, BACnetFileAccessOption, "invalid access method"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 		offset = fApplicationTypes (tvb, pinfo, subtree, offset, val_to_str(tag_no, BACnetFileStartOption, "invalid option"));
 		offset = fApplicationTypes (tvb, pinfo, subtree, offset, val_to_str(tag_no, BACnetFileWriteInfo, "unknown option"));
 
-		if (tag_no == 1)
-		{
-			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset))
-			{  /* exit loop if nothing happens inside */
+		if (tag_no == 1) {
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+				/* exit loop if nothing happens inside */
 				lastoffset = offset;
 				offset = fApplicationTypes (tvb, pinfo, subtree, offset, "Record Data: ");
 			}
 		}
 
-		if ((bacapp_flags & BACAPP_MORE_SEGMENTS) == 0)
-		{
+		if ((bacapp_flags & BACAPP_MORE_SEGMENTS) == 0) {
 			/* More Flag is not set, so we can look for closing tag in this segment */
 			fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 			if (tag_is_closing(tag_info)) {
@@ -8150,8 +8336,7 @@ fAtomicReadFileRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
-	if (tag_is_opening(tag_info))
-	{
+	if (tag_is_opening(tag_info)) {
 		tt = proto_tree_add_text(subtree, tvb, offset, 1, "%s", val_to_str(tag_no, BACnetFileAccessOption, "unknown access method"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -8476,7 +8661,7 @@ fUnconfirmedServiceRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static guint
 fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint offset, guint8 ack,
-				gint *svc, proto_item **tt)
+		gint *svc, proto_item **tt)
 {
 	proto_item *tc;
 	proto_tree *bacapp_tree_control;
@@ -8501,8 +8686,7 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
 
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SEG, tvb, offset, 1, TRUE);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_MOR, tvb, offset, 1, TRUE);
-	if (ack == 0) /* The following are for ConfirmedRequest, not Complex ack */
-	{
+	if (ack == 0) { /* The following are for ConfirmedRequest, not Complex ack */
 	    proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, offset++, 1, TRUE);
 	    proto_tree_add_item(bacapp_tree, hf_bacapp_response_segments, tvb,
 							offset, 1, TRUE);
@@ -8719,12 +8903,10 @@ fVTCloseError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
 
-	if (fTagNo(tvb, offset) == 0)
-	{
+	if (fTagNo(tvb, offset) == 0) {
 		/* errorType */
 		offset = fContextTaggedError(tvb, pinfo, tree,offset);
-		if (fTagNo(tvb, offset) == 1)
-		{
+		if (fTagNo(tvb, offset) == 1) {
 			/* listOfVTSessionIdentifiers [OPTIONAL] */
 			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			offset = fVtCloseRequest (tvb, pinfo, tree, offset);
@@ -8864,7 +9046,7 @@ do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	flag = (gint) tvb_get_guint8(tvb, 0);
 	bacapp_type = (flag >> 4) & 0x0f;
 
-	if (tvb == NULL || tree == NULL) {
+	if (tvb == NULL) {
 		return 0;
 	}
 
@@ -8915,6 +9097,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *tt = 0;
 	gint8 ack = 0;
 
+	/* Strings for BACnet Statistics */
+	const gchar errstr[]="ERROR: ";
+	const gchar rejstr[]="REJECTED: ";
+	const gchar abortstr[]="ABORTED: ";
+	const gchar sackstr[]=" (SimpleAck)";
+	const gchar cackstr[]=" (ComplexAck)";
+	const gchar uconfsreqstr[]=" (Unconfirmed Service Request)";
+	const gchar confsreqstr[]=" (Confirmed Service Request)";
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
 	col_clear (pinfo->cinfo, COL_INFO);
 
@@ -8925,12 +9116,16 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%-16s",
 		val_to_str(bacapp_type, BACnetTypeName, "# unknown APDU #"));
 
+	bacinfo.service_type = NULL;
+	bacinfo.invoke_id = NULL;
+	bacinfo.instance_ident = NULL;
+	bacinfo.object_ident = NULL;
+
 	switch (bacapp_type)
 	{
 		case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
 			/* segmented messages have 2 additional bytes */
-			if (flag & BACAPP_SEGMENTED_REQUEST)
-			{
+			if (flag & BACAPP_SEGMENTED_REQUEST) {
 				fragment = TRUE;
 				ack = 0;
 				bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_guint8(tvb, offset + 1)); /* has 16 values, reserved are 50 Bytes */
@@ -8939,9 +9134,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4);
 				bacapp_service = tvb_get_guint8(tvb, offset + 5);
 				data_offset = 6;
-			}
-			else
-			{
+			} else {
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 				bacapp_service = tvb_get_guint8(tvb, offset + 3);
 			}
@@ -8949,6 +9142,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(bacapp_service,
 					BACnetConfirmedServiceChoice,
 					bacapp_unknown_service_str),bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+			    ep_strconcat(val_to_str(bacapp_service,
+						    BACnetConfirmedServiceChoice,
+						    bacapp_unknown_service_str),
+					 confsreqstr, NULL));
 			break;
 		case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
 			bacapp_service = tvb_get_guint8(tvb, offset + 1);
@@ -8956,6 +9158,12 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(bacapp_service,
 					BACnetUnconfirmedServiceChoice,
 					bacapp_unknown_service_str));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+			    ep_strconcat(val_to_str(bacapp_service,
+						    BACnetUnconfirmedServiceChoice,
+						    bacapp_unknown_service_str),
+					 uconfsreqstr, NULL));
 			break;
 		case BACAPP_TYPE_SIMPLE_ACK:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -8964,11 +9172,19 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(bacapp_service,
 					BACnetConfirmedServiceChoice,
 					bacapp_unknown_service_str), bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+			    ep_strconcat(val_to_str(bacapp_service,
+						    BACnetConfirmedServiceChoice,
+						    bacapp_unknown_service_str),
+					 sackstr, NULL));
 			break;
 		case BACAPP_TYPE_COMPLEX_ACK:
 			/* segmented messages have 2 additional bytes */
-			if (flag & BACAPP_SEGMENTED_REQUEST)
-			{
+			if (flag & BACAPP_SEGMENTED_REQUEST) {
 				fragment = TRUE;
 				ack = 1;
 				bacapp_apdu_size = fGetMaxAPDUSize(0); /* has minimum of 50 Bytes */
@@ -8977,9 +9193,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 3);
 				bacapp_service = tvb_get_guint8(tvb, offset + 4);
 				data_offset = 5;
-			}
-			else
-			{
+			} else {
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_service = tvb_get_guint8(tvb, offset + 2);
 			}
@@ -8987,6 +9201,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(bacapp_service,
 					BACnetConfirmedServiceChoice,
 					bacapp_unknown_service_str), bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+			    ep_strconcat(val_to_str(bacapp_service,
+			    			    BACnetConfirmedServiceChoice,
+						    bacapp_unknown_service_str),
+					 cackstr, NULL));
 			break;
 		case BACAPP_TYPE_SEGMENT_ACK:
 			/* nothing more to add */
@@ -8998,6 +9221,16 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(bacapp_service,
 					BACnetConfirmedServiceChoice,
 					bacapp_unknown_service_str), bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+			    ep_strconcat(errstr,
+					 val_to_str(bacapp_service,
+						    BACnetConfirmedServiceChoice,
+						    bacapp_unknown_service_str),
+					 NULL));
 			break;
 		case BACAPP_TYPE_REJECT:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -9008,6 +9241,17 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					BACnetRejectReason,
 					ASHRAE_Reserved_Fmt,
 					Vendor_Proprietary_Fmt), bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+				ep_strconcat(rejstr,
+					     val_to_split_str(bacapp_reason, 64,
+					     BACnetRejectReason,
+					     ASHRAE_Reserved_Fmt,
+					     Vendor_Proprietary_Fmt),
+					     NULL));
 			break;
 		case BACAPP_TYPE_ABORT:
 			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -9018,6 +9262,18 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					BACnetAbortReason,
 					ASHRAE_Reserved_Fmt,
 					Vendor_Proprietary_Fmt), bacapp_invoke_id);
+
+			updateBacnetInfoValue(BACINFO_INVOKEID,
+					      ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+
+			updateBacnetInfoValue(BACINFO_SERVICE,
+				ep_strconcat(abortstr,
+					     val_to_split_str(bacapp_reason,
+							      64,
+							      BACnetAbortReason,
+							      ASHRAE_Reserved_Fmt,
+							      Vendor_Proprietary_Fmt),
+					     NULL));
 			break;
 		/* UNKNOWN */
 		default:
@@ -9027,17 +9283,14 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	save_fragmented = pinfo->fragmented;
 
-	if (tree) {
+	ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
+	bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
-		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
-
-		if (!fragment)
-			offset = do_the_dissection(tvb,pinfo,bacapp_tree);
-		else
-			fStartConfirmed(tvb, pinfo, bacapp_tree, offset, ack, &svc, &tt);
+	if (!fragment)
+		offset = do_the_dissection(tvb,pinfo,bacapp_tree);
+	else
+		fStartConfirmed(tvb, pinfo, bacapp_tree, offset, ack, &svc, &tt);
 			/* not resetting the offset so the remaining can be done */
-	}
 
 	if (fragment) { /* fragmented */
 		fragment_data *frag_msg = NULL;
@@ -9082,6 +9335,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->fragmented = save_fragmented;
 
+	/* tapping */
+	tap_queue_packet(bacapp_tap,pinfo,&bacinfo);
 }
 
 static void
@@ -9123,34 +9378,25 @@ uni_to_string(char * data, gsize str_length, char *dest_buf)
 
 	length_remaining = str_length;
 	dest_buf[0] = '\0';
-	if(str_length == 0)
-	{
+	if(str_length == 0) {
 		return;
 	}
-	for ( i = 0; i < (gint) str_length; i++ )
-	{
+	for ( i = 0; i < (gint) str_length; i++ ) {
 		c_char = data[i];
-		if (c_char<0x20 || c_char>0x7e)
-		{
-			if (c_char != 0x00)
-			{
+		if (c_char<0x20 || c_char>0x7e) {
+			if (c_char != 0x00) {
 				c_char = '.';
 				dest_buf[i] = c_char & 0xff;
-			}
-			else
-			{
+			} else {
 				i--;
 				str_length--;
 			}
-		}
-		else
-		{
+		} else {
 			dest_buf[i] = c_char & 0xff;
 		}
 		length_remaining--;
 
-		if(length_remaining==0)
-		{
+		if(length_remaining==0) {
 			dest_buf[i+1] = '\0';
 			return;
 		}
@@ -9402,6 +9648,9 @@ proto_register_bacapp(void)
 							  "BACapp Vendor Identifier",
 							  FT_UINT8, BASE_HEX);
 
+	/* Register BACnet Statistic trees */
+	register_bacapp_stat_trees();
+	bacapp_tap = register_tap("bacapp"); /* BACnet statistics tap */
 }
 
 void
