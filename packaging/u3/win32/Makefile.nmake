@@ -65,7 +65,7 @@ distribution.nmake:	makenmake.pl
 	cd u3/win32
 	$(PERL) makenmake.pl $(WSMANIFEST) > $@	
 
-distribution: u3-dirs manifest.u3i u3util.exe u3util.exe.manifest nsis-bits wireshark.bat distribution.nmake
+distribution: u3-dirs manifest.u3i u3util.exe nsis-bits wireshark.bat distribution.nmake
 # manifest
 	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
