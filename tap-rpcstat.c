@@ -23,7 +23,7 @@
  */
 
 /* This module provides rpc call/reply SRT statistics to tshark.
- * It is only used by tshark and not wireshark
+ * It is only used by tshark and not wireshark.
  *
  * It serves as an example on how to use the tap api.
  */
@@ -72,9 +72,10 @@ typedef struct _rpcstat_t {
  * When registering below, we could just have left this function as NULL.
  *
  * When used by wireshark, this function will be called whenever we would need
- * to reset all state. Such as when wireshark opens a new file, when it
+ * to reset all state, such as when wireshark opens a new file, when it
  * starts a new capture, when it rescans the packetlist after some prefs have
  * changed etc.
+ *
  * So if your application has some state it needs to clean up in those
  * situations, here is a good place to put that code.
  */
@@ -96,27 +97,26 @@ rpcstat_reset(void *prs)
 }
 
 
-/* This callback is invoked whenever the tap system has seen a packet
- * we might be interested in.
- * The function is to be used to only update internal state information
- * in the *tapdata structure, and if there were state changes which requires
- * the window to be redrawn, return 1 and (*draw) will be called sometime
- * later.
+/* This callback is invoked whenever the tap system has seen a packet we might
+ * be interested in.  The function is to be used to only update internal state
+ * information in the *tapdata structure, and if there were state changes which
+ * requires the window to be redrawn, return 1 and (*draw) will be called
+ * sometime later.
  *
- * This function should be as lightweight as possible since it executes together
- * with the normal wireshark dissectors. Try to push as much processing as
- * possible into (*draw) instead since that function executes asynchronously
- * and does not affect the main threads performance.
+ * This function should be as lightweight as possible since it executes
+ * together with the normal wireshark dissectors.  Try to push as much
+ * processing as possible into (*draw) instead since that function executes
+ * asynchronously and does not affect the main thread's performance.
  *
  * If it is possible, try to do all "filtering" explicitly as we do below in
  * this example since you will get MUCH better performance than applying
  * a similar display-filter in the register call.
  *
- * The third parameter is tap dependant. Since we register this one to the "rpc"
- * tap the third parameter type is rpc_call_info_value.
+ * The third parameter is tap dependent.  Since we register this one to the
+ * "rpc" tap, the third parameter type is rpc_call_info_value.
  *
- * The filtering we do is just to check the rpc_call_info_value struct that
- * we were called for the proper program and version. We didn't apply a filter
+ * The filtering we do is just to check the rpc_call_info_value struct that we
+ * were called for the proper program and version.  We didn't apply a filter
  * when we registered so we will be called for ALL rpc packets and not just
  * the ones we are collecting stats for.
  *
@@ -186,16 +186,15 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	return 1;
 }
 
-/* This callback is used when tshark wants us to draw/update our
- * data to the output device. Since this is tshark only output is
- * stdout.
- * TShark will only call this callback once, which is when tshark has
- * finished reading all packets and exits.
+/* This callback is used when tshark wants us to draw/update our data to the
+ * output device.  Since this is tshark, the only output is stdout.
+ * TShark will only call this callback once, which is when tshark has finished
+ * reading all packets and exits.
  * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
- * This function may even be called in parallell with (*reset) or (*draw)
- * so make sure there are no races. The data in the rpcstat_t can thus change
- * beneath us. Beware.
+ * This function may even be called in parallel with (*reset) or (*draw), so
+ * make sure there are no races.  The data in the rpcstat_t can thus change
+ * beneath us.  Beware!
  */
 static void
 rpcstat_draw(void *prs)
@@ -259,11 +258,13 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 
 
 /* When called, this function will create a new instance of rpcstat.
- * program and version are which onc-rpc program/version we want to
- * collect statistics for.
- * This function is called from tshark when it parses the -z rpc, arguments
- * and it creates a new instance to store statistics in and registers this
- * new instance for the rpc tap.
+ *
+ * program and version are which onc-rpc program/version we want to collect
+ * statistics for.
+ *
+ * This function is called from tshark when it parses the -z rpc, arguments and
+ * it creates a new instance to store statistics in and registers this new
+ * instance for the rpc tap.
  */
 static void
 rpcstat_init(const char *optarg, void* userdata _U_)
@@ -320,14 +321,15 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 		rs->procedures[i].tot.nsecs=0;
 	}
 
-/* It is possible to create a filter and attach it to the callbacks. Then the
+/* It is possible to create a filter and attach it to the callbacks.  Then the
  * callbacks would only be invoked if the filter matched.
- * Evaluating filters is expensive and if we can avoid it and not use them
- * we gain performance.
- * In this case we do the filtering for protocol and version inside the
+ *
+ * Evaluating filters is expensive and if we can avoid it and not use them,
+ * then we gain performance.
+ *
+ * In this case, we do the filtering for protocol and version inside the
  * callback itself but use whatever filter the user provided.
  * (Perhaps the user only wants the stats for nis+ traffic for certain objects?)
- *
  */
 
 	error_string=register_tap_listener("rpc", rs, filter, 0, rpcstat_reset, rpcstat_packet, rpcstat_draw);
