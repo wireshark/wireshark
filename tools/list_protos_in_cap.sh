@@ -77,7 +77,7 @@ for CF in "$@" ; do
 	continue
     fi
 
-    printf "$CF "
+    printf "%s: " "$CF"
 
     # Extract the protocol names.
     $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | tr ':\r' '\n' \
