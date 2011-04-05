@@ -1002,6 +1002,7 @@ static int hf_inap_reason_01 = -1;                /* T_reason */
 static int hf_inap_securityParameters = -1;       /* SecurityParameters */
 static int hf_inap_tryhere = -1;                  /* AccessPointInformation */
 static int hf_inap_local_01 = -1;                 /* T_local */
+static int hf_inap_global_01 = -1;                /* T_global */
 static int hf_inap_invoke = -1;                   /* Invoke */
 static int hf_inap_returnResult = -1;             /* ReturnResult */
 static int hf_inap_returnError = -1;              /* ReturnError */
@@ -1477,8 +1478,8 @@ dissect_inap_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_inap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+dissect_inap_T_global(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
 
   return offset;
 }
@@ -1492,7 +1493,7 @@ static const value_string inap_Code_vals[] = {
 
 static const ber_choice_t Code_choice[] = {
   {   0, &hf_inap_local_01       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_inap_T_local },
-  {   1, &hf_inap_global         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_inap_OBJECT_IDENTIFIER },
+  {   1, &hf_inap_global_01      , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_inap_T_global },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1509,7 +1510,7 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "inap.cnf"
+#line 221 "inap.cnf"
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
   if (obj_id){
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
@@ -1535,6 +1536,10 @@ static const ber_sequence_t ExtensionField_sequence[] = {
 
 static int
 dissect_inap_ExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 216 "inap.cnf"
+	camel_obj_id = NULL;
+	
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ExtensionField_sequence, hf_index, ett_inap_ExtensionField);
 
@@ -2185,7 +2190,7 @@ dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 250 "inap.cnf"
+#line 253 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -2340,7 +2345,7 @@ dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "inap.cnf"
+#line 232 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2391,7 +2396,7 @@ dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "inap.cnf"
+#line 242 "inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3364,6 +3369,15 @@ static int
 dissect_inap_ServiceInteractionIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_inap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -4520,7 +4534,7 @@ dissect_inap_GlobalCallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 292 "inap.cnf"
+#line 295 "inap.cnf"
 /*
  * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
  */
@@ -4694,7 +4708,7 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 272 "inap.cnf"
+#line 275 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4757,7 +4771,7 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 282 "inap.cnf"
+#line 285 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -4778,7 +4792,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "inap.cnf"
+#line 264 "inap.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -11561,6 +11575,10 @@ void proto_register_inap(void) {
     { &hf_inap_local_01,
       { "local", "inap.local",
         FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_inap_global_01,
+      { "global", "inap.global",
+        FT_OID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_inap_invoke,
       { "invoke", "inap.invoke",
