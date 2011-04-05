@@ -213,7 +213,7 @@ static const inap_err_t inap_err_tab[] = {
 /* FIX ME */
 
 #.FN_HDR ExtensionField
-	camel_obj_id = NULL;
+	obj_id = NULL;
 	
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
