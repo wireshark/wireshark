@@ -395,8 +395,8 @@ print_stats_table_header(void)
                           print_stats_table_header_label("RIPEMD160");
                           print_stats_table_header_label("MD5");
   }
-  if (cap_in_order)       print_stats_table_header_label("Strict time order");
 #endif /* HAVE_LIBGCRYPT */
+  if (cap_in_order)       print_stats_table_header_label("Strict time order");
 
   printf("\n");
 }
