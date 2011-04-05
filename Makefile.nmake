@@ -866,6 +866,7 @@ clean_setup:
     rm -r -f glib
     rm -r -f gnutls-2.8.1-1
     rm -r -f gnutls-2.8.5-*-win??ws
+    rm -r -f gnutls-2.10.3-*-win??ws
     rm -r -f gtk2
     rm -r -f gtk+
     rm -r -f gtk-wimp
@@ -1073,6 +1074,11 @@ install-all: install-generated-files
 	xcopy $(GNUTLS_DIR)\bin\libgnutls-26.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
+! IF "$(INTL_DLL)" != "libintl-8.dll"
+# The gtk+ bundle doesn't provide libintl-8.dll (which is the case
+# with the 32-bit package); use the GNUTLS version.
+	xcopy $(GNUTLS_DIR)\bin\libintl-8.dll $(INSTALL_DIR) /d
+! ENDIF
 !ENDIF
 !IFDEF LUA_DIR
 	xcopy "$(LUA_DIR)\lua5.1.dll" $(INSTALL_DIR) /d

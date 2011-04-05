@@ -407,6 +407,9 @@ File "${GNUTLS_DIR}\bin\libgnutls-extra-26.dll"
 File "${GNUTLS_DIR}\bin\libgnutls-openssl-26.dll"
 File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
 File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
+StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
+File "${GNUTLS_DIR}\bin\libintl-8.dll"
+SkipLibIntl8:
 !endif
 !ifdef LUA_DIR
 File "${LUA_DIR}\lua5.1.dll"
