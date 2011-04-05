@@ -29,8 +29,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <math.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -1845,7 +1843,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
 			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
 			/* Octet 11-31 SI3 */
 			/* SI3: contains the SYSTEM INFORMATION type 3 message encoded for BCCH as specified in 3GPP TS 44.018 ch 9.1.35
-			 * It contains the Message type octet followed by all the IEs composing the message payload. 
+			 * It contains the Message type octet followed by all the IEs composing the message payload.
 			 * The message is 21 octets long.
 			 * dtap_rr_sys_info_3(tvb, tree, curr_offset, len-7)
 			 */
@@ -1881,7 +1879,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
 					curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
 					break;
 				case 2:
-					/* If the RAT discriminator field indicates E-UTRAN, this field is encoded as the E-UTRAN CGI IE as 
+					/* If the RAT discriminator field indicates E-UTRAN, this field is encoded as the E-UTRAN CGI IE as
 					 * defined in 3GPP TS 36.413
 					 */
 					new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
@@ -1894,7 +1892,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
 			break;
 		case 5:
 			/* 11.3.63.2.5 RAN-INFORMATION Application Container for the UTRA SI Application */
-			/* Octet 3-m Reporting Cell Identifier 
+			/* Octet 3-m Reporting Cell Identifier
 			 * Reporting Cell Identifier: This field is encoded as the Source Cell Identifier IE
 			 * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
 			 */
@@ -2019,7 +2017,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 }
 
 /*
- * 11.3.65	RIM PDU Indications	
+ * 11.3.65	RIM PDU Indications
  */
 static const value_string bssgp_ran_inf_req_pdu_t_ext_c_vals[] = {
     { 0, "RAN-INFORMATION-REQUEST/Stop PDU" },
@@ -2153,7 +2151,7 @@ de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 					  "PFC (%u)", i + 1);
 		pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfc_flow_control_parameters_pfc);
 
-		/* PFI: Packet Flow Identifier. 
+		/* PFI: Packet Flow Identifier.
 		 * Coded as the value part of the Packet Flow Identifier information element in
 		 * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI
 		 */
@@ -2205,7 +2203,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
 	curr_offset = offset;
 
-	/* This information element uniquely identifies either a cell within a 
+	/* This information element uniquely identifies either a cell within a
 	 * GERAN BSS, a UTRAN RNC or an E-UTRAN eNodeB.
 	 */
 
@@ -2216,8 +2214,8 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	switch(oct){
 		case 0:
 			/* RIM Routing Address discriminator = 0000:
-			 * The RIM Routing Address field contains a Cell Identifier 
-			 * and is coded as the value part (octet 3 to octet 10) of the 
+			 * The RIM Routing Address field contains a Cell Identifier
+			 * and is coded as the value part (octet 3 to octet 10) of the
 			 * Cell Identifier information element specified in sub-clause 11.3.9.
 			 */
 			curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
@@ -2240,11 +2238,11 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 		case 2:
 			/* RIM Routing Address discriminator = 0010:
 			 * The RIM Routing Address field contains an eNB identifier and is coded as follows:
-			 * Octets 4 to 8 contain the value part (starting with octet 2) of the 
+			 * Octets 4 to 8 contain the value part (starting with octet 2) of the
 			 * Tracking Area Identity IE defined in 3GPP TS 24.301 [37], not including 3GPP TS 24.301 IEI
 			 */
 			curr_offset = curr_offset+ de_emm_trac_area_id(tvb, tree, pinfo, curr_offset, 5, add_string, string_len);
-			/* Octets 9-n contain the Global eNB ID (see 3GPP TS 36.413 [36]) of the eNodeB. */ 
+			/* Octets 9-n contain the Global eNB ID (see 3GPP TS 36.413 [36]) of the eNodeB. */
 			new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
 			dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
 			break;
@@ -2304,7 +2302,7 @@ de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * octet 3 - 514
  * MBMS-Service-Area AVP encoded as in 3GPP TS 29.061,
  * excluding AVP Header fields (as defined in IETF RFC 3588 [33]).
- * 
+ *
  */
 static guint16
 de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2407,7 +2405,7 @@ de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 		/* The element is coded as the Routing Area Identification information element in
 		 * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator.
 		 */
-		de_gmm_rai(tvb, tree, pinfo, curr_offset , 6, NULL, 0);
+		de_gmm_rai(tvb, rai_tree, pinfo, curr_offset , 6, NULL, 0);
 
 		curr_offset+=8;
 	}
@@ -2532,7 +2530,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 		/* PFT: Packet Flow Timer. Coded as the GPRS Timer information element,
 		 * see sub-clause 11.3.44.
 		 */
-		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Packet Flow Timer(PFT)");
+		proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Packet Flow Timer(PFT)");
 		pft_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_pft);
 		proto_tree_add_item(pft_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
@@ -2541,17 +2539,17 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 		/* ABQP: Aggregate BSS QoS Profile.
 		 * Coded as the Aggregate BSS QoS Profile information element, see sub-clause 11.3.43.
 		 */
-		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
+		proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
 		abqp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_abqp);
 		/* Unsure about length 16 */
-		curr_offset = curr_offset + de_sm_qos(tvb, tree, pinfo, curr_offset, 16, NULL, 0);
+		curr_offset = curr_offset + de_sm_qos(tvb, abqp_tree, pinfo, curr_offset, 16, NULL, 0);
 
 		/* Allocation/Retention Priority: Allocation Retention Priority.
 		 * Coded as the Priority information element, see subclause 11.3.27.
 		 * This information element is optionally included.
 		 */
 		if(pfc_len>17){
-			pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Allocation/Retention Priority");
+			proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Allocation/Retention Priority");
 			arp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_arp);
 			curr_offset = curr_offset + be_prio(tvb, arp_tree, pinfo, curr_offset, 1, NULL, 0);
 		}
@@ -2561,7 +2559,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 		 * is present and if queuing is allowed for the PFC.
 		 */
 		if(pfc_len>18){
-			pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "T10");
+			proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "T10");
 			t10_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_t10);
 			proto_tree_add_item(t10_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(t10_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
@@ -3635,7 +3633,7 @@ de_bssgp_ran_inf_rim_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 	curr_offset = offset;
 	curr_len = len;
 
-	/* RAN-INFORMATION RIM Container Contents coded as 
+	/* RAN-INFORMATION RIM Container Contents coded as
 	 * defined in table 11.3.62a.2b
 	 */
 	/* RIM Application Identity RIM Application Identity /11.3.61 M TLV 3 */
@@ -3746,7 +3744,7 @@ de_bssgp_ran_inf_app_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, packet_info
 	return(curr_offset-offset);
 }
 
-/* 
+/*
  * 11.3.79	Source BSS to Target BSS Transparent Container
  */
 static guint16
@@ -5347,9 +5345,9 @@ bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	/* This PDU provides to the BSS the Inter RAT Handover Info IE or 
-	 * E-UTRAN Inter RAT Handover Info IE or both. It is sent only if 
-	 * requested by the BSS and it shall contain at least one of the 
+	/* This PDU provides to the BSS the Inter RAT Handover Info IE or
+	 * E-UTRAN Inter RAT Handover Info IE or both. It is sent only if
+	 * requested by the BSS and it shall contain at least one of the
 	 * inter-RAT capabilities.
 	 */
 
@@ -5470,7 +5468,7 @@ bssgp_perform_loc_response_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	/*This PDU allows the SGSN to request the BSS to ABORT the LCS procedure */
 	/* Direction: SGSN to BSS */
 	pinfo->link_dir = P2P_DIR_DL;
-	
+
 	/* TLLI TLLI/11.3.35 M TLV 6 */
 	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
 	/* BVCI (PCU-PTP) BVCI/11.3.6 M TLV 4 */
@@ -6071,21 +6069,21 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     bssgp_resume_nack,					/* 10.3.11 RESUME-NACK */
 
 /* 0x11 to 0x1f Reserved */
-    NULL,                            /* 0x11 */  
-    NULL,                            /* 0x12 */  
-    NULL,                            /* 0x13 */  
-    NULL,                            /* 0x14 */  
-    NULL,                            /* 0x15 */  
-    NULL,                            /* 0x16 */  
-    NULL,                            /* 0x17 */  
-    NULL,                            /* 0x18 */  
-    NULL,                            /* 0x19 */  
-    NULL,                            /* 0x1A */  
-    NULL,                            /* 0x1B */  
-    NULL,                            /* 0x1C */  
-    NULL,                            /* 0x1D */  
-    NULL,                            /* 0x1E */  
-    NULL,                            /* 0x1F */  
+    NULL,                            /* 0x11 */
+    NULL,                            /* 0x12 */
+    NULL,                            /* 0x13 */
+    NULL,                            /* 0x14 */
+    NULL,                            /* 0x15 */
+    NULL,                            /* 0x16 */
+    NULL,                            /* 0x17 */
+    NULL,                            /* 0x18 */
+    NULL,                            /* 0x19 */
+    NULL,                            /* 0x1A */
+    NULL,                            /* 0x1B */
+    NULL,                            /* 0x1C */
+    NULL,                            /* 0x1D */
+    NULL,                            /* 0x1E */
+    NULL,                            /* 0x1F */
 
 /* 0x20 to 0x2e */
     bssgp_bvc_block,					/* 10.4.8 BVC-BLOCK */
@@ -6105,22 +6103,22 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     bssgp_flow_cntrl_pfc_ack,			/* 10.4.25 FLOW-CONTROL-PFC-ACK */
 
 /* 0x2f to 0x3f Reserved */
-    NULL,                              /* 0x2f */  
-    NULL,                              /* 0x30 */  
-    NULL,                              /* 0x31 */  
-    NULL,                              /* 0x32 */  
-    NULL,                              /* 0x33 */  
-    NULL,                              /* 0x34 */  
-    NULL,                              /* 0x35 */  
-    NULL,                              /* 0x36 */  
-    NULL,                              /* 0x37 */  
-    NULL,                              /* 0x38 */  
-    NULL,                              /* 0x39 */  
-    NULL,                              /* 0x3A */  
-    NULL,                              /* 0x3B */  
-    NULL,                              /* 0x3C */  
-    NULL,                              /* 0x3D */  
-    NULL,                              /* 0x3E */  
+    NULL,                              /* 0x2f */
+    NULL,                              /* 0x30 */
+    NULL,                              /* 0x31 */
+    NULL,                              /* 0x32 */
+    NULL,                              /* 0x33 */
+    NULL,                              /* 0x34 */
+    NULL,                              /* 0x35 */
+    NULL,                              /* 0x36 */
+    NULL,                              /* 0x37 */
+    NULL,                              /* 0x38 */
+    NULL,                              /* 0x39 */
+    NULL,                              /* 0x3A */
+    NULL,                              /* 0x3B */
+    NULL,                              /* 0x3C */
+    NULL,                              /* 0x3D */
+    NULL,                              /* 0x3E */
     NULL,                              /* 0x3F */
 
 /* 0x40 to 0x41 */
@@ -6128,19 +6126,19 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     bssgp_status,						/* 10.4.14 STATUS */
 
 /* 0x42 to 0x4f Reserved */
-    NULL,                              /* 0x42 */  
-    NULL,                              /* 0x43 */  
-    NULL,                              /* 0x44 */  
-    NULL,                              /* 0x45 */  
-    NULL,                              /* 0x46 */  
-    NULL,                              /* 0x47 */  
-    NULL,                              /* 0x48 */  
-    NULL,                              /* 0x49 */  
-    NULL,                              /* 0x4A */  
-    NULL,                              /* 0x4B */  
-    NULL,                              /* 0x4C */  
-    NULL,                              /* 0x4D */  
-    NULL,                              /* 0x4E */  
+    NULL,                              /* 0x42 */
+    NULL,                              /* 0x43 */
+    NULL,                              /* 0x44 */
+    NULL,                              /* 0x45 */
+    NULL,                              /* 0x46 */
+    NULL,                              /* 0x47 */
+    NULL,                              /* 0x48 */
+    NULL,                              /* 0x49 */
+    NULL,                              /* 0x4A */
+    NULL,                              /* 0x4B */
+    NULL,                              /* 0x4C */
+    NULL,                              /* 0x4D */
+    NULL,                              /* 0x4E */
     NULL,                              /* 0x4F */
 
 /* 0x50 to 0x5e */
@@ -6171,16 +6169,16 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 	bssgp_pos_resp,						/* 10.5.5 POSITION-RESPONSE */
 
 /* 0x65 to 0x6f Reserved */
-    NULL,                              /* 0x65 */  
-    NULL,                              /* 0x66 */  
-    NULL,                              /* 0x67 */  
-    NULL,                              /* 0x68 */  
-    NULL,                              /* 0x69 */  
-    NULL,                              /* 0x6a */  
-    NULL,                              /* 0x6b */  
-    NULL,                              /* 0x6c */  
-    NULL,                              /* 0x6d */  
-    NULL,                              /* 0x6e */  
+    NULL,                              /* 0x65 */
+    NULL,                              /* 0x66 */
+    NULL,                              /* 0x67 */
+    NULL,                              /* 0x68 */
+    NULL,                              /* 0x69 */
+    NULL,                              /* 0x6a */
+    NULL,                              /* 0x6b */
+    NULL,                              /* 0x6c */
+    NULL,                              /* 0x6d */
+    NULL,                              /* 0x6e */
     NULL,                              /* 0x6f */
 	bssgp_ran_inf,                     /* 10.6.2 RAN-INFORMATION */
 	bssgp_ran_inf_request,             /* 10.6.1 RAN-INFORMATION-REQUEST */
@@ -6309,7 +6307,7 @@ proto_register_bssgp(void)
        { "PDU Type", "bssgp.pdu_type",
          FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bssgp_msg_strings_ext, 0x0,
          NULL, HFILL }
-     }, 
+     },
 	{ &hf_bssgp_elem_id,
 		{ "Element ID",	"bssgp.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
@@ -6365,8 +6363,8 @@ proto_register_bssgp(void)
 	FT_BOOLEAN, 8, TFS(&bssgp_rrlp_flg1_vals), 0x01,
 	NULL, HFILL }
     },
-    { &hf_bssgp_ci, 
-       { "CI", "bssgp.ci", 
+    { &hf_bssgp_ci,
+       { "CI", "bssgp.ci",
          FT_UINT16, BASE_HEX, NULL, 0x0,
          "Cell Identity", HFILL }
      },
