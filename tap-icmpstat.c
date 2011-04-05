@@ -106,7 +106,7 @@ icmpstat_reset(void *tapdata)
  * !0: state has changed, call (*draw) sometime later
  */
 static int
-icmpstat_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     icmpstat_t *icmpstat = tapdata;
     const icmp_transaction_t *trans = data;
