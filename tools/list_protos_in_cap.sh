@@ -12,7 +12,7 @@
 # /path/to/the/file.pcap eth ip sctp
 
 # Directory containing binaries.  Default current directory.
-BIN_DIR=_build
+BIN_DIR=.
 
 # Tweak the following to your liking.  Editcap must support "-E".
 TSHARK="$BIN_DIR/tshark"
@@ -68,7 +68,7 @@ for CF in "$@" ; do
     printf "$CF "
 
     # Extract the protocol names.
-    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | sed 's/:/\n/g' \
+    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | tr ':' '\n' \
 	| sort -u | tr '\n' ' '
 
     printf "\n"
