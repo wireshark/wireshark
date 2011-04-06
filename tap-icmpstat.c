@@ -83,6 +83,21 @@ icmpstat_reset(void *tapdata)
 }
 
 
+static gint compare_doubles(gconstpointer a, gconstpointer b)
+{
+    double ad, bd;
+
+    ad = *(double *)a;
+    bd = *(double *)b;
+
+    if (ad < bd)
+        return -1;
+    if (ad > bd)
+        return 1;
+    return 0;
+}
+
+
 /* This callback is invoked whenever the tap system has seen a packet we might
  * be interested in.  The function is to be used to only update internal state
  * information in the *tapdata structure, and if there were state changes which
@@ -120,7 +135,7 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         if (rt == NULL)
             return 0;
         *rt = trans->resp_time;
-        icmpstat->rt_list = g_slist_prepend(icmpstat->rt_list, rt);
+        icmpstat->rt_list = g_slist_insert_sorted(icmpstat->rt_list, rt, compare_doubles);
         icmpstat->num_resps++;
         if (icmpstat->min_msecs > trans->resp_time)
             icmpstat->min_msecs = trans->resp_time;
@@ -136,20 +151,45 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 }
 
 
-static double compute_sdev(double average, guint num, GSList *slist)
+/*
+ * Compute the mean, median and standard deviation.
+ */
+static void compute_stats(icmpstat_t *icmpstat, double *mean, double *med, double *sdev)
 {
+    GSList *slist = icmpstat->rt_list;
     double diff;
-    double sq_diff_sum;
+    double sq_diff_sum = 0.0;
 
-    if (num == 0)
-        return 0.0;
-
-    for ( sq_diff_sum = 0.0; slist; slist = g_slist_next(slist)) {
-        diff = *(double *)slist->data - average;
-        sq_diff_sum += diff * diff;
+    if (icmpstat->num_resps == 0 || slist == NULL) {
+        *mean = 0.0;
+        *med = 0.0;
+        *sdev = 0.0;
+        return;
     }
 
-    return sqrt(sq_diff_sum / num);
+    /* (arithmetic) mean */
+    *mean = icmpstat->tot_msecs / icmpstat->num_resps;
+
+    /* median: If we have an odd number of elements in our list, then the
+     * median is simply the middle element, otherwise the median is computed by
+     * averaging the 2 elements on either side of the mid-point. */
+    if (icmpstat->num_resps & 1)
+        *med = *(double *)g_slist_nth_data(slist, icmpstat->num_resps / 2);
+    else {
+        *med =
+            (*(double *)g_slist_nth_data(slist, (icmpstat->num_resps - 1) / 2) +
+            *(double *)g_slist_nth_data(slist, icmpstat->num_resps / 2)) / 2;
+    }
+
+    /* (sample) standard deviation */
+    for ( ; slist; slist = g_slist_next(slist)) {
+        diff = *(double *)slist->data - *mean;
+        sq_diff_sum += diff * diff;
+    }
+    if (icmpstat->num_resps > 1)
+        *sdev = sqrt(sq_diff_sum / (icmpstat->num_resps - 1));
+    else
+        *sdev = 0.0;
 }
 
 
@@ -187,25 +227,31 @@ icmpstat_draw(void *tapdata)
 {
     icmpstat_t *icmpstat = tapdata;
     unsigned int lost;
-    double average, sdev;
+    double mean, sdev, med;
 
     printf("\n");
     printf("==========================================================================\n");
     printf("ICMP SRT Statistics (all times in ms):\n");
-    printf("Filter: %s\n", icmpstat->filter ? icmpstat->filter : "");
-    printf("Requests  Replies   Lost      %% Loss  Min SRT   Max SRT   Avg SRT   SDEV\n");
+    if (icmpstat->filter)
+        printf("Filter: %s\n", icmpstat->filter);
+    printf("\nRequests  Replies   Lost      %% Loss\n");
 
     if (icmpstat->num_rqsts) {
         lost =  icmpstat->num_rqsts - icmpstat->num_resps;
-        average = icmpstat->tot_msecs / icmpstat->num_resps;
-        sdev = compute_sdev(average, icmpstat->num_resps, icmpstat->rt_list);
-        printf("%-10u%-10u%-10u%5.1f%%  %-10.3f%-10.3f%-10.3f%-10.3f\n",
+        compute_stats(icmpstat, &mean, &med, &sdev);
+
+        printf("%-10u%-10u%-10u%5.1f%%\n\n",
             icmpstat->num_rqsts, icmpstat->num_resps, lost,
-            100.0 * lost / icmpstat->num_rqsts,
+            100.0 * lost / icmpstat->num_rqsts);
+        printf("Min SRT   Max SRT   Avg SRT   MED       SDEV\n");
+        printf("%-10.3f%-10.3f%-10.3f%-10.3f%-10.3f\n",
             icmpstat->min_msecs >= G_MAXUINT ? 0.0 : icmpstat->min_msecs,
-            icmpstat->max_msecs, average, sdev);
-    } else
-        printf("0         0         0           0.0%%  0.000     0.000     0.000     0.000\n");
+            icmpstat->max_msecs, mean, med, sdev);
+    } else {
+        printf("0         0         0         0.0%%\n\n");
+        printf("Min SRT   Max SRT   Avg SRT   MED       SDEV\n");
+        printf("0.000     0.000     0.000     0.000     0.000\n");
+    }
     printf("==========================================================================\n");
 }
 

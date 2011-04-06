@@ -713,7 +713,8 @@ files and captured traffic.
 =item B<-z> icmp,srt[,I<filter>]
 
 Compute total ICMP echo requests, replies, loss, and percent loss, as well as
-min, max and average SRT statistics typical of ping statistics.
+minimum, maximum, mean, median and sample standard deviation SRT statistics
+typical of what ping provides.
 
 Example: S<B<-z icmp,srt,ip.src==1.2.3.4>> will collect ICMP SRT statistics
 for ICMP echo request packets originating from a specific host.
