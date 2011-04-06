@@ -127,41 +127,22 @@
 #ifdef HAVE_LIBZ
 
 FILE_T
-file_open(const char *path, const char *mode)
+file_open(const char *path)
 {
 	int fd;
 	FILE_T ft;
 	int oflag;
 
-	if (*mode == 'r') {
-		if (strchr(mode + 1, '+') != NULL)
-			oflag = O_RDWR;
-		else
-			oflag = O_RDONLY;
-	} else if (*mode == 'w') {
-		if (strchr(mode + 1, '+') != NULL)
-			oflag = O_RDWR|O_CREAT|O_TRUNC;
-		else
-			oflag = O_RDONLY|O_CREAT|O_TRUNC;
-	} else if (*mode == 'a') {
-		if (strchr(mode + 1, '+') != NULL)
-			oflag = O_RDWR|O_APPEND;
-		else
-			oflag = O_RDONLY|O_APPEND;
-	} else {
-		errno = EINVAL;
-		return NULL;
-	}
+	oflag = O_RDONLY;
 #ifdef _WIN32
-	if (strchr(mode + 1, 'b') != NULL)
-		oflag |= O_BINARY;
+	oflag |= O_BINARY;
 #endif
 	/* open file and do correct filename conversions */
 	if ((fd = ws_open(path, oflag, 0666)) == -1)
 		return NULL;
 
 	/* open zlib file handle */
-	ft = gzdopen(fd, mode);
+	ft = gzdopen(fd, "rb");
 	if (ft == NULL) {
 		ws_close(fd);
 		return NULL;

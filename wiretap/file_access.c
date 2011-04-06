@@ -307,7 +307,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		g_free(wth);
 		return NULL;
 	}
-	if (!(wth->fh = filed_open(wth->fd, "rb"))) {
+	if (!(wth->fh = filed_open(wth->fd))) {
 		*err = errno;
 		ws_close(wth->fd);
 		g_free(wth);
@@ -315,7 +315,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 
 	if (do_random) {
-		if (!(wth->random_fh = file_open(filename, "rb"))) {
+		if (!(wth->random_fh = file_open(filename))) {
 			*err = errno;
 			file_close(wth->fh);
 			g_free(wth);

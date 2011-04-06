@@ -30,8 +30,8 @@ extern int file_error(void *fh);
 
 #ifdef HAVE_LIBZ
 
-extern FILE_T file_open(const char *path, const char *mode);
-#define filed_open gzdopen
+extern FILE_T file_open(const char *path);
+#define filed_open(fildes) gzdopen(fildes, "rb")
 #define file_read(buf, count, file) gzread((file),(buf),(unsigned)(count))
 #define file_close gzclose
 #define file_getc gzgetc
@@ -40,8 +40,8 @@ extern FILE_T file_open(const char *path, const char *mode);
 
 #else /* No zLib */
 
-#define file_open(path, mode) ws_fopen(path, mode)
-#define filed_open fdopen
+#define file_open(path) ws_fopen(path, "rb")
+#define filed_open(fildes) fdopen(fildes, "rb")
 #define file_read(buf, count, file) fread((buf), (1), (count), (file))
 #define file_close fclose
 #define file_getc fgetc
