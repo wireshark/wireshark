@@ -32,7 +32,7 @@
  * Continue processing additional files after
  * a wiretap open failure.  The new -C option
  * reverts to capinfos' original behavior which
- * is to cancels any further file processing at
+ * is to cancel any further file processing at
  * first file open failure.
  *
  * Change the behavior of how the default display
@@ -44,6 +44,15 @@
  * into a tab delimited text file, or to a comma
  * separated variables file (*.csv) instead of the
  * original "long" format.
+ *
+ * 2011-04-05: wmeier
+ * behaviour changed: Upon exit capinfos will return
+ *  an error status if an error occurred at any
+ *  point during "continuous" file processing.
+ *  (Previously a success status was always
+ *   returned if the -C option was not used).
+ *
+
  */
 
 
@@ -802,10 +811,11 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
 int
 main(int argc, char *argv[])
 {
-  wtap *wth;
-  int err;
+  wtap  *wth;
+  int    err;
   gchar *err_info;
-  int opt;
+  int    opt;
+  int    overall_error_status;
 
 #ifdef _WIN32
   LPWSTR              *wc_argv;
@@ -814,11 +824,11 @@ main(int argc, char *argv[])
 
   int status = 0;
 #ifdef HAVE_PLUGINS
-  char* init_progfile_dir_error;
+  char  *init_progfile_dir_error;
 #endif
 #ifdef HAVE_LIBGCRYPT
-  FILE *fh;
-  char *hash_buf = NULL;
+  FILE  *fh;
+  char  *hash_buf = NULL;
   gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
 #endif
@@ -1018,6 +1028,8 @@ main(int argc, char *argv[])
   }
 #endif
 
+  overall_error_status = 0;
+
   for (opt = optind; opt < argc; opt++) {
 
 #ifdef HAVE_LIBGCRYPT
@@ -1055,8 +1067,9 @@ main(int argc, char *argv[])
         g_free(err_info);
         break;
       }
+      overall_error_status = 1; /* remember that an error has occurred */
       if(!continue_after_wtap_open_offline_failure)
-        exit(1);
+        exit(1); /* error status */
     }
 
     if(wth) {
@@ -1069,6 +1082,6 @@ main(int argc, char *argv[])
         exit(status);
     }
   }
-  return 0;
+  return overall_error_status;
 }
 

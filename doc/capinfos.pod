@@ -48,12 +48,12 @@ The long output is suitable for a human to read.  The table output
 is useful for generating a report that can be easily imported into
 a spreadsheet or database.
 
-The user specifies what type of output (long or table) and which 
-statistics to display by specifying flags (options) that corresponding 
-to the report type and desired infos.  If no options are specified, 
+The user specifies what type of output (long or table) and which
+statistics to display by specifying flags (options) that corresponding
+to the report type and desired infos.  If no options are specified,
 B<Capinfos> will report all statistics available in "long" format.
 
-Options are processed from left to right order with later options 
+Options are processed from left to right order with later options
 superseding or adding to earlier options.
 
 B<Capinfos> is able to detect and read the same capture files that are
@@ -77,49 +77,51 @@ first packet in the capture is not necessarily the earliest -
 if packets exist "out-of-order", time-wise, in the capture,
 B<Capinfos> detects this.
 
-=item -A 
+=item -A
 
-Generate all infos. By default capinfos will display 
-all infos values for each input file, but enabling 
-any of the individual display infos options will 
-disable the generate all option.  
+Generate all infos. By default capinfos will display
+all infos values for each input file, but enabling
+any of the individual display infos options will
+disable the generate all option.
 
-=item -b 
+=item -b
 
 Separate infos with ASCII SPACE (0x20) characters.
-This option is only useful when generating a table 
-style report (-T).  The various info values will be 
-separated (delimited) from one another with a single 
-ASCII SPACE character.  
+This option is only useful when generating a table
+style report (-T).  The various info values will be
+separated (delimited) from one another with a single
+ASCII SPACE character.
 
-NOTE: Since some of the header labels as well as some 
-of the value fields contain SPACE characters.  This 
-option is of limited value unless one of the quoting 
+NOTE: Since some of the header labels as well as some
+of the value fields contain SPACE characters.  This
+option is of limited value unless one of the quoting
 options (-q or -Q) is also specified.
 
-=item -B 
+=item -B
 
-Separate the infos with ASCII TAB characters.  
-This option is only useful when generating a table 
-style report (-T).  The various info values will be 
-separated (delimited) from one another with a single 
-ASCII TAB character.  The TAB character is the default 
+Separate the infos with ASCII TAB characters.
+This option is only useful when generating a table
+style report (-T).  The various info values will be
+separated (delimited) from one another with a single
+ASCII TAB character.  The TAB character is the default
 delimiter when -T style report is enabled.
 
 =item -c
 
 Displays the number of packets in the capture file.
 
-=item -C 
+=item -C
 
 Cancel processing any additional files if and
-when capinfos should fail to open an input file.  
-By default capinfos will attempt to open each and 
-every file name argument.  
+when capinfos should fail to open an input file.
+By default capinfos will attempt to open each and
+every file name argument.
 
-Note: An error message will be written to stderr 
+Note: An error message will be written to stderr
 whenever capinfos fails to open a file regardless
 of whether the -C option is specified or not.
+Upon exit, capinfos will return an error status
+if any errors occurred during processing.
 
 =item -d
 
@@ -155,7 +157,7 @@ Displays the SHA1, RIPEMD160, and MD5 hashes for the file.
 
 Displays the average data rate, in bits/sec
 
-=item -l 
+=item -l
 
 Display the snaplen (if any) for a file.
 snaplen (if available) is determined from the capture file header
@@ -163,67 +165,67 @@ and by looking for truncated records in the capture file.
 
 =item -o
 
-Displays "True" if packets exist in strict chronological order 
-or "False" if one or more packets in the capture exists 
+Displays "True" if packets exist in strict chronological order
+or "False" if one or more packets in the capture exists
 "out-of-order" time-wise.
 
-=item -L 
+=item -L
 
-Generate long report.  Capinfos can generate two 
-different styles of reports.  The "long" report is 
-the default style of output and is suitable for a 
+Generate long report.  Capinfos can generate two
+different styles of reports.  The "long" report is
+the default style of output and is suitable for a
 human to use.
 
-=item -m 
+=item -m
 
-Separate the infos with comma (,) characters.  This option 
+Separate the infos with comma (,) characters.  This option
 is only useful when generating a table style report (-T).
 The various info values will be separated (delimited)
 from one another with a single comma "," character.
 
-=item -N 
+=item -N
 
-Do not quote the infos.  This option is only useful 
-when generating a table style report (-T).  Excluding 
-any quoting characters around the various values and 
-using a TAB delimiter produces a very "clean" table 
-report that is easily parsed with CLI tools.  By 
+Do not quote the infos.  This option is only useful
+when generating a table style report (-T).  Excluding
+any quoting characters around the various values and
+using a TAB delimiter produces a very "clean" table
+report that is easily parsed with CLI tools.  By
 default infos are B<NOT> quoted.
 
-=item -q 
+=item -q
 
-Quote infos with single quotes ('). This option is 
+Quote infos with single quotes ('). This option is
 only useful when generating a table style report (-T).
 When this option is enabled, each value will be
-encapsulated within a pair of single quote (') 
-characters.  This option (when used  with the -m 
-option) is useful for generating one type of CSV 
+encapsulated within a pair of single quote (')
+characters.  This option (when used  with the -m
+option) is useful for generating one type of CSV
 style file report.
 
-=item -Q 
+=item -Q
 
-Quote infos with double quotes (").  This option is 
+Quote infos with double quotes (").  This option is
 only useful when generating a table style report (-T).
 When this option is enabled, each value will be
-encapsulated within a pair of double quote (") 
-characters.  This option (when used with the -m 
+encapsulated within a pair of double quote (")
+characters.  This option (when used with the -m
 option) is useful for generating the most common
 type of CSV style file report.
 
-=item -r 
+=item -r
 
-Do not generate header record.  This option is only 
+Do not generate header record.  This option is only
 useful when generating a table style report (-T).
-If this option is specified then B<no> header record will be 
+If this option is specified then B<no> header record will be
 generated within the table report.
 
-=item -R 
+=item -R
 
-Generate header record.  This option is only useful 
+Generate header record.  This option is only useful
 when generating a table style report (-T).  A header
-is generated by default.  A header record (if generated) 
-is the first line of data reported and includes labels 
-for all the columns included within the table report.  
+is generated by default.  A header record (if generated)
+is the first line of data reported and includes labels
+for all the columns included within the table report.
 
 =item -s
 
@@ -239,12 +241,12 @@ Display the start and end times as seconds since January
 
 Displays the capture type of the capture file.
 
-=item -T 
+=item -T
 
 Generate a table report. A table report is a text file
-that is suitable for importing into a spreadsheet or 
-database.  Capinfos can build a tab delimited text file 
-(the default) or several variations on Comma-separated 
+that is suitable for importing into a spreadsheet or
+database.  Capinfos can build a tab delimited text file
+(the default) or several variations on Comma-separated
 values (CSV) files.
 
 =item -u
@@ -273,46 +275,46 @@ To see a description of the capinfos options use:
 
     capinfos -h
 
-To generate a long form report for the capture file 
+To generate a long form report for the capture file
 mycapture.pcap use:
 
-    capinfos mycapture.pcap 
+    capinfos mycapture.pcap
 
-To generate a TAB delimited table form report for the capture 
+To generate a TAB delimited table form report for the capture
 file mycapture.pcap use:
 
-    capinfos -T mycapture.pcap 
+    capinfos -T mycapture.pcap
 
-To generate a CSV style table form report for the capture 
+To generate a CSV style table form report for the capture
 file mycapture.pcap use:
 
-    capinfos -T -m -Q mycapture.pcap 
+    capinfos -T -m -Q mycapture.pcap
 
 or
 
-    capinfos -TmQ mycapture.pcap 
+    capinfos -TmQ mycapture.pcap
 
 
-To generate a TAB delimited table style report with just the 
-filenames, capture type, capture encapsulation type and packet 
+To generate a TAB delimited table style report with just the
+filenames, capture type, capture encapsulation type and packet
 count for all the pcap files in the current directory use:
 
     capinfos -T -t -E -c *.pcap
 
-or 
-  
+or
+
     capinfos -TtEs *.pcap
 
-Note: The ability to use of filename globbing characters are 
-a feature of *nix style command shells.  
+Note: The ability to use of filename globbing characters are
+a feature of *nix style command shells.
 
-To generate a CSV delimited table style report of all infos 
-for all pcap files in the current directory and write it to 
+To generate a CSV delimited table style report of all infos
+for all pcap files in the current directory and write it to
 a text file called mycaptures.csv use:
 
     capinfos -TmQ *.pcap >mycaptures.csv
 
-The resulting mycaptures.csv file can be easily imported 
+The resulting mycaptures.csv file can be easily imported
 into spreadsheet applications.
 
 =head1 SEE ALSO
