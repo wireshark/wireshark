@@ -46,6 +46,7 @@
 #define OUI_FORCE10         0x0001E8    /* Force10 */
 #define OUI_ERICSSON        0x0001EC    /* Ericsson Group */
 #define OUI_CATENA          0x00025A    /* Catena Networks */
+#define OUI_ATHEROS         0x00037F    /* Atheros Communications */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */

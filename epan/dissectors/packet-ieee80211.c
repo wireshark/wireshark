@@ -1812,6 +1812,27 @@ static int hf_ieee80211_marvell_ie_mesh_active_metric_id = -1;
 static int hf_ieee80211_marvell_ie_mesh_cap = -1;
 static int hf_ieee80211_marvell_ie_data = -1;
 
+static int hf_ieee80211_atheros_ie_type = -1;
+static int hf_ieee80211_atheros_ie_subtype = -1;
+static int hf_ieee80211_atheros_ie_version = -1;
+static int hf_ieee80211_atheros_ie_cap_f_turbop = -1;
+static int hf_ieee80211_atheros_ie_cap_f_comp = -1;
+static int hf_ieee80211_atheros_ie_cap_f_ff = -1;
+static int hf_ieee80211_atheros_ie_cap_f_xr = -1;
+static int hf_ieee80211_atheros_ie_cap_f_ar = -1;
+static int hf_ieee80211_atheros_ie_cap_f_burst = -1;
+static int hf_ieee80211_atheros_ie_cap_f_wme = -1;
+static int hf_ieee80211_atheros_ie_cap_f_boost = -1;
+static int hf_ieee80211_atheros_ie_advcap_cap = -1;
+static int hf_ieee80211_atheros_ie_advcap_defkey = -1;
+static int hf_ieee80211_atheros_ie_xr_info = -1;
+static int hf_ieee80211_atheros_ie_xr_base_bssid = -1;
+static int hf_ieee80211_atheros_ie_xr_xr_bssid = -1;
+static int hf_ieee80211_atheros_ie_xr_xr_beacon = -1;
+static int hf_ieee80211_atheros_ie_xr_base_cap = -1;
+static int hf_ieee80211_atheros_ie_xr_xr_cap = -1;
+static int hf_ieee80211_atheros_ie_data = -1;
+
 /*QBSS - Version 1,2,802.11e*/
 
 static int hf_ieee80211_qbss2_cal = -1;
@@ -1928,6 +1949,7 @@ static gint ett_cntrl_wrapper_payload = -1;
 static gint ett_fragments = -1;
 static gint ett_fragment = -1;
 static gint ett_block_ack = -1;
+static gint ett_ath_cap_tree = -1;
 
 
 static gint ett_80211_mgt = -1;
@@ -4689,6 +4711,117 @@ dissect_vendor_ie_marvell(proto_item * item _U_, proto_tree * ietree,
 }
 
 typedef enum {
+  ATHEROS_IE_ADVCAP = 1,
+  ATHEROS_IE_XR = 3,
+} atheros_ie_type_t;
+
+typedef enum {
+  ATHEROS_IE_ADVCAP_S = 1,
+} atheros_ie_advcap_subtype_t;
+
+typedef enum {
+  ATHEROS_IE_XR_S = 1,
+} atheros_ie_xr_subtype_t;
+
+typedef enum {
+  ATHEROS_IE_CAP_TURBOP = 0x01,
+  ATHEROS_IE_CAP_COMP = 0x02,
+  ATHEROS_IE_CAP_FF = 0x04,
+  ATHEROS_IE_CAP_XR = 0x08,
+  ATHEROS_IE_CAP_AR = 0x10,
+  ATHEROS_IE_CAP_BURST = 0x20,
+  ATHEROS_IE_CAP_WME = 0x40,
+  ATHEROS_IE_CAP_BOOST = 0x80
+} atheros_ie_cap_t;
+
+static const value_string atheros_ie_type_vals[] = {
+  { ATHEROS_IE_ADVCAP, "Advanced Capability"},
+  { ATHEROS_IE_XR,     "eXtended Range"},
+  { 0,                 NULL }
+};
+
+static void
+dissect_vendor_ie_atheros_cap(proto_item * item _U_, tvbuff_t *tvb, int offset)
+{
+  guint8 capability;
+  proto_tree *cap_tree;
+
+  capability = tvb_get_guint8(tvb, offset);
+
+  cap_tree = proto_item_add_subtree(item, ett_ath_cap_tree);
+
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_turbop, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_comp, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_ff, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_xr, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_ar, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_burst, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_wme, tvb,
+    offset, 1, capability);
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_boost, tvb,
+    offset, 1, capability);
+}
+
+static void
+dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
+                          tvbuff_t * tvb, int offset, guint tag_len)
+{
+  guint8 type;
+  guint8 subtype;
+  guint8 version;
+  double temp_double;
+  proto_item *cap_item;
+
+  if (tag_len >= 3) {
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset++, 1, TRUE);
+
+    subtype = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_subtype, tvb, offset++, 1, TRUE);
+
+    version = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_version, tvb, offset++, 1, TRUE);
+  } else {
+    type = 0;
+    subtype = 0;
+    version = 0;
+  }
+
+  if (ATHEROS_IE_ADVCAP == type && ATHEROS_IE_ADVCAP_S == subtype && 0 == version && 6 == tag_len) {
+    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_cap, tvb, offset, 1, TRUE);
+    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+    offset += 1;
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_defkey, tvb, offset, 2, TRUE);
+  } else if (ATHEROS_IE_XR == type && ATHEROS_IE_XR_S == subtype && 0 == version && 20 == tag_len) {
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_info, tvb, offset, 1, TRUE);
+    offset += 1;
+    proto_tree_add_ether(ietree, hf_ieee80211_atheros_ie_xr_base_bssid, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
+    offset += 6;
+    proto_tree_add_ether(ietree, hf_ieee80211_atheros_ie_xr_xr_bssid, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
+    offset += 6;
+    temp_double = (double)tvb_get_letohs(tvb, offset) * 1024 / 1000000;
+    proto_tree_add_double_format(ietree, hf_ieee80211_atheros_ie_xr_xr_beacon, tvb, offset, 2,
+      temp_double, "XR Beacon Interval: %f [Seconds]", temp_double);
+    offset += 2;
+    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_cap, tvb, offset, 1, TRUE);
+    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+    offset += 1;
+    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_cap, tvb, offset, 1, TRUE);
+    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+  } else {
+    type = 0; /* Reset type */
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, FALSE);
+  }
+  proto_item_append_text(item, ": %s", val_to_str(type, atheros_ie_type_vals, "Unknown"));
+}
+
+typedef enum {
   AIRONET_IE_VERSION = 3,
   AIRONET_IE_QOS,
   AIRONET_IE_QBSS_V2 = 14
@@ -6629,6 +6762,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           break;
         case OUI_WFA:
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
+          break;
+        case OUI_ATHEROS:
+          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 5, tag_len - 3);
           break;
         default:
           proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 5,
@@ -14008,6 +14144,86 @@ proto_register_ieee80211 (void)
       { "Marvell IE data", "wlan_mgt.marvell.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_atheros_ie_type,
+     {"Type", "wlan_mgt.atheros.ie.type",
+      FT_UINT8, BASE_HEX, VALS(atheros_ie_type_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_subtype,
+     {"Subtype", "wlan_mgt.atheros.ie.subtype",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_version,
+     {"Version", "wlan_mgt.atheros.ie.version",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_turbop,
+     {"Turbo Prime", "wlan_mgt.ie.atheros.capabilities.turbop",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_TURBOP, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_comp,
+     {"Compression", "wlan_mgt.ie.atheros.capabilities.comp",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_COMP, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_ff,
+     {"Fast Frames", "wlan_mgt.ie.atheros.capabilities.ff",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_FF, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_xr,
+     {"eXtended Range", "wlan_mgt.ie.atheros.capabilities.xr",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_XR, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_ar,
+     {"Advanced Radar", "wlan_mgt.ie.atheros.capabilities.ar",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_AR, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_burst,
+     {"Burst", "wlan_mgt.ie.atheros.capabilities.burst",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_BURST, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_wme,
+     {"CWMin tuning", "wlan_mgt.ie.atheros.capabilities.wme",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_WME, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_cap_f_boost,
+     {"Boost", "wlan_mgt.ie.atheros.capabilities.boost",
+      FT_BOOLEAN, 8, NULL, ATHEROS_IE_CAP_BOOST, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_advcap_cap,
+     {"Capabilities", "wlan_mgt.atheros.ie.advcap.cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_advcap_defkey,
+     {"Default key index", "wlan_mgt.atheros.ie.advcap.defkey",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_info,
+     {"Info", "wlan_mgt.atheros.ie.xr.info",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_base_bssid,
+     {"Base BSS Id", "wlan_mgt.atheros.ie.xr.base_bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_xr_bssid,
+     {"XR BSS Id", "wlan_mgt.atheros.ie.xr.xr_bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_xr_beacon,
+     {"XR Beacon Interval", "wlan_mgt.atheros.ie.xr.xr_beacon",
+      FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_base_cap,
+     {"Base capabilities", "wlan_mgt.atheros.ie.xr.base_cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_xr_xr_cap,
+     {"XR capabilities", "wlan_mgt.atheros.ie.xr.xr_cap",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_atheros_ie_data,
+     {"Atheros IE data", "wlan_mgt.atheros.data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
       FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, NULL, HFILL }},
@@ -14486,6 +14702,7 @@ proto_register_ieee80211 (void)
     &ett_rsn_pmkid_tree,
     &ett_rsn_gmcs_tree,
     &ett_ht_cap_tree,
+    &ett_ath_cap_tree,
     &ett_ff_ba_param_tree,
     &ett_ff_qos_info,
     &ett_ff_sm_pwr_save,
