@@ -447,6 +447,8 @@ static const sip_header_t sip_headers[] = {
 #define POS_WARNING						103
 	{ "WWW-Authenticate",				NULL },  /*  99 RFC3261  */
 #define POS_WWW_AUTHENTICATE			104
+	{ "Diversion",						NULL },  /* 105 RFC5806  */
+#define POS_DIVERSION					105
 };
 
 
@@ -558,6 +560,7 @@ static gint hf_header_array[] = {
                 -1, /* 102"Via",							RFC3261 */
                 -1, /* 103"Warning",						RFC3261 */
                 -1, /* 104"WWW-Authenticate",				RFC3261 */
+                -1, /* 105"Diversion",						RFC5806 */
 
 };
 
@@ -4308,6 +4311,11 @@ void proto_register_sip(void)
 			{ "Info-Package", 			"sip.Info-Package",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			NULL, HFILL }
+		},
+		{ &hf_header_array[POS_DIVERSION],
+			{ "Diversion", 		"sip.Diversion",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 5806: Diversion Header", HFILL }
 		},
 		{ &hf_sip_resend,
 			{ "Resent Packet", "sip.resend",
