@@ -53,6 +53,7 @@
 #include "packet-e164.h"
 #include "packet-isup.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_a_common.h"
 #include "packet-inap.h"
 #include "packet-tcap.h"
 #include <epan/camel-persistentdata.h>
@@ -129,6 +130,7 @@ static gint ett_camel_pdptypenumber = -1;
 static gint ett_camel_cause = -1;
 static gint ett_camel_RPcause = -1;
 static gint ett_camel_stat = -1;
+static guint ett_camel_calledpartybcdnumber = -1;
 
 #include "packet-camel-ett.c"
 
@@ -613,6 +615,7 @@ void proto_register_camel(void) {
     &ett_camel_cause,
     &ett_camel_RPcause,
     &ett_camel_stat,
+	&ett_camel_calledpartybcdnumber,
 
 #include "packet-camel-ettarr.c"
   };

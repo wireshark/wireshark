@@ -604,6 +604,17 @@ proto_tree *subtree;
   else
 %(DEFAULT_BODY)s
 
+#.FN_BODY CalledPartyBCDNumber VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb; 
+ proto_tree *subtree; 
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_calledpartybcdnumber);
+ de_cld_party_bcd_num(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+
 #.END
 
 #.TYPE_ATTR
