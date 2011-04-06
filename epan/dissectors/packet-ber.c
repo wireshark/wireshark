@@ -4825,7 +4825,7 @@ proto_register_ber(void)
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
 	{ &hf_ber_error, {
 	    "BER Error", "ber.error", FT_STRING, BASE_NONE,
-	    NULL, 0, "BER Error", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_ber_no_oid, {
 	    "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
 	    NULL, 0, "No OID supplied to call_ber_oid_callback", HFILL }},
