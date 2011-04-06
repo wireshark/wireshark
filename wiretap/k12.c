@@ -266,7 +266,7 @@ typedef struct _k12_src_desc_t {
  *
  * XXX: works at most with 0x1FFF bytes per record
  */
-static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
+static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
                        int *err, gchar **err_info) {
     static guint8* buffer = NULL;
     static guint buffer_len = 0x2000 ;
