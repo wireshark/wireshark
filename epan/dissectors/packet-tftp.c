@@ -243,7 +243,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	  offset += i1;
 
 	  i1 = tvb_strsize(tvb, offset);
-	  ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
+	  proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			           tvb, offset, i1, FALSE);
 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
