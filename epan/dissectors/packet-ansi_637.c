@@ -2333,7 +2333,7 @@ proto_reg_handoff_ansi_637(void)
     ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
     /* Dissect messages embedded in SIP */
-    dissector_add_string("media_type","application/vnd.3gpp2.sms", ansi_637_trans_handle);
+    dissector_add_string("media_type","application/vnd.3gpp2.sms", ansi_637_trans_app_handle);
     /*
      * register for all known teleservices
      * '-1' is to stop before trailing '0' entry
