@@ -790,7 +790,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 							default:
 								/* display the unknown tlv in hex */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
+								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
 							break;
 						}
 						tlv_offset += length;
@@ -836,7 +836,7 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 							default:
 								/* display the unknown tlv in hex */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
+								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
 							break;
 						}
 						tlv_offset += length;

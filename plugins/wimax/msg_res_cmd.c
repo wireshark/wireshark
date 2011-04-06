@@ -120,7 +120,7 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				default:
 					/* display the unknown tlv in hex */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_res_cmd_decoder, res_cmd_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(res_cmd_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, FALSE);
 				break;
 			}
 			offset += tlv_len;

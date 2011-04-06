@@ -1032,7 +1032,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* display the detail meanings of the TLV value */
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
@@ -1540,7 +1540,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* display the detail meanings of the TLV value */
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
