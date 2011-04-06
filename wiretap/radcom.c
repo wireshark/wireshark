@@ -109,7 +109,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a RADCOM file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(r_magic, 1, 8, wth->fh);
+	bytes_read = file_read(r_magic, 8, wth->fh);
 	if (bytes_read != 8) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -131,7 +131,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
          * be located 32 bytes before the beginning of this string */
 	wth->data_offset = 8;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(t_magic, 1, 11, wth->fh);
+	bytes_read = file_read(t_magic, 11, wth->fh);
 	if (bytes_read != 11) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -144,7 +144,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
                 return -1;
             wth->data_offset += 1;
             errno = WTAP_ERR_CANT_READ;
-            bytes_read = file_read(t_magic, 1, 11, wth->fh);
+            bytes_read = file_read(t_magic, 11, wth->fh);
             if (bytes_read != 11) {
                 *err = file_error(wth->fh);
                 if (*err != 0)
@@ -157,7 +157,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&start_date, 1, sizeof(struct frame_date),
+	bytes_read = file_read(&start_date, sizeof(struct frame_date),
                                wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
 		*err = file_error(wth->fh);
@@ -188,7 +188,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(search_encap, 1, 4, wth->fh);
+	bytes_read = file_read(search_encap, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
@@ -198,7 +198,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		wth->data_offset -= 3;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(search_encap, 1, 4, wth->fh);
+		bytes_read = file_read(search_encap, 4, wth->fh);
 		if (bytes_read != 4) {
 			goto read_error;
 		}
@@ -208,7 +208,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	wth->data_offset += 12;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(search_encap, 1, 4, wth->fh);
+	bytes_read = file_read(search_encap, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
@@ -225,7 +225,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 
-	/*bytes_read = file_read(&next_date, 1, sizeof(struct frame_date), wth->fh);
+	/*bytes_read = file_read(&next_date, sizeof(struct frame_date), wth->fh);
 	errno = WTAP_ERR_CANT_READ;
 	if (bytes_read != sizeof(struct frame_date)) {
 		goto read_error;
@@ -235,7 +235,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		if (file_seek(wth->fh, 1-sizeof(struct frame_date), SEEK_CUR, err) == -1)
 			return -1;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&next_date, 1, sizeof(struct frame_date),
+		bytes_read = file_read(&next_date, sizeof(struct frame_date),
 				   wth->fh);
 		if (bytes_read != sizeof(struct frame_date)) {
 			goto read_error;
@@ -359,7 +359,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 		   presence and size of an FCS to our caller?
 		   That'd let us handle other file types as well. */
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&fcs, 1, sizeof fcs, wth->fh);
+		bytes_read = file_read(&fcs, sizeof fcs, wth->fh);
 		if (bytes_read != sizeof fcs) {
 			*err = file_error(wth->fh);
 			if (*err == 0)
@@ -429,7 +429,7 @@ radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(hdr, 1, sizeof *hdr, fh);
+	bytes_read = file_read(hdr, sizeof *hdr, fh);
 	if (bytes_read != sizeof *hdr) {
 		*err = file_error(fh);
 		if (*err != 0)
@@ -449,7 +449,7 @@ radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);

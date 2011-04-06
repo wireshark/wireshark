@@ -167,7 +167,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 	}
 
 	buffer_assure_space(wth->frame_buffer, cv_hdr.data_len);
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
 			       cv_hdr.data_len, wth->fh);
 	if(bytes_read != cv_hdr.data_len) {
 		*err = file_error(wth->fh);
@@ -227,7 +227,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		pseudo_header->ieee_802_11.signal_level = cv_hdr.signal_level_percent;
 	}
 
-	bytes_read = file_read(pd, 1, cv_hdr.data_len, wth->random_fh);
+	bytes_read = file_read(pd, cv_hdr.data_len, wth->random_fh);
 	if(bytes_read != cv_hdr.data_len) {
 		*err = file_error(wth->random_fh);
 		if(*err == 0)
@@ -244,24 +244,24 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
 {
 	int bytes_read = 0;
 
-	bytes_read += file_read(&cv_hdr->data_len, 2, 1, fh);
-	bytes_read += file_read(&cv_hdr->source_data_len, 2, 1, fh);
-	bytes_read += file_read(&cv_hdr->version, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->year, 2, 1, fh);
-	bytes_read += file_read(&cv_hdr->month, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->day, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->hours, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->minutes, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->seconds, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->usecs, 4, 1, fh);
-	bytes_read += file_read(&cv_hdr->flags, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->signal_level_percent, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->rate, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->band, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->channel, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->direction, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->signal_level_dbm, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->noise_level, 1, 1, fh);
+	bytes_read += file_read(&cv_hdr->data_len, 2, fh);
+	bytes_read += file_read(&cv_hdr->source_data_len, 2, fh);
+	bytes_read += file_read(&cv_hdr->version, 1, fh);
+	bytes_read += file_read(&cv_hdr->year, 2, fh);
+	bytes_read += file_read(&cv_hdr->month, 1, fh);
+	bytes_read += file_read(&cv_hdr->day, 1, fh);
+	bytes_read += file_read(&cv_hdr->hours, 1, fh);
+	bytes_read += file_read(&cv_hdr->minutes, 1, fh);
+	bytes_read += file_read(&cv_hdr->seconds, 1, fh);
+	bytes_read += file_read(&cv_hdr->usecs, 4, fh);
+	bytes_read += file_read(&cv_hdr->flags, 1, fh);
+	bytes_read += file_read(&cv_hdr->signal_level_percent, 1, fh);
+	bytes_read += file_read(&cv_hdr->rate, 1, fh);
+	bytes_read += file_read(&cv_hdr->band, 1, fh);
+	bytes_read += file_read(&cv_hdr->channel, 1, fh);
+	bytes_read += file_read(&cv_hdr->direction, 1, fh);
+	bytes_read += file_read(&cv_hdr->signal_level_dbm, 1, fh);
+	bytes_read += file_read(&cv_hdr->noise_level, 1, fh);
 
 	/* Convert multi-byte values from little endian to host endian format */
 	cv_hdr->data_len = GUINT16_FROM_LE(cv_hdr->data_len);

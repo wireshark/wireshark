@@ -81,7 +81,7 @@ mpeg_read_header(wtap *wth, int *err, gchar **err_info _U_,
 	int bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(n, 1, sizeof *n, wth->fh);
+	bytes_read = file_read(n, sizeof *n, wth->fh);
 	if (bytes_read != sizeof *n) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0)
@@ -100,7 +100,7 @@ mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);
@@ -134,7 +134,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		if (file_seek(wth->fh, 3, SEEK_CUR, err) == -1)
 			return FALSE;
 
-		bytes_read = file_read(&stream, 1, sizeof stream, wth->fh);
+		bytes_read = file_read(&stream, sizeof stream, wth->fh);
 		if (bytes_read != sizeof stream) {
 			*err = file_error(wth->fh);
 			return FALSE;
@@ -146,14 +146,14 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 			guint64 pack;
 			guint8 stuffing;
 
-			bytes_read = file_read(&pack1, 1, sizeof pack1, wth->fh);
+			bytes_read = file_read(&pack1, sizeof pack1, wth->fh);
 			if (bytes_read != sizeof pack1) {
 				*err = file_error(wth->fh);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
 			}
-			bytes_read = file_read(&pack0, 1, sizeof pack0, wth->fh);
+			bytes_read = file_read(&pack0, sizeof pack0, wth->fh);
 			if (bytes_read != sizeof pack0) {
 				*err = file_error(wth->fh);
 				if (*err == 0 && bytes_read != 0)
@@ -167,7 +167,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 					if (file_seek(wth->fh, 1, SEEK_CUR, err) == -1)
 						return FALSE;
 					bytes_read = file_read(&stuffing,
-							1, sizeof stuffing, wth->fh);
+							sizeof stuffing, wth->fh);
 					if (bytes_read != sizeof stuffing) {
 						*err = file_error(wth->fh);
 						return FALSE;
@@ -196,7 +196,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 			}
 		} else {
 			guint16 length;
-			bytes_read = file_read(&length, 1, sizeof length, wth->fh);
+			bytes_read = file_read(&length, sizeof length, wth->fh);
 			if (bytes_read != sizeof length) {
 				*err = file_error(wth->fh);
 				if (*err == 0 && bytes_read != 0)
@@ -269,7 +269,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info _U_)
 	mpeg_t *mpeg;
 	
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic_buf, 1, sizeof magic_buf, wth->fh);
+	bytes_read = file_read(magic_buf, sizeof magic_buf, wth->fh);
 	if (bytes_read != (int) sizeof magic_buf) {
 		*err = file_error(wth->fh);
 		if (*err != 0)

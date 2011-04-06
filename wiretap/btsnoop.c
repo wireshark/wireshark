@@ -90,7 +90,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	/* Read in the string that should be at the start of a "btsnoop" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -105,7 +105,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -172,7 +172,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0)
@@ -246,7 +246,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->random_fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->random_fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->random_fh);
 		if (*err == 0 && bytes_read != 0)
@@ -293,7 +293,7 @@ snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);

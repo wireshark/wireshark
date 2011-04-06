@@ -206,7 +206,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -221,7 +221,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -339,7 +339,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	}
 	frame_table = g_malloc(frame_table_length);
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(frame_table, 1, frame_table_length, wth->fh);
+	bytes_read = file_read(frame_table, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
@@ -435,7 +435,7 @@ again:
 	}
 	errno = WTAP_ERR_CANT_READ;
 
-	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
+	bytes_read = file_read(&hdr, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0) {
@@ -584,7 +584,7 @@ again:
 		}
 		errno = WTAP_ERR_CANT_READ;
 
-		bytes_read = file_read(&trlr, 1, trlr_size, wth->fh);
+		bytes_read = file_read(&trlr, trlr_size, wth->fh);
 		if (bytes_read != trlr_size) {
 			*err = file_error(wth->fh);
 			if (*err == 0 && bytes_read != 0) {
@@ -701,7 +701,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	guint16	vpi, vci;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&atm_phdr, 1, sizeof (struct netmon_atm_hdr), fh);
+	bytes_read = file_read(&atm_phdr, sizeof (struct netmon_atm_hdr), fh);
 	if (bytes_read != sizeof (struct netmon_atm_hdr)) {
 		*err = file_error(fh);
 		if (*err == 0)
@@ -732,7 +732,7 @@ netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);

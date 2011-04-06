@@ -365,7 +365,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     do {
 	/* Get the tag and value.
 	   XXX - this assumes all values are 4 bytes long. */
-	bytes_read = file_read(tag_value, 1, sizeof tag_value, fh);
+	bytes_read = file_read(tag_value, sizeof tag_value, fh);
 	if (bytes_read != (int) sizeof tag_value) {
 	    *err = file_error(fh);
 	    if (*err == 0) {

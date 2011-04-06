@@ -93,7 +93,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(&magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -164,7 +164,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -787,7 +787,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 		g_assert_not_reached();
 		bytes_to_read = 0;
 	}
-	bytes_read = file_read(hdr, 1, bytes_to_read, wth->fh);
+	bytes_read = file_read(hdr, bytes_to_read, wth->fh);
 	if (bytes_read != bytes_to_read) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0) {
@@ -880,7 +880,7 @@ libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);

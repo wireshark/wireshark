@@ -131,7 +131,7 @@ jpeg_jfif_open(wtap *wth, int *err, gchar **err_info)
 	int ret = 0;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic_buf, 1, sizeof(magic_buf), wth->fh);
+	bytes_read = file_read(magic_buf, sizeof(magic_buf), wth->fh);
 	if (bytes_read != (int) sizeof(magic_buf)) {
 		*err = file_error(wth->fh);
 		if (*err != 0) {

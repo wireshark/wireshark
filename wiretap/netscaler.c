@@ -488,7 +488,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
-	bytes_read = file_read(nstrace_buf, 1, page_size, wth->fh);
+	bytes_read = file_read(nstrace_buf, page_size, wth->fh);
 	if (bytes_read != page_size)
 	{
 		*err = file_error(wth->fh);
@@ -525,7 +525,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		}
 
 		/* Read the first page of data */
-		bytes_read = file_read(nstrace_buf, 1, page_size, wth->fh);
+		bytes_read = file_read(nstrace_buf, page_size, wth->fh);
 		if (bytes_read != page_size)
 		{
 			*err = file_error(wth->fh);
@@ -567,7 +567,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 	gchar *dp = nstrace_buf;
 	int bytes_read;
 
-	bytes_read = file_read(dp, 1, len, wth->fh);
+	bytes_read = file_read(dp, len, wth->fh);
 	if (bytes_read == len) {
 
 		for ( ; len > (gint32)(MIN(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
@@ -633,7 +633,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 			nstrace_buf_offset = 0;\
 			wth->data_offset += nstrace_buflen;\
 			nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));\
-		}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, 1, nstrace_buflen, wth->fh)) && bytes_read == nstrace_buflen); \
+		}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && bytes_read == nstrace_buflen); \
 		return FALSE;\
 	}
 
@@ -775,7 +775,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 		nstrace_buf_offset = 0;
 		wth->data_offset += nstrace_buflen;
 		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
-	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, 1, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
 
 	return FALSE;
 }
@@ -916,7 +916,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 		nstrace_buf_offset = 0;
 	    wth->data_offset += nstrace_buflen;
     	nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
-	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, 1, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
 
 	return FALSE;
 }
@@ -965,7 +965,7 @@ gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	** Read the packet data.
 	*/
-	bytes_read = file_read(pd, 1, length, wth->random_fh);
+	bytes_read = file_read(pd, length, wth->random_fh);
 	if (bytes_read != length)
 		return FALSE;
 

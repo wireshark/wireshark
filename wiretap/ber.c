@@ -126,7 +126,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
   gint64 file_size;
   int offset = 0, i;
 
-  bytes_read = file_read(&bytes, 1, BER_BYTES_TO_CHECK, wth->fh);
+  bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wth->fh);
   if (bytes_read != BER_BYTES_TO_CHECK) {
     *err = file_error(wth->fh);
     return (*err != 0) ? -1 : 0;

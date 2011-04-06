@@ -204,7 +204,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(file_hdr.magic, 1, MAGIC_SIZE, wth->fh);
+    bytes_read = file_read(file_hdr.magic, MAGIC_SIZE, wth->fh);
     if (bytes_read != MAGIC_SIZE) {
     	*err = file_error(wth->fh);
 	if (*err != 0)
@@ -218,7 +218,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     /* Read the rest of the file header */
-    bytes_read = file_read(file_hdr.file_name, 1, FILE_HDR_SIZE - MAGIC_SIZE,
+    bytes_read = file_read(file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
 			   wth->fh);
     if (bytes_read != FILE_HDR_SIZE - MAGIC_SIZE) {
 	*err = file_error(wth->fh);
@@ -240,7 +240,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->snapshot_length = 0;	/* not available */
 
     /* read the first header to take a guess at the file encap */
-    bytes_read = file_read(dummy, 1, 4, wth->fh);
+    bytes_read = file_read(dummy, 4, wth->fh);
     if (bytes_read != 4) {
         if (*err != 0) {
             wth->priv = NULL;
@@ -391,7 +391,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     guint8 dummyc[16];
 
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&rec_hdr.hdr_len, 1, sizeof rec_hdr.hdr_len, fh);
+    bytes_read = file_read(&rec_hdr.hdr_len, sizeof rec_hdr.hdr_len, fh);
     if (bytes_read != sizeof rec_hdr.hdr_len) {
 	*err = file_error(fh);
 	if (*err != 0)
@@ -410,7 +410,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    hdr_len);
 	return -1;
     }
-    bytes_read = file_read(&rec_hdr.subsys, 1, NETTL_REC_HDR_LEN - 2, fh);
+    bytes_read = file_read(&rec_hdr.subsys, NETTL_REC_HDR_LEN - 2, fh);
     if (bytes_read != NETTL_REC_HDR_LEN - 2) {
 	*err = file_error(fh);
 	if (*err == 0)
@@ -504,7 +504,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                     padlen = 0;
                 } else {
 	            /* outbound appears to have variable padding */
-		    bytes_read = file_read(dummyc, 1, 9, fh);
+		    bytes_read = file_read(dummyc, 9, fh);
 		    if (bytes_read != 9) {
 			*err = file_error(fh);
 			if (*err == 0)
@@ -557,7 +557,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
-	    bytes_read = file_read(&drv_eth_hdr, 1, NS_LS_DRV_ETH_HDR_LEN, fh);
+	    bytes_read = file_read(&drv_eth_hdr, NS_LS_DRV_ETH_HDR_LEN, fh);
 	    if (bytes_read != NS_LS_DRV_ETH_HDR_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
@@ -657,12 +657,12 @@ nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddiha
 
     if (fddihack == TRUE) {
        /* read in FC, dest, src, DSAP and SSAP */
-       if (file_read(pd, 1, 15, fh) == 15) {
+       if (file_read(pd, 15, fh) == 15) {
           if (pd[13] == 0xAA) {
              /* it's SNAP, have to eat 3 bytes??? */
-             if (file_read(dummy, 1, 3, fh) == 3) {
+             if (file_read(dummy, 3, fh) == 3) {
                 p=pd+15;
-                bytes_read = file_read(p, 1, length-18, fh);
+                bytes_read = file_read(p, length-18, fh);
                 bytes_read += 18;
              } else {
                 bytes_read = -1;
@@ -670,13 +670,13 @@ nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddiha
           } else {
              /* not SNAP */
              p=pd+15;
-             bytes_read = file_read(p, 1, length-15, fh);
+             bytes_read = file_read(p, length-15, fh);
              bytes_read += 15;
           }
        } else
           bytes_read = -1;
     } else
-       bytes_read = file_read(pd, 1, length, fh);
+       bytes_read = file_read(pd, length, fh);
 
     if (bytes_read != length) {
 	*err = file_error(fh);

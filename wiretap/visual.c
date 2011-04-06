@@ -186,7 +186,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
 
     /* Check the magic string at the start of the file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+    bytes_read = file_read(magic, sizeof magic, wth->fh);
     if (bytes_read != sizeof magic)
     {
         *err = file_error(wth->fh);
@@ -201,7 +201,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
 
     /* Read the rest of the file header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vfile_hdr, 1, sizeof vfile_hdr, wth->fh);
+    bytes_read = file_read(&vfile_hdr, sizeof vfile_hdr, wth->fh);
     if (bytes_read != sizeof vfile_hdr)
     {
         *err = file_error(wth->fh);
@@ -316,7 +316,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
 
     /* Read the packet header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vpkt_hdr, 1, phdr_size, wth->fh);
+    bytes_read = file_read(&vpkt_hdr, phdr_size, wth->fh);
     if (bytes_read != phdr_size)
     {
         *err = file_error(wth->fh);
@@ -336,7 +336,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     {
        /* Read the atm packet header. */
        errno = WTAP_ERR_CANT_READ;
-       bytes_read = file_read(&vatm_hdr, 1, ahdr_size, wth->fh);
+       bytes_read = file_read(&vatm_hdr, ahdr_size, wth->fh);
        if (bytes_read != ahdr_size)
        {
            *err = file_error(wth->fh);
@@ -367,7 +367,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     buffer_assure_space(wth->frame_buffer, packet_size);
     *data_offset = wth->data_offset;
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
+    bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
             packet_size, wth->fh);
 
     if (bytes_read != (int) packet_size)
@@ -503,7 +503,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
 
     /* Read the packet header to get the status flags. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vpkt_hdr, 1, phdr_size, wth->random_fh);
+    bytes_read = file_read(&vpkt_hdr, phdr_size, wth->random_fh);
     if (bytes_read != phdr_size) {
     	*err = file_error(wth->random_fh);
     	if (*err == 0)
@@ -516,7 +516,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
     {
        /* Read the atm packet header */
        errno = WTAP_ERR_CANT_READ;
-       bytes_read = file_read(&vatm_hdr, 1, ahdr_size, wth->random_fh);
+       bytes_read = file_read(&vatm_hdr, ahdr_size, wth->random_fh);
        if (bytes_read != ahdr_size)
        {
            *err = file_error(wth->fh);
@@ -530,7 +530,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
 
     /* Read the packet data. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(pd, sizeof(guint8), len, wth->random_fh);
+    bytes_read = file_read(pd, len, wth->random_fh);
     if (bytes_read != len) {
     	if (*err == 0)
     	    *err = WTAP_ERR_SHORT_READ;

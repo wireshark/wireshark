@@ -291,7 +291,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
 
     if  ( junky_offset == 0x2000 ) {
         /* the length of the record is 0x10 bytes ahead from we are reading */
-        bytes_read = file_read(junk,1,0x14,fh);
+        bytes_read = file_read(junk,0x14,fh);
 
         if (bytes_read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
@@ -308,7 +308,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
         memcpy(buffer,&(junk[0x10]),4);
     } else {
         /* the length of the record is right where we are reading */
-        bytes_read = file_read(buffer,1, 0x4, fh);
+        bytes_read = file_read(buffer, 0x4, fh);
 
         if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
@@ -345,7 +345,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
         K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
 
         if (junky_offset > left) {
-            bytes_read += last_read = file_read(writep,1, left, fh);
+            bytes_read += last_read = file_read(writep, left, fh);
 
             if ( last_read != left ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
@@ -359,7 +359,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
                 return bytes_read;
             }
         } else {
-            bytes_read += last_read = file_read(writep,1, junky_offset, fh);
+            bytes_read += last_read = file_read(writep, junky_offset, fh);
 
             if ( last_read != junky_offset ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",last_read, junky_offset));
@@ -372,7 +372,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
 
             writep += last_read;
 
-            bytes_read += last_read = file_read(junk,1, 0x10, fh);
+            bytes_read += last_read = file_read(junk, 0x10, fh);
 
             if ( last_read != 0x10 ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
@@ -683,7 +683,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     K12_DBG(1,("k12_open: ENTER debug_level=%u",debug_level));
 #endif
 
-    if ( file_read(header_buffer,1,0x200,wth->fh) != 0x200 ) {
+    if ( file_read(header_buffer,0x200,wth->fh) != 0x200 ) {
         K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
         *err = file_error(wth->fh);
         if (*err != 0) {

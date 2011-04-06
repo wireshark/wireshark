@@ -111,7 +111,7 @@ int tnef_open(wtap *wth, int *err, gchar **err_info _U_)
   int bytes_read;
   guint32 magic;
 
-  bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
+  bytes_read = file_read(&magic, sizeof magic, wth->fh);
   if (bytes_read != sizeof magic) {
     *err = file_error(wth->fh);
     return (*err != 0) ? -1 : 0;

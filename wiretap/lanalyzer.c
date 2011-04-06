@@ -142,8 +142,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	lanalyzer_t *lanalyzer;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
-	bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_type, 2, wth->fh);
+	bytes_read += file_read(LE_record_length, 2, wth->fh);
 	if (bytes_read != 4) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -177,8 +177,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		}
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
-		bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
+		bytes_read = file_read(LE_record_type, 2, wth->fh);
+		bytes_read += file_read(LE_record_length, 2, wth->fh);
 		if (bytes_read != 4) {
 			*err = file_error(wth->fh);
 			if (*err != 0) {
@@ -198,7 +198,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			/* Trace Summary Record */
 			case RT_Summary:
 				errno = WTAP_ERR_CANT_READ;
-				bytes_read = file_read(summary, 1, sizeof summary,
+				bytes_read = file_read(summary, sizeof summary,
 				    wth->fh);
 				if (bytes_read != sizeof summary) {
 					*err = file_error(wth->fh);
@@ -293,7 +293,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_type, 2, wth->fh);
 	if (bytes_read != 2) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0) {
@@ -302,7 +302,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 	wth->data_offset += 2;
-	bytes_read = file_read(LE_record_length, 1, 2, wth->fh);
+	bytes_read = file_read(LE_record_length, 2, wth->fh);
 	if (bytes_read != 2) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
@@ -329,7 +329,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(descriptor, 1, DESCRIPTOR_LEN, wth->fh);
+	bytes_read = file_read(descriptor, DESCRIPTOR_LEN, wth->fh);
 	if (bytes_read != DESCRIPTOR_LEN) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
@@ -342,7 +342,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	*data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -414,7 +414,7 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	bytes_read = file_read(pd, sizeof(guint8), length, wth->random_fh);
+	bytes_read = file_read(pd, length, wth->random_fh);
 	if (bytes_read != length) {
 		*err = file_error(wth->random_fh);
 		if (*err == 0)

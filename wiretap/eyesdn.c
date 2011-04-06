@@ -141,7 +141,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	/* Look for eyesdn header */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(&magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)

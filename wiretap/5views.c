@@ -126,7 +126,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	int encap = WTAP_ENCAP_UNKNOWN;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&Capture_Header.Info_Header, 1, sizeof(t_5VW_Info_Header), wth->fh);
+	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof(t_5VW_Info_Header)) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -182,7 +182,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* read the remaining header information */
-	bytes_read = file_read(&Capture_Header.HeaderDateCreation, 1, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
+	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof (t_5VW_Capture_Header)- sizeof(t_5VW_Info_Header) ) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -276,7 +276,7 @@ _5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, 1, length, fh);
+	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
 		*err = file_error(fh);
@@ -301,7 +301,7 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 	bytes_to_read = sizeof(t_5VW_TimeStamped_Header);
 
 	/* Read record header. */
-	bytes_read = file_read(hdr, 1, bytes_to_read, fh);
+	bytes_read = file_read(hdr, bytes_to_read, fh);
 	if (bytes_read != bytes_to_read) {
 		*err = file_error(fh);
 		if (*err == 0 && bytes_read != 0) {

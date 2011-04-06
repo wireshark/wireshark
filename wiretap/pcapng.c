@@ -343,7 +343,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
 	/* read option header */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(oh, 1, sizeof (*oh), fh);
+	bytes_read = file_read(oh, sizeof (*oh), fh);
 	if (bytes_read != sizeof (*oh)) {
 	    pcapng_debug0("pcapng_read_option: failed to read option");
 	    *err = file_error(fh);
@@ -366,7 +366,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
 	/* read option content */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(content, 1, oh->option_length, fh);
+	bytes_read = file_read(content, oh->option_length, fh);
 	if (bytes_read != oh->option_length) {
 		pcapng_debug1("pcapng_read_if_descr_block: failed to read content of option %u", oh->option_code);
 		*err = file_error(fh);
@@ -407,7 +407,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&shb, 1, sizeof shb, fh);
+	bytes_read = file_read(&shb, sizeof shb, fh);
 	if (bytes_read != sizeof shb) {
 		*err = file_error(fh);
 		if (*err == 0) {
@@ -585,7 +585,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	time_units_per_second = 1000000; /* default */
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&idb, 1, sizeof idb, fh);
+	bytes_read = file_read(&idb, sizeof idb, fh);
 	if (bytes_read != sizeof idb) {
 		pcapng_debug0("pcapng_read_if_descr_block: failed to read IDB");
 		*err = file_error(fh);
@@ -787,7 +787,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* "(Enhanced) Packet Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
 	if (enhanced) {
-		bytes_read = file_read(&epb, 1, sizeof epb, fh);
+		bytes_read = file_read(&epb, sizeof epb, fh);
 		if (bytes_read != sizeof epb) {
 			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
 			*err = file_error(fh);
@@ -811,7 +811,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			wblock->data.packet.packet_len		= epb.packet_len;
 		}
 	} else {
-		bytes_read = file_read(&pb, 1, sizeof pb, fh);
+		bytes_read = file_read(&pb, sizeof pb, fh);
 		if (bytes_read != sizeof pb) {
 			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
 			*err = file_error(fh);
@@ -887,7 +887,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
 	/* "(Enhanced) Packet Block" read capture data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.packet.cap_len - pseudo_header_len, fh);
+	bytes_read = file_read((guchar *) (wblock->frame_buffer), wblock->data.packet.cap_len - pseudo_header_len, fh);
 	if (bytes_read != (int) (wblock->data.packet.cap_len - pseudo_header_len)) {
 		*err = file_error(fh);
 		pcapng_debug1("pcapng_read_packet_block: couldn't read %u bytes of captured data",
@@ -994,7 +994,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
 	/* "Simple Packet Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&spb, 1, sizeof spb, fh);
+	bytes_read = file_read(&spb, sizeof spb, fh);
 	if (bytes_read != sizeof spb) {
 		pcapng_debug0("pcapng_read_simple_packet_block: failed to read packet data");
 		*err = file_error(fh);
@@ -1060,7 +1060,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
 	/* "Simple Packet Block" read capture data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.simple_packet.cap_len, fh);
+	bytes_read = file_read((guchar *) (wblock->frame_buffer), wblock->data.simple_packet.cap_len, fh);
 	if (bytes_read != (int) wblock->data.simple_packet.cap_len) {
 		*err = file_error(fh);
 		pcapng_debug1("pcapng_read_simple_packet_block: couldn't read %u bytes of captured data",
@@ -1110,7 +1110,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		- sizeof(bh->block_total_length);
 
 	while (block_read < to_read) {
-		bytes_read = file_read(&nrb, 1, sizeof nrb, fh);
+		bytes_read = file_read(&nrb, sizeof nrb, fh);
 		if (bytes_read != sizeof nrb) {
 			pcapng_debug0("pcapng_read_name_resolution_block: failed to read record header");
 			*err = file_error(fh);
@@ -1133,7 +1133,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv4 record");
 					return 0;
 				}
-				bytes_read = file_read(nrb_rec, 1, nrb.record_len, fh);
+				bytes_read = file_read(nrb_rec, nrb.record_len, fh);
 				if (bytes_read != nrb.record_len) {
 					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv4 record data");
 					*err = file_error(fh);
@@ -1161,7 +1161,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv6 record");
 					return 0;
 				}
-				bytes_read = file_read(nrb_rec, 1, nrb.record_len, fh);
+				bytes_read = file_read(nrb_rec, nrb.record_len, fh);
 				if (bytes_read != nrb.record_len) {
 					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv6 record data");
 					*err = file_error(fh);
@@ -1210,7 +1210,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
 	/* "Interface Statistics Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&isb, 1, sizeof isb, fh);
+	bytes_read = file_read(&isb, sizeof isb, fh);
 	if (bytes_read != sizeof isb) {
 		pcapng_debug0("pcapng_read_interface_statistics_block: failed to read packet data");
 		*err = file_error(fh);
@@ -1344,7 +1344,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 
 	/* Try to read the (next) block header */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&bh, 1, sizeof bh, fh);
+	bytes_read = file_read(&bh, sizeof bh, fh);
 	if (bytes_read != sizeof bh) {
 		pcapng_debug0("pcapng_read_block: end of file or error");
 		*err = file_error(fh);
@@ -1411,7 +1411,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 
 	/* sanity check: first and second block lengths must match */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&block_total_length, 1, sizeof block_total_length, fh);
+	bytes_read = file_read(&block_total_length, sizeof block_total_length, fh);
 	if (bytes_read != sizeof block_total_length) {
 		pcapng_debug0("pcapng_read_block: couldn't read second block length");
 		*err = file_error(fh);

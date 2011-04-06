@@ -381,7 +381,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -400,7 +400,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -1102,7 +1102,7 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(hdr, 1, hdr_size, fh);
+	bytes_read = file_read(hdr, hdr_size, fh);
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -1451,7 +1451,7 @@ netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(data_ptr, 1, packet_size, fh);
+	bytes_read = file_read(data_ptr, packet_size, fh);
 
 	if (bytes_read <= 0 || (guint32)bytes_read != packet_size) {
 		*err = file_error(fh);

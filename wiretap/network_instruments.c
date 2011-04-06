@@ -116,7 +116,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	offset = 0;
 
 	/* read in the buffer file header */
-	bytes_read = file_read(&file_header, sizeof file_header, 1, wth->fh);
+	bytes_read = file_read(&file_header, sizeof file_header, wth->fh);
 	if (bytes_read != sizeof file_header) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -140,7 +140,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	/* process extra information */
 	for (i = 0; i < file_header.number_of_information_elements; i++) {
 		/* read the TLV header */
-		bytes_read = file_read(&tlvh, sizeof tlvh, 1, wth->fh);
+		bytes_read = file_read(&tlvh, sizeof tlvh, wth->fh);
 		if (bytes_read != sizeof tlvh) {
 			*err = file_error(wth->fh);
 			if (*err == 0)
@@ -182,7 +182,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* pull off the packet header */
-	bytes_read = file_read(&packet_header, sizeof packet_header, 1, wth->fh);
+	bytes_read = file_read(&packet_header, sizeof packet_header, wth->fh);
 	if (bytes_read != sizeof packet_header) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -346,7 +346,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 	offset = 0;
 
 	/* pull off the packet header */
-	bytes_read = file_read(packet_header, sizeof *packet_header, 1, fh);
+	bytes_read = file_read(packet_header, sizeof *packet_header, fh);
 	if (bytes_read != sizeof *packet_header) {
 		*err = file_error(fh);
 		if (*err != 0)
@@ -396,7 +396,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 	/* process extra information */
 	for (i = 0; i < packet_header->number_of_information_elements; i++) {
 		/* read the TLV header */
-		bytes_read = file_read(&tlvh, sizeof tlvh, 1, fh);
+		bytes_read = file_read(&tlvh, sizeof tlvh, fh);
 		if (bytes_read != sizeof tlvh) {
 			*err = file_error(fh);
 			if (*err == 0)

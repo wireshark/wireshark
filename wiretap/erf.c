@@ -104,7 +104,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
-    r = file_read(&header,1,sizeof(header),wth->fh);
+    r = file_read(&header,sizeof(header),wth->fh);
 
     if (r == 0 ) break;
     if (r != sizeof(header)) {
@@ -177,7 +177,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Read over the extension headers */
     type = header.type;
     while (type & 0x80){
-	    if (file_read(&erf_ext_header, 1, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
+	    if (file_read(&erf_ext_header, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
 		    *err = file_error(wth->fh);
 		    return -1;
 	    }
@@ -196,7 +196,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     case ERF_TYPE_MC_AAL2:
     case ERF_TYPE_COLOR_MC_HDLC_POS:
     case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
-      if (file_read(&mc_hdr,1,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
+      if (file_read(&mc_hdr,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
 	*err = file_error(wth->fh);
 	return -1;
       }
@@ -205,7 +205,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     case ERF_TYPE_ETH:
     case ERF_TYPE_COLOR_ETH:
     case ERF_TYPE_DSM_COLOR_ETH:
-      if (file_read(&eth_hdr,1,sizeof(eth_hdr),wth->fh) != sizeof(eth_hdr)) {
+      if (file_read(&eth_hdr,sizeof(eth_hdr),wth->fh) != sizeof(eth_hdr)) {
 	*err = file_error(wth->fh);
 	return -1;
       }
@@ -225,7 +225,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     }
     buffer=g_malloc(packet_size);
-    r = file_read(buffer, 1, packet_size, wth->fh);
+    r = file_read(buffer, packet_size, wth->fh);
     g_free(buffer);
 
     if (r != packet_size) { 

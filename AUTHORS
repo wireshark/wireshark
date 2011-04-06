@@ -3246,6 +3246,7 @@ Martin Kaiser		<martin [AT] kaiser.cx> {
 
 Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
 	JSON dissector
+	Wiretap cleanup
 }
 
 Roland Knall		<rknall [AT] gmail.com> {

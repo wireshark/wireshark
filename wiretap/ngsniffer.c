@@ -557,7 +557,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -575,8 +575,8 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * record.
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(record_type, 1, 2, wth->fh);
-	bytes_read += file_read(record_length, 1, 4, wth->fh);
+	bytes_read = file_read(record_type, 2, wth->fh);
+	bytes_read += file_read(record_length, 4, wth->fh);
 	if (bytes_read != 6) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -595,7 +595,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&version, 1, sizeof version, wth->fh);
+	bytes_read = file_read(&version, sizeof version, wth->fh);
 	if (bytes_read != sizeof version) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -780,7 +780,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 
 	for (;;) {
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_type, 1, 2, wth->fh);
+		bytes_read = file_read(record_type, 2, wth->fh);
 		if (bytes_read != 2) {
 			*err = file_error(wth->fh);
 			if (*err != 0)
@@ -811,7 +811,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 		}
 
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_length, 1, 4, wth->fh);
+		bytes_read = file_read(record_length, 4, wth->fh);
 		if (bytes_read != 4) {
 			*err = file_error(wth->fh);
 			if (*err == 0)
@@ -839,7 +839,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			 * record data.
 			 */
 			bytes_to_read = MIN(length, (int)sizeof buffer);
-			bytes_read = file_read(buffer, 1, bytes_to_read,
+			bytes_read = file_read(buffer, bytes_to_read,
 				wth->fh);
 			if (bytes_read != bytes_to_read) {
 				*err = file_error(wth->fh);
@@ -2437,7 +2437,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
 	errno = WTAP_ERR_CANT_READ;
-	copied_bytes = file_read(buffer, 1, copybytes, infile);
+	copied_bytes = file_read(buffer, copybytes, infile);
 	if ((size_t) copied_bytes != copybytes)
 	    *err = file_error(infile);
 	return copied_bytes;
@@ -2540,7 +2540,7 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
 
     /* Read one 16-bit word which is length of next compressed blob */
     errno = WTAP_ERR_CANT_READ;
-    read_len = file_read(&blob_len, 1, 2, infile);
+    read_len = file_read(&blob_len, 2, infile);
     if (2 != read_len) {
 	*err = file_error(infile);
 	return -1;
@@ -2562,7 +2562,7 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
 
     /* Read the blob */
     errno = WTAP_ERR_CANT_READ;
-    read_len = file_read(file_inbuf, 1, in_len, infile);
+    read_len = file_read(file_inbuf, in_len, infile);
     if ((size_t) in_len != read_len) {
 	*err = file_error(infile);
 	g_free(file_inbuf);

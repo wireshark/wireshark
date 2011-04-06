@@ -68,7 +68,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
 		return -1;
 
-	if (file_read(&type, 1, 1, wth->fh) <= 0)
+	if (file_read(&type, 1, wth->fh) <= 0)
 		return -1;
 
 	/* Verify this file belongs to us */
@@ -110,7 +110,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 	
 	buffer_assure_space(wth->frame_buffer, pl_hdr.len - 8);
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
 			       pl_hdr.len - 8,
 			       wth->fh);
 	if(bytes_read != pl_hdr.len - 8) {
@@ -156,7 +156,7 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		return FALSE;
 	}
 
-	bytes_read = file_read(pd, 1, pl_hdr.len - 8, wth->random_fh);
+	bytes_read = file_read(pd, pl_hdr.len - 8, wth->random_fh);
 	if(bytes_read != (pl_hdr.len - 8)) {
 		*err = file_error(wth->random_fh);
 		if(*err == 0)
@@ -173,8 +173,8 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err)
 {
 	guint bytes_read = 0;
 
-	bytes_read += file_read(&pl_hdr->len, 4, 1, fh);
-	bytes_read += file_read(&pl_hdr->ts, 8, 1, fh);
+	bytes_read += file_read(&pl_hdr->len, 4, fh);
+	bytes_read += file_read(&pl_hdr->ts, 8, fh);
 
 	/* Convert multi-byte values from big endian to host endian */
 	pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);

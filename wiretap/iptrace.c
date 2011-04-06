@@ -58,7 +58,7 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info _U_)
 	char name[12];
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(name, 1, 11, wth->fh);
+	bytes_read = file_read(name, 11, wth->fh);
 	if (bytes_read != 11) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
@@ -448,7 +448,7 @@ iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(header, 1, header_len, fh);
+	bytes_read = file_read(header, header_len, fh);
 	if (bytes_read != header_len) {
 		*err = file_error(fh);
 		if (*err != 0)
@@ -468,7 +468,7 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read( data_ptr, 1, packet_size, fh );
+	bytes_read = file_read( data_ptr, packet_size, fh );
 
 	if (bytes_read != packet_size) {
 		*err = file_error(fh);

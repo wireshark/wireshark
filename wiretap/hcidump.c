@@ -47,7 +47,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	bytes_read = file_read(&dh, 1, DUMP_HDR_SIZE, wth->fh);
+	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
 		*err = file_error(wth->fh);
 		if (*err == 0 && bytes_read != 0)
@@ -71,7 +71,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	bytes_read = file_read(buf, 1, packet_size, wth->fh);
+	bytes_read = file_read(buf, packet_size, wth->fh);
 	if (bytes_read != packet_size) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
@@ -100,7 +100,7 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	bytes_read = file_read(&dh, 1, DUMP_HDR_SIZE, wth->random_fh);
+	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->random_fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
 		*err = file_error(wth->random_fh);
 		if (*err == 0 && bytes_read != 0)
@@ -108,7 +108,7 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	bytes_read = file_read(pd, 1, length, wth->random_fh);
+	bytes_read = file_read(pd, length, wth->random_fh);
 	if (bytes_read != length) {
 		*err = file_error(wth->random_fh);
 		if (*err == 0)
@@ -127,7 +127,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 	guint8 type;
 	int bytes_read;
 
-	bytes_read = file_read(&dh, 1, DUMP_HDR_SIZE, wth->fh);
+	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
 		*err = file_error(wth->fh);
 		return (*err != 0) ? -1 : 0;
@@ -137,7 +137,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 	    || GUINT16_FROM_LE(dh.len) < 1)
 		return 0;
 
-	bytes_read = file_read(&type, 1, 1, wth->fh);
+	bytes_read = file_read(&type, 1, wth->fh);
 	if (bytes_read != 1) {
 		*err = file_error(wth->fh);
 		return (*err != 0) ? -1 : 0;

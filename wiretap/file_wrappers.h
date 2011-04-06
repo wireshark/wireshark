@@ -32,8 +32,7 @@ extern int file_error(void *fh);
 
 extern FILE_T file_open(const char *path, const char *mode);
 #define filed_open gzdopen
-/* XX: gzread and gzwrite return number of *bytes* (not number of elements) */
-#define file_read(buf, bsize, count, file) gzread((file),(buf),(unsigned)((count)*(bsize)))
+#define file_read(buf, count, file) gzread((file),(buf),(unsigned)(count))
 #define file_close gzclose
 #define file_getc gzgetc
 #define file_gets(buf, len, file) gzgets((file), (buf), (len))
@@ -43,8 +42,7 @@ extern FILE_T file_open(const char *path, const char *mode);
 
 #define file_open(path, mode) ws_fopen(path, mode)
 #define filed_open fdopen
-/* XX: file_read defined to return number of *bytes* to be consistent with gzread */
-#define file_read(buf, bsize, count, file) ((bsize) * fread((buf), (bsize), (count), (file)))
+#define file_read(buf, count, file) fread((buf), (1), (count), (file))
 #define file_close fclose
 #define file_getc fgetc
 #define file_gets fgets

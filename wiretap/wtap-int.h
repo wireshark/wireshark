@@ -304,7 +304,7 @@ extern gint wtap_num_file_types;
 	G_STMT_START \
 	{ \
 		int _bytes_read; \
-		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
+		_bytes_read = file_read((target), (num_bytes), (fh)); \
 		if (_bytes_read != (int) (num_bytes)) { \
 			*(err) = file_error((fh)); \
 			return FALSE; \
@@ -316,7 +316,7 @@ extern gint wtap_num_file_types;
 	G_STMT_START \
 	{ \
 		int _bytes_read; \
-		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
+		_bytes_read = file_read((target), (num_bytes), (fh)); \
 		if (_bytes_read != (int) (num_bytes)) { \
 			*(err) = file_error((fh)); \
 			if (*(err) == 0 && _bytes_read > 0) { \
