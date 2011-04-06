@@ -56,6 +56,10 @@ static int hf_diameter_3gpp_tmgi					= -1;
 static int hf_diameter_mbms_service_id				= -1;
 static int hf_diameter_address_digits = -1;
 static int hf_diameter_3gpp_spare_bits = -1;
+static int hf_diameter_3gpp_feature_list_flags = -1;
+static int hf_diameter_3gpp_feature_list_flags_bit0 = -1;
+static int hf_diameter_3gpp_feature_list_flags_bit1 = -1;
+static int hf_diameter_3gpp_feature_list_flags_bit2 = -1;
 static int hf_diameter_3gpp_ulr_flags = -1;
 static int hf_diameter_3gpp_ulr_flags_bit0 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit1 = -1;
@@ -101,6 +105,7 @@ static int hf_diameter_3gpp_idr_flags_bit2 = -1;
 static int hf_diameter_3gpp_idr_flags_bit3 = -1;
 static int hf_diameter_3gpp_idr_flags_bit4 = -1;
 static gint diameter_3gpp_msisdn_ett				= -1;
+static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_tmgi_ett					= -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
@@ -113,6 +118,38 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 
 /* Dissector handles */
 static dissector_handle_t xml_handle;
+
+
+/* AVP Code: 630 Feature-List
+ * imscxdx.xml
+ * IMS Cx Dx AVPS 3GPP TS 29.229
+ */
+
+static int
+dissect_diameter_3gpp_feature_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	proto_item* item;
+	proto_tree *sub_tree;
+	int offset = 0;
+    guint32 bit_offset;
+
+	item       = proto_tree_add_item(tree, hf_diameter_3gpp_feature_list_flags, tvb, offset, 4, FALSE);
+	sub_tree   = proto_item_add_subtree(item, diameter_3gpp_feature_list_ett);
+
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, FALSE);
+    bit_offset+=29;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit2, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit1, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit0, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+	return offset;
+
+}
 
 /* AVP Code: 701 MSISDN */
 static int
@@ -475,6 +512,9 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 606 User-Data */
 	dissector_add_uint("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
+	/* AVP Code: 630 Feature-List */
+	dissector_add_uint("diameter.3gpp", 630, new_create_dissector_handle(dissect_diameter_3gpp_feature_list, proto_diameter_3gpp));
+
 	/* AVP Code: 701 MSISDN */
 	dissector_add_uint("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
@@ -567,6 +607,26 @@ proto_register_diameter_3gpp(void)
 		{ &hf_diameter_3gpp_spare_bits,
 			{ "Spare bit(s)", "diameter.3gpp.spare_bits",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list_flags,
+			{ "Feature-List Flags", "diameter.3gpp.feature_list_flags",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list_flags_bit0,
+			{ "Shared IFC Sets", "diameter.3gpp.feature_list_flags_bit0",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list_flags_bit1,
+			{ "Alias Indication", "diameter.3gpp.feature_list_flags_bit1",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_feature_list_flags_bit2,
+			{ "IMS Restoration Indication", "diameter.3gpp.feature_list_flags_bit2",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_ulr_flags,
@@ -794,6 +854,7 @@ proto_register_diameter_3gpp(void)
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&diameter_3gpp_msisdn_ett,
+		&diameter_3gpp_feature_list_ett,
 		&diameter_3gpp_tmgi_ett,
 		&diameter_3gpp_ulr_flags_ett,
 		&diameter_3gpp_ula_flags_ett,
