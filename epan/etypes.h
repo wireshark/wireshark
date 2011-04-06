@@ -95,12 +95,8 @@
 #define ETHERTYPE_CGMP			0x2001
 #endif
 
-#ifndef ETHERTYPE_TRILL					/* Internet Engineering Task Force */
-#define ETHERTYPE_TRILL			0x22F3
-#endif
-
-#ifndef ETHERTYPE_L2ISIS				/* Internet Engineering Task Force */
-#define ETHERTYPE_L2ISIS		0x22F4
+#ifndef ETHERTYPE_GIGAMON
+#define ETHERTYPE_GIGAMON		0x22E5 /* Gigamon Header */
 #endif
 
 #ifndef ETHERTYPE_MSRP
@@ -111,8 +107,18 @@
 #define ETHERTYPE_AVBTP			0x22F0
 #endif
 
-#ifndef ETHERTYPE_GIGAMON
-#define ETHERTYPE_GIGAMON	0x22e5 /* Gigamon Header */
+#ifndef ETHERTYPE_ROHC					/* ROHC (Robust Header Compression) is an IP header compression protocol specified in */
+#define ETHERTYPE_ROHC			0x22F1  /* IETF RFC 3095 "RObust Header Compression (ROHC): Framework and four profiles: RTP, */
+#endif									/* UDP, ESP, and uncompressed". The specification is available at
+										 * http://www.ietf.org/rfc/rfc3095.txt.
+										 */
+
+#ifndef ETHERTYPE_TRILL					/* Internet Engineering Task Force */
+#define ETHERTYPE_TRILL			0x22F3
+#endif
+
+#ifndef ETHERTYPE_L2ISIS				/* Internet Engineering Task Force */
+#define ETHERTYPE_L2ISIS		0x22F4
 #endif
 
 #ifndef ETHERTYPE_CENTRINO_PROMISC
