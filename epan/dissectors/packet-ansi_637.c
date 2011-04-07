@@ -2021,7 +2021,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 		    /*
 		     * supposed to be "Reserved for carrier specific teleservices"
-		     * but we are using it to key SMS Broadcast dissection were
+		     * but we are using it to key SMS Broadcast dissection where
 		     * there is no teleservice ID
 		     */
 		    str = "(Reserved) Being used for Broadcast";
@@ -2208,9 +2208,9 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ansi_637_trans_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL,"/");
-	col_set_fence(pinfo->cinfo, COL_INFO);
-	dissect_ansi_637_trans(tvb, pinfo, tree);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,"/");
+    col_set_fence(pinfo->cinfo, COL_INFO);
+    dissect_ansi_637_trans(tvb, pinfo, tree);
 }
 /* Register the protocol with Wireshark */
 void
@@ -2306,8 +2306,8 @@ proto_register_ansi_637(void)
     proto_ansi_637_trans =
 	proto_register_protocol(ansi_proto_name_trans, "ANSI IS-637-A Transport", "ansi_637_trans");
 
-	register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
-	register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
+    register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
+    register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_637_tele, hf_tele, array_length(hf_tele));
