@@ -24,8 +24,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 # Generated header files that we want in the distribution.
-GENERATED_HEADER_FILES = \
-	text_import_scanner_lex.h
+GENERATED_HEADER_FILES =
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES = \
