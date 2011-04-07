@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../../tools/asn2wrs.py -b -p snmp -c ../../../asn1/snmp/snmp.cnf -s ../../../asn1/snmp/packet-snmp-template -D ../../../asn1/snmp snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -858,7 +858,7 @@ indexing_done:
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
 			{
 				gint64 val=0;
-				unsigned offset = value_offset;
+				unsigned int_val_offset = value_offset;
 				unsigned i;
 
 				max_len = 5; min_len = 1;
@@ -869,12 +869,12 @@ indexing_done:
 
 				if(value_len > 0) {
 					/* extend sign bit */
-					if(tvb_get_guint8(tvb, offset)&0x80) {
+					if(tvb_get_guint8(tvb, int_val_offset)&0x80) {
 						val=-1;
 					}
 					for(i=0;i<value_len;i++) {
-						val=(val<<8)|tvb_get_guint8(tvb, offset);
-						offset++;
+						val=(val<<8)|tvb_get_guint8(tvb, int_val_offset);
+						int_val_offset++;
 					}
 				}
 				proto_tree_add_int64(pt_varbind, hf_snmp_integer32_value, tvb,value_offset,value_len, val);
