@@ -153,7 +153,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	} while (readLine[0] == COMMENT_LINE);
 
 	/* parse one line of capture data */
-	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%d %u %" READDATA_MAX_FIELD_SIZE "s",
+	if (sscanf(readLine, "%*s %18" G_GINT64_MODIFIER "u.%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
 	    &seconds, &wth->phdr.ts.nsecs, &wth->phdr.len, readData) != 4) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("daintree_sna: invalid read record");

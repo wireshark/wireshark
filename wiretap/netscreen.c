@@ -356,7 +356,7 @@ parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int,
 	char	direction[2];
 	char	cap_src[13];
 
-	if (sscanf(line, "%d.%d: %15[a-z0-9/:.](%1[io]) len=%d:%12s->%12s/",
+	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.](%1[io]) len=%9d:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");

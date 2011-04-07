@@ -317,7 +317,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   * extract it here and store for all packets to access
 	   */
 	  num_items_scanned = sscanf (buf,
-				      "   START DATE/TIME  . . . . . . :  %d/%d/%d",
+				      "   START DATE/TIME  . . . . . . :  %2d/%2d/%4d",
 				      &iseries->month, &iseries->day,
 				      &iseries->year);
 	  if (num_items_scanned == 3)
@@ -527,7 +527,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       }
       num_items_scanned =
 	sscanf (data,
-		"%6d   %1s   %6d  %d:%d:%d.%d               %12s  %12s  ETHV2   Type: %4s",
+		"%6d   %1s   %6d  %2d:%2d:%2d.%9d               %12s  %12s  ETHV2   Type: %4s",
 		&pktnum, direction, &cap_len, &hr, &min, &sec, &csec, destmac,
 		srcmac, type);
       if (num_items_scanned == 10)

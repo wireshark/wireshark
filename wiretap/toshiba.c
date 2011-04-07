@@ -314,7 +314,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	/* Find text in line after "[No.". Limit the length of the
 	 * two strings since we have fixed buffers for channel[] and
 	 * direction[] */
-	num_items_scanned = sscanf(line, "%d] %d:%d:%d.%d %9s %9s",
+	num_items_scanned = sscanf(line, "%9d] %2d:%2d:%2d.%9d %9s %9s",
 			&pktnum, &hr, &min, &sec, &csec, channel, direction);
 
 	if (num_items_scanned != 7) {
@@ -346,7 +346,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 
 	} while (strcmp(line, "OFFSET 0001-0203") != 0);
 
-	num_items_scanned = sscanf(line+64, "LEN=%d", &pkt_len);
+	num_items_scanned = sscanf(line+64, "LEN=%9d", &pkt_len);
 	if (num_items_scanned != 1) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");

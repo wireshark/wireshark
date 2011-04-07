@@ -380,11 +380,11 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 	char	if_name[COSINE_MAX_IF_NAME_LEN] = "", direction[6] = "";
 	struct	tm tm;
 
-	if (sscanf(line, "%d-%d-%d,%d:%d:%d.%d:",
+	if (sscanf(line, "%4d-%2d-%2d,%2d:%2d:%2d.%9d:",
 		   &yy, &mm, &dd, &hr, &min, &sec, &csec) == 7) {
 		/* appears to be output to a control blade */
 		num_items_scanned = sscanf(line,
-		   "%d-%d-%d,%d:%d:%d.%d: %5s (%127[A-Za-z0-9/:]), Length:%d, Pro:%d, Off:%d, Pri:%d, RM:%d, Err:%d [%x, %x]",
+		   "%4d-%2d-%2d,%2d:%2d:%2d.%9d: %5s (%127[A-Za-z0-9/:]), Length:%9d, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
 			&yy, &mm, &dd, &hr, &min, &sec, &csec,
 				   direction, if_name, &pkt_len,
 				   &pro, &off, &pri, &rm, &error,
@@ -398,7 +398,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 	} else {
 		/* appears to be output to PE */
 		num_items_scanned = sscanf(line,
-		   "%5s (%127[A-Za-z0-9/:]), Length:%d, Pro:%d, Off:%d, Pri:%d, RM:%d, Err:%d [%x, %x]",
+		   "%5s (%127[A-Za-z0-9/:]), Length:%9d, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
 				   direction, if_name, &pkt_len,
 				   &pro, &off, &pri, &rm, &error,
 				   &code1, &code2);

@@ -394,7 +394,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	}
 
 	num_items_scanned = sscanf(line + LENGTH_POS,
-				"%d byte buffer at %d-%3s-%d %d:%d:%d.%d",
+				"%9d byte buffer at %2d-%3s-%4d %2d:%2d:%2d.%9d",
 				&pkt_len,
 				&tm.tm_mday, mon,
 				&tm.tm_year, &tm.tm_hour, &tm.tm_min,

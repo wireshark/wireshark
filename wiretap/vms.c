@@ -400,14 +400,14 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 
 	    /* First look for the Format 1 type sequencing */
 	    num_items_scanned = sscanf(p,  
-		  		       "packet %d at %d-%3s-%d %d:%d:%d.%d",
+		  		       "packet %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
 			  	       &pktnum, &tm.tm_mday, mon,
 				       &tm.tm_year, &tm.tm_hour,
 				       &tm.tm_min, &tm.tm_sec, &csec);
 	    /* Next look for the Format 2 type sequencing */
 	    if (num_items_scanned != 8) {
 	      num_items_scanned = sscanf(p,
-		  		         "packet seq # = %d at %d-%3s-%d %d:%d:%d.%d",
+		  		         "packet seq # = %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
 			  	         &pktnum, &tm.tm_mday, mon,
 				         &tm.tm_year, &tm.tm_hour,
 				         &tm.tm_min, &tm.tm_sec, &csec);
