@@ -38,6 +38,10 @@ extern FILE_T file_open(const char *path);
 #define file_gets(buf, len, file) gzgets((file), (buf), (len))
 #define file_eof gzeof
 
+#ifdef HAVE_GZCLEARERR
+#define file_clearerr gzclearerr
+#endif
+
 #else /* No zLib */
 
 #define file_open(path) ws_fopen(path, "rb")
@@ -47,6 +51,7 @@ extern FILE_T file_open(const char *path);
 #define file_getc fgetc
 #define file_gets fgets
 #define file_eof feof
+/* #define file_clearerr clearerr */
 
 #endif /* HAVE_LIBZ */
 
