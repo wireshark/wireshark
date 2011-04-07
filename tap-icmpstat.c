@@ -272,12 +272,12 @@ icmpstat_init(const char *optarg, void* userdata _U_)
     if (strstr(optarg, "icmp,srt,"))
         filter = optarg + strlen("icmp,srt,");
 
-    icmpstat = g_try_malloc0(sizeof(icmpstat_t));
+    icmpstat = g_try_malloc(sizeof(icmpstat_t));
     if (icmpstat == NULL) {
-        fprintf(stderr, "tshark: g_malloc() fatal error.\n");
+        fprintf(stderr, "tshark: g_try_malloc() fatal error.\n");
         exit(1);
     }
-
+    memset(icmpstat, 0, sizeof(icmpstat_t));
     icmpstat->min_msecs = 1.0 * G_MAXUINT;
 
     if (filter)
