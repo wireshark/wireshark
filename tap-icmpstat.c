@@ -51,13 +51,15 @@ typedef struct _icmpstat_t {
     GSList *rt_list;
     guint num_rqsts;
     guint num_resps;
+    guint min_frame;
+    guint max_frame;
     double min_msecs;
     double max_msecs;
     double tot_msecs;
 } icmpstat_t;
 
 
-/* This callback is never used by tshark but it is here for completeness. When
+/* This callback is never used by tshark but it is here for completeness.  When
  * registering below, we could just have left this function as NULL.
  *
  * When used by wireshark, this function will be called whenever we would need
@@ -74,12 +76,8 @@ icmpstat_reset(void *tapdata)
     icmpstat_t *icmpstat = tapdata;
 
     g_slist_free(icmpstat->rt_list);
-    icmpstat->rt_list = NULL;
-    icmpstat->num_rqsts = 0;
-    icmpstat->num_resps = 0;
+    memset(icmpstat, 0, sizeof(icmpstat_t));
     icmpstat->min_msecs = 1.0 * G_MAXUINT;
-    icmpstat->max_msecs = 0.0;
-    icmpstat->tot_msecs = 0.0;
 }
 
 
@@ -137,10 +135,14 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         *rt = trans->resp_time;
         icmpstat->rt_list = g_slist_insert_sorted(icmpstat->rt_list, rt, compare_doubles);
         icmpstat->num_resps++;
-        if (icmpstat->min_msecs > trans->resp_time)
+        if (icmpstat->min_msecs > trans->resp_time) {
+            icmpstat->min_frame = trans->resp_frame;
             icmpstat->min_msecs = trans->resp_time;
-        if (icmpstat->max_msecs < trans->resp_time)
+        }
+        if (icmpstat->max_msecs < trans->resp_time) {
+            icmpstat->max_frame = trans->resp_frame;
             icmpstat->max_msecs = trans->resp_time;
+        }
         icmpstat->tot_msecs += trans->resp_time;
     } else if (trans->rqst_frame)
         icmpstat->num_rqsts++;
@@ -231,9 +233,8 @@ icmpstat_draw(void *tapdata)
 
     printf("\n");
     printf("==========================================================================\n");
-    printf("ICMP SRT Statistics (all times in ms):\n");
-    if (icmpstat->filter)
-        printf("Filter: %s\n", icmpstat->filter);
+    printf("ICMP Service Response Time (SRT) Statistics (all times in ms):\n");
+    printf("Filter: %s\n", icmpstat->filter ? icmpstat->filter : "<none>");
     printf("\nRequests  Replies   Lost      %% Loss\n");
 
     if (icmpstat->num_rqsts) {
@@ -243,14 +244,15 @@ icmpstat_draw(void *tapdata)
         printf("%-10u%-10u%-10u%5.1f%%\n\n",
             icmpstat->num_rqsts, icmpstat->num_resps, lost,
             100.0 * lost / icmpstat->num_rqsts);
-        printf("Min SRT   Max SRT   Avg SRT   MED       SDEV\n");
-        printf("%-10.3f%-10.3f%-10.3f%-10.3f%-10.3f\n",
+        printf("Minimum   Maximum   Mean      Median    SDeviation     Min Frame Max Frame\n");
+        printf("%-10.3f%-10.3f%-10.3f%-10.3f%-10.3f     %-10u%-10u\n",
             icmpstat->min_msecs >= G_MAXUINT ? 0.0 : icmpstat->min_msecs,
-            icmpstat->max_msecs, mean, med, sdev);
+            icmpstat->max_msecs, mean, med, sdev,
+            icmpstat->min_frame, icmpstat->max_frame);
     } else {
-        printf("0         0         0         0.0%%\n\n");
-        printf("Min SRT   Max SRT   Avg SRT   MED       SDEV\n");
-        printf("0.000     0.000     0.000     0.000     0.000\n");
+        printf("0         0         0           0.0%%\n\n");
+        printf("Minimum   Maximum   Mean      Median    SDeviation     Min Frame Max Frame\n");
+        printf("0.000     0.000     0.000     0.000     0.000          0         0\n");
     }
     printf("==========================================================================\n");
 }
