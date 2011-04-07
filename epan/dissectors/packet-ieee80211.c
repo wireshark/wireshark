@@ -967,6 +967,112 @@ static const value_string aruba_mgt_typevals[] = {
 
 /*** End: Action Fixed Parameter ***/
 
+static const value_string ieee80211_tag_measure_request_type_flags[] = {
+  {0x00, "Basic Request"},
+  {0x01, "Clear Channel Assessment (CCA) Request"},
+  {0x02, "Receive Power Indication (RPI) Histogram Request"},
+  {0x03, "Channel Load Request"},
+  {0x04, "Noise Histogram Request"},
+  {0x05, "Beacon Request"},
+  {0x06, "Frame Request"},
+  {0x07, "STA Statistics Request"},
+  {0x08, "Location Configuration Indication (LCI) Request"},
+  {0x09, "Transmit Stream Measurement Request"},
+  {0x0A, "Measurement Pause Request"},
+  {0x00, NULL}
+};
+
+static const value_string ieee80211_tag_measure_report_type_flags[] = {
+  { 0x00, "Basic Report" },
+  { 0x01, "Clear Channel Assessment (CCA) Report" },
+  { 0x02, "Receive Power Indication (RPI) Histogram Report" },
+  { 0x03, "Channel Load Report" },
+  { 0x04, "Noise Histogram Report" },
+  { 0x05, "Beacon Report" },
+  { 0x06, "Frame Report" },
+  { 0x07, "STA Statistics Report" },
+  { 0x08, "Location Configuration Information (LCI) Report" },
+  { 0x09, "Transmit Stream Measurement Report" },
+  { 0x00, NULL }
+};
+
+static const true_false_string ieee80211_tag_measure_report_frame_info_frame_type_flag = {
+  "Measurement Pilot Frame",
+  "Beacon/Probe Response Frame"
+};
+
+static const true_false_string ieee80211_tag_measure_map_field_bss_flag = {
+  "At least one MPDU was received by another BSS or IBSS in the measurement period.",
+  "No MPDUs were received from another BSS or IBSS in the measurement period."
+};
+
+static const value_string ieee80211_tag_measure_request_measurement_mode_flags[] = {
+  { 0x00, "Passive" },
+  { 0x01, "Active" },
+  { 0x02, "Beacon Table" },
+  { 0x00, NULL }
+};
+
+#define MEASURE_REQ_BEACON_SUB_SSID 0
+#define MEASURE_REQ_BEACON_SUB_BRI 1
+#define MEASURE_REQ_BEACON_SUB_RD 2
+#define MEASURE_REQ_BEACON_SUB_REQUEST 10
+#define MEASURE_REQ_BEACON_SUB_APCP 51
+#define MEASURE_REQ_BEACON_SUB_VS 221
+
+static const value_string ieee80211_tag_measure_request_beacon_sub_id_flags[] = {
+  { MEASURE_REQ_BEACON_SUB_SSID, "SSID" },
+  { MEASURE_REQ_BEACON_SUB_BRI, "Beacon Reporting Information" },
+  { MEASURE_REQ_BEACON_SUB_RD, "Reporting Detail" },
+  { MEASURE_REQ_BEACON_SUB_REQUEST, "Request" },
+  { MEASURE_REQ_BEACON_SUB_APCP, "AP Channel Report" },  
+  { MEASURE_REQ_BEACON_SUB_VS, "Vendor Specific" },
+  { 0x00, NULL}
+};
+  
+static const value_string ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition_flags[] = {
+  { 0x00, "Report to be issued after each measurement." },
+  { 0x01, "The measured RCPI level is greater than an absolute threshold." },
+  { 0x02, "The measured RCPI level is less than an absolute threshold." },
+  { 0x03, "The measured RSNI level is greater than an absolute threshold." },
+  { 0x04, "The measured RSNI level is less than an absolute threshold." },
+  { 0x05, "The measured RCPI level is greater than a threshold defined by an offset from the serving AP's reference RCPI." },
+  { 0x06, "The measured RCPI level is less than a threshold defined by an offset from the serving AP's reference RCPI." },
+  { 0x07, "The measured RSNI level is greater than a threshold defined by an offset from the serving AP's reference RSNI." },
+  { 0x08, "The measured RSNI level is less than a threshold defined by an offset from the serving AP's reference RSNI." },
+  { 0x09, "The measured RCPI level is in a range bound by the serving AP's reference RCPI and an offset from the serving AP's reference RCPI." },
+  { 0x0a, "The measured RSNI level is in a range bound by the serving AP's reference RSNI and an offset from the serving AP's reference RSNI." },
+  { 0xfe, "Report not required to be issued" },
+  { 0x00, NULL }
+};
+
+static const value_string ieee80211_tag_measure_request_beacon_sub_reporting_detail_flags[] = {
+  { 0, "No fixed length fields or elements" },
+  { 1, "All fixed length fields and any requested elements in the Request information element if present" },
+  { 2, "All fixed length fields and elements (default, used when Reporting Detail subelement is not included in Beacon Request" },
+  { 0x00, NULL }
+};
+
+static const value_string ieee80211_tag_measure_request_group_id_flags[] = {
+  { 0x00, "STA Counters from dot11CountersTable" },
+  { 0x01, "STA Counters from dot11MacStatistics group" },
+  { 0x02, "QoS STA Counters for UP0 from dot11QosCountersTable" },
+  { 0x03, "QoS STA Counters for UP1 from dot11QosCountersTable" },
+  { 0x04, "QoS STA Counters for UP2 from dot11QosCountersTable" },
+  { 0x05, "QoS STA Counters for UP3 from dot11QosCountersTable" },
+  { 0x06, "QoS STA Counters for UP4 from dot11QosCountersTable" },
+  { 0x07, "QoS STA Counters for UP5 from dot11QosCountersTable" },
+  { 0x08, "QoS STA Counters for UP6 from dot11QosCountersTable" },
+  { 0x09, "QoS STA Counters for UP7 from dot11QosCountersTable" },
+  { 0x0a, "BSS Average Access Delays" },
+  { 0x0b, "STA Counters from dot11A-MSDU Group" },
+  { 0x0c, "STA Counters from dot11A-MPDU Group" },
+  { 0x0d, "STA Counters from dot11 BAR, Channel Width, PSMP Group" },
+  { 0x0e, "STA Counters from dot11Protection Group" },
+  { 0x0f, "STBC Group" },
+  { 0x00, NULL }
+};
+  
 static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
@@ -1482,10 +1588,19 @@ static int hf_ieee80211_block_ack_bitmap = -1;
 
 static int hf_ieee80211_tag_measure_request_measurement_mode = -1;
 static int hf_ieee80211_tag_measure_request_bssid = -1;
-static int hf_ieee80211_tag_measure_request_reporting_condition = -1;
-static int hf_ieee80211_tag_measure_request_threshold_offset_unsigned = -1;
-static int hf_ieee80211_tag_measure_request_threshold_offset_signed = -1;
 
+static int hf_ieee80211_tag_measure_request_subelement_length = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_id = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_ssid = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail = -1;
+static int hf_ieee80211_tag_measure_request_beacon_sub_request = -1;
+static int hf_ieee80211_tag_measure_request_beacon_unknown = -1;
+
+static int hf_ieee80211_tag_measure_request_frame_request_type = -1;
+static int hf_ieee80211_tag_measure_request_mac_address  = -1;
+static int hf_ieee80211_tag_measure_request_peer_mac_address = -1;
 static int hf_ieee80211_tag_measure_request_group_id = -1;
 
 static int hf_ieee80211_ht_cap = -1;
@@ -1604,13 +1719,14 @@ static int hf_ieee80211_csa_channel_switch_mode = -1;
 static int hf_ieee80211_csa_new_channel_number = -1;
 static int hf_ieee80211_csa_channel_switch_count = -1;
 
-static int hf_ieee80211_tag_measure_request_measurement_token = -1;
+static int hf_ieee80211_tag_measure_request_token = -1;
 static int hf_ieee80211_tag_measure_request_mode = -1;
-static int hf_ieee80211_tag_measure_request_mode_reserved1 = -1;
+static int hf_ieee80211_tag_measure_request_mode_parallel = -1;
 static int hf_ieee80211_tag_measure_request_mode_enable = -1;
 static int hf_ieee80211_tag_measure_request_mode_request = -1;
 static int hf_ieee80211_tag_measure_request_mode_report = -1;
-static int hf_ieee80211_tag_measure_request_mode_reserved2 = -1;
+static int hf_ieee80211_tag_measure_request_mode_duration_mandatory = -1;
+static int hf_ieee80211_tag_measure_request_mode_reserved = -1;
 static int hf_ieee80211_tag_measure_request_type = -1;
 
 static int hf_ieee80211_tag_measure_request_channel_number = -1;
@@ -1660,6 +1776,18 @@ static int hf_ieee80211_tag_measure_report_rcpi = -1;
 static int hf_ieee80211_tag_measure_report_rsni = -1;
 static int hf_ieee80211_tag_measure_report_bssid = -1;
 static int hf_ieee80211_tag_measure_report_ant_id = -1;
+static int hf_ieee80211_tag_measure_report_anpi = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_0 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_1 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_2 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_3 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_4 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_5 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_6 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_7 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_8 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_9 = -1;
+static int hf_ieee80211_tag_measure_report_ipi_density_10 = -1;
 static int hf_ieee80211_tag_measure_report_parent_tsf = -1;
 
 static int hf_ieee80211_tag_extended_capabilities = -1;
@@ -1991,7 +2119,13 @@ static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
 
-static gint ett_tag_measure_request_tree = -1;
+static gint ett_tag_measure_request_mode_tree = -1;
+static gint ett_tag_measure_request_type_tree = -1;
+static gint ett_tag_measure_report_mode_tree = -1;
+static gint ett_tag_measure_report_type_tree = -1;
+static gint ett_tag_measure_report_basic_map_tree = -1;
+static gint ett_tag_measure_report_rpi_tree = -1;
+static gint ett_tag_measure_report_frame_tree = -1;
 
 static gint ett_tag_ex_cap = -1;
 
@@ -6636,6 +6770,438 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;      
     }
     
+    case TAG_MEASURE_REQ: /* 7.3.2.21 Measurement Request element (38) with update from 802.11k-2008 */
+      if (tag_len < 3)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 3", tag_len);
+        break;
+      }
+      { 
+        guint8 request_type;
+        guint tag_offset;
+        proto_item *parent_item;
+        proto_tree *sub_tree;
+
+        offset += 2;
+        tag_offset = offset;
+        
+        proto_tree_add_item(tree, hf_ieee80211_tag_measure_request_token, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_measure_request_mode, tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_mode_tree);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_parallel, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_enable, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_request, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_report, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_duration_mandatory, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mode_reserved, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+
+        parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_measure_request_type, tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_type_tree);
+        request_type = tvb_get_guint8 (tvb, offset);
+        offset += 1;
+        
+        switch(request_type) {
+          case 0: /* Basic Request */
+          case 1: /* Clear channel assessment (CCA) request */
+          case 2: /* Receive power indication (RPI) histogram request */
+          {
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            break;
+          }
+          case 3: /* Channel Load Request */
+          case 4: /* Noise Histogram Request */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* TODO Add Optionnal Subelements */
+            break;
+          }
+          case 5: /* Beacon Request */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_measurement_mode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            while(offset <= tag_end)
+            { 
+              guint8 sub_id, sub_length, sub_tag_end;
+              int sub_tag_length;
+              proto_item *ti;
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_id, tvb, offset, 1, ENC_NA);
+              sub_id = tvb_get_guint8(tvb, offset);
+              offset += 1;
+              
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_subelement_length, tvb, offset, 1, ENC_NA);
+              sub_length = tvb_get_guint8(tvb, offset);
+              offset += 1;   
+              sub_tag_end = offset + sub_length;
+              
+              switch(sub_id){
+                case MEASURE_REQ_BEACON_SUB_SSID: /* SSID (0) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_ssid, tvb, offset, sub_length, FALSE);
+                  offset += sub_length;
+                  break;
+                case MEASURE_REQ_BEACON_SUB_BRI: /* Beacon Reporting Information (1) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition, tvb, offset, 1, FALSE);
+                  offset += 1;
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset, tvb, offset, 1, FALSE);
+                  offset += 1;
+                  break;
+                case MEASURE_REQ_BEACON_SUB_RD: /* Reporting Detail (2) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail, tvb, offset, 1, FALSE);
+                  offset += 1;
+                  break;
+                case MEASURE_REQ_BEACON_SUB_REQUEST: /* Request (10) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_request, tvb, offset, 1, FALSE);
+                  offset += 1; 
+                  break;
+                case MEASURE_REQ_BEACON_SUB_APCP: /* Request (51) */
+                  /* TODO */ 
+                  break; 
+                default:
+                  /* no default action */ 
+                  break; 
+                if(offset < sub_tag_end)
+                {
+                  ti = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_length - offset, ENC_NA);
+		  expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+                }          
+             }
+
+            }
+
+            break;
+          }
+          case 6: /* Frame Request */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_frame_request_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mac_address, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            /* TODO Add Optionnal Subelements */
+            break;
+          }
+          case 7: /* BSTA Statistics Request */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_peer_mac_address, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_group_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            /* TODO Add Optionnal Subelements */
+            break;
+          }
+          case 8: /* Location Configuration Indication (LCI) Request */
+            /* TODO */
+          case 9: /* Transmit Stream Measurement Request */
+            /* TODO */
+          case 255: /* Measurement Pause Request*/
+            /* TODO */
+          default: /* unknown */
+            break;
+        }
+      }
+
+      break;
+    case TAG_MEASURE_REP: /* 7.3.2.22 Measurement Report element (39) with update from 802.11k-2008 */
+      if (tag_len < 3)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 3", tag_len);
+        break;
+      } 
+      {
+        proto_item *parent_item;
+        proto_tree *sub_tree;
+        guint8 report_type;
+
+        offset += 2;
+        proto_tree_add_item(tree, hf_ieee80211_tag_measure_report_measurement_token, tvb, offset, 1, ENC_NA);
+        offset += 1;
+       
+        parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_measure_report_mode, tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_report_mode_tree);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_mode_late, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_mode_incapable, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_mode_refused, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_mode_reserved, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        
+        report_type = tvb_get_guint8(tvb, offset);
+        parent_item = proto_tree_add_uint(tree, hf_ieee80211_tag_measure_report_type, tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_report_type_tree);
+        offset += 1;
+
+        if (tag_len == 3)
+            break;
+        switch (report_type) {
+          case 0: /* Basic Report */
+          {
+            proto_tree *sub_tree_map_field;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+
+            parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_measure_basic_map_field, tvb, offset, 1, ENC_NA);
+            sub_tree_map_field = proto_item_add_subtree(parent_item, ett_tag_measure_report_basic_map_tree);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_bss, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_odfm, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_unident_signal, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_radar, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_unmeasured, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_reserved, tvb, offset, 1, ENC_NA);
+            break;
+          }
+          case 1: /* Clear channel assessment (CCA) report */
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_cca_busy_fraction, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+          case 2: /* Receive power indication (RPI) histogram report */
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            parent_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report, tvb, offset, 8, ENC_NA);
+            sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_report_rpi_tree);
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_0, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_2, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_3, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_4, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_5, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_6, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_7, tvb, offset, 1, ENC_NA);
+            offset += 1;            
+            break;
+          case 3: /* Channel Load Report */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_load, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            /* TODO Add Optionnal Subelements */   
+            break;
+          }
+          case 4: /* Noise Histogram Report */
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ant_id, tvb, offset, 1, ENC_NA);
+            offset += 1; 
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_anpi, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_0, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_2, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_3, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_4, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_5, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_6, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_7, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_8, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_9, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_10, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            /* TODO Add Optionnal Subelements */  
+            break;
+          case 5: /* Beacon Report */
+          {
+            proto_tree *sub_tree_frame_info;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+             
+            parent_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_frame_info, tvb, offset, 1, ENC_NA);
+            sub_tree_frame_info = proto_item_add_subtree(parent_item, ett_tag_measure_report_frame_tree);
+            proto_tree_add_item(sub_tree_frame_info, hf_ieee80211_tag_measure_report_frame_info_phy_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree_frame_info, hf_ieee80211_tag_measure_report_frame_info_frame_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_rcpi, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_rsni, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_bssid, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ant_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_parent_tsf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* TODO Add Optionnal Subelements */
+            break;
+          }
+          case 6: /* Frame Report */
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            
+            /* TODO Add Optionnal Subelements */
+            break;
+          case 7: /* BSTA Statistics Report */
+            /* TODO */
+          case 8: /* Location Configuration Information Report element */
+            /* TODO */
+          case 9: /* Transmit Stream Measurement Report */
+            /* TODO */
+          default: /* unknown */
+            break;
+        }
+      }
     case TAG_TCLAS_PROCESS:
       if (tag_len != 1)
       {
@@ -6948,403 +7514,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         break;
       }
 #endif /* MESH_OVERRIDES */
-
-    case TAG_MEASURE_REQ:
-      if (tag_len < 3)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-                             "Measurement Request: Error: Tag length must be at least 3 bytes long");
-      } else {
-        guint8 info, request_type;
-        guint tag_offset;
-        proto_item *parent_item;
-        proto_tree *sub_tree;
-
-        offset += 2;
-        tag_offset = offset;
-        info = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format(tree, hf_ieee80211_tag_measure_request_measurement_token, tvb,
-                                   offset, 1, info, "Measurement Token: 0x%02X", info);
-
-        info = tvb_get_guint8 (tvb, ++offset);
-        parent_item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_measure_request_mode, tvb,
-                                                 offset, 1, info, "Measurement Request Mode: 0x%02X", info);
-        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-        proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_request_mode_reserved1, tvb, offset, 1, info);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_request_mode_enable, tvb, offset, 1, info);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_request_mode_request, tvb, offset, 1, info);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_request_mode_report, tvb, offset, 1, info);
-        proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_request_mode_reserved2, tvb, offset, 1, info);
-
-        request_type = tvb_get_guint8 (tvb, ++offset);
-        parent_item = proto_tree_add_uint(tree, hf_ieee80211_tag_measure_request_type, tvb, offset, 1, request_type);
-        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-
-        offset++;
-        switch (request_type) {
-          case 0: /* Basic Request */
-          case 1: /* Clear channel assessment (CCA) request */
-          case 2: /* Receive power indication (RPI) histogram request */
-          {
-            guint8 channel_number;
-            guint64 start_time;
-            guint16 duration;
-
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_request_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "X", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, duration, "Measurement Duration: 0x%04X TU (1 TU = 1024 us)", duration);
-            break;
-          }
-          case 3: /* Channel Load Request */
-          case 4: /* Noise Histogram Request */
-          {
-            guint8 regulatory_class, channel_number;
-            guint16 rand_interval, duration;
-
-            regulatory_class = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, regulatory_class, "Regulatory Class: 0x%02X", regulatory_class);
-
-            offset++;
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            rand_interval = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, rand_interval, "Randomization Interval: 0x%02X TU (1 TU = 1024 us)", rand_interval);
-
-            offset += 2;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, duration, "Measurement Duration: 0x%04X TU (1 TU = 1024 us)", duration);
-            break;
-          }
-          case 5: /* Beacon Request */
-          {
-            guint8 regulatory_class, channel_number, measurement_mode, reporting_condition, threshold_offset;
-            guint16 rand_interval, duration;
-
-            regulatory_class = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, regulatory_class, "Regulatory Class: 0x%02X", regulatory_class);
-
-            offset++;
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            rand_interval = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, rand_interval, "Randomization Interval: 0x%02X TU (1 TU = 1024 us)", rand_interval);
-
-            offset += 2;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, duration, "Measurement Duration: 0x%04X TU (1 TU = 1024 us)", duration);
-
-            offset+=2;
-            measurement_mode = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_request_measurement_mode, tvb, offset, 1, measurement_mode);
-
-            offset++;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
-
-            offset+=6;
-            reporting_condition = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_request_reporting_condition, tvb, offset, 1, reporting_condition);
-
-            offset++;
-            threshold_offset = tvb_get_guint8 (tvb, offset);
-            if (reporting_condition == 0) {
-              /* XXX ? */
-            } else if (reporting_condition >= 1 && reporting_condition <= 4){ /* Unsigned dBm */
-              proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_threshold_offset_unsigned, tvb, offset, 1, threshold_offset, "Threshold/Offset: 0x%02X dBm", threshold_offset);
-            } else if (reporting_condition == 5 || reporting_condition == 6 || reporting_condition == 9){ /* Signed dBm */
-              proto_tree_add_int_format(sub_tree, hf_ieee80211_tag_measure_request_threshold_offset_signed, tvb, offset, 1, threshold_offset, "Threshold/Offset: 0x%02X dBm", threshold_offset);
-            } else if (reporting_condition == 7 || reporting_condition == 8 || reporting_condition == 10){ /* Signed dB */
-              proto_tree_add_int_format(sub_tree, hf_ieee80211_tag_measure_request_threshold_offset_signed, tvb, offset, 1, threshold_offset, "Threshold/Offset: 0x%02X dB", threshold_offset);
-            } else {
-              /* Not Defined */
-            }
-            offset++;
-
-            add_tagged_field (pinfo, sub_tree, tvb, offset);
-
-            break;
-          }
-          case 6: /* Frame Request */
-          {
-            guint8 regulatory_class, channel_number;
-            guint16 rand_interval, duration;
-
-            regulatory_class = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, regulatory_class, "Regulatory Class: 0x%02X", regulatory_class);
-
-            offset++;
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            rand_interval = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, rand_interval, "Randomization Interval: 0x%02X TU (1 TU = 1024 us)", rand_interval);
-
-            offset += 2;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, duration, "Measurement Duration: 0x%04X TU (1 TU = 1024 us)", duration);
-
-            offset += 2;
-            if (tag_len >= ((offset-tag_offset)+6)){
-              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
-            }
-            break;
-          }
-          case 7: /* BSTA Statistics Request */
-          {
-            guint8 group_id;
-            guint16 rand_interval, duration;
-
-            offset++;
-            rand_interval = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, rand_interval, "Randomization Interval: 0x%02X TU (1 TU = 1024 us)", rand_interval);
-
-            offset += 2;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, duration, "Measurement Duration: 0x%04X TU (1 TU = 1024 us)", duration);
-
-            offset++;
-            group_id = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_request_group_id, tvb, offset, 1, group_id);
-            break;
-          }
-          case 8: /* Location Configuration Indication (LCI) Request */
-            /* TODO */
-          case 9: /* Transmit Stream Measurement Request */
-            /* TODO */
-          case 255: /* Measurement Pause Request*/
-            /* TODO */
-          default: /* unknown */
-            proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
-            break;
-        }
-      }
-
-      break;
-        /* 7.3.2.22 Measurement Report element
-         * The Length field is variable and depends on the length of the
-         * Measurement Report field. The minimum value of the Length field is 3.
-         */
-    case TAG_MEASURE_REP:
-      if (tag_len < 3)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Measurement Report: Error: Tag length must be at least 3 bytes long");
-      } else {
-        guint8 info, report_type, channel_number;
-        guint16 duration;
-        guint64 start_time;
-        proto_item *parent_item;
-        proto_tree *sub_tree;
-        guint tag_offset;
-
-        offset += 2;
-        tag_offset = offset;
-        info = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format(tree, hf_ieee80211_tag_measure_report_measurement_token, tvb,
-            offset, 1, info, "Measurement Token: 0x%02X", info);
-
-        offset++;
-        info = tvb_get_guint8 (tvb, offset);
-        parent_item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_measure_report_mode, tvb,
-            offset, 1, info, "Measurement Report Mode: 0x%02X", info);
-        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_report_mode_late, tvb, offset, 1, info);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_report_mode_incapable, tvb, offset, 1, info);
-        proto_tree_add_boolean(sub_tree, hf_ieee80211_tag_measure_report_mode_refused, tvb, offset, 1, info);
-        proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_mode_reserved, tvb, offset, 1, info);
-
-        offset++;
-        report_type = tvb_get_guint8 (tvb, offset);
-        parent_item = proto_tree_add_uint(tree, hf_ieee80211_tag_measure_report_type, tvb, offset, 1, report_type);
-        sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-        offset++;
-
-        if (tag_len == 3)
-            break;
-        switch (report_type) {
-          case 0: /* Basic Report */
-          {
-            proto_tree *sub_tree_map_field;
-
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "x", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
-
-            offset+=2;
-            info = tvb_get_guint8 (tvb, offset);
-            parent_item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_measure_basic_map_field, tvb,
-                              offset, 1, info, "Map Field: 0x%02X", info);
-            sub_tree_map_field = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-            proto_tree_add_boolean(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_bss, tvb, offset, 1, info);
-            proto_tree_add_boolean(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_odfm, tvb, offset, 1, info);
-            proto_tree_add_boolean(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_unident_signal, tvb, offset, 1, info);
-            proto_tree_add_boolean(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_radar, tvb, offset, 1, info);
-            proto_tree_add_boolean(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_unmeasured, tvb, offset, 1, info);
-            proto_tree_add_uint(sub_tree_map_field, hf_ieee80211_tag_measure_map_field_reserved, tvb, offset, 1, info);
-            break;
-          }
-          case 1: /* Clear channel assessment (CCA) report */
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "X", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
-
-            offset+=2;
-            info = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_cca_busy_fraction, tvb, offset, 1, info, "CCA Busy Fraction: 0x%02X", info);
-            break;
-          case 2: /* Receive power indication (RPI) histogram report */
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "X", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
-
-            offset+=2;
-            parent_item = proto_tree_add_string(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report, tvb,
-                              offset, 8, "RPI Histogram Report");
-            sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-            info = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_0, tvb, offset, 1, info, "RPI 0 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_1, tvb, offset, 1, info, "RPI 1 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_2, tvb, offset, 1, info, "RPI 2 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_3, tvb, offset, 1, info, "RPI 3 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_4, tvb, offset, 1, info, "RPI 4 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_5, tvb, offset, 1, info, "RPI 5 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_6, tvb, offset, 1, info, "RPI 6 Density: 0x%02X", info);
-            info = tvb_get_guint8 (tvb, ++offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_rpi_histogram_report_7, tvb, offset, 1, info, "RPI 7 Density: 0x%02X", info);
-            break;
-          case 3: /* Channel Load Report */
-          {
-            guint8 regulatory_class, channel_load;
-
-            regulatory_class = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
-
-            offset++;
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "X", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
-
-            offset+=2;
-            channel_load = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_channel_load, tvb, offset, 1, channel_load);
-            break;
-          }
-          case 4: /* Noise Histogram Report */
-            /* TODO */
-            proto_tree_add_text (sub_tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
-            break;
-          case 5: /* Beacon Report */
-          {
-            guint8 regulatory_class, reported_frame_info, rcpi, rsni, ant_id;
-            guint32 parent_tsf;
-            proto_tree *sub_tree_frame_info;
-
-            regulatory_class = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
-
-            offset++;
-            channel_number = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
-
-            offset++;
-            start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_ieee80211_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "X", start_time);
-
-            offset += 8;
-            duration = tvb_get_letohs (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
-
-            offset+=2;
-            reported_frame_info = tvb_get_guint8 (tvb, offset);
-            parent_item = proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_frame_info, tvb, offset, 1, reported_frame_info);
-            sub_tree_frame_info = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-            proto_tree_add_uint(sub_tree_frame_info, hf_ieee80211_tag_measure_report_frame_info_phy_type, tvb, offset, 1, reported_frame_info);
-            proto_tree_add_uint(sub_tree_frame_info, hf_ieee80211_tag_measure_report_frame_info_frame_type, tvb, offset, 1, reported_frame_info);
-
-            offset++;
-            rcpi = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_rcpi, tvb, offset, 1, rcpi, "Received Channel Power Indicator (RCPI): 0x%02X dBm", rcpi);
-
-            offset++;
-            rsni = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint_format(sub_tree, hf_ieee80211_tag_measure_report_rsni, tvb, offset, 1, rsni, "Received Signal to Noise Indicator (RSNI): 0x%02X dB", rsni);
-
-            offset++;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_bssid, tvb, offset, 6, ENC_NA);
-
-            offset+=6;
-            ant_id = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_ant_id, tvb, offset, 1, ant_id);
-
-            offset++;
-            parent_tsf = tvb_get_letohl (tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_ieee80211_tag_measure_report_parent_tsf, tvb, offset, 4, parent_tsf);
-
-            offset+=4;
-            /* TODO - Must determine frame type and dissect this */
-            if (tag_len > (offset - tag_offset))
-            {
-              proto_tree_add_text (sub_tree, tvb, offset, tag_len - (offset - tag_offset), "Reported Frame Body");
-            }
-            break;
-          }
-          case 6: /* Frame Report */
-            /* TODO */
-          case 7: /* BSTA Statistics Report */
-            /* TODO */
-          case 8: /* Location Configuration Information Report element */
-            /* TODO */
-          case 9: /* Transmit Stream Measurement Report */
-            /* TODO */
-          default: /* unknown */
-            proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
-            break;
-        }
-      }
 
       break;
     /* The Capabilities field is a bit field indicating the capabilities being advertised
@@ -11935,88 +12104,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string ieee80211_tag_measure_request_type_flags[] = {
-    {0x00, "Basic Request"},
-    {0x01, "Clear Channel Assessment (CCA) Request"},
-    {0x02, "Receive Power Indication (RPI) Histogram Request"},
-    {0x03, "Channel Load Request"},
-    {0x04, "Noise Histogram Request"},
-    {0x05, "Beacon Request"},
-    {0x06, "Frame Request"},
-    {0x07, "STA Statistics Request"},
-    {0x08, "Location Configuration Indication (LCI) Request"},
-    {0x09, "Transmit Stream Measurement Request"},
-    {0x0A, "Measurement Pause Request"},
-    {0x00, NULL}
-  };
-
-  static const value_string ieee80211_tag_measure_report_type_flags[] = {
-    {0x00, "Basic Report"},
-    {0x01, "Clear Channel Assessment (CCA) Report"},
-    {0x02, "Receive Power Indication (RPI) Histogram Report"},
-    {0x03, "Channel Load Report"},
-    {0x04, "Noise Histogram Report"},
-    {0x05, "Beacon Report"},
-    {0x06, "Frame Report"},
-    {0x07, "STA Statistics Report"},
-    {0x08, "Location Configuration Information (LCI) Report"},
-    {0x09, "Transmit Stream Measurement Report"},
-    {0x00, NULL}
-  };
-
-  static const true_false_string ieee80211_tag_measure_report_frame_info_frame_type_flag = {
-    "Measurement Pilot Frame",
-    "Beacon/Probe Response Frame"
-  };
-
-  static const true_false_string ieee80211_tag_measure_map_field_bss_flag = {
-    "At least one MPDU was received by another BSS or IBSS in the measurement period.",
-    "No MPDUs were received from another BSS or IBSS in the measurement period."
-  };
-
-  static const value_string ieee80211_tag_measure_request_measurement_mode_flags[] = {
-    {0x00, "Passive"},
-    {0x01, "Active"},
-    {0x02, "Beacon Table"},
-    {0x00, NULL}
-  };
-
-  static const value_string ieee80211_tag_measure_request_reporting_condition_flags[] = {
-    {0x00, "Report to be issued after each measurement."},
-    {0x01, "The measured RCPI level is greater than an absolute threshold."},
-    {0x02, "The measured RCPI level is less than an absolute threshold."},
-    {0x03, "The measured RSNI level is greater than an absolute threshold."},
-    {0x04, "The measured RSNI level is less than an absolute threshold."},
-    {0x05, "The measured RCPI level is greater than a threshold defined by an offset from the serving AP's reference RCPI."},
-    {0x06, "The measured RCPI level is less than a threshold defined by an offset from the serving AP's reference RCPI."},
-    {0x07, "The measured RSNI level is greater than a threshold defined by an offset from the serving AP's reference RSNI."},
-    {0x08, "The measured RSNI level is less than a threshold defined by an offset from the serving AP's reference RSNI."},
-    {0x09, "The measured RCPI level is in a range bound by the serving AP's reference RCPI and an offset from the serving AP's reference RCPI."},
-    {0x0a, "The measured RSNI level is in a range bound by the serving AP's reference RSNI and an offset from the serving AP's reference RSNI."},
-    {0xfe, "Report not required to be issued"},
-    {0x00, NULL}
-  };
-
-  static const value_string ieee80211_tag_measure_request_group_id_flags[] = {
-    {0x00, "STA Counters from dot11CountersTable"},
-    {0x01, "STA Counters from dot11MacStatistics group"},
-    {0x02, "QoS STA Counters for UP0 from dot11QosCountersTable"},
-    {0x03, "QoS STA Counters for UP1 from dot11QosCountersTable"},
-    {0x04, "QoS STA Counters for UP2 from dot11QosCountersTable"},
-    {0x05, "QoS STA Counters for UP3 from dot11QosCountersTable"},
-    {0x06, "QoS STA Counters for UP4 from dot11QosCountersTable"},
-    {0x07, "QoS STA Counters for UP5 from dot11QosCountersTable"},
-    {0x08, "QoS STA Counters for UP6 from dot11QosCountersTable"},
-    {0x09, "QoS STA Counters for UP7 from dot11QosCountersTable"},
-    {0x0a, "BSS Average Access Delays"},
-    {0x0b, "STA Counters from dot11A-MSDU Group"},
-    {0x0c, "STA Counters from dot11A-MPDU Group"},
-    {0x0d, "STA Counters from dot11 BAR, Channel Width, PSMP Group"},
-    {0x0e, "STA Counters from dot11Protection Group"},
-    {0x0f, "STBC Group"},
-    {0x00, NULL}
-  };
-
   static const value_string ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
     {0x00, "Frames may be transmitted before the channel switch has been completed"},
     {0x01, "No more frames are to be transmitted until the channel switch has been completed"},
@@ -13746,17 +13833,17 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0,
       "Set to the number of TBTTs until the STA sending the Channel Switch Announcement element switches to the new channel or shall be set to 0", HFILL }},
                        
-    {&hf_ieee80211_tag_measure_request_measurement_token,
-     {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
+    {&hf_ieee80211_tag_measure_request_token,
+     {"Measurement Token", "wlan_mgt.measure.req.token",
       FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_mode,
-     {"Measurement Request Mode", "wlan_mgt.measure.req.reqmode",
+     {"Measurement Request Mode", "wlan_mgt.measure.req.mode",
       FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_mode_reserved1,
-     {"Reserved", "wlan_mgt.measure.req.reqmode.reserved1",
-      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tag_measure_request_mode_parallel,
+     {"Parallel", "wlan_mgt.measure.req.reqmode.parallel",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_mode_enable,
      {"Measurement Request Mode Field", "wlan_mgt.measure.req.reqmode.enable",
@@ -13770,9 +13857,13 @@ proto_register_ieee80211 (void)
      {"Autonomous Measurement Reports", "wlan_mgt.measure.req.reqmode.report",
       FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x08, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_mode_reserved2,
-     {"Reserved", "wlan_mgt.measure.req.reqmode.reserved2",
-      FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
+    {&hf_ieee80211_tag_measure_request_mode_duration_mandatory,
+     {"Duration Mandatory", "wlan_mgt.measure.req.reqmode.duration_mandatory",
+      FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x10, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_request_mode_reserved,
+     {"Reserved", "wlan_mgt.measure.req.reqmode.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_type,
      {"Measurement Request Type", "wlan_mgt.measure.req.reqtype",
@@ -13788,7 +13879,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_request_duration,
      {"Measurement Duration", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "in TU (1 TU = 1024 us)", HFILL }},
 
     {&hf_ieee80211_tag_measure_request_regulatory_class,
      {"Measurement Channel Number", "wlan_mgt.measure.req.regclass",
@@ -13796,7 +13887,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_request_randomization_interval,
      {"Randomization Interval", "wlan_mgt.measure.req.randint",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "in TU (1 TU = 1024 us)", HFILL }},
 
     {&hf_ieee80211_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
@@ -13806,28 +13897,60 @@ proto_register_ieee80211 (void)
      {"BSSID", "wlan_mgt.measure.req.bssid",
       FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_reporting_condition,
-     {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_measure_request_subelement_length,
+     {"Length", "wlan_mgt.measure.req.sub.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_request_beacon_sub_id,
+     {"SubElement ID", "wlan_mgt.measure.req.beacon.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_beacon_sub_id_flags), 0, NULL, HFILL }},
+                  
+    {&hf_ieee80211_tag_measure_request_beacon_sub_ssid,
+     {"SSID", "wlan_mgt.measure.req.beacon.sub.ssid",
+      FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition,
+     {"Reporting Condition", "wlan_mgt.measure.req.beacon.sub.bri.repcond",
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_beacon_sub_bri_reporting_condition_flags), 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_threshold_offset_unsigned,
-     {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset,
+     {"Threshold/Offset", "wlan_mgt.measure.req.beacon.sub.bri.threshold_offset",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_threshold_offset_signed,
-     {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail,
+     {"Reporting Detail", "wlan_mgt.measure.req.beacon.sub.bri.reporting_detail",
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_beacon_sub_reporting_detail_flags), 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_request_beacon_sub_request,
+     {"Request", "wlan_mgt.measure.req.beacon.sub.request",
+      FT_UINT8, BASE_DEC, 0, 0, NULL, HFILL }},
+            
+    {&hf_ieee80211_tag_measure_request_beacon_unknown,
+     {"Unknown Data", "wlan_mgt.measure.req.beacon.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0, "(not interpreted)", HFILL }},
+        
+    {&hf_ieee80211_tag_measure_request_frame_request_type,
+     {"Frame Request Type", "wlan_mgt.measure.req.frame_request_type",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_request_mac_address,
+     {"MAC Address", "wlan_mgt.measure.req.mac_address",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_request_peer_mac_address,
+     {"Peer MAC Address", "wlan_mgt.measure.req.peer_mac_address",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      
     {&hf_ieee80211_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
       FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_measurement_token,
-     {"Measurement Token", "wlan_mgt.measure.req.clr",
+     {"Measurement Token", "wlan_mgt.measure.req.token",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode,
-     {"Measurement Report Mode", "wlan_mgt.measure.req.clr",
+     {"Measurement Report Mode", "wlan_mgt.measure.req.mode",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode_late,
@@ -13896,7 +14019,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_rpi_histogram_report,
      {"Receive Power Indicator (RPI) Histogram Report", "wlan_mgt.measure.rep.rpi.histogram_report",
-      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_rpi_histogram_report_0,
      {"RPI 0 Density", "wlan_mgt.measure.rep.rpi.rpi0density",
@@ -13952,11 +14075,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "in dBm", HFILL }},
 
     {&hf_ieee80211_tag_measure_report_rsni,
      {"Received Signal to Noise Indicator (RSNI)", "wlan_mgt.measure.rep.rsni",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "in dB", HFILL }},
 
     {&hf_ieee80211_tag_measure_report_bssid,
      {"BSSID Being Reported", "wlan_mgt.measure.rep.bssid",
@@ -13966,6 +14089,54 @@ proto_register_ieee80211 (void)
      {"Antenna ID", "wlan_mgt.measure.rep.antid",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_report_anpi,
+     {"ANPI", "wlan_mgt.measure.rep.anpi",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_0,
+     {"IPI Density 0", "wlan_mgt.measure.rep.ipi_density0",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_1,
+     {"IPI Density 1", "wlan_mgt.measure.rep.ipi_density1",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_2,
+     {"IPI Density 2", "wlan_mgt.measure.rep.ipi_density2",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_3,
+     {"IPI Density 3", "wlan_mgt.measure.rep.ipi_density3",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_4,
+     {"IPI Density 4", "wlan_mgt.measure.rep.ipi_density4",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_5,
+     {"IPI Density 5", "wlan_mgt.measure.rep.ipi_density5",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_6,
+     {"IPI Density 6", "wlan_mgt.measure.rep.ipi_density6",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_tag_measure_report_ipi_density_7,
+     {"IPI Density 7", "wlan_mgt.measure.rep.ipi_density7",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+ 
+     {&hf_ieee80211_tag_measure_report_ipi_density_8,
+     {"IPI Density 8", "wlan_mgt.measure.rep.ipi_density8",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_9,
+     {"IPI Density 9", "wlan_mgt.measure.rep.ipi_density9",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_ipi_density_10,
+     {"IPI Density 10", "wlan_mgt.measure.rep.ipi_density10",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+                                         
     {&hf_ieee80211_tag_measure_report_parent_tsf,
      {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -14722,7 +14893,13 @@ proto_register_ieee80211 (void)
     &ett_ht_info_delimiter3_tree,
     &ett_msdu_aggregation_parent_tree,
     &ett_msdu_aggregation_subframe_tree,
-    &ett_tag_measure_request_tree,
+    &ett_tag_measure_request_mode_tree,
+    &ett_tag_measure_request_type_tree,
+    &ett_tag_measure_report_mode_tree,
+    &ett_tag_measure_report_type_tree,
+    &ett_tag_measure_report_basic_map_tree,
+    &ett_tag_measure_report_rpi_tree,
+    &ett_tag_measure_report_frame_tree,
     &ett_tag_ex_cap,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
