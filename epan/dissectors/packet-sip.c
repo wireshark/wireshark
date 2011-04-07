@@ -70,6 +70,7 @@ static dissector_handle_t sip_tcp_handle;
 
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
+static dissector_handle_t sip_diag_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static gint proto_sip                     = -1;
@@ -731,7 +732,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
-static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
+static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
 				gchar* cseq_method,
@@ -1903,7 +1904,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						offset, linelen, FALSE);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_status_line(tvb, reqresp_tree);
+		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen);
 		break;
 
 	case OTHER_LINE:
@@ -2886,10 +2887,12 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 
 /* Display filter for SIP Status-Line */
 static void
-dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
+dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end)
 {
 	char string[3+1];
 	gint response_code = 0;
+	int offset, diag_len;
+	tvbuff_t *next_tvb;
 
 	/*
 	 * We know we have the entire status code; otherwise,
@@ -2909,6 +2912,20 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 
 	/* Add response code for sending to tap */
 	stat_info->response_code = response_code;
+	
+	/* Skip past the responce code and possible trailing space */ 
+	offset =  SIP2_HDR_LEN + 1 + 3 + 1;
+
+	/* Check for diagnostics */
+	diag_len = line_end - offset;
+	if((diag_len) <= 0)
+		return;
+
+	/* If we have a SIP diagnostics sub dissector call it */
+	if(sip_diag_handle){
+		next_tvb = tvb_new_subset(tvb, offset, diag_len, diag_len);
+		call_dissector(sip_diag_handle, next_tvb, pinfo, tree);
+	}
 }
 
 /* From section 4.1 of RFC 2543:
@@ -4649,6 +4666,7 @@ proto_reg_handoff_sip(void)
 		sip_handle = find_dissector("sip");
 		sip_tcp_handle = find_dissector("sip.tcp");
 		sigcomp_handle = find_dissector("sigcomp");
+		sip_diag_handle = find_dissector("sip.diagnostic");
 		/* SIP content type and internet media type used by other dissectors are the same */
 		media_type_dissector_table = find_dissector_table("media_type");
 
