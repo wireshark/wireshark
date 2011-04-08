@@ -18,6 +18,7 @@ buffer_remove_start
 file_seek
 file_tell
 file_error
+file_gets
 
 wtap_buf_ptr
 wtap_cleareof
