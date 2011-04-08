@@ -353,6 +353,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bacapp.c
 	dissectors/packet-bacnet.c
 	dissectors/packet-banana.c
+	dissectors/packet-babel.c
 	dissectors/packet-bat.c
 	dissectors/packet-batadv.c
 	dissectors/packet-bctp.c
