@@ -482,7 +482,12 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 	/* if within raw area while reading, just go there */
 	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw) {
-		if (ws_lseek(file->fd, offset - file->have, SEEK_CUR) == -1) {
+		/* XXX - handle 64-bit offsets better */
+#ifdef _WIN32
+		if (ws_lseek(file->fd, (long)(offset - file->have), SEEK_CUR) == -1) {
+#else
+		if (ws_lseek(file->fd, (off_t)(offset - file->have), SEEK_CUR) == -1) {
+#endif
 			*err = errno;
 			return -1;
 		}
@@ -505,7 +510,12 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		/* rewind, then skip to offset */
 
 		/* back up and start over */
-		if (ws_lseek(file->fd, file->start, SEEK_SET) == -1) {
+		/* XXX - handle 64-bit offsets better */
+#ifdef _WIN32
+		if (ws_lseek(file->fd, (long)file->start, SEEK_SET) == -1) {
+#else
+		if (ws_lseek(file->fd, (off_t)file->start, SEEK_SET) == -1) {
+#endif
 			*err = errno;
 			return -1;
 		}
