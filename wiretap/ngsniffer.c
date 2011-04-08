@@ -462,7 +462,7 @@ static const guint32 Psec[] = {
 /* Information for a compressed Sniffer data stream. */
 typedef struct {
 	unsigned char *buf;	/* buffer into which we uncompress data */
-	size_t	nbytes;		/* number of bytes of data in that buffer */
+	unsigned int nbytes;	/* number of bytes of data in that buffer */
 	int	nextout;	/* offset in that buffer of stream's current position */
 	gint64	comp_offset;	/* current offset in compressed data stream */
 	gint64	uncomp_offset;	/* current offset in uncompressed data stream */
@@ -507,7 +507,7 @@ static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
 static void set_pseudo_header_frame6(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    guchar *pd, size_t length, int *err);
+    guchar *pd, unsigned int length, int *err);
 static int infer_pkt_encap(const guint8 *pd, int len);
 static int fix_pseudo_header(int encap, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header);
@@ -518,8 +518,8 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
 	unsigned char * outbuf, size_t outlen, int *err );
-static gint64 ng_file_read(void *buffer, size_t elementsize, size_t numelements,
-    wtap *wth, gboolean is_random, int *err);
+static gint64 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth,
+    gboolean is_random, int *err);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err);
 static gint64 ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err);
@@ -1323,7 +1323,7 @@ ngsniffer_read_rec_header(wtap *wth, gboolean is_random, guint16 *typep,
 	/*
 	 * Read the record header.
 	 */
-	bytes_read = ng_file_read(record_type, 1, 2, wth, is_random, err);
+	bytes_read = ng_file_read(record_type, 2, wth, is_random, err);
 	if (bytes_read != 2) {
 		if (*err != 0)
 			return -1;
@@ -1333,7 +1333,7 @@ ngsniffer_read_rec_header(wtap *wth, gboolean is_random, guint16 *typep,
 		}
 		return 0;
 	}
-	bytes_read = ng_file_read(record_length, 1, 4, wth, is_random, err);
+	bytes_read = ng_file_read(record_length, 4, wth, is_random, err);
 	if (bytes_read != 4) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -1352,8 +1352,8 @@ ngsniffer_read_frame2(wtap *wth, gboolean is_random, struct frame2_rec *frame2,
 	gint64 bytes_read;
 
 	/* Read the f_frame2_struct */
-	bytes_read = ng_file_read(frame2, 1, sizeof *frame2, wth, is_random,
-	    err);
+	bytes_read = ng_file_read(frame2, (unsigned int)sizeof *frame2, wth,
+	    is_random, err);
 	if (bytes_read != sizeof *frame2) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -1462,8 +1462,8 @@ ngsniffer_read_frame4(wtap *wth, gboolean is_random, struct frame4_rec *frame4,
 	gint64 bytes_read;
 
 	/* Read the f_frame4_struct */
-	bytes_read = ng_file_read(frame4, 1, sizeof *frame4, wth, is_random,
-	    err);
+	bytes_read = ng_file_read(frame4, (unsigned int)sizeof *frame4, wth,
+	    is_random, err);
 	if (bytes_read != sizeof *frame4) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -1733,8 +1733,8 @@ ngsniffer_read_frame6(wtap *wth, gboolean is_random, struct frame6_rec *frame6,
 	gint64 bytes_read;
 
 	/* Read the f_frame6_struct */
-	bytes_read = ng_file_read(frame6, 1, sizeof *frame6, wth, is_random,
-	    err);
+	bytes_read = ng_file_read(frame6, (unsigned int)sizeof *frame6, wth,
+	    is_random, err);
 	if (bytes_read != sizeof *frame6) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -1760,11 +1760,11 @@ set_pseudo_header_frame6(wtap *wth, union wtap_pseudo_header *pseudo_header,
 
 static gboolean
 ngsniffer_read_rec_data(wtap *wth, gboolean is_random, guchar *pd,
-    size_t length, int *err)
+    unsigned int length, int *err)
 {
 	gint64	bytes_read;
 
-	bytes_read = ng_file_read(pd, 1, length, wth, is_random, err);
+	bytes_read = ng_file_read(pd, length, wth, is_random, err);
 
 	if (bytes_read != (gint64) length) {
 		if (*err == 0)
@@ -2413,18 +2413,18 @@ typedef struct {
 } blob_info_t;
 
 static gint64
-ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
-    gboolean is_random, int *err)
+ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
+    int *err)
 {
     ngsniffer_t *ngsniffer;
     FILE_T infile;
     ngsniffer_comp_stream_t *comp_stream;
-    size_t copybytes = elementsize * numelements; /* bytes left to be copied */
+    unsigned int copybytes = nbytes; /* bytes left to be copied */
     gint64 copied_bytes = 0; /* bytes already copied */
     unsigned char *outbuffer = buffer; /* where to write next decompressed data */
     blob_info_t *blob;
-    size_t bytes_to_copy;
-    size_t bytes_left;
+    unsigned int bytes_to_copy;
+    unsigned int bytes_left;
 
     ngsniffer = (ngsniffer_t *)wth->priv;
     if (is_random) {
@@ -2438,7 +2438,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
 	errno = WTAP_ERR_CANT_READ;
 	copied_bytes = file_read(buffer, copybytes, infile);
-	if ((size_t) copied_bytes != copybytes)
+	if ((unsigned int) copied_bytes != copybytes)
 	    *err = file_error(infile);
 	return copied_bytes;
     }
@@ -2519,7 +2519,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 	copybytes -= bytes_to_copy;
 	copied_bytes += bytes_to_copy;
 	outbuffer += bytes_to_copy;
-	comp_stream->nextout += (int) bytes_to_copy;
+	comp_stream->nextout += bytes_to_copy;
 	comp_stream->uncomp_offset += bytes_to_copy;
     }
     return copied_bytes;
@@ -2596,7 +2596,7 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err)
 {
     gint64 delta;
     char *buf;
-    long amount_to_read;
+    unsigned int amount_to_read;
     ngsniffer_t *ngsniffer;
 
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
@@ -2623,12 +2623,12 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err)
     /* Ok, now read and discard "delta" bytes. */
     buf = g_malloc(INBUF_SIZE);
     while (delta != 0) {
-	amount_to_read = (long) delta;
+	if (delta > INBUF_SIZE)
+	    amount_to_read = INBUF_SIZE;
+	else
+	    amount_to_read = (unsigned int) delta;
 
-	if ((unsigned long)amount_to_read > sizeof buf)
-	    amount_to_read = sizeof buf;
-
-	if (ng_file_read(buf, 1, amount_to_read, wth, FALSE, err) < 0) {
+	if (ng_file_read(buf, amount_to_read, wth, FALSE, err) < 0) {
 	    g_free(buf);
 	    return -1;	/* error */
 	}
