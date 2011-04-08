@@ -75,16 +75,16 @@ static dissector_handle_t sip_diag_handle = NULL;
 /* Initialize the protocol and registered fields */
 static gint proto_sip                     = -1;
 static gint proto_raw_sip                 = -1;
-static gint hf_raw_sip_line               = -1;
-static gint hf_msg_hdr                    = -1;
+static gint hf_sip_raw_line               = -1;
+static gint hf_sip_msg_hdr                = -1;
 static gint hf_sip_Method                 = -1;
 static gint hf_Request_Line               = -1;
 static gint hf_sip_ruri                   = -1;
 static gint hf_sip_ruri_user              = -1;
 static gint hf_sip_ruri_host              = -1;
 static gint hf_sip_ruri_port              = -1;
-static gint hf_Status_Code                = -1;
-static gint hf_Status_Line                = -1;
+static gint hf_sip_Status_Code            = -1;
+static gint hf_sip_Status_Line            = -1;
 static gint hf_sip_display                = -1;
 static gint hf_sip_to_addr                = -1;
 static gint hf_sip_to_user                = -1;
@@ -1900,7 +1900,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	case STATUS_LINE:
 		if (sip_tree) {
-			ti_a = proto_tree_add_item(sip_tree, hf_Status_Line, tvb,
+			ti_a = proto_tree_add_item(sip_tree, hf_sip_Status_Line, tvb,
 						offset, linelen, FALSE);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
@@ -1921,7 +1921,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	offset = next_offset;
 	if (sip_tree) {
-		th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset,
+		th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
 		                         tvb_length_remaining(tvb, offset), FALSE);
 		proto_item_set_text(th, "Message Header");
 		hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
@@ -2889,7 +2889,6 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 static void
 dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end)
 {
-	char string[3+1];
 	gint response_code = 0;
 	int offset, diag_len;
 	tvbuff_t *next_tvb;
@@ -2900,13 +2899,11 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 	 * We also know that we have a version string followed by a
 	 * space at the beginning of the line, for the same reason.
 	 */
-	tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
-	string[3] = '\0';
-	response_code = atoi(string);
+	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, SIP2_HDR_LEN + 1, 3));
 
 	/* Add numerical response code to tree */
 	if (tree) {
-		proto_tree_add_uint(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
+		proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, SIP2_HDR_LEN + 1,
 		                    3, response_code);
 	}
 
@@ -3129,7 +3126,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 				str = tvb_format_text_wsp(tvb, offset, linelen);
 			else
 				str = tvb_format_text(tvb, offset, linelen);
-			proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
+			proto_tree_add_string_format(raw_tree, hf_sip_raw_line, tvb, offset, linelen,
 						     str,
 						     "%s",
 						     str);
@@ -3582,7 +3579,7 @@ void proto_register_sip(void)
         /* Setup list of header fields */
         static hf_register_info hf[] = {
 
-		{ &hf_msg_hdr,
+		{ &hf_sip_msg_hdr,
 				{ "Message Header",           "sip.msg_hdr",
                         FT_STRING, BASE_NONE, NULL, 0,
                         "Message Header in SIP message", HFILL }
@@ -3617,12 +3614,12 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: SIP R-URI Port", HFILL }
 		},
-		{ &hf_Status_Code,
+		{ &hf_sip_Status_Code,
 		       { "Status-Code", 		"sip.Status-Code",
 		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"SIP Status Code", HFILL }
 		},
-		{ &hf_Status_Line,
+		{ &hf_sip_Status_Line,
 		       { "Status-Line",                 "sip.Status-Line",
 		       FT_STRING, BASE_NONE,NULL,0x0,
                        "SIP Status-Line", HFILL }
@@ -4538,7 +4535,7 @@ void proto_register_sip(void)
         /* raw_sip header field(s) */
         static hf_register_info raw_hf[] = {
 
-		{ &hf_raw_sip_line,
+		{ &hf_sip_raw_line,
 				{ "Raw SIP Line",                "raw_sip.line",
 					FT_STRING, BASE_NONE,NULL,0x0,
 				NULL, HFILL }
