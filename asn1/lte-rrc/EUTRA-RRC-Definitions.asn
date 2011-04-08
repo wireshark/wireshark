@@ -2,7 +2,7 @@
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
- 
+
 BEGIN
 
 
@@ -3334,3 +3334,5 @@ maxUTRA-TDD-Carrier			INTEGER ::= 16	-- Maximum number of UTRA TDD carrier frequ
 
 
 END
+
+

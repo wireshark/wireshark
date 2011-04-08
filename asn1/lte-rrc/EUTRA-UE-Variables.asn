@@ -1,10 +1,31 @@
 -- 3GPP TS 36.331 V9.6.0 (2011-03)
 -- $Id$
 --
-
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
- 
+
 BEGIN
+
+IMPORTS
+	CarrierFreqGERAN,
+	CellIdentity,
+	SpeedStateScaleFactors,
+	C-RNTI,
+	MeasId,
+	MeasIdToAddModList,
+	MeasObjectToAddModList,
+	MobilityStateParameters,
+	NeighCellConfig,
+	PhysCellId,
+	PhysCellIdCDMA2000,
+	PhysCellIdGERAN,
+	PhysCellIdUTRA-FDD,
+	PhysCellIdUTRA-TDD,
+	QuantityConfig,
+	ReportConfigToAddModList,
+	RSRP-Range,
+	maxCellMeas,
+	maxMeasId
+FROM EUTRA-RRC-Definitions;
 
 
 VarMeasConfig ::=					SEQUENCE {
@@ -58,3 +79,5 @@ VarShortMAC-Input ::=					SEQUENCE {
 
 
 END
+
+

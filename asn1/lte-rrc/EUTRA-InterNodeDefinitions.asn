@@ -2,8 +2,28 @@
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
- 
+
 BEGIN
+
+IMPORTS
+	AntennaInfoCommon,
+	CellIdentity,
+	C-RNTI,
+	DL-DCCH-Message,
+	ARFCN-ValueEUTRA,
+	MasterInformationBlock,
+	MeasConfig,
+	OtherConfig-r9,
+	PhysCellId,
+	RadioResourceConfigDedicated,
+	SecurityAlgorithmConfig,
+	ShortMAC-I,
+	SystemInformationBlockType1,
+	SystemInformationBlockType1-v890-IEs,
+	SystemInformationBlockType2,
+	UECapabilityInformation,
+	UE-CapabilityRAT-ContainerList
+FROM EUTRA-RRC-Definitions;
 
 
 HandoverCommand ::=					SEQUENCE {
@@ -134,3 +154,5 @@ maxReestabInfo				INTEGER ::= 32	-- Maximum number of KeNB* and shortMAC-I forwa
 
 
 END
+
+
