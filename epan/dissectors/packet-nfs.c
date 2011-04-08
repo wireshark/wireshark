@@ -1462,9 +1462,8 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 		else
 			flag_value = tvb_get_ntohl(tvb, flag_O);
 		if (tree) {
-			proto_item* flag_item;
-			flag_item = proto_tree_add_uint(tree, hf_nfs_fh_flag, tvb,
-							flag_O, flag_L, flag_value);
+			proto_tree_add_uint(tree, hf_nfs_fh_flag, tvb,
+					    flag_O, flag_L, flag_value);
 		}
 	}
 }
@@ -1557,37 +1556,37 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 
 	/* pseudo inode */
 	{
-	guint32 pinode;
-	pinode   = tvb_get_letohl(tvb, offset+0);
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nfs_fh_pinode,
-			tvb, offset+0, 4, pinode);
-	}
+		guint32 pinode;
+		pinode   = tvb_get_letohl(tvb, offset+0);
+		if (tree) {
+			proto_tree_add_uint(tree, hf_nfs_fh_pinode,
+					    tvb, offset+0, 4, pinode);
+		}
 	}
 
 	/* hash path */
 	{
-	guint32 hashlen;
+		guint32 hashlen;
 
-	hashlen  = tvb_get_guint8(tvb, offset+4);
-	if (tree) {
-		proto_item* hash_item;
-		proto_tree* hash_tree;
+		hashlen  = tvb_get_guint8(tvb, offset+4);
+		if (tree) {
+			proto_item* hash_item;
+			proto_tree* hash_tree;
 
-		hash_item = proto_tree_add_text(tree, tvb, offset+4,
-				hashlen + 1,
-				"hash path: %s",
-				tvb_bytes_to_str(tvb,offset+5,hashlen));
-		hash_tree = proto_item_add_subtree(hash_item,
-					ett_nfs_fh_hp);
-		proto_tree_add_uint(hash_tree,
-					hf_nfs_fh_hp_len, tvb, offset+4, 1,
-					hashlen);
-		proto_tree_add_text(hash_tree, tvb, offset+5,
-					hashlen,
-					"key: %s",
-					tvb_bytes_to_str(tvb,offset+5,hashlen));
-	}
+			hash_item = proto_tree_add_text(tree, tvb, offset+4,
+							hashlen + 1,
+							"hash path: %s",
+							tvb_bytes_to_str(tvb,offset+5,hashlen));
+			hash_tree = proto_item_add_subtree(hash_item,
+							   ett_nfs_fh_hp);
+			proto_tree_add_uint(hash_tree,
+					    hf_nfs_fh_hp_len, tvb, offset+4, 1,
+					    hashlen);
+			proto_tree_add_text(hash_tree, tvb, offset+5,
+					    hashlen,
+					    "key: %s",
+					    tvb_bytes_to_str(tvb,offset+5,hashlen));
+		}
 	}
 }
 
@@ -8152,11 +8151,12 @@ dissect_nfs_dirlist4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     proto_tree *tree)
 {
 	proto_tree *newftree = NULL;
+	proto_tree *fitem = NULL;
 
-	newftree = proto_item_add_subtree(tree, ett_nfs_dirlist4);
-	if (newftree==NULL) return offset;
+	fitem = proto_tree_add_text(tree, tvb, offset, 0, "Directory Listing");
+	newftree = proto_item_add_subtree(fitem, ett_nfs_dirlist4);
 
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_nfs_entry4);
+	offset = dissect_rpc_list(tvb, pinfo, newftree, offset, dissect_nfs_entry4);
 	offset = dissect_rpc_bool(tvb, newftree, hf_nfs_dirlist4_eof, offset);
 
 	return offset;
@@ -8170,6 +8170,8 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 	proto_tree *fitem = NULL;
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_change_info4);
+
 	offset = dissect_rpc_bool(tvb, newftree,
 			hf_nfs_change_info4_atomic, offset);
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
@@ -8178,9 +8180,6 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 			offset);
 
 
-	if (fitem) {
-		newftree = proto_item_add_subtree(fitem, ett_nfs_change_info4);
-	}
 
 	return offset;
 }
@@ -9516,8 +9515,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 				/* Display a filterable field of the most significant operations in all cases. */
 				main_opname=val_to_str_ext_const(main_opcode, &names_nfsv4_operation_ext, "Unknown");
-
-				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
+				main_op_item=proto_tree_add_uint_format_value(ftree, hf_nfs_main_opcode, tvb, 0, 0,
+									      main_opcode, "%s (%u)", main_opname, main_opcode);
 				PROTO_ITEM_SET_GENERATED(main_op_item);
 			}
 
@@ -9928,8 +9927,9 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 				/* Display a filterable field of the most significant operations in all cases. */
 				main_opname=val_to_str_ext_const(main_opcode, &names_nfsv4_operation_ext, "Unknown");
-
-				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
+				main_op_item=proto_tree_add_uint_format_value(ftree, hf_nfs_main_opcode, tvb, 0, 0,
+									      main_opcode, "%s (%u)", main_opname, main_opcode);
+				PROTO_ITEM_SET_GENERATED(main_op_item);
 			}
 
 			if (first_operation==0)
