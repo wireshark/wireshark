@@ -4877,82 +4877,115 @@ static const value_string atheros_ie_type_vals[] = {
 static void
 dissect_vendor_ie_atheros_cap(proto_item * item _U_, tvbuff_t *tvb, int offset)
 {
-  guint8 capability;
   proto_tree *cap_tree;
-
-  capability = tvb_get_guint8(tvb, offset);
 
   cap_tree = proto_item_add_subtree(item, ett_ath_cap_tree);
 
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_turbop, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_comp, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_ff, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_xr, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_ar, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_burst, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_wme, tvb,
-    offset, 1, capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_atheros_ie_cap_f_boost, tvb,
-    offset, 1, capability);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_turbop, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_comp, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_ff, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_xr, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_ar, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_burst, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_wme, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(cap_tree, hf_ieee80211_atheros_ie_cap_f_boost, tvb, offset, 1, ENC_NA);
+  
 }
 
 static void
 dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
-                          tvbuff_t * tvb, int offset, guint tag_len)
+                          tvbuff_t * tvb, int offset, guint tag_len, 
+                          packet_info * pinfo, int tag_end, proto_item *ti_len)
 {
   guint8 type;
   guint8 subtype;
   guint8 version;
-  double temp_double;
   proto_item *cap_item;
+  proto_item *ti;
 
-  if (tag_len >= 3) {
-    type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset++, 1, TRUE);
-
-    subtype = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_subtype, tvb, offset++, 1, TRUE);
-
-    version = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_version, tvb, offset++, 1, TRUE);
-  } else {
-    type = 0;
-    subtype = 0;
-    version = 0;
+  if (tag_len <= 6) {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
+        return;
   }
-
-  if (ATHEROS_IE_ADVCAP == type && ATHEROS_IE_ADVCAP_S == subtype && 0 == version && 6 == tag_len) {
-    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_cap, tvb, offset, 1, TRUE);
-    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
-    offset += 1;
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_defkey, tvb, offset, 2, TRUE);
-  } else if (ATHEROS_IE_XR == type && ATHEROS_IE_XR_S == subtype && 0 == version && 20 == tag_len) {
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_info, tvb, offset, 1, TRUE);
-    offset += 1;
-    proto_tree_add_ether(ietree, hf_ieee80211_atheros_ie_xr_base_bssid, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
-    offset += 6;
-    proto_tree_add_ether(ietree, hf_ieee80211_atheros_ie_xr_xr_bssid, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
-    offset += 6;
-    temp_double = (double)tvb_get_letohs(tvb, offset) * 1024 / 1000000;
-    proto_tree_add_double_format(ietree, hf_ieee80211_atheros_ie_xr_xr_beacon, tvb, offset, 2,
-      temp_double, "XR Beacon Interval: %f [Seconds]", temp_double);
-    offset += 2;
-    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_cap, tvb, offset, 1, TRUE);
-    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
-    offset += 1;
-    cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_cap, tvb, offset, 1, TRUE);
-    dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
-  } else {
-    type = 0; /* Reset type */
-    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, FALSE);
-  }
+  proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset, 1, ENC_NA);
+  type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(item, ": %s", val_to_str(type, atheros_ie_type_vals, "Unknown"));
+  offset += 1;
+
+  proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_subtype, tvb, offset, 1, ENC_NA);
+  subtype = tvb_get_guint8(tvb, offset);
+  offset += 1;
+       
+  proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_version, tvb, offset, 1, ENC_NA);
+  version = tvb_get_guint8(tvb, offset);
+  offset += 1;
+
+  if(version == 0)
+  {
+    switch(type){
+      case ATHEROS_IE_ADVCAP:
+      {
+        switch(subtype){
+          case ATHEROS_IE_ADVCAP_S:
+          {
+            cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_cap, tvb, offset, 1, ENC_NA);
+            dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+            offset += 1;
+            
+            proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_defkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            break;
+          }
+          default:
+          /* No default Action */
+          break;
+        } /* End switch(subtype) */
+        break;
+      }
+      case ATHEROS_IE_XR:
+      {
+        switch(subtype){
+          case ATHEROS_IE_XR_S:
+          {
+            proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_info, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            
+            proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_bssid, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_bssid, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            
+            proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_beacon, tvb, offset, 2, ENC_LITTLE_ENDIAN); 
+            offset += 2;
+            
+            cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_cap, tvb, offset, 1, ENC_NA);
+            dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+            offset += 1;   
+            
+            cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_cap, tvb, offset, 1, ENC_NA);
+            dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
+            offset += 1;
+            break;       
+          }
+          default:
+          /* No default Action */
+          break;
+        break;
+        } /* End switch(subtype) */
+        default:
+        /* No default Action */
+        break;
+      } /* End switch(type) */
+       
+    }
+  }
+  if(offset < tag_end){
+   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, FALSE);
+   expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
+  }
+ 
+ 
 }
 
 typedef enum {
@@ -6181,7 +6214,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     tag_len_len = 1;
     tag_len = tvb_get_guint8(tvb, offset + 1);
   }
-  tag_end = offset + tag_len;
+  tag_end = offset + 2 + tag_len;
   if (tree) {
     ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len , FALSE);
     proto_item_append_text(ti, ": %s", rval_to_str(tag_no, tag_num_vals, "Reserved tag Number"));
@@ -6239,7 +6272,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       offset += 2;
 
-      while(offset <= tag_end + 1)
+      while(offset < tag_end)
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1, FALSE);
         proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
@@ -6369,7 +6402,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         proto_item_append_text(ti, ", Environment %s", val_to_str(tvb_get_guint8(tvb, offset), environment_vals,"Unknown (0x%02x)"));
         offset += 1;
 
-        while(offset <= tag_end + 1)
+        while(offset < tag_end)
         {
           if(tvb_get_guint8(tvb, offset) <= 200) { /* 802.11d */
             sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_fnm, tvb, offset, 3, FALSE);
@@ -6441,7 +6474,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_offset, tvb, offset, 1, FALSE);
       offset += 1;
 
-      while(offset <= tag_end )
+      while(offset < tag_end )
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_random_table, tvb, offset, 2, FALSE);
         offset += 2;
@@ -6449,7 +6482,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
 
     case TAG_REQUEST: /* 7.3.2.12 Request information element (10) */
-      while(offset <= tag_end )
+      while(offset < tag_end )
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_request, tvb, offset, 1, FALSE);
         offset += 1;
@@ -6729,7 +6762,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
            expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u must be even",tag_len);
            break;
         }
-        while(offset <= tag_end)
+        while(offset < tag_end)
         {
           chan_item = proto_tree_add_item(tree, hf_ieee80211_tag_supported_channels, tvb, offset, 2, FALSE);
           proto_item_append_text(chan_item, " #%d", i);
@@ -6857,7 +6890,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
             offset += 6;
             
-            while(offset <= tag_end)
+            while(offset < tag_end)
             { 
               guint8 sub_id, sub_length, sub_tag_end;
               int sub_tag_length;
@@ -7330,7 +7363,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
           break;
         case OUI_ATHEROS:
-          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 5, tag_len - 3);
+          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 5, tag_len, pinfo, tag_end, ti_len);
           break;
         default:
           proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 5,
@@ -14381,7 +14414,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_atheros_ie_xr_xr_beacon,
      {"XR Beacon Interval", "wlan_mgt.atheros.ie.xr.xr_beacon",
-      FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_UINT32, BASE_CUSTOM, beacon_interval_base_custom, 0, NULL, HFILL }},
 
     {&hf_ieee80211_atheros_ie_xr_base_cap,
      {"Base capabilities", "wlan_mgt.atheros.ie.xr.base_cap",
