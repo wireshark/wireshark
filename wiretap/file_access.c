@@ -768,15 +768,15 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 					gboolean compressed, int *err);
 static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean compressed, int *err);
 
-static FILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
-static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
+static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
+static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
-	FILE_T fh;
+	WFILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
@@ -828,7 +828,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 				gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
-	FILE_T fh;
+	WFILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
@@ -1010,7 +1010,7 @@ gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static FILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
 	if(wdh->compressed) {
 		return gzopen(filename, "wb");
@@ -1019,7 +1019,7 @@ static FILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 	}
 }
 #else
-static FILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
+static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 {
 	return ws_fopen(filename, "wb");
 }
@@ -1027,7 +1027,7 @@ static FILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
 	if(wdh->compressed) {
 		return gzdopen(fd, "wb");
@@ -1036,7 +1036,7 @@ static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 	}
 }
 #else
-static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
+static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 {
 	return fdopen(fd, "wb");
 }

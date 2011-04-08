@@ -24,35 +24,18 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-extern gint64 file_seek(void *stream, gint64 offset, int whence, int *err);
-extern gint64 file_tell(void *stream);
-extern int file_error(void *fh);
-
-#ifdef HAVE_LIBZ
+extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
+extern gint64 file_tell(FILE_T stream);
+extern int file_error(FILE_T fh);
 
 extern FILE_T file_open(const char *path);
-#define filed_open(fildes) gzdopen(fildes, "rb")
-#define file_read(buf, count, file) gzread((file),(buf),(unsigned)(count))
-#define file_close gzclose
-#define file_getc gzgetc
-#define file_gets(buf, len, file) gzgets((file), (buf), (len))
-#define file_eof gzeof
+extern FILE_T filed_open(int fildes);
+extern int file_read(void *buf, unsigned int count, FILE_T file);
+extern int file_close(FILE_T file);
+extern int file_getc(FILE_T stream);
+extern char *file_gets(char *buf, int len, FILE_T stream);
+extern int file_eof(FILE_T stream);
+extern void file_clearerr(FILE_T stream);
 
-#ifdef HAVE_GZCLEARERR
-#define file_clearerr gzclearerr
-#endif
-
-#else /* No zLib */
-
-#define file_open(path) ws_fopen(path, "rb")
-#define filed_open(fildes) fdopen(fildes, "rb")
-#define file_read(buf, count, file) fread((buf), (1), (count), (file))
-#define file_close fclose
-#define file_getc fgetc
-#define file_gets fgets
-#define file_eof feof
-/* #define file_clearerr clearerr */
-
-#endif /* HAVE_LIBZ */
 
 #endif /* __FILE_H__ */
