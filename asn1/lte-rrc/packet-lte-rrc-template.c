@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V8.3.0 Release 8) packet dissection
+ * (3GPP TS 36.331 V9.6.0 Release 9) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -101,16 +101,16 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
-  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Supported",
-  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Not supported"
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; PDSCH transmission mode 5; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Supported",
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; PDSCH transmission mode 5; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_2_val = {
   "Simultaneous CQI and ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0 and 2-1 - Supported",
   "Simultaneous CQI and ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0 and 2-1 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_3_val = {
-  "Semi-persistent scheduling; TTI bundling; 5bit RLC UM SN; 7bit PDCP SN - Supported",
-  "Semi-persistent scheduling; TTI bundling; 5bit RLC UM SN; 7bit PDCP SN - Not supported"
+  "5bit RLC UM SN; 7bit PDCP SN - Supported",
+  "5bit RLC UM SN; 7bit PDCP SN - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_4_val = {
   "Short DRX cycle - Supported",
@@ -161,8 +161,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_15_val = {
   "Measurement reporting event: Event B1 - Neighbour > threshold - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_16_val = {
-  "Periodical measurement reporting for non-ANR related measurements - Supported",
-  "Periodical measurement reporting for non-ANR related measurements - Not supported"
+  "non-ANR related periodical measurement reporting - Supported",
+  "non-ANR related periodical measurement reporting - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_17_val = {
   "Periodical measurement reporting for SON / ANR; ANR related intra-frequency measurement reporting events - Supported",
@@ -209,12 +209,12 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_27_val = {
   "EUTRA RRC_CONNECTED to UTRA CELL_DCH CS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_28_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "TTI bundling - Supported",
+  "TTI bundling - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_29_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Semi-Persistent Scheduling - Supported",
+  "Semi-Persistent Scheduling - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_30_val = {
   "Undefined - Supported",

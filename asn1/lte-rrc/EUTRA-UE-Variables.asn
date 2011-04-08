@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V9.2.0 (2010-03)
+-- 3GPP TS 36.331 V9.6.0 (2011-03)
 -- $Id$
 --
 
@@ -58,4 +58,3 @@ VarShortMAC-Input ::=					SEQUENCE {
 
 
 END
-
