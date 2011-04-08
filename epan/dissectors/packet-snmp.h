@@ -5,7 +5,7 @@
 
 /* Input file: packet-snmp-template.h */
 
-#line 1 "packet-snmp-template.h"
+#line 1 "../../asn1/snmp/packet-snmp-template.h"
 /* packet-snmp.h
  * Routines for snmp packet dissection
  *

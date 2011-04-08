@@ -557,6 +557,16 @@ def dependency_compute(items, dependency, map_fn = lambda t: t, ignore_fn = lamb
         x[e] = True
   return (item_ord, item_cyc)
 
+# Given a filename, return a relative path from epan/dissectors
+def rel_dissector_path(filename):
+  path_parts = os.path.abspath(filename).split(os.sep)
+  while (len(path_parts) > 3 and path_parts[0] != 'asn1'):
+    path_parts.pop(0)
+  path_parts.insert(0, '..')
+  path_parts.insert(0, '..')
+  return '/'.join(path_parts)  
+  
+
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
   def __init__(self, conform, output, indent = 0):
@@ -2175,7 +2185,7 @@ class EthCnf:
     self.fn[name][ctx]['used'] = True
     out = self.fn[name][ctx]['text']
     if (not self.suppress_line):
-      out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], os.path.basename(self.fn[name][ctx]['fn']), out);
+      out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], rel_dissector_path(self.fn[name][ctx]['fn']), out);
     return out
 
   def add_pdu(self, par, is_new, fn, lineno):
@@ -2878,7 +2888,7 @@ class EthOut:
     fout.write(self.fhdr(out_nm))
     fout.write('/* Input file: ' + os.path.basename(in_nm) +' */\n')
     fout.write('\n')
-    fout.write('#line %u "%s"\n' % (1, os.path.basename(in_nm)))
+    fout.write('#line %u "%s"\n' % (1, rel_dissector_path(in_nm)))
 
     include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
 
@@ -2900,12 +2910,12 @@ class EthOut:
       if (ifile):
         fout.write('\n')
         fout.write('/*--- Included file: ' + ifile + ' ---*/\n')
-        fout.write('#line %u "%s"\n' % (1, os.path.basename(ifile)))
+        fout.write('#line %u "%s"\n' % (1, rel_dissector_path(ifile)))
         finc = file(ifile, "r")
         fout.write(finc.read())
         fout.write('\n')
         fout.write('/*--- End of included file: ' + ifile + ' ---*/\n')
-        fout.write('#line %u "%s"\n' % (cont_linenum+1, os.path.basename(in_nm)) )
+        fout.write('#line %u "%s"\n' % (cont_linenum+1, rel_dissector_path(in_nm)) )
         finc.close()
       else:
         fout.write(line)
