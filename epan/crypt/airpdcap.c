@@ -1718,11 +1718,14 @@ AirPDcapRsnaPwd2PskStep(
     const INT count,
     UCHAR *output)
 {
-    UCHAR digest[36], digest1[AIRPDCAP_SHA_DIGEST_LEN];
+    UCHAR digest[64], digest1[64];
     INT i, j;
 
-    if (ssidLength > 36 - 4)
+    if (ssidLength+4 > 36)
         return AIRPDCAP_RET_UNSUCCESS;
+
+    memset(digest, 0, 64);
+    memset(digest1, 0, 64);
 
     /* U1 = PRF(P, S || INT(i)) */
     memcpy(digest, ssid, ssidLength);
