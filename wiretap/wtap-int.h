@@ -37,9 +37,6 @@
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>
-#define WFILE_T	gzFile
-#else /* No zLib */
-#define WFILE_T	FILE *
 #endif /* HAVE_LIBZ */
 
 typedef struct {
@@ -103,6 +100,11 @@ struct wtap {
 };
 
 struct wtap_dumper;
+
+/*
+ * This could either be a FILE * or a gzFile.
+ */
+typedef void *WFILE_T;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 		const struct wtap_pkthdr*, const union wtap_pseudo_header*,

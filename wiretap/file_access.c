@@ -921,7 +921,7 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 	if(compressed) {
 		cant_seek = TRUE;
 	} else {
-		fd = fileno(wdh->fh);
+		fd = fileno((FILE *)wdh->fh);
 		if (lseek(fd, 1, SEEK_CUR) == -1)
 			cant_seek = TRUE;
 		else {
@@ -949,11 +949,11 @@ void wtap_dump_flush(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		gzflush(wdh->fh, Z_SYNC_FLUSH);	/* XXX - is Z_SYNC_FLUSH the right one? */
+		gzflush((gzFile)wdh->fh, Z_SYNC_FLUSH);	/* XXX - is Z_SYNC_FLUSH the right one? */
 	} else
 #endif
 	{
-		fflush(wdh->fh);
+		fflush((FILE *)wdh->fh);
 	}
 }
 
@@ -1053,14 +1053,14 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 
 #ifdef HAVE_LIBZ
 	if (wdh->compressed) {
-		nwritten = gzwrite(wdh->fh, buf, (unsigned) bufsize);
+		nwritten = gzwrite((gzFile)wdh->fh, buf, (unsigned) bufsize);
 		/*
 		 * At least according to zlib.h, gzwrite returns 0
 		 * on error; that appears to be the case in libz
 		 * 1.2.5.
 		 */
 		if (nwritten == 0) {
-			gzerror(wdh->fh, &errnum);
+			gzerror((gzFile)wdh->fh, &errnum);
 			if (errnum == Z_ERRNO)
 				*err = errno;
 			else {
@@ -1075,13 +1075,13 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 	} else
 #endif
 	{
-		nwritten = fwrite(buf, 1, bufsize, wdh->fh);
+		nwritten = fwrite(buf, 1, bufsize, (FILE *)wdh->fh);
 		/*
 		 * At least according to the Mac OS X man page,
 		 * this can return a short count on an error.
 		 */
 		if (nwritten != bufsize) {
-			if (ferror(wdh->fh))
+			if (ferror((FILE *)wdh->fh))
 				*err = errno;
 			else
 				*err = WTAP_ERR_SHORT_WRITE;
@@ -1096,10 +1096,10 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		return gzclose(wdh->fh);
+		return gzclose((gzFile)wdh->fh);
 	} else
 #endif
 	{
-		return fclose(wdh->fh);
+		return fclose((FILE *)wdh->fh);
 	}
 }
