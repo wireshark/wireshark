@@ -971,12 +971,9 @@ packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *
 }
 
 static gint
-packet_list_compare_records(gint sort_id, PacketListRecord *a,
+_packet_list_compare_records(gint sort_id, PacketListRecord *a,
 				PacketListRecord *b)
 {
-	if (col_based_on_frame_data(&cfile.cinfo, sort_id))
-		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
-
 	g_assert(a->fdata->col_text);
 	g_assert(b->fdata->col_text);
 	g_assert(a->fdata->col_text[sort_id]);
@@ -989,6 +986,21 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 		return packet_list_compare_custom (sort_id, a, b);
 	}
 	return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
+}
+
+static gint
+packet_list_compare_records(gint sort_id, PacketListRecord *a,
+				PacketListRecord *b)
+{
+	gint ret;
+
+	if (col_based_on_frame_data(&cfile.cinfo, sort_id))
+		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
+
+	ret = _packet_list_compare_records(sort_id, a, b);
+	if (ret == 0)
+		ret = a->fdata->num - b->fdata->num;
+	return ret;
 }
 
 static gint
