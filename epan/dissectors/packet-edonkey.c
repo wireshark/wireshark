@@ -36,9 +36,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -1008,7 +1005,7 @@ static const char *kademlia_hash(tvbuff_t *tvb, int offset) {
     int i;
 
     for (i = 0; i < 4; i++)
-    	hash[i] = tvb_get_letohl(tvb, offset + i*4);
+        hash[i] = tvb_get_letohl(tvb, offset + i*4);
 
     return ep_strdup_printf("%08X%08X%08X%08X", hash[0], hash[1], hash[2], hash[3]);
 }
@@ -2413,7 +2410,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_UINT16:
             {
                 guint16 value;
-                ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint16, tvb, offset, 2, TRUE);
+                proto_tree_add_item( subtree, hf_kademlia_tag_uint16, tvb, offset, 2, TRUE);
 
                 value = tvb_get_letohs( tvb, offset );
                 proto_item_append_text( tag_node, "%u (0x%04X)", value, value );
@@ -2424,7 +2421,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_UINT64:
             {
                 guint64 value;
-                ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, TRUE);
+                proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, TRUE);
 
                 value = tvb_get_letoh64( tvb, offset );
                 proto_item_append_text( tag_node, "%" G_GINT64_MODIFIER "u (0x%08" G_GINT64_MODIFIER "X)", value, value );
@@ -2451,7 +2448,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
                     }
                     break;
                     default:
-                        ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint32, tvb, offset, 4, TRUE);
+                        proto_tree_add_item( subtree, hf_kademlia_tag_uint32, tvb, offset, 4, TRUE);
                         value = tvb_get_letohl( tvb, offset );
                         proto_item_append_text( tag_node, "%u (0x%02X) ", value, value );
                 }
@@ -2462,7 +2459,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_FLOAT32:
             {
                 float value;
-                ti = proto_tree_add_item( subtree, hf_kademlia_tag_float, tvb, offset, 4, TRUE);
+                proto_tree_add_item( subtree, hf_kademlia_tag_float, tvb, offset, 4, TRUE);
 
                 value = tvb_get_letohieee_float( tvb, offset );
                 proto_item_append_text( tag_node, "%f", value );
@@ -2478,7 +2475,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
             }
             break;
         default:
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "Tag value not decoded for type: 0x%02X", type );
+            proto_tree_add_text(tree, tvb, offset, 1, "Tag value not decoded for type: 0x%02X", type );
     }
 
     proto_item_append_text( tag_node, " (Type: %s)", str_type );
@@ -3023,11 +3020,11 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
              * stream.
              */
             message_name = val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
-	    tvbraw = tvb_child_uncompress(tvb, tvb, offset+1, msg_len-1);
-	    if (tvbraw) {
-	      dissector = dissect_edonkey_tcp_message;
-	      break;
-	    }
+            tvbraw = tvb_child_uncompress(tvb, tvb, offset+1, msg_len-1);
+            if (tvbraw) {
+              dissector = dissect_edonkey_tcp_message;
+              break;
+            }
 
         default:
             message_name = "Unknown";
@@ -3043,17 +3040,17 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (edonkey_msg_tree) {
         proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset, 1, msg_type,
                                    "Message Type: %s (0x%02x)", message_name, msg_type);
-	if (dissector && (msg_len > 1)) {
-	  if (!tvbraw) {
-	    (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
-	  } else {
-	    ti = proto_tree_add_item(edonkey_msg_tree, hf_emule_zlib, tvb,
-				     offset+1, msg_len-1, FALSE);
-	    emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
-	    add_new_data_source(pinfo, tvbraw, "Decompressed Data");
-	    (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
-	  }
-	}
+        if (dissector && (msg_len > 1)) {
+          if (!tvbraw) {
+            (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
+          } else {
+            ti = proto_tree_add_item(edonkey_msg_tree, hf_emule_zlib, tvb,
+                                     offset+1, msg_len-1, FALSE);
+            emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
+            add_new_data_source(pinfo, tvbraw, "Decompressed Data");
+            (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
+          }
+        }
     }
 }
 
