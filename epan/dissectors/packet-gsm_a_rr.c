@@ -8,7 +8,7 @@
  * and other enhancements and fixes.
  * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
  *
- * Title		3GPP			Other
+ * Title        3GPP            Other
  *
  *   Reference [3]
  *   Mobile radio interface Layer 3 specification;
@@ -47,10 +47,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdlib.h>
-
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -187,97 +183,97 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 
 const value_string gsm_rr_elem_strings[] = {
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
-    { 0x00, "BA Range" },       						/* [3]  10.5.2.1a BA Range */
-    { 0x00, "Cell Channel Description" },     			/* [3]  10.5.2.1b */
-    { 0x00, "BA List Pref" },      						/* [3]  10.5.2.1c BA List Pref */
-    { 0x00, "UTRAN Frequency List" },     				/* [3]  10.5.2.1d UTRAN Frequency List */
-    { 0x00, "Cell Selection Indicator after Release of all TCH and SDCCH" },	/* [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE */
-    { 0x00, "Cell Description" },						/* 10.5.2.2  */
-    { 0x00, "Cell Options (BCCH)" },					/* [3]  10.5.2.3	Cell Options (BCCH) */
-    { 0x00, "Cell Options (SACCH)" },					/* [3]  10.5.2.3a	Cell Options (SACCH) */
-    { 0x00, "Cell Selection Parameters" },				/* [3]  10.5.2.4	Cell Selection Parameters */
-/* [3]  10.5.2.4a	(void) */
-    { 0x00, "Channel Description" },					/* 10.5.2.5	 */
-    { 0x00, "Channel Description 2" },					/* 10.5.2.5a */
-    { 0x00, "Channel Description 3" },					/* 10.5.2.5c */
-    { 0x00, "Channel Mode" },							/* [3]  10.5.2.6 */
-    { 0x00, "Channel Mode 2" },							/* [3]  10.5.2.7 */
-    { 0x00, "UTRAN Classmark" },						/* [3]  10.5.2.7a	*/
-/* [3]  10.5.2.7b	(void) */
-    { 0x00, "Classmark Enquiry Mask" },					/* [3]  10.5.2.7c */
-/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element */
-    { 0x00, "Channel Needed"},							/* [3]  10.5.2.8	*/
-    /* [3]  10.5.2.8a	(void) */
-    /* [3]  10.5.2.8b	Channel Request Description 2 */
+    { 0x00, "BA Range" },                               /* [3]  10.5.2.1a BA Range */
+    { 0x00, "Cell Channel Description" },               /* [3]  10.5.2.1b */
+    { 0x00, "BA List Pref" },                           /* [3]  10.5.2.1c BA List Pref */
+    { 0x00, "UTRAN Frequency List" },                   /* [3]  10.5.2.1d UTRAN Frequency List */
+    { 0x00, "Cell Selection Indicator after Release of all TCH and SDCCH" },    /* [3]  10.5.2.1e   Cell selection indicator after release of all TCH and SDCCH IE */
+    { 0x00, "Cell Description" },                       /* 10.5.2.2  */
+    { 0x00, "Cell Options (BCCH)" },                    /* [3]  10.5.2.3    Cell Options (BCCH) */
+    { 0x00, "Cell Options (SACCH)" },                   /* [3]  10.5.2.3a   Cell Options (SACCH) */
+    { 0x00, "Cell Selection Parameters" },              /* [3]  10.5.2.4    Cell Selection Parameters */
+/* [3]  10.5.2.4a   (void) */
+    { 0x00, "Channel Description" },                    /* 10.5.2.5  */
+    { 0x00, "Channel Description 2" },                  /* 10.5.2.5a */
+    { 0x00, "Channel Description 3" },                  /* 10.5.2.5c */
+    { 0x00, "Channel Mode" },                           /* [3]  10.5.2.6 */
+    { 0x00, "Channel Mode 2" },                         /* [3]  10.5.2.7 */
+    { 0x00, "UTRAN Classmark" },                        /* [3]  10.5.2.7a   */
+/* [3]  10.5.2.7b   (void) */
+    { 0x00, "Classmark Enquiry Mask" },                 /* [3]  10.5.2.7c */
+/* [3]  10.5.2.7d   GERAN Iu Mode Classmark information element */
+    { 0x00, "Channel Needed"},                          /* [3]  10.5.2.8    */
+    /* [3]  10.5.2.8a   (void) */
+    /* [3]  10.5.2.8b   Channel Request Description 2 */
     /* Pos 20 */
-    { 0x00, "Cipher Mode Setting" },					/* [3]  10.5.2.9	*/
-    { 0x00, "Cipher Mode Response" },			  		/* [3]  10.5.2.10	*/
-    { 0x00, "Control Channel Description" },			/* [3]  10.5.2.11	Control Channel Description */
-/* [3]  10.5.2.11a	DTM Information Details */
-    { 0x00, "Dynamic ARFCN Mapping" },					/* [3]  10.5.2.11b	*/
-    { 0x00, "Frequency Channel Sequence" },				/* [3]  10.5.2.12	*/
-    { 0x00, "Frequency List" },							/* 10.5.2.13		*/
-    { 0x00, "Frequency Short List" },					/* 10.5.2.14		*/
-    { 0x00, "Frequency Short List2" },					/* 10.5.2.14a		*/
-/* [3]  10.5.2.14b	Group Channel Description */
-    { 0x00, "GPRS Resumption" },						/* [3]  10.5.2.14c	GPRS Resumption */
-    { 0x00, "GPRS Broadcast Information" },				/* [3]  10.5.2.14d	GPRS broadcast information */
-/* [3]  10.5.2.14e	Enhanced DTM CS Release Indication */
-    { 0x00, "Handover Reference" },						/* 10.5.2.15		*/
-    { 0x00, "IA Rest Octets" },							/* [3] 10.5.2.16	*/
-    { 0x00, "IAR Rest Octets" },						/* [3] 10.5.2.17 IAR Rest Octets */
-    { 0x00, "IAX Rest Octets" },						/* [3] 10.5.2.18 IAX Rest Octets */
-    { 0x00, "L2 Pseudo Length" },						/* [3] 10.5.2.19	*/
-    { 0x00, "Measurement Results" },					/* [3] 10.5.2.20 Measurement Results */
+    { 0x00, "Cipher Mode Setting" },                    /* [3]  10.5.2.9    */
+    { 0x00, "Cipher Mode Response" },                   /* [3]  10.5.2.10   */
+    { 0x00, "Control Channel Description" },            /* [3]  10.5.2.11   Control Channel Description */
+/* [3]  10.5.2.11a  DTM Information Details */
+    { 0x00, "Dynamic ARFCN Mapping" },                  /* [3]  10.5.2.11b  */
+    { 0x00, "Frequency Channel Sequence" },             /* [3]  10.5.2.12   */
+    { 0x00, "Frequency List" },                         /* 10.5.2.13        */
+    { 0x00, "Frequency Short List" },                   /* 10.5.2.14        */
+    { 0x00, "Frequency Short List2" },                  /* 10.5.2.14a       */
+/* [3]  10.5.2.14b  Group Channel Description */
+    { 0x00, "GPRS Resumption" },                        /* [3]  10.5.2.14c  GPRS Resumption */
+    { 0x00, "GPRS Broadcast Information" },             /* [3]  10.5.2.14d  GPRS broadcast information */
+/* [3]  10.5.2.14e  Enhanced DTM CS Release Indication */
+    { 0x00, "Handover Reference" },                     /* 10.5.2.15        */
+    { 0x00, "IA Rest Octets" },                         /* [3] 10.5.2.16    */
+    { 0x00, "IAR Rest Octets" },                        /* [3] 10.5.2.17 IAR Rest Octets */
+    { 0x00, "IAX Rest Octets" },                        /* [3] 10.5.2.18 IAX Rest Octets */
+    { 0x00, "L2 Pseudo Length" },                       /* [3] 10.5.2.19    */
+    { 0x00, "Measurement Results" },                    /* [3] 10.5.2.20 Measurement Results */
 /*
  * [3] 10.5.2.20a GPRS Measurement Results
  */
-    { 0x00, "Mobile Allocation" },						/* [3] 10.5.2.21	*/
-    { 0x00, "Mobile Time Difference" },					/* [3] 10.5.2.21a	*/
-    { 0x00, "MultiRate configuration" },				/* [3] 10.5.2.21aa	*/
+    { 0x00, "Mobile Allocation" },                      /* [3] 10.5.2.21    */
+    { 0x00, "Mobile Time Difference" },                 /* [3] 10.5.2.21a   */
+    { 0x00, "MultiRate configuration" },                /* [3] 10.5.2.21aa  */
     /* Pos 30 */
-    { 0x00, "Multislot Allocation" },					/* [3] 10.5.2.21b	*/
+    { 0x00, "Multislot Allocation" },                   /* [3] 10.5.2.21b   */
     /*
      * [3] 10.5.2.21c NC mode
      */
-    { 0x00, "Neighbour Cell Description" },				/* [3] 10.5.2.22 Neighbour Cell Description */
-    { 0x00, "Neighbour Cell Description 2" },			/* [3] 10.5.2.22a Neighbour Cell Description 2 */
+    { 0x00, "Neighbour Cell Description" },             /* [3] 10.5.2.22 Neighbour Cell Description */
+    { 0x00, "Neighbour Cell Description 2" },           /* [3] 10.5.2.22a Neighbour Cell Description 2 */
 /*
  * [3] 10.5.2.22b (void)
  * [3] 10.5.2.22c NT/N Rest Octets */
-    { 0x00, "P1 Rest Octets" },							/* [3] 10.5.2.23 P1 Rest Octets */
-    { 0x00, "P2 Rest Octets" },							/* [3] 10.5.2.24 P2 Rest Octets */
-    { 0x00, "P3 Rest Octets" },							/* [3] 10.5.2.25 P3 Rest Octets */
-    { 0x00, "Packet Channel Description" },				/* [3] 10.5.2.25a	*/
-    { 0x00, "Dedicated mode or TBF" },					/* [3] 10.5.2.25b */
+    { 0x00, "P1 Rest Octets" },                         /* [3] 10.5.2.23 P1 Rest Octets */
+    { 0x00, "P2 Rest Octets" },                         /* [3] 10.5.2.24 P2 Rest Octets */
+    { 0x00, "P3 Rest Octets" },                         /* [3] 10.5.2.25 P3 Rest Octets */
+    { 0x00, "Packet Channel Description" },             /* [3] 10.5.2.25a   */
+    { 0x00, "Dedicated mode or TBF" },                  /* [3] 10.5.2.25b */
     /* [3] 10.5.2.25c RR Packet Uplink Assignment
      * [3] 10.5.2.25d RR Packet Downlink Assignment */
-    { 0x00, "Page Mode" },								/* [3] 10.5.2.26  */
+    { 0x00, "Page Mode" },                              /* [3] 10.5.2.26  */
 /*
  * [3] 10.5.2.26a (void)
  * [3] 10.5.2.26b (void)
  * [3] 10.5.2.26c (void)
  * [3] 10.5.2.26d (void)
  */
-    { 0x00, "NCC Permitted" },							/* [3] 10.5.2.27 NCC Permitted */
-    { 0x00, "Power Command" },							/* 10.5.2.28 */
-    { 0x00, "Power Command and access type" },			/* 10.5.2.28a */
-    { 0x00, "RACH Control Parameters" },				/* [3] 10.5.2.29 RACH Control Parameters */
-    { 0x00, "Request Reference" },						/* [3] 10.5.2.30 Request Reference */
-    { 0x00, "RR Cause" },								/* 10.5.2.31 */
-    { 0x00, "Synchronization Indication" },				/* 10.5.2.39 */
-    { 0x00, "SI 1 Rest Octets" },						/* [3] 10.5.2.32 */
+    { 0x00, "NCC Permitted" },                          /* [3] 10.5.2.27 NCC Permitted */
+    { 0x00, "Power Command" },                          /* 10.5.2.28 */
+    { 0x00, "Power Command and access type" },          /* 10.5.2.28a */
+    { 0x00, "RACH Control Parameters" },                /* [3] 10.5.2.29 RACH Control Parameters */
+    { 0x00, "Request Reference" },                      /* [3] 10.5.2.30 Request Reference */
+    { 0x00, "RR Cause" },                               /* 10.5.2.31 */
+    { 0x00, "Synchronization Indication" },             /* 10.5.2.39 */
+    { 0x00, "SI 1 Rest Octets" },                       /* [3] 10.5.2.32 */
 /* [3] 10.5.2.33 SI 2bis Rest Octets */
-    { 0x00, "SI 2ter Rest Octets" },					/* [3] 10.5.2.33a */
-    { 0x00, "SI 2quater Rest Octets" },					/* [3] 10.5.2.33b */
-    { 0x00, "SI 3 Rest Octets" },						/* [3] 10.5.2.34 */
-    { 0x00, "SI 4 Rest Octets" },						/* [3] 10.5.2.35 */
-    { 0x00, "SI 6 Rest Octets" },						/* [3] 10.5.2.35a */
+    { 0x00, "SI 2ter Rest Octets" },                    /* [3] 10.5.2.33a */
+    { 0x00, "SI 2quater Rest Octets" },                 /* [3] 10.5.2.33b */
+    { 0x00, "SI 3 Rest Octets" },                       /* [3] 10.5.2.34 */
+    { 0x00, "SI 4 Rest Octets" },                       /* [3] 10.5.2.35 */
+    { 0x00, "SI 6 Rest Octets" },                       /* [3] 10.5.2.35a */
 /* [3] 10.5.2.36 SI 7 Rest Octets
  * [3] 10.5.2.37 SI 8 Rest Octets
  * [3] 10.5.2.37a SI 9 Rest Octets
  */
-    { 0x00, "SI 13 Rest Octets" },						/* [3] 10.5.2.37b */
+    { 0x00, "SI 13 Rest Octets" },                      /* [3] 10.5.2.37b */
 /* [3] 10.5.2.37c (void)
  * [3] 10.5.2.37d (void)
  * [3] 10.5.2.37e SI 16 Rest Octets
@@ -285,31 +281,31 @@ const value_string gsm_rr_elem_strings[] = {
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
-    { 0x00, "Starting Time" },							/* [3] 10.5.2.38 Starting Time	*/
-    { 0x00, "Timing Advance" },							/* [3] 10.5.2.40 Timing Advance */
-    { 0x00, "Time Difference" },						/* [3] 10.5.2.41 Time Difference */
-    { 0x00, "TLLI" },									/* [3] 10.5.2.41a TLLI	*/
-    { 0x00, "TMSI/P-TMSI" },							/* [3] 10.5.2.42 TMSI/P-TMSI */
-    { 0x00, "VGCS target mode Indication" },			/* [3] 10.5.2.42a */
+    { 0x00, "Starting Time" },                          /* [3] 10.5.2.38 Starting Time  */
+    { 0x00, "Timing Advance" },                         /* [3] 10.5.2.40 Timing Advance */
+    { 0x00, "Time Difference" },                        /* [3] 10.5.2.41 Time Difference */
+    { 0x00, "TLLI" },                                   /* [3] 10.5.2.41a TLLI  */
+    { 0x00, "TMSI/P-TMSI" },                            /* [3] 10.5.2.42 TMSI/P-TMSI */
+    { 0x00, "VGCS target mode Indication" },            /* [3] 10.5.2.42a */
     /* Pos 40 */
-    { 0x00, "VGCS Ciphering Parameters" },				/* [3] 10.5.2.42b */
-    { 0x00, "Wait Indication" },						/* [3] 10.5.2.43 Wait Indication */
+    { 0x00, "VGCS Ciphering Parameters" },              /* [3] 10.5.2.42b */
+    { 0x00, "Wait Indication" },                        /* [3] 10.5.2.43 Wait Indication */
 /* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
-    { 0x00, "Extended Measurement Results" },			/* [3] 10.5.2.45 Extended Measurement Results */
-    { 0x00, "Extended Measurement Frequency List" },	/* [3] 10.5.2.46 Extended Measurement Frequency List */
-    { 0x00, "Suspension Cause" },						/* [3] 10.5.2.47								*/
-    { 0x00, "APDU ID" },								/* [3] 10.5.2.48 APDU ID */
-    { 0x00, "APDU Flags" },								/* [3] 10.5.2.49 APDU Flags */
-    { 0x00, "APDU Data" },								/* [3] 10.5.2.50 APDU Data */
-    { 0x00, "Handover to UTRAN Command" },				/* [3] 10.5.2.51 Handover To UTRAN Command */
+    { 0x00, "Extended Measurement Results" },           /* [3] 10.5.2.45 Extended Measurement Results */
+    { 0x00, "Extended Measurement Frequency List" },    /* [3] 10.5.2.46 Extended Measurement Frequency List */
+    { 0x00, "Suspension Cause" },                       /* [3] 10.5.2.47                                */
+    { 0x00, "APDU ID" },                                /* [3] 10.5.2.48 APDU ID */
+    { 0x00, "APDU Flags" },                             /* [3] 10.5.2.49 APDU Flags */
+    { 0x00, "APDU Data" },                              /* [3] 10.5.2.50 APDU Data */
+    { 0x00, "Handover to UTRAN Command" },              /* [3] 10.5.2.51 Handover To UTRAN Command */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell */
-    { 0x00, "Service Support" },						/* [3] 10.5.2.57	*/
+    { 0x00, "Service Support" },                        /* [3] 10.5.2.57    */
     /* 10.5.2.58 MBMS p-t-m Channel Description */
-    { 0x00, "Dedicated Service Information" },			/* [3] 10.5.2.59	*/
+    { 0x00, "Dedicated Service Information" },          /* [3] 10.5.2.59    */
 /*
  * 10.5.2.60 MPRACH Description
  * 10.5.2.61 Restriction Timer
@@ -321,7 +317,7 @@ const value_string gsm_rr_elem_strings[] = {
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
  */
-    { 0x00, "Carrier Indication" },						/* 10.5.2.69 Carrier Indication */
+    { 0x00, "Carrier Indication" },                     /* 10.5.2.69 Carrier Indication */
     {    0, NULL }
 };
 
@@ -403,7 +399,7 @@ static const value_string gsm_a_rr_RR_cause_vals[] = {
     { 0x64, "Conditional IE error"},
     { 0x65, "No cell allocation available"},
     { 0x6f, "Protocol error unspecified"},
-    { 0,	NULL }
+    { 0, NULL }
 };
 
 static const value_string gsm_a_algorithm_identifier_vals[] = {
@@ -419,13 +415,13 @@ static const value_string gsm_a_algorithm_identifier_vals[] = {
 };
 
 
-#define	DTAP_PD_MASK		0x0f
-#define	DTAP_SKIP_MASK		0xf0
-#define	DTAP_TI_MASK		DTAP_SKIP_MASK
-#define	DTAP_TIE_PRES_MASK	0x07			/* after TI shifted to right */
-#define	DTAP_TIE_MASK		0x7f
+#define DTAP_PD_MASK            0x0f
+#define DTAP_SKIP_MASK          0xf0
+#define DTAP_TI_MASK            DTAP_SKIP_MASK
+#define DTAP_TIE_PRES_MASK      0x07                    /* after TI shifted to right */
+#define DTAP_TIE_MASK           0x7f
 
-#define	DTAP_RR_IEI_MASK	0xff
+#define DTAP_RR_IEI_MASK        0xff
 
 /* Initialize the protocol and registered fields */
 static int proto_a_ccch = -1;
@@ -436,8 +432,8 @@ int hf_gsm_a_rr_elem_id = -1;
 
 static int hf_gsm_a_sacch_msg_rr_type = -1;
 
-static int hf_gsm_a_bcc	= -1;
-static int hf_gsm_a_ncc	= -1;
+static int hf_gsm_a_bcc = -1;
+static int hf_gsm_a_ncc = -1;
 static int hf_gsm_a_bcch_arfcn = -1;
 static int hf_gsm_a_rr_range_nb = -1;
 static int hf_gsm_a_rr_range_lower = -1;
@@ -445,7 +441,7 @@ static int hf_gsm_a_rr_range_higher = -1;
 static int hf_gsm_a_rr_ba_list_pref_length = -1;
 static int hf_gsm_a_rr_ba_freq = -1;
 static int hf_gsm_a_rr_utran_freq_list_length = -1;
-static int hf_gsm_a_rr_ho_ref_val	= -1;
+static int hf_gsm_a_rr_ho_ref_val = -1;
 static int hf_gsm_a_rr_L2_pseudo_len = -1;
 static int hf_gsm_a_rr_ba_used = -1;
 static int hf_gsm_a_rr_dtx_used = -1;
@@ -764,7 +760,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_dissector;
 
 
-#define	NUM_GSM_RR_ELEM (sizeof(gsm_rr_elem_strings)/sizeof(value_string))
+#define NUM_GSM_RR_ELEM (sizeof(gsm_rr_elem_strings)/sizeof(value_string))
 gint ett_gsm_rr_elem[NUM_GSM_RR_ELEM];
 
 typedef enum
@@ -835,8 +831,8 @@ guint16
 de_rr_ba_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    gint bit_offset;
-    guint8 value;
+    gint    bit_offset;
+    guint8  value;
 
     curr_offset = offset;
     proto_tree_add_item(tree, hf_gsm_a_rr_range_nb, tvb, curr_offset, 1, FALSE);
@@ -913,8 +909,8 @@ static gint f_k(gint k, gint *w, gint range)
 
 static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gint range)
 {
-    gint curr_offset=offset, f0, arfcn_orig, bits, w[64], wsize, i, wi;
-    gint octet, nwi=1, jwi=0, wbits, imax, iused, arfcn;
+    gint   curr_offset=offset, f0, arfcn_orig, bits, w[64], wsize, i, wi;
+    gint   octet, nwi=1, jwi=0, wbits, imax, iused, arfcn;
     guint8 list[1024];
 
     memset((void*)list,0,sizeof(list));
@@ -959,9 +955,9 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
 
     /* extract the variable size w[] elements */
     for (i=1; i<=imax; i++) {
-        wi = octet & ~(0xff<<bits);	 /* mask "bits" low bits to start wi from existing octet */
+        wi = octet & ~(0xff<<bits);      /* mask "bits" low bits to start wi from existing octet */
         wbits = bits;
-        while (wsize>wbits) {	     /* need to extract more bits from the next octet */
+        while (wsize>wbits) {            /* need to extract more bits from the next octet */
             octet = tvb_get_guint8(tvb, curr_offset++);
             wi = (wi << 8) + octet;
             bits = 8;
@@ -972,19 +968,19 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
             bits = wbits - wsize;
             wi >>= bits;
         }
-        else			/* just right number of bits */
+        else                    /* just right number of bits */
             bits = 0;
 
         w[i] = wi;
         if ((w[i]==0) || ((curr_offset-offset)>len)) {
             iused = i - 1;
-            break;	  /* all remaining elements must also be zero */
+            break;        /* all remaining elements must also be zero */
         }
 
-        if (++jwi==nwi) {	/* check if the number of wi at this wsize has been extracted */
-            jwi = 0;		/* reset the count of wi at this size */
-            nwi <<= 1;		/* get twice as many of the next size */
-            wsize--;		/* make the next size 1 bit smaller */
+        if (++jwi==nwi) {       /* check if the number of wi at this wsize has been extracted */
+            jwi = 0;            /* reset the count of wi at this size */
+            nwi <<= 1;          /* get twice as many of the next size */
+            wsize--;            /* make the next size 1 bit smaller */
         }
     }
 
@@ -1004,7 +1000,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     guint32 curr_offset,byte;
     guint8  oct,bit;
     guint16 arfcn;
-    proto_item	*item;
+    proto_item  *item;
 
     curr_offset = offset;
 
@@ -1086,7 +1082,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 static guint16
 dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
     guint8  oct;
 
     curr_offset = offset;
@@ -1108,7 +1104,7 @@ dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 static guint16
 dissect_arfcn_list2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
     guint8  oct;
 
     curr_offset = offset;
@@ -1136,8 +1132,8 @@ guint16
 de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    gint bit_offset;
-    guint8 value;
+    gint    bit_offset;
+    guint8  value;
 
     curr_offset = offset;
     proto_tree_add_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, curr_offset, 1, FALSE);
@@ -1174,8 +1170,8 @@ guint16
 de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    gint bit_offset;
-    guint8 value;
+    gint    bit_offset;
+    guint8  value;
 
     curr_offset = offset;
     proto_tree_add_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, curr_offset, 1, FALSE);
@@ -1219,9 +1215,9 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
-    guint32 curr_offset;
-    gint bit_offset, bit_offset_sav, idx, xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
-    guint8 value, length;
+    guint32     curr_offset;
+    gint        bit_offset, bit_offset_sav, idx, xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
+    guint8      value, length;
 
     curr_offset = offset;
     length = tvb_get_guint8(tvb, curr_offset);
@@ -1439,11 +1435,11 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 guint16
 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint8	oct;
-    guint32	curr_offset;
-    guint16 bcch_arfcn;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint8       oct;
+    guint32      curr_offset;
+    guint16      bcch_arfcn;
 
     curr_offset = offset;
 
@@ -1498,9 +1494,9 @@ static const value_string gsm_a_rr_radio_link_timeout_vals[] = {
 static guint16
 de_rr_cell_opt_bcch(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -1535,11 +1531,11 @@ static const value_string gsm_a_rr_dtx_sacch_vals[] = {
 static guint16
 de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint8	oct;
-    guint8	dtx;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint8       oct;
+    guint8       dtx;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -1565,10 +1561,10 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint8	oct;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint8       oct;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -1599,11 +1595,11 @@ de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 guint16
 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    guint8	oct8,subchannel;
-    guint16 arfcn, hsn, maio;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint32      curr_offset;
+    guint8       oct8,subchannel;
+    guint16      arfcn, hsn, maio;
+    proto_tree  *subtree;
+    proto_item  *item;
     const gchar *str;
 
     curr_offset = offset;
@@ -1692,11 +1688,11 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 static guint16
 de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    guint8	oct8,subchannel;
-    guint16 arfcn, hsn, maio;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint32      curr_offset;
+    guint8       oct8,subchannel;
+    guint16      arfcn, hsn, maio;
+    proto_tree  *subtree;
+    proto_item  *item;
     const gchar *str;
 
     curr_offset = offset;
@@ -1806,11 +1802,11 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 static guint16
 de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    guint8	oct8;
-    guint16 arfcn, hsn, maio;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint32      curr_offset;
+    guint8       oct8;
+    guint16      arfcn, hsn, maio;
+    proto_tree  *subtree;
+    proto_item  *item;
     const gchar *str;
 
     curr_offset = offset;
@@ -1885,7 +1881,7 @@ static const value_string gsm_a_rr_channel_mode_vals[] = {
 guint16
 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -1914,7 +1910,7 @@ static const value_string gsm_a_rr_channel_mode2_vals[] = {
 static guint16
 de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -1952,18 +1948,18 @@ de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 /*
  * [3] 10.5.2.7c Classmark Enquiry Mask
  * Bit 8:
- * 0	CLASSMARK CHANGE message is requested
- * 1	CLASSMARK CHANGE message is not requested
+ * 0    CLASSMARK CHANGE message is requested
+ * 1    CLASSMARK CHANGE message is not requested
  * Bits 7-5 . 5
- * 000	UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is requested
- * 111	UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is not requested.
+ * 000  UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is requested
+ * 111  UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is not requested.
  * All other values shall not be sent. If received, they shall be interpreted as '000'.
  * Bit 4:
- * 0	CDMA2000 CLASSMARK CHANGE message requested
- * 1	CDMA2000 CLASSMARK CHANGE message not requested.
+ * 0    CDMA2000 CLASSMARK CHANGE message requested
+ * 1    CDMA2000 CLASSMARK CHANGE message not requested.
  * Bit 3:
- * 0	GERAN IU MODE CLASSMARK CHANGE message requested
- * 1	GERAN IU MODE CLASSMARK CHANGE message not requested.
+ * 0    GERAN IU MODE CLASSMARK CHANGE message requested
+ * 1    GERAN IU MODE CLASSMARK CHANGE message not requested.
  * Bits 2 - 1: spare(0).
  */
 static const true_false_string gsm_a_msg_req_value  = {
@@ -1985,7 +1981,7 @@ static const value_string gsm_a_rr_utran_cm_cng_msg_req_vals[] = {
 guint16
 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -2011,10 +2007,10 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 guint16
 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
-    gint bit_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
+    gint         bit_offset;
 
     curr_offset = offset;
     if (UPPER_NIBBLE==len)
@@ -2055,8 +2051,8 @@ static const value_string gsm_a_rr_sc_vals[] = {
 guint16
 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    gint bit_offset;
+    guint32 curr_offset;
+    gint    bit_offset;
     guint64 value;
 
     curr_offset = offset;
@@ -2092,8 +2088,8 @@ static const value_string gsm_a_rr_cr_vals[] = {
 static guint16
 de_rr_cip_mode_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    gint bit_offset;
+    guint32 curr_offset;
+    gint    bit_offset;
 
     curr_offset = offset;
     if (UPPER_NIBBLE==len)
@@ -2147,10 +2143,10 @@ static const value_string gsm_a_rr_cbq3_vals[] = {
 static guint16
 de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint8	oct;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint8       oct;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -2179,10 +2175,10 @@ de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     return(curr_offset - offset);
 }
 
-/* [3] 10.5.2.11a DTM Information Details
+/* [3] 10.5.2.11a  DTM Information Details
  */
 /*
- * [3]  10.5.2.11b	Dynamic ARFCN Mapping
+ * [3] 10.5.2.11b  Dynamic ARFCN Mapping
  */
 static const value_string gsm_a_rr_gsm_band_vals[] = {
     {  0, "GSM 750"},
@@ -2208,10 +2204,10 @@ static const value_string gsm_a_rr_gsm_band_vals[] = {
 static guint16
 de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    gint bit_offset;
+    guint32 curr_offset;
+    gint    bit_offset;
     guint64 length;
-    guint value;
+    guint   value;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -2244,8 +2240,8 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static guint16
 de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    gint bit_offset, i;
+    guint32 curr_offset;
+    gint    bit_offset, i;
 
     curr_offset = offset;
 
@@ -2524,9 +2520,9 @@ de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static guint16
 de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -2551,9 +2547,9 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 static guint16
 de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
@@ -2582,15 +2578,15 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static guint16
 de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     len = 3;
     curr_offset = offset;
 
     item =
-	proto_tree_add_text(tree,
+        proto_tree_add_text(tree,
                             tvb, curr_offset, 3, "%s",
                             gsm_rr_elem_strings[DE_RR_IAR_REST_OCT].strptr);
 
@@ -2609,9 +2605,9 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
@@ -2620,7 +2616,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     curr_offset = offset;
 
     item =
-	proto_tree_add_text(tree,
+        proto_tree_add_text(tree,
                             tvb, curr_offset, len, "%s",
                             gsm_rr_elem_strings[DE_RR_IAX_REST_OCT].strptr);
 
@@ -2639,9 +2635,9 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -2698,11 +2694,11 @@ static const value_string gsm_a_rr_ncell_vals [] = {
 guint16
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
-    gint bit_offset;
-    guint64 no_ncell_m;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
+    gint         bit_offset;
+    guint64      no_ncell_m;
 
     curr_offset = offset;
 
@@ -2766,10 +2762,10 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static guint16
 de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
     proto_item *item;
-    gint i, j;
-    guint8 value;
+    gint        i, j;
+    guint8      value;
 
     curr_offset = offset;
 
@@ -2793,7 +2789,7 @@ de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 static guint16
 de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -2806,7 +2802,7 @@ de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 /*
  * [3] 10.5.2.21aa MultiRate configuration
  */
-/*	Multirate speech version Octet 3 Bits 8 7 6 */
+/*    Multirate speech version Octet 3 Bits 8 7 6 */
 static const value_string multirate_speech_ver_vals[] = {
     { 1, "Adaptive Multirate speech version 1"},
     { 2, "Adaptive Multirate speech version 2"},
@@ -2926,9 +2922,9 @@ static const value_string gsm_a_rr_amr_hysteresis_vals[] = {
 guint16
 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    guint8 oct;
-    gint bit_offset, remaining_length, nb_of_params;
+    guint32 curr_offset;
+    guint8  oct;
+    gint    bit_offset, remaining_length, nb_of_params;
 
     curr_offset = offset;
 
@@ -2997,7 +2993,7 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -3022,7 +3018,7 @@ static const value_string gsm_a_rr_ext_ind_vals[] = {
 static guint16
 de_rr_neigh_cell_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -3038,7 +3034,7 @@ de_rr_neigh_cell_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static guint16
 de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -3290,11 +3286,11 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static guint16
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    guint8	oct8;
-    guint16	arfcn, hsn, maio;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint32      curr_offset;
+    guint8       oct8;
+    guint16      arfcn, hsn, maio;
+    proto_tree  *subtree;
+    proto_item  *item;
     const gchar *str;
 
     curr_offset = offset;
@@ -3365,9 +3361,9 @@ static const value_string gsm_a_rr_dedicated_mode_or_tbf_vals[] = {
 static guint16
 de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3402,9 +3398,9 @@ static const value_string gsm_a_rr_page_mode_vals[] = {
 static guint16
 de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3433,9 +3429,9 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static guint16
 de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3455,8 +3451,8 @@ de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *
  *
  * ATC (Access Type Control) (octet 2)Bit 8
- * 0	Sending of Handover access is mandatory
- * 1	Sending of Handover access is optional
+ * 0    Sending of Handover access is mandatory
+ * 1    Sending of Handover access is optional
  */
 static const true_false_string gsm_a_rr_pow_cmd_atc_value  = {
     "Sending of Handover access is optional",
@@ -3474,20 +3470,20 @@ static const true_false_string gsm_a_rr_pow_cmd_epc_value  = {
 /*
  * FPC_EPC (octet 2)
  * The FPC_EPC field (octet 2) has different interpretation depending
- *		on the channel mode	of the assigned channel (s) and the value
- *		of the EPC mode field.
+ *              on the channel mode     of the assigned channel (s) and the value
+ *              of the EPC mode field.
  * If the channel mode is such that fast power control (FPC) may be
- *		used, the FPC_EPC field indicates whether Fast Measurement
- *		Reporting and Power Control mechanism is used.
- *		It is coded as follows:
- * Value 0	FPC not in use
- *	   1	FPC in use
+ *              used, the FPC_EPC field indicates whether Fast Measurement
+ *              Reporting and Power Control mechanism is used.
+ *              It is coded as follows:
+ * Value 0      FPC not in use
+ *       1      FPC in use
  * If the channel mode is such that EPC may be used and the EPC mode
- *		field indicates that the channel is in EPC mode, the FPC_EPC
- *		field indicates whether EPC shall be used for uplink power control.
+ *              field indicates that the channel is in EPC mode, the FPC_EPC
+ *              field indicates whether EPC shall be used for uplink power control.
  * It is coded as follows:
- * Value 0	EPC not in use for uplink power control
- *		 1	EPC in use for uplink power control
+ * Value 0      EPC not in use for uplink power control
+ *       1      EPC in use for uplink power control
  *
  */
 static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
@@ -3504,9 +3500,9 @@ static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
 static guint16
 de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3536,9 +3532,9 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 static guint16
 de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3607,9 +3603,9 @@ static const value_string gsm_a_rr_re_vals[] = {
 static guint16
 de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -3636,8 +3632,8 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static guint16 reduced_frame_number(guint16 fn)
 {
     /* great care needed with signed/unsigned - -1 in unsigned is 0xffff, which mod(26) is not what you think !!! */
-    gint16	t2, t3, t;
-    guint16	frame, t1;
+    gint16   t2, t3, t;
+    guint16  frame, t1;
 
     t1 = (fn >> 11) & 0x1f;
     t2 = (fn >> 0) & 0x1f;
@@ -3655,11 +3651,11 @@ static guint16 reduced_frame_number(guint16 fn)
 static guint16
 de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
-    guint16	rfn;
-    guint16	fn;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
+    guint16      rfn;
+    guint16      fn;
 
     curr_offset = offset;
 
@@ -3690,7 +3686,7 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 guint16
 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -3743,10 +3739,10 @@ static const value_string gsm_a_rr_nch_position_vals[] = {
 static guint16
 de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
-    gint bit_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
+    gint         bit_offset;
 
     len = 1;
     curr_offset = offset;
@@ -3873,11 +3869,11 @@ static const value_string gsm_a_rr_fdd_rscpmin_vals[] = {
 static guint16
 de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree, *subtree2;
-    proto_item	*item, *item2;
-    guint32	curr_offset;
-    gint bit_offset, bit_offset_sav;
-    guint8 value;
+    proto_tree  *subtree, *subtree2;
+    proto_item  *item, *item2;
+    guint32      curr_offset;
+    gint         bit_offset, bit_offset_sav;
+    guint8       value;
 
     len = 4;
     curr_offset = offset;
@@ -4051,7 +4047,7 @@ static const value_string gsm_a_rr_xxx_reporting_offset_vals[] = {
     { 0, NULL }
 };
 
-/* The TS 45.008 is not that clear, but it should be understood: threshold = minimum reported value + 6 * resolution 
+/* The TS 45.008 is not that clear, but it should be understood: threshold = minimum reported value + 6 * resolution
  * The minimum reported value, resolution is, for the different access technologies:
  *  GSM:        -111 dBm, 1 dBm
  *  WCDMA/RSCP: -116 dBm, 1 dBm
@@ -4616,1093 +4612,1093 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
 /* Additions in Rel-8 */
 static const true_false_string priority_utran_start = {
-  "This is the first instance of the message",
-  "This is not the first instance of the message"
+    "This is the first instance of the message",
+    "This is not the first instance of the message"
 };
 
 static const true_false_string priority_utran_stop = {
-  "This is the last instance of the message",
-  "This is not the last instance of the message"
+    "This is the last instance of the message",
+    "This is not the last instance of the message"
 };
 
 static const true_false_string eutran_ccn_active = {
-  "CCN towards E-UTRAN cells is enabled in the cell",
-  "The broadcast E-UTRAN_CCN_ACTIVE parameter shall apply if applicable. Otherwise, CCN towards E-UTRAN cells is disabled in the cell"
+    "CCN towards E-UTRAN cells is enabled in the cell",
+    "The broadcast E-UTRAN_CCN_ACTIVE parameter shall apply if applicable. Otherwise, CCN towards E-UTRAN cells is disabled in the cell"
 };
 
 static const true_false_string eutran_rep_quant = {
-  "RSRQ",
-  "RSRP"
+    "RSRQ",
+    "RSRP"
 };
 
 static const value_string gsm_a_rr_pcid_psc_pattern_length[] = {
-  { 0, "1"},
-  { 1, "2"},
-  { 2, "3"},
-  { 3, "4"},
-  { 4, "5"},
-  { 5, "6"},
-  { 6, "7"},
-  { 7, "8"},
-  { 0, NULL }
+    { 0, "1"},
+    { 1, "2"},
+    { 2, "3"},
+    { 3, "4"},
+    { 4, "5"},
+    { 5, "6"},
+    { 6, "7"},
+    { 7, "8"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_eutran_measurement_bandwidth[] = {
-  { 0, "NRB = 6"},
-  { 1, "NRB = 15"},
-  { 2, "NRB = 25"},
-  { 3, "NRB = 50"},
-  { 4, "NRB = 75"},
-  { 5, "NRB = 100"},
-  { 6, "Reserved for future use"},
-  { 7, "Reserved for future use"},
-  { 0, NULL }
+    { 0, "NRB = 6"},
+    { 1, "NRB = 15"},
+    { 2, "NRB = 25"},
+    { 3, "NRB = 50"},
+    { 4, "NRB = 75"},
+    { 5, "NRB = 100"},
+    { 6, "Reserved for future use"},
+    { 7, "Reserved for future use"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_serving_cell_thresh_gsm_low[] = {
-  { 0, "0 dB"},
-  { 1, "2 dB"},
-  { 2, "4 dB"},
-  { 3, "6 dB"},
-  { 4, "8 dB"},
-  { 5, "10 dB"},
-  { 6, "12 dB"},
-  { 7, "14 dB"},
-  { 8, "16 dB"},
-  { 9, "18 dB"},
-  {10, "20 dB"},
-  {11, "22 dB"},
-  {12, "24 dB"},
-  {13, "26 dB"},
-  {14, "28 dB"},
-  {15, "Always allowed"},
-  { 0, NULL }
+    { 0, "0 dB"},
+    { 1, "2 dB"},
+    { 2, "4 dB"},
+    { 3, "6 dB"},
+    { 4, "8 dB"},
+    { 5, "10 dB"},
+    { 6, "12 dB"},
+    { 7, "14 dB"},
+    { 8, "16 dB"},
+    { 9, "18 dB"},
+    {10, "20 dB"},
+    {11, "22 dB"},
+    {12, "24 dB"},
+    {13, "26 dB"},
+    {14, "28 dB"},
+    {15, "Always allowed"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_serving_cell_thresh_priority_search[] = {
-  { 0, "-98 dBm"},
-  { 1, "-95 dBm"},
-  { 2, "-92 dBm"},
-  { 3, "-89 dBm"},
-  { 4, "-86 dBm"},
-  { 5, "-83 dBm"},
-  { 6, "-80 dBm"},
-  { 7, "-77 dBm"},
-  { 8, "-74 dBm"},
-  { 9, "-71 dBm"},
-  {10, "-68 dBm"},
-  {11, "-65 dBm"},
-  {12, "-62 dBm"},
-  {13, "-59 dBm"},
-  {14, "-56 dBm"},
-  {15, "Always search"},
-  { 0, NULL }
+    { 0, "-98 dBm"},
+    { 1, "-95 dBm"},
+    { 2, "-92 dBm"},
+    { 3, "-89 dBm"},
+    { 4, "-86 dBm"},
+    { 5, "-83 dBm"},
+    { 6, "-80 dBm"},
+    { 7, "-77 dBm"},
+    { 8, "-74 dBm"},
+    { 9, "-71 dBm"},
+    {10, "-68 dBm"},
+    {11, "-65 dBm"},
+    {12, "-62 dBm"},
+    {13, "-59 dBm"},
+    {14, "-56 dBm"},
+    {15, "Always search"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_utran_qrxlevmin[] = {
-  { 0, "-119 dBm"},
-  { 1, "-117 dBm"},
-  { 2, "-115 dBm"},
-  { 3, "-113 dBm"},
-  { 4, "-111 dBm"},
-  { 5, "-109 dBm"},
-  { 6, "-107 dBm"},
-  { 7, "-105 dBm"},
-  { 8, "-103 dBm"},
-  { 9, "-101 dBm"},
-  {10, "-99 dBm"},
-  {11, "-97 dBm"},
-  {12, "-95 dBm"},
-  {13, "-93 dBm"},
-  {14, "-91 dBm"},
-  {15, "-89 dBm"},
-  {16, "-87 dBm"},
-  {17, "-85 dBm"},
-  {18, "-83 dBm"},
-  {19, "-81 dBm"},
-  {20, "-79 dBm"},
-  {21, "-77 dBm"},
-  {22, "-75 dBm"},
-  {23, "-73 dBm"},
-  {24, "-71 dBm"},
-  {25, "-69 dBm"},
-  {26, "-67 dBm"},
-  {27, "-65 dBm"},
-  {28, "-63 dBm"},
-  {29, "-61 dBm"},
-  {30, "-59 dBm"},
-  {31, "-57 dBm"},
-  { 0, NULL }
+    { 0, "-119 dBm"},
+    { 1, "-117 dBm"},
+    { 2, "-115 dBm"},
+    { 3, "-113 dBm"},
+    { 4, "-111 dBm"},
+    { 5, "-109 dBm"},
+    { 6, "-107 dBm"},
+    { 7, "-105 dBm"},
+    { 8, "-103 dBm"},
+    { 9, "-101 dBm"},
+    {10, "-99 dBm"},
+    {11, "-97 dBm"},
+    {12, "-95 dBm"},
+    {13, "-93 dBm"},
+    {14, "-91 dBm"},
+    {15, "-89 dBm"},
+    {16, "-87 dBm"},
+    {17, "-85 dBm"},
+    {18, "-83 dBm"},
+    {19, "-81 dBm"},
+    {20, "-79 dBm"},
+    {21, "-77 dBm"},
+    {22, "-75 dBm"},
+    {23, "-73 dBm"},
+    {24, "-71 dBm"},
+    {25, "-69 dBm"},
+    {26, "-67 dBm"},
+    {27, "-65 dBm"},
+    {28, "-63 dBm"},
+    {29, "-61 dBm"},
+    {30, "-59 dBm"},
+    {31, "-57 dBm"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_thresh_utran_eutran_high_low[] = {
-  { 0, "0 dB"},
-  { 1, "2 dB"},
-  { 2, "4 dB"},
-  { 3, "6 dB"},
-  { 4, "8 dB"},
-  { 5, "10 dB"},
-  { 6, "12 dB"},
-  { 7, "14 dB"},
-  { 8, "16 dB"},
-  { 9, "18 dB"},
-  {10, "20 dB"},
-  {11, "22 dB"},
-  {12, "24 dB"},
-  {13, "26 dB"},
-  {14, "28 dB"},
-  {15, "30 dB"},
-  {16, "32 dB"},
-  {17, "34 dB"},
-  {18, "36 dB"},
-  {19, "38 dB"},
-  {20, "40 dB"},
-  {21, "42 dB"},
-  {22, "44 dB"},
-  {23, "46 dB"},
-  {24, "48 dB"},
-  {25, "50 dB"},
-  {26, "52 dB"},
-  {27, "54 dB"},
-  {28, "56 dB"},
-  {29, "58 dB"},
-  {30, "60 dB"},
-  {31, "62 dB"},
-  { 0, NULL }
+    { 0, "0 dB"},
+    { 1, "2 dB"},
+    { 2, "4 dB"},
+    { 3, "6 dB"},
+    { 4, "8 dB"},
+    { 5, "10 dB"},
+    { 6, "12 dB"},
+    { 7, "14 dB"},
+    { 8, "16 dB"},
+    { 9, "18 dB"},
+    {10, "20 dB"},
+    {11, "22 dB"},
+    {12, "24 dB"},
+    {13, "26 dB"},
+    {14, "28 dB"},
+    {15, "30 dB"},
+    {16, "32 dB"},
+    {17, "34 dB"},
+    {18, "36 dB"},
+    {19, "38 dB"},
+    {20, "40 dB"},
+    {21, "42 dB"},
+    {22, "44 dB"},
+    {23, "46 dB"},
+    {24, "48 dB"},
+    {25, "50 dB"},
+    {26, "52 dB"},
+    {27, "54 dB"},
+    {28, "56 dB"},
+    {29, "58 dB"},
+    {30, "60 dB"},
+    {31, "62 dB"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_eutran_qrxlevmin[] = {
-  { 0, "-140 dBm"},
-  { 1, "-138 dBm"},
-  { 2, "-136 dBm"},
-  { 3, "-134 dBm"},
-  { 4, "-132 dBm"},
-  { 5, "-130 dBm"},
-  { 6, "-128 dBm"},
-  { 7, "-126 dBm"},
-  { 8, "-124 dBm"},
-  { 9, "-122 dBm"},
-  {10, "-120 dBm"},
-  {11, "-118 dBm"},
-  {12, "-116 dBm"},
-  {13, "-114 dBm"},
-  {14, "-112 dBm"},
-  {15, "-110 dBm"},
-  {16, "-108 dBm"},
-  {17, "-106 dBm"},
-  {18, "-104 dBm"},
-  {19, "-102 dBm"},
-  {20, "-100 dBm"},
-  {21, "-98 dBm"},
-  {22, "-96 dBm"},
-  {23, "-94 dBm"},
-  {24, "-92 dBm"},
-  {25, "-90 dBm"},
-  {26, "-88 dBm"},
-  {27, "-86 dBm"},
-  {28, "-84 dBm"},
-  {29, "-82 dBm"},
-  {30, "-80 dBm"},
-  {31, "-78 dBm"},
-  { 0, NULL }
+    { 0, "-140 dBm"},
+    { 1, "-138 dBm"},
+    { 2, "-136 dBm"},
+    { 3, "-134 dBm"},
+    { 4, "-132 dBm"},
+    { 5, "-130 dBm"},
+    { 6, "-128 dBm"},
+    { 7, "-126 dBm"},
+    { 8, "-124 dBm"},
+    { 9, "-122 dBm"},
+    {10, "-120 dBm"},
+    {11, "-118 dBm"},
+    {12, "-116 dBm"},
+    {13, "-114 dBm"},
+    {14, "-112 dBm"},
+    {15, "-110 dBm"},
+    {16, "-108 dBm"},
+    {17, "-106 dBm"},
+    {18, "-104 dBm"},
+    {19, "-102 dBm"},
+    {20, "-100 dBm"},
+    {21, "-98 dBm"},
+    {22, "-96 dBm"},
+    {23, "-94 dBm"},
+    {24, "-92 dBm"},
+    {25, "-90 dBm"},
+    {26, "-88 dBm"},
+    {27, "-86 dBm"},
+    {28, "-84 dBm"},
+    {29, "-82 dBm"},
+    {30, "-80 dBm"},
+    {31, "-78 dBm"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_serving_cell_priority_param_h_prio[] = {
-  { 0, "disabled"},
-  { 1, "5 dB"},
-  { 2, "4 dB"},
-  { 3, "3 dB"},
-  { 0, NULL }
+    { 0, "disabled"},
+    { 1, "5 dB"},
+    { 2, "4 dB"},
+    { 3, "3 dB"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_serving_cell_priority_param_t_reselection[] = {
-  { 0, "5 s"},
-  { 1, "10 s"},
-  { 2, "15 s"},
-  { 3, "20 s"},
-  { 0, NULL }
+    { 0, "5 s"},
+    { 1, "10 s"},
+    { 2, "15 s"},
+    { 3, "20 s"},
+    { 0, NULL }
 };
 
 static const value_string gsm_a_rr_qsearch_c_eutran_initial[] = {
-  { 0, "search if signal is below -98 dBm"},
-  { 1, "search if signal is below -94 dBm"},
-  { 2, "search if signal is below -90 dBm"},
-  { 3, "search if signal is below -86 dBm"},
-  { 4, "search if signal is below -82 dBm"},
-  { 5, "search if signal is below -78 dBm"},
-  { 6, "search if signal is below -74 dBm"},
-  { 7, "always search"},
-  { 8, "search is signal is above -78 dBm"},
-  { 9, "search is signal is above -74 dBm"},
-  {10, "search is signal is above -70 dBm"},
-  {11, "search is signal is above -66 dBm"},
-  {12, "search is signal is above -62 dBm"},
-  {13, "search is signal is above -58 dBm"},
-  {14, "search is signal is above -54 dBm"},
-  {15, "never search"},
-  { 0, NULL }
+    { 0, "search if signal is below -98 dBm"},
+    { 1, "search if signal is below -94 dBm"},
+    { 2, "search if signal is below -90 dBm"},
+    { 3, "search if signal is below -86 dBm"},
+    { 4, "search if signal is below -82 dBm"},
+    { 5, "search if signal is below -78 dBm"},
+    { 6, "search if signal is below -74 dBm"},
+    { 7, "always search"},
+    { 8, "search is signal is above -78 dBm"},
+    { 9, "search is signal is above -74 dBm"},
+    {10, "search is signal is above -70 dBm"},
+    {11, "search is signal is above -66 dBm"},
+    {12, "search is signal is above -62 dBm"},
+    {13, "search is signal is above -58 dBm"},
+    {14, "search is signal is above -54 dBm"},
+    {15, "never search"},
+    { 0, NULL }
 };
 
 static const true_false_string gsm_a_rr_pcid_pattern_sense = {
-  "The group of identified cells are the one not belonging to the PCID_BITMAP_GROUP",
-  "The group of identified cells are the one identified by the PCID_BITMAP_GROUP"
+    "The group of identified cells are the one not belonging to the PCID_BITMAP_GROUP",
+    "The group of identified cells are the one identified by the PCID_BITMAP_GROUP"
 };
 
 static const true_false_string measurement_control_utran = {
-  "Frequency-specific search enabled: use Qsearch_C_E-UTRAN if received, otherwise use Qsearch_C_EUTRAN_Initial",
-  "Frequency-specific search enabled: Never search"
+    "Frequency-specific search enabled: use Qsearch_C_E-UTRAN if received, otherwise use Qsearch_C_EUTRAN_Initial",
+    "Frequency-specific search enabled: Never search"
 };
 
 static const true_false_string measurement_control_eutran = {
-  "Frequency-specific search enabled: use Qsearch_C if received, otherwise use Qsearch_C_Initial",
-  "Frequency-specific search enabled: Never search"
+    "Frequency-specific search enabled: use Qsearch_C if received, otherwise use Qsearch_C_Initial",
+    "Frequency-specific search enabled: Never search"
 };
 
 static gint
 de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC]);
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC]);
 
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_start, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_stop, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_start, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_stop, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
 
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_prio, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_threshold_utran, tvb, curr_bit_offset, 5, FALSE);
-    curr_bit_offset += 5;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
-    curr_bit_offset += 5;
-  }
-  /* Repeated UTRAN Priority Parameters */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree *subtree_rep_utran_prio;
-    proto_item *item_rep_utran_prio;
-    gint rep_utran_prio_bit_offset = curr_bit_offset;
-	
-    item_rep_utran_prio = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM].strptr);
-    subtree_rep_utran_prio = proto_item_add_subtree(item_rep_utran_prio, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM]);
-
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_prio, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_threshold_utran, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+    }
+    /* Repeated UTRAN Priority Parameters */
     while (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
+        proto_tree *subtree_rep_utran_prio;
+        proto_item *item_rep_utran_prio;
+        gint rep_utran_prio_bit_offset = curr_bit_offset;
+
+        item_rep_utran_prio = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM].strptr);
+        subtree_rep_utran_prio = proto_item_add_subtree(item_rep_utran_prio, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM]);
+
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_priority, tvb, curr_bit_offset, 3, FALSE);
+            curr_bit_offset += 3;
+        }
+        proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_high, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_low, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+        proto_item_set_len(item_rep_utran_prio,((curr_bit_offset-rep_utran_prio_bit_offset)>>3)+1);
     }
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_priority, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
-    }
-    proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_high, tvb, curr_bit_offset, 5, FALSE);
-    curr_bit_offset += 5;
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_low, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
-    }
-
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
-    }
-	proto_item_set_len(item_rep_utran_prio,((curr_bit_offset-rep_utran_prio_bit_offset)>>3)+1);
-  }
-  
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
-  
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
-    curr_bit_offset += 16;
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
+
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, FALSE);
+            curr_bit_offset += 3;
+        }
+    }
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_priority, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
     }
-  }
-
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_priority, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-  }
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_high, tvb, curr_bit_offset, 5, FALSE);
-  curr_bit_offset += 5;
-
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_low, tvb, curr_bit_offset, 5, FALSE);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_high, tvb, curr_bit_offset, 5, FALSE);
     curr_bit_offset += 5;
-  }
 
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
-    curr_bit_offset += 5;
-  }
-  
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_low, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+    }
+
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_neighbour_cells_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
-    
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
-  curr_bit_offset += 16;
-  
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
+
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
     curr_bit_offset += 16;
-  }
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-  }
-  
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+    }
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  gint curr_bit_offset = bit_offset;
-  proto_item *item;
+    gint curr_bit_offset = bit_offset;
+    proto_item *item;
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
-    curr_bit_offset += 9;
-  }
-
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    gint i;
-    guint8 bitmap = tvb_get_bits8(tvb,curr_bit_offset,6);
-    item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
-    if (bitmap > 0)
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_item_append_text(item, ": Cells IDs addressed by the bitmap:");
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
+        curr_bit_offset += 9;
     }
-    for (i = 0; i < 6; i++)
+
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      if ((1 << i) & bitmap)
-      {
-        if ( i != 0)
+        gint i;
+        guint8 bitmap = tvb_get_bits8(tvb,curr_bit_offset,6);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
+        if (bitmap > 0)
         {
-          proto_item_append_text(item, ",");
+            proto_item_append_text(item, ": Cells IDs addressed by the bitmap:");
         }
-        proto_item_append_text(item, " %d to %d",i*84, (i+1)*84 - 1);
-      }
+        for (i = 0; i < 6; i++)
+        {
+            if ((1 << i) & bitmap)
+            {
+                if ( i != 0)
+                {
+                    proto_item_append_text(item, ",");
+                }
+                proto_item_append_text(item, " %d to %d",i*84, (i+1)*84 - 1);
+            }
+        }
+        curr_bit_offset += 6;
     }
-    curr_bit_offset += 6;
-  }
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    gint pcid_pattern_length;
-    gint pcid_pattern;
-    gint pattern_lower_bound, pattern_upper_bound;
-    gint i;
-
-    pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-    pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
-
-    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PCID_Pattern: %d", 
-                               decode_bits_in_field(curr_bit_offset,pcid_pattern_length, pcid_pattern), 
-                               pcid_pattern);
-
-    pattern_lower_bound = pcid_pattern << (9 - pcid_pattern_length);
-    pattern_upper_bound = pattern_lower_bound;
-    for (i = 0; i < (9-pcid_pattern_length); i++)
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      pattern_upper_bound |= 1 << i;
+        gint pcid_pattern_length;
+        gint pcid_pattern;
+        gint pattern_lower_bound, pattern_upper_bound;
+        gint i;
+
+        pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
+
+        item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PCID_Pattern: %d",
+                                   decode_bits_in_field(curr_bit_offset,pcid_pattern_length, pcid_pattern),
+                                   pcid_pattern);
+
+        pattern_lower_bound = pcid_pattern << (9 - pcid_pattern_length);
+        pattern_upper_bound = pattern_lower_bound;
+        for (i = 0; i < (9-pcid_pattern_length); i++)
+        {
+            pattern_upper_bound |= 1 << i;
+        }
+        proto_item_append_text(item, ": Cells IDs addressed by the pattern: %d to %d", pattern_lower_bound, pattern_upper_bound);
+
+        curr_bit_offset += pcid_pattern_length;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
     }
-    proto_item_append_text(item, ": Cells IDs addressed by the pattern: %d to %d", pattern_lower_bound, pattern_upper_bound);
 
-    curr_bit_offset += pcid_pattern_length;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
-    curr_bit_offset += 1;
-  }
-
-  return(curr_bit_offset - bit_offset);
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS]);
-  
-  /* dissect PCID group */
-  curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS]);
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-  }
+    /* dissect PCID group */
+    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING]);
-  
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* dissect PCID group */
-    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
-  }
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING]);
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        /* dissect PCID group */
+        curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  gint curr_bit_offset;
-  proto_item *item;
-  guint8 rep_quant;
+    gint curr_bit_offset;
+    proto_item *item;
+    guint8 rep_quant;
 
-  curr_bit_offset = bit_offset;
+    curr_bit_offset = bit_offset;
 
-  /* E-UTRAN Measurement Parameters Description */
-  proto_tree_add_bits_item(tree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, FALSE);
-  curr_bit_offset += 4;
-  proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
-  rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
-  curr_bit_offset += 2;
-  
+    /* E-UTRAN Measurement Parameters Description */
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, FALSE);
+    curr_bit_offset += 4;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
+    rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
+    curr_bit_offset += 2;
 
-  if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+
+    if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      if (rep_quant == 0)
-      {
-        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
-      }
-      else
-      {
-        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
-      }
-      curr_bit_offset += 3;
-
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0)
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
         {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-        }
-        else
-        {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+            if (rep_quant == 0)
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+            }
+            else
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+            }
+            curr_bit_offset += 3;
 
-        curr_bit_offset += 3;
-      }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+
+                curr_bit_offset += 3;
+            }
+        }
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            if (rep_quant == 0)
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+            }
+            else
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+            }
+            curr_bit_offset += 3;
+
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
+        }
     }
-
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    else
     {
-      if (rep_quant == 0)
-      {
-        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
-      }
-      else
-      {
-        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
-      }
-      curr_bit_offset += 3;
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
+            if (rep_quant == 0)
+            {
+                proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+            }
+            else
+            {
+                proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+            }
+            curr_bit_offset += 6;
 
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0)
-        {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
         }
-        else
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
         {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+            item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
+            if (rep_quant == 0)
+            {
+                proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+            }
+            else
+            {
+                proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+            }
+            curr_bit_offset += 6;
+
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
         }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
     }
-  }
-  else
-  {
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_reporting_granularity, tvb, curr_bit_offset, 1, FALSE);
+    if (rep_quant == 0)
     {
-      item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
-      if (rep_quant == 0) 
-      {
-        proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-      }
-      else
-      {
-        proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-      }
-      curr_bit_offset += 6;
-
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0) 
-        {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-        }
-        else
-        {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
+        proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
     }
-
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    else
     {
-      item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
-      if (rep_quant == 0)
-      {
-        proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-      }
-      else
-      {
-        proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-      }
-      curr_bit_offset += 6;
-
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0)
-        {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-        }
-        else
-        {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
+        proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
     }
-  }
-  item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_reporting_granularity, tvb, curr_bit_offset, 1, FALSE);
-  if (rep_quant == 0) 
-  {
-    proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
-  }
-  else
-  {
-    proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
-  }
-  curr_bit_offset += 1;
- 
-  return(curr_bit_offset - bit_offset);
+    curr_bit_offset += 1;
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  guint8 rep_quant = 0;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
+    guint8 rep_quant = 0;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC]);
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC]);
 
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_ccn_active, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_start, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* E-UTRAN Measurement Parameters Description */
-    curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
-  }
-
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* GPRS E-UTRAN Measurement Parameters Description */
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, FALSE);
-    curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
-    rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_ccn_active, tvb, curr_bit_offset, 1, FALSE);
     curr_bit_offset += 1;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
-    curr_bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_start, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      if (rep_quant == 0)
-      {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
-      }
-      else
-      {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
-      }
-      curr_bit_offset += 3;
-
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0) 
-        {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
-        }
-        else
-        {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
+        /* E-UTRAN Measurement Parameters Description */
+        curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
     }
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      if (rep_quant == 0)
-      {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
-      }
-      else
-      {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
-      }
-      curr_bit_offset += 3;
+        /* GPRS E-UTRAN Measurement Parameters Description */
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
+        rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
 
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (rep_quant == 0) 
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
         {
-          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+            if (rep_quant == 0)
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+            }
+            else
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+            }
+            curr_bit_offset += 3;
+
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
         }
-        else
+
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
         {
-          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+            if (rep_quant == 0)
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+            }
+            else
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+            }
+            curr_bit_offset += 3;
+
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+                if (rep_quant == 0)
+                {
+                    proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+                }
+                else
+                {
+                    proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+                }
+                curr_bit_offset += 6;
+            }
+            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            {
+                item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
         }
-        curr_bit_offset += 6;
-      }
-      if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-      {
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
     }
-  }
 
-  /* Repeated E-UTRAN Neighbour Cells */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-  {
-    curr_bit_offset += de_rr_eutran_neighbour_cells(tvb, subtree, curr_bit_offset);
-  }
+    /* Repeated E-UTRAN Neighbour Cells */
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    {
+        curr_bit_offset += de_rr_eutran_neighbour_cells(tvb, subtree, curr_bit_offset);
+    }
 
-  /* Repeated E-UTRAN Not Allowed Cells */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-  {
-    curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
-  }
+    /* Repeated E-UTRAN Not Allowed Cells */
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    {
+        curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
+    }
 
-  /* Repeated E-UTRAN PCID to TA mapping */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-  {
-    curr_bit_offset += de_rr_eutran_pcid_to_ta_mapping(tvb, subtree, curr_bit_offset);
-  }
+    /* Repeated E-UTRAN PCID to TA mapping */
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    {
+        curr_bit_offset += de_rr_eutran_pcid_to_ta_mapping(tvb, subtree, curr_bit_offset);
+    }
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC]);
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC]);
 
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_start, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_start, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
 
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* E-UTRAN Measurement Parameters Description */
-    curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
-  }
-
-  /* Repeated E-UTRAN Neighbour Cells */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-  {
-    curr_bit_offset += de_rr_eutran_neighbour_cells_mi(tvb, subtree, curr_bit_offset);
-  }
-
-  /* Repeated E-UTRAN Not Allowed Cells */
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-  {
-    curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
-  }
-
-  /* Measurement Control Parameters Description */
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_default_measurement_control_eutran, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
+        /* E-UTRAN Measurement Parameters Description */
+        curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
     }
+
+    /* Repeated E-UTRAN Neighbour Cells */
     while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
     {
-      while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
-      {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, FALSE);
-        curr_bit_offset += 3;
-      }
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_control_eutran, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
+        curr_bit_offset += de_rr_eutran_neighbour_cells_mi(tvb, subtree, curr_bit_offset);
     }
-  }
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    /* Repeated E-UTRAN Not Allowed Cells */
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    {
+        curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
+    }
+
+    /* Measurement Control Parameters Description */
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_default_measurement_control_eutran, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+        {
+            while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, FALSE);
+                curr_bit_offset += 3;
+            }
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_control_eutran, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC]);
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
+
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC]);
 
 
-  /* Serving Cell Priority Parameters Description */
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree *subtree_serv;
-    proto_item *item_serv;
-    gint serv_bit_offset = curr_bit_offset;
-	  
-    item_serv = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, ((curr_bit_offset+15)>>3)-(curr_bit_offset>>3) + 1 , "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC].strptr);
-    subtree_serv = proto_item_add_subtree(item_serv, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC]);
+    /* Serving Cell Priority Parameters Description */
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree *subtree_serv;
+        proto_item *item_serv;
+        gint serv_bit_offset = curr_bit_offset;
 
-    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_geran_priority, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search, tvb, curr_bit_offset, 4, FALSE);
-    curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low, tvb, curr_bit_offset, 4, FALSE);
-    curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 2, FALSE);
-    curr_bit_offset += 2;
-    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 2, FALSE);
-    curr_bit_offset += 2;
-    proto_item_set_len(item_serv,((curr_bit_offset-serv_bit_offset)>>3)+1);
-  }
+        item_serv = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, ((curr_bit_offset+15)>>3)-(curr_bit_offset>>3) + 1 , "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC].strptr);
+        subtree_serv = proto_item_add_subtree(item_serv, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC]);
 
-  /* 3G Priority Parameters Description */
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    curr_bit_offset += de_rr_3g_priority_param_desc(tvb, subtree, curr_bit_offset);
-  }
+        proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_geran_priority, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
+        proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
+        proto_item_set_len(item_serv,((curr_bit_offset-serv_bit_offset)>>3)+1);
+    }
 
-  /* E-UTRAN Parameters Description */
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    curr_bit_offset += de_rr_eutran_param_desc(tvb, subtree, curr_bit_offset);
-  }
-  
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return (curr_bit_offset - bit_offset);
+    /* 3G Priority Parameters Description */
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        curr_bit_offset += de_rr_3g_priority_param_desc(tvb, subtree, curr_bit_offset);
+    }
+
+    /* E-UTRAN Parameters Description */
+    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        curr_bit_offset += de_rr_eutran_param_desc(tvb, subtree, curr_bit_offset);
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
 }
-                      
+
 static gint
 de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_CSG_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_CSG_DESC]);
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* CSG_PSC_SPLIT struct */
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_CSG_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_CSG_DESC]);
+
     while (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psc, tvb, curr_bit_offset, 9, FALSE);
-      curr_bit_offset += 9;
-    }
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      gint psc_pattern_length;
-      gint psc_pattern;
-      
-      psc_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_length, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
-      psc_pattern = tvb_get_bits8(tvb,curr_bit_offset, psc_pattern_length);
+        /* CSG_PSC_SPLIT struct */
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psc, tvb, curr_bit_offset, 9, FALSE);
+            curr_bit_offset += 9;
+        }
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            gint psc_pattern_length;
+            gint psc_pattern;
 
-      item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PSC_Pattern: %d", 
-                                 decode_bits_in_field(curr_bit_offset,psc_pattern_length, psc_pattern), 
-                                 psc_pattern);
+            psc_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_length, tvb, curr_bit_offset, 3, FALSE);
+            curr_bit_offset += 3;
+            psc_pattern = tvb_get_bits8(tvb,curr_bit_offset, psc_pattern_length);
 
-      curr_bit_offset += psc_pattern_length;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
-    }
-    
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
-    }
-  }
+            item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PSC_Pattern: %d",
+                                       decode_bits_in_field(curr_bit_offset,psc_pattern_length, psc_pattern),
+                                       psc_pattern);
 
-  while(tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* CSG_FDD_UARFCN */
-    if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_csg_fdd_uarfcn, tvb, curr_bit_offset, 14, FALSE);
-      curr_bit_offset += 14;
-    }
-    else
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_csg_tdd_uarfcn, tvb, curr_bit_offset, 14, FALSE);
-      curr_bit_offset += 14;
-    }
-  }
+            curr_bit_offset += psc_pattern_length;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+    }
+
+    while(tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        /* CSG_FDD_UARFCN */
+        if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_csg_fdd_uarfcn, tvb, curr_bit_offset, 14, FALSE);
+            curr_bit_offset += 14;
+        }
+        else
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_csg_tdd_uarfcn, tvb, curr_bit_offset, 14, FALSE);
+            curr_bit_offset += 14;
+        }
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
-{ 
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* dissect PCID group */
-    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
-  }
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_csg_earfcn, tvb, curr_bit_offset, 16, FALSE);
-    curr_bit_offset += 16;
-  }
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        /* dissect PCID group */
+        curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
+    }
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_csg_earfcn, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_eutran_csg_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
-{ 
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* dissect PCID group */
-    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
-  }
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset);
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        /* dissect PCID group */
+        curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_utran_measurement_control_param_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC]);
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
-    curr_bit_offset += 5;
-  }
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset); 
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC]);
+
+    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+    }
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static gint
 de_rr_3g_supplementary_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-  proto_tree *subtree;
-  proto_item *item;
-  gint curr_bit_offset;
-  
-  curr_bit_offset = bit_offset;
-  item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC].strptr);
-  subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC]);
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
 
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_start, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
-  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_stop, tvb, curr_bit_offset, 1, FALSE);
-  curr_bit_offset += 1;
+    curr_bit_offset = bit_offset;
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC]);
 
-  /* 3G Measurement Control Parameters Description */
-  if (tvb_get_bits8(tvb,curr_bit_offset++,1))
-  {
-    /* 3G Measurement Control Parameters Description struct */
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_start, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_stop, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+
+    /* 3G Measurement Control Parameters Description */
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
+        /* 3G Measurement Control Parameters Description struct */
+        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        {
+            curr_bit_offset += de_rr_utran_measurement_control_param_mi(tvb, subtree, curr_bit_offset);
+        }
     }
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
-    {
-      curr_bit_offset += de_rr_utran_measurement_control_param_mi(tvb, subtree, curr_bit_offset);
-    }
-  }
 
-  proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
-  
-  return(curr_bit_offset - bit_offset); 
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return(curr_bit_offset - bit_offset);
 }
 
 static guint16
 de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree, *subtree2, *subtree3;
-    proto_item	*item, *item2, *item3;
-    guint32	curr_offset;
-    gint bit_offset, bit_offset_sav, idx;
-    guint8 value;
+    proto_tree  *subtree, *subtree2, *subtree3;
+    proto_item  *item, *item2, *item3;
+    guint32      curr_offset;
+    gint         bit_offset, bit_offset_sav, idx;
+    guint8       value;
 
     len = 20;
     curr_offset = offset;
@@ -6246,11 +6242,11 @@ static const true_false_string gsm_a_rr_si13alt_position_value = {
 static guint16
 de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
-    gint bit_offset;
-    gboolean gprs_indicator;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
+    gint         bit_offset;
+    gboolean     gprs_indicator;
 
     len = 4;
     curr_offset = offset;
@@ -6351,11 +6347,11 @@ static const value_string gsm_a_rr_lsa_offset_vals[] = {
 static guint16
 de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree, *subtree2, *subtree3;
-    proto_item	*item, *item2, *item3;
-    guint32	curr_offset;
-    gint bit_offset, bit_offset_sav, bit_offset_sav2;
-    guint value;
+    proto_tree  *subtree, *subtree2, *subtree3;
+    proto_item  *item, *item2, *item3;
+    guint32      curr_offset;
+    gint         bit_offset, bit_offset_sav, bit_offset_sav2;
+    guint        value;
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
@@ -6530,11 +6526,11 @@ static const true_false_string gsm_a_rr_mnci_support_value = {
 static guint16
 de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree, *subtree2;
-    proto_item	*item, *item2;
-    guint32	curr_offset;
-    gint bit_offset, bit_offset_sav;
-    guint8 value;
+    proto_tree  *subtree, *subtree2;
+    proto_item  *item, *item2;
+    guint32      curr_offset;
+    gint         bit_offset, bit_offset_sav;
+    guint8       value;
 
     len = 7;
     curr_offset = offset;
@@ -7050,11 +7046,11 @@ static const value_string gsm_a_rr_si2n_support_vals[] = {
 static guint16
 de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree, *subtree2;
-    proto_item	*item, *item2;
-    guint32	curr_offset;
-    gint bit_offset, bit_offset_sav;
-    guint8 value;
+    proto_tree  *subtree, *subtree2;
+    proto_item  *item, *item2;
+    guint32      curr_offset;
+    gint         bit_offset, bit_offset_sav;
+    guint8       value;
 
     len = 20;
     curr_offset = offset;
@@ -7187,8 +7183,8 @@ static guint16
 de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
-    guint32	curr_offset;
-    guint16	rfn, fn;
+    guint32     curr_offset;
+    guint16     rfn, fn;
 
     curr_offset = offset;
 
@@ -7232,7 +7228,7 @@ static const true_false_string gsm_a_rr_sync_ind_nci_value  = {
 static guint16
 de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7254,7 +7250,7 @@ de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static guint16
 de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7270,7 +7266,7 @@ de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static guint16
 de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7286,15 +7282,15 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 guint16
 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset, tlli;
+    guint32 curr_offset, tlli;
 
     curr_offset = offset;
 
-	tlli = tvb_get_ntohl(tvb, curr_offset);
+    tlli = tvb_get_ntohl(tvb, curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, FALSE);
     curr_offset = curr_offset + 4;
-	if(add_string)
-		g_snprintf(add_string, string_len, " - 0x%x", tlli);
+    if(add_string)
+        g_snprintf(add_string, string_len, " - 0x%x", tlli);
 
     return(curr_offset - offset);
 }
@@ -7305,9 +7301,9 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 guint16
 de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    guint32      curr_offset;
 
     curr_offset = offset;
 
@@ -7333,14 +7329,14 @@ Bit  8 7
      Other values are reserved for future use.
 */
 static const value_string gsm_a_rr_target_mode_vals[] _U_ = {
-    { 0,	"Dedicated mode"},
-    { 1,	"Group transmit mode"},
-    { 0,	NULL }
+    { 0, "Dedicated mode"},
+    { 1, "Group transmit mode"},
+    { 0, NULL }
 };
 static guint16
 de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7352,12 +7348,12 @@ de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- * [3] 10.5.2.42b	VGCS Ciphering Parameters
+ * [3] 10.5.2.42b      VGCS Ciphering Parameters
  */
 static guint16
 de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7373,7 +7369,7 @@ de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_rr_wait_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7450,7 +7446,7 @@ static const value_string gsm_a_rr_suspension_cause_vals[] = {
 guint16
 de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7550,7 +7546,7 @@ static const true_false_string gsm_a_rr_MBMS_broadcast_value  = {
 static guint16
 de_rr_serv_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
     /* bit 1
@@ -7571,7 +7567,7 @@ de_rr_serv_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 }
 
 /*
- * [3] 10.5.2.59	Dedicated Service Information
+ * [3] 10.5.2.59       Dedicated Service Information
  */
 /*
 Last Segment (octet 2)
@@ -7586,7 +7582,7 @@ static const true_false_string gsm_a_rr_last_segment_value  = {
 static guint16
 de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -7598,7 +7594,7 @@ de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 
 /*
- * [3] 10.5.2.69	Carrier Indication
+ * [3] 10.5.2.69        Carrier Indication
  */
 static const true_false_string gsm_a_rr_carrier_ind_value  = {
     "Carrier 2",
@@ -7619,7 +7615,7 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CARRIER_IND]);
 
-    proto_tree_add_item(tree, hf_gsm_a_rr_carrier_ind, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_gsm_a_rr_carrier_ind, tvb, curr_offset, 1, FALSE);
 
     curr_offset += 1;
 
@@ -7629,101 +7625,101 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
 
-    de_rr_ba_range,			      	/* [3]  10.5.2.1a	BA Range */
-    de_rr_cell_ch_dsc,				/* [3]  10.5.2.1b	Cell Channel Description	*/
-    de_rr_ba_list_pref,				/* [3]  10.5.2.1c	BA List Pref 			*/
-    de_rr_utran_freq_list,			/* [3]  10.5.2.1d	UTRAN Frequency List 		*/
-    de_rr_cell_select_indic,			/* [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE */
-    de_rr_cell_dsc,				/* 10.5.2.2   RR Cell Description			*/
-    de_rr_cell_opt_bcch,			/* [3]  10.5.2.3	Cell Options (BCCH)		*/
-    de_rr_cell_opt_sacch,			/* [3]  10.5.2.3a	Cell Options (SACCH)		*/
-    de_rr_cell_sel_param,			/* [3]  10.5.2.4	Cell Selection Parameters	*/
+    de_rr_ba_range,                             /* [3]  10.5.2.1a       BA Range */
+    de_rr_cell_ch_dsc,                          /* [3]  10.5.2.1b       Cell Channel Description        */
+    de_rr_ba_list_pref,                         /* [3]  10.5.2.1c       BA List Pref                    */
+    de_rr_utran_freq_list,                      /* [3]  10.5.2.1d       UTRAN Frequency List            */
+    de_rr_cell_select_indic,                    /* [3]  10.5.2.1e       Cell selection indicator after release of all TCH and SDCCH IE */
+    de_rr_cell_dsc,                             /* 10.5.2.2   RR Cell Description                       */
+    de_rr_cell_opt_bcch,                        /* [3]  10.5.2.3        Cell Options (BCCH)             */
+    de_rr_cell_opt_sacch,                       /* [3]  10.5.2.3a       Cell Options (SACCH)            */
+    de_rr_cell_sel_param,                       /* [3]  10.5.2.4        Cell Selection Parameters       */
 /*
- * [3]  10.5.2.4a	(void)
+ * [3]  10.5.2.4a       (void)
  */
-    de_rr_ch_dsc,				/* [3]  10.5.2.5	Channel Description		*/
-    de_rr_ch_dsc2,				/* [3]  10.5.2.5a   RR Channel Description 2 		*/
-    de_rr_ch_dsc3,				/* [3]  10.5.2.5c   RR Channel Description 3 		*/
-    de_rr_ch_mode,				/* [3]  10.5.2.6	Channel Mode			*/
-    de_rr_ch_mode2,				/* [3]  10.5.2.7	Channel Mode 2			*/
-    de_rr_utran_cm,				/* [3]  10.5.2.7a	UTRAN Classmark */
-/* [3]  10.5.2.7b	(void) */
+    de_rr_ch_dsc,                               /* [3]  10.5.2.5        Channel Description             */
+    de_rr_ch_dsc2,                              /* [3]  10.5.2.5a   RR Channel Description 2            */
+    de_rr_ch_dsc3,                              /* [3]  10.5.2.5c   RR Channel Description 3            */
+    de_rr_ch_mode,                              /* [3]  10.5.2.6        Channel Mode                    */
+    de_rr_ch_mode2,                             /* [3]  10.5.2.7        Channel Mode 2                  */
+    de_rr_utran_cm,                             /* [3]  10.5.2.7a       UTRAN Classmark */
+/* [3]  10.5.2.7b       (void) */
 
-    de_rr_cm_enq_mask,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
-/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element					*/
-    de_rr_chnl_needed,				/* [3]  10.5.2.8	Channel Needed
-                                                 * [3]  10.5.2.8a	(void)
-                                                 * [3]  10.5.2.8b	Channel Request Description 2	*/
+    de_rr_cm_enq_mask,                          /* [3]  10.5.2.7c       Classmark Enquiry Mask          */
+/* [3]  10.5.2.7d       GERAN Iu Mode Classmark information element                                     */
+    de_rr_chnl_needed,                          /* [3]  10.5.2.8        Channel Needed
+                                                 * [3]  10.5.2.8a       (void)
+                                                 * [3]  10.5.2.8b       Channel Request Description 2   */
     /* Pos 20 */
-    de_rr_cip_mode_set,				/* [3]  10.5.2.9	Cipher Mode Setting		*/
-    de_rr_cip_mode_resp,			/* [3]  10.5.2.10	Cipher Response */
-    de_rr_ctrl_ch_desc,				/* [3]  10.5.2.11	Control Channel Description	*/
-/* [3]  10.5.2.11a	DTM Information Details */
-    de_rr_dyn_arfcn_map,			/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
-    de_rr_freq_ch_seq,				/* [3]  10.5.2.12	Frequency Channel Sequence	*/
-    de_rr_freq_list,				/* [3]  10.5.2.13	Frequency List			*/
-    de_rr_freq_short_list,			/* [3]  10.5.2.14	Frequency Short List		*/
-    de_rr_freq_short_list2,			/* [3]  10.5.2.14a	Frequency Short List 2		*/
-/* [3]  10.5.2.14b	Group Channel Description */
-    de_rr_gprs_resumption,			/* [3]  10.5.2.14c	GPRS Resumption 		*/
-    de_rr_gprs_broadcast_info,			/* [3]  10.5.2.14d	GPRS broadcast information 	*/
-/* [3]  10.5.2.14e	Enhanced DTM CS Release Indication */
-    de_rr_ho_ref,				/* 10.5.2.15  Handover Reference			*/
-    de_rr_ia_rest_oct,				/* [3] 10.5.2.16 IA Rest Octets				*/
-    de_rr_iar_rest_oct,				/* [3] 10.5.2.17 IAR Rest Octets			*/
-    de_rr_iax_rest_oct,				/* [3] 10.5.2.18 IAX Rest Octets			*/
-    de_rr_l2_pseudo_len,			/*[3] 10.5.2.19 L2 Pseudo Length			*/
-    de_rr_meas_res,				/* [3] 10.5.2.20 Measurement Results			*/
+    de_rr_cip_mode_set,                         /* [3]  10.5.2.9        Cipher Mode Setting             */
+    de_rr_cip_mode_resp,                        /* [3]  10.5.2.10       Cipher Response */
+    de_rr_ctrl_ch_desc,                         /* [3]  10.5.2.11       Control Channel Description     */
+/* [3]  10.5.2.11a      DTM Information Details */
+    de_rr_dyn_arfcn_map,                        /* [3]  10.5.2.11b      Dynamic ARFCN Mapping           */
+    de_rr_freq_ch_seq,                          /* [3]  10.5.2.12       Frequency Channel Sequence      */
+    de_rr_freq_list,                            /* [3]  10.5.2.13       Frequency List                  */
+    de_rr_freq_short_list,                      /* [3]  10.5.2.14       Frequency Short List            */
+    de_rr_freq_short_list2,                     /* [3]  10.5.2.14a      Frequency Short List 2          */
+/* [3]  10.5.2.14b      Group Channel Description */
+    de_rr_gprs_resumption,                      /* [3]  10.5.2.14c      GPRS Resumption                 */
+    de_rr_gprs_broadcast_info,                  /* [3]  10.5.2.14d      GPRS broadcast information      */
+/* [3]  10.5.2.14e      Enhanced DTM CS Release Indication */
+    de_rr_ho_ref,                               /* 10.5.2.15  Handover Reference                        */
+    de_rr_ia_rest_oct,                          /* [3] 10.5.2.16 IA Rest Octets                         */
+    de_rr_iar_rest_oct,                         /* [3] 10.5.2.17 IAR Rest Octets                        */
+    de_rr_iax_rest_oct,                         /* [3] 10.5.2.18 IAX Rest Octets                        */
+    de_rr_l2_pseudo_len,                        /*[3] 10.5.2.19 L2 Pseudo Length                        */
+    de_rr_meas_res,                             /* [3] 10.5.2.20 Measurement Results                    */
 /*
  * [3] (void)
  */
-    de_rr_mob_all,				/* [3] 10.5.2.21 Mobile Allocation			*/
-    de_rr_mob_time_diff,			/* [3] 10.5.2.21a Mobile Time Difference		*/
-    de_rr_multirate_conf,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+    de_rr_mob_all,                              /* [3] 10.5.2.21 Mobile Allocation                      */
+    de_rr_mob_time_diff,                        /* [3] 10.5.2.21a Mobile Time Difference                */
+    de_rr_multirate_conf,                       /* [3] 10.5.2.21aa MultiRate configuration              */
     /* Pos 30 */
-    de_rr_mult_all,				/* [3] 10.5.2.21b Multislot Allocation			*/
+    de_rr_mult_all,                             /* [3] 10.5.2.21b Multislot Allocation                  */
 /*
  * [3] 10.5.2.21c (void)
  */
-    de_rr_neigh_cell_desc,			/* [3] 10.5.2.22 Neighbour Cell Description		*/
-    de_rr_neigh_cell_desc2,			/* [3] 10.5.2.22a Neighbour Cell Description 2		*/
+    de_rr_neigh_cell_desc,                      /* [3] 10.5.2.22 Neighbour Cell Description             */
+    de_rr_neigh_cell_desc2,                     /* [3] 10.5.2.22a Neighbour Cell Description 2          */
 /*
  * [3] 10.5.2.22b (void)
  * [3] 10.5.2.22c NT/N Rest Octets */
-    de_rr_p1_rest_oct,				/* [3] 10.5.2.23 P1 Rest Octets 			*/
-    de_rr_p2_rest_oct,				/* [3] 10.5.2.24 P2 Rest Octets 			*/
-    de_rr_p3_rest_oct,				/* [3] 10.5.2.25 P3 Rest Octets 			*/
-    de_rr_packet_ch_desc,			/* [3] 10.5.2.25a Packet Channel Description		*/
-    de_rr_ded_mod_or_tbf,			/* [3] 10.5.2.25b Dedicated mode or TBF			*/
+    de_rr_p1_rest_oct,                          /* [3] 10.5.2.23 P1 Rest Octets                         */
+    de_rr_p2_rest_oct,                          /* [3] 10.5.2.24 P2 Rest Octets                         */
+    de_rr_p3_rest_oct,                          /* [3] 10.5.2.25 P3 Rest Octets                         */
+    de_rr_packet_ch_desc,                       /* [3] 10.5.2.25a Packet Channel Description            */
+    de_rr_ded_mod_or_tbf,                       /* [3] 10.5.2.25b Dedicated mode or TBF                 */
 /* [3] 10.5.2.25c RR Packet Uplink Assignment
  * [3] 10.5.2.25d RR Packet Downlink Assignment
  */
-    de_rr_page_mode,				/* [3] 10.5.2.26 Page Mode				*/
+    de_rr_page_mode,                            /* [3] 10.5.2.26 Page Mode                              */
 /*
  * [3] 10.5.2.26a (void)
  * [3] 10.5.2.26b (void)
  * [3] 10.5.2.26c (void)
  * [3] 10.5.2.26d (void)
  */
-    de_rr_ncc_perm,				/* [3] 10.5.2.27 NCC Permitted				*/
-    de_rr_pow_cmd,				/* 10.5.2.28  Power Command				*/
-    de_rr_pow_cmd_and_acc_type,			/* 10.5.2.28a Power Command and access type		*/
-    de_rr_rach_ctrl_param,			/* [3] 10.5.2.29 RACH Control Parameters 		*/
-    de_rr_req_ref,				/* [3] 10.5.2.30 Request Reference			*/
-    de_rr_cause,				/* 10.5.2.31  RR Cause					*/
-    de_rr_sync_ind,				/* 10.5.2.39  Synchronization Indication		*/
-    de_rr_si1_rest_oct,				/* [3] 10.5.2.32 SI1 Rest Octets			*/
+    de_rr_ncc_perm,                             /* [3] 10.5.2.27 NCC Permitted                          */
+    de_rr_pow_cmd,                              /* 10.5.2.28  Power Command                             */
+    de_rr_pow_cmd_and_acc_type,                 /* 10.5.2.28a Power Command and access type             */
+    de_rr_rach_ctrl_param,                      /* [3] 10.5.2.29 RACH Control Parameters                */
+    de_rr_req_ref,                              /* [3] 10.5.2.30 Request Reference                      */
+    de_rr_cause,                                /* 10.5.2.31  RR Cause                                  */
+    de_rr_sync_ind,                             /* 10.5.2.39  Synchronization Indication                */
+    de_rr_si1_rest_oct,                         /* [3] 10.5.2.32 SI1 Rest Octets                        */
 /* [3] 10.5.2.33 SI 2bis Rest Octets */
-    de_rr_si2ter_rest_oct,			/* [3] 10.5.2.33a SI 2ter Rest Octets 			*/
-    de_rr_si2quater_rest_oct,			/* [3] 10.5.2.33b SI 2quater Rest Octets 		*/
-    de_rr_si3_rest_oct,				/* [3] 10.5.2.34 SI3 Rest Octets			*/
-    de_rr_si4_rest_oct,				/* [3] 10.5.2.35 SI4 Rest Octets			*/
-    de_rr_si6_rest_oct,				/* [3] 10.5.2.35b SI6 Rest Octets			*/
+    de_rr_si2ter_rest_oct,                      /* [3] 10.5.2.33a SI 2ter Rest Octets                   */
+    de_rr_si2quater_rest_oct,                   /* [3] 10.5.2.33b SI 2quater Rest Octets                */
+    de_rr_si3_rest_oct,                         /* [3] 10.5.2.34 SI3 Rest Octets                        */
+    de_rr_si4_rest_oct,                         /* [3] 10.5.2.35 SI4 Rest Octets                        */
+    de_rr_si6_rest_oct,                         /* [3] 10.5.2.35b SI6 Rest Octets                       */
 /* [3] 10.5.2.36 SI 7 Rest Octets
  * [3] 10.5.2.37 SI 8 Rest Octets
  * [3] 10.5.2.37a SI 9 Rest Octets
  */
-    de_rr_si13_rest_oct,			/* [3] 10.5.2.37a SI13 Rest Octets			*/
+    de_rr_si13_rest_oct,                        /* [3] 10.5.2.37a SI13 Rest Octets                      */
 /* [3] 10.5.2.37c (void)
  * [3] 10.5.2.37d (void)
  * [3] 10.5.2.37e SI 16 Rest Octets
@@ -7731,34 +7727,34 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
-    de_rr_starting_time,			/* [3] 10.5.2.38 Starting Time				*/
-    de_rr_timing_adv,				/* [3] 10.5.2.40 Timing Advance				*/
-    de_rr_time_diff,				/* [3] 10.5.2.41 Time Difference			*/
-    de_rr_tlli,					/* [3] 10.5.2.41a TLLI					*/
-    de_rr_tmsi_ptmsi,				/* [3] 10.5.2.42 TMSI/P-TMSI 				*/
-    de_rr_vgcs_tar_mode_ind,			/* [3] 10.5.2.42a VGCS target mode Indication		*/
+    de_rr_starting_time,                        /* [3] 10.5.2.38 Starting Time                          */
+    de_rr_timing_adv,                           /* [3] 10.5.2.40 Timing Advance                         */
+    de_rr_time_diff,                            /* [3] 10.5.2.41 Time Difference                        */
+    de_rr_tlli,                                 /* [3] 10.5.2.41a TLLI                                  */
+    de_rr_tmsi_ptmsi,                           /* [3] 10.5.2.42 TMSI/P-TMSI                            */
+    de_rr_vgcs_tar_mode_ind,                    /* [3] 10.5.2.42a VGCS target mode Indication           */
     /* Pos 40 */
-    de_rr_vgcs_cip_par,				/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
-    de_rr_wait_ind,				/* [3] 10.5.2.43 Wait Indication 			*/
+    de_rr_vgcs_cip_par,                         /* [3] 10.5.2.42b       VGCS Ciphering Parameters       */
+    de_rr_wait_ind,                             /* [3] 10.5.2.43 Wait Indication                        */
 /* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
-    de_rr_ext_meas_result,			/* [3] 10.5.2.45 Extended Measurement Results 		*/
-    de_rr_ext_meas_freq_list,			/* [3] 10.5.2.46 Extended Measurement Frequency List 	*/
-    de_rr_sus_cau,				/* [3] 10.5.2.47 Suspension Cause			*/
-    de_rr_apdu_id,				/* [3] 10.5.2.48 APDU ID				*/
-    de_rr_apdu_flags,				/* [3] 10.5.2.49 APDU Flags				*/
-    de_rr_apdu_data,				/* [3] 10.5.2.50 APDU Data */
-    de_rr_ho_to_utran_cmd,			/* [3] 10.5.2.51 Handover To UTRAN Command 		*/
+    de_rr_ext_meas_result,                      /* [3] 10.5.2.45 Extended Measurement Results           */
+    de_rr_ext_meas_freq_list,                   /* [3] 10.5.2.46 Extended Measurement Frequency List    */
+    de_rr_sus_cau,                              /* [3] 10.5.2.47 Suspension Cause                       */
+    de_rr_apdu_id,                              /* [3] 10.5.2.48 APDU ID                                */
+    de_rr_apdu_flags,                           /* [3] 10.5.2.49 APDU Flags                             */
+    de_rr_apdu_data,                            /* [3] 10.5.2.50 APDU Data */
+    de_rr_ho_to_utran_cmd,                      /* [3] 10.5.2.51 Handover To UTRAN Command              */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell
  * 10.5.2.57 Service Support */
-    de_rr_serv_sup,				/* 10.5.2.57		Service Support			*/
+    de_rr_serv_sup,                             /* 10.5.2.57            Service Support                 */
 /*
  * 10.5.2.58 MBMS p-t-m Channel Description
  */
-    de_rr_ded_serv_inf,				/* [3] 10.5.2.59	Dedicated Service Information 	*/
+    de_rr_ded_serv_inf,                         /* [3] 10.5.2.59        Dedicated Service Information   */
 /*
  * 10.5.2.60 MPRACH Description
  * 10.5.2.61 Restriction Timer
@@ -7770,8 +7766,8 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
  */
-    de_rr_carrier_ind,				/* 10.5.2.69 Carrier Indication 			*/
-    NULL,	/* NONE */
+    de_rr_carrier_ind,                          /* 10.5.2.69 Carrier Indication                         */
+    NULL,       /* NONE */
 };
 
 /* MESSAGE FUNCTIONS */
@@ -7807,88 +7803,88 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static void
 dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* Channel Description 2	10.5.2.5a	M V 3 */
+    /* Channel Description 2                    10.5.2.5a       M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, " - Description of the First Channel, after time");
 
-    /* Power Command			10.5.2.28	M V 1 */
+    /* Power Command                            10.5.2.28       M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD, NULL);
 
-    /* 05 Frequency List		10.5.2.13	C TLV 4-132 */
+    /* 05 Frequency List                        10.5.2.13       C TLV 4-132 */
     ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, after time");
 
-    /* 62 Cell Channel Description	10.5.2.1b	O TV 17 */
+    /* 62 Cell Channel Description              10.5.2.1b       O TV 17 */
     ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
-    /* 10 Multislot Allocation		10.5.2.21b	C TLV 3-12 */
+    /* 10 Multislot Allocation                  10.5.2.21b      C TLV 3-12 */
     ELEM_OPT_TLV(0x10,GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, " - Description of the multislot configuration");
 
-    /* 63 Channel Mode				10.5.2.6	O TV 2 */
+    /* 63 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x63,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of the First Channel(Channel Set 1)");
 
-    /* 11 Channel Mode				10.5.2.6	O TV 2 */
+    /* 11 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x11,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 2");
 
-    /* 13 Channel Mode				10.5.2.6	O TV 2 */
+    /* 13 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x13,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 3");
 
-    /* 14 Channel Mode				10.5.2.6	O TV 2 */
+    /* 14 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x14,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 4");
 
-    /* 15 Channel Mode				10.5.2.6	O TV 2 */
+    /* 15 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x15,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 5");
 
-    /* 16 Channel Mode				10.5.2.6	O TV 2 */
+    /* 16 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x16,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 6");
 
-    /* 17 Channel Mode				10.5.2.6	O TV 2 */
+    /* 17 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x17,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 7");
 
-    /* 18 Channel Mode				10.5.2.6	O TV 2 */
+    /* 18 Channel Mode                          10.5.2.6        O TV 2 */
     ELEM_OPT_TV(0x18,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 8");
 
-    /* 64 Channel Description		10.5.2.5	O TV 4 */
+    /* 64 Channel Description           10.5.2.5        O TV 4 */
     ELEM_OPT_TV(0x64,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, "Description of the Second Channel, after time");
 
-    /* 66  Channel Mode 2			10.5.2.7	O TV 2 */
+    /* 66  Channel Mode 2                       10.5.2.7        O TV 2 */
     ELEM_OPT_TV(0x66,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE2, " - Mode of the Second Channel");
 
-    /* 72 Mobile Allocation			10.5.2.21	C TLV 3-10 */
+    /* 72 Mobile Allocation                     10.5.2.21       C TLV 3-10 */
     ELEM_OPT_TLV(0x72,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, after time");
 
-    /* 7C Starting Time				10.5.2.38	O TV 3 */
+    /* 7C Starting Time                         10.5.2.38       O TV 3 */
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
-    /* 19 Frequency List			10.5.2.13	C TLV 4-132 */
+    /* 19 Frequency List                        10.5.2.13       C TLV 4-132 */
     ELEM_OPT_TLV(0x19, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, before time");
 
-    /* 1C Channel Description 2		10.5.2.5a	O TV 4 */
+    /* 1C Channel Description 2                 10.5.2.5a       O TV 4 */
     ELEM_OPT_TV(0x1c,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, " - Description of the First Channel, before time");
 
-    /* 1D Channel Description		10.5.2.5	O TV 4 */
+    /* 1D Channel Description                   10.5.2.5        O TV 4 */
     ELEM_OPT_TV(0x1d,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Description of the Second Channel, before time");
 
-    /* 1E Frequency channel sequence 10.5.2.12	C TV 10 */
+    /* 1E Frequency channel sequence            10.5.2.12  C TV 10 */
     ELEM_OPT_TV(0x1e,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_CH_SEQ, " - Frequency channel sequence before time");
 
-    /* 21 Mobile Allocation			10.5.2.21	C TLV 3-10 */
+    /* 21 Mobile Allocation                     10.5.2.21       C TLV 3-10 */
     ELEM_OPT_TLV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
 
-    /* 9- Cipher Mode Setting		10.5.2.9	O TV 1 */
+    /* 9- Cipher Mode Setting                   10.5.2.9        O TV 1 */
     ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
     /* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
     ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
-    /* 03 Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa	O TLV 4-8 */
+    /* 03 Multi-Rate configuration,     MultiRate configuration 10.5.2.21aa     O TLV 4-8 */
     ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
-    /* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15	*/
+    /* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15     */
     ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -7901,9 +7897,9 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static void
 dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -7921,9 +7917,9 @@ dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static void
 dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -7941,23 +7937,23 @@ dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static void
 dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* Channel Description 2	10.5.2.5a	M V 3 */
+    /* Channel Description 2    10.5.2.5a       M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, NULL);
 
-    /* Channel Mode				10.5.2.6	M V 1 */
+    /* Channel Mode             10.5.2.6        M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
 
     /* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
     ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
-    /* 03 Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa	O TLV 4-8 */
+    /* 03 Multi-Rate configuration,     MultiRate configuration 10.5.2.21aa     O TLV 4-8 */
     ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -7970,17 +7966,17 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* Channel Description 2	10.5.2.5a	M V 3 */
+    /* Channel Description 2    10.5.2.5a       M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, NULL);
 
-    /* Channel Mode				10.5.2.6	M V 1 */
+    /* Channel Mode             10.5.2.6        M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -7993,9 +7989,9 @@ dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static void
 dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8042,17 +8038,17 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static void
 dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
     lower_nibble = FALSE;
 
-    /* Ciphering Mode Setting		10.5.2.9	M V 0.5 */
+    /* Ciphering Mode Setting           10.5.2.9        M V 0.5 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET);
-    /* Cipher Response	10.5.2.10	M V 0.5 */
+    /* Cipher Response                  10.5.2.10       M V 0.5 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_RESP);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8064,15 +8060,15 @@ dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 void
 dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
     lower_nibble = FALSE;
 
-    /* Mobile Equipment Identity		10.5.1.4	O TLV */
+    /* Mobile Equipment Identity                10.5.1.4        O TLV */
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, "Mobile Equipment Identity");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8085,16 +8081,16 @@ dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* Mobile Station Classmark 2		10.5.1.6	M LV 4 */
+    /* Mobile Station Classmark 2               10.5.1.6        M LV 4 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
-    /* 20 Mobile Station Classmark 3	10.5.1.7	C TLV 3-34 */
+    /* 20 Mobile Station Classmark 3            10.5.1.7        C TLV 3-34 */
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8107,14 +8103,14 @@ dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static void
 dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* UTRAN Classmark		10.5.2.7a	M LV 2-? */
+    /* UTRAN Classmark          10.5.2.7a       M LV 2-? */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_CM, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8126,14 +8122,14 @@ dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 static void
 dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* 10 Classmark Enquiry Mask 	10.5.2.7c	O TLV 3 */
+    /* 10 Classmark Enquiry Mask        10.5.2.7c       O TLV 3 */
     ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CM_ENQ_MASK, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8184,12 +8180,12 @@ dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- * 9.1.12c	Configuration change acknowledge
+ * 9.1.12c      Configuration change acknowledge
  */
 /* empty message */
 
 /*
- * 9.1.12d	Configuration change reject
+ * 9.1.12d      Configuration change reject
  */
 static void
 dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -8251,21 +8247,22 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+
     curr_offset = offset;
     curr_len = len;
 
-    /* TLLI								10.5.2.41a	M V 4 */
+    /* TLLI                                                             10.5.2.41a      M V 4 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
 
-    /* Routeing Area Identification		10.5.5.15	M V 6 */
+    /* Routeing Area Identification                     10.5.5.15       M V 6 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
-    /* Suspension cause					10.5.2.47	M V 1 */
+    /* Suspension cause                                 10.5.2.47       M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SUS_CAU, NULL);
 
-    /* 01 Service Support					10.5.2.57	O TV 2 */
+    /* 01 Service Support                               10.5.2.57       O TV 2 */
     ELEM_OPT_TV_SHORT(0x01,GSM_A_PDU_TYPE_RR, DE_RR_SERV_SUP,NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -8283,9 +8280,10 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 void
 dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+
     curr_offset = offset;
     curr_len = len;
 
@@ -8370,37 +8368,37 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* Frequency Short List, before time, Frequency Short List 10.5.2.14 */
     ELEM_OPT_TV(0x12,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_SHORT_LIST, " - Frequency Short List, before time");
 
-    /* Frequency List, before time,	Frequency List 10.5.2.13 */
+    /* Frequency List, before time,     Frequency List 10.5.2.13 */
     ELEM_OPT_TLV(0x19,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, before time");
 
-    /* Description of the First Channel, before time,	Channel Description 2 10.5.2.5a*/
+    /* Description of the First Channel, before time,   Channel Description 2 10.5.2.5a*/
     ELEM_OPT_TV(0x1c,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC2, " - Description of the First Channel, before time");
 
-    /* Description of the Second Channel, before time,	Channel Description 10.5.2.5*/
+    /* Description of the Second Channel, before time,  Channel Description 10.5.2.5*/
     ELEM_OPT_TV(0x1d,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Description of the Second Channel, before time");
 
-    /* Frequency channel sequence before time,	Frequency channel sequence 10.5.2.12*/
+    /* Frequency channel sequence before time,  Frequency channel sequence 10.5.2.12*/
     ELEM_OPT_TV(0x1e,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_CH_SEQ, " - Frequency channel sequence before time");
 
-    /* Mobile Allocation, before time,	Mobile Allocation 10.5.2.21 */
+    /* Mobile Allocation, before time,  Mobile Allocation 10.5.2.21 */
     ELEM_OPT_TLV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
 
-    /* Cipher Mode Setting,	Cipher Mode Setting 10.5.2.9 */
+    /* Cipher Mode Setting,     Cipher Mode Setting 10.5.2.9 */
     ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
 
-    /* VGCS target mode Indication,	VGCS target mode Indication 10.5.2.42a */
+    /* VGCS target mode Indication,     VGCS target mode Indication 10.5.2.42a */
     ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
-    /* Multi-Rate configuration,	MultiRate configuration 10.5.2.21a */
+    /* Multi-Rate configuration,        MultiRate configuration 10.5.2.21a */
     ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
-    /* Dynamic ARFCN Mapping,	Dynamic ARFCN Mapping 10.5.2.11b */
+    /* Dynamic ARFCN Mapping,   Dynamic ARFCN Mapping 10.5.2.11b */
     ELEM_OPT_TLV(0x76,GSM_A_PDU_TYPE_RR, DE_RR_DYN_ARFCN_MAP, NULL);
 
-    /* VGCS Ciphering Parameters,	VGCS Ciphering Parameters 10.5.2.42b */
+    /* VGCS Ciphering Parameters,       VGCS Ciphering Parameters 10.5.2.42b */
     ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
-    /* Dedicated Service Information,	Dedicated Service Information 10.5.2.59 */
+    /* Dedicated Service Information,   Dedicated Service Information 10.5.2.59 */
     ELEM_OPT_TV(0x51,GSM_A_PDU_TYPE_RR, DE_RR_DED_SERV_INF, NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -8413,14 +8411,14 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static void
 dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
 
-    /* UTRAN Classmark		10.5.2.51	M LV 2-? */
+    /* UTRAN Classmark          10.5.2.51       M LV 2-? */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_HO_TO_UTRAN_CMD, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8432,16 +8430,17 @@ dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info 
 static void
 dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+
     curr_offset = offset;
     curr_len = len;
 
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    /* 77 Mobile Observed Time Difference	Mobile Time Difference 10.5.2.21a */
+    /* 77 Mobile Observed Time Difference       Mobile Time Difference 10.5.2.21a */
     ELEM_OPT_TLV(0x77,GSM_A_PDU_TYPE_RR, DE_RR_MOB_TIME_DIFF, " - Mobile Observed Time Difference");
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -8454,9 +8453,9 @@ dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static void
 dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8474,10 +8473,11 @@ dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static void
 dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
-    guint8 oct;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+    guint8      oct;
+
     curr_offset = offset;
     curr_len = len;
 
@@ -8492,37 +8492,37 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
      * i.e. coded with a "0" in each.
      */
 
-    /* Page Mode					10.5.2.26	M V 1/2 */
+    /* Page Mode                                        10.5.2.26       M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
 
-    /* Dedicated mode or TBF		10.5.2.25b	M V 1/2 */
+    /* Dedicated mode or TBF            10.5.2.25b      M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_DED_MOD_OR_TBF);
 
     if((oct&0x10) == 0){
-	/* Channel Description			10.5.2.5	C V 3m */
+        /* Channel Description                  10.5.2.5        C V 3m */
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
     }else{
-	/* Packet Channel Description	10.5.2.25a	C V 3
-	 * If the Dedicated mode or TBF IE indicates that the message assigns a Temporary Block Flow (TBF),
-	 * the mobile station shall consider this information element present in the message.
-	 * If the Dedicated mode or TBF IE indicates that this message is the first of two in a two-message
-	 * assignment of an uplink or downlink TBF, the mobile station shall ignore the contents
-	 * of this information element and regard it as an unnecessary IE.
-	 */
+        /* Packet Channel Description   10.5.2.25a      C V 3
+         * If the Dedicated mode or TBF IE indicates that the message assigns a Temporary Block Flow (TBF),
+         * the mobile station shall consider this information element present in the message.
+         * If the Dedicated mode or TBF IE indicates that this message is the first of two in a two-message
+         * assignment of an uplink or downlink TBF, the mobile station shall ignore the contents
+         * of this information element and regard it as an unnecessary IE.
+         */
         if((oct&0x04) == 0){
             ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PACKET_CH_DESC, NULL);
         }
     }
-    /* Request Reference			10.5.2.30	M V 3	*/
+    /* Request Reference                        10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, NULL);
 
-    /* Timing Advance				10.5.2.40	M V 1	*/
+    /* Timing Advance                           10.5.2.40       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
-    /* Mobile Allocation			10.5.2.21	M LV 1-9 */
+    /* Mobile Allocation                        10.5.2.21       M LV 1-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
-    /* 7C Starting Time				10.5.2.38	O TV 3	*/
+    /* 7C Starting Time                         10.5.2.38       O TV 3  */
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
-    /* IA Rest Octets				10.5.2.16	M V 0-11 */
+    /* IA Rest Octets                           10.5.2.16       M V 0-11 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT, NULL);
 
@@ -8534,36 +8534,37 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 static void
 dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
-    guint8 oct;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+    guint8      oct;
+
     curr_offset = offset;
     curr_len = len;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    /* Page Mode						10.5.2.26	M V 1/2 */
+    /* Page Mode                                                10.5.2.26       M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-    /* Spare Half Octet						10.5.1.8	M V 1/2 */
+    /* Spare Half Octet                                         10.5.1.8        M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
-    /* Channel Description 1	Channel Description		10.5.2.5	M V 3 */
+    /* Channel Description 1    Channel Description             10.5.2.5        M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 1");
-    /* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1");
-    /* Timing Advance 1	Timing Advance				10.5.2.40	M V 1	*/
+    /* Timing Advance 1 Timing Advance                          10.5.2.40       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, " - Timing Advance 1");
-    /* Channel Description 2	Channel Description		10.5.2.5	M V 3 */
+    /* Channel Description 2    Channel Description             10.5.2.5        M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 2");
-    /* Request Reference 2	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 2      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 2");
-    /* Timing Advance 2	Timing Advance				10.5.2.40	M V 1	*/
+    /* Timing Advance 2 Timing Advance                          10.5.2.40       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, " - Timing Advance 2");
-    /* Mobile Allocation					10.5.2.21	M LV 1-9 */
+    /* Mobile Allocation                                        10.5.2.21       M LV 1-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
-    /* 7C Starting Time						10.5.2.38	O TV 3	*/
+    /* 7C Starting Time                                         10.5.2.38       O TV 3  */
     ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
-    /* IAX Rest Octets						10.5.2.18	M V 0-4 */
+    /* IAX Rest Octets                                          10.5.2.18       M V 0-4 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAX_REST_OCT, NULL);
 
@@ -8575,36 +8576,37 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
-    guint8 oct;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+    guint8      oct;
+
     curr_offset = offset;
     curr_len = len;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    /* Page Mode					10.5.2.26	M V 1/2 */
+    /* Page Mode                                        10.5.2.26       M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-    /* Spare Half Octet		10.5.1.8	M V 1/2 */
+    /* Spare Half Octet         10.5.1.8        M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
-    /* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1");
-    /* Wait Indication 1	Wait Indication			10.5.2.43	M V 1	*/
+    /* Wait Indication 1        Wait Indication                 10.5.2.43       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 1");
-    /* Request Reference 2	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 2      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 2");
-    /* Wait Indication 2	Wait Indication			10.5.2.43	M V 1	*/
+    /* Wait Indication 2        Wait Indication                 10.5.2.43       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 2");
-    /* Request Reference 3	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 3      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 3");
-    /* Wait Indication 3	Wait Indication			10.5.2.43	M V 1	*/
+    /* Wait Indication 3        Wait Indication                 10.5.2.43       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 3");
-    /* Request Reference 4	Request Reference		10.5.2.30	M V 3	*/
+    /* Request Reference 4      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 4");
-    /* Wait Indication 4	Wait Indication			10.5.2.43	M V 1	*/
+    /* Wait Indication 4        Wait Indication                 10.5.2.43       M V 1   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - Wait Indication 4");
-    /* IAR Rest Octets				10.5.2.19	M V 3 */
+    /* IAR Rest Octets                          10.5.2.19       M V 3 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAR_REST_OCT, NULL);
 
@@ -8616,9 +8618,9 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8633,9 +8635,9 @@ dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static void
 dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8664,9 +8666,9 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static void
 dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8698,9 +8700,9 @@ dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static void
 dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8735,12 +8737,12 @@ dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static void
 dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
-    guint8	oct;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint32      curr_offset;
+    guint32      consumed;
+    guint        curr_len;
+    guint8       oct;
+    proto_tree  *subtree;
+    proto_item  *item;
 
     curr_offset = offset;
     curr_len = len;
@@ -8757,7 +8759,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
                         a_bigbuf);
 
     item =
-	proto_tree_add_text(tree,
+        proto_tree_add_text(tree,
                             tvb, curr_offset, 1, "%s",
                             gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
@@ -8831,9 +8833,9 @@ dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8849,9 +8851,9 @@ dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static void
 dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8867,9 +8869,9 @@ dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static void
 dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8887,9 +8889,9 @@ dtap_rr_sys_info_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8907,9 +8909,9 @@ dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8925,9 +8927,9 @@ dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8943,9 +8945,9 @@ dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8959,9 +8961,9 @@ dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 static void
 dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8987,9 +8989,9 @@ dtap_rr_sys_info_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9013,9 +9015,9 @@ dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9029,9 +9031,9 @@ dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9045,9 +9047,9 @@ dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9061,9 +9063,9 @@ dtap_rr_sys_info_5ter(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9085,9 +9087,9 @@ dtap_rr_sys_info_6(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9101,9 +9103,9 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9135,9 +9137,9 @@ dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static void
 dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9616,110 +9618,110 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     }
 }
 
-#define	NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
+#define NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
 static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-    NULL,	/* Reserved */
-    dtap_rr_add_ass,		/* Additional Assignment */
-    dtap_rr_imm_ass,		/* 9.1.18 Immediate assignment  */
-    dtap_rr_imm_ass_ext,	/* Immediate Assignment Extended */
-    dtap_rr_imm_ass_rej,	/* Immediate Assignment Reject */
+    NULL,       /* Reserved */
+    dtap_rr_add_ass,            /* Additional Assignment */
+    dtap_rr_imm_ass,            /* 9.1.18 Immediate assignment  */
+    dtap_rr_imm_ass_ext,        /* Immediate Assignment Extended */
+    dtap_rr_imm_ass_rej,        /* Immediate Assignment Reject */
 
-    NULL,			/* DTM Assignment Failure */
-    NULL,			/* DTM Reject */
-    NULL,			/* DTM Request */
-    NULL,			/* Main DCCH Assignment Command */
-    NULL,			/* Packet Assignment Command */
+    NULL,                       /* DTM Assignment Failure */
+    NULL,                       /* DTM Reject */
+    NULL,                       /* DTM Request */
+    NULL,                       /* Main DCCH Assignment Command */
+    NULL,                       /* Packet Assignment Command */
 
-    dtap_rr_cip_mode_cmd,	/* Ciphering Mode Command */
-    dtap_rr_cip_mode_cpte,	/* Ciphering Mode Complete */
+    dtap_rr_cip_mode_cmd,       /* Ciphering Mode Command */
+    dtap_rr_cip_mode_cpte,      /* Ciphering Mode Complete */
 
-    dtap_rr_conf_change_cmd,	/* Configuration Change Command */
-    NULL,			/* Configuration Change Ack. */
-    dtap_rr_conf_change_rej,	/* Configuration Change Reject */
+    dtap_rr_conf_change_cmd,    /* Configuration Change Command */
+    NULL,                       /* Configuration Change Ack. */
+    dtap_rr_conf_change_rej,    /* Configuration Change Reject */
 
-    dtap_rr_ass_cmd,		/* 9.1.2 Assignment Command */
-    dtap_rr_ass_comp,		/* Assignment Complete */
-    dtap_rr_ass_fail,		/* Assignment Failure */
-    dtap_rr_ho_cmd,		/* Handover Command */
-    dtap_rr_ho_cpte,		/* Handover Complete */
-    dtap_rr_ho_fail,		/* Handover Failure */
-    dtap_rr_phy_info,		/* Physical Information */
-    NULL,			/* DTM Assignment Command */
+    dtap_rr_ass_cmd,            /* 9.1.2 Assignment Command */
+    dtap_rr_ass_comp,           /* Assignment Complete */
+    dtap_rr_ass_fail,           /* Assignment Failure */
+    dtap_rr_ho_cmd,             /* Handover Command */
+    dtap_rr_ho_cpte,            /* Handover Complete */
+    dtap_rr_ho_fail,            /* Handover Failure */
+    dtap_rr_phy_info,           /* Physical Information */
+    NULL,                       /* DTM Assignment Command */
 
-    NULL,			/* RR-cell Change Order */
-    NULL,			/* PDCH Assignment Command */
+    NULL,                       /* RR-cell Change Order */
+    NULL,                       /* PDCH Assignment Command */
 
-    dtap_rr_ch_rel,		/* Channel Release */
-    dtap_rr_partial_rel,	/* Partial Release */
-    NULL,			/* Partial Release Complete */
+    dtap_rr_ch_rel,             /* Channel Release */
+    dtap_rr_partial_rel,        /* Partial Release */
+    NULL,                       /* Partial Release Complete */
 
-    dtap_rr_paging_req_type_1,	/* Paging Request Type 1 */
-    dtap_rr_paging_req_type_2,	/* Paging Request Type 2 */
-    dtap_rr_paging_req_type_3,	/* Paging Request Type 3 */
-    dtap_rr_paging_resp,	/* Paging Response */
-    NULL,			/* Notification/NCH */
-    NULL,			/* Reserved */
-    NULL,			/* Notification/Response */
+    dtap_rr_paging_req_type_1,  /* Paging Request Type 1 */
+    dtap_rr_paging_req_type_2,  /* Paging Request Type 2 */
+    dtap_rr_paging_req_type_3,  /* Paging Request Type 3 */
+    dtap_rr_paging_resp,        /* Paging Response */
+    NULL,                       /* Notification/NCH */
+    NULL,                       /* Reserved */
+    NULL,                       /* Notification/Response */
 
-    NULL,			/* Reserved */
+    NULL,                       /* Reserved */
 
-    dtap_rr_utran_classmark_change,	/* Utran Classmark Change  */
-    NULL,			/* cdma2000 Classmark Change */
-    dtap_rr_inter_syst_to_utran_ho_cmd,	/* Inter System to UTRAN Handover Command */
-    NULL,			/* Inter System to cdma2000 Handover Command */
+    dtap_rr_utran_classmark_change,     /* Utran Classmark Change  */
+    NULL,                       /* cdma2000 Classmark Change */
+    dtap_rr_inter_syst_to_utran_ho_cmd, /* Inter System to UTRAN Handover Command */
+    NULL,                       /* Inter System to cdma2000 Handover Command */
 
-    NULL,			/* System Information Type 8 */
-    dtap_rr_sys_info_1,		/* System Information Type 1 */
-    dtap_rr_sys_info_2,		/* System Information Type 2 */
-    dtap_rr_sys_info_3,		/* System Information Type 3 */
-    dtap_rr_sys_info_4,		/* System Information Type 4 */
-    dtap_rr_sys_info_5,		/* System Information Type 5 */
-    dtap_rr_sys_info_6,		/* System Information Type 6 */
-    NULL,			/* System Information Type 7 */
+    NULL,                       /* System Information Type 8 */
+    dtap_rr_sys_info_1,         /* System Information Type 1 */
+    dtap_rr_sys_info_2,         /* System Information Type 2 */
+    dtap_rr_sys_info_3,         /* System Information Type 3 */
+    dtap_rr_sys_info_4,         /* System Information Type 4 */
+    dtap_rr_sys_info_5,         /* System Information Type 5 */
+    dtap_rr_sys_info_6,         /* System Information Type 6 */
+    NULL,                       /* System Information Type 7 */
 
-    dtap_rr_sys_info_2bis,	/* System Information Type 2bis */
-    dtap_rr_sys_info_2ter,	/* System Information Type 2ter */
-    dtap_rr_sys_info_2quater,	/* System Information Type 2quater */
-    dtap_rr_sys_info_5bis,	/* System Information Type 5bis */
-    dtap_rr_sys_info_5ter,	/* System Information Type 5ter */
-    NULL,			/* System Information Type 9 */
-    dtap_rr_sys_info_13,	/* System Information Type 13 */
+    dtap_rr_sys_info_2bis,      /* System Information Type 2bis */
+    dtap_rr_sys_info_2ter,      /* System Information Type 2ter */
+    dtap_rr_sys_info_2quater,   /* System Information Type 2quater */
+    dtap_rr_sys_info_5bis,      /* System Information Type 5bis */
+    dtap_rr_sys_info_5ter,      /* System Information Type 5ter */
+    NULL,                       /* System Information Type 9 */
+    dtap_rr_sys_info_13,        /* System Information Type 13 */
 
-    NULL,			/* System Information Type 16 */
-    NULL,			/* System Information Type 17 */
+    NULL,                       /* System Information Type 16 */
+    NULL,                       /* System Information Type 17 */
 
-    NULL,			/* System Information Type 18 */
-    NULL,			/* System Information Type 19 */
-    NULL,			/* System Information Type 20 */
+    NULL,                       /* System Information Type 18 */
+    NULL,                       /* System Information Type 19 */
+    NULL,                       /* System Information Type 20 */
 
-    dtap_rr_ch_mode_mod,	/* Channel Mode Modify */
-    dtap_rr_rr_status,		/* RR Status */
-    dtap_rr_ch_mode_mod_ack,	/* Channel Mode Modify Acknowledge */
-    dtap_rr_freq_redef,		/* Frequency Redefinition */
-    dtap_rr_meas_rep,		/* 9.1.21 Measurement report */
-    dtap_rr_mm_cm_change,	/* 9.1.11 Classmark Change */
-    dtap_rr_cm_enq,		/* Classmark Enquiry */
-    dtap_rr_ext_meas_report,	/* Extended Measurement Report */
-    dtap_rr_ext_meas_order,	/* Extended Measurement Order */
-    dtap_rr_gprs_sus_req,	/* 9.1.13b GPRS Suspension Request */
+    dtap_rr_ch_mode_mod,        /* Channel Mode Modify */
+    dtap_rr_rr_status,          /* RR Status */
+    dtap_rr_ch_mode_mod_ack,    /* Channel Mode Modify Acknowledge */
+    dtap_rr_freq_redef,         /* Frequency Redefinition */
+    dtap_rr_meas_rep,           /* 9.1.21 Measurement report */
+    dtap_rr_mm_cm_change,       /* 9.1.11 Classmark Change */
+    dtap_rr_cm_enq,             /* Classmark Enquiry */
+    dtap_rr_ext_meas_report,    /* Extended Measurement Report */
+    dtap_rr_ext_meas_order,     /* Extended Measurement Order */
+    dtap_rr_gprs_sus_req,       /* 9.1.13b GPRS Suspension Request */
 
-    NULL,			/* VGCS Uplink Grant */
-    NULL,			/* Uplink Release */
-    NULL,			/* Reserved */
-    NULL,			/* Uplink Busy */
-    NULL,			/* Talker Indication */
+    NULL,                       /* VGCS Uplink Grant */
+    NULL,                       /* Uplink Release */
+    NULL,                       /* Reserved */
+    NULL,                       /* Uplink Busy */
+    NULL,                       /* Talker Indication */
 
-    NULL,			/* UTRAN Classmark Change/Handover To UTRAN Command */	/* spec conflict */
+    NULL,                       /* UTRAN Classmark Change/Handover To UTRAN Command */  /* spec conflict */
 
-    dtap_rr_app_inf,		/* Application Information */
+    dtap_rr_app_inf,            /* Application Information */
 
-    NULL,			/* NONE */
+    NULL,                       /* NONE */
 };
 
 void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
-    gint			idx;
+    gint                        idx;
 
     *msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
     *hf_idx = hf_gsm_a_dtap_msg_rr_type;
@@ -9739,30 +9741,30 @@ static void
 dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    static gsm_a_tap_rec_t	tap_rec[4];
-    static gsm_a_tap_rec_t	*tap_p;
-    static guint		tap_current=0;
+    static gsm_a_tap_rec_t      tap_rec[4];
+    static gsm_a_tap_rec_t      *tap_p;
+    static guint                tap_current=0;
 
-    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
-    guint8			oct;
-    guint8			pd;
-    guint32			offset, saved_offset;
-    guint32			len;
-    guint32			oct_1, oct_2;
-    proto_item			*ccch_item = NULL;
-    proto_tree			*ccch_tree = NULL;
-    proto_item			*oct_1_item = NULL;
-    proto_tree			*pd_tree = NULL;
-    proto_tree			*saved_tree = NULL;
-    const gchar			*msg_str;
-    gint			ett_tree;
-    gint			ti;
-    int				hf_idx;
-    gboolean			nsd;
-    guint8			pseudo_len;
-    guint32			curr_offset;
-    guint32			consumed;
-    guint			curr_len;
+    void                        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
+    guint8                      oct;
+    guint8                      pd;
+    guint32                     offset, saved_offset;
+    guint32                     len;
+    guint32                     oct_1, oct_2;
+    proto_item                  *ccch_item = NULL;
+    proto_tree                  *ccch_tree = NULL;
+    proto_item                  *oct_1_item = NULL;
+    proto_tree                  *pd_tree = NULL;
+    proto_tree                  *saved_tree = NULL;
+    const gchar                 *msg_str;
+    gint                        ett_tree;
+    gint                        ti;
+    int                         hf_idx;
+    gboolean                    nsd;
+    guint8                      pseudo_len;
+    guint32                     curr_offset;
+    guint32                     consumed;
+    guint                       curr_len;
 
     len = tvb_length(tvb);
 
@@ -9855,7 +9857,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     curr_len = len;
     len = 1;
 
-    /*	L2 Pseudo Length 10.5.2.19 */
+    /*  L2 Pseudo Length 10.5.2.19 */
     pseudo_len = tvb_get_guint8(tvb,offset)>>2;
 
     saved_tree = tree;
@@ -9866,7 +9868,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = curr_len;
 
     oct_1_item =
-	proto_tree_add_text(ccch_tree,
+        proto_tree_add_text(ccch_tree,
                             tvb, 1, 1,
                             "Protocol Discriminator: %s",
                             val_to_str(pd, protocol_discriminator_vals, "Unknown (%u)"));
@@ -9886,12 +9888,12 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* ti is extended to next octet */
             other_decode_bitfield_value(a_bigbuf, oct_1, 0x70, 8);
             proto_tree_add_text(pd_tree, tvb, 1, 1,
-				"%s :  TIO: The TI value is given by the TIE in octet 2",
-				a_bigbuf);
+                                "%s :  TIO: The TI value is given by the TIE in octet 2",
+                                a_bigbuf);
         }else{
             other_decode_bitfield_value(a_bigbuf, oct_1, 0x70, 8);
             proto_tree_add_text(pd_tree,tvb, 1, 1,
-				"%s :  TIO: %u",a_bigbuf,ti & DTAP_TIE_PRES_MASK);
+                                "%s :  TIO: %u",a_bigbuf,ti & DTAP_TIE_PRES_MASK);
         }
     }
 
@@ -9957,24 +9959,24 @@ const value_string gsm_a_sacch_msg_rr_strings[] = {
     {    0, NULL }
 };
 
-#define	NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_sacch_msg_rr_strings)/sizeof(value_string))
+#define NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_sacch_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_sacch_msg_rr[NUM_GSM_SACCH_MSG_RR];
 static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
-    NULL,			/* System Information Type 10 */
-    NULL,			/* Notification/FACCH */
-    NULL, 			/* Uplink Free  */
-    sacch_rr_enh_meas_report, 	/* Enhanced Measurement Report */
-    sacch_rr_meas_info, 	/* Measurement Information */
-    NULL, 			/* VBS/VGCS Reconfigure */
-    NULL, 			/* VBS/VGCS Reconfigure2 */
-    NULL, 			/* VGCS Additional Information */
-    NULL, 			/* VGCS SMS Information */
-    NULL, 			/* NONE */
+    NULL,                       /* System Information Type 10 */
+    NULL,                       /* Notification/FACCH */
+    NULL,                       /* Uplink Free  */
+    sacch_rr_enh_meas_report,   /* Enhanced Measurement Report */
+    sacch_rr_meas_info,         /* Measurement Information */
+    NULL,                       /* VBS/VGCS Reconfigure */
+    NULL,                       /* VBS/VGCS Reconfigure2 */
+    NULL,                       /* VGCS Additional Information */
+    NULL,                       /* VGCS SMS Information */
+    NULL,                       /* NONE */
 };
 
 void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
-    gint			idx;
+    gint                        idx;
 
     *msg_str = match_strval_idx((guint32) mess_type, gsm_a_sacch_msg_rr_strings, &idx);
     *hf_idx = hf_gsm_a_sacch_msg_rr_type;
@@ -9992,19 +9994,19 @@ const value_string short_protocol_discriminator_vals[] = {
 static void
 dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    static gsm_a_tap_rec_t	tap_rec[4];
-    static gsm_a_tap_rec_t	*tap_p;
-    static guint		tap_current=0;
+    static gsm_a_tap_rec_t      tap_rec[4];
+    static gsm_a_tap_rec_t      *tap_p;
+    static guint                tap_current=0;
 
-    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
-    guint8			oct, short_pd, mess_type;
-    guint32			offset;
-    guint32			len;
-    proto_item			*sacch_item = NULL;
-    proto_tree			*sacch_tree = NULL;
-    const gchar			*msg_str;
-    gint			ett_tree;
-    int				hf_idx;
+    void                        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
+    guint8                      oct, short_pd, mess_type;
+    guint32                     offset;
+    guint32                     len;
+    proto_item                  *sacch_item = NULL;
+    proto_tree                  *sacch_tree = NULL;
+    const gchar                 *msg_str;
+    gint                        ett_tree;
+    int                         hf_idx;
 
     len = tvb_length(tvb);
 
@@ -10060,7 +10062,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (short_pd == 0)
-	proto_tree_add_text(sacch_tree,
+        proto_tree_add_text(sacch_tree,
                             tvb, offset, 1,
                             "Short Protocol Discriminator: %s",
                             val_to_str(short_pd, short_protocol_discriminator_vals, "Unknown (%u)"));
@@ -10103,1612 +10105,1612 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_gsm_a_rr(void)
 {
-    guint		i;
-    guint		last_offset;
+    guint               i;
+    guint               last_offset;
 
     /* Setup list of header fields */
 
     static hf_register_info hf[] =
         {
             { &hf_gsm_a_dtap_msg_rr_type,
-              { "DTAP Radio Resources Management Message Type",	"gsm_a.dtap_msg_rr_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
-		NULL, HFILL }
+              { "DTAP Radio Resources Management Message Type", "gsm_a.dtap_msg_rr_type",
+                FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_elem_id,
-              { "Element ID",	"gsm_a_rr.elem_id",
-		FT_UINT8, BASE_DEC, NULL, 0,
-		NULL, HFILL }
+              { "Element ID",   "gsm_a_rr.elem_id",
+                FT_UINT8, BASE_DEC, NULL, 0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_bcc,
               { "BCC","gsm_a.bcc",
-		FT_UINT8,BASE_DEC,  NULL, 0x07,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x07,
+                NULL, HFILL }
             },
             { &hf_gsm_a_ncc,
               { "NCC","gsm_a.ncc",
-		FT_UINT8,BASE_DEC,  NULL, 0x38,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x38,
+                NULL, HFILL }
             },
             { &hf_gsm_a_bcch_arfcn,
               { "BCCH ARFCN(RF channel number)","gsm_a.bcch_arfcn",
-		FT_UINT16,BASE_DEC,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT16,BASE_DEC,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_range_nb,
               { "Number of Ranges","gsm_a.rr.range_nb",
-		FT_UINT8, BASE_DEC,  NULL, 0xff,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_range_lower,
               { "Range Lower","gsm_a.rr.range_lower",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		"ARFCN used as the lower limit of a range of frequencies to be used by the mobile station in cell selection (Range Lower)", HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                "ARFCN used as the lower limit of a range of frequencies to be used by the mobile station in cell selection (Range Lower)", HFILL }
             },
             { &hf_gsm_a_rr_range_higher,
               { "Range Higher","gsm_a.rr.range_higher",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		"ARFCN used as the higher limit of a range of frequencies to be used by the mobile station in cell selection (Range Higher)", HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                "ARFCN used as the higher limit of a range of frequencies to be used by the mobile station in cell selection (Range Higher)", HFILL }
             },
             { &hf_gsm_a_rr_ba_list_pref_length,
               { "Length of BA List Pref","gsm_a.rr.ba_list_pref_length",
-		FT_UINT8, BASE_DEC,  NULL, 0xff,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ba_freq,
               { "BA Freq","gsm_a.rr.ba_freq",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		"ARFCN indicating a single frequency to be used by the mobile station in cell selection and reselection (BA Freq)", HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                "ARFCN indicating a single frequency to be used by the mobile station in cell selection and reselection (BA Freq)", HFILL }
             },
             { &hf_gsm_a_rr_utran_freq_list_length,
               { "Length of UTRAN freq list","gsm_a.rr.utran_freq_length",
-		FT_UINT8, BASE_DEC,  NULL, 0xff,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ho_ref_val,
               { "Handover reference value","gsm_a.rr.ho_ref_val",
-		FT_UINT8,BASE_DEC,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_L2_pseudo_len,
               { "L2 Pseudo Length value","gsm_a.rr.rr_2_pseudo_len",
-		FT_UINT8, BASE_DEC, NULL, 0xfc,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0xfc,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ba_used,
               { "BA-USED","gsm_a.rr.ba_used",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_dtx_used,
               { "DTX-USED","gsm_a.rr.dtx_used",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_dtx_vals), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_dtx_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_ba_used,
               { "3G-BA-USED","gsm_a.rr.3g_ba_used",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_meas_valid,
               { "MEAS-VALID","gsm_a.rr.meas_valid",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_mv_vals), 0x40,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_mv_vals), 0x40,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxlev_full_serv_cell,
               { "RXLEV-FULL-SERVING-CELL","gsm_a.rr.rxlev_full_serv_cell",
-		FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxlev_sub_serv_cell,
               { "RXLEV-SUB-SERVING-CELL","gsm_a.rr.rxlev_sub_serv_cell",
-		FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxqual_full_serv_cell,
               { "RXQUAL-FULL-SERVING-CELL","gsm_a.rr.rxqual_full_serv_cell",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_rxqual_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxqual_sub_serv_cell,
               { "RXQUAL-SUB-SERVING-CELL","gsm_a.rr.rxqual_sub_serv_cell",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxqual_vals), 0x0e,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxqual_vals), 0x0e,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_no_ncell_m,
               { "NO-NCELL-M","gsm_a.rr.no_ncell_m",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_ncell_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_ncell_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxlev_ncell,
               { "RXLEV-NCELL","gsm_a.rr.rxlev_ncell",
-		FT_UINT8,BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bcch_freq_ncell,
               { "BCCH-FREQ-NCELL","gsm_a.rr.bcch_freq_ncell",
-		FT_UINT8,BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bsic_ncell,
               { "BSIC-NCELL","gsm_a.rr.bsic_ncell",
-		FT_UINT8,BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_mobile_time_difference,
               { "Mobile Timing Difference value (in half bit periods)","gsm_a.rr.mobile_time_difference",
-		FT_UINT32,BASE_DEC, NULL, 0xFFFFF8,
-		NULL, HFILL }
+                FT_UINT32,BASE_DEC, NULL, 0xFFFFF8,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pow_cmd_atc,
               { "ATC","gsm_a.rr.pow_cmd_atc",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_atc_value), 0x80,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_atc_value), 0x80,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_page_mode,
               { "Page Mode","gsm_a.rr.page_mode",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x03,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x03,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_dedicated_mode_or_tbf,
               { "Dedicated mode or TBF","gsm_a.rr.dedicated_mode_or_tbf",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_dedicated_mode_or_tbf_vals), 0x70,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_dedicated_mode_or_tbf_vals), 0x70,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pow_cmd_epc,
               { "EPC_mode","gsm_a.rr.pow_cmd_epc",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_epc_value), 0x40,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_epc_value), 0x40,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pow_cmd_fpcepc,
               { "FPC_EPC","gsm_a.rr.pow_cmd_fpcepc",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_fpcepc_value), 0x20,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_fpcepc_value), 0x20,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pow_cmd_powlev,
               { "POWER LEVEL","gsm_a.rr.pow_cmd_pow",
-		FT_UINT8,BASE_DEC,  NULL, 0x1f,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x1f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_sync_ind_nci,
               { "Normal cell indication(NCI)","gsm_a.rr.sync_ind_nci",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_sync_ind_nci_value), 0x08,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_sync_ind_nci_value), 0x08,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_sync_ind_rot,
               { "Report Observed Time Difference(ROT)","gsm_a.rr.sync_ind_rot",
-		FT_BOOLEAN,8,  TFS(&sm_a_rr_sync_ind_rot_value), 0x04,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&sm_a_rr_sync_ind_rot_value), 0x04,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_sync_ind_si,
               { "Synchronization indication(SI)","gsm_a.rr_sync_ind_si",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_sync_ind_si_vals), 0x03,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_sync_ind_si_vals), 0x03,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_format_id,
               { "Format Identifier","gsm_a.rr_format_id",
-		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0xce,
-		NULL, HFILL }
+                FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0xce,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_format_id2,
               { "Format Identifier","gsm_a.rr_format_id",
-		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0x8e,
-		NULL, HFILL }
+                FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0x8e,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_channel_mode,
               { "Channel Mode","gsm_a.rr.channel_mode",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_channel_mode2,
               { "Channel Mode 2","gsm_a.rr.channel_mode2",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode2_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode2_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_sc,
               { "SC","gsm_a.rr.SC",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_sc_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_sc_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_algorithm_id,
               { "Algorithm identifier","gsm_a.algorithm_identifier",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_algorithm_identifier_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_algorithm_identifier_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_cr,
               { "CR","gsm_a.rr.CR",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_cr_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_cr_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_multirate_speech_ver,
               { "Multirate speech version","gsm_a.rr.multirate_speech_ver",
-		FT_UINT8,BASE_DEC,  VALS(multirate_speech_ver_vals), 0xe0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(multirate_speech_ver_vals), 0xe0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_NCSB,
               { "NSCB: Noise Suppression Control Bit","gsm_a.rr.NCSB",
-		FT_UINT8,BASE_DEC,  VALS(NSCB_vals), 0x10,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(NSCB_vals), 0x10,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ICMI,
               { "ICMI: Initial Codec Mode Indicator","gsm_a.rr.ICMI",
-		FT_UINT8,BASE_DEC,  VALS(ICMI_vals), 0x8,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(ICMI_vals), 0x8,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_start_mode,
               { "Start Mode","gsm_a.rr.start_mode",
-		FT_UINT8,BASE_DEC,  NULL, 0x3,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x3,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_timing_adv,
               { "Timing advance value","gsm_a.rr.timing_adv",
-		FT_UINT8,BASE_DEC,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_time_diff,
               { "Time difference value","gsm_a.rr.time_diff",
-		FT_UINT8,BASE_DEC,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_tlli,
               { "TLLI","gsm_a.rr.tlli",
-		FT_UINT32,BASE_HEX,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT32,BASE_HEX,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_tmsi_ptmsi,
               { "TMSI/P-TMSI Value","gsm_a.rr.tmsi_ptmsi",
-		FT_UINT32,BASE_HEX,  NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT32,BASE_HEX,  NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_target_mode,
               { "Target mode","gsm_a.rr.target_mode",
-		FT_UINT8,BASE_DEC,  NULL, 0xc0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0xc0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_wait_indication,
               { "Wait Indication","gsm_a.rr.wait_indication",
-		FT_UINT8,BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_seq_code,
               { "Sequence Code","gsm_a.rr.seq_code",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
 
             { &hf_gsm_a_rr_group_cipher_key_number,
               { "Group cipher key number","gsm_a.rr.Group_cipher_key_number",
-		FT_UINT8,BASE_DEC,  NULL, 0x3c,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  NULL, 0x3c,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_MBMS_broadcast,
               { "MBMS Broadcast","gsm_a.rr.MBMS_broadcast",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_broadcast_value), 0x01,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_broadcast_value), 0x01,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_MBMS_multicast,
               { "MBMS Multicast","gsm_a.rr.MBMS_multicast",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_multicast_value), 0x02,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_multicast_value), 0x02,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_last_segment,
               { "Last Segment","gsm_a.rr.last_segment",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_last_segment_value), 0x01,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_last_segment_value), 0x01,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_carrier_ind,
               { "Carrier Indication","gsm_a.rr.carrier_ind",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_carrier_ind_value), 0x01,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_carrier_ind_value), 0x01,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ra,
               { "Random Access Information (RA)", "gsm_a_rr_ra",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_T1prim,
-              { "T1'",		   "gsm_a.rr.T1prim",
-		FT_UINT8, BASE_DEC, NULL, 0xf8,
-		NULL, HFILL }
+              { "T1'",             "gsm_a.rr.T1prim",
+                FT_UINT8, BASE_DEC, NULL, 0xf8,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_T3,
-              { "T3",		   "gsm_a.rr.T3",
-		FT_UINT16, BASE_DEC, NULL, 0x07e0,
-		NULL, HFILL }
+              { "T3",              "gsm_a.rr.T3",
+                FT_UINT16, BASE_DEC, NULL, 0x07e0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_T2,
-              { "T2",		   "gsm_a.rr.T2",
-		FT_UINT8, BASE_DEC, NULL, 0x1f,
-		NULL, HFILL }
+              { "T2",              "gsm_a.rr.T2",
+                FT_UINT8, BASE_DEC, NULL, 0x1f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rfn,
-              { "RFN",		   "gsm_a.rr.rfn",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Reduced Frame Number", HFILL }
+              { "RFN",             "gsm_a.rr.rfn",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Reduced Frame Number", HFILL }
             },
             { &hf_gsm_a_rr_RR_cause,
               { "RR cause value","gsm_a.rr.RRcause",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_RR_cause_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_RR_cause_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_cm_cng_msg_req,
               { "CLASSMARK CHANGE","gsm_a.rr_cm_cng_msg_req",
-		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x80,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x80,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_cm_cng_msg_req,
               { "UTRAN CLASSMARK CHANGE","gsm_a.rr_utran_cm_cng_msg_req",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_utran_cm_cng_msg_req_vals), 0x70,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_utran_cm_cng_msg_req_vals), 0x70,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_cdma200_cm_cng_msg_req,
               { "CDMA2000 CLASSMARK CHANGE","gsm_a.rr_cdma200_cm_cng_msg_req",
-		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x08,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x08,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_geran_iu_cm_cng_msg_req,
               { "GERAN IU MODE CLASSMARK CHANGE","gsm_a.rr_geran_iu_cm_cng_msg_req",
-		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x04,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x04,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_chnl_needed_ch1,
               { "Channel 1","gsm_a.rr_chnl_needed_ch1",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_chnl_needed_ch2,
               { "Channel 2","gsm_a.rr_chnl_needed_ch2",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_chnl_needed_ch3,
               { "Channel 3","gsm_a.rr_chnl_needed_ch3",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_chnl_needed_ch4,
               { "Channel 4","gsm_a.rr_chnl_needed_ch4",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_suspension_cause,
               { "Suspension cause value","gsm_a.rr.suspension_cause",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_apdu_id,
               { "APDU ID","gsm_a.rr.apdu_id",
-		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_id_vals), 0x0f,
-		NULL, HFILL }
+                FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_id_vals), 0x0f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_apdu_flags,
               { "APDU Flags","gsm_a.rr.apdu_flags",
-		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_flags_vals), 0xf0,
-		NULL, HFILL }
+                FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_flags_vals), 0xf0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_apdu_data,
               { "APDU Data","gsm_a.rr.apdu_data",
-		FT_BYTES,BASE_NONE,  NULL, 0x00,
-		NULL, HFILL }
+                FT_BYTES,BASE_NONE,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
               { "12,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b8",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x80,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x80,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7,
               { "10,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b7",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x40,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x40,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6,
               { "7,95 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b6",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x20,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x20,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b5,
               { "7,40 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b5",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b4,
               { "6,70 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b4",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b3,
               { "5,90 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b3",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b2,
               { "5,15 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b2",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b1,
               { "4,75 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b1",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b5,
               { "23,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b5",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b4,
               { "15,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b4",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b3,
               { "12,65 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b3",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b2,
               { "8,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b2",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1,
               { "6,60 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b1",
-		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,
-		NULL, HFILL }
+                FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_amr_threshold,
               { "AMR Threshold", "gsm_a.rr.amr_threshold",
-		FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_amr_threshold_vals_ext, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_amr_threshold_vals_ext, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_amr_hysteresis,
               { "AMR Hysteresis", "gsm_a.rr.amr_hysteresis",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_amr_hysteresis_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_amr_hysteresis_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pwrc,
               { "PWRC", "gsm_a.rr.pwrc",
-		FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
-		"Power Control Indicator (PWRC)", HFILL }
+                FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+                "Power Control Indicator (PWRC)", HFILL }
             },
             { &hf_gsm_a_rr_dtx_bcch,
               { "DTX (BCCH)", "gsm_a.rr.dtx_bcch",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_bcch_vals), 0x30,
-		"Discontinuous Transmission (DTX-BCCH)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_bcch_vals), 0x30,
+                "Discontinuous Transmission (DTX-BCCH)", HFILL }
             },
             { &hf_gsm_a_rr_dtx_sacch,
               { "DTX (SACCH)", "gsm_a.rr.dtx_sacch",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_sacch_vals), 0xb0,
-		"Discontinuous Transmission (DTX-SACCH)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_sacch_vals), 0xb0,
+                "Discontinuous Transmission (DTX-SACCH)", HFILL }
             },
             { &hf_gsm_a_rr_radio_link_timeout,
               { "Radio Link Timeout", "gsm_a.rr.radio_link_timeout",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_radio_link_timeout_vals), 0x0f,
-		"Radio Link Timeout (s)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_radio_link_timeout_vals), 0x0f,
+                "Radio Link Timeout (s)", HFILL }
             },
             { &hf_gsm_a_rr_cell_reselect_hyst,
               { "Cell Reselection Hysteresis", "gsm_a.rr.cell_reselect_hyst",
-		FT_UINT8, BASE_DEC,  NULL, 0xe0,
-		"Cell Reselection Hysteresis (dB)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0xe0,
+                "Cell Reselection Hysteresis (dB)", HFILL }
             },
             { &hf_gsm_a_rr_ms_txpwr_max_cch,
               { "MS TXPWR MAX CCH", "gsm_a.rr.ms_txpwr_max_cch",
-		FT_UINT8, BASE_DEC,  NULL, 0x1f,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x1f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_acs,
               { "ACS", "gsm_a.rr.acs",
-		FT_BOOLEAN, 8,  NULL, 0x80,
-		"Additional Reselect Param Indicator (ACS)", HFILL }
+                FT_BOOLEAN, 8,  NULL, 0x80,
+                "Additional Reselect Param Indicator (ACS)", HFILL }
             },
             { &hf_gsm_a_rr_neci,
               { "NECI", "gsm_a.rr.neci",
-		FT_UINT8, BASE_DEC,  NULL, 0x40,
-		"New Establishment Cause Indicator (NECI)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x40,
+                "New Establishment Cause Indicator (NECI)", HFILL }
             },
             { &hf_gsm_a_rr_rxlev_access_min,
               { "RXLEV-ACCESS-MIN", "gsm_a.rr.rxlev_access_min",
-		FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_mscr,
               { "MSCR", "gsm_a.rr.mscr",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_mscr_vals), 0x80,
-		"MSC Release Indicator (MSCR)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_mscr_vals), 0x80,
+                "MSC Release Indicator (MSCR)", HFILL }
             },
             { &hf_gsm_a_rr_att,
               { "ATT", "gsm_a.rr.att",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_att_vals), 0x40,
-		"Attach Indicator (ATT)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_att_vals), 0x40,
+                "Attach Indicator (ATT)", HFILL }
             },
             { &hf_gsm_a_rr_bs_ag_blks_res,
               { "BS_AG_BLKS_RES", "gsm_a.rr.bs_ag_blks_res",
-		FT_UINT8, BASE_DEC,  NULL, 0x38,
-		"Access Grant Reserved Blocks (BS_AG_BLKS_RES)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x38,
+                "Access Grant Reserved Blocks (BS_AG_BLKS_RES)", HFILL }
             },
             { &hf_gsm_a_rr_ccch_conf,
               { "CCCH-CONF", "gsm_a.rr.ccch_conf",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_ccch_conf_vals), 0x07,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_ccch_conf_vals), 0x07,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_cbq3,
               { "CBQ3", "gsm_a.rr.cbq3",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cbq3_vals), 0x00,
-		"Cell Bar Qualify 3", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cbq3_vals), 0x00,
+                "Cell Bar Qualify 3", HFILL }
             },
             { &hf_gsm_a_rr_bs_pa_mfrms,
               { "BS-PA-MFRMS", "gsm_a.rr.bs_pa_mfrms",
-		FT_UINT8, BASE_DEC,  NULL, 0x07,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x07,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_t3212,
               { "T3212", "gsm_a.rr.t3212",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"Periodic Update period (T3212) (deci-hours)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "Periodic Update period (T3212) (deci-hours)", HFILL }
             },
             { &hf_gsm_a_rr_dyn_arfcn_length,
               { "Length of Dynamic Mapping", "gsm_a.rr.dyn_arfcn_length",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_gsm_band,
               { "GSM Band", "gsm_a.rr.gsm_band",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_gsm_band_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_gsm_band_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_arfcn_first,
               { "ARFCN First", "gsm_a.rr.arfcn_first",
-		FT_UINT16, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_band_offset,
               { "Band Offset", "gsm_a.rr.band_offset",
-		FT_UINT16, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_arfcn_range,
               { "ARFCN Range", "gsm_a.rr.arfcn_range",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_lowest_arfcn,
               { "Lowest ARFCN", "gsm_a.rr.lowest_arfcn",
-		FT_UINT8, BASE_DEC,  NULL, 0x7f,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x7f,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_inc_skip_arfcn,
               { "Increment skip ARFCN", "gsm_a.rr.inc_skip_arfcn",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_gprs_resumption_ack,
               { "Ack", "gsm_a.rr.gprs_resumption_ack",
-		FT_BOOLEAN, 8,  TFS(&gsm_a_rr_gprs_resumption_ack_value), 0x01,
-		"GPRS Resumption Ack bit", HFILL }
+                FT_BOOLEAN, 8,  TFS(&gsm_a_rr_gprs_resumption_ack_value), 0x01,
+                "GPRS Resumption Ack bit", HFILL }
             },
             { &hf_gsm_a_rr_ext_ind,
               { "EXT-IND", "gsm_a.rr.ext_ind",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_ext_ind_vals), 0x20,
-		"Extension Indication (EXT-IND)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_ext_ind_vals), 0x20,
+                "Extension Indication (EXT-IND)", HFILL }
             },
             { &hf_gsm_a_rr_ba_ind,
               { "BA-IND", "gsm_a.rr.ba_ind",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"BCCH Allocation Indication (BA-IND)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "BCCH Allocation Indication (BA-IND)", HFILL }
             },
             { &hf_gsm_a_rr_multiband_reporting,
               { "Multiband Reporting", "gsm_a.rr.multiband_reporting",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"Number of cells to be reported in each band if Multiband Reporting", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "Number of cells to be reported in each band if Multiband Reporting", HFILL }
             },
             { &hf_gsm_a_rr_ncc_permitted,
               { "NCC Permitted", "gsm_a.rr.ncc_permitted",
-		FT_UINT8, BASE_HEX,  NULL, 0xff,
-		NULL, HFILL }
+                FT_UINT8, BASE_HEX,  NULL, 0xff,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_max_retrans,
               { "Max retrans", "gsm_a.rr.max_retrans",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_max_retrans_vals), 0xc0,
-		"Maximum number of retransmissions", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_max_retrans_vals), 0xc0,
+                "Maximum number of retransmissions", HFILL }
             },
             { &hf_gsm_a_rr_tx_integer,
               { "Tx-integer", "gsm_a.rr.tx_integer",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_tx_integer_vals), 0x3c,
-		"Number of Slots to spread Transmission (Tx-integer)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_tx_integer_vals), 0x3c,
+                "Number of Slots to spread Transmission (Tx-integer)", HFILL }
             },
             { &hf_gsm_a_rr_cell_barr_access,
               { "CELL_BARR_ACCESS", "gsm_a.rr.cell_barr_access",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cell_barr_access_vals), 0x02,
-		"Cell Barred for Access (CELL_BARR_ACCESS)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cell_barr_access_vals), 0x02,
+                "Cell Barred for Access (CELL_BARR_ACCESS)", HFILL }
             },
             { &hf_gsm_a_rr_re,
               { "RE", "gsm_a.rr.re",
-		FT_BOOLEAN, 8,  NULL, 0x01,
-		"Call re-establishment allowed (RE)", HFILL }
+                FT_BOOLEAN, 8,  NULL, 0x01,
+                "Call re-establishment allowed (RE)", HFILL }
             },
             { &hf_gsm_a_rr_acc,
               { "ACC", "gsm_a.rr.acc",
-		FT_UINT16, BASE_HEX,  NULL, 0xffff,
-		"Access Control Class N barred (ACC)", HFILL }
+                FT_UINT16, BASE_HEX,  NULL, 0xffff,
+                "Access Control Class N barred (ACC)", HFILL }
             },
             { &hf_gsm_a_rr_nch_position,
               { "NCH Position", "gsm_a.rr.nch_position",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_nch_position_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_nch_position_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2ter_mp_change_mark,
               { "SI2ter Measurement Parameter Change Mark", "gsm_a.rr.si2ter_mp_change_mark",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2ter_3g_change_mark,
               { "SI2ter 3G Change Mark", "gsm_a.rr.si2ter_3g_change_mark",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2ter_index,
               { "SI2ter Index", "gsm_a.rr.si2ter_index",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2ter_count,
               { "SI2ter Count", "gsm_a.rr.si2ter_count",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_fdd_uarfcn,
               { "FDD UARFCN", "gsm_a.rr.fdd_uarfcn",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bandwidth_fdd,
               { "Bandwidth FDD", "gsm_a.rr.bandwidth_fdd",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_tdd_uarfcn,
               { "TDD UARFCN", "gsm_a.rr.tdd_uarfcn",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bandwidth_tdd,
               { "Bandwidth TDD", "gsm_a.rr.bandwidth_tdd",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_arfcn,
               { "ARFCN", "gsm_a.rr.arfcn",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		"Absolute Radio Frequency Channel Number (ARFCN)", HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                "Absolute Radio Frequency Channel Number (ARFCN)", HFILL }
             },
             { &hf_gsm_a_rr_bsic,
               { "BSIC", "gsm_a.rr.bsic",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"Base Station Identify Code (BSIC)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "Base Station Identify Code (BSIC)", HFILL }
             },
             { &hf_gsm_a_rr_qsearch_i,
               { "Qsearch I", "gsm_a.rr.qsearch_i",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_qsearch_x_vals), 0x00,
-		"Search for 3G cells if signal level is below (0 7) or above (8 15) threshold (Qsearch I)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_qsearch_x_vals), 0x00,
+                "Search for 3G cells if signal level is below (0 7) or above (8 15) threshold (Qsearch I)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_qoffset,
               { "FDD Qoffset", "gsm_a.rr.fdd_qoffset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xdd_qoffset_vals), 0x00,
-		"Offset to RLA_C for cell re selection to FDD access technology (FDD Qoffset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xdd_qoffset_vals), 0x00,
+                "Offset to RLA_C for cell re selection to FDD access technology (FDD Qoffset)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_qmin,
               { "FDD Qmin", "gsm_a.rr.fdd_qmin",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_qmin_vals), 0x00,
-		"Minimum threshold for Ec/No for UTRAN FDD cell re-selection (FDD Qmin)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_qmin_vals), 0x00,
+                "Minimum threshold for Ec/No for UTRAN FDD cell re-selection (FDD Qmin)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_qoffset,
               { "TDD Qoffset", "gsm_a.rr.tdd_qoffset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xdd_qoffset_vals), 0x00,
-		"Offset to RLA_C for cell re selection to TDD access technology (TDD Qoffset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xdd_qoffset_vals), 0x00,
+                "Offset to RLA_C for cell re selection to TDD access technology (TDD Qoffset)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_qmin_offset,
               { "FDD Qmin Offset", "gsm_a.rr.fdd_qmin_offset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_qmin_offset_vals), 0x00,
-		"Offset to FDD Qmin value (FDD Qmin Offset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_qmin_offset_vals), 0x00,
+                "Offset to FDD Qmin value (FDD Qmin Offset)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_rscpmin,
               { "FDD RSCPmin", "gsm_a.rr.fdd_rscpmin",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_rscpmin_vals), 0x00,
-		"Minimum threshold of RSCP for UTRAN FDD cell re-selection (FDD RSCPmin)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_fdd_rscpmin_vals), 0x00,
+                "Minimum threshold of RSCP for UTRAN FDD cell re-selection (FDD RSCPmin)", HFILL }
             },
             { &hf_gsm_a_rr_3g_ba_ind,
               { "3G BA-IND", "gsm_a.rr.3g_ba_ind",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"3G BCCH Allocation Indication (3G BA-IND)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "3G BCCH Allocation Indication (3G BA-IND)", HFILL }
             },
             { &hf_gsm_a_rr_mp_change_mark,
               { "Measurement Parameter Change Mark", "gsm_a.rr.mp_change_mark",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2quater_index,
               { "SI2quater Index", "gsm_a.rr.si2quater_index",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si2quater_count,
               { "SI2quater Count", "gsm_a.rr.si2quater_count",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_gsm_report_type,
               { "Report Type", "gsm_a.rr.gsm_report_type",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x0,
-		"Report type the MS shall use (Report Type)", HFILL }
+                FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x0,
+                "Report type the MS shall use (Report Type)", HFILL }
             },
             { &hf_gsm_a_rr_serving_band_reporting,
               { "Serving Band Reporting", "gsm_a.rr.serving_band_reporting",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Number of cells reported from the GSM serving frequency band (Serving Band Reporting)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                "Number of cells reported from the GSM serving frequency band (Serving Band Reporting)", HFILL }
             },
             { &hf_gsm_a_rr_frequency_scrolling,
               { "Frequency Scrolling", "gsm_a.rr.frequency_scrolling",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_frequency_scrolling_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_frequency_scrolling_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rep_priority,
               { "Rep Priority", "gsm_a.rr.rep_priority",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_rep_priority_value), 0x0,
-		"Reporting Priority", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_rep_priority_value), 0x0,
+                "Reporting Priority", HFILL }
             },
             { &hf_gsm_a_rr_report_type,
               { "Report Type", "gsm_a.rr.report_type",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_report_type_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_report_type_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_reporting_rate,
               { "Reporting Rate", "gsm_a.rr.reporting_rate",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reporting_rate_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reporting_rate_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_invalid_bsic_reporting,
               { "Invalid BSIC Reporting", "gsm_a.rr.invalid_bsic_reporting",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale_ord,
               { "Scale Ord", "gsm_a.rr.scale_ord",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_scale_ord_vals), 0x00,
-		"Offset used for the reported RXLEV values (Scale Ord)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_scale_ord_vals), 0x00,
+                "Offset used for the reported RXLEV values (Scale Ord)", HFILL }
             },
             { &hf_gsm_a_rr_900_reporting_offset,
               { "900 Reporting Offset", "gsm_a.rr.900_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 900 (900 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 900 (900 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_900_reporting_threshold,
               { "900 Reporting Threshold", "gsm_a.rr.900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 900 (900 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 900 (900 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_1800_reporting_offset,
               { "1800 Reporting Offset", "gsm_a.rr.1800_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 1800 (1800 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 1800 (1800 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_1800_reporting_threshold,
               { "1800 Reporting Threshold", "gsm_a.rr.1800_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 1800 (1800 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 1800 (1800 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_400_reporting_offset,
               { "400 Reporting Offset", "gsm_a.rr.400_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 400 (400 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 400 (400 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_400_reporting_threshold,
               { "400 Reporting Threshold", "gsm_a.rr.400_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 400 (400 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 400 (400 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_1900_reporting_offset,
               { "1900 Reporting Offset", "gsm_a.rr.1900_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 1900 (1900 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 1900 (1900 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_1900_reporting_threshold,
               { "1900 Reporting Threshold", "gsm_a.rr.1900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 1900 (1900 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 1900 (1900 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_850_reporting_offset,
               { "850 Reporting Offset", "gsm_a.rr.850_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 850 (850 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 850 (850 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_850_reporting_threshold,
               { "850 Reporting Threshold", "gsm_a.rr.900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 850 (850 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 850 (850 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_network_control_order,
               { "Network Control Order", "gsm_a.rr.network_control_order",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_network_control_order_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_network_control_order_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nc_non_drx_period,
               { "NC Non DRX Period", "gsm_a.rr.nc_non_drx_period",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_non_drx_period_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_non_drx_period_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nc_reporting_period_i,
               { "NC Reporting Period I", "gsm_a.rr.nc_reporting_period_i",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_reporting_period_x_vals), 0x00,
-		"NC Reporting Period in Packet Idle mode (NC Reporting Period I)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_reporting_period_x_vals), 0x00,
+                "NC Reporting Period in Packet Idle mode (NC Reporting Period I)", HFILL }
             },
             { &hf_gsm_a_rr_nc_reporting_period_t,
               { "NC Reporting Period T", "gsm_a.rr.nc_reporting_period_t",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_reporting_period_x_vals), 0x00,
-		"NC Reporting Period in Packet Transfer mode (NC Reporting Period T)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nc_reporting_period_x_vals), 0x00,
+                "NC Reporting Period in Packet Transfer mode (NC Reporting Period T)", HFILL }
             },
             { &hf_gsm_a_rr_index_start_3g,
               { "Index Start 3G", "gsm_a.rr.index_start_3g",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_absolute_index_start_emr,
               { "Absolute Index Start EMR", "gsm_a.rr.absolute_index_start_emr",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_c_initial,
               { "QSearch C Initial", "gsm_a.rr.qsearch_c_initial",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x0,
-		"Qsearch value to be used in connected mode before Qsearch C is received (QSearch C Initial)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x0,
+                "Qsearch value to be used in connected mode before Qsearch C is received (QSearch C Initial)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_rep_quant,
               { "FDD Rep Quant", "gsm_a.rr.fdd_rep_quant",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x0,
-		"FDD Reporting Quantity (FDD Rep Quant)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x0,
+                "FDD Reporting Quantity (FDD Rep Quant)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_multirat_reporting,
               { "FDD Multirat Reporting", "gsm_a.rr.fdd_multirat_reporting",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Number of cells from the FDD access technology that shall be included in the list of strongest cells or in the measurement report (FDD Multirat Reporting)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                "Number of cells from the FDD access technology that shall be included in the list of strongest cells or in the measurement report (FDD Multirat Reporting)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_multirat_reporting,
               { "TDD Multirat Reporting", "gsm_a.rr.tdd_multirat_reporting",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Number of cells from the TDD access technology that shall be included in the list of strongest cells or in the measurement report (TDD Multirat Reporting)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                "Number of cells from the TDD access technology that shall be included in the list of strongest cells or in the measurement report (TDD Multirat Reporting)", HFILL }
             },
             { &hf_gsm_a_rr_qsearch_p,
               { "Qsearch P", "gsm_a.rr.qsearch_p",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_qsearch_x_vals), 0x00,
-		"Search for 3G cells if signal level below threshold (Qsearch P)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_qsearch_x_vals), 0x00,
+                "Search for 3G cells if signal level below threshold (Qsearch P)", HFILL }
             },
             { &hf_gsm_a_rr_3g_search_prio,
               { "3G Search Prio (ignored in Rel-8)", "gsm_a.rr.3g_search_prio",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_offset,
               { "FDD Reporting Offset", "gsm_a.rr.fdd_reporting_offset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for FDD access technology (FDD Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for FDD access technology (FDD Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_threshold_rscp,
               { "FDD Reporting Threshold RSCP", "gsm_a.rr.fdd_reporting_threshold_rscp",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_threshold_ecn0,
               { "FDD Reporting Threshold EcN0", "gsm_a.rr.fdd_reporting_threshold_ecn0",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_reporting_offset,
               { "TDD Reporting Offset", "gsm_a.rr.tdd_reporting_offset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for TDD access technology (TDD Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for TDD access technology (TDD Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_reporting_threshold_rscp,
               { "TDD Reporting Threshold RSCP", "gsm_a.rr.tdd_reporting_threshold_rscp",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_reporting_threshold_ecn0,
               { "TDD Reporting Threshold EcN0", "gsm_a.rr.tdd_reporting_threshold_ecn0",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_threshold_2,
               { "FDD Reporting Threshold 2", "gsm_a.rr.fdd_reporting_threshold_2",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"Reporting threshold for the CPICH parameter (Ec/No or RSCP) that is not reported according to FDD_REP_QUANT (FDD Reporting Threshold 2)", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "Reporting threshold for the CPICH parameter (Ec/No or RSCP) that is not reported according to FDD_REP_QUANT (FDD Reporting Threshold 2)", HFILL }
             },
             { &hf_gsm_a_rr_3g_ccn_active,
               { "3G CCN Active", "gsm_a.rr.3g_ccn_active",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_700_reporting_offset,
               { "700 Reporting Offset", "gsm_a.rr.700_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 700 (700 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 700 (700 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_700_reporting_threshold,
               { "700 Reporting Threshold", "gsm_a.rr.700_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 700 (700 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 700 (700 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_810_reporting_offset,
               { "810 Reporting Offset", "gsm_a.rr.810_reporting_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
-		"Offset to the reported value when prioritising the cells for reporting for GSM frequency band 810 (810 Reporting Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
+                "Offset to the reported value when prioritising the cells for reporting for GSM frequency band 810 (810 Reporting Offset)", HFILL }
             },
             { &hf_gsm_a_rr_810_reporting_threshold,
               { "810 Reporting Threshold", "gsm_a.rr.810_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
-		"Apply priority reporting if the reported value is above threshold for GSM frequency band 810 (810 Reporting Threshold)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
+                "Apply priority reporting if the reported value is above threshold for GSM frequency band 810 (810 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_cbq,
               { "CBQ", "gsm_a.rr.cbq",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		"Cell Bar Qualify", HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                "Cell Bar Qualify", HFILL }
             },
             { &hf_gsm_a_rr_cell_reselect_offset,
               { "Cell Reselect Offset", "gsm_a.rr.cell_reselect_offset",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cell_reselect_offset_vals), 0x00,
-		"Offset to the C2 reselection criterion (Cell Reselect Offset)", HFILL }
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cell_reselect_offset_vals), 0x00,
+                "Offset to the C2 reselection criterion (Cell Reselect Offset)", HFILL }
             },
             { &hf_gsm_a_rr_temporary_offset,
               { "Temporary Offset", "gsm_a.rr.temporary_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_temporary_offset_vals), 0x0,
-		"Negative offset to C2 for the duration of Penalty Time (Temporary Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_temporary_offset_vals), 0x0,
+                "Negative offset to C2 for the duration of Penalty Time (Temporary Offset)", HFILL }
             },
             { &hf_gsm_a_rr_penalty_time,
               { "Penalty Time", "gsm_a.rr.penalty_time",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_penalty_time_vals), 0x0,
-		"Duration for which the temporary offset is applied (Penalty Time)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_penalty_time_vals), 0x0,
+                "Duration for which the temporary offset is applied (Penalty Time)", HFILL }
             },
             { &hf_gsm_a_rr_si13_position,
               { "SI13 Position", "gsm_a.rr.si13_position",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si13_position_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si13_position_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_power_offset,
               { "Power Offset", "gsm_a.rr.power_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_power_offset_vals), 0x0,
-		"Power offset used in conjunction with the MS TXPWR MAX CCH parameter by the class 3 DCS 1800 MS (Power Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_power_offset_vals), 0x0,
+                "Power offset used in conjunction with the MS TXPWR MAX CCH parameter by the class 3 DCS 1800 MS (Power Offset)", HFILL }
             },
             { &hf_gsm_a_rr_si2quater_position,
               { "SI2quater Position", "gsm_a.rr.si2quater_position",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si2quater_position_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si2quater_position_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si13alt_position,
               { "SI13alt Position", "gsm_a.rr.si13alt_position",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si13alt_position_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si13alt_position_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_prio_thr,
               { "Prio Thr", "gsm_a.rr.prio_thr",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_prio_thr_vals), 0x0,
-		"Prio signal strength threshold is related to RXLEV ACCESS_MIN (Prio Thr)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_prio_thr_vals), 0x0,
+                "Prio signal strength threshold is related to RXLEV ACCESS_MIN (Prio Thr)", HFILL }
             },
             { &hf_gsm_a_rr_lsa_offset,
               { "LSA Offset", "gsm_a.rr.lsa_offset",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lsa_offset_vals), 0x0,
-		"Offset to be used for LSA cell re selection between cells with the same LSA priorities (LSA Offset)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lsa_offset_vals), 0x0,
+                "Offset to be used for LSA cell re selection between cells with the same LSA priorities (LSA Offset)", HFILL }
             },
             { &hf_gsm_a_rr_paging_channel_restructuring,
               { "Paging Channel Restructuring", "gsm_a.rr.paging_channel_restructuring",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_paging_channel_restructuring_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_paging_channel_restructuring_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nln_sacch,
               { "NLN (SACCH)", "gsm_a.rr.nln_sacch",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nln_status_sacch,
               { "NLN Status (SACCH)", "gsm_a.rr.nln_status_sacch",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nln_pch,
               { "NLN (PCH)", "gsm_a.rr.nln_pch",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nln_status_pch,
               { "NLN Status (PCH)", "gsm_a.rr.nln_status_pch",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_vbs_vgcs_inband_notifications,
               { "Inband Notifications", "gsm_a.rr.vbs_vgcs_inband_notifications",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_notifications_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_notifications_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_vbs_vgcs_inband_pagings,
               { "Inband Pagings", "gsm_a.rr.vbs_vgcs_inband_pagings",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_pagings_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_pagings_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_rac,
               { "RAC", "gsm_a.rr.rac",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Routeing Area Code", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Routeing Area Code", HFILL }
             },
             { &hf_gsm_a_rr_max_lapdm,
               { "Max LAPDm", "gsm_a.rr.max_lapdm",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_max_lapdm_vals), 0x0,
-		"Maximum number of LAPDm frames on which a layer 3 can be segmented into and be sent on the main DCCH (Max LAPDm)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_max_lapdm_vals), 0x0,
+                "Maximum number of LAPDm frames on which a layer 3 can be segmented into and be sent on the main DCCH (Max LAPDm)", HFILL }
             },
             { &hf_gsm_a_rr_gprs_ms_txpwr_max_ccch,
               { "GPRS MS TxPwr Max CCH", "gsm_a.rr.gprs_ms_txpwr_max_cch",
-		FT_UINT8, BASE_DEC,  NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_dedicated_mode_mbms_notification_support,
               { "Dedicated Mode MBMS Notification Support", "gsm_a.rr.dedicated_mode_mbms_notification_support",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dedicated_mode_mbms_notification_support_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dedicated_mode_mbms_notification_support_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_mnci_support,
               { "MNCI Support", "gsm_a.rr.mnci_support",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_mnci_support_value), 0x0,
-		"MBMS Neighbouring Cell Information Support (MNCI Support)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_mnci_support_value), 0x0,
+                "MBMS Neighbouring Cell Information Support (MNCI Support)", HFILL }
             },
             { &hf_gsm_a_rr_amr_config,
               { "AMR Configuration", "gsm_a.rr.amr_config",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bcch_change_mark,
               { "BCCH Change Mark", "gsm_a.rr.bcch_change_mark",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si_change_field,
               { "SI Change Field", "gsm_a.rr.si_change_field",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si_change_field_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si_change_field_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_si13_change_mark,
               { "SI13 Change Mark", "gsm_a.rr.si13_change_mark",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_hsn,
               { "HSN", "gsm_a.rr.hsn",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Hopping Sequence Number (HSN)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Hopping Sequence Number (HSN)", HFILL }
             },
             { &hf_gsm_a_rr_rfl_number,
               { "RFL Number", "gsm_a.rr.rfl_number",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Radio Frequency List Number (RFL Number)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Radio Frequency List Number (RFL Number)", HFILL }
             },
             { &hf_gsm_a_rr_arfcn_index,
               { "ARFCN Index", "gsm_a.rr.arfcn_index",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ma_length,
               { "MA Length", "gsm_a.rr.ma_length",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Mobile Allocation Length (MA Length)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Mobile Allocation Length (MA Length)", HFILL }
             },
             { &hf_gsm_a_rr_psi1_repeat_period,
               { "PSI1 Repeat Period", "gsm_a.rr.psi1_repeat_period",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_psi1_repeat_period_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_psi1_repeat_period_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pbcch_pb,
               { "Pb", "gsm_a.rr.pbcch_pb",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pbcch_pb_vals), 0x0,
-		"Power reduction on PBCCH/PCCCH (Pb)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pbcch_pb_vals), 0x0,
+                "Power reduction on PBCCH/PCCCH (Pb)", HFILL }
             },
             { &hf_gsm_a_rr_pbcch_tsc,
               { "TSC", "gsm_a.rr.pbcch_tsc",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Training Sequence Code for PBCCH (TSC)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Training Sequence Code for PBCCH (TSC)", HFILL }
             },
             { &hf_gsm_a_rr_pbcch_tn,
               { "TN", "gsm_a.rr.pbcch_tn",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Timeslot Number for PCCH (TN)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Timeslot Number for PCCH (TN)", HFILL }
             },
             { &hf_gsm_a_rr_spgc_ccch_sup,
               { "SPGC CCCH Sup", "gsm_a.rr.spgc_ccch_sup",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_spgc_ccch_sup_value), 0x0,
-		"Split PG Cycle Code on CCCH Support (SPGC CCCH Sup)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_spgc_ccch_sup_value), 0x0,
+                "Split PG Cycle Code on CCCH Support (SPGC CCCH Sup)", HFILL }
             },
             { &hf_gsm_a_rr_priority_access_thr,
               { "Priority Access Thr", "gsm_a.rr.priority_access_thr",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_priority_access_thr_vals), 0x0,
-		"Priority Access Threshold for packet access (Priority Access Thr)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_priority_access_thr_vals), 0x0,
+                "Priority Access Threshold for packet access (Priority Access Thr)", HFILL }
             },
             { &hf_gsm_a_rr_nmo,
               { "NMO", "gsm_a.rr.nmo",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nmo_vals), 0x0,
-		"Network mode of Operation (NMO)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_nmo_vals), 0x0,
+                "Network mode of Operation (NMO)", HFILL }
             },
             { &hf_gsm_a_rr_t3168,
               { "T3168", "gsm_a.rr.t3168",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t3168_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t3168_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_t3192,
               { "T3192", "gsm_a.rr.t3192",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t3192_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t3192_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_drx_timer_max,
               { "DRX Timer Max", "gsm_a.rr.drx_timer_max",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_drx_timer_max_vals), 0x0,
-		"Discontinuous Reception Timer Max (DRX Timer Max)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_drx_timer_max_vals), 0x0,
+                "Discontinuous Reception Timer Max (DRX Timer Max)", HFILL }
             },
             { &hf_gsm_a_rr_access_burst_type,
               { "Access Burst Type", "gsm_a.rr.access_burst_type",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_access_burst_type_value), 0x0,
-		"Format used in the PACKET CHANNEL REQUEST message, the PS HANDOVER ACCESS message, the PTCCH uplink block and in the PACKET CONTROL ACKNOWLEDGMENT message (Access Burst Type)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_access_burst_type_value), 0x0,
+                "Format used in the PACKET CHANNEL REQUEST message, the PS HANDOVER ACCESS message, the PTCCH uplink block and in the PACKET CONTROL ACKNOWLEDGMENT message (Access Burst Type)", HFILL }
             },
             { &hf_gsm_a_rr_control_ack_type,
               { "Control Ack Type", "gsm_a.rr.control_ack_type",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_control_ack_type_value), 0x0,
-		"Default format of the PACKET CONTROL ACKNOWLEDGMENT message (Control Ack Type)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_control_ack_type_value), 0x0,
+                "Default format of the PACKET CONTROL ACKNOWLEDGMENT message (Control Ack Type)", HFILL }
             },
             { &hf_gsm_a_rr_bs_cv_max,
               { "BS CV Max", "gsm_a.rr.bs_cv_max",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Base Station Countdown Value Maximum (BS CV Max)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Base Station Countdown Value Maximum (BS CV Max)", HFILL }
             },
             { &hf_gsm_a_rr_pan_dec,
               { "PAN Dec", "gsm_a.rr.pan_dec",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pan_inc,
               { "PAN Inc", "gsm_a.rr.pan_inc",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pan_max,
               { "PAN Max", "gsm_a.rr.pan_max",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pan_max_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pan_max_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_egprs_packet_channel_request,
               { "EGPRS Packet Channel Request", "gsm_a.rr.egprs_packet_channel_request",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_egprs_packet_channel_request_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_egprs_packet_channel_request_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_bep_period,
               { "BEP Period", "gsm_a.rr.bep_period",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_bep_period_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_bep_period_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_pfc_feature_mode,
               { "PFC Feature Mode", "gsm_a.rr.pfc_feature_mode",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pfc_feature_mode_value), 0x0,
-		"Packet Flow Context Feature Mode (PFC Feature Mode)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pfc_feature_mode_value), 0x0,
+                "Packet Flow Context Feature Mode (PFC Feature Mode)", HFILL }
             },
             { &hf_gsm_a_rr_dtm_support,
               { "DTM Support", "gsm_a.rr.dtm_support",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_support_value), 0x0,
-		"Dual Transfer Mode Support (DTM Support)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_support_value), 0x0,
+                "Dual Transfer Mode Support (DTM Support)", HFILL }
             },
             { &hf_gsm_a_rr_bss_paging_coordination,
               { "BSS Paging Coordination", "gsm_a.rr.bss_paging_coordination",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bss_paging_coordination_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bss_paging_coordination_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ccn_active,
               { "CCN Active", "gsm_a.rr.ccn_active",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ccn_active_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ccn_active_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_nw_ext_utbf,
               { "NW Ext UTBF", "gsm_a.rr.nw_ext_utbf",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_nw_ext_utbf_value), 0x0,
-		"Network Extended Uplink TBF (NW Ext UTBF)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_nw_ext_utbf_value), 0x0,
+                "Network Extended Uplink TBF (NW Ext UTBF)", HFILL }
             },
             { &hf_gsm_a_rr_multiple_tbf_capability,
               { "Multiple TBF Capability", "gsm_a.rr.multiple_tbf_capability",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_multiple_tbf_capability_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_multiple_tbf_capability_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ext_utbf_no_data,
               { "Ext UTBF No Data", "gsm_a.rr.ext_utbf_no_data",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ext_utbf_no_data_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ext_utbf_no_data_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_dtm_enhancements_capability,
               { "DTM Enhancements Capability", "gsm_a.rr.dtm_enhancements_capability",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_enhancements_capability_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_enhancements_capability_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_reduced_latency_access,
               { "Reduced Latency Access", "gsm_a.rr.reduced_latency_access",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reduced_latency_access_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reduced_latency_access_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_alpha,
               { "Alpha", "gsm_a.rr.alpha",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_alpha_vals), 0x0,
-		"Alpha parameter for GPR MS output power control (Alpha)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_alpha_vals), 0x0,
+                "Alpha parameter for GPR MS output power control (Alpha)", HFILL }
             },
             { &hf_gsm_a_rr_t_avg_w,
               { "T Avg W", "gsm_a.rr.t_avg_w",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
-		"Signal strength filter period for power control in packet idle mode", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
+                "Signal strength filter period for power control in packet idle mode", HFILL }
             },
             { &hf_gsm_a_rr_t_avg_t,
               { "T Avg T", "gsm_a.rr.t_avg_t",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
-		"Signal strength filter period for power control in packet transfer mode", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
+                "Signal strength filter period for power control in packet transfer mode", HFILL }
             },
             { &hf_gsm_a_rr_pc_meas_chan,
               { "PC Meas Chan", "gsm_a.rr.pc_meas_chan",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pc_meas_chan_value), 0x0,
-		"Channel used to measure the received power level on the downlink for the purpose of the uplink power control (PC Meas Chan)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pc_meas_chan_value), 0x0,
+                "Channel used to measure the received power level on the downlink for the purpose of the uplink power control (PC Meas Chan)", HFILL }
             },
             { &hf_gsm_a_rr_n_avg_i,
               { "N Avg I", "gsm_a.rr.n_avg_i",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_n_avg_i_vals), 0x0,
-		"Interfering signal strength filter constant for power control (N Avg I)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_n_avg_i_vals), 0x0,
+                "Interfering signal strength filter constant for power control (N Avg I)", HFILL }
             },
             { &hf_gsm_a_rr_sgsnr,
               { "SGSNR", "gsm_a.rr.sgsnr",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_sgsnr_value), 0x0,
-		"SGSN Release (SGSNR)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_sgsnr_value), 0x0,
+                "SGSN Release (SGSNR)", HFILL }
             },
             { &hf_gsm_a_rr_si_status_ind,
               { "SI Status Ind", "gsm_a.rr.si_status_ind",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si_status_ind_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si_status_ind_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_lb_ms_txpwr_max_cch,
               { "LB MS TxPwr Max CCCH", "gsm_a.rr.n_avg_i",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_n_avg_i_vals), 0x0,
-		"Maximum TX power level an MS is allowed to use on all other than DCS 1800 and PCS 1900 frequency bands when accessing the system until otherwise commanded (LB MS TxPwr Max CCCH)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_n_avg_i_vals), 0x0,
+                "Maximum TX power level an MS is allowed to use on all other than DCS 1800 and PCS 1900 frequency bands when accessing the system until otherwise commanded (LB MS TxPwr Max CCCH)", HFILL }
             },
             { &hf_gsm_a_rr_si2n_support,
               { "SI2n Support", "gsm_a.rr.si2n_support",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si2n_support_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_si2n_support_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_mi_index,
               { "Measurement Information Index", "gsm_a.rr.mi_index",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_mi_count,
               { "Measurement Information Count", "gsm_a.rr.mi_count",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_wait,
               { "3G Wait", "gsm_a.rr.3g_wait",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_3g_wait_vals), 0x0,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_3g_wait_vals), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_c,
               { "Qsearch C", "gsm_a.rr.qsearch_c",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_x_vals), 0x00,
-		"Search for 3G cells if signal level is below (0 7) or above (8 15) threshold (Qsearch C)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_x_vals), 0x00,
+                "Search for 3G cells if signal level is below (0 7) or above (8 15) threshold (Qsearch C)", HFILL }
             },
             { &hf_gsm_a_rr_bsic_seen,
               { "BSIC Seen", "gsm_a.rr.bsic_seen",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bsic_seen_value), 0x0,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bsic_seen_value), 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale,
               { "Scale", "gsm_a.rr.scale",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_scale_value), 0x0,
-		"Offset applied for the reported RXLEV values (Scale)", HFILL }
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_scale_value), 0x0,
+                "Offset applied for the reported RXLEV values (Scale)", HFILL }
             },
             { &hf_gsm_a_rr_mean_bep_gmsk,
               { "Mean BEP GMSK", "gsm_a.rr.mean_bep_gmsk",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_mean_bep_gmsk_vals), 0x00,
-		"Mean Bit Error Probability in GMSK (Mean BEP GMSK)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_mean_bep_gmsk_vals), 0x00,
+                "Mean Bit Error Probability in GMSK (Mean BEP GMSK)", HFILL }
             },
             { &hf_gsm_a_rr_mean_cv_bep,
               { "CV BEP", "gsm_a.rr.cv_bep",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_cv_bep_vals), 0x00,
-		"Coefficient of Variation of the Bit Error Probability (CV BEP)", HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_cv_bep_vals), 0x00,
+                "Coefficient of Variation of the Bit Error Probability (CV BEP)", HFILL }
             },
             { &hf_gsm_a_rr_nbr_rcvd_blocks,
               { "Nb Rcvd Blocks", "gsm_a.rr.nbr_rcvd_blocks",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Number of correctly decoded blocks that were completed during the measurement report period (Nb Rcvd Blocks)", HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                "Number of correctly decoded blocks that were completed during the measurement report period (Nb Rcvd Blocks)", HFILL }
             },
             { &hf_gsm_a_rr_reporting_quantity,
               { "Reporting Quantity", "gsm_a.rr.reporting_quantity",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_utran_start,
               { "UTRAN Start", "gsm_a.rr.3g_priority.utran_start",
-		FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_utran_stop,
               { "UTRAN Stop", "gsm_a.rr.3g_priority.utran_stop",
-		FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_default_utran_prio,
               { "DEFAULT_UTRAN_PRIORITY", "gsm_a.rr.3g_priority.default_utran_prio",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_default_threshold_utran,
               { "DEFAULT_THRESH_UTRAN", "gsm_a.rr.3g_priority.default_threshold_utran",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_default_utran_qrxlevmin,
               { "DEFAULT_UTRAN_QRXLEVMIN", "gsm_a.rr.3g_priority.default_utran_qrxlevmin",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_utran_qrxlevmin), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_utran_qrxlevmin), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_frequency_index,
               { "UTRAN Frequency Index", "gsm_a.rr.3g_priority.utran_frequency_index",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_priority,
               { "UTRAN_PRIORITY", "gsm_a.rr.3g_priority.utran_priority",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_utran_high,
               { "THRESH_UTRAN_high", "gsm_a.rr.3g_priority.thres_utran_high",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_utran_low,
               { "THRESH_UTRAN_low", "gsm_a.rr.3g_priority.thres_utran_low",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_qrxlevmin,
               { "UTRAN_QRXLEVMIN", "gsm_a.rr.3g_priority.utran_qrxlevmin",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_utran_qrxlevmin), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_utran_qrxlevmin), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_ccn_active,
               { "E-UTRAN_CCN_ACTIVE", "gsm_a.rr.3g_priority.eutran_ccn_active",
-		FT_BOOLEAN, BASE_DEC, TFS(&eutran_ccn_active), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&eutran_ccn_active), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_start,
               { "E-UTRAN Start", "gsm_a.rr.3g_priority.eutran_start",
-		FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_stop,
               { "E-UTRAN Stop", "gsm_a.rr.3g_priority.utran_stop",
-		FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_c_eutran_initial,
               { "Qsearch_C_E-UTRAN_Initial", "gsm_a.rr.qsearch_c_eutran_initial",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_c_eutran_initial), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_c_eutran_initial), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_rep_quant,
               { "E-UTRAN_REP_QUANT", "gsm_a.rr.eutran_rep_quant",
-		FT_BOOLEAN, BASE_DEC, TFS(&eutran_rep_quant), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&eutran_rep_quant), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_multirat_reporting,
               { "E-UTRAN_MULTIRAT_REPORTING (nb of E-UTRAN cells to be included in measurement report)", "gsm_a.rr.eutran_multirat_reporting",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp,
               { "E-UTRAN_FDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_fdd_reporting_threshold_rsrp",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq,
               { "E-UTRAN_FDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_fdd_reporting_threshold_rsrq",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_2,
               { "E-UTRAN_FDD_REPORTING_THRESHOLD_2", "gsm_a.rr.eutran_fdd_reporting_threshold_2",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_reporting_offset,
               { "E-UTRAN_FDD_REPORTING_OFFSET", "gsm_a.rr.eutran_fdd_reporting_offset",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp,
               { "E-UTRAN_TDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_tdd_reporting_threshold_rsrp",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq,
               { "E-UTRAN_TDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_tdd_reporting_threshold_rsrq",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_2,
               { "E-UTRAN_TDD_REPORTING_THRESHOLD_2", "gsm_a.rr.eutran_tdd_reporting_threshold_2",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_reporting_offset,
               { "E-UTRAN_TDD_REPORTING_OFFSET", "gsm_a.rr.eutran_tdd_reporting_offset",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_measurement_report_offset,
               { "E-UTRAN_FDD_MEASUREMENT_REPORT_OFFSET", "gsm_a.rr.eutran_fdd_measurement_report_offset",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_measurement_report_offset,
               { "E-UTRAN_TDD_MEASUREMENT_REPORT_OFFSET", "gsm_a.rr.eutran_tdd_measurement_report_offset",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_reporting_granularity,
               { "REPORTING_GRANULARITY", "gsm_a.rr.reporting_granularity",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_default_measurement_control_eutran,
               { "DEFAULT_Measurement_Control_E-UTRAN", "gsm_a.rr.eutran_default_measurement_control_eutran",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_measurement_control_eutran,
               { "Measurement_Control_E-UTRAN", "gsm_a.rr.eutran_measurement_control_eutran",
-		FT_UINT8, BASE_DEC, TFS(&measurement_control_eutran), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, TFS(&measurement_control_eutran), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_p_eutran,
               { "Qsearch_P_E-UTRAN", "gsm_a.rr.qsearch_p_eutran",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_geran_priority,
               { "GERAN_PRIORITY", "gsm_a.rr.serving_cell_priority_param_geran_priority",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search,
               { "THRESH_Priority_Search", "gsm_a.rr.serving_cell_priority_param_thresh_prio_search",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_priority_search), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_priority_search), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low,
               { "THRESH_GSM_low", "gsm_a.rr.serving_cell_priority_param_thresh_gsm_low",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_gsm_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_gsm_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_h_prio,
               { "H_PRIO", "gsm_a.rr.serving_cell_priority_param_h_prio",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_h_prio), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_h_prio), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_t_reselection,
               { "T_Reselection", "gsm_a.rr.serving_cell_priority_param_t_reselection",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_t_reselection), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_t_reselection), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_earfcn,
               { "EARFCN", "gsm_a.rr.earfcn",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_measurement_bandwidth,
               { "Measurement Bandwidth", "gsm_a.rr.eutran_measurement_bandwidth",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_eutran_measurement_bandwidth), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_eutran_measurement_bandwidth), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_priority,
               { "E-UTRAN_PRIORITY", "gsm_a.rr.eutran_priority",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_eutran_high,
               { "THRESH_EUTRAN_high", "gsm_a.rr.thresh_eutran_high",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_eutran_low,
               { "THRESH_EUTRAN_low", "gsm_a.rr.thresh_eutran_low",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_qrxlevmin,
               { "E-UTRAN_QRXLEVMIN", "gsm_a.rr.eutran_qrxlevmin",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_eutran_qrxlevmin), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_eutran_qrxlevmin), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid,
               { "PCID", "gsm_a.rr.pcid",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid_bitmap_group,
               { "PCID_BITMAP_GROUP", "gsm_a.rr.pcid_bitmap_group",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern_length,
               { "PCID_Pattern_length", "gsm_a.rr.pcid_pattern_length",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern,
               { "PCID_Pattern", "gsm_a.rr.pcid_pattern",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern_sense,
               { "PCID_pattern_sense", "gsm_a.rr.pcid_pattern_sense",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_frequency_index,
               { "E-UTRAN_FREQUENCY_INDEX", "gsm_a.rr.eutran_frequency_index",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_psc,
               { "PSC", "gsm_a.rr.psc",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_psc_pattern_length,
               { "PSC_Pattern_length", "gsm_a.rr.psc_pattern_length",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
-		NULL, HFILL }
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_psc_pattern_sense,
               { "PSC_pattern_sense", "gsm_a.rr.psc_pattern_sense",
-		FT_BOOLEAN, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_csg_fdd_uarfcn,
               { "CSG FDD UARFCN", "gsm_a.rr.utran_csg_fdd_uarfcn",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_csg_tdd_uarfcn,
               { "CSG TDD UARFCN", "gsm_a.rr.utran_csg_tdd_uarfcn",
-		FT_UINT16, BASE_DEC,  NULL, 0x0000,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC,  NULL, 0x0000,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_csg_earfcn,
               { "CSG_EARFCN", "gsm_a.rr.csg_earfcn",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		NULL, HFILL }
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran,
               { "PCID_pattern_sense", "gsm_a.rr._meas_ctrl_utran",
-		FT_BOOLEAN, BASE_DEC, TFS(&measurement_control_utran), 0x00,
-		NULL, HFILL }
+                FT_BOOLEAN, BASE_DEC, TFS(&measurement_control_utran), 0x00,
+                NULL, HFILL }
             },
-	};
+        };
 
     static hf_register_info hf_sacch[] =
-	{
+        {
             { &hf_gsm_a_sacch_msg_rr_type,
-              { "SACCH Radio Resources Management Message Type",	"gsm_a.sacch_msg_rr_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_sacch_msg_rr_strings), 0x0,
-		NULL, HFILL }
+              { "SACCH Radio Resources Management Message Type",        "gsm_a.sacch_msg_rr_type",
+                FT_UINT8, BASE_HEX, VALS(gsm_a_sacch_msg_rr_strings), 0x0,
+                NULL, HFILL }
             }
-	};
+        };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	3
+#define NUM_INDIVIDUAL_ELEMS    3
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_GSM_DTAP_MSG_RR +
               NUM_GSM_RR_ELEM +
