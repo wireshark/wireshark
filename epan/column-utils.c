@@ -1652,6 +1652,57 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
   }
 }
 
+/*
+ * Fill in columns if we got an error reading the packet.
+ * We set most columns to "???", and set the Info column to an error
+ * message.
+ */
+void
+col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums)
+{
+  int i;
+
+  if (!cinfo)
+    return;
+
+  for (i = 0; i < cinfo->num_cols; i++) {
+    switch (cinfo->col_fmt[i]) {
+
+    case COL_NUMBER:
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DELTA_TIME_DIS:
+    case COL_PACKET_LENGTH:
+    case COL_CUMULATIVE_BYTES:
+      if (fill_fd_colums)
+        col_fill_in_frame_data(fdata, cinfo, i, fill_col_exprs);
+      break;
+
+    case COL_INFO:
+      /* XXX - say more than this */
+      cinfo->col_data[i] = "Read error";
+      break;
+
+    case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
+      g_assert_not_reached();
+      break;
+    default:
+      if (cinfo->col_fmt[i] >= NUM_COL_FMTS) {
+        g_assert_not_reached();
+      }
+      /*
+       * No dissection was done, and these columns are set as the
+       * result of the dissection, so....
+       */
+      cinfo->col_data[i] = "???";
+      break;
+    }
+  }
+}
+
 #if 0
 XXX this needs more rework?
 /* --------------------------- */

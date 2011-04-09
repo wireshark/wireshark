@@ -87,6 +87,7 @@ col_based_on_frame_data
 col_clear
 col_custom_prime_edt
 col_fill_in
+col_fill_in_error
 col_fill_in_frame_data
 col_format_desc
 col_format_to_string

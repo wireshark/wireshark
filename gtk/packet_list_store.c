@@ -1125,8 +1125,33 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	else
 		cinfo = NULL;
 
-	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd))
+	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd)) {
+		/*
+		 * Error reading the frame.
+		 *
+		 * Don't set the color filter for now (we might want
+		 * to colorize it in some fashion to warn that the
+		 * row couldn't be filled in or colorized), and
+		 * set the columns to placeholder values, except
+		 * for the Info column, where we'll put in an
+		 * error message.
+		 */
+		if (dissect_columns) {
+			col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
+
+			for(col = 0; col < cinfo->num_cols; ++col) {
+				/* Skip columns based on frame_data because we already store those. */
+				if (!col_based_on_frame_data(cinfo, col))
+					packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+			}
+			record->columnized = TRUE;
+		}
+		if (dissect_color) {
+			fdata->color_filter = NULL;
+			record->colorized = TRUE;
+		}
 		return;	/* error reading the frame */
+	}
 
 	create_proto_tree = (color_filters_used() && dissect_color) ||
 						(have_custom_cols(cinfo) && dissect_columns);
@@ -1150,7 +1175,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
 
 		for(col = 0; col < cinfo->num_cols; ++col) {
-			/* Skip columns based om frame_data because we already store those. */
+			/* Skip columns based on frame_data because we already store those. */
 			if (!col_based_on_frame_data(cinfo, col))
 				packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
 		}

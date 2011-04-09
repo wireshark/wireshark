@@ -70,6 +70,14 @@ extern void col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, con
  */
 extern void	col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
+/** Fill in columns if we got an error reading the packet.
+ * We set most columns to "???", and set the Info column to an error
+ * message.
+ *
+ * Internal, don't use this in dissectors!
+ */
+extern void	col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
+
 /* Utility routines used by packet*.c */
 
 /** Are the columns writable?
