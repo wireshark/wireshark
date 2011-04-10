@@ -41,11 +41,20 @@ extern "C" {
 #endif
 
 
+#ifdef _WIN32
+
+/*
+ * The structure to pass to ws_stat64() and ws_fstat64().
+ */
+#define ws_statb64	struct _stat64
+
 /*  Win32: Since GLib2.6, we use UTF8 throughout the code, so file functions
  *  must tweak a given filename from UTF8 to UTF16 as we use NT Unicode (Win9x
  *  - now unsupported - used locale based encoding here).
  */
-#if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
+#if GLIB_CHECK_VERSION(2,6,0)
+
+/* Win32, GLib 2.6 or later */
 #include <stdio.h>
 
 extern int ws_stdio_open (const gchar *filename, int flags, int mode);
@@ -54,6 +63,7 @@ extern int ws_stdio_mkdir (const gchar *filename, int mode);
 extern int ws_stdio_stat64 (const gchar *filename, ws_statb64 *buf);
 extern int ws_stdio_unlink (const gchar *filename);
 extern int ws_stdio_remove (const gchar *filename);
+
 extern FILE * ws_stdio_fopen (const gchar *filename, const gchar *mode);
 extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream);
 
@@ -66,45 +76,30 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_fopen	ws_stdio_fopen
 #define ws_freopen	ws_stdio_freopen
 
-#else	/* _WIN32 && GLIB_CHECK_VERSION */
+#else /* GLIB_CHECK_VERSION(2,6,0) */
 
-/* "Not Windows" or GLib < 2.6: use "old school" functions */
-#ifdef _WIN32
-/* Windows, but GLib < 2.6 */
+/* Win32, GLib prior to 2.6 */
 #define ws_open			_open
+#define ws_rename		rename
+#define ws_mkdir(dir,mode)	_mkdir(dir)	/* _mkdir() doesn't have a permission bits argument */
 #define ws_stat64		_stati64	/* use _stati64 for 64-bit size support */
 #define ws_unlink		_unlink
-#define ws_mkdir(dir,mode)	_mkdir(dir)
-#else /* _WIN32 */
-/* "Not Windows" */
-#define ws_open			open
-#define ws_stat64		stat
-#define ws_unlink		unlink
-#define ws_mkdir(dir,mode)	mkdir(dir,mode)
-#endif /* _WIN32 */
+#define ws_remove		remove
+#define ws_fopen		fopen
+#define ws_freopen		freopen
 
-#define ws_rename	rename
-#define ws_remove	remove
-#define ws_fopen	fopen
-#define ws_freopen	freopen
+#endif /* GLIB_CHECK_VERSION(2,6,0) */
 
-#endif	/* _WIN32 && GLIB_CHECK_VERSION */
-
-
-/* some common file function differences between UNIX and WIN32 */
-#ifdef _WIN32
-/* the Win32 API prepends underscores for whatever reasons */
+/*
+ * These routines don't take pathnames, so they're the same regardless
+ * of what version of GLib we have.
+ */
 #define ws_read    _read
 #define ws_write   _write
 #define ws_close   _close
 #define ws_dup     _dup
 #define ws_fstat64 _fstati64	/* use _fstati64 for 64-bit size support */
 #define ws_lseek64 _lseeki64	/* use _lseeki64 for 64-bit offset support */
-
-/*
- * The structure to pass to ws_fstat64().
- */
-#define ws_statb64	struct _stat64
 
 /* DLL loading */
 
@@ -137,7 +132,23 @@ GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
  */
 extern char *getenv_utf8(const char *varname);
 
-#else /* _WIN32 */
+#else	/* _WIN32 */
+
+/*
+ * The structure to pass to ws_fstat64().
+ */
+#define ws_statb64	struct stat
+
+/* Not Windows, presumed to be UN*X-compatible */
+#define ws_open			open
+#define ws_rename		rename
+#define ws_mkdir(dir,mode)	mkdir(dir,mode)
+#define ws_stat64		stat
+#define ws_unlink		unlink
+#define ws_remove		remove
+#define ws_fopen		fopen
+#define ws_freopen		freopen
+
 #define ws_read    read
 #define ws_write   write
 #define ws_close   close
@@ -146,10 +157,6 @@ extern char *getenv_utf8(const char *varname);
 #define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define O_BINARY   0		/* Win32 needs the O_BINARY flag for open() */
 
-/*
- * The structure to pass to ws_fstat64().
- */
-#define ws_statb64	struct stat
 #endif /* _WIN32 */
 
 /* directory handling */
