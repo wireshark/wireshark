@@ -51,7 +51,7 @@ extern "C" {
 extern int ws_stdio_open (const gchar *filename, int flags, int mode);
 extern int ws_stdio_rename (const gchar *oldfilename, const gchar *newfilename);
 extern int ws_stdio_mkdir (const gchar *filename, int mode);
-extern int ws_stdio_stat (const gchar *filename, struct stat *buf);
+extern int ws_stdio_stat64 (const gchar *filename, ws_statb64 *buf);
 extern int ws_stdio_unlink (const gchar *filename);
 extern int ws_stdio_remove (const gchar *filename);
 extern FILE * ws_stdio_fopen (const gchar *filename, const gchar *mode);

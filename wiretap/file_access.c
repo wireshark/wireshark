@@ -233,7 +233,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 
 	/* First, make sure the file is valid */
 	if (use_stdin) {
-		if (fstat(0, &statb) < 0) {
+		if (ws_fstat64(0, &statb) < 0) {
 			*err = errno;
 			return NULL;
 		}
