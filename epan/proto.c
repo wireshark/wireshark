@@ -3970,7 +3970,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 			proto_item_fill_label(fi, fi->rep->representation);
 		}
 
-		strcpy(representation, fi->rep->representation);
+		strncpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 		va_start(ap, format);
 		g_vsnprintf(fi->rep->representation,
 			ITEM_LABEL_LENGTH, format, ap);
