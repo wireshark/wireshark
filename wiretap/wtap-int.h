@@ -39,32 +39,7 @@
 #include <zlib.h>
 #endif /* HAVE_LIBZ */
 
-typedef struct {
-	int fd;                 /* file descriptor */
-	gint64 pos;             /* current position in uncompressed data */
-	unsigned size;          /* buffer size */
-	unsigned char *in;      /* input buffer */
-	unsigned char *out;     /* output buffer (double-sized when reading) */
-	unsigned char *next;    /* next output data to deliver or write */
-
-	unsigned have;          /* amount of output data unused at next */
-	int eof;                /* true if end of input file reached */
-	gint64 start;           /* where the gzip data started, for rewinding */
-	gint64 raw;             /* where the raw data started, for seeking */
-	int compression;        /* 0: ?, 1: uncompressed, 2: zlib */
-	/* seek request */
-	gint64 skip;            /* amount to skip (already rewound if backwards) */
-	int seek;               /* true if seek request pending */
-	/* error information */
-	int err;                /* error code */
-
-	unsigned int  avail_in;  /* number of bytes available at next_in */
-	unsigned char *next_in;  /* next input byte */
-#ifdef HAVE_LIBZ
-	/* zlib inflate stream */
-	z_stream strm;          /* stream structure in-place (not a pointer) */
-#endif
-} wtap_reader, *FILE_T;
+typedef struct wtap_reader *FILE_T;
 
 #include "wtap.h"
 

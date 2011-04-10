@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 /* file_access interface based heavily on zlib gzread.c and gzlib.c from zlib
@@ -63,12 +62,38 @@
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 
-/* values for gz_state compression */
-#define UNKNOWN 0      /* look for a gzip header */
-#define UNCOMPRESSED 1      /* copy input directly */
+struct wtap_reader {
+	int fd;                 /* file descriptor */
+	gint64 pos;             /* current position in uncompressed data */
+	unsigned size;          /* buffer size */
+	unsigned char *in;      /* input buffer */
+	unsigned char *out;     /* output buffer (double-sized when reading) */
+	unsigned char *next;    /* next output data to deliver or write */
 
+	unsigned have;          /* amount of output data unused at next */
+	int eof;                /* true if end of input file reached */
+	gint64 start;           /* where the gzip data started, for rewinding */
+	gint64 raw;             /* where the raw data started, for seeking */
+	int compression;        /* 0: ?, 1: uncompressed, 2: zlib */
+	/* seek request */
+	gint64 skip;            /* amount to skip (already rewound if backwards) */
+	int seek;               /* true if seek request pending */
+	/* error information */
+	int err;                /* error code */
+
+	unsigned int  avail_in;  /* number of bytes available at next_in */
+	unsigned char *next_in;  /* next input byte */
 #ifdef HAVE_LIBZ
-#define ZLIB 2      /* decompress a zlib stream */
+	/* zlib inflate stream */
+	z_stream strm;          /* stream structure in-place (not a pointer) */
+#endif
+};
+
+/* values for gz_state compression */
+#define UNKNOWN		0	/* look for a gzip header */
+#define UNCOMPRESSED	1	/* copy input directly */
+#ifdef HAVE_LIBZ
+#define ZLIB		2	/* decompress a zlib stream */
 #endif
 
 /* XXX, lseek64() instead of ws_lseek()? */
@@ -372,7 +397,7 @@ filed_open(int fd)
 		return NULL;
 
 	/* allocate gzFile structure to return */
-	state = g_try_malloc(sizeof(wtap_reader));
+	state = g_try_malloc(sizeof *state);
 	if (state == NULL)
 		return NULL;
 
