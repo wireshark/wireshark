@@ -263,6 +263,7 @@ DISSECTOR_SRC = \
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
 	packet-ayiya.c		\
+	packet-babel.c		\
 	packet-bacapp.c		\
 	packet-bacnet.c		\
 	packet-banana.c		\

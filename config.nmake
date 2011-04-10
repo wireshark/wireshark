@@ -16,7 +16,7 @@ WIRESHARK_TARGET_PLATFORM=win32
 # It's highly recommended to leave MAJOR/MINOR/MICRO unchanged
 VERSION_MAJOR=1
 VERSION_MINOR=5
-VERSION_MICRO=1
+VERSION_MICRO=2
 VERSION_BUILD=0
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
