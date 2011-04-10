@@ -59,6 +59,16 @@
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
 
+/*
+ * See RFC 1952 for a description of the gzip file format.
+ *
+ * Some other compressed file formats we might want to support:
+ *
+ *	XZ format: http://tukaani.org/xz/
+ *
+ *	Bzip2 format: http://bzip.org/
+ */
+
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 
