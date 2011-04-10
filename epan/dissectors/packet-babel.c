@@ -32,10 +32,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include <stdio.h>
-
-void proto_reg_handoff_babel(void);
-
 static int proto_babel = -1;
 
 static gint ett_babel = -1;
@@ -99,7 +95,7 @@ static const value_string aes[] = {
     { 0, NULL }
 };
 
-/* The prefix for v6-mapped IPv4 addresses.  Format_address below 
+/* The prefix for v6-mapped IPv4 addresses.  Format_address below
    returns IPv4 addresses in that format. */
 
 static const unsigned char v4prefix[16] =
@@ -211,7 +207,7 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Version %u", version);
         return 2;
     }
-        
+
     if(tree) {
         ti = proto_tree_add_item(tree, proto_babel, tvb, 0, -1, ENC_NA);
         babel_tree = proto_item_add_subtree(ti, ett_babel);
@@ -501,16 +497,11 @@ proto_register_babel(void)
         &ett_subtree,
     };
 
-    module_t *babel_module;
-
     proto_babel =
         proto_register_protocol("Babel Routing Protocol", "Babel", "babel");
 
     proto_register_field_array(proto_babel, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    babel_module = prefs_register_protocol(proto_babel,
-                                           proto_reg_handoff_babel);
 }
 
 void
