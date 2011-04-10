@@ -802,7 +802,7 @@ host_lookup(const guint addr, const gboolean resolve, gboolean *found)
     if ((gbl_resolv_flags & RESOLV_CONCURRENT) &&
         prefs.name_resolve_concurrency > 0 &&
         async_dns_initialized) {
-      add_async_dns_ipv4(AF_INET, addr);
+        add_async_dns_ipv4(AF_INET, addr);
       /* XXX found is set to TRUE, which seems a bit odd, but I'm not
        * going to risk changing the semantics.
        */
