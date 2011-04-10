@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-03-31)
+(last updated 2011-04-06)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -13742,7 +13742,7 @@ tsa             6689/udp   Tofino Security Appliance
 #               6690-6696  Unassigned
 #               6697/tcp   Reserved
 babel           6697/udp   Babel Routing Protocol
-#                          [RFC-chroboczek-babel-routing-protocol-05.txt]
+#                          [RFC6126]
 #               6698-6699  Unassigned
 #               6700       Unassigned (Removed 2010-01-26)
 kti-icad-srvr   6701/tcp   KTI/ICAD Nameserver
@@ -15916,7 +15916,11 @@ hde-lcesrvr-2   14937/udp  hde-lcesrvr-2
 hydap           15000/tcp  Hypack Data Aquisition
 hydap           15000/udp  Hypack Data Aquisition
 #                          Mircea Neacsu <mircea&videotron.ca>  
-#               15001-15344 Unassigned
+#               15001-15117 Unassigned
+#               15118/tcp  Reserved
+v2g-secc        15118/udp  v2g Supply Equipment Communication Controller Discovery Protocol
+#                          Holger Lochner <holger.lochner&daimler.com> 06 April 2011
+#               15119-15344 Unassigned
 xpilot          15345/tcp  XPilot Contact Port
 xpilot          15345/udp  XPilot Contact Port
 #                          Bert Gijsbers <bert&xpilot.org> 
@@ -17183,8 +17187,7 @@ References
 [RFC6143]  T. Richardson, J. Levine, "The Remote Framebuffer Protocol", RFC 6143, 
            March 2011.
 
-[RFC-chroboczek-babel-routing-protocol-05.txt]
-            J. Chroboczek, "The Babel Routing Protocol", RFC XXXX, Month Year. 
+[RFC6126]  J. Chroboczek, "The Babel Routing Protocol", RFC 6126, April 2011.
 
 
 [RFC-ietf-mediactrl-sip-control-framework-12.txt]
