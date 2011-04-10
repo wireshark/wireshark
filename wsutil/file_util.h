@@ -92,11 +92,11 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 /* some common file function differences between UNIX and WIN32 */
 #ifdef _WIN32
 /* the Win32 API prepends underscores for whatever reasons */
-#define ws_read  _read
-#define ws_write _write
-#define ws_close _close
-#define ws_dup   _dup
-#define ws_lseek _lseek
+#define ws_read    _read
+#define ws_write   _write
+#define ws_close   _close
+#define ws_dup     _dup
+#define ws_lseek64 _lseeki64	/* use _lseeki64 for 64-bit offset support */
 
 /* DLL loading */
 
@@ -130,11 +130,11 @@ GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
 extern char *getenv_utf8(const char *varname);
 
 #else /* _WIN32 */
-#define ws_read  read
-#define ws_write write
-#define ws_close close
-#define ws_dup   dup
-#define ws_lseek lseek
+#define ws_read    read
+#define ws_write   write
+#define ws_close   close
+#define ws_dup     dup
+#define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
 #endif /* _WIN32 */
 

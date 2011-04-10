@@ -106,8 +106,6 @@ struct wtap_reader {
 #define ZLIB		2	/* decompress a zlib stream */
 #endif
 
-/* XXX, lseek64() instead of ws_lseek()? */
-
 static int	/* gz_load */
 raw_read(FILE_T state, unsigned char *buf, unsigned int count, unsigned *have)
 {
@@ -415,7 +413,7 @@ filed_open(int fd)
 	state->fd = fd;
 
 	/* save the current position for rewinding (only if reading) */
-	state->start = ws_lseek(state->fd, 0, SEEK_CUR);
+	state->start = ws_lseek64(state->fd, 0, SEEK_CUR);
 	if (state->start == -1) state->start = 0;
 
 	/* initialize stream */
@@ -517,12 +515,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 	/* if within raw area while reading, just go there */
 	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw) {
-		/* XXX - handle 64-bit offsets better */
-#ifdef _WIN32
-		if (ws_lseek(file->fd, (long)(offset - file->have), SEEK_CUR) == -1) {
-#else
-		if (ws_lseek(file->fd, (off_t)(offset - file->have), SEEK_CUR) == -1) {
-#endif
+		if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
 			*err = errno;
 			return -1;
 		}
@@ -545,12 +538,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		/* rewind, then skip to offset */
 
 		/* back up and start over */
-		/* XXX - handle 64-bit offsets better */
-#ifdef _WIN32
-		if (ws_lseek(file->fd, (long)file->start, SEEK_SET) == -1) {
-#else
-		if (ws_lseek(file->fd, (off_t)file->start, SEEK_SET) == -1) {
-#endif
+		if (ws_lseek64(file->fd, file->start, SEEK_SET) == -1) {
 			*err = errno;
 			return -1;
 		}

@@ -138,6 +138,11 @@ AC_PATH_PROG(DOXYGEN, doxygen)
 AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
 AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
+#
+# Try to arrange for large file support.
+#
+AC_SYS_LARGEFILE
+
 # gnu tls
 tls_message="no"
 AC_ARG_WITH([gnutls],

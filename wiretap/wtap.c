@@ -717,9 +717,9 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 gint64
 wtap_read_so_far(wtap *wth, int *err)
 {
-	off_t file_pos;
+	gint64 file_pos;
 
-	file_pos = ws_lseek(wth->fd, 0, SEEK_CUR);
+	file_pos = ws_lseek64(wth->fd, 0, SEEK_CUR);
 	if (file_pos == -1) {
 		if (err != NULL)
 			*err = errno;
