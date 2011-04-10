@@ -52,7 +52,7 @@
 gint64
 wtap_file_size(wtap *wth, int *err)
 {
-	struct stat statb;
+	ws_statb64 statb;
 
 	if (ws_fstat64(wth->fd, &statb) == -1) {
 		if (err != NULL)

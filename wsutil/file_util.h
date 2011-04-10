@@ -99,6 +99,11 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_fstat64 _fstati64	/* use _fstati64 for 64-bit size support */
 #define ws_lseek64 _lseeki64	/* use _lseeki64 for 64-bit offset support */
 
+/*
+ * The structure to pass to ws_fstat64().
+ */
+#define ws_statb64	struct _stat64
+
 /* DLL loading */
 
 /** Try to remove the current directory from the DLL search path.
@@ -139,6 +144,11 @@ extern char *getenv_utf8(const char *varname);
 #define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define O_BINARY   0		/* Win32 needs the O_BINARY flag for open() */
 #endif /* _WIN32 */
+
+/*
+ * The structure to pass to ws_fstat64().
+ */
+#define ws_statb64	struct stat
 
 /* directory handling */
 #define WS_DIR				GDir

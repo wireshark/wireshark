@@ -177,7 +177,7 @@ static fileset_entry *
 fileset_add_file(const char *dirname, const char *fname, gboolean current)
 {
     int fh, result;
-    struct stat buf;
+    ws_statb64 buf;
     char *path;
     fileset_entry *entry = NULL;
 
