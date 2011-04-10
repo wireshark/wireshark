@@ -17,7 +17,7 @@ ws_stdio_mkdir
 ws_stdio_open
 ws_stdio_remove
 ws_stdio_rename
-ws_stdio_stat
+ws_stdio_stat64
 ws_stdio_unlink
 ws_init_dll_search_path
 ws_load_library
