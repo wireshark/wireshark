@@ -188,7 +188,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
     if(fh !=  -1) {
 
         /* Get statistics */
-        result = fstat( fh, &buf );
+        result = ws_fstat64( fh, &buf );
 
         /* Show statistics if they are valid */
         if( result == 0 ) {

@@ -54,7 +54,7 @@ wtap_file_size(wtap *wth, int *err)
 {
 	struct stat statb;
 
-	if (fstat(wth->fd, &statb) == -1) {
+	if (ws_fstat64(wth->fd, &statb) == -1) {
 		if (err != NULL)
 			*err = errno;
 		return -1;
