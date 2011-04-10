@@ -60,7 +60,7 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_open		ws_stdio_open
 #define ws_rename	ws_stdio_rename
 #define ws_mkdir	ws_stdio_mkdir
-#define ws_stat		ws_stdio_stat
+#define ws_stat64	ws_stdio_stat64
 #define ws_unlink	ws_stdio_unlink
 #define ws_remove	ws_stdio_remove
 #define ws_fopen	ws_stdio_fopen
@@ -70,14 +70,16 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 
 /* "Not Windows" or GLib < 2.6: use "old school" functions */
 #ifdef _WIN32
-#define ws_open		_open
-#define ws_stat		_stat
-#define ws_unlink	_unlink
+/* Windows, but GLib < 2.6 */
+#define ws_open			_open
+#define ws_stat64		_stati64	/* use _stati64 for 64-bit size support */
+#define ws_unlink		_unlink
 #define ws_mkdir(dir,mode)	_mkdir(dir)
-#else
-#define ws_open		open
-#define ws_stat		stat
-#define ws_unlink	unlink
+#else /* _WIN32 */
+/* "Not Windows" */
+#define ws_open			open
+#define ws_stat64		stat
+#define ws_unlink		unlink
 #define ws_mkdir(dir,mode)	mkdir(dir,mode)
 #endif /* _WIN32 */
 

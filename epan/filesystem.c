@@ -215,9 +215,9 @@ get_dirname(char *path)
 int
 test_for_directory(const char *path)
 {
-	struct stat statb;
+	ws_statb64 statb;
 
-	if (ws_stat(path, &statb) < 0)
+	if (ws_stat64(path, &statb) < 0)
 		return errno;
 
 	if (S_ISDIR(statb.st_mode))
@@ -229,9 +229,9 @@ test_for_directory(const char *path)
 int
 test_for_fifo(const char *path)
 {
-	struct stat statb;
+	ws_statb64 statb;
 
-	if (ws_stat(path, &statb) < 0)
+	if (ws_stat64(path, &statb) < 0)
 		return errno;
 
 	if (S_ISFIFO(statb.st_mode))
@@ -1191,7 +1191,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 	char *pf_dir_path_copy, *pf_dir_parent_path;
 	size_t pf_dir_parent_path_len;
 #endif
-	struct stat s_buf;
+	ws_statb64 s_buf;
 	int ret;
 
 	if (profilename) {
@@ -1207,7 +1207,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 		 * If not then create it.
 		 */
 		pf_dir_path = get_profiles_dir ();
-		if (ws_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+		if (ws_stat64(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 			ret = ws_mkdir(pf_dir_path, 0755);
 			if (ret == -1) {
 				*pf_dir_path_return = g_strdup(pf_dir_path);
@@ -1217,7 +1217,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 	}
 
 	pf_dir_path = get_persconffile_dir(profilename);
-	if (ws_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+	if (ws_stat64(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 #ifdef _WIN32
 		/*
 		 * Does the parent directory of that directory
@@ -1235,7 +1235,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 		pf_dir_parent_path_len = strlen(pf_dir_parent_path);
 		if (pf_dir_parent_path_len > 0
 		    && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
-		    && ws_stat(pf_dir_parent_path, &s_buf) != 0) {
+		    && ws_stat64(pf_dir_parent_path, &s_buf) != 0) {
 			/*
 			 * No, it doesn't exist - make it first.
 			 */
@@ -1466,7 +1466,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 {
 	char *path;
 #ifdef _WIN32
-	struct stat s_buf;
+	ws_statb64 s_buf;
 	char *old_path;
 #endif
 	if (do_store_persconffiles && from_profile && !g_hash_table_lookup (profile_files, filename)) {
@@ -1483,7 +1483,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 	}
 #ifdef _WIN32
 	if (!for_writing) {
-		if (ws_stat(path, &s_buf) != 0 && errno == ENOENT) {
+		if (ws_stat64(path, &s_buf) != 0 && errno == ENOENT) {
 			/*
 			 * OK, it's not in the personal configuration file
 			 * directory; is it in the ".wireshark" subdirectory
@@ -1492,7 +1492,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 			old_path = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S ".wireshark" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
-			if (ws_stat(old_path, &s_buf) == 0) {
+			if (ws_stat64(old_path, &s_buf) == 0) {
 				/*
 				 * OK, it exists; return it instead.
 				 */
@@ -1697,7 +1697,7 @@ file_write_error_message(int err)
 gboolean
 file_exists(const char *fname)
 {
-	struct stat   file_stat;
+	ws_statb64 file_stat;
 
 #ifdef _WIN32
 	/*
@@ -1707,14 +1707,14 @@ file_exists(const char *fname)
 	 * so this is working, but maybe not quite the way expected. ULFL
 	 */
 	file_stat.st_ino = 1;   /* this will make things work if an error occured */
-	ws_stat(fname, &file_stat);
+	ws_stat64(fname, &file_stat);
 	if (file_stat.st_ino == 0) {
 		return TRUE;
 	} else {
 		return FALSE;
 	}
 #else
-	if (ws_stat(fname, &file_stat) != 0 && errno == ENOENT) {
+	if (ws_stat64(fname, &file_stat) != 0 && errno == ENOENT) {
 		return FALSE;
 	} else {
 		return TRUE;
@@ -1764,14 +1764,14 @@ files_identical(const char *fname1, const char *fname2)
 		return FALSE;
 	}
 #else
-	struct stat   filestat1, filestat2;
+	ws_statb64 filestat1, filestat2;
 
 	/*
 	 * Compare st_dev and st_ino.
 	 */
-	if (ws_stat(fname1, &filestat1) == -1)
+	if (ws_stat64(fname1, &filestat1) == -1)
 		return FALSE;	/* can't get info about the first file */
-	if (ws_stat(fname2, &filestat2) == -1)
+	if (ws_stat64(fname2, &filestat2) == -1)
 		return FALSE;	/* can't get info about the second file */
 	return (filestat1.st_dev == filestat2.st_dev &&
 		filestat1.st_ino == filestat2.st_ino);

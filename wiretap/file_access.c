@@ -222,7 +222,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			gboolean do_random)
 {
-	struct stat statb;
+	ws_statb64 statb;
 	wtap	*wth;
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
@@ -238,7 +238,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 	} else {
-		if (ws_stat(filename, &statb) < 0) {
+		if (ws_stat64(filename, &statb) < 0) {
 			*err = errno;
 			return NULL;
 		}

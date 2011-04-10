@@ -447,7 +447,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     gsize        uni_start, uni_end;
     const glong  max = 60;
     int          err;
-    struct stat  stat_buf;
+    ws_statb64   stat_buf;
     GtkTooltips *tooltips;
 
 
@@ -475,7 +475,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
      * Add file size. We use binary prefixes instead of IEC because that's what
      * most OSes use.
      */
-    err = ws_stat(filename, &stat_buf);
+    err = ws_stat64(filename, &stat_buf);
     if(err == 0) {
         if (stat_buf.st_size/1024/1024/1024 > 10) {
             g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));

@@ -389,12 +389,12 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   /*
    * Look for /sys/class/net/{device}/wireless.
    */
-  struct stat statb;
+  ws_statb64 statb;
   char *wireless_path;
 
   wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", if_info->name);
   if (wireless_path != NULL) {
-    if (ws_stat(wireless_path, &statb) == 0) {
+    if (ws_stat64(wireless_path, &statb) == 0) {
       g_free(wireless_path);
       return pixbuf_to_widget(network_wireless_pb_data);
     }

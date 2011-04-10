@@ -1621,7 +1621,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
                    char *errmsg, int errmsgl)
 {
 #ifndef _WIN32
-    struct stat pipe_stat;
+    ws_statb64   pipe_stat;
     struct sockaddr_un sa;
     int          sel_ret;
     int          b;
@@ -1654,7 +1654,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #endif  /* _WIN32 */
     } else {
 #ifndef _WIN32
-        if (ws_stat(pipename, &pipe_stat) < 0) {
+        if (ws_stat64(pipename, &pipe_stat) < 0) {
             if (errno == ENOENT || errno == ENOTDIR)
                 ld->cap_pipe_err = PIPNEXIST;
             else {

@@ -683,9 +683,9 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 /* copied from filesystem.c */
 static int capture_opts_test_for_fifo(const char *path)
 {
-  struct stat statb;
+  ws_statb64 statb;
 
-  if (ws_stat(path, &statb) < 0)
+  if (ws_stat64(path, &statb) < 0)
     return errno;
 
   if (S_ISFIFO(statb.st_mode))

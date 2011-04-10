@@ -799,12 +799,12 @@ static void
 read_keytab_file(const char *service_key_file)
 {
     FILE *skf;
-    struct stat st;
+    ws_statb64 st;
     service_key_t *sk;
     unsigned char buf[SERVICE_KEY_SIZE];
     int newline_skip = 0, count = 0;
 
-    if (service_key_file != NULL && ws_stat (service_key_file, &st) == 0) {
+    if (service_key_file != NULL && ws_stat64 (service_key_file, &st) == 0) {
 
         /* The service key file contains raw 192-bit (24 byte) 3DES keys.
          * There can be zero, one (\n), or two (\r\n) characters between

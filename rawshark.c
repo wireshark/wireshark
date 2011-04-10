@@ -247,7 +247,7 @@ static int
 raw_pipe_open(const char *pipe_name)
 {
 #ifndef _WIN32
-    struct stat pipe_stat;
+    ws_statb64 pipe_stat;
 #else
     char *pncopy, *pos;
     DWORD err;
@@ -272,7 +272,7 @@ raw_pipe_open(const char *pipe_name)
 #endif  /* _WIN32 */
     } else {
 #ifndef _WIN32
-        if (ws_stat(pipe_name, &pipe_stat) < 0) {
+        if (ws_stat64(pipe_name, &pipe_stat) < 0) {
             fprintf(stderr, "rawshark: The pipe %s could not be checked: %s\n",
                     pipe_name, strerror(errno));
             return -1;

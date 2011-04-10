@@ -222,8 +222,8 @@ ws_stdio_mkdir (const gchar *filename,
  * Since: 2.6
  */
 int
-ws_stdio_stat (const gchar *filename,
-	struct stat *buf)
+ws_stdio_stat64 (const gchar *filename,
+	ws_statb64 *buf)
 {
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
@@ -243,7 +243,7 @@ ws_stdio_stat (const gchar *filename,
 	  (!g_path_is_absolute (filename) || len > (size_t) (g_path_skip_root (filename) - filename)))
 	wfilename[len] = '\0';
 
-      retval = _wstat (wfilename, (struct _stat *) buf);
+      retval = _wstati64 (wfilename, buf);
       save_errno = errno;
 
       g_free (wfilename);
