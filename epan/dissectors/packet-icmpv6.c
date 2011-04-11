@@ -46,11 +46,15 @@
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/emem.h>
+#include <epan/tap.h>
 
 #include "packet-ber.h"
 #include "packet-dns.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
+#include "packet-icmp.h"    /* same transaction_t used both both v4 and v6 */
 
 /*
  * The information used comes from:
@@ -430,6 +434,20 @@ static int hf_icmpv6_rpl_opt_prefix_vlifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_length = -1;
 static int hf_icmpv6_rpl_opt_targetdesc = -1;
+
+static int icmpv6_tap = -1;
+
+/* Conversation related data */
+static int hf_icmpv6_resp_in = -1;
+static int hf_icmpv6_resp_to = -1;
+static int hf_icmpv6_resptime = -1;
+
+typedef struct _icmpv6_conv_info_t {
+    emem_tree_t *pdus;
+} icmpv6_conv_info_t;
+
+static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key);
+static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key);
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6_opt = -1;
@@ -1055,6 +1073,131 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     /* Restore the "we're inside an error packet" flag. */
     pinfo->in_error_pkt = save_in_error_pkt;
 }
+
+
+/* ======================================================================= */
+static conversation_t *_find_or_create_conversation(packet_info *pinfo)
+{
+    conversation_t *conv = NULL;
+
+    /* Have we seen this conversation before? */
+    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        pinfo->ptype, 0, 0, 0);
+    if ( conv == NULL )
+    {
+        /* No, this is a new conversation. */
+        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+            pinfo->ptype, 0, 0, 0);
+    }
+    return (conv);
+}
+
+/* ======================================================================= */
+static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key)
+{
+    conversation_t *conversation;
+    icmpv6_conv_info_t *icmpv6_info;
+    icmp_transaction_t *icmpv6_trans;
+    emem_tree_key_t icmpv6_key[2];
+    proto_item *it;
+
+    /* Handle the conversation tracking */
+    conversation = _find_or_create_conversation(pinfo);
+    icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
+    if ( icmpv6_info == NULL )
+    {
+        icmpv6_info = se_alloc(sizeof(icmpv6_conv_info_t));
+        icmpv6_info->pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_pdus");
+        conversation_add_proto_data(conversation, proto_icmpv6, icmpv6_info);
+    }
+
+    icmpv6_key[0].length = 2;
+    icmpv6_key[0].key = key;
+    icmpv6_key[1].length = 0;
+    icmpv6_key[1].key = NULL;
+    if ( !PINFO_FD_VISITED(pinfo) )
+    {
+        icmpv6_trans = se_alloc(sizeof(icmp_transaction_t));
+        icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+        icmpv6_trans->resp_frame = 0;
+        icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
+        icmpv6_trans->resp_time = 0.0;
+        se_tree_insert32_array(icmpv6_info->pdus, icmpv6_key, (void *)icmpv6_trans);
+    }
+    else /* Already visited this frame */
+        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->pdus, icmpv6_key);
+
+    if ( icmpv6_trans == NULL )
+        return (NULL);
+
+    /* Print state tracking in the tree */
+    if ( tree && icmpv6_trans->resp_frame &&
+        (icmpv6_trans->rqst_frame == PINFO_FD_NUM(pinfo)) )
+    {
+        it = proto_tree_add_uint(tree, hf_icmpv6_resp_in, NULL, 0, 0,
+            icmpv6_trans->resp_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    return (icmpv6_trans);
+
+} /* transaction_start() */
+
+/* ======================================================================= */
+static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
+{
+    conversation_t *conversation;
+    icmpv6_conv_info_t *icmpv6_info;
+    icmp_transaction_t *icmpv6_trans;
+    emem_tree_key_t icmpv6_key[2];
+    proto_item *it;
+    nstime_t ns;
+
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        pinfo->ptype, 0, 0, 0);
+    if ( conversation == NULL )
+        return (NULL);
+
+    icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
+    if ( icmpv6_info == NULL )
+        return (NULL);
+
+    icmpv6_key[0].length = 2;
+    icmpv6_key[0].key = key;
+    icmpv6_key[1].length = 0;
+    icmpv6_key[1].key = NULL;
+    icmpv6_trans = se_tree_lookup32_array(icmpv6_info->pdus, icmpv6_key);
+    if ( icmpv6_trans == NULL )
+        return (NULL);
+
+    /* Print state tracking in the tree */
+    if ( icmpv6_trans->rqst_frame &&
+        (icmpv6_trans->rqst_frame < PINFO_FD_NUM(pinfo)) &&
+        ((icmpv6_trans->resp_frame == 0) ||
+        (icmpv6_trans->resp_frame == PINFO_FD_NUM(pinfo))) )
+    {
+        icmpv6_trans->resp_frame = PINFO_FD_NUM(pinfo);
+        if ( tree )
+        {
+            it = proto_tree_add_uint(tree, hf_icmpv6_resp_to, NULL, 0, 0,
+                icmpv6_trans->rqst_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+
+        nstime_delta(&ns, &pinfo->fd->abs_ts, &icmpv6_trans->rqst_time);
+        icmpv6_trans->resp_time = nstime_to_msec(&ns);
+        if ( tree )
+        {
+            it = proto_tree_add_double_format_value(tree, hf_icmpv6_resptime, NULL,
+                0, 0, icmpv6_trans->resp_time, "%.3f ms", icmpv6_trans->resp_time);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+
+    return (icmpv6_trans);
+
+} /* transaction_end() */
 
 static void
 dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -2827,7 +2970,7 @@ static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6_tree = NULL, *flag_tree = NULL;
-    proto_item *ti = NULL, *hidden_item, *checksum_item, *code_item= NULL, *ti_flag = NULL;
+    proto_item *ti = NULL, *hidden_item, *checksum_item, *code_item = NULL, *ti_flag = NULL;
     const char *code_name = NULL;
     guint length, reported_length;
     vec_t cksum_vec[4];
@@ -2836,6 +2979,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     tvbuff_t *next_tvb;
     guint8 icmp6_type, icmp6_code;
+    icmp_transaction_t *trans = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -2854,10 +2998,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(icmp6_type, icmpv6_type_val, "Unknown (%d)"));
 
-    if (tree) {
-        /* Code */
+    if (tree)
         code_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_code, tvb, offset, 1, FALSE);
-    }
 
     icmp6_code = tvb_get_guint8(tvb, offset);
     offset += 1;
@@ -2886,28 +3028,26 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    if(code_name)
-    {
+    if (code_name)
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_name);
-    }
 
-    /* RFC 4380 5.2.9. Direct IPv6 Connectivity Test  */
-    if (pinfo->destport == 0x0dd8 && icmp6_type == ICMP6_ECHO_REQUEST) {
+    /* RFC 4380
+     * 2.7.   Teredo UDP Port
+     * 5.2.9. Direct IPv6 Connectivity Test  */
+    if (pinfo->destport == 3544 && icmp6_type == ICMP6_ECHO_REQUEST) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
         col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
     }
 
     if (tree) {
-
-        if(code_name)
-        {
+        if (code_name)
             proto_item_append_text(code_item, " (%s)", code_name);
-        }
-
-        /* Checksum */
         checksum_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_checksum, tvb, offset, 2, FALSE);
+    }
 
-        cksum = tvb_get_ntohs(tvb, offset);
+    cksum = tvb_get_ntohs(tvb, offset);
+
+    if (tree) {
         length = tvb_length(tvb);
         reported_length = tvb_reported_length(tvb);
         if (!pinfo->fragmented && length >= reported_length) {
@@ -2938,9 +3078,66 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
             }
         }
+    }
+    offset += 2;
 
-        offset +=2;
+    if (icmp6_type == ICMP6_ECHO_REQUEST || icmp6_type == ICMP6_ECHO_REPLY) {
+        guint16 identifier, sequence;
 
+        /* Identifier */
+        if (tree)
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2, FALSE);
+        identifier = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+
+        /* Sequence Number */
+        if (tree)
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_sequence_number, tvb, offset, 2, FALSE);
+        sequence = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u", identifier, sequence);
+
+        if (pinfo->destport == 3544 && icmp6_type == ICMP6_ECHO_REQUEST) {
+            /* RFC 4380
+             * 2.7.   Teredo UDP Port
+             * 5.2.9. Direct IPv6 Connectivity Test
+             *
+             * TODO: Clarify the nonce:  The RFC states, "(It is recommended to
+             * use a random number [the nonce] at least 64 bits long.)"
+             *
+             * Shouldn't the nonce be at least 8 then?  Why not just use (-1),
+             * as it could really be any length, couldn't it?
+             */
+            if (tree)
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, FALSE);
+            offset += 4;
+        } else {
+            if (!pinfo->in_error_pkt) {
+                guint32 conv_key[2];
+
+                conv_key[1] = (guint32)((identifier << 16) | sequence);
+
+                if (icmp6_type == ICMP6_ECHO_REQUEST) {
+                    conv_key[0] = (guint32)cksum;
+                    trans = transaction_start(pinfo, icmp6_tree, conv_key);
+                } else { /* ICMP6_ECHO_REPLY */
+                    guint16 tmp[2];
+
+                    tmp[0] = ~cksum;
+                    tmp[1] = ~0x0100; /* The difference between echo request & reply */
+                    cksum_vec[0].len = sizeof(tmp);
+                    cksum_vec[0].ptr = (guint8 *)tmp;
+                    conv_key[0] = in_cksum(cksum_vec, 1);
+                    trans = transaction_end(pinfo, icmp6_tree, conv_key);
+                }
+            }
+            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            call_dissector(data_handle, next_tvb, pinfo, icmp6_tree);
+        }
+    }
+
+    if (tree) {
         /* decode... */
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
@@ -2965,34 +3162,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
                 break;
-            case ICMP6_ECHO_REQUEST: /* Echo Request (128) */
-            case ICMP6_ECHO_REPLY:  /* Echo Reply (129) */
-            {
-                guint16 identifier, sequence;
-                /* Identifier */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2, FALSE);
-                identifier = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-
-                /* Sequence Number */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_sequence_number, tvb, offset, 2, FALSE);
-                sequence = tvb_get_ntohs(tvb, offset);
-                offset += 2;
-
-                col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u", identifier, sequence);
-
-                if (pinfo->destport == 0x0dd8 && icmp6_type == ICMP6_ECHO_REQUEST) {
-                    /* RFC 4380
-                     * 5.2.9. Direct IPv6 Connectivity Test
-                     */
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, FALSE);
-                    offset += 4;
-                } else {
-                    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-                    call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
-                }
+            case ICMP6_ECHO_REQUEST:    /* Echo Request (128) */
+            case ICMP6_ECHO_REPLY:      /* Echo Reply (129) */
+                /* Already handled above */
                 break;
-            }
             case ICMP6_MEMBERSHIP_QUERY: /* Multicast Listener Query (130) */
             case ICMP6_MEMBERSHIP_REPORT: /* Multicast Listener Report (131) */
             case ICMP6_MEMBERSHIP_REDUCTION: /* Multicast Listener Done (132) */
@@ -3390,6 +3563,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         } /* switch (icmp6_type) */
     } /* if (tree) */
+
+    if (trans)
+        tap_queue_packet(icmpv6_tap, pinfo, trans);
 }
 
 void
@@ -4397,6 +4573,17 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_targetdesc,
            { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
              "Opaque Data", HFILL }},
+
+        /* Conversation-related [generated] header fields */
+        { &hf_icmpv6_resp_in,
+            { "Response In", "icmpv6.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+              "The response to this request is in this frame", HFILL }},
+        { &hf_icmpv6_resp_to,
+            { "Response To", "icmpv6.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+              "This is the response to the request in this frame", HFILL }},
+        { &hf_icmpv6_resptime,
+            { "Response Time", "icmpv6.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+              "The time between the request and the response, in ms.", HFILL }}
     };
 
     static gint *ett[] = {
@@ -4443,6 +4630,7 @@ proto_register_icmpv6(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
+    icmpv6_tap = register_tap("icmpv6");
 }
 
 void

@@ -549,6 +549,7 @@ set(TSHARK_TAP_SRC
 	tap-h225rassrt.c
 	tap-httpstat.c
 	tap-icmpstat.c
+	tap-icmpv6stat.c
 	tap-iostat.c
 	tap-iousers.c
 	tap-mgcpstat.c
