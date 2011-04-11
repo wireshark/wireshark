@@ -958,7 +958,6 @@ static void
 dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_item *tlvi;
 	proto_tree *edp_tree = NULL;
 	proto_item *checksum_item;
 	proto_tree *checksum_tree;
@@ -1048,7 +1047,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Decode the individual TLVs */
 		while (offset < data_length && !last) {
 			if (data_length - offset < 4) {
-	                	tlvi = proto_tree_add_text(edp_tree, tvb, offset, 4,
+	                	proto_tree_add_text(edp_tree, tvb, offset, 4,
                     			"Too few bytes left for TLV: %u (< 4)",
 					data_length - offset);
 				offset += 4;
@@ -1058,7 +1057,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
-	                	tlvi = proto_tree_add_text(edp_tree, tvb, offset, 0,
+	                	proto_tree_add_text(edp_tree, tvb, offset, 0,
                     			"TLV with invalid length: %u", tlv_length);
 				last = TRUE;
 				break;
