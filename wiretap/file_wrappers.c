@@ -780,7 +780,7 @@ gzwfile_open(const char *path)
     GZWFILE_T state;
     int save_errno;
 
-    fd = open(path, O_BINARY|O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    fd = ws_open(path, O_BINARY|O_WRONLY|O_CREAT|O_TRUNC, 0666);
     if (fd == -1)
         return NULL;
     state = gzwfile_fdopen(fd);

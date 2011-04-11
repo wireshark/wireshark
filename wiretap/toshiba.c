@@ -150,8 +150,7 @@ static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
     /* We got an EOF. */
     *err = 0;
   } else {
-    /* We (presumably) got an error (there's no equivalent to "ferror()"
-       in zlib, alas, so we don't have a wrapper to check for an error). */
+    /* We got an error. */
     *err = file_error(wth->fh);
   }
   return -1;
