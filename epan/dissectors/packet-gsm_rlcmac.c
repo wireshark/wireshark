@@ -4780,12 +4780,12 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
   if (payload_type == PAYLOAD_TYPE_DATA)
   {
-    ti = proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: DATA (0), not implemented");
+    proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: DATA (0), not implemented");
     return;
   }
   else if (payload_type == PAYLOAD_TYPE_RESERVED)
   {
-    ti = proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: RESERVED (3)");
+    proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: RESERVED (3)");
     return;
   }
 
@@ -4904,12 +4904,12 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
   if (payload_type == PAYLOAD_TYPE_DATA)
   {
-    ti = proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: DATA (0), not implemented");
+    proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: DATA (0), not implemented");
     return;
   }
   else if (payload_type == PAYLOAD_TYPE_RESERVED)
   {
-    ti = proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: RESERVED (3)");
+    proto_tree_add_text(tree, tvb, 0, 1, "Payload Type: RESERVED (3)");
     return;
   }
   /* We can decode the message */
