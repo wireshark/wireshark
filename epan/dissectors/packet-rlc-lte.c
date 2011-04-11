@@ -1730,7 +1730,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* SO */
         segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
-        write_pdu_label_and_info(top_ti, NULL, pinfo, " SO=%u ", segmentOffset);
+        write_pdu_label_and_info(top_ti, am_header_ti, pinfo, " SO=%u ", segmentOffset);
         offset += 2;
     }
 
