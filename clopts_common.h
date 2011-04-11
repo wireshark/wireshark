@@ -30,10 +30,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 int get_natural_int(const char *string, const char *name);
-int get_positive_int(const char *string, const char *name);
 
-gint64 get_natural_int64(const char *string, const char *name);
-gint64 get_positive_int64(const char *string, const char *name);
+int get_positive_int(const char *string, const char *name);
 
 #ifdef __cplusplus
 }
