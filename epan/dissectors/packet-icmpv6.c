@@ -2970,9 +2970,9 @@ static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6_tree = NULL, *flag_tree = NULL;
-    proto_item *ti = NULL, *hidden_item, *checksum_item, *code_item = NULL, *ti_flag = NULL;
+    proto_item *ti = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
     const char *code_name = NULL;
-    guint length, reported_length;
+    guint length = 0, reported_length;
     vec_t cksum_vec[4];
     guint32 phdr[2];
     guint16 cksum, computed_cksum;
