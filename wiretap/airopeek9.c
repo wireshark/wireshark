@@ -142,9 +142,6 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 	    if (file_eof(wth->fh))
 		return 0;	/* EOF */
 	    else {
-		/* We (presumably) got an error (there's no equivalent to
-		   "ferror()" in zlib, alas, so we don't have a wrapper
-		   to check for an error). */
 		*err = file_error(wth->fh);
 		return -1;	/* error */
 	    }
