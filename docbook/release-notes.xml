@@ -32,20 +32,20 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-02.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-04.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            ?.
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+            The NFS dissector could crash on Windows.
+            <!-- This is due to Visual C++ not supporting C99. Do non-Windows, non-gcc Wireshark packages exist? -->
+            <!-- Fixed in trunk: r34115 -->
+            <!-- Fixed in trunk-1.4: r36570 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5209">Bug
+            5209</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
+          <para>Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
