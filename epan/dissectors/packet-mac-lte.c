@@ -165,8 +165,10 @@ static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
 
 static int hf_mac_lte_suspected_dl_retx_original_frame = -1;
+static int hf_mac_lte_suspected_dl_retx_time_since_previous_frame = -1;
 
 static int hf_mac_lte_ul_harq_resend_original_frame = -1;
+static int hf_mac_lte_ul_harq_resend_time_since_previous_frame = -1;
 
 static int hf_mac_lte_grant_answering_sr = -1;
 static int hf_mac_lte_failure_answering_sr = -1;
@@ -699,6 +701,7 @@ static GHashTable *mac_lte_dl_harq_hash = NULL;
 
 typedef struct DLHARQResult {
     guint       previousFrameNum;
+    guint       timeSincePreviousFrame;
 } DLHARQResult;
 
 
@@ -724,6 +727,7 @@ static GHashTable *mac_lte_ul_harq_hash = NULL;
 
 typedef struct ULHARQResult {
     guint       previousFrameNum;
+    guint       timeSincePreviousFrame;
 } ULHARQResult;
 
 
@@ -1662,6 +1666,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         /* Resend detected! Store result */
                         result = se_alloc(sizeof(DLHARQResult));
                         result->previousFrameNum = lastData->framenum;
+                        result->timeSincePreviousFrame = total_gap;
                         g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
                     }
                 }
@@ -1691,9 +1696,15 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
     /***************************************************/
     /* Show link back to original frame (if available) */
     if (result != NULL) {
+        proto_item *gap_ti;
         proto_item *original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_retx_original_frame,
                                                       tvb, 0, 0, result->previousFrameNum);
         PROTO_ITEM_SET_GENERATED(original_ti);
+
+        gap_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_retx_time_since_previous_frame,
+                                     tvb, 0, 0, result->timeSincePreviousFrame);
+        PROTO_ITEM_SET_GENERATED(gap_ti);
+
     }
 }
 
@@ -1767,6 +1778,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
                             result->previousFrameNum = lastData->framenum;
+                            result->timeSincePreviousFrame = total_gap;
                             g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
                         }
                     }
@@ -1795,11 +1807,15 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
     if (retx_ti != NULL) {
         if (result != NULL) {
-            proto_item *original_ti;
+            proto_item *original_ti, *gap_ti;
 
             original_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_original_frame,
                                               tvb, 0, 0, result->previousFrameNum);
             PROTO_ITEM_SET_GENERATED(original_ti);
+
+            gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_since_previous_frame,
+                                         tvb, 0, 0, result->timeSincePreviousFrame);
+            PROTO_ITEM_SET_GENERATED(gap_ti);
         }
         else {
             expert_add_info_format(pinfo, retx_ti, PI_SEQUENCE, PI_ERROR,
@@ -1971,7 +1987,8 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
            that the SR has failed */
         if (event == SR_Request) {
             expert_add_info_format(pinfo, event_ti, PI_SEQUENCE, PI_ERROR,
-                                  "SR results in neither a grant or a failure indication");
+                                   "UE %u: SR results in neither a grant nor a failure indication",
+                                   p_mac_lte_info->ueid);
         }
         return;
     }
@@ -2018,12 +2035,14 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
         case InvalidSREvent:
             ti = proto_tree_add_none_format(tree, hf_mac_lte_sr_invalid_event,
-                                            tvb, 0, 0, "Invalid SR event - state=%s, event=%s",
+                                            tvb, 0, 0, "UE %u: Invalid SR event - state=%s, event=%s",
+                                            p_mac_lte_info->ueid,
                                             val_to_str_const(result->status, sr_status_vals, "Unknown"),
                                             val_to_str_const(result->event,  sr_event_vals,  "Unknown"));
             PROTO_ITEM_SET_GENERATED(ti);
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                   "Invalid SR event for UE %u (C-RNTI %u) - state=%s, event=%s",
+                                   "UE %u: Invalid SR event for UE %u (C-RNTI %u) - state=%s, event=%s",
+                                   p_mac_lte_info->ueid,
                                    p_mac_lte_info->ueid,
                                    p_mac_lte_info->rnti,
                                    val_to_str_const(result->status, sr_status_vals, "Unknown"),
@@ -2034,6 +2053,32 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 }
 
 
+/********************************************************/
+/* Count number of UEs/TTI (in both directions)         */
+/********************************************************/
+
+typedef struct tti_info_t {
+    guint16 subframe;
+    nstime_t ttiStartTime;
+    guint ues_in_tti;
+} tti_info_t;
+    
+static tti_info_t UL_tti_info;
+static tti_info_t DL_tti_info;
+
+static void count_ues_tti(mac_lte_info *p_mac_lte_info, nstime_t time _U_)
+{
+    /* Set tti_info based upon direction */
+    tti_info_t *tti_info;
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        tti_info = &UL_tti_info;
+    }
+    else {
+        tti_info = &DL_tti_info;
+    }
+
+    /* TOO: Work out if we are still in the same tti as before */
+}
 
 
 
@@ -2066,6 +2111,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
     volatile   guint32    is_truncated = FALSE;
+
+   /* Maintain UEs/TTI count */
+    count_ues_tti(p_mac_lte_info, pinfo->fd->abs_ts);
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "%s: (SF=%u) UEId=%-3u ",
@@ -3925,6 +3973,13 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_lte_suspected_dl_retx_time_since_previous_frame,
+            { "Time since previous tx (ms)",
+              "mac-lte.dlsch.retx.time-since-previous", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
 
         { &hf_mac_lte_ul_harq_resend_original_frame,
             { "Frame with previous tx",
@@ -3932,6 +3987,13 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_lte_ul_harq_resend_time_since_previous_frame,
+            { "Time since previous tx (ms)",
+              "mac-lte.ulsch.retx.time-since-previous", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
 
         { &hf_mac_lte_grant_answering_sr,
             { "First Grant Following SR from",
