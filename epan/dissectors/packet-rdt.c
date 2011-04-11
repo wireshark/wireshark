@@ -560,7 +560,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Create subtree for flags fields */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_rdt, tvb, offset, -1, FALSE);
+        proto_tree_add_item(tree, proto_rdt, tvb, offset, -1, FALSE);
         ti =  proto_tree_add_string_format(tree, hf_rdt_aact_flags, tvb, offset, 1,
                                            "",
                                            "Length-included=%u, stream_id=%u",
