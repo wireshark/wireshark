@@ -5,7 +5,7 @@
 
 /* Input file: packet-ldap-template.h */
 
-#line 1 "packet-ldap-template.h"
+#line 1 "../../asn1/ldap/packet-ldap-template.h"
 /* packet-ldap.h
  * Routines for ros packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

@@ -5,7 +5,7 @@
 
 /* Input file: packet-tetra-template.h */
 
-#line 1 "packet-tetra-template.h"
+#line 1 "../../asn1/tetra/packet-tetra-template.h"
 /* packet-tetra.h
  * Routines for TETRA packet dissection
  *

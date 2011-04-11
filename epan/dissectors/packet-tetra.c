@@ -5,7 +5,7 @@
 
 /* Input file: packet-tetra-template.c */
 
-#line 1 "packet-tetra-template.c"
+#line 1 "../../asn1/tetra/packet-tetra-template.c"
 /* packet-tetra.c
  * Routines for TETRA packet dissection
  *
@@ -92,7 +92,7 @@ static gint hf_tetra_bits = -1;
 
 
 /*--- Included file: packet-tetra-hf.c ---*/
-#line 1 "packet-tetra-hf.c"
+#line 1 "../../asn1/tetra/packet-tetra-hf.c"
 static int hf_tetra_AACH_PDU = -1;                /* AACH */
 static int hf_tetra_BSCH_PDU = -1;                /* BSCH */
 static int hf_tetra_BNCH_PDU = -1;                /* BNCH */
@@ -695,7 +695,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 86 "packet-tetra-template.c"
+#line 86 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -707,7 +707,7 @@ static gint ett_tetra_text = -1;
 
 
 /*--- Included file: packet-tetra-ett.c ---*/
-#line 1 "packet-tetra-ett.c"
+#line 1 "../../asn1/tetra/packet-tetra-ett.c"
 static gint ett_tetra_AACH = -1;
 static gint ett_tetra_BSCH = -1;
 static gint ett_tetra_MLE_Sync = -1;
@@ -982,11 +982,11 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 96 "packet-tetra-template.c"
+#line 96 "../../asn1/tetra/packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
-#line 1 "packet-tetra-fn.c"
+#line 1 "../../asn1/tetra/packet-tetra-fn.c"
 
 
 static int
@@ -2529,7 +2529,7 @@ static const per_sequence_t U_LOCATION_UPDATE_DEMAND_sequence[] = {
 
 int
 dissect_tetra_U_LOCATION_UPDATE_DEMAND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "tetra.cnf"
+#line 101 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_LOCATION_UPDATE_DEMAND, U_LOCATION_UPDATE_DEMAND_sequence);
 
@@ -2566,7 +2566,7 @@ static const per_sequence_t U_MM_STATUS_sequence[] = {
 
 int
 dissect_tetra_U_MM_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 288 "tetra.cnf"
+#line 288 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_MM_STATUS, U_MM_STATUS_sequence);
 
@@ -2795,7 +2795,7 @@ static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
 
 int
 dissect_tetra_U_ATTACH_DETACH_GROUP_IDENTITY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 302 "tetra.cnf"
+#line 302 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY, U_ATTACH_DETACH_GROUP_IDENTITY_sequence);
 
@@ -2892,7 +2892,7 @@ static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
 
 int
 dissect_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "tetra.cnf"
+#line 309 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK, U_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence);
 
@@ -3186,7 +3186,7 @@ static const per_sequence_t U_ALERT_sequence[] = {
 
 int
 dissect_tetra_U_ALERT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "tetra.cnf"
+#line 217 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ALERT, U_ALERT_sequence);
 
@@ -3306,7 +3306,7 @@ static const per_sequence_t U_CONNECT_sequence[] = {
 
 int
 dissect_tetra_U_CONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 224 "tetra.cnf"
+#line 224 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_CONNECT, U_CONNECT_sequence);
 
@@ -3396,7 +3396,7 @@ static const per_sequence_t U_DISCONNECT_sequence[] = {
 
 int
 dissect_tetra_U_DISCONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "tetra.cnf"
+#line 231 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_DISCONNECT, U_DISCONNECT_sequence);
 
@@ -3432,7 +3432,7 @@ static const per_sequence_t U_RELEASE_sequence[] = {
 
 int
 dissect_tetra_U_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "tetra.cnf"
+#line 70 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_RELEASE, U_RELEASE_sequence);
 
@@ -3611,7 +3611,7 @@ static const per_sequence_t U_SETUP_sequence[] = {
 
 int
 dissect_tetra_U_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 245 "tetra.cnf"
+#line 245 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_SETUP, U_SETUP_sequence);
 
@@ -3669,7 +3669,7 @@ static const per_sequence_t U_STATUS_sequence[] = {
 
 int
 dissect_tetra_U_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "tetra.cnf"
+#line 252 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_STATUS, U_STATUS_sequence);
 
@@ -3748,7 +3748,7 @@ static const per_sequence_t U_TX_CEASED_sequence[] = {
 
 int
 dissect_tetra_U_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 280 "tetra.cnf"
+#line 280 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_TX_CEASED, U_TX_CEASED_sequence);
 
@@ -3830,7 +3830,7 @@ static const per_sequence_t U_TX_DEMAND_sequence[] = {
 
 int
 dissect_tetra_U_TX_DEMAND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 273 "tetra.cnf"
+#line 273 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_TX_DEMAND, U_TX_DEMAND_sequence);
 
@@ -3921,7 +3921,7 @@ static const per_sequence_t U_CALL_RESTORE_sequence[] = {
 
 int
 dissect_tetra_U_CALL_RESTORE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 266 "tetra.cnf"
+#line 266 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_CALL_RESTORE, U_CALL_RESTORE_sequence);
 
@@ -4015,7 +4015,7 @@ static const per_sequence_t U_SDS_DATA_sequence[] = {
 
 int
 dissect_tetra_U_SDS_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "tetra.cnf"
+#line 259 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_SDS_DATA, U_SDS_DATA_sequence);
 
@@ -6135,7 +6135,7 @@ static const per_sequence_t D_LOCATION_UPDATE_ACCEPT_sequence[] = {
 
 int
 dissect_tetra_D_LOCATION_UPDATE_ACCEPT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "tetra.cnf"
+#line 109 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_LOCATION_UPDATE_ACCEPT, D_LOCATION_UPDATE_ACCEPT_sequence);
 
@@ -6157,7 +6157,7 @@ static const per_sequence_t D_LOCATION_UPDATE_REJECT_sequence[] = {
 
 int
 dissect_tetra_D_LOCATION_UPDATE_REJECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 316 "tetra.cnf"
+#line 316 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_LOCATION_UPDATE_REJECT, D_LOCATION_UPDATE_REJECT_sequence);
 
@@ -6378,7 +6378,7 @@ static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
 
 int
 dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 323 "tetra.cnf"
+#line 323 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY, D_ATTACH_DETACH_GROUP_IDENTITY_sequence);
 
@@ -6475,7 +6475,7 @@ static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
 
 int
 dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 330 "tetra.cnf"
+#line 330 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK, D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence);
 
@@ -6495,7 +6495,7 @@ static const per_sequence_t D_MM_STATUS_sequence[] = {
 
 int
 dissect_tetra_D_MM_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 295 "tetra.cnf"
+#line 295 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_MM_STATUS, D_MM_STATUS_sequence);
 
@@ -6690,7 +6690,7 @@ static const per_sequence_t D_ALERT_sequence[] = {
 
 int
 dissect_tetra_D_ALERT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 152 "tetra.cnf"
+#line 152 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ALERT, D_ALERT_sequence);
 
@@ -6841,7 +6841,7 @@ static const per_sequence_t D_CALL_PROCEEDING_sequence[] = {
 
 int
 dissect_tetra_D_CALL_PROCEEDING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "tetra.cnf"
+#line 86 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CALL_PROCEEDING, D_CALL_PROCEEDING_sequence);
 
@@ -7034,7 +7034,7 @@ static const per_sequence_t D_CONNECT_sequence[] = {
 
 int
 dissect_tetra_D_CONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "tetra.cnf"
+#line 117 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CONNECT, D_CONNECT_sequence);
 
@@ -7139,7 +7139,7 @@ static const per_sequence_t D_CONNECT_ACK_sequence[] = {
 
 int
 dissect_tetra_D_CONNECT_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 131 "tetra.cnf"
+#line 131 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CONNECT_ACK, D_CONNECT_ACK_sequence);
 
@@ -7160,7 +7160,7 @@ static const per_sequence_t D_DISCONNECT_sequence[] = {
 
 int
 dissect_tetra_D_DISCONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 145 "tetra.cnf"
+#line 145 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_DISCONNECT, D_DISCONNECT_sequence);
 
@@ -7182,7 +7182,7 @@ static const per_sequence_t D_INFO_sequence[] = {
 
 int
 dissect_tetra_D_INFO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 138 "tetra.cnf"
+#line 138 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_INFO, D_INFO_sequence);
 
@@ -7285,7 +7285,7 @@ static const per_sequence_t D_RELEASE_sequence[] = {
 
 int
 dissect_tetra_D_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "tetra.cnf"
+#line 77 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_RELEASE, D_RELEASE_sequence);
 
@@ -7439,7 +7439,7 @@ static const per_sequence_t D_SETUP_sequence[] = {
 
 int
 dissect_tetra_D_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "tetra.cnf"
+#line 93 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_SETUP, D_SETUP_sequence);
 
@@ -7496,7 +7496,7 @@ static const per_sequence_t D_STATUS_sequence[] = {
 
 int
 dissect_tetra_D_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 167 "tetra.cnf"
+#line 167 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_STATUS, D_STATUS_sequence);
 
@@ -7599,7 +7599,7 @@ static const per_sequence_t D_TX_CEASED_sequence[] = {
 
 int
 dissect_tetra_D_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "tetra.cnf"
+#line 159 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_CEASED, D_TX_CEASED_sequence);
 
@@ -7621,7 +7621,7 @@ static const per_sequence_t D_TX_CONTINUE_sequence[] = {
 
 int
 dissect_tetra_D_TX_CONTINUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "tetra.cnf"
+#line 174 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_CONTINUE, D_TX_CONTINUE_sequence);
 
@@ -7645,7 +7645,7 @@ static const per_sequence_t D_TX_GRANTED_sequence[] = {
 
 int
 dissect_tetra_D_TX_GRANTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 181 "tetra.cnf"
+#line 181 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_GRANTED, D_TX_GRANTED_sequence);
 
@@ -7666,7 +7666,7 @@ static const per_sequence_t D_TX_WAIT_sequence[] = {
 
 int
 dissect_tetra_D_TX_WAIT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 188 "tetra.cnf"
+#line 188 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
 
@@ -7900,7 +7900,7 @@ static const per_sequence_t D_CALL_RESTORE_sequence[] = {
 
 int
 dissect_tetra_D_CALL_RESTORE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 195 "tetra.cnf"
+#line 195 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CALL_RESTORE, D_CALL_RESTORE_sequence);
 
@@ -7983,7 +7983,7 @@ static const per_sequence_t D_SDS_DATA_sequence[] = {
 
 int
 dissect_tetra_D_SDS_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 202 "tetra.cnf"
+#line 202 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_SDS_DATA, D_SDS_DATA_sequence);
 
@@ -8906,7 +8906,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 98 "packet-tetra-template.c"
+#line 98 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -9417,7 +9417,7 @@ void proto_register_tetra (void)
 
 
 /*--- Included file: packet-tetra-hfarr.c ---*/
-#line 1 "packet-tetra-hfarr.c"
+#line 1 "../../asn1/tetra/packet-tetra-hfarr.c"
     { &hf_tetra_AACH_PDU,
       { "AACH", "tetra.AACH",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11820,7 +11820,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 607 "packet-tetra-template.c"
+#line 607 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11832,7 +11832,7 @@ void proto_register_tetra (void)
 		&ett_tetra_text,
 
 /*--- Included file: packet-tetra-ettarr.c ---*/
-#line 1 "packet-tetra-ettarr.c"
+#line 1 "../../asn1/tetra/packet-tetra-ettarr.c"
     &ett_tetra_AACH,
     &ett_tetra_BSCH,
     &ett_tetra_MLE_Sync,
@@ -12107,7 +12107,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 617 "packet-tetra-template.c"
+#line 617 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */

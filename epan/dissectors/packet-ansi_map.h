@@ -5,7 +5,7 @@
 
 /* Input file: packet-ansi_map-template.h */
 
-#line 1 "packet-ansi_map-template.h"
+#line 1 "../../asn1/ansi_map/packet-ansi_map-template.h"
 /* packet-ansi_map.h
  * Routines for ansi_map packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
