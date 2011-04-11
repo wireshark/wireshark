@@ -736,6 +736,7 @@ proto_check_field_name
 proto_construct_match_selected_string
 proto_data                      DATA
 proto_enable_all
+proto_field_is_referenced
 proto_find_field_from_offset
 proto_find_finfo
 proto_frame                     DATA
