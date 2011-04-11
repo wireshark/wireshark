@@ -74,3 +74,50 @@ get_positive_int(const char *string, const char *name)
 
   return number;
 }
+
+gint64
+get_natural_int64(const char *string, const char *name)
+{
+  gint64 number;
+  char *p;
+
+#if GLIB_CHECK_VERSION(2,12,0)
+  number = g_ascii_strtoll(string, &p, 10);
+#elif defined(HAVE_STRTOLL)
+  number = strtoll(string, &p, 10);
+#else
+  /* Punt and grab a 32-bit value */
+  number = strtol(string, &p, 10);
+#endif
+
+  if (p == string || *p != '\0') {
+    cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
+    exit(1);
+  }
+  if (number < 0) {
+    cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
+    exit(1);
+  }
+  if (number > G_MAXINT64) { /* XXX - ??? */
+    cmdarg_err("The specified %s \"%s\" is too large (greater than %" G_GINT64_MODIFIER "d)",
+	       name, string, G_MAXINT64);
+    exit(1);
+  }
+  return number;
+}
+
+
+gint64
+get_positive_int64(const char *string, const char *name)
+{
+  gint64 number;
+
+  number = get_natural_int64(string, name);
+
+  if (number == 0) {
+    cmdarg_err("The specified %s is zero", name);
+    exit(1);
+  }
+
+  return number;
+}

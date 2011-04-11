@@ -172,7 +172,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
     g_log(log_domain, log_level, "AutostopFiles   (%u): %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u): %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
-    g_log(log_domain, log_level, "AutostopFilesize(%u): %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
+    g_log(log_domain, log_level, "AutostopFilesize(%u): %" G_GINT64_MODIFIER "d (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     g_log(log_domain, log_level, "AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 
     g_log(log_domain, log_level, "ForkChild          : %d", capture_opts->fork_child);
@@ -220,7 +220,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
+    capture_opts->autostop_filesize = get_positive_int64(p,"autostop filesize");
   } else if (strcmp(autostoparg,"files") == 0) {
     capture_opts->multi_files_on = TRUE;
     capture_opts->has_autostop_files = TRUE;
@@ -272,7 +272,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     capture_opts->ring_num_files = get_positive_int(p, "number of ring buffer files");
   } else if (strcmp(arg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(p, "ring buffer filesize");
+    capture_opts->autostop_filesize = get_positive_int64(p, "ring buffer filesize");
   } else if (strcmp(arg,"duration") == 0) {
     capture_opts->has_file_duration = TRUE;
     capture_opts->file_duration = get_positive_int(p, "ring buffer duration");

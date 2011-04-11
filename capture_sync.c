@@ -391,7 +391,7 @@ sync_pipe_start(capture_options *capture_opts) {
     if(capture_opts->multi_files_on) {
       if (capture_opts->has_autostop_filesize) {
         argv = sync_pipe_add_arg(argv, &argc, "-b");
-        g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
+        g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%" G_GINT64_MODIFIER "d",capture_opts->autostop_filesize);
         argv = sync_pipe_add_arg(argv, &argc, sfilesize);
       }
 
@@ -415,7 +415,7 @@ sync_pipe_start(capture_options *capture_opts) {
     } else {
         if (capture_opts->has_autostop_filesize) {
           argv = sync_pipe_add_arg(argv, &argc, "-a");
-          g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
+          g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%" G_GINT64_MODIFIER "d",capture_opts->autostop_filesize);
           argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
         }
     }
