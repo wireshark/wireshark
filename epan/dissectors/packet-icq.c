@@ -37,9 +37,6 @@
 #include <stddef.h>
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -786,7 +783,7 @@ icqv5_cmd_rand_search(proto_tree* tree, /* Tree to put the data in */
 
     if (tree){
 	if (size < 4) {
-	    ti = proto_tree_add_text(tree, tvb, offset, size,
+	    proto_tree_add_text(tree, tvb, offset, size,
 				     "Body (%d bytes, should be 4)", size);
 	    return;
 	}
@@ -922,7 +919,7 @@ icqv5_cmd_send_msg(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 
     if (tree) {
 	if (size < 4) {
-	    ti = proto_tree_add_text(tree, tvb, offset, size,
+	    proto_tree_add_text(tree, tvb, offset, size,
 				     "Body (%d bytes, should be >= 4)", size);
 	    return;
 	}
@@ -1050,7 +1047,7 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 
     if (tree) {
 	if (size < SRV_LOGIN_REPLY_IP + 8) {
-	    ti = proto_tree_add_text(tree, tvb, offset, size,
+	    proto_tree_add_text(tree, tvb, offset, size,
 				     "Body (%d bytes, should be %d)", size,
 				     SRV_LOGIN_REPLY_IP + 8);
 	    return;
@@ -1075,7 +1072,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 
     if (tree) {
 	if (size < SRV_LOGIN_REPLY_IP + 8) {
-	    ti = proto_tree_add_text(tree, tvb, offset, size,
+	    proto_tree_add_text(tree, tvb, offset, size,
 				     "Body (%d bytes, should be %d)", size,
 				     SRV_LOGIN_REPLY_IP + 8);
 	    return;
@@ -1118,7 +1115,7 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
 
     if (tree) {
 	if (size < SRV_USER_OFFLINE_UIN + 4) {
-	    ti = proto_tree_add_text(tree, tvb, offset, size,
+	    proto_tree_add_text(tree, tvb, offset, size,
 				     "Body (%d bytes, should be %d)", size,
 				     SRV_USER_OFFLINE_UIN + 4);
 	    return;
