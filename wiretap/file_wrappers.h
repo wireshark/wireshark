@@ -37,5 +37,15 @@ extern char *file_gets(char *buf, int len, FILE_T stream);
 extern int file_eof(FILE_T stream);
 extern void file_clearerr(FILE_T stream);
 
+#ifdef HAVE_LIBZ
+typedef struct wtap_writer *GZWFILE_T;
+
+extern GZWFILE_T gzwfile_open(const char *path);
+extern GZWFILE_T gzwfile_fdopen(int fd);
+extern unsigned gzwfile_write(GZWFILE_T state, const void *buf, unsigned len);
+extern int gzwfile_flush(GZWFILE_T state);
+extern int gzwfile_close(GZWFILE_T state);
+extern int gzwfile_geterr(GZWFILE_T state);
+#endif /* HAVE_LIBZ */
 
 #endif /* __FILE_H__ */

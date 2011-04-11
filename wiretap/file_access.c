@@ -949,7 +949,7 @@ void wtap_dump_flush(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		gzflush((gzFile)wdh->fh, Z_SYNC_FLUSH);	/* XXX - is Z_SYNC_FLUSH the right one? */
+		gzwfile_flush((GZWFILE_T)wdh->fh);
 	} else
 #endif
 	{
@@ -1013,7 +1013,7 @@ gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo
 static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
 	if(wdh->compressed) {
-		return gzopen(filename, "wb");
+		return gzwfile_open(filename);
 	} else {
 		return ws_fopen(filename, "wb");
 	}
@@ -1030,7 +1030,7 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
 	if(wdh->compressed) {
-		return gzdopen(fd, "wb");
+		return gzwfile_fdopen(fd);
 	} else {
 		return fdopen(fd, "wb");
 	}
@@ -1047,29 +1047,15 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 		     int *err)
 {
 	size_t nwritten;
-#ifdef HAVE_LIBZ
-	int errnum;
-#endif
 
 #ifdef HAVE_LIBZ
 	if (wdh->compressed) {
-		nwritten = gzwrite((gzFile)wdh->fh, buf, (unsigned) bufsize);
+		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned) bufsize);
 		/*
-		 * At least according to zlib.h, gzwrite returns 0
-		 * on error; that appears to be the case in libz
-		 * 1.2.5.
+		 * gzwfile_write() returns 0 on error.
 		 */
 		if (nwritten == 0) {
-			gzerror((gzFile)wdh->fh, &errnum);
-			if (errnum == Z_ERRNO)
-				*err = errno;
-			else {
-				/*
-				 * XXX - what to do with this zlib-specific
-				 * number?
-				 */
-				*err = errnum;
-			}
+			*err = gzwfile_geterr((GZWFILE_T)wdh->fh);
 			return FALSE;
 		}
 	} else
@@ -1096,7 +1082,7 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		return gzclose((gzFile)wdh->fh);
+		return gzwfile_close((GZWFILE_T)wdh->fh);
 	} else
 #endif
 	{

@@ -756,3 +756,268 @@ file_close(FILE_T file)
 	return close(fd);
 }
 
+#ifdef HAVE_LIBZ
+/* internal gzip file state data structure for writing */
+struct wtap_writer {
+    int fd;                 /* file descriptor */
+    gint64 pos;             /* current position in uncompressed data */
+    unsigned size;          /* buffer size, zero if not allocated yet */
+    unsigned want;          /* requested buffer size, default is GZBUFSIZE */
+    unsigned char *in;      /* input buffer */
+    unsigned char *out;     /* output buffer (double-sized when reading) */
+    unsigned char *next;    /* next output data to deliver or write */
+    int level;              /* compression level */
+    int strategy;           /* compression strategy */
+    int err;                /* error code */
+	/* zlib deflate stream */
+    z_stream strm;          /* stream structure in-place (not a pointer) */
+};
+
+GZWFILE_T
+gzwfile_open(const char *path)
+{
+    int fd;
+    GZWFILE_T state;
+    int save_errno;
+
+    fd = open(path, O_BINARY|O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    if (fd == -1)
+        return NULL;
+    state = gzwfile_fdopen(fd);
+    if (state == NULL) {
+    	save_errno = errno;
+        close(fd);
+        save_errno = errno;
+    }
+    return state;
+}
+
+GZWFILE_T
+gzwfile_fdopen(int fd)
+{
+    GZWFILE_T state;
+
+    /* allocate wtap_writer structure to return */
+    state = g_try_malloc(sizeof *state);
+    if (state == NULL)
+        return NULL;
+    state->fd = fd;
+    state->size = 0;            /* no buffers allocated yet */
+    state->want = GZBUFSIZE;    /* requested buffer size */
+
+    state->level = Z_DEFAULT_COMPRESSION;
+    state->strategy = Z_DEFAULT_STRATEGY;
+
+    /* initialize stream */
+    state->err = Z_OK;              /* clear error */
+    state->pos = 0;                 /* no uncompressed data yet */
+    state->strm.avail_in = 0;       /* no input data yet */
+
+    /* return stream */
+    return state;
+}
+
+/* Initialize state for writing a gzip file.  Mark initialization by setting
+   state->size to non-zero.  Return -1, and set state->err, on failure;
+   return 0 on success. */
+static int
+gz_init(GZWFILE_T state)
+{
+    int ret;
+    z_streamp strm = &(state->strm);
+
+    /* allocate input and output buffers */
+    state->in = g_try_malloc(state->want);
+    state->out = g_try_malloc(state->want);
+    if (state->in == NULL || state->out == NULL) {
+        if (state->out != NULL)
+            g_free(state->out);
+        if (state->in != NULL)
+            g_free(state->in);
+        state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
+        return -1;
+    }
+
+    /* allocate deflate memory, set up for gzip compression */
+    strm->zalloc = Z_NULL;
+    strm->zfree = Z_NULL;
+    strm->opaque = Z_NULL;
+    ret = deflateInit2(strm, state->level, Z_DEFLATED,
+                       15 + 16, 8, state->strategy);
+    if (ret != Z_OK) {
+        g_free(state->in);
+        state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
+        return -1;
+    }
+
+    /* mark state as initialized */
+    state->size = state->want;
+
+    /* initialize write buffer */
+    strm->avail_out = state->size;
+    strm->next_out = state->out;
+    state->next = strm->next_out;
+    return 0;
+}
+
+/* Compress whatever is at avail_in and next_in and write to the output file.
+   Return -1, and set state->err, if there is an error writing to the output
+   file; return 0 on success.
+   flush is assumed to be a valid deflate() flush value.  If flush is Z_FINISH,
+   then the deflate() state is reset to start a new gzip stream. */
+static int
+gz_comp(GZWFILE_T state, int flush)
+{
+    int ret, got;
+    unsigned have;
+    z_streamp strm = &(state->strm);
+
+    /* allocate memory if this is the first time through */
+    if (state->size == 0 && gz_init(state) == -1)
+        return -1;
+
+    /* run deflate() on provided input until it produces no more output */
+    ret = Z_OK;
+    do {
+        /* write out current buffer contents if full, or if flushing, but if
+           doing Z_FINISH then don't write until we get to Z_STREAM_END */
+        if (strm->avail_out == 0 || (flush != Z_NO_FLUSH &&
+            (flush != Z_FINISH || ret == Z_STREAM_END))) {
+            have = (unsigned)(strm->next_out - state->next);
+            if (have) {
+		got = write(state->fd, state->next, have);
+		if (got < 0) {
+                    state->err = errno;
+                    return -1;
+                }
+                if ((unsigned)got != have) {
+                    state->err = WTAP_ERR_SHORT_WRITE;
+                    return -1;
+                }
+            }
+            if (strm->avail_out == 0) {
+                strm->avail_out = state->size;
+                strm->next_out = state->out;
+            }
+            state->next = strm->next_out;
+        }
+
+        /* compress */
+        have = strm->avail_out;
+        ret = deflate(strm, flush);
+        if (ret == Z_STREAM_ERROR) {
+            state->err = WTAP_ERR_ZLIB + Z_STREAM_ERROR;
+            return -1;
+        }
+        have -= strm->avail_out;
+    } while (have);
+
+    /* if that completed a deflate stream, allow another to start */
+    if (flush == Z_FINISH)
+        deflateReset(strm);
+
+    /* all done, no errors */
+    return 0;
+}
+
+/* Write out len bytes from buf.  Return 0, and set state->err, on
+   failure or on an attempt to write 0 bytes (in which case state->err
+   is Z_OK); return the number of bytes written on success. */
+unsigned
+gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
+{
+    unsigned put = len;
+    unsigned n;
+    z_streamp strm;
+
+    strm = &(state->strm);
+
+    /* check that there's no error */
+    if (state->err != Z_OK)
+        return 0;
+
+    /* if len is zero, avoid unnecessary operations */
+    if (len == 0)
+        return 0;
+
+    /* allocate memory if this is the first time through */
+    if (state->size == 0 && gz_init(state) == -1)
+        return 0;
+
+    /* for small len, copy to input buffer, otherwise compress directly */
+    if (len < state->size) {
+        /* copy to input buffer, compress when full */
+        do {
+            if (strm->avail_in == 0)
+                strm->next_in = state->in;
+            n = state->size - strm->avail_in;
+            if (n > len)
+                n = len;
+            memcpy(strm->next_in + strm->avail_in, buf, n);
+            strm->avail_in += n;
+            state->pos += n;
+            buf = (char *)buf + n;
+            len -= n;
+            if (len && gz_comp(state, Z_NO_FLUSH) == -1)
+                return 0;
+        } while (len);
+    }
+    else {
+        /* consume whatever's left in the input buffer */
+        if (strm->avail_in && gz_comp(state, Z_NO_FLUSH) == -1)
+            return 0;
+
+        /* directly compress user buffer to file */
+        strm->avail_in = len;
+        strm->next_in = (voidp)buf;
+        state->pos += len;
+        if (gz_comp(state, Z_NO_FLUSH) == -1)
+            return 0;
+    }
+
+    /* input was all buffered or compressed (put will fit in int) */
+    return (int)put;
+}
+
+/* Flush out what we've written so far.  Returns -1, and sets state->err,
+   on failure; returns 0 on success. */
+int
+gzwfile_flush(GZWFILE_T state)
+{
+    /* check that there's no error */
+    if (state->err != Z_OK)
+        return -1;
+
+    /* compress remaining data with Z_SYNC_FLUSH */
+    gz_comp(state, Z_SYNC_FLUSH);
+    if (state->err != Z_OK)
+        return -1;
+    return 0;
+}
+
+/* Flush out all data written, and close the file.  Returns a Wiretap
+   error on failure; returns 0 on success. */
+int
+gzwfile_close(GZWFILE_T state)
+{
+    int ret = 0;
+
+    /* flush, free memory, and close file */
+    if (gz_comp(state, Z_FINISH) == -1 && ret == 0)
+        ret = state->err;
+    (void)deflateEnd(&(state->strm));
+    g_free(state->out);
+    g_free(state->in);
+    state->err = Z_OK;
+    if (close(state->fd) == -1 && ret == 0)
+        ret = errno;
+    g_free(state);
+    return ret;
+}
+
+int
+gzwfile_geterr(GZWFILE_T state)
+{
+    return state->err;
+}
+#endif
