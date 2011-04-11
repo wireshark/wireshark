@@ -825,7 +825,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	int			optoff, optleft, optend;
 	guint32			time_u_secs;
 	gint32			time_s_secs;
-	proto_tree		*v_tree, *ft;
+	proto_tree		*v_tree;
 	proto_item		*vti;
 	guint8			protocol;
 	guint8			algorithm;
@@ -1391,7 +1391,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			break;
 		}
 		fqdn_flags = tvb_get_guint8(tvb, optoff);
-		ft = proto_tree_add_text(v_tree, tvb, optoff, 1, "Flags: 0x%02x", fqdn_flags);
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Flags: 0x%02x", fqdn_flags);
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_mbz, tvb, optoff, 1, FALSE);
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_n, tvb, optoff, 1, FALSE);
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_e, tvb, optoff, 1, FALSE);
