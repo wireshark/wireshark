@@ -917,6 +917,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
           request_seen(pinfo);
         }
+	/* FALLTHRU */
       case ARPOP_REPLY:
       default:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
