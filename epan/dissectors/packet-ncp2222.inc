@@ -3646,6 +3646,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         case 7: /* Count */
         default:
             value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
+            /* XXX: nestree rather than estree ?? */
             proto_tree_add_item(estree, hf_es_value, tvb, ioffset,
                                 4, value1);
             ioffset = ioffset + 4;
@@ -3665,7 +3666,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         {
         case 0: /* No Specifier Type */
             value2 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-            proto_tree_add_item(estree, hf_es_value, tvb, ioffset,
+            proto_tree_add_item(nestree, hf_es_value, tvb, ioffset,
                                 4, value2);
             ioffset = ioffset + 4;
             break;
@@ -3673,14 +3674,14 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
                                          value2, values->vstring, "Delimiter ->%s", values->vstring);
             ioffset=ioffset + value2;
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
                                   value3, values->vstring);
             values->voffset=ioffset + value3;
             ioffset = values->voffset;
@@ -3692,36 +3693,36 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             break;
         case 4: /* Tuned */
             value2 = tvb_get_letohl(tvb, ioffset);   /* Count */
-            proto_tree_add_item(estree, hf_es_rdn_count, tvb, ioffset,
+            proto_tree_add_item(nestree, hf_es_rdn_count, tvb, ioffset,
                                 4, value2);
             ioffset = ioffset + 4;
             for (r = 1 ; r <= value2; r++ )
             {
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
-                proto_tree_add_time_format(estree, hf_es_seconds, tvb, ioffset,
+                proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Timestamp: %s", abs_time_secs_to_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset = ioffset + 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
-                proto_tree_add_item(estree, hf_nds_replica_num, tvb, ioffset,
+                proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
                                     2, replica_num);
                 ioffset = ioffset + 2;
                 event_num = tvb_get_letohs(tvb, ioffset);   /* Event */
-                proto_tree_add_item(estree, hf_nds_event_num, tvb, ioffset,
+                proto_tree_add_item(nestree, hf_nds_event_num, tvb, ioffset,
                                     2, event_num);
                 ioffset = ioffset + 2;
             }
             value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value4);
-            proto_tree_add_string(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
                                   value4, values->vstring);
             ioffset=ioffset + value4;
             ioffset += align_4(tvb, ioffset);
             value5 = tvb_get_letohl(tvb, ioffset);   /* RDN */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value5);
-            proto_tree_add_string(estree, hf_rdn_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_rdn_string, tvb, ioffset,
                                   value5, values->vstring);
             ioffset=ioffset + value5;
             ioffset += align_4(tvb, ioffset);
@@ -3731,6 +3732,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         case 7: /* Count */
         default:
             value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
+            /* XXX: nestree rather than estree ?? */
             proto_tree_add_item(estree, hf_es_value, tvb, ioffset,
                                 4, value1);
             ioffset = ioffset + 4;
@@ -3812,7 +3814,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         {
         case 0: /* No Specifier Type */
             value2 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-            proto_tree_add_item(estree, hf_es_value, tvb, ioffset,
+            proto_tree_add_item(nestree, hf_es_value, tvb, ioffset,
                                 4, value2);
             ioffset = ioffset + 4;
             break;
@@ -3820,14 +3822,14 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
                                          value2, values->vstring, "Delimiter ->%s", values->vstring);
             ioffset=ioffset + value2;
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
                                   value3, values->vstring);
             values->voffset=ioffset + value3;
             ioffset = values->voffset;
@@ -3839,36 +3841,36 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             break;
         case 4: /* Tuned */
             value2 = tvb_get_letohl(tvb, ioffset);   /* Count */
-            proto_tree_add_item(estree, hf_es_rdn_count, tvb, ioffset,
+            proto_tree_add_item(nestree, hf_es_rdn_count, tvb, ioffset,
                                 4, value2);
             ioffset = ioffset + 4;
             for (r = 1 ; r <= value2; r++ )
             {
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                 ns.nsecs = 0;
-                proto_tree_add_time_format(estree, hf_es_seconds, tvb, ioffset,
+                proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Timestamp: %s", abs_time_secs_to_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                 ioffset = ioffset + 4;
                 replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
-                proto_tree_add_item(estree, hf_nds_replica_num, tvb, ioffset,
+                proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
                                     2, replica_num);
                 ioffset = ioffset + 2;
                 event_num = tvb_get_letohs(tvb, ioffset);   /* Event */
-                proto_tree_add_item(estree, hf_nds_event_num, tvb, ioffset,
+                proto_tree_add_item(nestree, hf_nds_event_num, tvb, ioffset,
                                     2, event_num);
                 ioffset = ioffset + 2;
             }
             value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value4);
-            proto_tree_add_string(estree, hf_mv_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
                                   value4, values->vstring);
             ioffset=ioffset + value4;
             ioffset += align_4(tvb, ioffset);
             value5 = tvb_get_letohl(tvb, ioffset);   /* RDN */
             ioffset = ioffset + 4;
             values->vstring = get_string(tvb, ioffset, value5);
-            proto_tree_add_string(estree, hf_rdn_string, tvb, ioffset,
+            proto_tree_add_string(nestree, hf_rdn_string, tvb, ioffset,
                                   value5, values->vstring);
             ioffset=ioffset + value5;
             ioffset += align_4(tvb, ioffset);
@@ -3878,6 +3880,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         case 7: /* Count */
         default:
             value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
+            /* XXX: nestree rather than estree ?? */
             proto_tree_add_item(estree, hf_es_value, tvb, ioffset,
                                 4, value1);
             ioffset = ioffset + 4;
@@ -4967,7 +4970,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
             {
                 verb_string = "Internal error processing NDS iteration verbs";
             }
-            it_subitem = proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
+            proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
                 it_verb, "Iterator Verb: %d, (0x%04x), %s",
                 it_verb, it_verb, verb_string);
             break;
@@ -7524,16 +7527,16 @@ static gboolean ncp2222_dfilters_compiled = FALSE;
 static void
 ncp2222_compile_dfilters(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < NUM_REQ_CONDS; i++) {
-		if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
-				     &req_conds[i].dfilter)) {
-			g_message("NCP dissector failed to compile dfilter: %s\n",
-				  req_conds[i].dfilter_text);
-			g_assert_not_reached();
-		}
-	}
+    for (i = 0; i < NUM_REQ_CONDS; i++) {
+        if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
+                             &req_conds[i].dfilter)) {
+            g_message("NCP dissector failed to compile dfilter: %s\n",
+                      req_conds[i].dfilter_text);
+            g_assert_not_reached();
+        }
+    }
 }
 
 void
