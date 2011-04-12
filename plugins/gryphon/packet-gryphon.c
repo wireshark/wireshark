@@ -1392,7 +1392,6 @@ static int
 cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
-    proto_item	    *item;
     int		    save_offset;
     unsigned int    x;
     const char      *type;
@@ -1407,8 +1406,8 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 4;
     msglen -= 4;
     x= tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Message index: %d", x);
-    item = proto_tree_add_text(pt, tvb, offset + 1, 3, "reserved");
+    proto_tree_add_text(pt, tvb, offset, 1, "Message index: %d", x);
+    proto_tree_add_text(pt, tvb, offset + 1, 3, "reserved");
     offset += 4;
     msglen -= 4;
     save_offset = offset;
@@ -1822,9 +1821,9 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
     const char	    *string, *string1;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Handle: %u",
+    proto_tree_add_text(pt, tvb, offset, 1, "Handle: %u",
 	tvb_get_guint8(tvb, offset));
-    item = proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
+    proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
     offset += 4;
     msglen -= 4;
     for (i = 1; msglen > 0; i++) {
