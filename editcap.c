@@ -166,7 +166,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
             tmp->tm_min,
             tmp->tm_sec);
     } else
-        strcpy(buf, "");
+        buf[0] = '\0';
 
     return buf;
 }
