@@ -40,6 +40,7 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include <epan/strutil.h>
+#include <epan/dissectors/packet-frame.h>
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"
@@ -54,13 +55,12 @@ static int hf_x509if_any_string = -1;
 /* Initialize the subtree pointers */
 #include "packet-x509if-ett.c"
 
-static const char *object_identifier_id;
+static const char *object_identifier_id = NULL;
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
 
 static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet */
 static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
-static gboolean doing_dn = TRUE;
 static gboolean doing_attr = FALSE;
 
 #define MAX_RDN_STR_LEN   64
@@ -74,6 +74,22 @@ static int ava_hf_index;
 static value_string fmt_vals[MAX_FMT_VALS];
 #define MAX_AVA_STR_LEN   64
 static char *last_ava = NULL;
+
+static void
+x509if_frame_end(void)
+{
+  object_identifier_id = NULL;
+  top_of_dn = NULL;
+  top_of_rdn = NULL;
+
+  rdn_one_value = FALSE;
+  dn_one_rdn = FALSE;
+  doing_attr = FALSE;
+
+  last_dn = NULL;
+  last_rdn = NULL;
+  last_ava = NULL;
+}
 
 #include "packet-x509if-fn.c"
 
