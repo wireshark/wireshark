@@ -918,15 +918,21 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
     ts = tvb_get_ntoh64(tvb, offset);
     timestamp = (time_t) (ts / 100000);
     tmp = localtime(&timestamp);
-    proto_tree_add_text(pt, tvb, offset, 8,
-        "Date/Time: %s %d, %d %02d:%02d:%02d.%05u",
-        mon_names[tmp->tm_mon],
-        tmp->tm_mday,
-        tmp->tm_year + 1900,
-        tmp->tm_hour,
-        tmp->tm_min,
-        tmp->tm_sec,
-        (guint) (ts % 100000));
+
+    if (tmp) {
+        proto_tree_add_text(pt, tvb, offset, 8,
+                            "Date/Time: %s %d, %d %02d:%02d:%02d.%05u",
+                            mon_names[tmp->tm_mon],
+                            tmp->tm_mday,
+                            tmp->tm_year + 1900,
+                            tmp->tm_hour,
+                            tmp->tm_min,
+                            tmp->tm_sec,
+                            (guint) (ts % 100000));
+    } else {
+        proto_tree_add_text(pt, tvb, offset, 8,
+                            "Date/Time: [Invalid]");
+    }
     offset += 8;
     return offset;
 }
