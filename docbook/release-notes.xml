@@ -33,93 +33,25 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-03.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-05.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that Wireshark could free an uninitialized pointer while reading a
-            malformed pcap-ng file.
-            <!-- Fixed in trunk: r35791 -->
-            <!-- Fixed in trunk-1.4: r35792 -->
-            <!-- Fixed in trunk-1.2: r35793 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5652">Bug
-            5652</ulink>)
+            ?.
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
+          <para>Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.</para>
+<!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-0538">CVE-2011-0538</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a large packet length in a pcap-ng file could crash Wireshark.
-            <!-- Fixed in trunk: r35855 -->
-            <!-- Fixed in trunk-1.4: r35857 -->
-            <!-- Fixed in trunk-1.2: r358558 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
-            5661</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could overflow a buffer while reading a Nokia DCT3
-            trace file.
-            <!-- Fixed in trunk: r35953 -->
-            <!-- Fixed in trunk-1.4: r36050 -->
-            <!-- Fixed in trunk-1.2: r36051 -->
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-0713">CVE-2011-0713</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            joernchen of Phenoelit discovered that the LDAP and SMB dissectors
-            could overflow the stack.
-            <!-- Fixed in trunk: r36029 -->
-            <!-- Fixed in trunk-1.4: r36053 -->
-            <!-- Fixed in trunk-1.2: r36054 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717">Bug
-            5717</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that large
-            LDAP Filter strings can consume excessive amounts of memory.
-            <!-- Fixed in trunk: r36101 -->
-            <!-- Fixed in trunk-1.4: r36102 -->
-            <!-- Fixed in trunk-1.2: r36103 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5732">Bug
-            5732</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior versions including 1.0.x are also affected.)</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para>
-          -->
+-->
         </listitem>
 
       </itemizedlist>
@@ -140,17 +72,22 @@ Wireshark Info
 -->
 
         <listitem><para>
-          Wireshark Crashing by pressing 2 Buttons.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4645">Bug
-          4645</ulink>)
+          Wireshark crashes if SSL preferences RSA key is actually a DSA key.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662">Bug
+          5662</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Potential access violation when writing to LANalyzer files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5698">Bug
-          5698</ulink>)
+          tshark incorrectly calculates tcp stream for some syn packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5743">Bug
+          5743</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Error when opening snoop from Juniper SSG-140.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5762">Bug
+          5762</ulink>)
+        </para></listitem>
       </itemizedlist>
 
     </para>
@@ -176,7 +113,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-LDAP, SMB
+LDAP, SSL, TCP
 
     </para>
     </section>
@@ -184,7 +121,7 @@ LDAP, SMB
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-LANalyzer, Nokia DCT3, Pcap-ng
+Snoop.
 
     </para>
     </section>

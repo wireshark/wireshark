@@ -10,7 +10,7 @@
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save previous tag.
-DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2010-08-27-1.2"}
+DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2011-04-11-1.2"}
 WIRESHARK_TARGET_PLATFORM=${WIRESHARK_TARGET_PLATFORM:-"win32"}
 
 DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"

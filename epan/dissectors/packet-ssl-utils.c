@@ -2302,6 +2302,14 @@ ssl_load_key(FILE* fp)
         g_free(key.data);
         return NULL;
     }
+
+    if (gnutls_x509_privkey_get_pk_algorithm(priv_key) != GNUTLS_PK_RSA) {
+        ssl_debug_printf("ssl_load_key: private key public key algorithm isn't RSA\n");
+        g_free(private_key);
+        g_free(key.data);
+        return NULL;
+    }
+
     g_free(key.data);
 
     private_key->x509_pkey = priv_key;
@@ -2464,6 +2472,12 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
             g_free(private_key);
             return 0;
           }
+
+                    if (gnutls_x509_privkey_get_pk_algorithm(ssl_pkey) != GNUTLS_PK_RSA) {
+                        ssl_debug_printf("ssl_load_pkcs12: private key public key algorithm isn't RSA\n");
+                        g_free(private_key);
+                        return 0;
+                    }
 
           private_key->x509_pkey = ssl_pkey;
           private_key->sexp_pkey = ssl_privkey_to_sexp(ssl_pkey);
