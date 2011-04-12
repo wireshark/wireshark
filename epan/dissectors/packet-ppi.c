@@ -779,9 +779,9 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ppi_flags_tree, hf_ppi_head_flag_reserved,
                             tvb, offset + 1, 1, TRUE);
 
-        ti = proto_tree_add_item(ppi_tree, hf_ppi_head_len,
+        proto_tree_add_item(ppi_tree, hf_ppi_head_len,
                                  tvb, offset + 2, 2, TRUE);
-        ti = proto_tree_add_item(ppi_tree, hf_ppi_head_dlt,
+        proto_tree_add_item(ppi_tree, hf_ppi_head_dlt,
                                  tvb, offset + 4, 4, TRUE);
     }
 
@@ -925,7 +925,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * routine which would un-do the work we just did.  We're using
          * the reassembly code to track MPDU sizes and frame numbers.
          */
-        fd_head = fragment_add_seq_next(tvb, offset, pinfo, ampdu_id,
+        /*??fd_head = */fragment_add_seq_next(tvb, offset, pinfo, ampdu_id,
             ampdu_fragment_table, ampdu_reassembled_table,
             len_remain, TRUE);
         pinfo->fragmented = TRUE;
