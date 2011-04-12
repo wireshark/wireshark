@@ -1,4 +1,4 @@
-
+ic
 =head1 NAME
 
 tshark - Dump and analyze network traffic
@@ -727,7 +727,7 @@ Compute total ICMPv6 echo requests, replies, loss, and percent loss, as well as
 minimum, maximum, mean, median and sample standard deviation SRT statistics
 typical of what ping provides.
 
-Example: S<B<-z icmpv6,srt,ip.src==1.2.3.4>> will collect ICMPv6 SRT statistics
+Example: S<B<-z icmpv6,srt,ipv6.src==fe80::1>> will collect ICMPv6 SRT statistics
 for ICMPv6 echo request packets originating from a specific host.
 
 This option can be used multiple times on the command line.
