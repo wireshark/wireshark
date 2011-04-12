@@ -1040,9 +1040,9 @@ gzwfile_open(const char *path)
         return NULL;
     state = gzwfile_fdopen(fd);
     if (state == NULL) {
-    	save_errno = errno;
-        close(fd);
         save_errno = errno;
+        close(fd);
+        errno = save_errno;
     }
     return state;
 }
@@ -1085,10 +1085,8 @@ gz_init(GZWFILE_T state)
     state->in = g_try_malloc(state->want);
     state->out = g_try_malloc(state->want);
     if (state->in == NULL || state->out == NULL) {
-        if (state->out != NULL)
-            g_free(state->out);
-        if (state->in != NULL)
-            g_free(state->in);
+        g_free(state->out);
+        g_free(state->in);
         state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
         return -1;
     }
@@ -1100,6 +1098,7 @@ gz_init(GZWFILE_T state)
     ret = deflateInit2(strm, state->level, Z_DEFLATED,
                        15 + 16, 8, state->strategy);
     if (ret != Z_OK) {
+        g_free(state->out);
         g_free(state->in);
         state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
         return -1;
