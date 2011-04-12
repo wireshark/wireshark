@@ -217,7 +217,7 @@ fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos, int compression)
 }
 
 static void
-fast_seek_reset(FILE_T state)
+fast_seek_reset(FILE_T state _U_)
 {
 #ifdef HAVE_LIBZ
 	if (state->compression == ZLIB && state->fast_seek_cur) {
