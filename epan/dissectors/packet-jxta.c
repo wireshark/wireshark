@@ -35,9 +35,6 @@
 # include "config.h"
 #endif
 
-#include <limits.h>
-#include <string.h>
-
 #define G_LOG_DOMAIN "jxta"
 
 #include <glib.h>
@@ -624,9 +621,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
             if (NULL != tpt_conversation) {
                 tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
-		if (tpt_conv_data) {
-		  peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
-		}
+                if (tpt_conv_data) {
+                    peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
+                }
             }
 
             /* Use our source and destination addresses if we have them */
@@ -812,7 +809,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
 
     {
-	gchar *welcomeline = tvb_get_ephemeral_string(tvb, offset, first_linelen);
+        gchar *welcomeline = tvb_get_ephemeral_string(tvb, offset, first_linelen);
         gchar **current_token;
         guint token_offset = offset;
         proto_item *jxta_welcome_tree_item = NULL;
@@ -1045,7 +1042,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-	        *content_type = tvb_get_ephemeral_string(tvb, headervalue_offset, headervalue_len);
+                *content_type = tvb_get_ephemeral_string(tvb, headervalue_offset, headervalue_len);
             }
         }
 
@@ -1609,7 +1606,6 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         guint32 content_len;
         gchar *mediatype = NULL;
         tvbuff_t *element_content_tvb;
-        proto_item * jxta_elem_length_item = NULL;
 
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, sizeof(JXTA_MSGELEM_SIG), FALSE);
         tree_offset += sizeof(JXTA_MSGELEM_SIG);
@@ -1657,7 +1653,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* content */
         content_len = tvb_get_ntohl(tvb, tree_offset);
-        jxta_elem_length_item = proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
         tree_offset += sizeof(guint32);
 
         element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
@@ -1868,7 +1864,6 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         guint64 content_len;
         const gchar *mediatype = NULL;
         tvbuff_t *element_content_tvb;
-        proto_item * jxta_elem_length_item = NULL;
 
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, sizeof(JXTA_MSGELEM_SIG), FALSE);
         tree_offset += sizeof(JXTA_MSGELEM_SIG);
@@ -1950,11 +1945,11 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
         if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
             content_len = tvb_get_ntoh64(tvb, tree_offset);
-            jxta_elem_length_item = proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), FALSE);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), FALSE);
             tree_offset += sizeof(guint64);
         } else {
             content_len = tvb_get_ntohl(tvb, tree_offset);
-            jxta_elem_length_item = proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
             tree_offset += sizeof(guint32);
         }
 
@@ -2030,7 +2025,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
             tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_length(tvb));
 
             if( NULL != uncomp_tvb ) {
-	        add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
+                add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
 
                 /* XXX bondolo 20060201 Force XML for uncompressed data. */
                 dissected = dissect_media("text/xml;charset=\"UTF-8\"", uncomp_tvb, pinfo, tree);
