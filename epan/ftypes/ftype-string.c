@@ -118,7 +118,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 			 * in ASCII need to be escaped. */
 			else if (!isprint((unsigned char)c)) {
 				/* c --> \xNN */
-				sprintf(hex, "%02x", (unsigned char) c);
+				g_snprintf(hex, sizeof(hex), "%02x", (unsigned char) c);
 				*bufp++ = '\\';
 				*bufp++ = 'x';
 				*bufp++ = hex[0];
