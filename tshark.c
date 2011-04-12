@@ -2569,7 +2569,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   gint         linktype;
   int          snapshot_length;
   wtap_dumper *pdh;
-  int          err, close_err;
+  int          err;
   gchar        *err_info = NULL;
   gint64       data_offset;
   char         *save_file_string = NULL;
@@ -2665,12 +2665,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
     }
 
-    /* Close the sequential I/O side, to free up memory it requires.
-       This could return an error, so if we didn't get an error while
-       reading, we use the status of the close. */
-    close_err = wtap_sequential_close(cf->wth);
-    if (err == 0)
-        err = close_err;
+    /* Close the sequential I/O side, to free up memory it requires. */
+    wtap_sequential_close(cf->wth);
 
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
@@ -2817,9 +2813,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   }
 
 out:
-  close_err = wtap_close(cf->wth);
-  if (err == 0)
-    err = close_err;
+  wtap_close(cf->wth);
   cf->wth = NULL;
 
   g_free(save_file_string);

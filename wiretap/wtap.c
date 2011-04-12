@@ -623,25 +623,14 @@ const char
    needed by the random-access side.
 
    Instead, if the subtype has a "sequential close" function, we call it,
-   to free up stuff used only by the sequential side.
-
-   If there are any errors detected as part of the process of closing,
-   return an error indication; regardless of whether there were or
-   weren't, the close is done. */
-int
+   to free up stuff used only by the sequential side. */
+void
 wtap_sequential_close(wtap *wth)
 {
-	int ret = 0;
-
 	if (wth->subtype_sequential_close != NULL)
 		(*wth->subtype_sequential_close)(wth);
 
 	if (wth->fh != NULL) {
-		/*
-		 * Get any delayed errors before we close the
-		 * handle.
-		 */
-		ret = file_error(wth->fh);
 		file_close(wth->fh);
 		wth->fh = NULL;
 	}
@@ -651,8 +640,6 @@ wtap_sequential_close(wtap *wth)
 		g_free(wth->frame_buffer);
 		wth->frame_buffer = NULL;
 	}
-
-	return ret;
 }
 
 static void
@@ -661,26 +648,16 @@ g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
 	g_free(data);
 }
 
-int
+void
 wtap_close(wtap *wth)
 {
-	int ret;
-
-	ret = wtap_sequential_close(wth);
+	wtap_sequential_close(wth);
 
 	if (wth->subtype_close != NULL)
 		(*wth->subtype_close)(wth);
 
-	if (wth->random_fh != NULL) {
-		/*
-		 * If we didn't get any delayed error from the
-		 * sequential handle, see if there's one for
-		 * the random handle before we close it.
-		 */
-		if (ret == 0)
-			ret = file_error(wth->random_fh);
+	if (wth->random_fh != NULL)
 		file_close(wth->random_fh);
-	}
 
 	if (wth->priv != NULL)
 		g_free(wth->priv);
@@ -690,8 +667,6 @@ wtap_close(wtap *wth)
 		g_ptr_array_free(wth->fast_seek, TRUE);
 	}
 	g_free(wth);
-
-	return ret;
 }
 
 void

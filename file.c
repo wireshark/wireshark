@@ -511,7 +511,7 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
 cf_read_status_t
 cf_read(capture_file *cf, gboolean from_save)
 {
-  int         err, close_err;
+  int         err;
   gchar       *err_info;
   const gchar *name_ptr;
   const char  *errmsg;
@@ -667,12 +667,8 @@ cf_read(capture_file *cf, gboolean from_save)
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
 
-  /* Close the sequential I/O side, to free up memory it requires.
-     This could return an error, so if we didn't get an error while
-     reading, we use the status of the close. */
-  close_err = wtap_sequential_close(cf->wth);
-  if (err == 0)
-      err = close_err;
+  /* Close the sequential I/O side, to free up memory it requires. */
+  wtap_sequential_close(cf->wth);
 
   /* Allow the protocol dissectors to free up memory that they
    * don't need after the sequential run-through of the packets. */
@@ -894,7 +890,6 @@ cf_fake_continue_tail(capture_file *cf) {
 cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
-  int close_err;
   gchar *err_info;
   gint64 data_offset;
   dfilter_t   *dfcode;
@@ -959,12 +954,8 @@ cf_finish_tail(capture_file *cf, int *err)
   cf->state = FILE_READ_DONE;
 
   /* We're done reading sequentially through the file; close the
-     sequential I/O side, to free up memory it requires.
-     This could return an error, so if we didn't get an error while
-     reading, we use the status of the close. */
-  close_err = wtap_sequential_close(cf->wth);
-  if (*err == 0)
-      *err = close_err;
+     sequential I/O side, to free up memory it requires. */
+  wtap_sequential_close(cf->wth);
 
   /* Allow the protocol dissectors to free up memory that they
    * don't need after the sequential run-through of the packets. */
