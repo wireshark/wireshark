@@ -365,10 +365,14 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+#if 0
 	guint16 protoNum;
+#endif
 	guint16 length;
 	guint16 sliceLength;
+#if 0
 	guint8  flags;
+#endif
 	guint8  status;
 	guint64 timestamp;
 	time_t tsecs;
@@ -381,10 +385,14 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
+#if 0
 	protoNum = pntohs(&ep_pkt[ETHERPEEK_V7_PROTONUM_OFFSET]);
+#endif
 	length = pntohs(&ep_pkt[ETHERPEEK_V7_LENGTH_OFFSET]);
 	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V7_SLICE_LENGTH_OFFSET]);
+#if 0
 	flags = ep_pkt[ETHERPEEK_V7_FLAGS_OFFSET];
+#endif
 	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
 	timestamp = pntohll(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_OFFSET]);
 
@@ -538,11 +546,15 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
+#if 0
 	guint8  flags;
 	guint8  status;
+#endif
 	guint32 timestamp;
+#if 0
 	guint16 destNum;
 	guint16 srcNum;
+#endif
 	guint16 protoNum;
 	char    protoStr[8];
 	unsigned int i;
@@ -565,11 +577,15 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	/* Extract the fields from the packet */
 	length = pntohs(&ep_pkt[ETHERPEEK_V56_LENGTH_OFFSET]);
 	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V56_SLICE_LENGTH_OFFSET]);
+#if 0
 	flags = ep_pkt[ETHERPEEK_V56_FLAGS_OFFSET];
 	status = ep_pkt[ETHERPEEK_V56_STATUS_OFFSET];
+#endif
 	timestamp = pntohl(&ep_pkt[ETHERPEEK_V56_TIMESTAMP_OFFSET]);
+#if 0
 	destNum = pntohs(&ep_pkt[ETHERPEEK_V56_DESTNUM_OFFSET]);
 	srcNum = pntohs(&ep_pkt[ETHERPEEK_V56_SRCNUM_OFFSET]);
+#endif
 	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
 	memcpy(protoStr, &ep_pkt[ETHERPEEK_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
