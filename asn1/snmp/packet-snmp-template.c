@@ -1773,7 +1773,6 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
 
 	next_tvb_init(&var_list);
@@ -1782,7 +1781,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, FALSE);
-		smux_tree = proto_item_add_subtree(item, ett_smux);
+		proto_item_add_subtree(item, ett_smux);
 	}
 
 	dissect_SMUX_PDUs_PDU(tvb, pinfo, tree);
