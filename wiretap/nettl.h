@@ -126,7 +126,7 @@
 #define NETTL_HDR_PDU_MASK              0x30000000
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
-gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
+gboolean nettl_dump_open(wtap_dumper *wdh, int *err);
 int nettl_dump_can_write_encap(int encap);
 
 #endif

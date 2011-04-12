@@ -600,18 +600,10 @@ int lanalyzer_dump_can_write_encap(int encap)
  * Returns TRUE on success, FALSE on failure; sets "*err" to an
  * error code on failure
  *---------------------------------------------------*/
-gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
 {
       int   jump;
       void  *tmp;
-
-      /* This is a LANalyzer file.  We can't fill in some fields in the
-         header until all the packets have been written, so we can't
-         write to a pipe. */
-      if (cant_seek) {
-	      *err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-	      return FALSE;
-            }
 
       tmp = g_malloc(sizeof(LA_TmpInfo));
       if (!tmp) {

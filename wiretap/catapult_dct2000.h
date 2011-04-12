@@ -21,7 +21,7 @@
 */
 
 int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info);
-gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err);
 int catapult_dct2000_dump_can_write_encap(int encap);
 
 #define DCT2000_ENCAP_UNHANDLED 0

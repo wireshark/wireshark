@@ -571,7 +571,7 @@ typedef struct {
 /* The file that we are writing to has been opened.  */
 /* Set other dump callbacks.                         */
 /*****************************************************/
-gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err _U_)
+gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
 {
     /* Fill in other dump callbacks */
     wdh->subtype_write = catapult_dct2000_dump;

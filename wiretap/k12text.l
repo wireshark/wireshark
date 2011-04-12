@@ -395,14 +395,8 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 
 
 gboolean
-k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+k12text_dump_open(wtap_dumper *wdh, int *err)
 {
-
-    if (cant_seek) {
-	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-	return FALSE;
-    }
-
     wdh->subtype_write = k12text_dump;
 
     return TRUE;

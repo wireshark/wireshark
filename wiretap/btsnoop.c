@@ -431,7 +431,7 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
 }
 
 /* FIXME: How do we support multiple backends?*/
-gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
 {
     struct btsnoop_hdr file_hdr;
 
@@ -473,7 +473,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, gboolean cant_seek _U_, int *err
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
 {
     struct btsnoop_hdr file_hdr;
 

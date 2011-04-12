@@ -76,7 +76,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info);
 int nstrace_10_dump_can_write_encap(int encap);
 int nstrace_20_dump_can_write_encap(int encap);
 
-gboolean nstrace_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean nstrace_dump_open(wtap_dumper *wdh, int *err);
 
 
 #endif /* _NETSCALER_H */

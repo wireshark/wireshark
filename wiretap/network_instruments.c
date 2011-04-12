@@ -491,7 +491,7 @@ int network_instruments_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure. */
-gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
 {
 	capture_file_header file_header;
 	tlv_header comment_header;
@@ -499,11 +499,6 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	struct tm *current_time;
 	time_t system_time;
 	niobserver_dump_t *niobserver;
-
-	if (cant_seek) {
-		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-		return FALSE;
-	}
 
 	wdh->subtype_write = observer_dump;
 

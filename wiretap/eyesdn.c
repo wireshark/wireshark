@@ -428,7 +428,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const union wtap_pseudo_header *pseudo_header _U_,
 			    const guchar *pd, int *err);
 
-gboolean eyesdn_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
 {
 	wdh->subtype_write=eyesdn_dump;
 	wdh->subtype_close=NULL;

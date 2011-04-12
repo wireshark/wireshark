@@ -1056,13 +1056,8 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
 }
 
 
-gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
+gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
     k12_dump_t *k12;
-
-    if (cant_seek) {
-        *err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-        return FALSE;
-    }
 
     if ( ! wtap_dump_file_write(wdh, k12_file_magic, 8, err)) {
         return FALSE;

@@ -29,7 +29,7 @@
 #define __VISUAL_H__
 
 int visual_open(wtap *wth, int *err, gchar **err_info);
-gboolean visual_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean visual_dump_open(wtap_dumper *wdh, int *err);
 int visual_dump_can_write_encap(int encap);
 
 #endif

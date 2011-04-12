@@ -2023,7 +2023,7 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean
-pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+pcapng_dump_open(wtap_dumper *wdh, int *err)
 {
 	wtapng_block_t wblock;
 	pcapng_dump_t *pcapng;

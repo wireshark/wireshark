@@ -398,35 +398,35 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NSEC */
-	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_AIX */
-	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP_SS991029 */
-	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NOKIA */
-	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990417 */
-	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990915 */
-	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap", ".pcap", TRUE, FALSE,
+	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_5VIEWS */
-	{ "Accellent 5Views capture", "5views", "*.5vw", ".5vw", FALSE, FALSE,
+	{ "Accellent 5Views capture", "5views", "*.5vw", ".5vw", TRUE, FALSE,
 	  _5views_dump_can_write_encap, _5views_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
@@ -498,11 +498,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETMON_1_x */
-	{ "Microsoft NetMon 1.x", "netmon1", "*.cap", ".cap", FALSE, FALSE,
+	{ "Microsoft NetMon 1.x", "netmon1", "*.cap", ".cap", TRUE, FALSE,
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NETMON_2_x */
-	{ "Microsoft NetMon 2.x", "netmon2", "*.cap", ".cap", FALSE, FALSE,
+	{ "Microsoft NetMon 2.x", "netmon2", "*.cap", ".cap", TRUE, FALSE,
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
@@ -514,19 +514,19 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "NA Sniffer (Windows) 1.1", "ngwsniffer_1_1", "*.cap", ".cap", FALSE, FALSE,
+	{ "NA Sniffer (Windows) 1.1", "ngwsniffer_1_1", "*.cap", ".cap", TRUE, FALSE,
 	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
 
 	/* WTAP_FILE_NETXRAY_2_00x */
-	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "*.cap", ".cap", FALSE, FALSE,
+	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "*.cap", ".cap", TRUE, FALSE,
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", FALSE, FALSE,
+	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", TRUE, FALSE,
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
-	{ "Novell LANalyzer","lanalyzer", "*.tr1", ".tr1", FALSE, FALSE,
+	{ "Novell LANalyzer","lanalyzer", "*.tr1", ".tr1", TRUE, FALSE,
 	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },
 
 	/* WTAP_FILE_PPPDUMP */
@@ -550,7 +550,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL},
 
 	/* WTAP_FILE_K12 */
-	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", TRUE, FALSE,
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", FALSE, FALSE,
 		k12_dump_can_write_encap, k12_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
@@ -558,7 +558,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_VISUAL_NETWORKS */
-	{ "Visual Networks traffic capture", "visual", "*.*", NULL, FALSE, FALSE,
+	{ "Visual Networks traffic capture", "visual", "*.*", NULL, TRUE, FALSE,
 	  visual_dump_can_write_encap, visual_dump_open },
 
 	/* WTAP_FILE_ETHERPEEK_V56 */
@@ -578,7 +578,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_K12TEXT  */
-	{ "K12 text file", "k12text", "*.txt", ".txt", TRUE, FALSE,
+	{ "K12 text file", "k12text", "*.txt", ".txt", FALSE, FALSE,
 	  k12text_dump_can_write_encap, k12text_dump_open },
 
 	/* WTAP_FILE_NETSCREEN */
@@ -586,7 +586,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_COMMVIEW */
-	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", TRUE, FALSE,
+	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", FALSE, FALSE,
 	  commview_dump_can_write_encap, commview_dump_open },
 
 	/* WTAP_FILE_PCAPNG */
@@ -618,11 +618,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETSCALER_1_0 */
-	{ "NetScaler Trace (Version 1.0)", "nstrace10", "*.*", "*.*", FALSE, FALSE,
+	{ "NetScaler Trace (Version 1.0)", "nstrace10", "*.*", "*.*", TRUE, FALSE,
 	  nstrace_10_dump_can_write_encap, nstrace_dump_open },
 
 	/* WTAP_FILE_NETSCALER_2_0 */
-	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", "*.cap", FALSE, FALSE,
+	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", "*.cap", TRUE, FALSE,
 	  nstrace_20_dump_can_write_encap, nstrace_dump_open },
 
 	/* WTAP_FILE_JPEG_JFIF */
@@ -741,8 +741,13 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 #ifdef HAVE_LIBZ
 gboolean wtap_dump_can_compress(int filetype)
 {
+	/*
+	 * If this is an unknown file type, or if we have to
+	 * seek when writing out a file with this file type,
+	 * return FALSE.
+	 */
 	if (filetype < 0 || filetype >= wtap_num_file_types
-	    || dump_open_table[filetype].can_compress == FALSE)
+	    || dump_open_table[filetype].writing_must_seek)
 		return FALSE;
 
 	return TRUE;
@@ -931,8 +936,14 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 		}
 	}
 
+	/* If this file type requires seeking, and we can't seek, fail. */
+	if (dump_open_table[filetype].writing_must_seek && cant_seek) {
+		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+		return FALSE;
+	}
+
 	/* Now try to open the file for writing. */
-	if (!(*dump_open_table[filetype].dump_open)(wdh, cant_seek, err)) {
+	if (!(*dump_open_table[filetype].dump_open)(wdh, err)) {
 		return FALSE;
 	}
 

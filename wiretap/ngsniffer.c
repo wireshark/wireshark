@@ -2038,7 +2038,7 @@ ngsniffer_dump_can_write_encap(int encap)
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean
-ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 {
     ngsniffer_dump_t *ngsniffer;
     char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */

@@ -822,7 +822,6 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
-/* XXX Should this be moved to wtap-int.h? It appears to be internal to wtap.c. */
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
@@ -840,8 +839,8 @@ struct file_type_info {
     /* should be NULL if no default extension is known */
     const char *file_extension_default;
 
-    /* can this type be compressed with gzip? */
-    gboolean can_compress;
+    /* when writing this file format, is seeking required? */
+    gboolean writing_must_seek;
 
     /* does this type support name resolution records? */
     /* should be FALSE is this file type doesn't support name resolution records */
@@ -853,7 +852,7 @@ struct file_type_info {
 
     /* the function to open the capture file for writing */
     /* should be NULL is this file type don't have write support */
-    int (*dump_open)(wtap_dumper *, gboolean, int *);
+    int (*dump_open)(wtap_dumper *, int *);
 };
 
 

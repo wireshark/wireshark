@@ -300,8 +300,7 @@ int commview_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure;
    sets "*err" to an error code on failure */
-gboolean commview_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_,
-			    int *err _U_)
+gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
 {
 	wdh->subtype_write = commview_dump;
 	wdh->subtype_close = NULL;

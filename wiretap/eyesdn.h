@@ -37,7 +37,7 @@ enum EyeSDN_TYPES {
     EYESDN_ENCAP_BACNET
 };
 
-gboolean eyesdn_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
+gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err);
 int eyesdn_dump_can_write_encap(int encap);
 
 #endif

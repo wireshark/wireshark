@@ -661,16 +661,9 @@ int visual_dump_can_write_encap(int encap)
 /* Open a file for writing.
    Returns TRUE on success, FALSE on failure; sets "*err" to an
    error code on failure */
-gboolean visual_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info *visual;
-
-    /* We can't fill in some fields in the header until all the packets
-       have been written, so we can't write to a pipe. */
-    if (cant_seek) {
-	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-	return FALSE;
-    }
 
     /* Set the write routines for a visual file. */
     wdh->subtype_write = visual_dump;

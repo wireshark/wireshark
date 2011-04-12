@@ -377,17 +377,9 @@ int _5views_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 {
 	_5views_dump_t *_5views;
-
-	/* This is a 5Views file.  We can't fill in some fields in the
-	   header until all the packets have been written, so we can't
-	   write to a pipe. */
-	if (cant_seek) {
-		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-		return FALSE;
-	}
 
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite

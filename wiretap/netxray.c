@@ -1508,17 +1508,9 @@ int netxray_dump_can_write_encap_1_1(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 {
     netxray_dump_t *netxray;
-
-    /* This is a NetXRay file.  We can't fill in some fields in the header
-       until all the packets have been written, so we can't write to a
-       pipe. */
-    if (cant_seek) {
-	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-	return FALSE;
-    }
 
     wdh->subtype_write = netxray_dump_1_1;
     wdh->subtype_close = netxray_dump_close_1_1;
@@ -1676,17 +1668,9 @@ int netxray_dump_can_write_encap_2_0(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
+gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 {
     netxray_dump_t *netxray;
-
-    /* This is a NetXRay file.  We can't fill in some fields in the header
-       until all the packets have been written, so we can't write to a
-       pipe. */
-    if (cant_seek) {
-	*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
-	return FALSE;
-    }
 
     wdh->subtype_write = netxray_dump_2_0;
     wdh->subtype_close = netxray_dump_close_2_0;

@@ -24,7 +24,7 @@
 #define __W_SNOOP_H__
 
 int snoop_open(wtap *wth, int *err, gchar **err_info);
-gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean snoop_dump_open(wtap_dumper *wdh, int *err);
 int snoop_dump_can_write_encap(int encap);
 
 #endif

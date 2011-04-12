@@ -24,7 +24,7 @@
 
 int network_instruments_open(wtap *wth, int *err, gchar **err_info);
 int network_instruments_dump_can_write_encap(int encap);
-gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
+gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err);
 
 typedef struct capture_file_header
 {
