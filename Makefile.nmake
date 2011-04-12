@@ -621,7 +621,11 @@ $(ADNS_DLL):
 $(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="$(LOCAL_CFLAGS)"
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-DASMV -DASMINF" OBJA="inffas32.obj match686.obj" 
+!else
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="$(LOCAL_CFLAGS)
+!endif	
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
@@ -807,7 +811,11 @@ process_libs:
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+		zlib125 zlib-1.2.5.zip
+!else
 		zlib123 zlib123ws.zip
+!endif
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -840,7 +848,7 @@ process_libs:
 !ENDIF
 !IFDEF NASM
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. nasm-2.02-win32.zip
+		. nasm-2.09.08-win32.zip
 !ENDIF
 !IF "$(WIN_SETUP_OPT)" == "--download"
 	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIBS)"
@@ -880,6 +888,7 @@ clean_setup:
     rm -r -f libsmi-0.4.8
     rm -r -f nasm-2.00
     rm -r -f nasm-2.02
+    rm -r -f nasm-2.09.08
     rm -r -f pcre-6.4
     rm -r -f pcre-7.0
     rm -r -f portaudio_v19
@@ -890,6 +899,7 @@ clean_setup:
     rm -r -f AirPcap_Devpack_4_0_0_1480
     rm -r -f AirPcap_Devpack_4_1_0_1622
     rm -r -f zlib123
+    rm -r -f zlib-1.2.5
     rm -r -f zlib123-dll
     rm -r -f upx301w
     rm -r -f upx303w

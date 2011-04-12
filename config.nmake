@@ -142,7 +142,7 @@ MSVC_VARIANT=MSVC2008
 # If you don't have NASM, comment this line out, so that NASM
 # isn't defined.
 #
-NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
+NASM=$(WIRESHARK_LIBS)\nasm-2.09-08\nasm.exe
 
 #
 # Optional: the Python library enables scripting support.
@@ -271,8 +271,8 @@ PCAP_REMOTE=1
 #
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
-#
-ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
+# EXperimental only use zlib 1.2.5 on win32 for now
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib125
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS
@@ -822,7 +822,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 # http://msdn.microsoft.com/en-us/library/ms182025.aspx
 
 !IFDEF ENABLE_CODE_ANALYSIS
-LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
+#LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
