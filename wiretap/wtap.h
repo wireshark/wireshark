@@ -917,8 +917,8 @@ int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
 
 /*** close the current file ***/
-void wtap_sequential_close(wtap *wth);
-void wtap_close(wtap *wth);
+int wtap_sequential_close(wtap *wth);
+int wtap_close(wtap *wth);
 
 /*** dump packets into a capture file ***/
 gboolean wtap_dump_can_open(int filetype);

@@ -623,14 +623,25 @@ const char
    needed by the random-access side.
 
    Instead, if the subtype has a "sequential close" function, we call it,
-   to free up stuff used only by the sequential side. */
-void
+   to free up stuff used only by the sequential side.
+
+   If there are any errors detected as part of the process of closing,
+   return an error indication; regardless of whether there were or
+   weren't, the close is done. */
+int
 wtap_sequential_close(wtap *wth)
 {
+	int ret = 0;
+
 	if (wth->subtype_sequential_close != NULL)
 		(*wth->subtype_sequential_close)(wth);
 
 	if (wth->fh != NULL) {
+		/*
+		 * Get any delayed errors before we close the
+		 * handle.
+		 */
+		ret = file_error(wth->fh);
 		file_close(wth->fh);
 		wth->fh = NULL;
 	}
@@ -640,23 +651,37 @@ wtap_sequential_close(wtap *wth)
 		g_free(wth->frame_buffer);
 		wth->frame_buffer = NULL;
 	}
+
+	return ret;
 }
 
-void
+int
 wtap_close(wtap *wth)
 {
-	wtap_sequential_close(wth);
+	int ret;
+
+	ret = wtap_sequential_close(wth);
 
 	if (wth->subtype_close != NULL)
 		(*wth->subtype_close)(wth);
 
-	if (wth->random_fh != NULL)
+	if (wth->random_fh != NULL) {
+		/*
+		 * If we didn't get any delayed error from the
+		 * sequential handle, see if there's one for
+		 * the random handle before we close it.
+		 */
+		if (ret == 0)
+			ret = file_error(wth->random_fh);
 		file_close(wth->random_fh);
+	}
 
 	if (wth->priv != NULL)
 		g_free(wth->priv);
 
 	g_free(wth);
+
+	return ret;
 }
 
 void
