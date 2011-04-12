@@ -298,7 +298,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	strm->avail_out = count;
 	strm->next_out = buf;
 
-	/* fill output buffer up to end of deflate stream */
+	/* fill output buffer up to end of deflate stream or error */
 	do {
 		/* get more input for inflate() */
 		if (state->avail_in == 0 && fill_in_buffer(state) == -1)
@@ -370,13 +370,17 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	state->next = buf;
 	state->have = count - strm->avail_out;
 
-	/* check gzip trailer if at end of deflate stream */
+	/* Check gzip trailer if at end of deflate stream.
+	   We don't fail immediately here, we just set an error
+	   indication, so that we try to process what data we
+	   got before the error.  The next attempt to read
+	   something past that data will get the error. */
 	if (ret == Z_STREAM_END) {
 		if (gz_next4(state, &crc) == -1 || gz_next4(state, &len) == -1)
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-		if (crc != strm->adler)
+		else if (crc != strm->adler)
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-		if (len != (strm->total_out & 0xffffffffL))
+		else if (len != (strm->total_out & 0xffffffffL))
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
 		state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
 		g_free(state->fast_seek_cur);
@@ -519,26 +523,29 @@ gz_skip(FILE_T state, gint64 len)
 
 	/* skip over len bytes or reach end-of-file, whichever comes first */
 	while (len)
-		/* skip over whatever is in output buffer */
 		if (state->have) {
+			/* We have stuff in the output buffer; skip over
+			   it. */
 			n = (gint64)state->have > len ? (unsigned)len : state->have;
 			state->have -= n;
 			state->next += n;
 			state->pos += n;
 			len -= n;
-		}
-
-		/* delayed error reporting */
-		else if (state->err)
+		} else if (state->err) {
+			/* We have nothing in the output buffer, and
+			   we have an error that may not have been
+			   reported yet; that means we can't generate
+			   any more data into the output buffer, so
+			   return an error indication. */
 			return -1;
-
-	/* output buffer empty -- return if we're at the end of the input */
-		else if (state->eof && state->avail_in == 0)
+		} else if (state->eof && state->avail_in == 0) {
+			/* We have nothing in the output buffer, and
+			   we're at the end of the input; just return. */
 			break;
-
-	/* need more data to skip -- load up output buffer */
-		else {
-			/* get more output, looking for header if required */
+		} else {
+			/* We have nothing in the output buffer, and
+			   we can generate more data; get more output,
+			   looking for header if required. */
 			if (fill_out_buffer(state) == -1)
 				return -1;
 		}
@@ -632,16 +639,17 @@ file_open(const char *path)
 {
 	int fd;
 	FILE_T ft;
-	int oflag;
 
-	/* O_LARGEFILE? */
-	oflag = O_RDONLY;
-#ifdef _WIN32
-	oflag |= O_BINARY;
-#endif
+	/* open file and do correct filename conversions.
 
-	/* open file and do correct filename conversions */
-	if ((fd = ws_open(path, oflag, 0666)) == -1)
+	   XXX - do we need O_LARGEFILE?  On UN*X, if we need to do
+	   something special to get large file support, the configure
+	   script should have set us up with the appropriate #defines,
+	   so we should be getting a large-file-enabled file descriptor
+	   here.  Pre-Large File Summit UN*Xes, and possibly even some
+	   post-LFS UN*Xes, might require O_LARGEFILE here, though.
+	   If so, we should probably handle that in ws_open(). */
+	if ((fd = ws_open(path, O_RDONLY|O_BINARY, 0666)) == -1)
 		return NULL;
 
 	/* open file handle */
@@ -830,24 +838,31 @@ file_read(void *buf, unsigned int len, FILE_T file)
 	/* get len bytes to buf, or less than len if at the end */
 	got = 0;
 	do {
-		/* first just try copying data from the output buffer */
 		if (file->have) {
+			/* We have stuff in the output buffer; copy
+			   what we have. */
 			n = file->have > len ? len : file->have;
 			memcpy(buf, file->next, n);
 			file->next += n;
 			file->have -= n;
-		}
-		/* delayed error reporting (for zlib) */
-		else if (file->err)
+		} else if (file->err) {
+			/* We have nothing in the output buffer, and
+			   we have an error that may not have been
+			   reported yet; that means we can't generate
+			   any more data into the output buffer, so
+			   return an error indication. */
 			return -1;
-
-		/* output buffer empty -- return if we're at the end of the input */
-		else if (file->eof && file->avail_in == 0)
+		} else if (file->eof && file->avail_in == 0) {
+			/* We have nothing in the output buffer, and
+			   we're at the end of the input; just return
+			   with what we've gotten so far. */
 			break;
-
-		/* need output data */
-		else {
-			/* get more output, looking for header if required */
+		} else {
+			/* We have nothing in the output buffer, and
+			   we can generate more data; get more output,
+			   looking for header if required, and
+			   keep looping to process the new stuff
+			   in the output buffer. */
 			if (fill_out_buffer(file) == -1)
 				return -1;
 			continue;       /* no progress yet -- go back to memcpy() above */
@@ -913,6 +928,15 @@ file_gets(char *buf, int len, FILE_T file)
 	if (left) do {
 		/* assure that something is in the output buffer */
 		if (file->have == 0) {
+			/* We have nothing in the output buffer. */
+			if (file->err) {
+				/* We have an error that may not have
+				   been reported yet; that means we
+				   can't generate any more data into
+				   the output buffer, so return an
+				   error indication. */
+				return NULL;
+			}
 			if (fill_out_buffer(file) == -1)
 				return NULL;            /* error */
 			if (file->have == 0)  {     /* end of file */
