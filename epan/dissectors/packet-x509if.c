@@ -5,7 +5,7 @@
 
 /* Input file: packet-x509if-template.c */
 
-#line 1 "packet-x509if-template.c"
+#line 1 "../../asn1/x509if/packet-x509if-template.c"
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -45,6 +45,7 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include <epan/strutil.h>
+#include <epan/dissectors/packet-frame.h>
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"
@@ -56,7 +57,7 @@ static int hf_x509if_object_identifier_id = -1;
 static int hf_x509if_any_string = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
-#line 1 "packet-x509if-hf.c"
+#line 1 "../../asn1/x509if/packet-x509if-hf.c"
 static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
 static int hf_x509if_SubtreeSpecification_PDU = -1;  /* SubtreeSpecification */
 static int hf_x509if_HierarchyLevel_PDU = -1;     /* HierarchyLevel */
@@ -214,12 +215,12 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 50 "packet-x509if-template.c"
+#line 51 "../../asn1/x509if/packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-x509if-ett.c ---*/
-#line 1 "packet-x509if-ett.c"
+#line 1 "../../asn1/x509if/packet-x509if-ett.c"
 static gint ett_x509if_Attribute = -1;
 static gint ett_x509if_T_values = -1;
 static gint ett_x509if_T_valuesWithContext = -1;
@@ -295,15 +296,14 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 53 "packet-x509if-template.c"
+#line 54 "../../asn1/x509if/packet-x509if-template.c"
 
-static const char *object_identifier_id;
+static const char *object_identifier_id = NULL;
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
 
 static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet */
 static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
-static gboolean doing_dn = TRUE;
 static gboolean doing_attr = FALSE;
 
 #define MAX_RDN_STR_LEN   64
@@ -318,9 +318,25 @@ static value_string fmt_vals[MAX_FMT_VALS];
 #define MAX_AVA_STR_LEN   64
 static char *last_ava = NULL;
 
+static void
+x509if_frame_end(void)
+{
+  object_identifier_id = NULL;
+  top_of_dn = NULL;
+  top_of_rdn = NULL;
+
+  rdn_one_value = FALSE;
+  dn_one_rdn = FALSE;
+  doing_attr = FALSE;
+
+  last_dn = NULL;
+  last_rdn = NULL;
+  last_ava = NULL;
+}
+
 
 /*--- Included file: packet-x509if-fn.c ---*/
-#line 1 "packet-x509if-fn.c"
+#line 1 "../../asn1/x509if/packet-x509if-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Refinement -> Refinement/and -> Refinement */
@@ -349,7 +365,7 @@ dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_x509if_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 310 "x509if.cnf"
+#line 315 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -374,7 +390,7 @@ dissect_x509if_T_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x509if_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 280 "x509if.cnf"
+#line 285 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree);
 
 
@@ -395,7 +411,7 @@ dissect_x509if_T_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509if_T_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 292 "x509if.cnf"
+#line 297 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -492,14 +508,13 @@ static const ber_sequence_t Attribute_sequence[] = {
 
 int
 dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 411 "x509if.cnf"
+#line 418 "../../asn1/x509if/x509if.cnf"
 	doing_attr = TRUE;
+	register_frame_end_routine (x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_x509if_Attribute);
 
-
-	doing_attr = FALSE;
 
 
   return offset;
@@ -518,7 +533,7 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 298 "x509if.cnf"
+#line 303 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -539,7 +554,7 @@ dissect_x509if_T_type_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_x509if_T_assertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 304 "x509if.cnf"
+#line 309 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -569,7 +584,7 @@ dissect_x509if_T_ca_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509if_T_ca_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "x509if.cnf"
+#line 184 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -650,10 +665,11 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 402 "x509if.cnf"
+#line 408 "../../asn1/x509if/x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+	register_frame_end_routine (x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AttributeValueAssertion_sequence, hf_index, ett_x509if_AttributeValueAssertion);
@@ -707,7 +723,7 @@ dissect_x509if_AttributeTypeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 190 "x509if.cnf"
+#line 190 "../../asn1/x509if/x509if.cnf"
   const char *fmt; 
   const char *name;
 
@@ -719,7 +735,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     name = oid_resolved_from_string(object_identifier_id);
     if(!name) name = object_identifier_id;    
 
-    if(doing_dn) { /* append it to the RDN */
+    if(last_rdn) { /* append it to the RDN */
       g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
       g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
 
@@ -735,6 +751,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+      register_frame_end_routine (x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
 
@@ -752,7 +769,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "x509if.cnf"
+#line 226 "../../asn1/x509if/x509if.cnf"
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char  	*value = NULL;
@@ -776,7 +793,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     /* it was a string - format it */
     value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
 
-    if(doing_dn) {
+    if(last_rdn) {
       g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
 
       /* append it to the tree*/
@@ -786,11 +803,15 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
-    if(!(name = oid_resolved_from_string(object_identifier_id)))
-      name = object_identifier_id;
-    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
+      if (!last_ava) {
+        last_ava = ep_alloc(MAX_AVA_STR_LEN);
+      }
 
-    proto_item_append_text(tree, " %s", last_ava);
+      if(!(name = oid_resolved_from_string(object_identifier_id)))
+        name = object_identifier_id;
+      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
+
+      proto_item_append_text(tree, " %s", last_ava);
 
     }
   }
@@ -804,7 +825,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509if_T_distingAttrValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 325 "x509if.cnf"
+#line 330 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -861,13 +882,13 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 356 "x509if.cnf"
+#line 360 "../../asn1/x509if/x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
   } else {
 
-   if(doing_dn)  
+   if(last_rdn)  
      /* this is an additional value - delimit */
      g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
   }
@@ -889,13 +910,13 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 328 "x509if.cnf"
+#line 333 "../../asn1/x509if/x509if.cnf"
   char *temp_dn;
 
   rdn_one_value = FALSE;
   top_of_rdn = tree;
   last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
-  doing_dn = TRUE;
+  register_frame_end_routine (x509if_frame_end);
 
     offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  RelativeDistinguishedName_set_of, hf_index, ett_x509if_RelativeDistinguishedName);
@@ -916,7 +937,6 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
     }
   }
 
-  doing_dn = FALSE;
   last_rdn = NULL; /* it will get freed when the next packet is dissected */
 
 
@@ -928,7 +948,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 391 "x509if.cnf"
+#line 397 "../../asn1/x509if/x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -952,12 +972,14 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 371 "x509if.cnf"
+#line 375 "../../asn1/x509if/x509if.cnf"
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
+  register_frame_end_routine (x509if_frame_end);
+
 
     offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       RDNSequence_sequence_of, hf_index, ett_x509if_RDNSequence);
@@ -1362,7 +1384,7 @@ dissect_x509if_T_attributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x509if_T_ra_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 271 "x509if.cnf"
+#line 276 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1396,7 +1418,7 @@ dissect_x509if_T_entryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x509if_T_ra_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 277 "x509if.cnf"
+#line 282 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1458,7 +1480,7 @@ dissect_x509if_T_contextType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509if_T_contextValue_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 316 "x509if.cnf"
+#line 321 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1559,7 +1581,7 @@ dissect_x509if_T_restrictionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x509if_T_restrictionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 322 "x509if.cnf"
+#line 327 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1680,7 +1702,7 @@ dissect_x509if_T_attributeType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x509if_T_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 286 "x509if.cnf"
+#line 291 "../../asn1/x509if/x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -2080,7 +2102,7 @@ static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 76 "packet-x509if-template.c"
+#line 92 "../../asn1/x509if/packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2127,7 +2149,7 @@ void proto_register_x509if(void) {
 			 
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
-#line 1 "packet-x509if-hfarr.c"
+#line 1 "../../asn1/x509if/packet-x509if-hfarr.c"
     { &hf_x509if_DistinguishedName_PDU,
       { "DistinguishedName", "x509if.DistinguishedName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2746,14 +2768,14 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 121 "packet-x509if-template.c"
+#line 137 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-x509if-ettarr.c ---*/
-#line 1 "packet-x509if-ettarr.c"
+#line 1 "../../asn1/x509if/packet-x509if-ettarr.c"
     &ett_x509if_Attribute,
     &ett_x509if_T_values,
     &ett_x509if_T_valuesWithContext,
@@ -2829,7 +2851,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 126 "packet-x509if-template.c"
+#line 142 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2850,7 +2872,7 @@ void proto_register_x509if(void) {
 void proto_reg_handoff_x509if(void) {
 
 /*--- Included file: packet-x509if-dis-tab.c ---*/
-#line 1 "packet-x509if-dis-tab.c"
+#line 1 "../../asn1/x509if/packet-x509if-dis-tab.c"
   register_ber_oid_dissector("2.5.4.1", dissect_DistinguishedName_PDU, proto_x509if, "id-at-aliasedEntryName");
   register_ber_oid_dissector("2.5.4.31", dissect_DistinguishedName_PDU, proto_x509if, "id-at-member");
   register_ber_oid_dissector("2.5.4.32", dissect_DistinguishedName_PDU, proto_x509if, "id-at-owner");
@@ -2885,6 +2907,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 145 "packet-x509if-template.c"
+#line 161 "../../asn1/x509if/packet-x509if-template.c"
 }
 

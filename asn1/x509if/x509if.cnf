@@ -197,7 +197,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     name = oid_resolved_from_string(object_identifier_id);
     if(!name) name = object_identifier_id;    
 
-    if(doing_dn) { /* append it to the RDN */
+    if(last_rdn) { /* append it to the RDN */
       g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
       g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
 
@@ -213,6 +213,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+      register_frame_end_routine (x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
 
@@ -245,7 +246,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     /* it was a string - format it */
     value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
 
-    if(doing_dn) {
+    if(last_rdn) {
       g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
 
       /* append it to the tree*/
@@ -255,11 +256,15 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
-    if(!(name = oid_resolved_from_string(object_identifier_id)))
-      name = object_identifier_id;
-    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
+      if (!last_ava) {
+        last_ava = ep_alloc(MAX_AVA_STR_LEN);
+      }
 
-    proto_item_append_text(tree, " %%s", last_ava);
+      if(!(name = oid_resolved_from_string(object_identifier_id)))
+        name = object_identifier_id;
+      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
+
+      proto_item_append_text(tree, " %%s", last_ava);
 
     }
   }
@@ -330,7 +335,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   rdn_one_value = FALSE;
   top_of_rdn = tree;
   last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
-  doing_dn = TRUE;
+  register_frame_end_routine (x509if_frame_end);
 
   %(DEFAULT_BODY)s
 
@@ -349,7 +354,6 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     }
   }
 
-  doing_dn = FALSE;
   last_rdn = NULL; /* it will get freed when the next packet is dissected */
 
 #.FN_BODY RelativeDistinguishedName/_item
@@ -358,7 +362,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     top_of_rdn = tree;
   } else {
 
-   if(doing_dn)  
+   if(last_rdn)  
      /* this is an additional value - delimit */
      g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
   }
@@ -373,6 +377,8 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
+  register_frame_end_routine (x509if_frame_end);
+
 
   %(DEFAULT_BODY)s
 
@@ -402,6 +408,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+	register_frame_end_routine (x509if_frame_end);
 
 	%(DEFAULT_BODY)s
 
@@ -409,10 +416,9 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
 #.FN_BODY Attribute
 	doing_attr = TRUE;
+	register_frame_end_routine (x509if_frame_end);
 
 	%(DEFAULT_BODY)s
-
-	doing_attr = FALSE;
 #.END
 
 
