@@ -100,18 +100,13 @@ static gint16
 ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
 {
   gint16 i = MIN(-err, ((gint16) ElementsOf(ErrCodes)-1));
-  proto_item *ti;
-  if (1)
+  if (i >= 0)
   {
-    if (i >= 0)
-    {
-      ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s %s (%s)", sz, ErrCodes[i], pDescr?pDescr->sz:"-");
-    }
-    else
-    {
-      ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s (%s)", sz, pDescr?pDescr->sz:"-");
-
-    }
+    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s %s (%s)", sz, ErrCodes[i], pDescr?pDescr->sz:"-");
+  }
+  else
+  {
+    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "ERROR %s (%s)", sz, pDescr?pDescr->sz:"-");
   }
 
   return err;
