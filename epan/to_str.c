@@ -866,34 +866,34 @@ decode_bits_in_field(const gint bit_offset, const gint no_of_bits, const guint64
 	str[0]='\0';
 	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
 		if(bit&&(!(bit%4))){
-			strcat(str, " ");
+			g_strlcat(str, " ", 256);
 		}
-		strcat(str,".");
+		g_strlcat(str, ".", 256);
 	}
 
 	/* read the bits for the int */
 	for(i=0;i<no_of_bits;i++){
 		if(bit&&(!(bit%4))){
-			strcat(str, " ");
+			g_strlcat(str, " ", 256);
 		}
 		if(bit&&(!(bit%8))){
-			strcat(str, " ");
+			g_strlcat(str, " ", 256);
 		}
 		bit++;
 		tmp = value & mask;
 		if(tmp != 0){
-			strcat(str, "1");
+			g_strlcat(str, "1", 256);
 		} else {
-			strcat(str, "0");
+			g_strlcat(str, "0", 256);
 		}
 		mask = mask>>1;
 	}
 
 	for(;bit%8;bit++){
 		if(bit&&(!(bit%4))){
-			strcat(str, " ");
+			g_strlcat(str, " ", 256);
 		}
-		strcat(str,".");
+		g_strlcat(str, ".", 256);
 	}
 	return str;
 }
