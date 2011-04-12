@@ -28,18 +28,18 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/reassemble.h>
+#include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+
 #include "packet-ipx.h"
 #include "packet-tcp.h"
-#include <epan/conversation.h>
 #include "packet-ndps.h"
-#include <epan/reassemble.h>
-#include <epan/expert.h>
 
 /* Limit the number of items we can add to the tree. */
 #define NDPS_MAX_ITEMS 100
@@ -1991,11 +1991,11 @@ static const value_string ndps_get_resman_session_type_enum[] = {
 static int
 align_4(tvbuff_t *tvb, int aoffset)
 {
-       if(tvb_length_remaining(tvb, aoffset) > 4 )
-       {
-                return (aoffset%4);
-       }
-       return 0;
+    if(tvb_length_remaining(tvb, aoffset) > 4 )
+    {
+        return (aoffset%4);
+    }
+    return 0;
 }
 
 /*
@@ -2430,10 +2430,10 @@ credentials(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset += 4;
         for (i = 1 ; i <= number_of_items; i++ )
         {
-	    if (i > NDPS_MAX_ITEMS) {
-	        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	        break;
-	    }
+            if (i > NDPS_MAX_ITEMS) {
+                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                break;
+            }
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Password %d", i);
             atree = proto_item_add_subtree(aitem, ett_ndps);
             length = tvb_get_ntohl(tvb, foffset);
@@ -2490,7 +2490,7 @@ credentials(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset = ndps_string(tvb, hf_ndps_user_name, ndps_tree, foffset, NULL);
         foffset += 8;   /* Don't know what these 8 bytes signify */
         proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset, 4, FALSE);
-        foffset += 4;	/* XXX - what does this count? */
+        foffset += 4;   /* XXX - what does this count? */
         foffset = ndps_string(tvb, hf_ndps_pa_name, ndps_tree, foffset, NULL);
         foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset, NULL);
         break;
@@ -2523,10 +2523,10 @@ event_object_set(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     foffset += 4;
     for (i = 1 ; i <= number_of_items; i++ )
     {
-	if (i > NDPS_MAX_ITEMS) {
-	    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	    break;
-	}
+        if (i > NDPS_MAX_ITEMS) {
+            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+            break;
+        }
         bitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Event %u", i);
         btree = proto_item_add_subtree(bitem, ett_ndps);
         proto_tree_add_item(btree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
@@ -2553,10 +2553,10 @@ event_object_set(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 foffset += 4;
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-	            if (j > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Item %u", j);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = objectidentifier(tvb, ctree, foffset);
@@ -2586,10 +2586,10 @@ cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     foffset += 4;
     for (i = 1 ; i <= number_of_items; i++ )
     {
-	if (i > NDPS_MAX_ITEMS) {
-	    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	    break;
-	}
+        if (i > NDPS_MAX_ITEMS) {
+            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+            break;
+        }
         aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Cardinal %u", i);
         atree = proto_item_add_subtree(aitem, ett_ndps);
         length = tvb_get_ntohl(tvb, foffset);
@@ -2633,10 +2633,10 @@ server_entry(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     foffset += 4;
     for (i = 1 ; i <= number_of_items; i++ )
     {
-	if (i > NDPS_MAX_ITEMS) {
-	    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	    break;
-	}
+        if (i > NDPS_MAX_ITEMS) {
+            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+            break;
+        }
         bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Info %u", i);
         btree = proto_item_add_subtree(bitem, ett_ndps);
         data_type = tvb_get_ntohl(tvb, foffset);
@@ -2746,10 +2746,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = name_or_id(tvb, atree, foffset);
@@ -2767,10 +2767,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Name %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset, NULL);
@@ -2835,10 +2835,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
@@ -2876,10 +2876,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Object %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = objectidentifier(tvb, atree, foffset);
@@ -2892,10 +2892,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Name %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset, NULL);
@@ -2958,10 +2958,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Location %u", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_n64, tvb, foffset, 8, FALSE);
@@ -2994,10 +2994,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Area %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_xmin_n64, tvb, foffset, 8, FALSE);
@@ -3081,10 +3081,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Address Item %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = address_item(tvb, atree, foffset);
@@ -3095,10 +3095,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Event %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_event_type, tvb, foffset, 4, FALSE);
@@ -3120,10 +3120,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                         foffset += 4;
                         for (j = 1 ; j <= number_of_items2; j++ )
                         {
-	                    if (j > NDPS_MAX_ITEMS) {
-	                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                        break;
-	                    }
+                            if (j > NDPS_MAX_ITEMS) {
+                                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                                break;
+                            }
                             foffset = objectidentifier(tvb, atree, foffset);
                         }
                         foffset += 4;
@@ -3139,10 +3139,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                         foffset += 4;
                         for (j = 1 ; j <= number_of_items2; j++ )
                         {
-	                    if (j > NDPS_MAX_ITEMS) {
-	                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                        break;
-	                    }
+                            if (j > NDPS_MAX_ITEMS) {
+                                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                                break;
+                            }
                             bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Object %u", i);
                             btree = proto_item_add_subtree(bitem, ett_ndps);
                             foffset = objectidentifier(tvb, btree, foffset);
@@ -3217,10 +3217,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Job %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -3245,10 +3245,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Ignored Attribute %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 ignored_type = tvb_get_ntohl(tvb, foffset);
@@ -3292,10 +3292,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Resource %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 resource_type = tvb_get_ntohl(tvb, foffset);
@@ -3318,10 +3318,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Page Select %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_page_flag, tvb, foffset, 4, FALSE);
@@ -3379,10 +3379,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %u", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_page_flag, tvb, foffset, 4, FALSE);
@@ -3522,10 +3522,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Page Information %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_page_order, tvb, foffset, 4, FALSE);
@@ -3553,10 +3553,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Category %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -3575,10 +3575,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Value %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -3704,10 +3704,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Name %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = qualifiedname(tvb, atree, foffset);
@@ -3731,10 +3731,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Colorant %u", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = name_or_id(tvb, atree, foffset);
@@ -3748,10 +3748,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Printer %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_ndps_printer_type, atree, foffset, NULL);
@@ -3800,10 +3800,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Object %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_ndps_pa_name, atree, foffset, NULL);
@@ -3907,10 +3907,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Event %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = ndps_string(tvb, hf_object_name, atree, foffset, NULL);
@@ -3926,10 +3926,10 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Object %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = objectidentifier(tvb, atree, foffset);
@@ -3967,13 +3967,13 @@ commonarguments(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     foffset += 4;
     for (i = 1 ; i <= number_of_items; i++ )
     {
-	if (i > NDPS_MAX_ITEMS) {
-	    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	    break;
-	}
+        if (i > NDPS_MAX_ITEMS) {
+            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+            break;
+        }
         bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Argument %u", i);
         btree = proto_item_add_subtree(bitem, ett_ndps);
-        foffset = attribute_value(tvb, atree, foffset);
+        foffset = attribute_value(tvb, btree, foffset);
         proto_item_set_end(bitem, tvb, foffset);
     }
     proto_item_set_end(aitem, tvb, foffset);
@@ -4026,19 +4026,19 @@ res_add_input_data(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 
 
 static const fragment_items ndps_frag_items = {
-	&ett_ndps_segment,
-	&ett_ndps_segments,
-	&hf_ndps_segments,
-	&hf_ndps_segment,
-	&hf_ndps_segment_overlap,
-	&hf_ndps_segment_overlap_conflict,
-	&hf_ndps_segment_multiple_tails,
-	&hf_ndps_segment_too_long_segment,
-	&hf_ndps_segment_error,
-	&hf_ndps_segment_count,
-	NULL,
-	&hf_ndps_reassembled_length,
-	"segments"
+    &ett_ndps_segment,
+    &ett_ndps_segments,
+    &hf_ndps_segments,
+    &hf_ndps_segment,
+    &hf_ndps_segment_overlap,
+    &hf_ndps_segment_overlap_conflict,
+    &hf_ndps_segment_multiple_tails,
+    &hf_ndps_segment_too_long_segment,
+    &hf_ndps_segment_error,
+    &hf_ndps_segment_count,
+    NULL,
+    &hf_ndps_reassembled_length,
+    "segments"
 };
 
 static dissector_handle_t ndps_data_handle;
@@ -4063,16 +4063,16 @@ static dissector_handle_t ndps_data_handle;
  * struct tells us the NDPS Program and Function and gives the NDPS_record pointer.
  */
 typedef struct {
-	conversation_t	*conversation;
-	guint32		    ndps_xport;
+    conversation_t      *conversation;
+    guint32              ndps_xport;
 } ndps_req_hash_key;
 
 typedef struct {
-        guint32             ndps_prog;
-        guint32             ndps_func;
-        guint32             ndps_frame_num;
-        gboolean            ndps_frag;
-        guint32             ndps_end_frag;
+    guint32             ndps_prog;
+    guint32             ndps_func;
+    guint32             ndps_frame_num;
+    gboolean            ndps_frag;
+    guint32             ndps_end_frag;
 } ndps_req_hash_value;
 
 static GHashTable *ndps_req_hash = NULL;
@@ -4081,21 +4081,21 @@ static GHashTable *ndps_req_hash = NULL;
 static gint
 ndps_equal(gconstpointer v, gconstpointer v2)
 {
-	const ndps_req_hash_key	*val1 = (const ndps_req_hash_key*)v;
-	const ndps_req_hash_key	*val2 = (const ndps_req_hash_key*)v2;
+    const ndps_req_hash_key     *val1 = (const ndps_req_hash_key*)v;
+    const ndps_req_hash_key     *val2 = (const ndps_req_hash_key*)v2;
 
-	if (val1->conversation == val2->conversation &&
-	    val1->ndps_xport  == val2->ndps_xport ) {
-		return 1;
-	}
-	return 0;
+    if (val1->conversation == val2->conversation &&
+        val1->ndps_xport   == val2->ndps_xport ) {
+        return 1;
+    }
+    return 0;
 }
 
 static guint
 ndps_hash(gconstpointer v)
 {
-	const ndps_req_hash_key	*ndps_key = (const ndps_req_hash_key*)v;
-	return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xport;
+    const ndps_req_hash_key *ndps_key = (const ndps_req_hash_key*)v;
+    return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xport;
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
@@ -4103,14 +4103,14 @@ ndps_hash(gconstpointer v)
 static void
 ndps_init_protocol(void)
 {
-  	/* fragment */
-  	fragment_table_init(&ndps_fragment_table);
-  	reassembled_table_init(&ndps_reassembled_table);
+    /* fragment */
+    fragment_table_init(&ndps_fragment_table);
+    reassembled_table_init(&ndps_reassembled_table);
 
-	if (ndps_req_hash)
-		g_hash_table_destroy(ndps_req_hash);
+    if (ndps_req_hash)
+        g_hash_table_destroy(ndps_req_hash);
 
-	ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
+    ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -4119,49 +4119,49 @@ ndps_init_protocol(void)
 static void
 ndps_postseq_cleanup(void)
 {
-	if (ndps_req_hash) {
-		/* Destroy the hash, but don't clean up request_condition data. */
-		g_hash_table_destroy(ndps_req_hash);
-		ndps_req_hash = NULL;
-	}
-	/* Don't free the ncp_req_hash_values, as they're
-	 * needed during random-access processing of the proto_tree.*/
+    if (ndps_req_hash) {
+        /* Destroy the hash, but don't clean up request_condition data. */
+        g_hash_table_destroy(ndps_req_hash);
+        ndps_req_hash = NULL;
+    }
+    /* Don't free the ncp_req_hash_values, as they're
+     * needed during random-access processing of the proto_tree.*/
 }
 
 static ndps_req_hash_value*
 ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 {
-	ndps_req_hash_key		*request_key;
-	ndps_req_hash_value		*request_value;
+    ndps_req_hash_key           *request_key;
+    ndps_req_hash_value         *request_value;
 
-	/* Now remember the request, so we can find it if we later
-	   a reply to it. */
-	request_key = se_alloc(sizeof(ndps_req_hash_key));
-	request_key->conversation = conversation;
-	request_key->ndps_xport = ndps_xport;
+    /* Now remember the request, so we can find it if we later
+       a reply to it. */
+    request_key = se_alloc(sizeof(ndps_req_hash_key));
+    request_key->conversation = conversation;
+    request_key->ndps_xport = ndps_xport;
 
-	request_value = se_alloc(sizeof(ndps_req_hash_value));
-	request_value->ndps_prog = 0;
-	request_value->ndps_func = 0;
-	request_value->ndps_frame_num = 0;
+    request_value = se_alloc(sizeof(ndps_req_hash_value));
+    request_value->ndps_prog = 0;
+    request_value->ndps_func = 0;
+    request_value->ndps_frame_num = 0;
     request_value->ndps_frag = FALSE;
     request_value->ndps_end_frag = 0;
 
-	g_hash_table_insert(ndps_req_hash, request_key, request_value);
+    g_hash_table_insert(ndps_req_hash, request_key, request_value);
 
-	return request_value;
+    return request_value;
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
 static ndps_req_hash_value*
 ndps_hash_lookup(conversation_t *conversation, guint32 ndps_xport)
 {
-	ndps_req_hash_key		request_key;
+    ndps_req_hash_key           request_key;
 
-	request_key.conversation = conversation;
-	request_key.ndps_xport = ndps_xport;
+    request_key.conversation = conversation;
+    request_key.ndps_xport = ndps_xport;
 
-	return g_hash_table_lookup(ndps_req_hash, &request_key);
+    return g_hash_table_lookup(ndps_req_hash, &request_key);
 }
 
 /* ================================================================= */
@@ -4297,8 +4297,8 @@ get_ndps_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	    *ndps_tree = NULL;
-    proto_item	    *ti;
+    proto_tree      *ndps_tree = NULL;
+    proto_item      *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
@@ -4337,7 +4337,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t            *next_tvb = NULL;
     fragment_data       *fd_head;
     spx_info            *spx_info_p;
-    ndps_req_hash_value	*request_value = NULL;
+    ndps_req_hash_value *request_value = NULL;
     conversation_t      *conversation;
 
     /* Get SPX info from SPX dissector */
@@ -4359,9 +4359,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                 PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
-            /* Create new request value hash */
-            request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
         }
+
         /* So now we need to get the request info for this conversation */
         request_value = ndps_hash_lookup(conversation, (guint32) pinfo->srcport);
         if (request_value == NULL)
@@ -4482,16 +4481,15 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len,
-	dissect_ndps_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, ndps_desegment, 4, get_ndps_pdu_len, dissect_ndps_pdu);
 }
 
 
 static void
 dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	    *ndps_tree = NULL;
-    proto_item	    *ti;
+    proto_tree      *ndps_tree = NULL;
+    proto_item      *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
@@ -4507,7 +4505,7 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_prog, guint32 ndps_func, int foffset)
 {
-    ndps_req_hash_value	*request_value = NULL;
+    ndps_req_hash_value *request_value = NULL;
     conversation_t      *conversation;
     guint32             i;
     guint32             j;
@@ -4531,7 +4529,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     guint32             profiles_choice_type;
     guint32             integer_type_flag;
     guint32             local_servers_type;
-    gint	        length_remaining;
+    gint                length_remaining;
     proto_tree          *atree;
     proto_item          *aitem;
     proto_tree          *btree;
@@ -4584,10 +4582,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -4623,10 +4621,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset);
@@ -4635,10 +4633,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                     foffset += 4;
                     for (j = 1 ; j <= number_of_items2; j++ )
                     {
-	                if (j > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (j > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         citem = proto_tree_add_text(btree, tvb, foffset, -1, "Value %u", j);
                         ctree = proto_item_add_subtree(citem, ett_ndps);
                         foffset = attribute_value(tvb, ctree, foffset);
@@ -4656,10 +4654,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Type %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset);
@@ -4674,10 +4672,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Value %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     if (doc_content==0)
@@ -4719,10 +4717,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset);
@@ -4731,10 +4729,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                     foffset += 4;
                     for (j = 1 ; j <= number_of_items2; j++ )
                     {
-	                if (j > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (j > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         citem = proto_tree_add_text(btree, tvb, foffset, -1, "Value %u", j);
                         ctree = proto_item_add_subtree(citem, ett_ndps);
                         foffset = attribute_value(tvb, ctree, foffset);
@@ -4752,10 +4750,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = attribute_value(tvb, btree, foffset);  /* Document Attributes */
@@ -4775,10 +4773,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Method %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset); /* Transfer Method */
@@ -4794,10 +4792,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Type %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset); /* Document Type */
@@ -4812,10 +4810,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = attribute_value(tvb, btree, foffset);  /* Document Attributes */
@@ -4847,10 +4845,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Modification %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Job Modifications */
@@ -4864,10 +4862,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Modification %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Document Modifications */
@@ -4926,10 +4924,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Attribute %u", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = attribute_value(tvb, atree, foffset);
@@ -4956,10 +4954,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items; i++ )
                     {
-	                if (i > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (i > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Option %u", i);
                         btree = proto_item_add_subtree(bitem, ett_ndps);
                         foffset = objectidentification(tvb, btree, foffset);
@@ -4983,10 +4981,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                         foffset += 4;
                         for (i = 1 ; i <= number_of_items; i++ )
                         {
-	                    if (i > NDPS_MAX_ITEMS) {
-	                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                        break;
-	                    }
+                            if (i > NDPS_MAX_ITEMS) {
+                                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                                break;
+                            }
                             foffset = filteritem(tvb, ndps_tree, foffset);
                         }
                         proto_item_set_end(aitem, tvb, foffset);
@@ -5004,10 +5002,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                     btree = proto_item_add_subtree(bitem, ett_ndps);
                     foffset = objectidentifier(tvb, btree, foffset);
@@ -5163,10 +5161,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
@@ -5225,10 +5223,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 /* Start of NWDPPrtContainedObjectId */
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Job ID");
                 btree = proto_item_add_subtree(bitem, ett_ndps);
@@ -5247,10 +5245,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-	            if (j > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Attribute %u", j);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = attribute_value(tvb, ctree, foffset);  /* Object Attribute Set */
@@ -5266,10 +5264,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-	            if (j > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Attribute %u", j);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = attribute_value(tvb, ctree, foffset);  /* Object Attribute Set */
@@ -5278,7 +5276,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 proto_item_set_end(bitem, tvb, foffset);
                 /* End of AttributeSet */
             }
-            proto_item_set_end(aitem, tvb, foffset);	/* End of ResubmitJob Set */
+            proto_item_set_end(aitem, tvb, foffset);   /* End of ResubmitJob Set */
             /* Start of NameorID */
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Resubmit Message Option");
             atree = proto_item_add_subtree(aitem, ett_ndps);
@@ -5305,10 +5303,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Modification %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
@@ -5431,10 +5429,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -5636,10 +5634,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -5659,10 +5657,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = objectidentifier(tvb, btree, foffset);
@@ -5758,10 +5756,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -5789,10 +5787,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
                 if (length!=0)
@@ -5827,10 +5825,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -5865,10 +5863,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Entry %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = server_entry(tvb, btree, foffset);
@@ -5882,10 +5880,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Entry %u", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = server_entry(tvb, btree, foffset);
@@ -5943,10 +5941,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -5972,10 +5970,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Supplier Alias %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = qualifiedname(tvb, atree, foffset);
@@ -6025,10 +6023,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -6169,10 +6167,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Item %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 /* Start of ReportEventItem */
@@ -6209,10 +6207,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 ctree = proto_item_add_subtree(citem, ett_ndps);
                 for (j = 1 ; j <= number_of_items; j++ )
                 {
-	            if (j > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     ditem = proto_tree_add_text(ctree, tvb, foffset, -1, "Modification %d", j);
                     dtree = proto_item_add_subtree(ditem, ett_ndps);
                     foffset = attribute_value(tvb, dtree, foffset);  /* Object Attribute Set */
@@ -6236,10 +6234,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Destination %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 /* Start of Destination */
@@ -6293,10 +6291,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);
@@ -6387,10 +6385,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -6420,10 +6418,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
@@ -6579,10 +6577,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -6640,10 +6638,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Object %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_session, tvb, foffset, 4, FALSE);
@@ -6692,10 +6690,10 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     foffset = attribute_value(tvb, btree, foffset);
                 }
                 proto_item_set_end(bitem, tvb, foffset);
@@ -6877,10 +6875,10 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
         foffset += 4;
         for (i = 1 ; i <= number_of_items; i++ )
         {
-	    if (i > NDPS_MAX_ITEMS) {
-	        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	        break;
-	    }
+            if (i > NDPS_MAX_ITEMS) {
+                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                break;
+            }
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
             atree = proto_item_add_subtree(aitem, ett_ndps);
             proto_tree_add_item(atree, hf_problem_type, tvb, foffset, 4, FALSE);
@@ -6975,7 +6973,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     guint32                 ndps_prog=0;
     guint32                 error_val=0;
     guint32                 resource_type=0;
-    gint		    length_remaining;
+    gint                    length_remaining;
     proto_item              *expert_item;
     guint32                 expert_status;
 
@@ -7103,10 +7101,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
@@ -7130,10 +7128,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	            if (i > NDPS_MAX_ITEMS) {
-    		        proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	    	        break;
-		        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Option %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
@@ -7163,10 +7161,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated Result]");
-	                break;
-	            }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated Result]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Results: (%d)", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 if (i>1) {
@@ -7178,10 +7176,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-    	            if (j > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated Object]");
-	                    break;
-	                }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated Object]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Object: (%d)", j);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = objectidentifier(tvb, ctree, foffset);
@@ -7191,10 +7189,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                     foffset += 4;
                     for (k = 1 ; k <= number_of_items3; k++ )
                     {
-	                    if (k > NDPS_MAX_ITEMS) {
-	                        proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated Value]");
-	                        break;
-	                    }
+                        if (k > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated Value]");
+                            break;
+                        }
                         ditem = proto_tree_add_text(ctree, tvb, foffset, -1, "Value: (%d)", k);
                         dtree = proto_item_add_subtree(ditem, ett_ndps);
                         foffset = attribute_value(tvb, dtree, foffset);
@@ -7235,10 +7233,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Attribute %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
@@ -7279,10 +7277,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Job %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 /* Start of NWDPPrtContainedObjectId */
@@ -7309,10 +7307,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 ctree = proto_item_add_subtree(citem, ett_ndps);
                 for (j = 1 ; j <= number_of_items2; j++ )
                 {
-	            if (j > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (j > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ctree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     ditem = proto_tree_add_text(ctree, tvb, foffset, -1, "Object %d", j);
                     dtree = proto_item_add_subtree(ditem, ett_ndps);
                     foffset = attribute_value(tvb, dtree, foffset);  /* Object Attribute Set */
@@ -7338,10 +7336,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Object %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
@@ -7364,13 +7362,13 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Object %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
-                foffset = attribute_value(tvb, atree, foffset);  /* Object Attribute Set */
+                foffset = attribute_value(tvb, btree, foffset);  /* Object Attribute Set */
                 proto_item_set_end(bitem, tvb, foffset);
             }
             proto_item_set_end(aitem, tvb, foffset);
@@ -7427,10 +7425,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -7478,10 +7476,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Event %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 /* Start of Eventhandling2 */
@@ -7510,10 +7508,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Address %d", i);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = address_item(tvb, ctree, foffset);
@@ -7533,10 +7531,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     citem = proto_tree_add_text(btree, tvb, foffset, -1, "Attribute %d", i);
                     ctree = proto_item_add_subtree(citem, ett_ndps);
                     foffset = objectidentifier(tvb, ctree, foffset);
@@ -7587,10 +7585,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Service %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 proto_tree_add_item(atree, hf_ndps_service_type, tvb, foffset, 4, FALSE);
@@ -7603,7 +7601,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             break;
         case 0x00000007:    /* Get Broker NDS Object Name */
             proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset,
-            4, FALSE);	/* XXX - what does this count? */
+            4, FALSE);  /* XXX - what does this count? */
             foffset += 4;
             foffset = ndps_string(tvb, hf_ndps_broker_name, ndps_tree, foffset, NULL);
             foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset, NULL);
@@ -7623,10 +7621,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Attribute %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -7656,10 +7654,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset = server_entry(tvb, atree, foffset);
@@ -7681,10 +7679,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_item(ndps_tree, hf_ndps_client_server_type, tvb, foffset, 4, FALSE);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 foffset += 4;
@@ -7728,10 +7726,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Attribute %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
@@ -7805,10 +7803,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -7856,10 +7854,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 /* Start of DeliveryMethod */
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Method %d", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
@@ -7902,10 +7900,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Address %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 foffset = address_item(tvb, btree, foffset);
@@ -7916,7 +7914,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             break;
         case 0x00000010:    /* Get Notify NDS Object Name */
             proto_tree_add_item(ndps_tree, hf_ndps_item_count, tvb, foffset,
-            4, FALSE);	/* XXX - what does this count? */
+            4, FALSE);  /* XXX - what does this count? */
             foffset += 4;
             foffset = ndps_string(tvb, hf_ndps_broker_name, ndps_tree, foffset, NULL);
             foffset = ndps_string(tvb, hf_ndps_tree, ndps_tree, foffset, NULL);
@@ -7976,10 +7974,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Definition %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     if (tvb_get_ntohl(tvb, foffset)==0) {  /* Offset for old type support */
@@ -8006,10 +8004,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Banner %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_banner_name, atree, foffset, NULL);
@@ -8022,10 +8020,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Font %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_font_type_name, atree, foffset, NULL);
@@ -8038,10 +8036,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Font File %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_font_file_name, atree, foffset, NULL);
@@ -8056,10 +8054,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "File %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_prn_file_name, atree, foffset, NULL);
@@ -8074,10 +8072,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Definition %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_prn_file_name, atree, foffset, NULL);
@@ -8090,10 +8088,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Item %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_def_file_name, atree, foffset, NULL);
@@ -8104,10 +8102,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items2; i++ )
                     {
-	                if (i > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (i > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset, NULL);
                     }
                     proto_item_set_end(bitem, tvb, foffset);
@@ -8118,10 +8116,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items2; i++ )
                     {
-	                if (i > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (i > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(btree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset, NULL);
                     }
                     proto_item_set_end(bitem, tvb, foffset);
@@ -8135,10 +8133,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "OS %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_os_type, tvb, foffset, 4, FALSE);
@@ -8148,10 +8146,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                     foffset += 4;
                     for (i = 1 ; i <= number_of_items2; i++ )
                     {
-	                if (i > NDPS_MAX_ITEMS) {
-	                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	                    break;
-	                }
+                        if (i > NDPS_MAX_ITEMS) {
+                            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                            break;
+                        }
                         bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Key %d", i);
                         btree = proto_item_add_subtree(bitem, ett_ndps);
                         foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset, NULL);
@@ -8168,10 +8166,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Type %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     foffset = ndps_string(tvb, hf_ndps_printer_manuf, atree, foffset, NULL);
@@ -8191,10 +8189,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 for (i = 1 ; i <= number_of_items; i++ )
                 {
-	            if (i > NDPS_MAX_ITEMS) {
-	                proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
-	                break;
-	            }
+                    if (i > NDPS_MAX_ITEMS) {
+                        proto_tree_add_text(ndps_tree, tvb, foffset, -1, "[Truncated]");
+                        break;
+                    }
                     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Language %d", i);
                     atree = proto_item_add_subtree(aitem, ett_ndps);
                     proto_tree_add_item(atree, hf_ndps_language_id, tvb, foffset, 4, FALSE);
@@ -8290,10 +8288,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             for (i = 1 ; i <= number_of_items; i++ )
             {
-	        if (i > NDPS_MAX_ITEMS) {
-	            proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
-	            break;
-	        }
+                if (i > NDPS_MAX_ITEMS) {
+                    proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
+                    break;
+                }
                 bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Item %d", i);
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length=tvb_get_ntohl(tvb, foffset);
@@ -8321,1477 +8319,1477 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
 void
 proto_register_ndps(void)
 {
-	static hf_register_info hf_ndps[] = {
-		{ &hf_ndps_record_mark,
-		{ "Record Mark",		"ndps.record_mark", FT_UINT16, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+    static hf_register_info hf_ndps[] = {
+        { &hf_ndps_record_mark,
+          { "Record Mark",              "ndps.record_mark", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_packet_type,
-        { "Packet Type",    "ndps.packet_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_packet_types),   0x0,
-          NULL, HFILL }},
+          { "Packet Type",    "ndps.packet_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_packet_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_length,
-        { "Record Length",    "ndps.record_length",
-           FT_UINT16,    BASE_DEC,   NULL,   0x0,
-           NULL, HFILL }},
+          { "Record Length",    "ndps.record_length",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xid,
-        { "Exchange ID",    "ndps.xid",
-           FT_UINT32,    BASE_HEX,   NULL,   0x0,
-           NULL, HFILL }},
+          { "Exchange ID",    "ndps.xid",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rpc_version,
-        { "RPC Version",    "ndps.rpc_version",
-           FT_UINT32,    BASE_HEX,   NULL,   0x0,
-           NULL, HFILL }},
+          { "RPC Version",    "ndps.rpc_version",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_program,
-        { "NDPS Program Number",    "spx.ndps_program",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_program_vals),   0x0,
-          NULL, HFILL }},
+          { "NDPS Program Number",    "spx.ndps_program",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_program_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_version,
-        { "Program Version",    "spx.ndps_version",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Program Version",    "spx.ndps_version",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_error,
-        { "NDPS Error",    "spx.ndps_error",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "NDPS Error",    "spx.ndps_error",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_other_error_string,
-        { "Extended Error String",    "ndps.ext_err_string",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Extended Error String",    "ndps.ext_err_string",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_print,
-        { "Print Program",    "spx.ndps_func_print",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_print_func_vals),   0x0,
-          NULL, HFILL }},
+          { "Print Program",    "spx.ndps_func_print",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_print_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_notify,
-        { "Notify Program",    "spx.ndps_func_notify",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_notify_func_vals),   0x0,
-          NULL, HFILL }},
+          { "Notify Program",    "spx.ndps_func_notify",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_notify_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_delivery,
-        { "Delivery Program",    "spx.ndps_func_delivery",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_deliver_func_vals),   0x0,
-          NULL, HFILL }},
+          { "Delivery Program",    "spx.ndps_func_delivery",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_deliver_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_registry,
-        { "Registry Program",    "spx.ndps_func_registry",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_registry_func_vals),   0x0,
-          NULL, HFILL }},
+          { "Registry Program",    "spx.ndps_func_registry",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_registry_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_resman,
-        { "ResMan Program",    "spx.ndps_func_resman",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_resman_func_vals),   0x0,
-          NULL, HFILL }},
+          { "ResMan Program",    "spx.ndps_func_resman",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_resman_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_spx_ndps_func_broker,
-        { "Broker Program",    "spx.ndps_func_broker",
-          FT_UINT32,    BASE_HEX,   VALS(spx_ndps_broker_func_vals),   0x0,
-          NULL, HFILL }},
+          { "Broker Program",    "spx.ndps_func_broker",
+            FT_UINT32,    BASE_HEX,   VALS(spx_ndps_broker_func_vals),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_objects,
-        { "Number of Objects",    "ndps.num_objects",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Objects",    "ndps.num_objects",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_attributes,
-        { "Number of Attributes",    "ndps.num_attributes",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Attributes",    "ndps.num_attributes",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_sbuffer,
-        { "Server",    "ndps.sbuffer",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Server",    "ndps.sbuffer",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rbuffer,
-        { "Connection",    "ndps.rbuffer",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Connection",    "ndps.rbuffer",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_user_name,
-        { "Trustee Name",    "ndps.user_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Trustee Name",    "ndps.user_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_broker_name,
-        { "Broker Name",    "ndps.broker_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Broker Name",    "ndps.broker_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_results,
-        { "Number of Results",    "ndps.num_results",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Results",    "ndps.num_results",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_options,
-        { "Number of Options",    "ndps.num_options",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Options",    "ndps.num_options",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_jobs,
-        { "Number of Jobs",    "ndps.num_jobs",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Jobs",    "ndps.num_jobs",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_pa_name,
-        { "Printer Name",    "ndps.pa_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Name",    "ndps.pa_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_tree,
-        { "Tree",    "ndps.tree",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Tree",    "ndps.tree",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_reqframe,
-        { "Request Frame",    "ndps.reqframe",
-          FT_FRAMENUM,  BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Request Frame",    "ndps.reqframe",
+            FT_FRAMENUM,  BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_error_val,
-        { "Return Status",    "ndps.error_val",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
-          NULL, HFILL }},
+          { "Return Status",    "ndps.error_val",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_object,
-        { "Object ID",    "ndps.object",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Object ID",    "ndps.object",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_cred_type,
-        { "Credential Type",    "ndps.cred_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_credential_enum),   0x0,
-          NULL, HFILL }},
+          { "Credential Type",    "ndps.cred_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_credential_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_server_name,
-        { "Server Name",    "ndps.server_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Server Name",    "ndps.server_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_connection,
-        { "Connection",    "ndps.connection",
-          FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Connection",    "ndps.connection",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ext_error,
-        { "Extended Error Code",    "ndps.ext_error",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Extended Error Code",    "ndps.ext_error",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_auth_null,
-        { "Auth Null",    "ndps.auth_null",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Auth Null",    "ndps.auth_null",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rpc_accept,
-        { "RPC Accept or Deny",    "ndps.rpc_acc",
-          FT_UINT32,    BASE_HEX,   VALS(true_false),   0x0,
-          NULL, HFILL }},
+          { "RPC Accept or Deny",    "ndps.rpc_acc",
+            FT_UINT32,    BASE_HEX,   VALS(true_false),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rpc_acc_stat,
-        { "RPC Accept Status",    "ndps.rpc_acc_stat",
-          FT_UINT32,    BASE_HEX,   VALS(accept_stat),   0x0,
-          NULL, HFILL }},
+          { "RPC Accept Status",    "ndps.rpc_acc_stat",
+            FT_UINT32,    BASE_HEX,   VALS(accept_stat),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rpc_rej_stat,
-        { "RPC Reject Status",    "ndps.rpc_rej_stat",
-          FT_UINT32,    BASE_HEX,   VALS(reject_stat),   0x0,
-          NULL, HFILL }},
+          { "RPC Reject Status",    "ndps.rpc_rej_stat",
+            FT_UINT32,    BASE_HEX,   VALS(reject_stat),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_rpc_acc_results,
-        { "RPC Accept Results",    "ndps.rpc_acc_res",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "RPC Accept Results",    "ndps.rpc_acc_res",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_problem_type,
-        { "Problem Type",    "ndps.rpc_prob_type",
-          FT_UINT32,    BASE_HEX,   VALS(error_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Problem Type",    "ndps.rpc_prob_type",
+            FT_UINT32,    BASE_HEX,   VALS(error_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_security_problem_type,
-        { "Security Problem",    "ndps.rpc_sec_prob",
-          FT_UINT32,    BASE_HEX,   VALS(security_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Security Problem",    "ndps.rpc_sec_prob",
+            FT_UINT32,    BASE_HEX,   VALS(security_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_service_problem_type,
-        { "Service Problem",    "ndps.rpc_serv_prob",
-          FT_UINT32,    BASE_HEX,   VALS(service_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Service Problem",    "ndps.rpc_serv_prob",
+            FT_UINT32,    BASE_HEX,   VALS(service_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_access_problem_type,
-        { "Access Problem",    "ndps.rpc_acc_prob",
-          FT_UINT32,    BASE_HEX,   VALS(access_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Access Problem",    "ndps.rpc_acc_prob",
+            FT_UINT32,    BASE_HEX,   VALS(access_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_printer_problem_type,
-        { "Printer Problem",    "ndps.rpc_print_prob",
-          FT_UINT32,    BASE_HEX,   VALS(printer_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Printer Problem",    "ndps.rpc_print_prob",
+            FT_UINT32,    BASE_HEX,   VALS(printer_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_selection_problem_type,
-        { "Selection Problem",    "ndps.rpc_sel_prob",
-          FT_UINT32,    BASE_HEX,   VALS(selection_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Selection Problem",    "ndps.rpc_sel_prob",
+            FT_UINT32,    BASE_HEX,   VALS(selection_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_doc_access_problem_type,
-        { "Document Access Problem",    "ndps.rpc_doc_acc_prob",
-          FT_UINT32,    BASE_HEX,   VALS(doc_access_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Document Access Problem",    "ndps.rpc_doc_acc_prob",
+            FT_UINT32,    BASE_HEX,   VALS(doc_access_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_attribute_problem_type,
-        { "Attribute Problem",    "ndps.rpc_attr_prob",
-          FT_UINT32,    BASE_HEX,   VALS(attribute_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Attribute Problem",    "ndps.rpc_attr_prob",
+            FT_UINT32,    BASE_HEX,   VALS(attribute_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_update_problem_type,
-        { "Update Problem",    "ndps.rpc_update_prob",
-          FT_UINT32,    BASE_HEX,   VALS(update_problem_enum),   0x0,
-          NULL, HFILL }},
+          { "Update Problem",    "ndps.rpc_update_prob",
+            FT_UINT32,    BASE_HEX,   VALS(update_problem_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_obj_id_type,
-        { "Object ID Type",    "ndps.rpc_obj_id_type",
-          FT_UINT32,    BASE_HEX,   VALS(obj_identification_enum),   0x0,
-          NULL, HFILL }},
+          { "Object ID Type",    "ndps.rpc_obj_id_type",
+            FT_UINT32,    BASE_HEX,   VALS(obj_identification_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_oid_struct_size,
-        { "OID Struct Size",    "ndps.rpc_oid_struct_size",
-          FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "OID Struct Size",    "ndps.rpc_oid_struct_size",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_object_name,
-        { "Object Name",    "ndps.ndps_object_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Object Name",    "ndps.ndps_object_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_document_number,
-        { "Document Number",    "ndps.ndps_doc_num",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Document Number",    "ndps.ndps_doc_num",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_doc_content,
-        { "Document Content",    "ndps.ndps_doc_content",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Document Content",    "ndps.ndps_doc_content",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_nameorid,
-        { "Name or ID Type",    "ndps.ndps_nameorid",
-          FT_UINT32,    BASE_HEX,   VALS(nameorid_enum),   0x0,
-          NULL, HFILL }},
+          { "Name or ID Type",    "ndps.ndps_nameorid",
+            FT_UINT32,    BASE_HEX,   VALS(nameorid_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_local_object_name,
-        { "Local Object Name",    "ndps.ndps_loc_object_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Local Object Name",    "ndps.ndps_loc_object_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_printer_name,
-        { "Printer Name",    "ndps.ndps_printer_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Name",    "ndps.ndps_printer_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_qualified_name,
-        { "Qualified Name Type",    "ndps.ndps_qual_name_type",
-          FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum),   0x0,
-          NULL, HFILL }},
+          { "Qualified Name Type",    "ndps.ndps_qual_name_type",
+            FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_qualified_name2,
-        { "Qualified Name Type",    "ndps.ndps_qual_name_type2",
-          FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum2),   0x0,
-          NULL, HFILL }},
+          { "Qualified Name Type",    "ndps.ndps_qual_name_type2",
+            FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum2),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_item_count,
-        { "Number of Items",    "ndps.ndps_item_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Items",    "ndps.ndps_item_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_passwords,
-        { "Number of Passwords",    "ndps.num_passwords",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Passwords",    "ndps.num_passwords",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_servers,
-        { "Number of Servers",    "ndps.num_servers",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Servers",    "ndps.num_servers",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_locations,
-        { "Number of Locations",    "ndps.num_locations",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Locations",    "ndps.num_locations",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_areas,
-        { "Number of Areas",    "ndps.num_areas",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Areas",    "ndps.num_areas",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_address_items,
-        { "Number of Address Items",    "ndps.num_address_items",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Address Items",    "ndps.num_address_items",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_job_categories,
-        { "Number of Job Categories",    "ndps.num_job_categories",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Job Categories",    "ndps.num_job_categories",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_page_selects,
-        { "Number of Page Select Items",    "ndps.num_page_selects",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Page Select Items",    "ndps.num_page_selects",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_page_informations,
-        { "Number of Page Information Items",    "ndps.num_page_informations",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Page Information Items",    "ndps.num_page_informations",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_names,
-        { "Number of Names",    "ndps.num_names",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Names",    "ndps.num_names",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_categories,
-        { "Number of Categories",    "ndps.num_categories",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Categories",    "ndps.num_categories",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_colorants,
-        { "Number of Colorants",    "ndps.num_colorants",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Colorants",    "ndps.num_colorants",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_events,
-        { "Number of Events",    "ndps.num_events",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Events",    "ndps.num_events",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_args,
-        { "Number of Arguments",    "ndps.num_argss",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Arguments",    "ndps.num_argss",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_transfer_methods,
-        { "Number of Transfer Methods",    "ndps.num_transfer_methods",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Transfer Methods",    "ndps.num_transfer_methods",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_doc_types,
-        { "Number of Document Types",    "ndps.num_doc_types",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Document Types",    "ndps.num_doc_types",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_destinations,
-        { "Number of Destinations",    "ndps.num_destinations",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Destinations",    "ndps.num_destinations",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_qualifier,
-        { "Qualifier",    "ndps.ndps_qual",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Qualifier",    "ndps.ndps_qual",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_lib_error,
-        { "Library Error",    "ndps.ndps_lib_error",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
-          NULL, HFILL }},
+          { "Library Error",    "ndps.ndps_lib_error",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_other_error,
-        { "Other Error",    "ndps.ndps_other_error",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
-          NULL, HFILL }},
+          { "Other Error",    "ndps.ndps_other_error",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_other_error_2,
-        { "Other Error 2",    "ndps.ndps_other_error_2",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
-          NULL, HFILL }},
+          { "Other Error 2",    "ndps.ndps_other_error_2",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_session,
-        { "Session Handle",    "ndps.ndps_session",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Session Handle",    "ndps.ndps_session",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_abort_flag,
-        { "Abort?",    "ndps.ndps_abort",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Abort?",    "ndps.ndps_abort",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_obj_attribute_type,
-        { "Value Syntax",    "ndps.ndps_attrib_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
-          NULL, HFILL }},
+          { "Value Syntax",    "ndps.ndps_attrib_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_attribute_value,
-        { "Value",    "ndps.attribue_value",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Value",    "ndps.attribue_value",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_lower_range,
-        { "Lower Range",    "ndps.lower_range",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Lower Range",    "ndps.lower_range",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_upper_range,
-        { "Upper Range",    "ndps.upper_range",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Upper Range",    "ndps.upper_range",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_n64,
-        { "Value",    "ndps.n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Value",    "ndps.n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_lower_range_n64,
-        { "Lower Range",    "ndps.lower_range_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Lower Range",    "ndps.lower_range_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_upper_range_n64,
-        { "Upper Range",    "ndps.upper_range_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Upper Range",    "ndps.upper_range_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_attrib_boolean,
-        { "Value?",    "ndps.ndps_attrib_boolean",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Value?",    "ndps.ndps_attrib_boolean",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_realization,
-        { "Realization Type",    "ndps.ndps_realization",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_realization_enum),   0x0,
-          NULL, HFILL }},
+          { "Realization Type",    "ndps.ndps_realization",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_realization_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xdimension_n64,
-        { "X Dimension",    "ndps.xdimension_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "X Dimension",    "ndps.xdimension_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ydimension_n64,
-        { "Y Dimension",    "ndps.xdimension_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Y Dimension",    "ndps.xdimension_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_dim_value,
-        { "Dimension Value Type",    "ndps.ndps_dim_value",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_dim_value_enum),   0x0,
-          NULL, HFILL }},
+          { "Dimension Value Type",    "ndps.ndps_dim_value",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_dim_value_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_dim_flag,
-        { "Dimension Flag",    "ndps.ndps_dim_falg",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Dimension Flag",    "ndps.ndps_dim_falg",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xydim_value,
-        { "XY Dimension Value Type",    "ndps.ndps_xydim_value",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_xydim_value_enum),   0x0,
-          NULL, HFILL }},
+          { "XY Dimension Value Type",    "ndps.ndps_xydim_value",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_xydim_value_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_location_value,
-        { "Location Value Type",    "ndps.ndps_location_value",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_location_value_enum),   0x0,
-          NULL, HFILL }},
+          { "Location Value Type",    "ndps.ndps_location_value",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_location_value_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xmin_n64,
-        { "Minimum X Dimension",    "ndps.xmin_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Minimum X Dimension",    "ndps.xmin_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xmax_n64,
-        { "Maximum X Dimension",    "ndps.xmax_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Maximum X Dimension",    "ndps.xmax_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ymin_n64,
-        { "Minimum Y Dimension",    "ndps.ymin_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Minimum Y Dimension",    "ndps.ymin_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ymax_n64,
-        { "Maximum Y Dimension",    "ndps.ymax_n64",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Maximum Y Dimension",    "ndps.ymax_n64",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_edge_value,
-        { "Edge Value",    "ndps.ndps_edge_value",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_edge_value_enum),   0x0,
-          NULL, HFILL }},
+          { "Edge Value",    "ndps.ndps_edge_value",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_edge_value_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_cardinal_or_oid,
-        { "Cardinal or OID",    "ndps.ndps_car_or_oid",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_card_or_oid_enum),   0x0,
-          NULL, HFILL }},
+          { "Cardinal or OID",    "ndps.ndps_car_or_oid",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_card_or_oid_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_cardinal_name_or_oid,
-        { "Cardinal Name or OID",    "ndps.ndps_car_name_or_oid",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_card_name_or_oid_enum),   0x0,
-          NULL, HFILL }},
+          { "Cardinal Name or OID",    "ndps.ndps_car_name_or_oid",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_card_name_or_oid_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_integer_or_oid,
-        { "Integer or OID",    "ndps.ndps_integer_or_oid",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_integer_or_oid_enum),   0x0,
-          NULL, HFILL }},
+          { "Integer or OID",    "ndps.ndps_integer_or_oid",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_integer_or_oid_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_profile_id,
-        { "Profile ID",    "ndps.ndps_profile_id",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Profile ID",    "ndps.ndps_profile_id",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_persistence,
-        { "Persistence",    "ndps.ndps_persistence",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_persistence_enum),   0x0,
-          NULL, HFILL }},
+          { "Persistence",    "ndps.ndps_persistence",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_persistence_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_language_count,
-        { "Number of Languages",    "ndps.ndps_language_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Languages",    "ndps.ndps_language_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_language_id,
-        { "Language ID",    "ndps.ndps_lang_id",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Language ID",    "ndps.ndps_lang_id",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_address_type,
-        { "Address Type",    "ndps.ndps_address_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_address_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Address Type",    "ndps.ndps_address_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_address_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_address,
-        { "Address",    "ndps.ndps_address",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_address_enum),   0x0,
-          NULL, HFILL }},
+          { "Address",    "ndps.ndps_address",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_address_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_add_bytes,
-        { "Address Bytes",    "ndps.add_bytes",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Address Bytes",    "ndps.add_bytes",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_event_type,
-        { "Event Type",    "ndps.ndps_event_type",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Event Type",    "ndps.ndps_event_type",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_event_object_identifier,
-        { "Event Object Type",    "ndps.ndps_event_object_identifier",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_event_object_enum),   0x0,
-          NULL, HFILL }},
+          { "Event Object Type",    "ndps.ndps_event_object_identifier",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_event_object_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_octet_string,
-        { "Octet String",    "ndps.octet_string",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Octet String",    "ndps.octet_string",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_scope,
-        { "Scope",    "ndps.scope",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Scope",    "ndps.scope",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_address_len,
-        { "Address Length",    "ndps.addr_len",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Address Length",    "ndps.addr_len",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_net,
-        { "IPX Network",    "ndps.net",
-          FT_IPXNET,    BASE_NONE,   NULL,   0x0,
-          "Scope", HFILL }},
+          { "IPX Network",    "ndps.net",
+            FT_IPXNET,    BASE_NONE,   NULL,   0x0,
+            "Scope", HFILL }},
 
         { &hf_ndps_node,
-        { "Node",    "ndps.node",
-          FT_ETHER,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Node",    "ndps.node",
+            FT_ETHER,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_socket,
-        { "IPX Socket",    "ndps.socket",
-          FT_UINT16,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "IPX Socket",    "ndps.socket",
+            FT_UINT16,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_port,
-        { "IP Port",    "ndps.port",
-          FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "IP Port",    "ndps.port",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ip,
-        { "IP Address",    "ndps.ip",
-          FT_IPv4,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "IP Address",    "ndps.ip",
+            FT_IPv4,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_server_type,
-        { "NDPS Server Type",    "ndps.ndps_server_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_server_type_enum),   0x0,
-          NULL, HFILL }},
+          { "NDPS Server Type",    "ndps.ndps_server_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_server_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_services,
-        { "Number of Services",    "ndps.ndps_num_services",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Services",    "ndps.ndps_num_services",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_service_type,
-        { "NDPS Service Type",    "ndps.ndps_service_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_service_type_enum),   0x0,
-          NULL, HFILL }},
+          { "NDPS Service Type",    "ndps.ndps_service_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_service_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_service_enabled,
-        { "Service Enabled?",    "ndps.ndps_service_enabled",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Service Enabled?",    "ndps.ndps_service_enabled",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_method_name,
-        { "Method Name",    "ndps.method_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Method Name",    "ndps.method_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_method_ver,
-        { "Method Version",    "ndps.method_ver",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Method Version",    "ndps.method_ver",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_file_name,
-        { "File Name",    "ndps.file_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "File Name",    "ndps.file_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_admin_submit,
-        { "Admin Submit Flag?",    "ndps.admin_submit_flag",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Admin Submit Flag?",    "ndps.admin_submit_flag",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_oid,
-        { "Object ID",    "ndps.oid",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Object ID",    "ndps.oid",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_object_op,
-        { "Operation",    "ndps.ndps_object_op",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_object_op_enum),   0x0,
-          NULL, HFILL }},
+          { "Operation",    "ndps.ndps_object_op",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_object_op_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_answer_time,
-        { "Answer Time",    "ndps.answer_time",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Answer Time",    "ndps.answer_time",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_oid_asn1_type,
-        { "ASN.1 Type",    "ndps.asn1_type",
-          FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "ASN.1 Type",    "ndps.asn1_type",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_item_ptr,
-        { "Item Pointer",    "ndps.item_ptr",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Item Pointer",    "ndps.item_ptr",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_len,
-        { "Length",    "ndps.ndps_len",
-          FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Length",    "ndps.ndps_len",
+            FT_UINT16,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_limit_enc,
-        { "Limit Encountered",    "ndps.ndps_limit_enc",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_limit_enc_enum),   0x0,
-          NULL, HFILL }},
+          { "Limit Encountered",    "ndps.ndps_limit_enc",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_limit_enc_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_delivery_add_count,
-        { "Number of Delivery Addresses",    "ndps.delivery_add_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Delivery Addresses",    "ndps.delivery_add_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_delivery_add_type,
-        { "Delivery Address Type",    "ndps.ndps_delivery_add_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_delivery_add_enum),   0x0,
-          NULL, HFILL }},
+          { "Delivery Address Type",    "ndps.ndps_delivery_add_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_delivery_add_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_criterion_type,
-        { "Criterion Type",    "ndps.ndps_criterion_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
-          NULL, HFILL }},
+          { "Criterion Type",    "ndps.ndps_criterion_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_ignored_attributes,
-        { "Number of Ignored Attributes",    "ndps.num_ignored_attributes",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Ignored Attributes",    "ndps.num_ignored_attributes",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ignored_type,
-        { "Ignored Type",    "ndps.ndps_ignored_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
-          NULL, HFILL }},
+          { "Ignored Type",    "ndps.ndps_ignored_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_resources,
-        { "Number of Resources",    "ndps.ndps_num_resources",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Resources",    "ndps.ndps_num_resources",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_resource_type,
-        { "Resource Type",    "ndps.ndps_resource_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_resource_enum),   0x0,
-          NULL, HFILL }},
+          { "Resource Type",    "ndps.ndps_resource_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_resource_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_identifier_type,
-        { "Identifier Type",    "ndps.ndps_identifier_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_identifier_enum),   0x0,
-          NULL, HFILL }},
+          { "Identifier Type",    "ndps.ndps_identifier_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_identifier_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_page_flag,
-        { "Page Flag",    "ndps.ndps_page_flag",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Page Flag",    "ndps.ndps_page_flag",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_media_type,
-        { "Media Type",    "ndps.ndps_media_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_media_enum),   0x0,
-          NULL, HFILL }},
+          { "Media Type",    "ndps.ndps_media_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_media_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_page_size,
-        { "Page Size",    "ndps.ndps_page_size",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_page_size_enum),   0x0,
-          NULL, HFILL }},
+          { "Page Size",    "ndps.ndps_page_size",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_page_size_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_direction,
-        { "Direction",    "ndps.ndps_direction",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_pres_direction_enum),   0x0,
-          NULL, HFILL }},
+          { "Direction",    "ndps.ndps_direction",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_pres_direction_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_page_order,
-        { "Page Order",    "ndps.ndps_page_order",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_page_order_enum),   0x0,
-          NULL, HFILL }},
+          { "Page Order",    "ndps.ndps_page_order",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_page_order_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_medium_size,
-        { "Medium Size",    "ndps.ndps_medium_size",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_medium_size_enum),   0x0,
-          NULL, HFILL }},
+          { "Medium Size",    "ndps.ndps_medium_size",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_medium_size_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_long_edge_feeds,
-        { "Long Edge Feeds?",    "ndps.ndps_long_edge_feeds",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Long Edge Feeds?",    "ndps.ndps_long_edge_feeds",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_inc_across_feed,
-        { "Increment Across Feed",    "ndps.inc_across_feed",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Increment Across Feed",    "ndps.inc_across_feed",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_size_inc_in_feed,
-        { "Size Increment in Feed",    "ndps.size_inc_in_feed",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Size Increment in Feed",    "ndps.size_inc_in_feed",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_page_orientation,
-        { "Page Orientation",    "ndps.ndps_page_orientation",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_page_orientation_enum),   0x0,
-          NULL, HFILL }},
+          { "Page Orientation",    "ndps.ndps_page_orientation",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_page_orientation_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_numbers_up,
-        { "Numbers Up",    "ndps.ndps_numbers_up",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_numbers_up_enum),   0x0,
-          NULL, HFILL }},
+          { "Numbers Up",    "ndps.ndps_numbers_up",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_numbers_up_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_xdimension,
-        { "X Dimension",    "ndps.ndps_xdimension",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "X Dimension",    "ndps.ndps_xdimension",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ydimension,
-        { "Y Dimension",    "ndps.ndps_ydimension",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Y Dimension",    "ndps.ndps_ydimension",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_state_severity,
-        { "State Severity",    "ndps.ndps_state_severity",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_state_severity_enum),   0x0,
-          NULL, HFILL }},
+          { "State Severity",    "ndps.ndps_state_severity",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_state_severity_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_training,
-        { "Training",    "ndps.ndps_training",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_training_enum),   0x0,
-          NULL, HFILL }},
+          { "Training",    "ndps.ndps_training",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_training_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_colorant_set,
-        { "Colorant Set",    "ndps.ndps_colorant_set",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_colorant_set_enum),   0x0,
-          NULL, HFILL }},
+          { "Colorant Set",    "ndps.ndps_colorant_set",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_colorant_set_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_card_enum_time,
-        { "Cardinal, Enum, or Time",    "ndps.ndps_card_enum_time",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_card_enum_time_enum),   0x0,
-          NULL, HFILL }},
+          { "Cardinal, Enum, or Time",    "ndps.ndps_card_enum_time",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_card_enum_time_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_attrs_arg,
-        { "List Attribute Operation",    "ndps.ndps_attrs_arg",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
-          NULL, HFILL }},
+          { "List Attribute Operation",    "ndps.ndps_attrs_arg",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_context_len,
-        { "Context Length",    "ndps.context_len",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Context Length",    "ndps.context_len",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_context,
-        { "Context",    "ndps.context",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Context",    "ndps.context",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_filter,
-        { "Filter Type",    "ndps.ndps_filter",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_filter_enum),   0x0,
-          NULL, HFILL }},
+          { "Filter Type",    "ndps.ndps_filter",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_filter_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_item_filter,
-        { "Filter Item Operation",    "ndps.ndps_filter_item",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_filter_item_enum),   0x0,
-          NULL, HFILL }},
+          { "Filter Item Operation",    "ndps.ndps_filter_item",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_filter_item_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_substring_match,
-        { "Substring Match",    "ndps.ndps_substring_match",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_match_criteria_enum),   0x0,
-          NULL, HFILL }},
+          { "Substring Match",    "ndps.ndps_substring_match",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_match_criteria_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_time_limit,
-        { "Time Limit",    "ndps.ndps_time_limit",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Time Limit",    "ndps.ndps_time_limit",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_count_limit,
-        { "Count Limit",    "ndps.ndps_count_limit",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Count Limit",    "ndps.ndps_count_limit",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_operator,
-        { "Operator Type",    "ndps.ndps_operator",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_operator_enum),   0x0,
-          NULL, HFILL }},
+          { "Operator Type",    "ndps.ndps_operator",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_operator_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_password,
-        { "Password",    "ndps.password",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Password",    "ndps.password",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_retrieve_restrictions,
-        { "Retrieve Restrictions",    "ndps.ndps_ret_restrict",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Retrieve Restrictions",    "ndps.ndps_ret_restrict",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_bind_security_option_count,
-        { "Number of Bind Security Options",    "ndps.ndps_bind_security_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Bind Security Options",    "ndps.ndps_bind_security_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_bind_security,
-        { "Bind Security Options",    "ndps.ndps_bind_security",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Bind Security Options",    "ndps.ndps_bind_security",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_max_items,
-        { "Maximum Items in List",    "ndps.ndps_max_items",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Maximum Items in List",    "ndps.ndps_max_items",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_status_flags,
-        { "Status Flag",    "ndps.ndps_status_flags",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Status Flag",    "ndps.ndps_status_flags",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_resource_list_type,
-        { "Resource Type",    "ndps.ndps_resource_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_resource_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Resource Type",    "ndps.ndps_resource_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_resource_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_os_count,
-        { "Number of OSes",    "ndps.os_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of OSes",    "ndps.os_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_os_type,
-        { "OS Type",    "ndps.os_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_os_type_enum),   0x0,
-          NULL, HFILL }},
+          { "OS Type",    "ndps.os_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_os_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_printer_type_count,
-        { "Number of Printer Types",    "ndps.printer_type_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Printer Types",    "ndps.printer_type_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_printer_type,
-        { "Printer Type",    "ndps.prn_type",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Type",    "ndps.prn_type",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_printer_manuf,
-        { "Printer Manufacturer",    "ndps.prn_manuf",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Manufacturer",    "ndps.prn_manuf",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_inf_file_name,
-        { "INF File Name",    "ndps.inf_file_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "INF File Name",    "ndps.inf_file_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_vendor_dir,
-        { "Vendor Directory",    "ndps.vendor_dir",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Vendor Directory",    "ndps.vendor_dir",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_banner_type,
-        { "Banner Type",    "ndps.banner_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_banner_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Banner Type",    "ndps.banner_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_banner_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_font_type,
-        { "Font Type",    "ndps.font_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_font_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Font Type",    "ndps.font_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_font_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_printer_id,
-        { "Printer ID",    "ndps.printer_id",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer ID",    "ndps.printer_id",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_font_name,
-        { "Font Name",    "ndps.font_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Font Name",    "ndps.font_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_return_code,
-        { "Return Code",    "ndps.ret_code",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
-          NULL, HFILL }},
+          { "Return Code",    "ndps.ret_code",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_banner_count,
-        { "Number of Banners",    "ndps.banner_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Banners",    "ndps.banner_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_banner_name,
-        { "Banner Name",    "ndps.banner_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Banner Name",    "ndps.banner_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_font_type_count,
-        { "Number of Font Types",    "ndps.font_type_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Font Types",    "ndps.font_type_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_font_type_name,
-        { "Font Type Name",    "ndps.font_type_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Font Type Name",    "ndps.font_type_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_font_file_count,
-        { "Number of Font Files",    "ndps.font_file_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Font Files",    "ndps.font_file_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_font_file_name,
-        { "Font File Name",    "ndps.font_file_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Font File Name",    "ndps.font_file_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_printer_def_count,
-        { "Number of Printer Definitions",    "ndps.printer_def_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Printer Definitions",    "ndps.printer_def_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_prn_file_name,
-        { "Printer File Name",    "ndps.print_file_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer File Name",    "ndps.print_file_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_prn_dir_name,
-        { "Printer Directory Name",    "ndps.print_dir_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Directory Name",    "ndps.print_dir_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_def_file_name,
-        { "Printer Definition Name",    "ndps.print_def_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Printer Definition Name",    "ndps.print_def_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_win31_keys,
-        { "Number of Windows 3.1 Keys",    "ndps.num_win31_keys",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Windows 3.1 Keys",    "ndps.num_win31_keys",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_win95_keys,
-        { "Number of Windows 95 Keys",    "ndps.num_win95_keys",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Windows 95 Keys",    "ndps.num_win95_keys",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_windows_keys,
-        { "Number of Windows Keys",    "ndps.num_windows_keys",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Windows Keys",    "ndps.num_windows_keys",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_windows_key,
-        { "Windows Key",    "ndps.windows_key",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Windows Key",    "ndps.windows_key",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_archive_type,
-        { "Archive Type",    "ndps.archive_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_archive_enum),   0x0,
-          NULL, HFILL }},
+          { "Archive Type",    "ndps.archive_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_archive_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_archive_file_size,
-        { "Archive File Size",    "ndps.archive_size",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Archive File Size",    "ndps.archive_size",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_segment_overlap,
-          { "Segment overlap",	"ndps.segment.overlap", FT_BOOLEAN, BASE_NONE,
-    		NULL, 0x0, "Segment overlaps with other segments", HFILL }},
+          { "Segment overlap",  "ndps.segment.overlap", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "Segment overlaps with other segments", HFILL }},
 
         { &hf_ndps_segment_overlap_conflict,
           { "Conflicting data in segment overlap", "ndps.segment.overlap.conflict",
-    	FT_BOOLEAN, BASE_NONE,
-    		NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
 
         { &hf_ndps_segment_multiple_tails,
           { "Multiple tail segments found", "ndps.segment.multipletails",
-    	FT_BOOLEAN, BASE_NONE,
-    		NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
 
         { &hf_ndps_segment_too_long_segment,
-          { "Segment too long",	"ndps.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
-    		NULL, 0x0, "Segment contained data past end of packet", HFILL }},
+          { "Segment too long", "ndps.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "Segment contained data past end of packet", HFILL }},
 
         { &hf_ndps_segment_error,
-          {"Desegmentation error",	"ndps.segment.error", FT_FRAMENUM, BASE_NONE,
-    		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+          {"Desegmentation error",      "ndps.segment.error", FT_FRAMENUM, BASE_NONE,
+           NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
 
         { &hf_ndps_segment_count,
-          {"Segment count",	"ndps.segment.count", FT_UINT32, BASE_DEC,
-    		NULL, 0x0, NULL, HFILL }},
+          {"Segment count",     "ndps.segment.count", FT_UINT32, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
 
         { &hf_ndps_reassembled_length,
-          {"Reassembled NDPS length",	"ndps.reassembled.length", FT_UINT32, BASE_DEC,
-    		NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+          {"Reassembled NDPS length",   "ndps.reassembled.length", FT_UINT32, BASE_DEC,
+           NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
         { &hf_ndps_segment,
-          { "NDPS Fragment",		"ndps.fragment", FT_FRAMENUM, BASE_NONE,
-    		NULL, 0x0, NULL, HFILL }},
+          { "NDPS Fragment",            "ndps.fragment", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_ndps_segments,
-          { "NDPS Fragments",	"ndps.fragments", FT_NONE, BASE_NONE,
-    		NULL, 0x0, NULL, HFILL }},
+          { "NDPS Fragments",   "ndps.fragments", FT_NONE, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_ndps_data,
-          { "[Data]",	"ndps.data", FT_NONE, BASE_NONE,
-    		NULL, 0x0, NULL, HFILL }},
+          { "[Data]",   "ndps.data", FT_NONE, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_get_status_flag,
-        { "Get Status Flag",    "ndps.get_status_flags",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Get Status Flag",    "ndps.get_status_flags",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_res_type,
-        { "Resource Type",    "ndps.res_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_res_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Resource Type",    "ndps.res_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_res_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_file_timestamp,
-        { "File Time Stamp",    "ndps.file_time_stamp",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "File Time Stamp",    "ndps.file_time_stamp",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_print_arg,
-        { "Print Type",    "ndps.print_arg",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_print_arg_enum),   0x0,
-          NULL, HFILL }},
+          { "Print Type",    "ndps.print_arg",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_print_arg_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_sub_complete,
-          { "Submission Complete?",	"ndps.sub_complete", FT_BOOLEAN, BASE_NONE,
-    		NULL, 0x0, NULL, HFILL }},
+          { "Submission Complete?",     "ndps.sub_complete", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_doc_content,
-        { "Document Content",    "ndps.doc_content",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_doc_content_enum),   0x0,
-          NULL, HFILL }},
+          { "Document Content",    "ndps.doc_content",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_doc_content_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_doc_name,
-        { "Document Name",    "ndps.doc_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Document Name",    "ndps.doc_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_local_id,
-        { "Local ID",    "ndps.local_id",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Local ID",    "ndps.local_id",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_included_doc_len,
-        { "Included Document Length",    "ndps.included_doc_len",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Included Document Length",    "ndps.included_doc_len",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_included_doc,
-        { "Included Document",    "ndps.included_doc",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Included Document",    "ndps.included_doc",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ref_name,
-        { "Referenced Document Name",    "ndps.ref_doc_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Referenced Document Name",    "ndps.ref_doc_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_interrupt_job_type,
-        { "Interrupt Job Identifier",    "ndps.interrupt_job_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_interrupt_job_enum),   0x0,
-          NULL, HFILL }},
+          { "Interrupt Job Identifier",    "ndps.interrupt_job_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_interrupt_job_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_pause_job_type,
-        { "Pause Job Identifier",    "ndps.pause_job_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_pause_job_enum),   0x0,
-          NULL, HFILL }},
+          { "Pause Job Identifier",    "ndps.pause_job_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_pause_job_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_force,
-        { "Force?",    "ndps.ndps_force",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Force?",    "ndps.ndps_force",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_resubmit_op_type,
-        { "Resubmit Operation Type",    "ndps.resubmit_op_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_resubmit_op_enum),   0x0,
-          NULL, HFILL }},
+          { "Resubmit Operation Type",    "ndps.resubmit_op_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_resubmit_op_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_shutdown_type,
-        { "Shutdown Type",    "ndps.shutdown_type",
-          FT_UINT32,    BASE_DEC,   VALS(ndps_shutdown_enum),   0x0,
-          NULL, HFILL }},
+          { "Shutdown Type",    "ndps.shutdown_type",
+            FT_UINT32,    BASE_DEC,   VALS(ndps_shutdown_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_supplier_flag,
-        { "Supplier Data?",    "ndps.supplier_flag",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Supplier Data?",    "ndps.supplier_flag",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_language_flag,
-        { "Language Data?",    "ndps.language_flag",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Language Data?",    "ndps.language_flag",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_method_flag,
-        { "Method Data?",    "ndps.method_flag",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Method Data?",    "ndps.method_flag",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_delivery_address_flag,
-        { "Delivery Address Data?",    "ndps.delivery_flag",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Delivery Address Data?",    "ndps.delivery_flag",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_list_profiles_type,
-        { "List Profiles Type",    "ndps.ndps_list_profiles_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
-          NULL, HFILL }},
+          { "List Profiles Type",    "ndps.ndps_list_profiles_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_list_profiles_choice_type,
-        { "List Profiles Choice Type",    "ndps.ndps_list_profiles_choice_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_choice_enum),   0x0,
-          NULL, HFILL }},
+          { "List Profiles Choice Type",    "ndps.ndps_list_profiles_choice_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_choice_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_list_profiles_result_type,
-        { "List Profiles Result Type",    "ndps.ndps_list_profiles_result_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_result_enum),   0x0,
-          NULL, HFILL }},
+          { "List Profiles Result Type",    "ndps.ndps_list_profiles_result_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_result_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_integer_type_flag,
-        { "Integer Type Flag",    "ndps.ndps_integer_type_flag",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Integer Type Flag",    "ndps.ndps_integer_type_flag",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_integer_type_value,
-        { "Integer Type Value",    "ndps.ndps_integer_type_value",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Integer Type Value",    "ndps.ndps_integer_type_value",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_continuation_option,
-        { "Continuation Option",    "ndps.ndps_continuation_option",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Continuation Option",    "ndps.ndps_continuation_option",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_ds_info_type,
-        { "DS Info Type",    "ndps.ndps_ds_info_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_ds_info_enum),   0x0,
-          NULL, HFILL }},
+          { "DS Info Type",    "ndps.ndps_ds_info_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_ds_info_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_guid,
-        { "GUID",    "ndps.guid",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "GUID",    "ndps.guid",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_list_services_type,
-        { "Services Type",    "ndps.ndps_list_services_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_list_services_enum),   0x0,
-          NULL, HFILL }},
+          { "Services Type",    "ndps.ndps_list_services_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_list_services_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_item_bytes,
-        { "Item Ptr",    "ndps.item_bytes",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Item Ptr",    "ndps.item_bytes",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_certified,
-        { "Certified",    "ndps.certified",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Certified",    "ndps.certified",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_attribute_set,
-        { "Attribute Set",    "ndps.attribute_set",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Attribute Set",    "ndps.attribute_set",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_data_item_type,
-        { "Item Type",    "ndps.ndps_data_item_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_data_item_enum),   0x0,
-          NULL, HFILL }},
+          { "Item Type",    "ndps.ndps_data_item_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_data_item_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_info_int,
-        { "Integer Value",    "ndps.info_int",
-          FT_UINT8,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Integer Value",    "ndps.info_int",
+            FT_UINT8,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_info_int16,
-        { "16 Bit Integer Value",    "ndps.info_int16",
-          FT_UINT16,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "16 Bit Integer Value",    "ndps.info_int16",
+            FT_UINT16,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_info_int32,
-        { "32 Bit Integer Value",    "ndps.info_int32",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "32 Bit Integer Value",    "ndps.info_int32",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_info_boolean,
-        { "Boolean Value",    "ndps.info_boolean",
-          FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Boolean Value",    "ndps.info_boolean",
+            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_info_string,
-        { "String Value",    "ndps.info_string",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "String Value",    "ndps.info_string",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_info_bytes,
-        { "Byte Value",    "ndps.info_bytes",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Byte Value",    "ndps.info_bytes",
+            FT_BYTES,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_list_local_servers_type,
-        { "Server Type",    "ndps.ndps_list_local_server_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_list_local_servers_enum),   0x0,
-          NULL, HFILL }},
+          { "Server Type",    "ndps.ndps_list_local_server_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_list_local_servers_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_registry_name,
-        { "Registry Name",    "ndps.registry_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Registry Name",    "ndps.registry_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_client_server_type,
-        { "Client/Server Type",    "ndps.ndps_client_server_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_client_server_enum),   0x0,
-          NULL, HFILL }},
+          { "Client/Server Type",    "ndps.ndps_client_server_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_client_server_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_session_type,
-        { "Session Type",    "ndps.ndps_session_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_session_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Session Type",    "ndps.ndps_session_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_session_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_time,
-        { "Time",    "ndps.time",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Time",    "ndps.time",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_supplier_name,
-        { "Supplier Name",    "ndps.supplier_name",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Supplier Name",    "ndps.supplier_name",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_message,
-        { "Message",    "ndps.message",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Message",    "ndps.message",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_delivery_method_count,
-        { "Number of Delivery Methods",    "ndps.delivery_method_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Delivery Methods",    "ndps.delivery_method_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_delivery_method_type,
-        { "Delivery Method Type",    "ndps.delivery_method_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_delivery_method_enum),   0x0,
-          NULL, HFILL }},
+          { "Delivery Method Type",    "ndps.delivery_method_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_delivery_method_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_get_session_type,
-        { "Session Type",    "ndps.ndps_get_session_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_get_session_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Session Type",    "ndps.ndps_get_session_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_get_session_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_packet_count,
-        { "Packet Count",    "ndps.packet_count",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Packet Count",    "ndps.packet_count",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_last_packet_flag,
-        { "Last Packet Flag",    "ndps.last_packet_flag",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Last Packet Flag",    "ndps.last_packet_flag",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_get_resman_session_type,
-        { "Session Type",    "ndps.ndps_get_resman_session_type",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_get_resman_session_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Session Type",    "ndps.ndps_get_resman_session_type",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_get_resman_session_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_problem_type,
-        { "Problem Type",    "ndps.ndps_get_resman_session_type",
-          FT_UINT32,    BASE_HEX,   VALS(problem_type_enum),   0x0,
-          NULL, HFILL }},
+          { "Problem Type",    "ndps.ndps_get_resman_session_type",
+            FT_UINT32,    BASE_HEX,   VALS(problem_type_enum),   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_num_values,
-        { "Number of Values",    "ndps.num_values",
-          FT_UINT32,    BASE_DEC,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Number of Values",    "ndps.num_values",
+            FT_UINT32,    BASE_DEC,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_ndps_object_ids_7,
-        { "Object ID Definition",    "ndps.objectid_def7",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def7",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_8,
-        { "Object ID Definition",    "ndps.objectid_def8",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def8",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_9,
-        { "Object ID Definition",    "ndps.objectid_def9",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def9",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_10,
-        { "Object ID Definition",    "ndps.objectid_def10",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def10",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_11,
-        { "Object ID Definition",    "ndps.objectid_def11",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def11",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_12,
-        { "Object ID Definition",    "ndps.objectid_def12",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def12",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_13,
-        { "Object ID Definition",    "ndps.objectid_def13",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def13",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_14,
-        { "Object ID Definition",    "ndps.objectid_def14",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def14",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_15,
-        { "Object ID Definition",    "ndps.objectid_def15",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def15",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_object_ids_16,
-        { "Object ID Definition",    "ndps.objectid_def16",
-          FT_NONE,    BASE_NONE,   NULL,
-          0x0, NULL, HFILL }},
+          { "Object ID Definition",    "ndps.objectid_def16",
+            FT_NONE,    BASE_NONE,   NULL,
+            0x0, NULL, HFILL }},
 
         { &hf_ndps_attribute_time,
-        { "Time",    "ndps.attribute_time",
-          FT_ABSOLUTE_TIME,    ABSOLUTE_TIME_LOCAL,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Time",    "ndps.attribute_time",
+            FT_ABSOLUTE_TIME,    ABSOLUTE_TIME_LOCAL,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_print_security,
-        { "Printer Security",    "ndps.print_security",
-          FT_UINT32,    BASE_HEX,   VALS(ndps_print_security),   0x0,
-          NULL, HFILL }},
+          { "Printer Security",    "ndps.print_security",
+            FT_UINT32,    BASE_HEX,   VALS(ndps_print_security),   0x0,
+            NULL, HFILL }},
 
         { &hf_notify_time_interval,
-        { "Notify Time Interval",    "ndps.notify_time_interval",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Notify Time Interval",    "ndps.notify_time_interval",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_notify_sequence_number,
-        { "Notify Sequence Number",    "ndps.notify_seq_number",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Notify Sequence Number",    "ndps.notify_seq_number",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_notify_lease_exp_time,
-        { "Notify Lease Expiration Time",    "ndps.notify_lease_exp_time",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Notify Lease Expiration Time",    "ndps.notify_lease_exp_time",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_notify_printer_uri,
-        { "Notify Printer URI",    "ndps.notify_printer_uri",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Notify Printer URI",    "ndps.notify_printer_uri",
+            FT_STRING,    BASE_NONE,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_level,
-        { "Level",    "ndps.level",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Level",    "ndps.level",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
 
         { &hf_interval,
-        { "Interval",    "ndps.interval",
-          FT_UINT32,    BASE_HEX,   NULL,   0x0,
-          NULL, HFILL }},
+          { "Interval",    "ndps.interval",
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
+            NULL, HFILL }},
     };
 
-	static gint *ett[] = {
-		&ett_ndps,
-		&ett_ndps_segments,
-		&ett_ndps_segment,
-	};
-	module_t *ndps_module;
+    static gint *ett[] = {
+        &ett_ndps,
+        &ett_ndps_segments,
+        &ett_ndps_segment,
+    };
+    module_t *ndps_module;
 
-	proto_ndps = proto_register_protocol("Novell Distributed Print System", "NDPS", "ndps");
-	proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_ndps = proto_register_protocol("Novell Distributed Print System", "NDPS", "ndps");
+    proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	ndps_module = prefs_register_protocol(proto_ndps, NULL);
-	prefs_register_bool_preference(ndps_module, "desegment_tcp",
-	    "Reassemble NDPS messages spanning multiple TCP segments",
-	    "Whether the NDPS dissector should reassemble messages spanning multiple TCP segments."
-	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-	    &ndps_desegment);
-	prefs_register_bool_preference(ndps_module, "desegment_spx",
-	    "Reassemble fragmented NDPS messages spanning multiple SPX packets",
-	    "Whether the NDPS dissector should reassemble fragmented NDPS messages spanning multiple SPX packets",
-	    &ndps_defragment);
-	prefs_register_bool_preference(ndps_module, "show_oid",
-	    "Display NDPS Details",
-	    "Whether or not the NDPS dissector should show object id's and other details",
-	    &ndps_show_oids);
+    ndps_module = prefs_register_protocol(proto_ndps, NULL);
+    prefs_register_bool_preference(ndps_module, "desegment_tcp",
+                                   "Reassemble NDPS messages spanning multiple TCP segments",
+                                   "Whether the NDPS dissector should reassemble messages spanning multiple TCP segments."
+                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   &ndps_desegment);
+    prefs_register_bool_preference(ndps_module, "desegment_spx",
+                                   "Reassemble fragmented NDPS messages spanning multiple SPX packets",
+                                   "Whether the NDPS dissector should reassemble fragmented NDPS messages spanning multiple SPX packets",
+                                   &ndps_defragment);
+    prefs_register_bool_preference(ndps_module, "show_oid",
+                                   "Display NDPS Details",
+                                   "Whether or not the NDPS dissector should show object id's and other details",
+                                   &ndps_show_oids);
 
-	register_init_routine(&ndps_init_protocol);
-	register_postseq_cleanup_routine(&ndps_postseq_cleanup);
+    register_init_routine(&ndps_init_protocol);
+    register_postseq_cleanup_routine(&ndps_postseq_cleanup);
 }
 
 void
 proto_reg_handoff_ndps(void)
 {
-	dissector_handle_t ndps_handle, ndps_tcp_handle;
+    dissector_handle_t ndps_handle, ndps_tcp_handle;
 
-	ndps_handle = create_dissector_handle(dissect_ndps_ipx, proto_ndps);
-	ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
+    ndps_handle = create_dissector_handle(dissect_ndps_ipx, proto_ndps);
+    ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 
-	dissector_add_uint("spx.socket", SPX_SOCKET_PA, ndps_handle);
-	dissector_add_uint("spx.socket", SPX_SOCKET_BROKER, ndps_handle);
-	dissector_add_uint("spx.socket", SPX_SOCKET_SRS, ndps_handle);
-	dissector_add_uint("spx.socket", SPX_SOCKET_ENS, ndps_handle);
-	dissector_add_uint("spx.socket", SPX_SOCKET_RMS, ndps_handle);
-	dissector_add_uint("spx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_PA, ndps_tcp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_BROKER, ndps_tcp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_SRS, ndps_tcp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
-	ndps_data_handle = find_dissector("data");
+    dissector_add_uint("spx.socket", SPX_SOCKET_PA, ndps_handle);
+    dissector_add_uint("spx.socket", SPX_SOCKET_BROKER, ndps_handle);
+    dissector_add_uint("spx.socket", SPX_SOCKET_SRS, ndps_handle);
+    dissector_add_uint("spx.socket", SPX_SOCKET_ENS, ndps_handle);
+    dissector_add_uint("spx.socket", SPX_SOCKET_RMS, ndps_handle);
+    dissector_add_uint("spx.socket", SPX_SOCKET_NOTIFY_LISTENER, ndps_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_PA, ndps_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_BROKER, ndps_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_SRS, ndps_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
+    ndps_data_handle = find_dissector("data");
 }
