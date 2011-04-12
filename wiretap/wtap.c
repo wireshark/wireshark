@@ -655,6 +655,12 @@ wtap_sequential_close(wtap *wth)
 	return ret;
 }
 
+static void
+g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
+{
+	g_free(data);
+}
+
 int
 wtap_close(wtap *wth)
 {
@@ -679,6 +685,10 @@ wtap_close(wtap *wth)
 	if (wth->priv != NULL)
 		g_free(wth->priv);
 
+	if (wth->fast_seek != NULL) {
+		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
+		g_ptr_array_free(wth->fast_seek, TRUE);
+	}
 	g_free(wth);
 
 	return ret;

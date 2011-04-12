@@ -37,6 +37,8 @@ extern char *file_gets(char *buf, int len, FILE_T stream);
 extern int file_eof(FILE_T stream);
 extern void file_clearerr(FILE_T stream);
 
+extern void file_set_random_access(FILE_T stream, gboolean random, GPtrArray *seek);
+
 #ifdef HAVE_LIBZ
 typedef struct wtap_writer *GZWFILE_T;
 

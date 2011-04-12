@@ -72,6 +72,7 @@ struct wtap {
 						 * e.g. WTAP_FILE_TSPREC_USEC */
 	wtap_new_ipv4_callback_t add_new_ipv4;
 	wtap_new_ipv6_callback_t add_new_ipv6;
+	GPtrArray *fast_seek;
 };
 
 struct wtap_dumper;

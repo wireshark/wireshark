@@ -333,6 +333,12 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->priv = NULL;
 
 	init_open_routines();
+	if (wth->random_fh) {
+		wth->fast_seek = g_ptr_array_new();
+
+		file_set_random_access(wth->fh, FALSE, wth->fast_seek);
+		file_set_random_access(wth->random_fh, TRUE, wth->fast_seek);
+	}
 
 	/* Try all file types */
 	for (i = 0; i < open_routines_arr->len; i++) {
@@ -374,10 +380,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 
 	/* Well, it's not one of the types of file we know about. */
-	if (wth->random_fh != NULL)
-		file_close(wth->random_fh);
-	file_close(wth->fh);
-	g_free(wth);
+	wtap_close(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
 	return NULL;
 

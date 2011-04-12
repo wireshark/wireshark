@@ -74,6 +74,7 @@
 
 struct wtap_reader {
 	int fd;                 /* file descriptor */
+	gint64 raw_pos;         /* current position in file (just to not call lseek()) */
 	gint64 pos;             /* current position in uncompressed data */
 	unsigned size;          /* buffer size */
 	unsigned char *in;      /* input buffer */
@@ -97,6 +98,9 @@ struct wtap_reader {
 	/* zlib inflate stream */
 	z_stream strm;          /* stream structure in-place (not a pointer) */
 #endif
+	/* fast seeking */
+	GPtrArray *fast_seek;
+	void *fast_seek_cur;
 };
 
 /* values for gz_state compression */
@@ -104,6 +108,7 @@ struct wtap_reader {
 #define UNCOMPRESSED	1	/* copy input directly */
 #ifdef HAVE_LIBZ
 #define ZLIB		2	/* decompress a zlib stream */
+#define GZIP_AFTER_HEADER 3
 #endif
 
 static int	/* gz_load */
@@ -117,6 +122,7 @@ raw_read(FILE_T state, unsigned char *buf, unsigned int count, unsigned *have)
 		if (ret <= 0)
 			break;
 		*have += ret;
+		state->raw_pos += ret;
 	} while (*have < count);
 	if (ret < 0) {
 		state->err = errno;
@@ -138,6 +144,88 @@ fill_in_buffer(FILE_T state)
 		state->next_in = state->in;
 	}
 	return 0;
+}
+
+#define ZLIB_WINSIZE 32768
+
+struct fast_seek_point {
+	gint64 out; 	/* corresponding offset in uncompressed data */
+	gint64 in;		/* offset in input file of first full byte */
+
+	int compression;
+	union {
+		struct {
+			int bits;		/* number of bits (1-7) from byte at in - 1, or 0 */
+			unsigned char window[ZLIB_WINSIZE];	/* preceding 32K of uncompressed data */
+
+			/* be gentle with Z_STREAM_END, 8 bytes more... Another solution would be to comment checks out */
+			guint32 adler;
+			guint32 total_out;
+		} zlib;
+	} data;
+};
+
+struct zlib_cur_seek_point {
+	unsigned char window[ZLIB_WINSIZE];	/* preceding 32K of uncompressed data */
+	unsigned int pos;
+	unsigned int have;
+};
+
+#define SPAN G_GINT64_CONSTANT(1048576)
+static struct fast_seek_point *
+fast_seek_find(FILE_T file, gint64 pos)
+{
+	struct fast_seek_point *smallest = NULL;
+	struct fast_seek_point *item;
+	guint low, i, max;
+
+	if (!file->fast_seek)
+		return NULL;
+
+	for (low = 0, max = file->fast_seek->len; low < max; ) {
+		i = (low + max) / 2;
+		item = file->fast_seek->pdata[i];
+
+		if (pos < item->out)
+			max = i;
+		else if (pos > item->out) {
+			smallest = item;
+			low = i + 1;
+		} else {
+			return item;
+		}
+	}
+	return smallest;
+}
+
+static void
+fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos, int compression)
+{
+	struct fast_seek_point *item = NULL;
+
+	if (file->fast_seek->len != 0)
+		item = file->fast_seek->pdata[file->fast_seek->len - 1];
+
+	if (!item || item->out < out_pos) {
+		struct fast_seek_point *val = g_malloc(sizeof(struct fast_seek_point));
+		val->in = in_pos;
+		val->out = out_pos;
+		val->compression = compression;
+
+		g_ptr_array_add(file->fast_seek, val);
+	}
+}
+
+static void
+fast_seek_reset(FILE_T state)
+{
+#ifdef HAVE_LIBZ
+	if (state->compression == ZLIB && state->fast_seek_cur) {
+		struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
+
+		cur->have = 0;
+	}
+#endif
 }
 
 #ifdef HAVE_LIBZ
@@ -166,12 +254,46 @@ gz_next4(FILE_T state, guint32 *ret)
 	return 0;
 }
 
-static int /* gz_decomp */
+static void
+zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gint64 in_pos, gint64 out_pos)
+{
+	/* it's for sure after gzip header, so file->fast_seek->len != 0 */
+	struct fast_seek_point *item = file->fast_seek->pdata[file->fast_seek->len - 1];;
+
+	/* Glib has got Balanced Binary Trees (GTree) but I couldn't find a way to do quick search for nearest (and smaller) value to seek (It's what fast_seek_find() do)
+	 *      Inserting value in middle of sorted array is expensive, so we want to add only in the end.
+	 *      It's not big deal, cause first-read don't usually invoke seeking
+	 */
+	if (item->out + SPAN < out_pos) {
+		struct fast_seek_point *val = g_malloc(sizeof(struct fast_seek_point));
+		val->in = in_pos;
+		val->out = out_pos;
+		val->compression = ZLIB;
+
+		val->data.zlib.bits = bits;
+		if (point->pos != 0) {
+			unsigned int left = ZLIB_WINSIZE - point->pos;
+
+			memcpy(val->data.zlib.window, point->window + point->pos, left);
+			memcpy(val->data.zlib.window + left, point->window, point->pos);
+		} else
+			memcpy(val->data.zlib.window, point->window, ZLIB_WINSIZE);
+
+		val->data.zlib.adler = file->strm.adler;
+		val->data.zlib.total_out = file->strm.total_out;
+		g_ptr_array_add(file->fast_seek, val);
+	}
+}
+
+static void /* gz_decomp */
 zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 {
-	int ret;
+	int ret = 0;	/* XXX */
 	guint32 crc, len;
 	z_streamp strm = &(state->strm);
+
+	unsigned char *buf2 = buf;
+	unsigned int count2 = count;
 
 	strm->avail_out = count;
 	strm->next_out = buf;
@@ -180,56 +302,86 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	do {
 		/* get more input for inflate() */
 		if (state->avail_in == 0 && fill_in_buffer(state) == -1)
-			return -1;
+			break;
 		if (state->avail_in == 0) {
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			return -1;
+			break;
 		}
 
 		strm->avail_in = state->avail_in;
 		strm->next_in = state->next_in;
 		/* decompress and handle errors */
-		ret = inflate(strm, Z_NO_FLUSH);
+		/* ret = inflate(strm, Z_NO_FLUSH); */
+		ret = inflate(strm, Z_BLOCK);
 		state->avail_in = strm->avail_in;
 		state->next_in = strm->next_in;
 		if (ret == Z_STREAM_ERROR || ret == Z_NEED_DICT) {
 			state->err = WTAP_ERR_ZLIB + Z_STREAM_ERROR;
-			return -1;
+			break;
 		}
 		if (ret == Z_MEM_ERROR) {
 			state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR; /* ENOMEM? */
-			return -1;
+			break;
 		}
 		if (ret == Z_DATA_ERROR) {              /* deflate stream invalid */
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			return -1;
+			break;
 		}
+
+		strm->adler = crc32(strm->adler, buf2, count2 - strm->avail_out);
+		if (state->fast_seek_cur) {
+			struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
+			unsigned int ready = count2 - strm->avail_out;
+
+			if (ready < ZLIB_WINSIZE) {
+				unsigned left = ZLIB_WINSIZE - cur->pos;
+
+				if (ready >= left) {
+					memcpy(cur->window + cur->pos, buf2, left);
+					if (ready != left)
+						memcpy(cur->window, buf2 + left, ready - left);
+
+					cur->pos = ready - left;
+					cur->have += ready;
+				} else {
+					memcpy(cur->window + cur->pos, buf2, ready);
+					cur->pos += ready;
+					cur->have += ready;
+				}
+
+				if (cur->have >= ZLIB_WINSIZE)
+					cur->have = ZLIB_WINSIZE;
+
+			} else {
+				memcpy(cur->window, buf2 + (ready - ZLIB_WINSIZE), ZLIB_WINSIZE);
+				cur->pos = 0;
+				cur->have = ZLIB_WINSIZE;
+			}
+
+			if (cur->have >= ZLIB_WINSIZE && ret != Z_STREAM_END && (strm->data_type & 128) && !(strm->data_type & 64))
+				zlib_fast_seek_add(state, cur, (strm->data_type & 7), state->raw_pos - strm->avail_in, state->pos + (count - strm->avail_out));
+		}
+		buf2 = (buf2 + count2 - strm->avail_out);
+		count2 = strm->avail_out;
+
 	} while (strm->avail_out && ret != Z_STREAM_END);
 
 	/* update available output and crc check value */
 	state->next = buf;
 	state->have = count - strm->avail_out;
-	strm->adler = crc32(strm->adler, state->next, state->have);
 
 	/* check gzip trailer if at end of deflate stream */
 	if (ret == Z_STREAM_END) {
-		if (gz_next4(state, &crc) == -1 || gz_next4(state, &len) == -1) {
+		if (gz_next4(state, &crc) == -1 || gz_next4(state, &len) == -1)
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			return -1;
-		}
-		if (crc != strm->adler) {
+		if (crc != strm->adler)
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			return -1;
-		}
-		if (len != (strm->total_out & 0xffffffffL)) {
+		if (len != (strm->total_out & 0xffffffffL))
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			return -1;
-		}
 		state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
+		g_free(state->fast_seek_cur);
+		state->fast_seek_cur = NULL;
 	}
-
-	/* good decompression */
-	return 0;
 }
 #endif
 
@@ -299,6 +451,15 @@ gz_head(FILE_T state)
 			inflateReset(&(state->strm));
 			state->strm.adler = crc32(0L, Z_NULL, 0);
 			state->compression = ZLIB;
+
+			if (state->fast_seek) {
+				struct zlib_cur_seek_point *cur = g_malloc(sizeof(struct zlib_cur_seek_point));
+
+				cur->pos = cur->have = 0;
+				g_free(state->fast_seek_cur);
+				state->fast_seek_cur = cur;
+				fast_seek_header(state, state->raw_pos - state->avail_in, state->pos, GZIP_AFTER_HEADER);
+			}
 			return 0;
 		}
 		else {
@@ -312,6 +473,8 @@ gz_head(FILE_T state)
 	/* { 0xFD, '7', 'z', 'X', 'Z', 0x00 } */
 	/* FD 37 7A 58 5A 00 */
 #endif
+	if (state->fast_seek)
+		fast_seek_header(state, state->raw_pos - state->avail_in - state->have, state->pos, UNCOMPRESSED);
 
 	/* doing raw i/o, save start of raw data for seeking, copy any leftover
 	   input to output -- this assumes that the output buffer is larger than
@@ -343,8 +506,7 @@ fill_out_buffer(FILE_T state)
 	}
 #ifdef HAVE_LIBZ
 	else if (state->compression == ZLIB) {      /* decompress */
-		if (zlib_read(state, state->out, state->size << 1) == -1)
-			return -1;
+		zlib_read(state, state->out, state->size << 1);
 	}
 #endif
 	return 0;
@@ -365,6 +527,10 @@ gz_skip(FILE_T state, gint64 len)
 			state->pos += n;
 			len -= n;
 		}
+
+		/* delayed error reporting */
+		else if (state->err)
+			return -1;
 
 	/* output buffer empty -- return if we're at the end of the input */
 		else if (state->eof && state->avail_in == 0)
@@ -404,10 +570,13 @@ filed_open(int fd)
 	if (fd == -1)
 		return NULL;
 
-	/* allocate gzFile structure to return */
+	/* allocate FILE_T structure to return */
 	state = g_try_malloc(sizeof *state);
 	if (state == NULL)
 		return NULL;
+
+	state->fast_seek_cur = NULL;
+	state->fast_seek = NULL;
 
 	/* open the file with the appropriate mode (or just use fd) */
 	state->fd = fd;
@@ -415,6 +584,7 @@ filed_open(int fd)
 	/* save the current position for rewinding (only if reading) */
 	state->start = ws_lseek64(state->fd, 0, SEEK_CUR);
 	if (state->start == -1) state->start = 0;
+	state->raw_pos = state->start;
 
 	/* initialize stream */
 	gz_reset(state);
@@ -453,8 +623,6 @@ filed_open(int fd)
 		return NULL;
 	}
 #endif
-	gz_head(state);	/* read first chunk */
-
 	/* return stream */
 	return state;
 }
@@ -486,16 +654,17 @@ file_open(const char *path)
 	return ft;
 }
 
+void 
+file_set_random_access(FILE_T stream, gboolean random _U_, GPtrArray *seek)
+{
+	stream->fast_seek = seek;
+}
+
 gint64
 file_seek(FILE_T file, gint64 offset, int whence, int *err)
 {
+	struct fast_seek_point *here;
 	unsigned n;
-
-	/* check that there's no error */
-	if (file->err) {
-		*err = file->err;
-		return -1;
-	}
 
 	/* can only seek from start or relative to current position */
 	if (whence != SEEK_SET && whence != SEEK_CUR) {
@@ -513,12 +682,85 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		offset += file->skip;
 	file->seek = 0;
 
+	/* XXX, profile */
+	if ((here = fast_seek_find(file, file->pos + offset)) && (offset < 0 || offset > SPAN || here->compression == UNCOMPRESSED)) {
+		gint64 off, off2;
+
+#ifdef HAVE_LIBZ
+		if (here->compression == ZLIB) {
+			off = here->in - (here->data.zlib.bits ? 1 : 0);
+			off2 = here->out;
+		} else if (here->compression == GZIP_AFTER_HEADER) {
+			off = here->in;
+			off2 = here->out;
+		} else
+#endif
+		{
+			off2 = (file->pos + offset);
+			off = here->in + (off2 - here->out);
+		}
+
+		if (ws_lseek64(file->fd, off, SEEK_SET) == -1) {
+			*err = errno;
+			return -1;
+		}
+		fast_seek_reset(file);
+
+		file->raw_pos = off;
+		file->have = 0;
+		file->eof = 0;
+		file->seek = 0;
+		file->err = 0;
+		file->avail_in = 0;
+
+#ifdef HAVE_LIBZ
+		if (here->compression == ZLIB) {
+			z_stream *strm = &file->strm;
+			FILE_T state = file;
+
+			inflateReset(strm);
+			strm->adler = here->data.zlib.adler;
+			strm->total_out = here->data.zlib.total_out;
+			if (here->data.zlib.bits) {
+				int ret = NEXT();
+
+				if (ret == -1) {
+					/* *err = ???; */
+					return -1;
+				}
+
+				(void)inflatePrime(strm, here->data.zlib.bits, ret >> (8 - here->data.zlib.bits));
+			}
+			(void)inflateSetDictionary(strm, here->data.zlib.window, ZLIB_WINSIZE);
+			file->compression = ZLIB;
+		} else if (here->compression == GZIP_AFTER_HEADER) {
+			z_stream *strm = &file->strm;
+
+			inflateReset(strm);
+			strm->adler = crc32(0L, Z_NULL, 0);
+			file->compression = ZLIB;
+		} else
+#endif
+			file->compression = here->compression;
+
+		offset = (file->pos + offset) - off2;
+		file->pos = off2;
+		/* g_print("OK! %ld\n", offset); */
+
+		if (offset) {
+			file->seek = 1;
+			file->skip = offset;
+		}
+		return file->pos + offset;
+	}
+
 	/* if within raw area while reading, just go there */
 	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw) {
 		if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
 			*err = errno;
 			return -1;
 		}
+		file->raw_pos += (offset - file->have);
 		file->have = 0;
 		file->eof = 0;
 		file->seek = 0;
@@ -542,6 +784,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 			*err = errno;
 			return -1;
 		}
+		fast_seek_reset(file);
+		file->raw_pos = file->start;
 		gz_reset(file);
 	}
 
@@ -572,10 +816,6 @@ file_read(void *buf, unsigned int len, FILE_T file)
 {
 	unsigned got, n;
 
-	/* check that we're reading and that there's no error */
-	if (file->err)
-		return -1;
-
 	/* if len is zero, avoid unnecessary operations */
 	if (len == 0)
 		return 0;
@@ -597,31 +837,21 @@ file_read(void *buf, unsigned int len, FILE_T file)
 			file->next += n;
 			file->have -= n;
 		}
+		/* delayed error reporting (for zlib) */
+		else if (file->err)
+			return -1;
 
 		/* output buffer empty -- return if we're at the end of the input */
 		else if (file->eof && file->avail_in == 0)
 			break;
 
-		/* need output data -- for small len or new stream load up our output buffer */
-		else if (file->compression == UNKNOWN  || len < (file->size << 1)) {
+		/* need output data */
+		else {
 			/* get more output, looking for header if required */
 			if (fill_out_buffer(file) == -1)
 				return -1;
 			continue;       /* no progress yet -- go back to memcpy() above */
-
-		} else if (file->compression == UNCOMPRESSED) {	/* large len -- read directly into user buffer */
-			if (raw_read(file, buf, len, &n) == -1)
-				return -1;
 		}
-#ifdef HAVE_LIBZ
-		/* large len -- decompress directly into user buffer */
-		else {  /* file->compression == ZLIB */
-			if (zlib_read(file, buf, len) == -1)
-				return -1;
-			n = file->have;
-			file->have = 0;
-		}
-#endif
 		/* update progress */
 		len -= n;
 		buf = (char *)buf + n;
@@ -751,6 +981,7 @@ file_close(FILE_T file)
 		g_free(file->out);
 		g_free(file->in);
 	}
+	g_free(file->fast_seek_cur);
 	file->err = 0;
 	g_free(file);
 	return close(fd);

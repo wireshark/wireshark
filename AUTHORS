@@ -3246,7 +3246,8 @@ Martin Kaiser		<martin [AT] kaiser.cx> {
 
 Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
 	JSON dissector
-	Wiretap cleanup
+	Wiretap cleanup and support for fast random access to gzipped
+	    files
 }
 
 Roland Knall		<rknall [AT] gmail.com> {
