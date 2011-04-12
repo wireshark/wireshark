@@ -803,7 +803,7 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
   int i;
 
   for (i = 0; i < (int) length; i++) {
-    sprintf(str+(i*2), "%02x", hash[i]);
+    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
   }
 }
 #endif /* HAVE_LIBGCRYPT */
@@ -1033,9 +1033,9 @@ main(int argc, char *argv[])
   for (opt = optind; opt < argc; opt++) {
 
 #ifdef HAVE_LIBGCRYPT
-    strcpy(file_sha1, "<unknown>");
-    strcpy(file_rmd160, "<unknown>");
-    strcpy(file_md5, "<unknown>");
+    g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
+    g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
+    g_strlcpy(file_md5, "<unknown>", HASH_STR_SIZE);
 
     if (cap_file_hashes) {
       fh = ws_fopen(argv[opt], "rb");
