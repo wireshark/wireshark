@@ -692,11 +692,11 @@ show_oid_index:
 									case OID_KEY_TYPE_IPADDR: {
 										guint32* ipv4_p = (void*)buf;
 										proto_tree_add_ipv4(pt_name,k->hfid,tvb,name_offset,buf_len, *ipv4_p);
+										}
 										break;
 									default:
 										DISSECTOR_ASSERT_NOT_REACHED();
 										break;
-									}
 								}
 
 								key_start += buf_len;
