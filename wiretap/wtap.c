@@ -724,8 +724,20 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 */
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	if (!wth->subtype_read(wth, err, err_info, data_offset))
+	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+		/*
+		 * If we didn't get an error indication, we read
+		 * the last packet.  See if there's any deferred
+		 * error, as might, for example, occur if we're
+		 * reading a compressed file, and we got an error
+		 * reading compressed data from the file, but
+		 * got enough compressed data to decompress the
+		 * last packet of the file.
+		 */
+		if (*err == 0)
+			*err = file_error(wth->fh);
 		return FALSE;	/* failure */
+	}
 
 	/*
 	 * It makes no sense for the captured data length to be bigger
