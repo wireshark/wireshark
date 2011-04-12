@@ -163,6 +163,14 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+HTTP,
+LDAP,
+MySQL,
+NFS,
+sFlow,
+SSL,
+TCP, 
+
     </para>
     </section>
 
