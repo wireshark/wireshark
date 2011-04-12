@@ -665,24 +665,24 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_DIRECT_TUNNEL_FLGS    0xB6    /* 3G   182 TLV Direct Tunnel Flags     7.7.81 */
 #define GTP_EXT_CORRELATION_ID        0xB7    /* 3G   183 TLV Correlation-ID  7.7.82 */
 #define GTP_EXT_BEARER_CONTROL_MODE   0xB8    /* 3G   184 TLV Bearer Control Mode     7.7.83 */
-/* 3G   185	TLV	MBMS Flow Identifier	7.7.84 */
-/* 3G   186	TLV	MBMS IP Multicast Distribution	7.7.85 */
-/* 3G   187	TLV	MBMS Distribution Acknowledgement	7.7.86 */
-/* 3G   188	TLV	Reliable INTER RAT HANDOVER INFO 	7.7.87 */
-/* 3G   189	TLV	RFSP Index	7.7.88 */
-/* 3G   190	TLV	Fully Qualified Domain Name (FQDN)	7.7.90 */
-#define GTP_EXT_EVO_ALLO_RETE_P1      0xBF       /* 3G   191	TLV	Evolved Allocation/Retention Priority I	7.7.91 */
-/* 3G   192	TLV	Evolved Allocation/Retention Priority II	7.7.92 */
-/* 3G   193	TLV	Extended Common Flags	7.7.93 */
-/* 3G   194	TLV	User CSG Information (UCI)	7.7.94 */
-/* 3G   195	TLV	CSG Information Reporting Action	7.7.95 */
-/* 3G   196	TLV	CSG ID	7.7.96 */
-/* 3G   197	TLV	CSG Membership Indication (CMI)	7.7.97 */
-/* 3G   198	TLV	Aggregate Maximum Bit Rate (AMBR)	7.7.98 */
-/* 3G   199	TLV	UE Network Capability	7.7.99 */
-/* 3G   200	TLV	UE-AMBR	7.7.100 */
-/* 3G   201	TLV	APN-AMBR with NSAPI	7.7.101 */
-/* 202-238	TLV	Spare. For future use.	 */
+                                              /* 3G   185 TLV   MBMS Flow Identifier    7.7.84 */
+                                              /* 3G   186 TLV MBMS IP Multicast Distribution    7.7.85 */
+                                              /* 3G   187 TLV MBMS Distribution Acknowledgement 7.7.86 */
+                                              /* 3G   188 TLV Reliable INTER RAT HANDOVER INFO  7.7.87 */
+                                              /* 3G   189 TLV RFSP Index        7.7.88 */
+                                              /* 3G   190 TLV Fully Qualified Domain Name (FQDN)        7.7.90 */
+#define GTP_EXT_EVO_ALLO_RETE_P1      0xBF    /* 3G   191 TLV Evolved Allocation/Retention Priority I   7.7.91 */
+                                              /* 3G   192 TLV Evolved Allocation/Retention Priority II  7.7.92 */
+                                              /* 3G   193 TLV Extended Common Flags     7.7.93 */
+                                              /* 3G   194 TLV User CSG Information (UCI)        7.7.94 */
+                                              /* 3G   195 TLV CSG Information Reporting Action  7.7.95 */
+                                              /* 3G   196 TLV CSG ID    7.7.96 */
+                                              /* 3G   197 TLV CSG Membership Indication (CMI)   7.7.97 */
+                                              /* 3G   198 TLV Aggregate Maximum Bit Rate (AMBR) 7.7.98 */
+                                              /* 3G   199 TLV UE Network Capability     7.7.99 */
+                                              /* 3G   200 TLV UE-AMBR   7.7.100 */
+                                              /* 3G   201 TLV APN-AMBR with NSAPI       7.7.101 */
+                                              /*  202-238 TLV Spare. For future use.     */
 
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
@@ -3144,7 +3144,7 @@ static int decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
 
     te = proto_tree_add_text(tree, tvb, offset, 29, "%s", val_to_str_ext_const(GTP_EXT_AUTH_TRI, &gtp_val_ext, "Unknown message"));
-    ext_tree_auth_tri = proto_item_add_subtree(tree, ett_gtp_auth_tri);
+    ext_tree_auth_tri = proto_item_add_subtree(te, ett_gtp_auth_tri);
 
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + 1, 16));
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 17, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset + 17, 4));
@@ -3468,7 +3468,7 @@ static int decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     rp = tvb_get_guint8(tvb, offset + 1) & 0x07;
 
     te = proto_tree_add_uint_format(tree, hf_gtp_rp, tvb, offset, 2, rp, "Radio Priority for NSAPI(%u) : %u", nsapi, rp);
-    ext_tree_rp = proto_item_add_subtree(tree, ett_gtp_rp);
+    ext_tree_rp = proto_item_add_subtree(te, ett_gtp_rp);
 
     proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_nsapi, tvb, offset + 1, 1, nsapi);
     proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_spare, tvb, offset + 1, 1, spare);
@@ -3491,7 +3491,7 @@ static int decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinf
     pkt_flow_id = tvb_get_guint8(tvb, offset + 2);
 
     te = proto_tree_add_uint_format(tree, hf_gtp_pkt_flow_id, tvb, offset, 3, pkt_flow_id, "Packet Flow ID for NSAPI(%u) : %u", nsapi, pkt_flow_id);
-    ext_tree_pkt_flow_id = proto_item_add_subtree(tree, ett_gtp_pkt_flow_id);
+    ext_tree_pkt_flow_id = proto_item_add_subtree(te, ett_gtp_pkt_flow_id);
 
     proto_tree_add_uint(ext_tree_pkt_flow_id, hf_gtp_nsapi, tvb, offset + 1, 1, nsapi);
     proto_tree_add_uint_format(ext_tree_pkt_flow_id, hf_gtp_pkt_flow_id, tvb,
@@ -5603,8 +5603,8 @@ static int decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pin
 static int
 dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
-	int offset = 0;
-	guint8 no_of_mbms_sa_codes;
+    int offset = 0;
+    guint8 no_of_mbms_sa_codes;
     int i;
 
     /* The MBMS Service Area is defined in 3GPP TS 23.246 [26].
@@ -5631,13 +5631,13 @@ dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
         offset = offset + 2;
     }
 
-	return offset;
+    return offset;
 }
 
 static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
-	tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb;
     guint16 length;
     proto_tree *ext_tree;
     proto_item *te;
@@ -5649,8 +5649,8 @@ static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-	next_tvb = tvb_new_subset(tvb, offset, length-3, length-3);
-	dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo,ext_tree);
+    next_tvb = tvb_new_subset(tvb, offset, length-3, length-3);
+    dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo,ext_tree);
 
     return 3 + length;
 
@@ -7479,8 +7479,8 @@ void proto_reg_handoff_gtp(void)
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
-		/* AVP Code: 903 MBMS-Service-Area */
-		dissector_add_uint("diameter.3gpp", 903, new_create_dissector_handle(dissect_gtp_3gpp_mbms_service_area, proto_gtp));
+        /* AVP Code: 903 MBMS-Service-Area */
+        dissector_add_uint("diameter.3gpp", 903, new_create_dissector_handle(dissect_gtp_3gpp_mbms_service_area, proto_gtp));
         /* AVP Code: 904 MBMS-Session-Duration */
         dissector_add_uint("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
         /* AVP Code: 911 MBMS-Time-To-Data-Transfer */
