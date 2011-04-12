@@ -1276,9 +1276,9 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
 
-	given_username_len = tvb_length_remaining(user_tvb,0);
+	given_username_len = tvb_ensure_length_remaining(user_tvb,0);
 	given_username = ep_tvb_memdup(user_tvb,0,-1);
-	given_engine_len = tvb_length_remaining(engine_tvb,0);
+	given_engine_len = tvb_ensure_length_remaining(engine_tvb,0);
 	given_engine = ep_tvb_memdup(engine_tvb,0,-1);
 
 	for (a = localized_ues; a; a = a->next) {
