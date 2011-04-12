@@ -182,7 +182,6 @@ struct option {
 			} else {                                                           \
 				*error_pointer = 0;                                        \
 			}                                                                  \
-			fclose(file_pointer);                                              \
 			return FALSE;                                                      \
 		}                                                                          \
 		written_length += (long)nwritten;                                          \

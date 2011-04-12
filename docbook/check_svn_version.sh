@@ -24,7 +24,7 @@
 # 
 
 echo -n '<!ENTITY SvnVersion "' > svn_version_tmp.xml
-svnversion -n .                   >> svn_version_tmp.xml
+[ -x svnversion ] && svnversion -n .                   >> svn_version_tmp.xml
 echo '">'   >> svn_version_tmp.xml
 
 # /dev/null buries the output of the "cmp" command.

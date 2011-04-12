@@ -669,7 +669,7 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t fr_handle;
 static dissector_handle_t x25_handle;
-static dissector_handle_t ppp_handle;
+static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t smds_handle;
 static dissector_handle_t aal5_handle;
 static dissector_handle_t ipv4_handle;
@@ -786,7 +786,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
                 call_dissector(x25_handle, next_tvb, pinfo, sflow_245_header_tree);
                 break;
             case SFLOW_245_HEADER_PPP:
-                call_dissector(ppp_handle, next_tvb, pinfo, sflow_245_header_tree);
+                    call_dissector(ppp_hdlc_handle, next_tvb, pinfo, sflow_245_header_tree);
                 break;
             case SFLOW_245_HEADER_SMDS:
                 call_dissector(smds_handle, next_tvb, pinfo, sflow_245_header_tree);
@@ -3431,7 +3431,7 @@ proto_reg_handoff_sflow_245(void) {
         fddi_handle = find_dissector("fddi");
         fr_handle = find_dissector("fr");
         x25_handle = find_dissector("x.25");
-        ppp_handle = find_dissector("ppp");
+        ppp_hdlc_handle = find_dissector("ppp_hdlc");
 #if 0
         smds_handle = find_dissector("smds");
 #else
@@ -3478,7 +3478,7 @@ proto_reg_handoff_sflow_245(void) {
         fddi_handle = data_handle;
         fr_handle = data_handle;
         x25_handle = data_handle;
-        ppp_handle = data_handle;
+        ppp_hdlc_handle = data_handle;
         smds_handle = data_handle;
         aal5_handle = data_handle;
         ipv4_handle = data_handle;

@@ -77,9 +77,63 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Some HTTP responses don't decode with TCP reassembly on.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3785">Bug
+          3785</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes when cancelling a large sort operation.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5189">Bug
           5189</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes if SSL preferences RSA key is actually a DSA key.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662">Bug
+          5662</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          tshark incorrectly calculates TCP stream for some syn packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5743">Bug
+          5743</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark not able to decode the PPP frame in a sflow (RFC3176) flow sample packet because Wireshark incorrectly read the protocol in PPP frame header.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5746">Bug
+          5746</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Mysql protocol dissector: all fields should be little endian.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5759">Bug
+          5759</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Error when opening snoop from Juniper SSG-140.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5762">Bug
+          5762</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          svnversion: command not found.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5798">Bug
+          5798</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
+          5803</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          proto_field_is_referenced() is not exported in libwireshark.dll.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5816">Bug
+          5816</ulink>)
         </para></listitem>
 
       </itemizedlist>
