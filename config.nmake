@@ -142,7 +142,7 @@ MSVC_VARIANT=MSVC2008
 # If you don't have NASM, comment this line out, so that NASM
 # isn't defined.
 #
-NASM=$(WIRESHARK_LIBS)\nasm-2.09-08\nasm.exe
+NASM=$(WIRESHARK_LIBS)\nasm-2.09.08\nasm.exe
 
 #
 # Optional: the Python library enables scripting support.
