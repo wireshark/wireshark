@@ -28,10 +28,6 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -1385,11 +1381,11 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-	  if(!data_tvb){
-		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes",format_specific_parameter);
-		  return;
-	  }
-	  length = tvb_length(data_tvb);
+      if(!data_tvb){
+        proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes",format_specific_parameter);
+        return;
+      }
+      length = tvb_length(data_tvb);
       if (length == 3){
         if(h264_handle && data_tvb){
           dissect_h264_profile(data_tvb, pinfo, tree);
@@ -1490,7 +1486,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_tree *fmtp_tree;
   gint offset, next_offset, tokenlen, n, colon_offset;
   gint start_offset;
-  guint8 *field_name;
+  /*??guint8 *field_name;*/
   guint8 *payload_type;
   guint8 *attribute_value;
   gint   *key;
@@ -1520,7 +1516,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_tree_add_item(sdp_media_attribute_tree,
                       hf_media_attribute_field,
                       tvb, offset, tokenlen, FALSE);
-  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  /*??field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);*/
   sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
   /* Skip colon */
@@ -1660,7 +1656,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       proto_item_append_text(media_format_item, " [%s]",
                              transport_info->encoding_name[media_format]);
 
-      payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      /*??payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);*/
       /* Move offset past the payload type */
       offset = next_offset + 1;
 
@@ -1700,13 +1696,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
      *    MSRP-URI = msrp-scheme "://" authority
      *       ["/" session-id] ";" transport *( ";" URI-parameter)
      *                        ; authority as defined in RFC3986
-	 *
-	 *    msrp-scheme = "msrp" / "msrps"
-	 * RFC 3986
-	 * The authority component is preceded by a double slash ("//") and is terminated by 
-	 * the next slash ("/"), question mark ("?"), or number sign ("#") character, or by 
-	 * the end of the URI. 
-	 */
+     *
+     *    msrp-scheme = "msrp" / "msrps"
+     * RFC 3986
+     * The authority component is preceded by a double slash ("//") and is terminated by
+     * the next slash ("/"), question mark ("?"), or number sign ("#") character, or by
+     * the end of the URI.
+     */
 
     /* Check for "msrp://" */
     if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
@@ -1717,19 +1713,19 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
       /* Port is after next ':' */
       port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
-	  /* Check if port is present if not skipp */
-	  if(port_offset!= -1){
-		  /* Port ends with '/' */
-		  port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
+      /* Check if port is present if not skipp */
+      if(port_offset!= -1){
+        /* Port ends with '/' */
+        port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
 
-		  /* Attempt to convert address */
-		  if (inet_pton(AF_INET, (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
-			/* Get port number */
-			msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
-			/* Set flag so this info can be used */
-			msrp_transport_address_set = TRUE;
-		  }
-	  }
+        /* Attempt to convert address */
+        if (inet_pton(AF_INET, (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
+          /* Get port number */
+          msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
+          /* Set flag so this info can be used */
+          msrp_transport_address_set = TRUE;
+        }
+      }
     }
     break;
   case SDP_H248_ITEM:
