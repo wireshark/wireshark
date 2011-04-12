@@ -224,7 +224,6 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *volatile ieee8021ah_tag_tree;
 
     /* for parsing out ethernet addrs */
-    proto_item *addr_item;
     const guint8 *src_addr, *dst_addr;
 
     tci = tvb_get_ntohl( tvb, 0 );
@@ -264,10 +263,10 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 	dst_addr = tvb_get_ptr(tvb, 4, 6); /* safe to use this function? */
 	src_addr = tvb_get_ptr(tvb, 10, 6);
 
-	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_daddr,
+	proto_tree_add_ether(tree, hf_ieee8021ah_c_daddr,
 					 tvb, 4, 6, dst_addr);
 
-	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_saddr,
+	proto_tree_add_ether(tree, hf_ieee8021ah_c_saddr,
 					 tvb, 10, 6, src_addr);
 
 	/* add text to 802.1ad label */
@@ -329,7 +328,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
 	ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AH_LEN, FALSE);
 	ieee8021ah_tree = proto_item_add_subtree(ptree, ett_ieee8021ah);
 
-	dissect_ieee8021ah_common(tvb, pinfo, ptree, tree, proto_tree_index);
+	dissect_ieee8021ah_common(tvb, pinfo, ieee8021ah_tree, tree, proto_tree_index);
     }
 }
 
