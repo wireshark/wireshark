@@ -80,7 +80,6 @@ static gint hf_tetra_rxchannel1 = -1;
 static gint hf_tetra_rxchannel2 = -1;
 static gint hf_tetra_crc = -1;
 static gint hf_tetra_len0 = -1;
-static gint hf_tetra_bits = -1;
 
 #include "packet-tetra-hf.c"
 
@@ -362,7 +361,7 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset, gboolean dissect)
+void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
 {
 	guint32 txreg = 0;
 	guint32 channels = 0, i;
@@ -518,7 +517,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(type) {
 		case 1: /* tetra-UNITDATA-REQ */
 		case 128: /* tetra-UNITDATA-REQ Done */
-			dissect_tetra_UNITDATA_REQ(tvb, pinfo, tetra_header_tree, offset, 1);
+			dissect_tetra_UNITDATA_REQ(tvb, pinfo, tetra_header_tree, offset);
 			break;
 		case 2: /* tetra-UNITDATA-IND */
 		case 127: /* tetra-UNITDATA-IND Done */

@@ -88,7 +88,6 @@ static gint hf_tetra_rxchannel1 = -1;
 static gint hf_tetra_rxchannel2 = -1;
 static gint hf_tetra_crc = -1;
 static gint hf_tetra_len0 = -1;
-static gint hf_tetra_bits = -1;
 
 
 /*--- Included file: packet-tetra-hf.c ---*/
@@ -695,7 +694,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 86 "../../asn1/tetra/packet-tetra-template.c"
+#line 85 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -982,7 +981,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 96 "../../asn1/tetra/packet-tetra-template.c"
+#line 95 "../../asn1/tetra/packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
@@ -8906,7 +8905,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 98 "../../asn1/tetra/packet-tetra-template.c"
+#line 97 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -9174,7 +9173,7 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset, gboolean dissect)
+void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
 {
 	guint32 txreg = 0;
 	guint32 channels = 0, i;
@@ -9330,7 +9329,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(type) {
 		case 1: /* tetra-UNITDATA-REQ */
 		case 128: /* tetra-UNITDATA-REQ Done */
-			dissect_tetra_UNITDATA_REQ(tvb, pinfo, tetra_header_tree, offset, 1);
+			dissect_tetra_UNITDATA_REQ(tvb, pinfo, tetra_header_tree, offset);
 			break;
 		case 2: /* tetra-UNITDATA-IND */
 		case 127: /* tetra-UNITDATA-IND Done */
@@ -11820,7 +11819,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 607 "../../asn1/tetra/packet-tetra-template.c"
+#line 606 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12107,7 +12106,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 617 "../../asn1/tetra/packet-tetra-template.c"
+#line 616 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */
