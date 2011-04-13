@@ -132,6 +132,44 @@ echo ""
 # Clean up on <ctrl>C, etc
 trap "rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE; echo ""; exit 0" HUP INT TERM
 
+
+##############################################################################
+### Set up environment variables for fuzz testing			   ###
+##############################################################################
+# Initialize (ep_ and se_) allocated memory to 0xBADDCAFE and freed memory
+# to 0xDEADBEEF
+export WIRESHARK_DEBUG_SCRUB_MEMORY=
+# Use canaries in se_ allocations (off by default due to the memory usage)
+export WIRESHARK_DEBUG_SE_USE_CANARY=
+# Verify that ep_ and se_ allocated memory is not passed to certain routines
+# which need the memory to be persistent.
+export WIRESHARK_EP_VERIFY_POINTERS=
+export WIRESHARK_SE_VERIFY_POINTERS=
+
+# Turn on GLib memory debugging (since 2.13)
+export G_SLICE=debug-blocks
+# Cause glibc (Linux) to abort() if some memory errors are found
+export MALLOC_CHECK_=3
+# Cause FreeBSD (and other BSDs) to abort() on allocator warnings and
+# initialize allocated memory (to 0xa5) and freed memory (to 0x5a).  see:
+# http://www.freebsd.org/cgi/man.cgi?query=malloc&apropos=0&sektion=0&manpath=FreeBSD+8.2-RELEASE&format=html
+export MALLOC_OPTIONS=AJ
+
+# MacOS options; see http://developer.apple.com/library/mac/releasenotes/DeveloperTools/RN-MallocOptions/_index.html
+# Initialize allocated memory to 0xAA and freed memory to 0x55
+export MallocPreScribble=1
+export MallocScribble=1
+# Add guard pages before and after large allocations
+export MallocGuardEdges=1
+# Call abort() if heap corruption is detected.  Heap is checked every 1000
+# allocations (may need to be tuned!)
+export MallocCheckHeapStart=1000
+export MallocCheckHeapEach=1000
+export MallocCheckHeapAbort=1
+# Call abort() if an illegal free() call is made
+export MallocBadFreeAbort=1
+
+
 # Iterate over our capture files.
 PASS=0
 while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
@@ -178,12 +216,6 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	    fi
 	fi
 
-	export WIRESHARK_DEBUG_SCRUB_MEMORY=
-	export WIRESHARK_DEBUG_SE_USE_CANARY=
-	export WIRESHARK_EP_VERIFY_POINTERS=
-	export WIRESHARK_SE_VERIFY_POINTERS=
-	export G_SLICE=debug-blocks             # since GLib 2.13
-	export MALLOC_CHECK_=3
 	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
 	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
 	RETVAL=$?
