@@ -410,14 +410,14 @@ capinfos_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@
-capinfos_CFLAGS = $(AM_CLEAN_CFLAGS)
+capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-editcap_CFLAGS = $(AM_CLEAN_CFLAGS)
+editcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
