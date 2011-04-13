@@ -1116,6 +1116,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					    hf_radiotap_present_xchannel, tvb,
 					    offset + 4, 4, TRUE);
 
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_mcs, tvb,
+					    offset + 4, 4, TRUE);
  always_bits:
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_rtap_ns, tvb,
