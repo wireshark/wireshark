@@ -215,6 +215,7 @@ static int hf_tcp_proc_dst_uid = -1;
 static int hf_tcp_proc_dst_pid = -1;
 static int hf_tcp_proc_dst_uname = -1;
 static int hf_tcp_proc_dst_cmd = -1;
+static int hf_tcp_data = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -1642,9 +1643,9 @@ again:
             }
 
             nbytes = tvb_reported_length_remaining(tvb, offset);
-            proto_tree_add_text(tcp_tree, tvb, offset, nbytes,
-                                "%sTCP segment data (%u byte%s)",
-                                str, nbytes, plurality(nbytes, "", "s"));
+            proto_tree_add_bytes_format(tcp_tree, hf_tcp_data, tvb, offset,
+                nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
+                plurality(nbytes, "", "s"));
             return;
         }
 
@@ -1835,9 +1836,9 @@ again:
                 nbytes = another_pdu_follows > 0
                     ? another_pdu_follows
                     : tvb_reported_length_remaining(tvb, offset);
-                proto_tree_add_text(tcp_tree, tvb, offset, nbytes,
-                                    "TCP segment data (%u byte%s)", nbytes,
-                                    plurality(nbytes, "", "s"));
+                proto_tree_add_bytes_format(tcp_tree, hf_tcp_data, tvb, offset,
+                    nbytes, NULL, "TCP segment data (%u byte%s)", nbytes,
+                    plurality(nbytes, "", "s"));
 
                 print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
 
@@ -1983,9 +1984,9 @@ again:
          * was, and report it as a continuation of that, instead?
          */
         nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
-        proto_tree_add_text(tcp_tree, tvb, deseg_offset, -1,
-                            "TCP segment data (%u byte%s)", nbytes,
-                            plurality(nbytes, "", "s"));
+        proto_tree_add_bytes_format(tcp_tree, hf_tcp_data, tvb, deseg_offset,
+            -1, NULL, "TCP segment data (%u byte%s)", nbytes,
+            plurality(nbytes, "", "s"));
     }
     pinfo->can_desegment = 0;
     pinfo->desegment_offset = 0;
@@ -4912,7 +4913,11 @@ proto_register_tcp(void)
 
         { &hf_tcp_proc_dst_cmd,
           { "Destination process name", "tcp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Destination process command name", HFILL}}
+            "Destination process command name", HFILL}},
+
+        { &hf_tcp_data,
+          { "TCP segment data", "tcp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}}
     };
 
     static gint *ett[] = {
