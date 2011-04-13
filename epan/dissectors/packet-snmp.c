@@ -2997,6 +2997,7 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
 
 	next_tvb_init(&var_list);
@@ -3005,10 +3006,10 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, FALSE);
-		proto_item_add_subtree(item, ett_smux);
+		smux_tree = proto_item_add_subtree(item, ett_smux);
 	}
 
-	dissect_SMUX_PDUs_PDU(tvb, pinfo, tree);
+	dissect_SMUX_PDUs_PDU(tvb, pinfo, smux_tree);
 }
 
 
@@ -3632,7 +3633,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2147 "../../asn1/snmp/packet-snmp-template.c"
+#line 2148 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3672,7 +3673,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2163 "../../asn1/snmp/packet-snmp-template.c"
+#line 2164 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
