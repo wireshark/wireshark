@@ -1176,8 +1176,8 @@ val_to_str_ext
 val_to_str_ext_const
 value_is_in_range
 write_prefs
-ws_strdup_escape_underscore
-ws_strdup_unescape_underscore
+ws_strdup_escape_char
+ws_strdup_unescape_char
 wslua_plugin_list               DATA
 wsp_vals_pdu_type_ext           DATA
 wsp_vals_status_ext             DATA
