@@ -237,7 +237,7 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	occurrence_text = gtk_entry_get_text(GTK_ENTRY(g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_TE)));
 	occurrence = (gint)strtol(occurrence_text, NULL, 10);
 
-	escaped_title = ws_strdup_escape_underscore(title);
+	escaped_title = ws_strdup_escape_char(title, '_');
 	gtk_tree_view_column_set_title(col, escaped_title);
 	g_free(escaped_title);
 
@@ -317,7 +317,7 @@ static void
 col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 {
 	const gchar *title = gtk_tree_view_column_get_title(col);
-	gchar *unescaped_title = ws_strdup_unescape_underscore(title);
+	gchar *unescaped_title = ws_strdup_unescape_char(title, '_');
 
 	GtkWidget *label, *field_lb, *occurrence_lb;
 	GtkWidget *title_te, *format_cmb, *field_te, *occurrence_te;
@@ -790,7 +790,7 @@ create_view_and_model(void)
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
-		escaped_title = ws_strdup_escape_underscore(cfile.cinfo.col_title[i]);
+		escaped_title = ws_strdup_escape_char(cfile.cinfo.col_title[i], '_');
 		gtk_tree_view_column_set_title(col, escaped_title);
 		g_free (escaped_title);
 		gtk_tree_view_column_set_clickable(col, TRUE);

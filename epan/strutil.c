@@ -1015,11 +1015,11 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 }
 
 /*
- * This function takes a string and copies it, inserting an underscore before
- * every underscore in it.
+ * This function takes a string and copies it, inserting a 'chr' before
+ * every 'chr' in it.
  */
 gchar*
-ws_strdup_escape_underscore (const gchar *str)
+ws_strdup_escape_char (const gchar *str, const gchar chr)
 {
 	gchar *p, *q, *new_str;
 
@@ -1027,13 +1027,13 @@ ws_strdup_escape_underscore (const gchar *str)
 		return NULL;
 
 	p = (gchar *)str;
-	/* Worst case: A string that is full of underscores */
+	/* Worst case: A string that is full of 'chr' */
 	q = new_str = g_malloc (strlen(str) * 2 + 1);
 
 	while(*p != 0)
 	{
-		if(*p == '_')
-			*q++ = '_';
+		if(*p == chr)
+			*q++ = chr;
 
 		*q++ = *p++;
 	}
@@ -1044,10 +1044,10 @@ ws_strdup_escape_underscore (const gchar *str)
 
 /*
  * This function takes a string and copies it, removing any occurences of double
- * underscores with a single underscore.
+ * 'chr' with a single 'chr'.
  */
 gchar*
-ws_strdup_unescape_underscore (const gchar *str)
+ws_strdup_unescape_char (const gchar *str, const char chr)
 {
 	gchar *p, *q, *new_str;
 
@@ -1055,13 +1055,13 @@ ws_strdup_unescape_underscore (const gchar *str)
 		return NULL;
 
 	p = (gchar *)str;
-	/* Worst case: A string that contains no underscores */
+	/* Worst case: A string that contains no 'chr' */
 	q = new_str = g_malloc (strlen(str) + 1);
 
 	while(*p != 0)
 	{
 		*q++ = *p;
-		if ((*p == '_') && (*(p+1) == '_'))
+		if ((*p == chr) && (*(p+1) == chr))
 			p += 2;
 		else
 			p++;

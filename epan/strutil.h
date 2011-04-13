@@ -239,21 +239,23 @@ char * escape_string(char *dst, const char *string);
 
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
-/** Copy a string, escaping the underscores in it
+/** Copy a string, escaping the 'chr' characters in it
  *
  * @param str The string to be copied
- * @return A copy of the string with every original underscore being
- * transformed into double underscores.
+ * @param char The character to be escaped
+ * @return A copy of the string with every original 'chr' being
+ * transformed into double 'chr'.
  */
-gchar* ws_strdup_escape_underscore (const gchar *str);
+gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
 
-/** Copy a string, unescaping the underscores in it
+/** Copy a string, unescaping the 'chr' characters in it
  *
  * @param str The string to be copied
- * @return A copy of the string with every occurence of double underscores in
- * the original string being copied as a single underscore.
+ * @param char The character to be escaped
+ * @return A copy of the string with every occurence of double 'chr' in
+ * the original string being copied as a single 'chr'.
  */
-gchar* ws_strdup_unescape_underscore (const gchar *str);
+gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
 
 /** Replace values in a string
  *
