@@ -439,7 +439,7 @@ INTL_DLL=libintl-8.dll
 
 # These macros are used by the setup target.
 #GTK_PKG=2.16.6-20100912
-GTK_PKG=2.22.1-20101227
+GTK_PKG=2.22.1-20101229
 
 #
 # Mandatory: Version numbers of GTK and pango.
