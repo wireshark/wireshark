@@ -2237,9 +2237,8 @@ static void
 dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
-    proto_item *hidden_item;
-    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
-                                         optlen, TRUE);
+    proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
+                           optlen, TRUE);
     tcp_info_append_uint(pinfo, "SACK_PERM", TRUE);
 }
 
@@ -2572,7 +2571,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
         if (flow->scps_capable != 1) {
             /* There was no SCPS capabilities option preceeding this */
-            tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
+            proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
                                             tvb, offset, optlen, 0, "%s: (%d %s)",
                                             "Illegal SCPS Extended Capabilities",
                                             (optlen),
@@ -3070,7 +3069,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             break;
 
         case PROBE_RST:
-            flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
                                   tvb, offset + PROBE_V2_INFO_OFFSET,
                                   1, FALSE);
             break;
