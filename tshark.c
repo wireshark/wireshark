@@ -3025,7 +3025,7 @@ print_columns(capture_file *cf)
       if (column_len < 3)
         column_len = 3;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, column_len + 1, "%3s", cf->cinfo.col_data[i]);
+      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%3s", cf->cinfo.col_data[i]);
       break;
 
     case COL_CLS_TIME:
@@ -3036,7 +3036,7 @@ print_columns(capture_file *cf)
       if (column_len < 10)
         column_len = 10;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, column_len + 1, "%10s", cf->cinfo.col_data[i]);
+      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%10s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_SRC:
@@ -3052,7 +3052,7 @@ print_columns(capture_file *cf)
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, column_len + 1, "%12s", cf->cinfo.col_data[i]);
+      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%12s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_DST:
@@ -3068,7 +3068,7 @@ print_columns(capture_file *cf)
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, column_len + 1, "%-12s", cf->cinfo.col_data[i]);
+      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%-12s", cf->cinfo.col_data[i]);
       break;
 
     default:
