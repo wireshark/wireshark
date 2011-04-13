@@ -1073,6 +1073,13 @@ static const value_string ieee80211_tag_measure_request_group_id_flags[] = {
   { 0x00, NULL }
 };
 
+static const value_string ieee80211_tclas_process_flag[] = {
+  {0x00, "Incoming MSDU's higher layer parameters have to match to the parameters in all associated TCLAS elements."},
+  {0x01, "Incoming MSDU's higher layer parameters have to match to at least one of the associated TCLAS elements."},
+  {0x02, "Incoming MSDU's that do not belong to any other TS are classified to the TS for which this TCLAS Processing element is used. In this case, there will not be any associated TCLAS elements."},
+  {0, NULL}
+};
+
 static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
@@ -1790,6 +1797,23 @@ static int hf_ieee80211_tag_measure_report_ipi_density_9 = -1;
 static int hf_ieee80211_tag_measure_report_ipi_density_10 = -1;
 static int hf_ieee80211_tag_measure_report_parent_tsf = -1;
 
+static int hf_ieee80211_tag_quiet_count = -1;
+static int hf_ieee80211_tag_quiet_period = -1;
+static int hf_ieee80211_tag_quiet_duration = -1;
+static int hf_ieee80211_tag_quiet_offset = -1;
+
+static int hf_ieee80211_tag_dfs_owner = -1;
+static int hf_ieee80211_tag_dfs_recovery_interval = -1;
+static int hf_ieee80211_tag_dfs_channel_map = -1;
+static int hf_ieee80211_tag_dfs_channel_number = -1;
+static int hf_ieee80211_tag_dfs_map = -1;
+
+static int hf_ieee80211_tag_erp_info = -1;
+static int hf_ieee80211_tag_erp_info_erp_present = -1;
+static int hf_ieee80211_tag_erp_info_use_protection = -1;
+static int hf_ieee80211_tag_erp_info_barker_preamble_mode = -1;
+static int hf_ieee80211_tag_erp_info_reserved = -1;
+
 static int hf_ieee80211_tag_extended_capabilities = -1;
 static int hf_ieee80211_tag_extended_capabilities_b0 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b1 = -1;
@@ -1999,7 +2023,7 @@ static int hf_ieee80211_tspec_min_phy = -1;
 static int hf_ieee80211_tspec_surplus = -1;
 static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_ts_delay = -1;
-static int hf_ieee80211_tclass_process = -1;
+static int hf_ieee80211_tclas_process = -1;
 static int hf_ieee80211_sched_info = -1;
 static int hf_ieee80211_sched_info_agg = -1;
 static int hf_ieee80211_sched_info_tsid = -1;
@@ -2126,7 +2150,8 @@ static gint ett_tag_measure_report_type_tree = -1;
 static gint ett_tag_measure_report_basic_map_tree = -1;
 static gint ett_tag_measure_report_rpi_tree = -1;
 static gint ett_tag_measure_report_frame_tree = -1;
-
+static gint ett_tag_dfs_map_tree = -1;
+static gint ett_tag_erp_info_tree = -1;
 static gint ett_tag_ex_cap = -1;
 
 static gint ett_tag_supported_channels = -1;
@@ -7234,7 +7259,98 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             break;
         }
       }
-    case TAG_TCLAS_PROCESS:
+      
+    case TAG_QUIET: /* 7.3.2.23 Quiet element (40) */
+      if (tag_len != 6)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 6", tag_len);
+        break;
+      }
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_quiet_count, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti, " Count: %d", tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_quiet_period, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti, " Period: %d", tvb_get_guint8(tvb, offset));      
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_quiet_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(ti, " Duration: %d", tvb_get_letohs(tvb, offset));
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_tag_quiet_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(ti, " Offset: %d", tvb_get_letohs(tvb, offset));
+      offset += 2;        
+      break;
+
+
+    case TAG_IBSS_DFS: /* 7.3.2.24 IBSS DFS element (41) */
+      if (tag_len < 7)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 7", tag_len);
+        break;
+      }
+      {
+        proto_item *ti_sup_map;
+        proto_tree *sub_map_tree; 
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_ieee80211_tag_dfs_owner, tvb, offset, 6, ENC_NA);
+        proto_item_append_text(ti, " Owner: %s", tvb_ether_to_str(tvb, offset));
+        offset += 6;
+
+        proto_tree_add_item(tree, hf_ieee80211_tag_dfs_recovery_interval, tvb, offset, 1, ENC_NA);
+        offset += 1;         
+
+        while(offset < tag_end)
+        {
+          ti_sup_map = proto_tree_add_item(tree, hf_ieee80211_tag_dfs_channel_map, tvb, offset, 2, ENC_NA);
+          sub_map_tree = proto_item_add_subtree(ti_sup_map, ett_tag_dfs_map_tree);
+          proto_tree_add_item(sub_map_tree, hf_ieee80211_tag_dfs_channel_number, tvb, offset, 1, ENC_NA);
+          proto_tree_add_item(sub_map_tree, hf_ieee80211_tag_dfs_map, tvb, offset, 1, ENC_NA);
+          offset += 2;
+        }
+        break; 
+      }
+    case TAG_ERP_INFO: /* 7.3.2.13 ERP Information element (42) */
+    case TAG_ERP_INFO_OLD:
+      if (tag_len != 1)      
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        break;
+      }
+      {
+        proto_item *ti_erp;
+        proto_tree *erp_tree; 
+
+        offset += 2;
+
+        ti_erp = proto_tree_add_item(tree, hf_ieee80211_tag_erp_info, tvb, offset, 1, ENC_NA);
+        erp_tree = proto_item_add_subtree(ti_erp, ett_tag_erp_info_tree);
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_erp_present, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_use_protection, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_barker_preamble_mode, tvb, offset, 1, ENC_NA); 
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_reserved, tvb, offset, 1, ENC_NA);       
+        offset += 1;
+        break; 
+      }     
+
+    case TAG_TS_DELAY: /* 7.3.2.32 TS Delay element (43) */
+      if (tag_len != 4)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 4", tag_len);
+        break;
+      }
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_ts_delay, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(ti, " : %d", tvb_get_ntohl(tvb, offset) );
+      offset += 4;
+      break;
+
+    case TAG_TCLAS_PROCESS: /* 7.3.2.33 TCLAS Processing element (44) */
       if (tag_len != 1)
       {
         expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
@@ -7242,43 +7358,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       offset += 2;
 
-      proto_tree_add_item(tree, hf_ieee80211_tclass_process, tvb, offset, 1, TRUE);
-      break;
-
-    case TAG_ERP_INFO:
-    case TAG_ERP_INFO_OLD:
-      {
-        guint8 erp_info;
-
-        if (tag_len < 1)
-        {
-          proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 1",
-                               tag_len);
-          break;
-        }
-        erp_info = tvb_get_guint8 (tvb, offset + 2);
-        g_snprintf (print_buff, SHORT_STR, "%sNon-ERP STAs, %suse protection, %s preambles",
-                  erp_info & 0x01 ? "" : "no ",
-                  erp_info & 0x02 ? "" : "do not ",
-                  /* 802.11g, 7.3.2.13: 1 means "one or more ... STAs
-                   * are not short preamble capable" */
-                  erp_info & 0x04 ? "long": "short or long");
-        g_snprintf (out_buff, SHORT_STR,
-                  "ERP info: 0x%x (%s)",erp_info,print_buff);
-        proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-                               tag_len, out_buff);
-        proto_item_append_text(ti, ": %s", print_buff);
-      }
-      break;
-
-    case TAG_TS_DELAY:
-      if (tag_len != 4)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "TS_DELAY tag length %u != 4", tag_len);
-        break;
-      }
-      proto_tree_add_item(tree, hf_ieee80211_ts_delay, tvb, offset + 2, 4, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_tclas_process, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(ti, " : %s", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_tclas_process_flag, "Unknown %d"));
+      offset += 1;
       break;
 
     case TAG_CISCO_CCX1_CKIP:
@@ -11077,13 +11159,6 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  static const value_string tclas_process[] = {
-    {0x00, "Incoming MSDU's higher layer parameters have to match to the parameters in all associated TCLAS elements."},
-    {0x01, "Incoming MSDU's higher layer parameters have to match to at least one of the associated TCLAS elements."},
-    {0x02, "Incoming MSDU's that do not belong to any other TS are classified to the TS for which this TCLAS Processing element is used. In this case, there will not be any associated TCLAS elements."},
-    {0, NULL}
-  };
-
   static const true_false_string ieee80211_block_ack_control_ack_policy_flag = {
       "Immediate Acknowledgement Required",
       "Sender Does Not Require Immediate Acknowledgement"
@@ -14173,6 +14248,62 @@ proto_register_ieee80211 (void)
      {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_quiet_count,
+     {"Count", "wlan_mgt.quiet.count",
+      FT_UINT8, BASE_DEC, NULL, 0, "Set to the number of TBTTs until the beacon interval during which the next quiet interval shall start", HFILL }},
+
+    {&hf_ieee80211_tag_quiet_period,
+     {"Period", "wlan_mgt.quiet.period",
+      FT_UINT8, BASE_DEC, NULL, 0, "Set to the number of beacon intervals between the start of regularly scheduled quiet intervals", HFILL }},
+ 
+    {&hf_ieee80211_tag_quiet_duration,
+     {"Duration", "wlan_mgt.quiet.duration",
+      FT_UINT16, BASE_DEC, NULL, 0, "Set to the duration of the quiet interval", HFILL }},
+
+    {&hf_ieee80211_tag_quiet_offset,
+     {"Offset", "wlan_mgt.quiet.offset",
+      FT_UINT16, BASE_DEC, NULL, 0, "Set to the offset of the start of the quiet interval from the TBTT", HFILL }},
+
+    {&hf_ieee80211_tag_dfs_owner,
+     {"Owner", "wlan_mgt.dfs.owner",
+      FT_ETHER, BASE_NONE, NULL, 0, "Set to the individual IEEE MAC address of the STA that is the currently known DFS Owner in the IBSS", HFILL  }},
+
+    {&hf_ieee80211_tag_dfs_recovery_interval,
+     {"Recovery Interval", "wlan_mgt.dfs.recovery_interval",
+      FT_UINT8, BASE_DEC, NULL, 0, "Indicates the time interval that shall be used for DFS owner recovery", HFILL  }},
+
+    {&hf_ieee80211_tag_dfs_channel_map,
+     {"Channel Map", "wlan_mgt.dfs.channel_map",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL  }},
+      
+    {&hf_ieee80211_tag_dfs_channel_number,
+     {"Channel Number", "wlan_mgt.dfs.channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL  }},
+  
+    {&hf_ieee80211_tag_dfs_map,
+     {"Map", "wlan_mgt.dfs.map",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL  }},
+
+    {&hf_ieee80211_tag_erp_info,
+     {"ERP Information", "wlan_mgt.erp_info",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL  }},
+
+    {&hf_ieee80211_tag_erp_info_erp_present,
+     {"Non ERP Present", "wlan_mgt.erp_info.erp_present",
+      FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL  }},
+
+    {&hf_ieee80211_tag_erp_info_use_protection,
+     {"Use Protection", "wlan_mgt.erp_info.use_protection",
+      FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL  }},
+
+    {&hf_ieee80211_tag_erp_info_barker_preamble_mode,
+     {"Barker Preamble Mode", "wlan_mgt.erp_info.barker_preamble_mode",
+      FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL  }},
+
+    {&hf_ieee80211_tag_erp_info_reserved,
+     {"Reserved", "wlan_mgt.erp_info.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL  }},
+                                                                    
     /* Table 7-35a-Capabilities field */
     {&hf_ieee80211_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
@@ -14591,9 +14722,9 @@ proto_register_ieee80211 (void)
      {"Traffic Stream (TS) Delay", "wlan_mgt.ts_delay",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tclass_process,
+    {&hf_ieee80211_tclas_process,
      {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
-      VALS (tclas_process), 0, "TCLAS Processing", HFILL }},
+      VALS (ieee80211_tclas_process_flag), 0, "TCLAS Processing", HFILL }},
 
     {&hf_ieee80211_sched_info,
      {"Schedule Info", "wlan_mgt.sched.sched_info",
@@ -14932,6 +15063,8 @@ proto_register_ieee80211 (void)
     &ett_tag_measure_report_basic_map_tree,
     &ett_tag_measure_report_rpi_tree,
     &ett_tag_measure_report_frame_tree,
+    &ett_tag_dfs_map_tree,
+    &ett_tag_erp_info_tree,
     &ett_tag_ex_cap,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
