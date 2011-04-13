@@ -30,10 +30,7 @@
 # include "config.h"
 #endif
 
-#include <time.h>
-#include <string.h>
 #include <glib.h>
-#include <ctype.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
@@ -9317,8 +9314,8 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *parent_tree,
 				int len, nt_trans_data *ntd _U_)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	/*proto_item *item = NULL;*/
+	/*proto_tree *tree = NULL;*/
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti;
 
@@ -9333,7 +9330,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, len);
 		if(nti != NULL){
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+			/*item = */proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Setup",
 				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
@@ -9341,10 +9338,10 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 			 * We never saw the request to which this is a
 			 * response.
 			 */
-			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+			/*item = */proto_tree_add_text(parent_tree, tvb, offset, len,
 				"Unknown NT Transaction Setup (matching request not seen)");
 		}
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+		/*tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);*/
 	}
 
 	if (nti == NULL) {
@@ -15247,8 +15244,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 					       "Unknown (0x%02x)"));
 			tree = proto_item_add_subtree(item, ett_smb_transaction_data);
 		} else {
-			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
-				"Unknown Transaction2 Data");
+			proto_tree_add_text(parent_tree, tvb, offset, dc,
+					    "Unknown Transaction2 Data");
 		}
 	}
 
@@ -15264,17 +15261,18 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* returned data */
 		count = si->info_count;
 
-        if(count == -1) {
-            break;
-        }
+		if(count == -1) {
+			break;
+		}
+
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_str(pinfo->cinfo, COL_INFO,
-			", Files:");
+				       ", Files:");
 		}
 
 		while(count--){
 			offset = dissect_ff2_response_data(tvb, pinfo, tree,
-				offset, &dc, &trunc);
+							   offset, &dc, &trunc);
 			if (trunc)
 				break;
 		}
@@ -15283,12 +15281,12 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* returned data */
 		count = si->info_count;
 
-        if(count == -1) {
-            break;
-        }
+		if(count == -1) {
+			break;
+		}
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_str(pinfo->cinfo, COL_INFO,
-			", Files:");
+				       ", Files:");
 		}
 
 		while(count--){
@@ -15422,8 +15420,8 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 					       "Unknown (0x%02x)"));
 			tree = proto_item_add_subtree(item, ett_smb_transaction_params);
 		} else {
-			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
-				"Unknown Transaction2 Parameters");
+			proto_tree_add_text(parent_tree, tvb, offset, pc,
+					    "Unknown Transaction2 Parameters");
 		}
 	}
 
