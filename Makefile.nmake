@@ -624,7 +624,7 @@ $(ZLIB_DLL):
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-DASMV -DASMINF" OBJA="inffas32.obj match686.obj" 
 !else
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="$(LOCAL_CFLAGS)
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll AS=ml64 LOC="-DASMV -DASMINF" OBJA="inffasx64.obj gvmat64.obj inffas8664.obj"
 !endif	
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
@@ -814,7 +814,7 @@ process_libs:
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 		zlib125 zlib-1.2.5.zip
 !else
-		zlib123 zlib123ws.zip
+		zlib125 zlib125ws.zip
 !endif
 !ENDIF
 !IFDEF LUA_DIR

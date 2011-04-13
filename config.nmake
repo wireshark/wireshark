@@ -7,7 +7,7 @@
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
-WIRESHARK_TARGET_PLATFORM=win32
+WIRESHARK_TARGET_PLATFORM=win64
 !ENDIF
 
 ##### Versions #####
@@ -479,7 +479,7 @@ PCAP_REMOTE=1
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
-ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib125
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS
@@ -822,7 +822,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 # http://msdn.microsoft.com/en-us/library/ms182025.aspx
 
 !IFDEF ENABLE_CODE_ANALYSIS
-#LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
+LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
