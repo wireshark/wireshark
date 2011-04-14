@@ -136,6 +136,7 @@
 #include <epan/dissectors/packet-udp.h>
 #include "packet-ntp.h"
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 
 #if 0
@@ -272,9 +273,15 @@ static value_string_ext v8_agg_ext = VALUE_STRING_EXT_INIT(v8_agg);
 #define V9_V10_TEMPLATE_CACHE_MAX_ENTRIES	521
 
 /* Max number of entries/scopes per template */
-/* I wonder if I can make this dynamic... 100 is more than sufficient
-   for my current needs though. */
-#define V9TEMPLATE_MAX_FIELDS 100
+/* Space is allocated dynamically so there isn't really a need to
+   bound this except to cap possible memory use.  Unfortunately if
+   this value is too low we can't decode any template with more than
+   v9template_max_fields fields in it.  The best compromise seems
+   to be to make v9template_max_fields a user preference.
+   A value of 0 will be unlimited.
+*/
+#define V9TEMPLATE_MAX_FIELDS_DEF   60
+static guint v9template_max_fields = V9TEMPLATE_MAX_FIELDS_DEF;
 
 struct v9_v10_template_entry {
 	guint16	     type;
@@ -838,7 +845,7 @@ static const value_string v9_firewall_event[] = {
 	{ 1, "Flow created"},
 	{ 2, "Flow deleted"},
 	{ 3, "Flow denied"},
-	{ 4, "Flow alart"},
+	{ 4, "Flow alert"},
 	{ 0, NULL }
 };
 
@@ -2241,7 +2248,7 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int
 		guint16 type   = tplt->fields[TF_SCOPES][i].type;
 		guint16 length = tplt->fields[TF_SCOPES][i].length;
 		if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
-			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually the same template with the same ID.  See WMeier comment c) above */
+			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually have the same template with the same ID.  See WMeier comment "c." above */
 			continue;
 		}
 		switch (type) {
@@ -2350,7 +2357,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		pen_str = entries[i].pen_str;
 
 		if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
-			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually the same template with the same ID.  See WMeier comment c) above */
+			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually have the same template with the same ID.  See WMeier comment "c." above */
 			continue;
 		}
 		/* See if variable length field */
@@ -4982,15 +4989,17 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 		proto_item_append_text(tplt_item, " (Scope Count = %u; Data Count = %u)", option_scope_field_count, option_field_count);
 		proto_item_set_len(tplt_item, 6 +4*(option_scope_field_count+option_field_count));
 
-		if (option_field_count > V9TEMPLATE_MAX_FIELDS) {
+		if (v9template_max_fields &&
+		    (option_field_count > v9template_max_fields)) {
 			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
-					       "More options (%u) than we can handle",
+					       "More options (%u) than we can handle.  Maximum value can be adjusted in the protocol preferences.",
 					       option_field_count);
 		}
 
-		if (option_scope_field_count > V9TEMPLATE_MAX_FIELDS) {
+		if (v9template_max_fields &&
+		    (option_scope_field_count > v9template_max_fields)) {
 			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
-					       "More scopes (%u) than we can handle [template won't be used]",
+					       "More scopes (%u) than we can handle [template won't be used].  Maximum value can be adjusted in the protocol preferences.",
 					       option_scope_field_count);
 		}
 
@@ -5012,8 +5021,10 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 		/* XXX: Is an Options template with only scope fields allowed for V9 ??                 */
 
 		do {
-			if ((option_scope_field_count == 0)  || (option_scope_field_count > V9TEMPLATE_MAX_FIELDS)
-			    /**|| (option_field_count       == 0)**/  || (option_field_count       > V9TEMPLATE_MAX_FIELDS)) {
+			if ((option_scope_field_count == 0)  ||
+			    (v9template_max_fields &&
+			     ((option_scope_field_count > v9template_max_fields)
+			      || (option_field_count > v9template_max_fields))))  {
 				break; /* Don't allow cache of this template */
 			}
 			if (v9_v10_template_get(id, &hdrinfo->net_src, hdrinfo->src_id)) {
@@ -5081,9 +5092,9 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 				    tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		if (count > V9TEMPLATE_MAX_FIELDS) {
+		if (v9template_max_fields && (count > v9template_max_fields)) {
 			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
-					       "More entries (%u) than we can handle [template won't be used]",
+					       "More entries (%u) than we can handle [template won't be used].  Maximum value can be adjusted in the protocol preferences.",
 					       count);
 		}
 
@@ -5098,7 +5109,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 		/* If entry for this hash already exists (whether or not actually for for this id, ...) */
 		/*  tplt.fields[TF_ENTRIES]will be NULL and thus this template will not be cached.      */
 		do {
-			if ((count == 0)  || (count > V9TEMPLATE_MAX_FIELDS)) {
+			if ((count == 0)
+			    || (v9template_max_fields && (count > v9template_max_fields))) {
 				break; /* Don't allow cache of this template */
 			}
 			if (v9_v10_template_get(id, &hdrinfo->net_src, hdrinfo->src_id)) {
@@ -7567,6 +7579,13 @@ proto_register_netflow(void)
 					"Set the port(s) for IPFIX messages"
 					" (default: " IPFIX_UDP_PORTS ")",
 					&global_ipfix_ports, MAX_UDP_PORT);
+
+	prefs_register_uint_preference(netflow_module, "max_template_fields",
+				       "Maximum number of fields allowed in a template",
+				       "Set the number of fields allowed in a template.  "
+				       "Use 0 (zero) for unlimited.  "
+				       " (default: " STRINGIFY(V9TEMPLATE_MAX_FIELDS_DEF) ")",
+				       10, &v9template_max_fields);
 
 	register_init_routine(&netflow_reinit);
 }
