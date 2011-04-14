@@ -147,6 +147,7 @@ static const value_string  message_id[] = {
   {0x0040, "AuditParticipantResMessage"},
   {0x0041, "DeviceToUserDataVersion1Message"},
   {0x0042, "DeviceToUserDataResponseVersion1Message"},
+  {0x0048, "DialedPhoneBookMessage"},
 
   /* Callmanager -> Station */
   /* 0x0000, 0x0003? */
@@ -236,6 +237,7 @@ static const value_string  message_id[] = {
   {0x013D, "AuditParticipantReqMessage"},
   {0x013F, "UserToDeviceDataVersion1Message"},
   {0x014A, "CM5CallInfoMessage"},
+  {0x0152, "DialedPhoneBookAckMessage"},
   {0x015A, "XMLAlarmMessage"},
 
   {0     , NULL}	/* terminator */
@@ -1079,6 +1081,7 @@ static int hf_skinny_detectInterval = -1;
 static int hf_skinny_microphoneMode = -1;
 static int hf_skinny_headsetMode = -1;
 static int hf_skinny_unknown = -1;
+static int hf_skinny_rawData = -1;
 static int hf_skinny_xmlData = -1;
 static int hf_skinny_activeForward = -1;
 static int hf_skinny_forwardAllActive = -1;
@@ -1199,6 +1202,8 @@ static int hf_cast_originalCdpnRedirectReason = -1;
 static int hf_cast_lastRedirectingReason = -1;
 static int hf_cast_callInstance = -1;
 static int hf_cast_callSecurityStatus = -1;
+static int hf_skinny_directoryIndex = -1;
+static int hf_skinny_directoryPhoneNumber = -1;
 
 /* Skinny content type and internet media type used by other dissectors
  *  * are the same.  List of media types from IANA at:
@@ -1864,6 +1869,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+50, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
+      break;
+
+    case 0x48 : /* DialedPhoneBookMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, 256, TRUE);
       break;
 
 
@@ -2798,10 +2810,6 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
-    case 0x15A : /* XMLAlarmMessage */
-      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+12, hdr_data_length-4);
-      break;
-
     case 0x14A : /* CM5CallInfoMessage */
       /* unknown uint32_t stuff */
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
@@ -2809,7 +2817,19 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* 5x unknown uint32_t stuff */
       break;
 
+    case 0x152 : /* DialedPhoneBookAckMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, TRUE);
+      break;
+
+    case 0x15A : /* XMLAlarmMessage */
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+12, hdr_data_length-4);
+      break;
+
     default:
+      proto_tree_add_item(skinny_tree, hf_skinny_rawData, tvb, offset+12, hdr_data_length-4, TRUE);
       break;
     }
   }
@@ -3804,10 +3824,17 @@ proto_register_skinny(void)
 	HFILL }
     },
 
+    { &hf_skinny_rawData,
+      { "Raw data", "skinny.rawData",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"Place holder for unknown data.",
+	HFILL }
+    },
+
     { &hf_skinny_xmlData,
       { "XmlData", "skinny.xmlData",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"dataPlace holder for XML data.",
+	NULL,
 	HFILL }
     },
 
@@ -4515,6 +4542,20 @@ proto_register_skinny(void)
       { "CallSecurityStatus", "cast.callSecurityStatus",
 	FT_UINT32, BASE_DEC, VALS(cast_callSecurityStatusTypes), 0x0,
 	"CallSecurityStatus.",
+	HFILL }
+    },
+
+    { &hf_skinny_directoryIndex,
+      { "DirectoryIndex", "skinny.directoryIndex",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	NULL,
+	HFILL }
+    },
+
+    { &hf_skinny_directoryPhoneNumber,
+      { "DirectoryPhoneNumber", "skinny.directoryPhoneNumber",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	NULL,
 	HFILL }
     },
 
