@@ -165,9 +165,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Value of TCP segment data cannot be copied.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5811">Bug
+          5811</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           proto_field_is_referenced() is not exported in libwireshark.dll.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5816">Bug
           5816</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark ver. 1.4.4 not displayed "Granted QoS" field in a A11 packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5822">Bug
+          5822</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -203,7 +215,7 @@ MySQL,
 NFS,
 sFlow,
 SSL,
-TCP, 
+TCP
 
     </para>
     </section>
