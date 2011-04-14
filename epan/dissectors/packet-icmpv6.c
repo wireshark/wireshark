@@ -16,6 +16,8 @@
  *
  * RPL support added by Colin O'Flynn & Owen Kirby.
  *
+ * Enhance ICMPv6 dissector by Alexis La Goutte 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -74,14 +76,14 @@
  * RFC 4286: Multicast Router Discovery
  * RFC 4620: IPv6 Node Information Queries
  * RFC 5006/6106: IPv6 Router Advertisement Options for DNS Configuration
- * RFC 5075/5175 : IPv6 Router Advertisement Flags Option
+ * RFC 5075/5175: IPv6 Router Advertisement Flags Option
  * RFC 5269: Distributing a Symmetric Fast Mobile IPv6 (FMIPv6) Handover Key Using SEcure Neighbor Discovery (SEND)
  * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
- * draft-ieft-roll-rpl-17.txt
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2010-10-11)
+ * draft-ieft-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
+ * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2011-04-08)
  */
 
-/* RFC 1885/2463/4443: Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification */
 static int proto_icmpv6 = -1;
 static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
@@ -148,6 +150,7 @@ static int hf_icmpv6_opt_cga_ext_length = -1;
 static int hf_icmpv6_opt_cga_ext_data = -1;
 static int hf_icmpv6_opt_rsa_key_hash = -1;
 static int hf_icmpv6_opt_digital_signature_padding = -1;
+static int hf_icmpv6_opt_ps_key_hash = -1;
 static int hf_icmpv6_opt_timestamp = -1;
 static int hf_icmpv6_opt_nonce = -1;
 static int hf_icmpv6_opt_certificate_padding = -1;
@@ -337,7 +340,7 @@ static int hf_icmpv6_ni_reply_node_name = -1;
 static int hf_icmpv6_ni_reply_node_address = -1;
 static int hf_icmpv6_ni_reply_ipv4_address = -1;
 
-/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
 static int hf_icmpv6_rpl_dis_flag = -1;
 static int hf_icmpv6_rpl_dio_instance = -1;
 static int hf_icmpv6_rpl_dio_version = -1;
@@ -557,7 +560,7 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },                   /* [RFC4286] */
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
-    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-17.txt Pending IANA */
+    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-19.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -572,6 +575,7 @@ static const value_string icmpv6_type_val[] = {
 #define ICMP6_DST_UNREACH_NOPORT                4       /* port unreachable */
 #define ICMP6_DST_UNREACH_INGR_EGR              5       /* source address failed ingress/egress policy */
 #define ICMP6_DST_UNREACH_REJECT                6       /* reject route to destination */
+#define ICMP6_DST_UNREACH_ERROR                 7       /* error in Source Routing Header */
 
 static const value_string icmpv6_unreach_code_val[] = {
     { ICMP6_DST_UNREACH_NOROUTE,     "no route to destination" },
@@ -581,6 +585,7 @@ static const value_string icmpv6_unreach_code_val[] = {
     { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
     { ICMP6_DST_UNREACH_INGR_EGR,    "Source address failed ingress/egress policy" },
     { ICMP6_DST_UNREACH_REJECT,      "Reject route to destination" },
+    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [draft-ieft-roll-rpl-19.txt] */
     { 0, NULL }
 };
 
@@ -777,9 +782,10 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_HANDOVER_ASSIST_INFO     29
 #define ND_OPT_MOBILE_NODE_ID           30
 #define ND_OPT_DNS_SEARCH_LIST          31
+#define ND_OPT_PROXY_SIGNATURE          32
 /* draft-6lowpan-nd types, pending IANA assignment */
 #define ND_OPT_ADDR_RESOLUTION          131 /* Conflit with RFC6106.. */
-#define ND_OPT_6LOWPAN_CONTEXT          32
+#define ND_OPT_6LOWPAN_CONTEXT          132 /* Conflit with draft-ietf-csi-proxy-send-05.txt.. */
 #define ND_OPT_AUTH_BORDER_ROUTER       33
 
 static const value_string option_vals[] = {
@@ -813,7 +819,8 @@ static const value_string option_vals[] = {
 /* 29 */   { ND_OPT_HANDOVER_ASSIST_INFO,      "Handover Assist Information" },            /* [RFC5271] */
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
-/* 31 */   { ND_OPT_ADDR_RESOLUTION,           "Address Resolution Option" },              /* 6LoWPAN-ND */
+/* 31 */   { ND_OPT_PROXY_SIGNATURE,           "DNS Search List Option" },                 /* [RFC6106] */
+/* 31 */   { ND_OPT_ADDR_RESOLUTION,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
 /* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* 6LoWPAN-ND */
 /* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* 6LoWPAN-ND */
 /* 34-137  Unassigned */
@@ -930,7 +937,7 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 
 
 
-/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
 /* Pending IANA Assignment */
 /* RPL ICMPv6 Codes */
 #define ICMP6_RPL_DIS       0x00   /* DODAG Information Solicitation */
@@ -1397,7 +1404,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }
                 break;
             }
-            case ND_OPT_CGA: /* CGA option (11) */
+            case ND_OPT_CGA: /* CGA Option (11) */
             {
                 proto_tree *cga_tree;
                 proto_item *cga_item;
@@ -1405,7 +1412,6 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 padd_length;
                 int par_len;
                 asn1_ctx_t asn1_ctx;
-                /* RFC 3971 5.1.  CGA Option */
 
                 /* Pad Length */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
@@ -1433,7 +1439,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 8;
 
                 proto_tree_add_item(cga_tree ,hf_icmpv6_opt_cga_count, tvb, opt_offset, 1, FALSE);
-                opt_offset++;
+                opt_offset += 1;
 
                 asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
                 opt_offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, opt_offset, &asn1_ctx, cga_tree, -1);
@@ -1455,7 +1461,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, FALSE);
                 break;
             }
-            case ND_OPT_RSA: /* RSA Signature option (12) */
+            case ND_OPT_RSA: /* RSA Signature Option (12) */
             {
                 int par_len;
                 /*5.2.  RSA Signature Option */
@@ -1479,7 +1485,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* TODO: Calculate padding length and exlude from the signature */
                 break;
             }
-            case ND_OPT_TIMESTAMP: /* Timestamp option (13) */
+            case ND_OPT_TIMESTAMP: /* Timestamp Option (13) */
                 /* Reserved A 48-bit field reserved for future use. */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, FALSE);
                 opt_offset += 6;
@@ -1500,7 +1506,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nonce, tvb, opt_offset, opt_len - 2, FALSE);
                 /* Nonce */
                 break;
-            case ND_OPT_TRUST_ANCHOR: /* Trust Anchor option (15) */
+            case ND_OPT_TRUST_ANCHOR: /* Trust Anchor Option (15) */
             {
                 proto_tree *name_tree;
                 proto_item *name_item;
@@ -1543,7 +1549,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 break;
             }
-            case ND_OPT_CERTIFICATE: /* Certificate option (16) */
+            case ND_OPT_CERTIFICATE: /* Certificate Option (16) */
             {
                 guint8 cert_type;
                 guint8 padd_length;
@@ -1919,7 +1925,58 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }
                 break;
             }
-            case ND_OPT_6LOWPAN_CONTEXT: /* 6LoWPAN Context (32) */
+            case ND_OPT_PROXY_SIGNATURE: /* Proxy Signature Option (32) */
+            {
+                int par_len;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+                opt_offset +=  2;
+
+                /* Key Hash
+                 * A 128-bit field containing the most significant (leftmost) 128
+                 * bits of a SHA-1 [14] hash of the public key used for constructing
+                 * the signature.
+                 */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ps_key_hash, tvb, opt_offset, 16, FALSE);
+                opt_offset += 16;
+
+                /* Digital Signature */
+                par_len = opt_len - 20;
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, FALSE);
+
+                /* Padding */
+                /* TODO: Calculate padding length and exlude from the signature */
+                break;
+            }
+            case ND_OPT_ADDR_RESOLUTION: /* Address Registration (TBD1 Pending IANA...) */
+            {
+                /* 6lowpan-ND */
+                guint8 status;
+                gchar *eui64;
+
+                /* Status */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, FALSE);
+                status = tvb_get_guint8(tvb, opt_offset);
+                opt_offset += 1;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, FALSE);
+                opt_offset += 3;
+
+                /* Lifetime */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_registration_lifetime, tvb, opt_offset, 2, FALSE);
+                opt_offset += 2;
+
+                /* EUI-64 */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, FALSE);
+                eui64 = tvb_bytes_to_str_punct(tvb, opt_offset, 8, ':');
+                proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
+                opt_offset += 8;
+
+            }
+            break;
+            case ND_OPT_6LOWPAN_CONTEXT: /* 6LoWPAN Context (TBD2 Pending IANA...) */
             {
                 /* 6lowpan-ND */
                 guint8 context_len;
@@ -1967,33 +2024,6 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }
             }
             break;
-            case ND_OPT_ADDR_RESOLUTION: /* Address Registration (TBD2 Pending IANA...) */
-            {
-                /* 6lowpan-ND */
-                guint8 status;
-                gchar *eui64;
-
-                /* Status */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, FALSE);
-                status = tvb_get_guint8(tvb, opt_offset);
-                opt_offset += 1;
-
-                /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, FALSE);
-                opt_offset += 3;
-
-                /* Lifetime */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_registration_lifetime, tvb, opt_offset, 2, FALSE);
-                opt_offset += 2;
-
-                /* EUI-64 */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, FALSE);
-                eui64 = tvb_bytes_to_str_punct(tvb, opt_offset, 8, ':');
-                proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
-                opt_offset += 8;
-
-            }
-            break;
             case ND_OPT_AUTH_BORDER_ROUTER: /* Authoritative Border Router (33) */
             {
                 guint16 version;
@@ -2033,7 +2063,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 
-/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
 static void
 dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -2740,7 +2770,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
     if(icmp6_code == ICMP6_ROUTER_RENUMBERING_COMMAND){
         /* Match-Prefix Part */
-        guint8 opcode, oplength, matchlen, minlen, maxlen;
+        guint8 opcode, matchlen, minlen, maxlen;
 
         ti_mp = proto_tree_add_item(tree, hf_icmpv6_rr_pco_mp_part, tvb, rr_offset, 24, FALSE);
         mp_tree = proto_item_add_subtree(ti_mp, ett_icmpv6_rr_mp);
@@ -2752,7 +2782,6 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
         /* OpLength */
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_oplength, tvb, rr_offset, 1, FALSE);
-        oplength = tvb_get_guint8(tvb, rr_offset);
         rr_offset += 1;
 
         /* Ordinal */
@@ -2904,7 +2933,6 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 {
     proto_tree *mar_tree;
     proto_item *ti_mar;
-    guint16 nb_mcast_records;
     int mldr_offset = offset;
 
     /* Reserved */
@@ -2913,7 +2941,6 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 
     /* Nr of Mcast Address Records (M) */
     proto_tree_add_item(tree, hf_icmpv6_mldr_nb_mcast_records, tvb, mldr_offset, 2, FALSE );
-    nb_mcast_records = tvb_get_ntohs(tvb, mldr_offset);
     mldr_offset += 2;
 
     /* Multicast Address Record */
@@ -3550,7 +3577,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             case ICMP6_RPL_CONTROL: /* RPL Control (155) */
             {
-                /* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+                /* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
                 dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
@@ -3753,6 +3780,9 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_digital_signature_padding,
           { "Digital Signature and Padding",       "icmpv6.opt.digital_signature_padding", FT_NONE,  BASE_NONE, NULL, 0x0,
             "TO DO FIX ME !!", HFILL }},
+        { &hf_icmpv6_opt_ps_key_hash,
+          { "Key Hash",       "icmpv6.opt.ps.key_hash", FT_BYTES,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_icmpv6_opt_timestamp,
           { "Timestamp",       "icmpv6.opt.timestamp", FT_ABSOLUTE_TIME,  ABSOLUTE_TIME_LOCAL, NULL, 0x0,
             "The value indicates the number of seconds since January 1, 1970, 00:00 UTC", HFILL }},
@@ -4283,7 +4313,7 @@ proto_register_icmpv6(void)
            { "IPv4 Node address",         "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
 
-        /* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+        /* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
         { &hf_icmpv6_rpl_dis_flag,
            { "Flags",          "icmpv6.rpl.dis.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
              "8-bit unused field reserved for flags", HFILL }},
