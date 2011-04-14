@@ -272,9 +272,9 @@ static value_string_ext v8_agg_ext = VALUE_STRING_EXT_INIT(v8_agg);
 #define V9_V10_TEMPLATE_CACHE_MAX_ENTRIES	521
 
 /* Max number of entries/scopes per template */
-/* I wonder if I can make this dynamic... 42 is more than sufficient
+/* I wonder if I can make this dynamic... 100 is more than sufficient
    for my current needs though. */
-#define V9TEMPLATE_MAX_FIELDS 42
+#define V9TEMPLATE_MAX_FIELDS 100
 
 struct v9_v10_template_entry {
 	guint16	     type;
