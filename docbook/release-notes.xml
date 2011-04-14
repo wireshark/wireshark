@@ -111,6 +111,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Export HTTP > All - System Appears Hung (but isn't).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1671">Bug
+          1671</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Some HTTP responses don't decode with TCP reassembly on.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3785">Bug
           3785</ulink>)
