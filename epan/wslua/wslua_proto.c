@@ -798,15 +798,15 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
-    if ((mask == 0x0 || mask == 0) && base != BASE_NONE) {
+    if (mask == 0x0 && base != BASE_NONE) {
         luaL_argerror(L,2,"Fieldbase (fielddisplay) must be BASE_NONE"
-                      " if bitmask is 0x0 or 0.");
+                      " if bitmask is zero.");
         return 0;
     }
 
-    if ((mask != 0x0 || mask != 0) && (base < 1 || base > 64)) {
+    if (mask != 0x0 && (base < 1 || base > 64)) {
         luaL_argerror(L,2,"Fieldbase (fielddisplay) must be between 1 and 64"
-                      " if bitmask is non-zero (neither 0x0 nor 0).");
+                      " if bitmask is non-zero.");
         return 0;
     }
 
