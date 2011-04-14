@@ -1882,10 +1882,13 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pkt_afield.RCRC=(((guint16)pkt_ptr[6])<<8)|pkt_ptr[7];
 
 	/* fill B-Field */
-	if(pkt_len>DECT_PACKET_INFO_LEN+2)
+	if(pkt_len>DECT_PACKET_INFO_LEN+2) {
+		if (pkt_len > 128+5+8) 
+			pkt_len = 128+5+8; /* make these values into logical #defines */
 		memcpy((char*)(&(pkt_bfield.Data)), (char*)(pkt_ptr+8), pkt_len-5-8);
-	else
+	} else {
 		memset((char*)(&(pkt_bfield.Data)), 0, 128);
+	}
 	pkt_bfield.Length=pkt_len-DECT_PACKET_INFO_LEN-8;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
