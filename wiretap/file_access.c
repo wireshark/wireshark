@@ -297,15 +297,26 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		 * input of the process.
 		 */
 		wth->fd = ws_dup(0);
+		if (wth->fd < 0) {
+			*err = errno;
+			g_free(wth);
+			return NULL;
+		}
 #ifdef _WIN32
-		_setmode(wth->fd, O_BINARY);
+		if (_setmode(wth->fd, O_BINARY) == -1) {
+			/* "Shouldn't happen" */
+			*err = errno;
+			g_free(wth);
+			return NULL;
+		}
 #endif
-	} else
+	} else {
 		wth->fd = ws_open(filename, O_RDONLY|O_BINARY, 0000 /* no creation so don't matter */);
-	if (wth->fd < 0) {
-		*err = errno;
-		g_free(wth);
-		return NULL;
+		if (wth->fd < 0) {
+			*err = errno;
+			g_free(wth);
+			return NULL;
+		}
 	}
 	if (!(wth->fh = filed_open(wth->fd))) {
 		*err = errno;
@@ -798,12 +809,18 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {
-		if(compressed) {
+		if (compressed) {
+			*err = EINVAL;	/* XXX - return a Wiretap error code for this */
 			g_free(wdh);
 			return NULL;	/* compress won't work on stdout */
 		}
 #ifdef _WIN32
-		_setmode(fileno(stdout), O_BINARY);
+		if (_setmode(fileno(stdout), O_BINARY) == -1) {
+			/* "Should not happen" */
+			*err = errno;
+			g_free(wdh);
+			return NULL;	/* couldn't put standard output in binary mode */
+		}
 #endif
 		wdh->fh = stdout;
 	} else {
@@ -849,8 +866,13 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 		return NULL;	/* couldn't allocate it */
 
 #ifdef _WIN32
-	if(fd == 1) {
-		_setmode(fileno(stdout), O_BINARY);
+	if (fd == 1) {
+		if (_setmode(fileno(stdout), O_BINARY) == -1) {
+			/* "Should not happen" */
+			*err = errno;
+			g_free(wdh);
+			return NULL;	/* couldn't put standard output in binary mode */
+		}
 	}
 #endif
 
