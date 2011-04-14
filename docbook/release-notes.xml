@@ -74,6 +74,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Export HTTP > All - System Appears Hung (but isn't).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1671">Bug
+          1671</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if SSL preferences RSA key is actually a DSA key.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662">Bug
           5662</ulink>)
