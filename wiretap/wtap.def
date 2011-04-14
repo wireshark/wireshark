@@ -19,6 +19,15 @@ file_seek
 file_tell
 file_error
 file_gets
+file_open
+filed_open
+file_read
+file_close
+file_getc
+file_gets
+file_eof
+file_clearerr
+file_set_random_access
 
 wtap_buf_ptr
 wtap_cleareof
