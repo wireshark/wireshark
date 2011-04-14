@@ -32,7 +32,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  *Ref:
- * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
+ * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v3.0_100621.pdf
  * http://www.3gpp2.org/Public_html/specs/A.S0017-D_v1.0_070624.pdf (IOS 5.1)
  */
 
@@ -100,7 +100,6 @@ static int hf_a11_ase_gre_key = -1;
 static int hf_a11_ase_pcf_addr_key = -1;
 
 /* Forward QoS Information */
-static int hf_a11_fqi_length = -1;
 static int hf_a11_fqi_srid = -1;
 static int hf_a11_fqi_flags = -1;
 static int hf_a11_fqi_flowcount = -1;
@@ -114,7 +113,6 @@ static int hf_a11_fqi_granted_qoslen = -1;
 static int hf_a11_fqi_granted_qos = -1;
 
 /* Reverse QoS Information */
-static int hf_a11_rqi_length = -1;
 static int hf_a11_rqi_srid = -1;
 static int hf_a11_rqi_flowcount = -1;
 static int hf_a11_rqi_flowid = -1;
@@ -881,13 +879,6 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     guint8 flow_index;
     guint8 dscp_enabled = 0;
 
-    /*
-     * Starts with a length field
-     * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
-     */
-    proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
-    clen = clen + 2;
-
     /* SR Id */
     proto_tree_add_item(ext_tree, hf_a11_fqi_srid, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
     clen++;
@@ -964,13 +955,6 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     int clen = 0; /* consumed length */
     guint8 flow_count;
     guint8 flow_index;
-
-    /*
-     * Starts with a length field
-     * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
-     */
-    proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
-    clen = clen + 2;
 
     /* SR Id */
     proto_tree_add_item(ext_tree, hf_a11_rqi_srid, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
@@ -1918,11 +1902,6 @@ proto_register_a11(void)
             FT_IPv4, BASE_NONE, NULL, 0,
             "PCF IP Address.", HFILL }
         },
-        { &hf_a11_fqi_length,
-          { "Length",   "a11.ext.fqi.length",
-            FT_UINT16, BASE_DEC, NULL, 0,
-            NULL, HFILL }
-        },
         { &hf_a11_fqi_srid,
           { "SRID",   "a11.ext.fqi.srid",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -1977,11 +1956,6 @@ proto_register_a11(void)
           { "Granted QoS",   "a11.ext.fqi.graqos",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Forward Granted QoS.", HFILL }
-        },
-        { &hf_a11_rqi_length,
-          { "Length",   "a11.ext.rqi.length",
-            FT_UINT16, BASE_DEC, NULL, 0,
-            NULL, HFILL }
         },
         { &hf_a11_rqi_srid,
           { "SRID",   "a11.ext.rqi.srid",
