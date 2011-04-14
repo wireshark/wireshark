@@ -104,7 +104,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            TShark can now display iSCSI service response times.
+            TShark can now display iSCSI, ICMP and ICMPv6 service response times.
           </para>
         </listitem>
 
