@@ -1,26 +1,40 @@
 #!/bin/sh
 #
 # This script returns the flags to be fed to "aclocal" to ensure that
-# it finds GLib's aclocal macros.  (We assume GTK+ is installed in the
-# same place as GLib.)
+# it finds GLib's aclocal macros (we assume GTK+ is installed in the
+# same place as GLib) and pkg-config's aclocal macros.
 #
 # aclocal will search, by default, only in a directory in the same
 # tree where it was installed - e.g., if installed in "/usr/bin", it'll
 # search only in "/usr/share/aclocal", and if installed in "/usr/local/bin",
 # it'll search only in "/usr/local/share/aclocal".
 #
-# However, there is no guarantee that GLib has been installed there; if
-# it's not, it won't find the GLib autoconf macros, and will complain
+# However, there is no guarantee that GLib, or pkg-config has been installed
+# there; if either of them hasn't been installed there, aclocal won't find
+# the autoconf macros for whichever of them wan't, and will complain
 # bitterly.
 #
-# So, if the "share/local" directory under the directory reported by
-# "pkg-config --variable=prefix glib-2.0" isn't the same directory as
-# the directory reported by "aclocal --print-ac-dir", we return a "-I"
-# flag with the first of those directories as the argument.
+# So:
 #
-# (If they *are* the same directory, and we supply that "-I" flag,
-# "aclocal" will look in that directory twice, and get well and truly
-# confused, reporting a ton of duplicate macro definitions.)
+#	if pkg-config is found with a path that ends with "bin/pkg-config",
+#	and the "share/local" directory under the directory at the path
+#	that's the part of the pkg-config path preceding "bin/pkg-config"
+#	isn't the same directory as the directory reported by "aclocal
+#	--print-ac-dir", we include in our output a "-I" flag with that
+#	directory as its argument;
+#
+#	if the "share/local" directory under the directory reported by
+#	"pkg-config --variable=prefix glib-2.0" isn't the same directory
+#	as the directory reported by "aclocal --print-ac-dir", we include
+#	in our output a "-I" flag with the first of those directories as
+#	the argument.
+#
+# If either of them *is* the same directory as the directory reported by
+# "aclocal --print-ac-dir", and we supply that "-I" flag, "aclocal" will
+# look in that directory twice, and get well and truly confused, reporting
+# a ton of duplicate macro definitions.  This also means that if pkg-config
+# and Glib are installed with the same prefix, we should only supply one
+# "-I" flag for both of them.
 #
 # $Id$
 #
@@ -32,9 +46,43 @@ aclocal_dir=`aclocal --print-ac-dir`
 
 #
 # And where do we want to make sure it looks?
+# Look for pkg-config first.
+#
+pkg_config_path=`which pkg-config 2>/dev/null`
+if [ -z "$pkg_config_path" ]
+then
+	#
+	# Either we don't have "which" or it didn't find pkg-config.
+	#
+	pkg_config_aclocal_dir=""
+else
+	#
+	# OK, we found pkg-config; attempt to find the prefix for it, by
+	# stripping off "bin/pkg-config".
+	#
+	pkg_config_prefix=`expr "$pkg_config_path" : '\(.*\)/bin/pkg-config'`
+	if [ -z "$pkg_config_prefix" ]
+	then
+		#
+		# Well, we couldn't strip it off, for whatever reason.
+		#
+		pkg_config_aclocal_dir=""
+	else
+		#
+		# Now get the path of its aclocal directory.
+		#
+		pkg_config_aclocal_dir=$pkg_config_prefix/share/aclocal
+	fi
+fi
+
+#
+# Now see where glib is installed.
 #
 glib_prefix=`pkg-config --variable=prefix glib-2.0 2>/dev/null`
 
+#
+# Now get the path of its aclocal directory.
+#
 if [ -z "$glib_prefix" ]
 then
 	glib_aclocal_dir=""
@@ -42,21 +90,50 @@ else
 	glib_aclocal_dir=$glib_prefix/share/aclocal
 fi
 
+#
+# Add our aclocal-fallback to the path.
+# We write out the -I flag for it, and strip off CR and LF, as we may
+# be writing more -I options, and we want all the options to be on
+# one line.
+#
 ac_missing_dir=`dirname $0`
 echo "-I $ac_missing_dir/aclocal-fallback" | tr -d '\012' | tr -d '\015'
 
 #
-# If there's no "aclocal", the former will be empty; if there's no
-# "pkg-config" or it doesn't know about glib-2.0, the latter will be
-# empty.
+# If there's no aclocal, aclocal_dir, which is the path where aclocal
+# searches, will be empty; if we didn't find pkg-config,
+# pkg_config_aclocal_dir, which is the path where it should search
+# for pkg-config's macros, will be empty.  Add pkg_config_aclocal_dir only
+# if both it and aclocal_dir are non-empty and different from each other.
 #
-# Add the "-I" flag only if neither of those strings are empty, and
-# they're different.
+if [ ! -z "$aclocal_dir" -a ! -z "$pkg_config_aclocal_dir" \
+    -a "$aclocal_dir" != "$pkg_config_aclocal_dir" ]
+then
+	echo " -I $pkg_config_aclocal_dir" | tr -d '\012' | tr -d '\015'
+fi
+
+#
+# If pkg-config doesn't know about glib-2.0, glib_aclocal_dir will be
+# empty.  (Should we just fail in that case?  Does that mean we don't
+# have GLib installed?)
+#
+# Add glib_aclocal_dir only if both it and aclocal_dir are non-empty and
+# different from each other *and* pkg_config_aclocal_dir is different from
+# glib_aclocal_dir.  (We don't need to check whether pkg_config_aclocal_dir
+# is empty; if it is, then either glib_aclocal_dir is also empty, in which
+# case we'll bail out before even looking at pkg_config_aclocal_dir, or
+# it's non-empty, in which case it obviously won't be equal to
+# pkg_config_aclocal_dir.)
 #
 if [ ! -z "$aclocal_dir" -a ! -z "$glib_aclocal_dir" \
-    -a "$aclocal_dir" != "$glib_aclocal_dir" ]
+    -a "$aclocal_dir" != "$glib_aclocal_dir" \
+    -a "$pkg_config_aclocal_dir" != "$glib_aclocal_dir" ]
 then
 	echo " -I $glib_aclocal_dir" | tr -d '\012' | tr -d '\015'
 fi
+
+#
+# Put out the final line ending.
+#
 echo
 exit 0
