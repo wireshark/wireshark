@@ -320,13 +320,17 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 			break;
 		}
 		if (ret == Z_MEM_ERROR) {
-			state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR; /* ENOMEM? */
+			/* This means "not enough memory". */
+			state->err = ENOMEM;
 			break;
 		}
 		if (ret == Z_DATA_ERROR) {              /* deflate stream invalid */
 			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
 			break;
 		}
+		/*
+		 * XXX - Z_BUF_ERROR?
+		 */
 
 		strm->adler = crc32(strm->adler, buf2, count2 - strm->avail_out);
 		if (state->fast_seek_cur) {
@@ -1087,7 +1091,7 @@ gz_init(GZWFILE_T state)
     if (state->in == NULL || state->out == NULL) {
         g_free(state->out);
         g_free(state->in);
-        state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
+        state->err = ENOMEM;
         return -1;
     }
 
@@ -1100,7 +1104,7 @@ gz_init(GZWFILE_T state)
     if (ret != Z_OK) {
         g_free(state->out);
         g_free(state->in);
-        state->err = WTAP_ERR_ZLIB + Z_MEM_ERROR;	/* ENOMEM? */
+        state->err = WTAP_ERR_ZLIB + ret;
         return -1;
     }
 
