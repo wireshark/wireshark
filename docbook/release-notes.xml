@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.5">
+  <!ENTITY WiresharkCurrentVersion "1.4.6">
 
 ]>
 
@@ -32,18 +32,18 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-06.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-0?.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The NFS dissector could crash on Windows.
-            <!-- This is due to Visual C++ not supporting C99. Do non-Windows, non-gcc Wireshark packages exist? -->
-            <!-- Fixed in trunk: r34115 -->
-            <!-- Fixed in trunk-1.4: r36570 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5209">Bug
-            5209</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.4.</para>
 <!--
@@ -53,39 +53,6 @@ Wireshark Info
 -->
         </listitem>
 
-        <listitem>
-          <para>
-            The X.509if dissector could crash.
-            <!-- Fixed in trunk: r36608 -->
-            <!-- Fixed in trunk-1.4: r36611 -->
-            <!-- Fixed in trunk-1.2: r36612 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5754">Bug
-            5754</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5793">Bug
-            5793</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Paul Makowski from SEI/CERT discovered that the DECT dissector could
-            overflow a buffer. He verified that this could allow remote code
-            execution on many platforms.
-            <!-- Fixed in trunk-1.4: r36644 -->
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.4.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
 
       </itemizedlist>
 
@@ -106,87 +73,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Cygwin make fails after updating to bash v 4.1.9.2
-        </para></listitem>
-
-        <listitem><para>
-          Export HTTP > All - System Appears Hung (but isn't).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1671">Bug
-          1671</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Some HTTP responses don't decode with TCP reassembly on.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3785">Bug
-          3785</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when cancelling a large sort operation.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5189">Bug
-          5189</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if SSL preferences RSA key is actually a DSA key.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662">Bug
-          5662</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark incorrectly calculates TCP stream for some syn packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5743">Bug
-          5743</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark not able to decode the PPP frame in a sflow (RFC3176) flow sample packet because Wireshark incorrectly read the protocol in PPP frame header.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5746">Bug
-          5746</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Mysql protocol dissector: all fields should be little endian.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5759">Bug
-          5759</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Error when opening snoop from Juniper SSG-140.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5762">Bug
-          5762</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          svnversion: command not found.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5798">Bug
-          5798</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
-          5803</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Value of TCP segment data cannot be copied.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5811">Bug
-          5811</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          proto_field_is_referenced() is not exported in libwireshark.dll.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5816">Bug
-          5816</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark ver. 1.4.4 not displayed "Granted QoS" field in a A11 packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5822">Bug
-          5822</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
