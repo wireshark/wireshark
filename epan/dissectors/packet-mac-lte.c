@@ -68,6 +68,11 @@ static int hf_mac_lte_context_crc_status = -1;
 static int hf_mac_lte_context_rapid = -1;
 static int hf_mac_lte_context_rach_attempt_number = -1;
 
+/* Inferred context */
+static int hf_mac_lte_ues_ul_per_tti = -1;
+static int hf_mac_lte_ues_dl_per_tti = -1;
+
+
 /* Extra PHY context */
 static int hf_mac_lte_context_phy_ul = -1;
 static int hf_mac_lte_context_phy_ul_modulation_type = -1;
@@ -2057,6 +2062,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 /* Count number of UEs/TTI (in both directions)         */
 /********************************************************/
 
+/* For keeping track during first pass */
 typedef struct tti_info_t {
     guint16 subframe;
     nstime_t ttiStartTime;
@@ -2066,8 +2072,22 @@ typedef struct tti_info_t {
 static tti_info_t UL_tti_info;
 static tti_info_t DL_tti_info;
 
-static void count_ues_tti(mac_lte_info *p_mac_lte_info, nstime_t time _U_)
+/* For associating with frame and displaying */
+typedef struct TTIInfoResult_t {
+    guint ues_in_tti;
+} TTIInfoResult_t;
+
+/* This table stores (FrameNumber -> *TTIInfoResult_t).  It is assigned during the first
+   pass and used thereafter */
+static GHashTable *mac_lte_tti_info_result_hash = NULL;
+
+
+
+static void count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
 {
+    gboolean same_tti = FALSE;
+    TTIInfoResult_t *result;
+
     /* Set tti_info based upon direction */
     tti_info_t *tti_info;
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
@@ -2077,8 +2097,53 @@ static void count_ues_tti(mac_lte_info *p_mac_lte_info, nstime_t time _U_)
         tti_info = &DL_tti_info;
     }
 
-    /* TOO: Work out if we are still in the same tti as before */
+    /* Work out if we are still in the same tti as before */
+    if (tti_info->subframe == p_mac_lte_info->subframeNumber) {
+        gint seconds_between_packets = (gint)
+              (pinfo->fd->abs_ts.secs - tti_info->ttiStartTime.secs);
+        gint nseconds_between_packets =
+              pinfo->fd->abs_ts.nsecs -  tti_info->ttiStartTime.nsecs;
+
+        /* Round difference to nearest millisecond */
+        gint total_us_gap = (seconds_between_packets*1000000) +
+                           ((nseconds_between_packets+500) / 1000);
+
+        if (total_us_gap < 1000) {
+            same_tti = TRUE;
+        }
+    }
+
+    /* Update global state */
+    if (!same_tti) {
+        tti_info->subframe = p_mac_lte_info->subframeNumber;
+        tti_info->ttiStartTime = pinfo->fd->abs_ts;
+        tti_info->ues_in_tti = 1;
+    }
+    else {
+        tti_info->ues_in_tti++;
+    }
+
+    /* Set result state for this frame */
+    result = se_alloc(sizeof(TTIInfoResult_t));
+    result->ues_in_tti = tti_info->ues_in_tti;
+    g_hash_table_insert(mac_lte_tti_info_result_hash,
+                        GUINT_TO_POINTER(pinfo->fd->num), result);
 }
+
+static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuff_t *tvb, proto_tree *context_tree)
+{
+    /* Look up result */
+    TTIInfoResult_t *result = g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    if (result != NULL) {
+        proto_item *ti =  proto_tree_add_uint(context_tree,
+                                              (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
+                                                  hf_mac_lte_ues_ul_per_tti :
+                                                  hf_mac_lte_ues_dl_per_tti,
+                                              tvb, 0, 0, result->ues_in_tti);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+}
+
 
 
 
@@ -2112,8 +2177,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   expecting_body_data = FALSE;
     volatile   guint32    is_truncated = FALSE;
 
-   /* Maintain UEs/TTI count */
-    count_ues_tti(p_mac_lte_info, pinfo->fd->abs_ts);
+    /* Maintain/show UEs/TTI count */
+    if (!pinfo->fd->flags.visited) {
+        count_ues_tti(p_mac_lte_info, pinfo);
+    }
+    show_ues_tti(pinfo, p_mac_lte_info, tvb, context_tree);
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "%s: (SF=%u) UEId=%-3u ",
@@ -3336,6 +3404,10 @@ mac_lte_init_protocol(void)
     if (mac_lte_sr_request_hash) {
         g_hash_table_destroy(mac_lte_sr_request_hash);
     }
+    if (mac_lte_tti_info_result_hash) {
+        g_hash_table_destroy(mac_lte_tti_info_result_hash);
+    }
+
 
     /* Now create them over */
     mac_lte_msg3_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
@@ -3349,6 +3421,8 @@ mac_lte_init_protocol(void)
 
     mac_lte_ue_sr_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_sr_request_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+
+    mac_lte_tti_info_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 }
 
 
@@ -3469,6 +3543,20 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+
+        { &hf_mac_lte_ues_ul_per_tti,
+            { "UL UE in TTI",
+              "mac-lte.ul-tti-count", FT_UINT8, BASE_DEC, 0, 0x0,
+              "In this TTI, this is the nth UL grant", HFILL
+            }
+        },
+        { &hf_mac_lte_ues_dl_per_tti,
+            { "DL UE in TTI",
+              "mac-lte.dl-tti-count", FT_UINT8, BASE_DEC, 0, 0x0,
+              "In this TTI, this is the nth DL PDU", HFILL
+            }
+        },
+
 
         /* Extra PHY context */
         { &hf_mac_lte_context_phy_ul,
