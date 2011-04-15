@@ -13,7 +13,7 @@ DOCUMENT SECTION
 Wireshark Info
 -->
 
-  <!ENTITY WiresharkCurrentVersion "1.2.16">
+  <!ENTITY WiresharkCurrentVersion "1.2.17">
 
 ]>
 
@@ -33,20 +33,18 @@ Wireshark Info
     <para>
 
       The following vulnerability has been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-05.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-0?.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The X.509if dissector could crash.
-            <!-- Fixed in trunk: r36608 -->
-            <!-- Fixed in trunk-1.4: r36611 -->
-            <!-- Fixed in trunk-1.2: r36612 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5754">Bug
-            5754</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5793">Bug
-            5793</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.</para>
 <!--
@@ -73,30 +71,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Export HTTP > All - System Appears Hung (but isn't).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1671">Bug
-          1671</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if SSL preferences RSA key is actually a DSA key.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662">Bug
-          5662</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark incorrectly calculates tcp stream for some syn packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5743">Bug
-          5743</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Error when opening snoop from Juniper SSG-140.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5762">Bug
-          5762</ulink>)
-        </para></listitem>
-      </itemizedlist>
 
     </para>
 
@@ -121,7 +95,6 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-LDAP, SSL, TCP
 
     </para>
     </section>
