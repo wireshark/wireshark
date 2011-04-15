@@ -1,4 +1,4 @@
-Wireshark 1.4.4 Release Notes
+Wireshark 1.4.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,102 +15,60 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that Wireshark could free an uninitialized pointer
-       while reading a malformed pcap-ng file. (Bug 5652)
+     o The NFS dissector could crash on Windows. (Bug 5209)
 
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
+       Versions affected: 1.4.0 to 1.4.4.
 
-       CVE-2011-0538
+     o The X.509if dissector could crash. (Bug 5754, Bug 5793)
 
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a large packet length in a pcap-ng file could
-       crash Wireshark. (Bug 5661)
+       Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.
 
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
+     o Paul Makowski from SEI/CERT discovered that the DECT dissector
+       could overflow a buffer. He verified that this could allow
+       remote code execution on many platforms.
 
-     o Wireshark could overflow a buffer while reading a Nokia DCT3
-       trace file. (Bug 5661)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
-
-       CVE-2011-0713
-
-     o Paul Makowski working for SEI/CERT discovered that Wireshark
-       on 32 bit systems could crash while reading a malformed
-       6LoWPAN packet. (Bug 5661)
-
-       Versions affected: 1.4.0 to 1.4.3.
-
-     o joernchen of Phenoelit discovered that the LDAP and SMB
-       dissectors could overflow the stack. (Bug 5717)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
-       versions including 1.0.x are also affected.)
-
-     o Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that
-       large LDAP Filter strings can consume excessive amounts of
-       memory. (Bug 5732)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
-       versions including 1.0.x are also affected.)
+       Versions affected: 1.4.0 to 1.4.4.
 
    The following bugs have been fixed:
 
-     o A TCP stream would not always be recognized as the same
-       stream. (Bug 2907)
+     o Cygwin make fails after updating to bash v 4.1.9.2
 
-     o Wireshark Crashing by pressing 2 Buttons. (Bug 4645)
+     o Export HTTP > All - System Appears Hung (but isn't). (Bug
+       1671)
 
-     o A crash can occur in the NTLMSSP dissector. (Bug 5157)
+     o Some HTTP responses don't decode with TCP reassembly on. (Bug
+       3785)
 
-     o The column texts from a Lua dissector could be mangled. (Bug
-       5326) (Bug 5630)
+     o Wireshark crashes when cancelling a large sort operation. (Bug
+       5189)
 
-     o Corrections to ANSI MAP ASN.1 specifications. (Bug 5584)
+     o Wireshark crashes if SSL preferences RSA key is actually a DSA
+       key. (Bug 5662)
 
-     o When searching in packet bytes, the field and bytes are not
-       immediately shown. (Bug 5585)
+     o tshark incorrectly calculates TCP stream for some syn packets.
+       (Bug 5743)
 
-     o Malformed Packet: ULP reported when dissecting ULP SessionID
-       PDU. (Bug 5593)
+     o Wireshark not able to decode the PPP frame in a sflow
+       (RFC3176) flow sample packet because Wireshark incorrectly
+       read the protocol in PPP frame header. (Bug 5746)
 
-     o Wrong IEI in container of decode_gtp_mm_cntxt. (Bug 5598)
+     o Mysql protocol dissector: all fields should be little endian.
+       (Bug 5759)
 
-     o Display filter does not work for expressions of type BASE_DEC,
-       BASE_DEC_HEX and BASE_HEX_DEC. (Bug 5606)
+     o Error when opening snoop from Juniper SSG-140. (Bug 5762)
 
-     o NTLMSSP dissector may fail to compile due to space embedded in
-       C comment delimiters. (Bug 5614)
+     o svnversion: command not found. (Bug 5798)
 
-     o Allow for name resolution of link-scope and multicast IPv6
-       addresses from local host file. (Bug 5615)
+     o capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too
+       many. (Bug 5803)
 
-     o DHCPv6 dissector formats DUID_LLT time incorrectly. (Bug 5627)
+     o Value of TCP segment data cannot be copied. (Bug 5811)
 
-     o Allow for IEEE 802.3bc-2009 style PoE TLVs. (Bug 5639)
+     o proto_field_is_referenced() is not exported in
+       libwireshark.dll. (Bug 5816)
 
-     o Various fixes to the HIP packet dissector. (Bug 5646)
-
-     o Display "Day of Year" for January 1 as 1, not 0. (Bug 5653)
-
-     o Accommodate the CMake build on Ubuntu 10.10. (Bug 5665)
-
-     o E.212 MCC 260 Poland update according to local national
-       regulatory. (Bug 5668)
-
-     o IPP on ports other than 631 not recognized. (Bug 5677)
-
-     o Potential access violation when writing to LANalyzer files.
-       (Bug 5698)
-
-     o IEEE 802.15.4 Superframe Specification - Final CAP Slot always
-       0. (Bug 5700)
-
-     o Peer SRC and DST AS numbers are swapped for cflow. (Bug 5702)
-
-     o dumpcap: -q option behavior doesn't match documentation. (Bug
-       5716)
+     o Wireshark ver. 1.4.4 not displayed "Granted QoS" field in a
+       A11 packet. (Bug 5822)
 
   New and Updated Features
 
@@ -122,13 +80,9 @@ What's New
 
   Updated Protocol Support
 
-   ANSI MAP, BitTorrent, DCM, DHCPv6, DTAP, DTPT, E.212, GSM
-   Management, GTP, HIP, IEEE 802.15.4, IPP, LDAP, LLDP, Netflow,
-   NTLMSSP, P_Mul, Quake, Skinny, SMB, SNMP, ULP
+   HTTP, LDAP, MySQL, NFS, sFlow, SSL, TCP
 
   New and Updated Capture File Support
-
-   LANalyzer, Nokia DCT3, Pcap-ng
 
 Getting Wireshark
 
