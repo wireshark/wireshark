@@ -82,6 +82,7 @@ static gboolean show_file_off = FALSE;
 static gboolean force_docsis_encap = FALSE;
 static gboolean generate_md5_hash = FALSE;
 static gboolean generate_epoch_time = TRUE;
+static gboolean generate_bits_field = TRUE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
@@ -200,10 +201,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
-		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-						    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
-						    pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
-						    cap_len, cap_plurality, cap_len * 8);
+		if (generate_bits_field)
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
+			    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
+			    pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
+			    cap_len, cap_plurality, cap_len * 8);
+		else
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
+			    "Frame %u: %u byte%s on wire, %u byte%s captured", pinfo->fd->num,
+			     frame_len, frame_plurality, cap_len, cap_plurality);
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
@@ -667,6 +673,10 @@ proto_register_frame(void)
 	    "Generate an epoch time entry for each frame",
 	    "Whether or not an Epoch time entry should be generated for each frame.",
 	    &generate_epoch_time);
+	prefs_register_bool_preference(frame_module, "generate_bits_field",
+	    "Show the number of bits in the frame",
+	    "Whether or not the number of bits in the frame should be shown.",
+	    &generate_bits_field);
 
 	frame_tap=register_tap("frame");
 }
