@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
-r35490 | gerald | 2011-01-11 15:01:44 -0800 (Tue, 11 Jan 2011) | 2 lines
+r36117 | gerald | 2011-03-01 14:23:15 -0800 (Tue, 01 Mar 2011) | 2 lines
 Changed paths:
    M /trunk-1.2/config.nmake
    M /trunk-1.2/configure.in
@@ -10,347 +10,163 @@ Changed paths:
 1.2.14 → 1.2.15.
 
 ------------------------------------------------------------------------
-r35492 | gerald | 2011-01-11 15:10:19 -0800 (Tue, 11 Jan 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Remove a link.
-
-------------------------------------------------------------------------
-r35554 | gerald | 2011-01-16 10:05:35 -0800 (Sun, 16 Jan 2011) | 1 line
+r36146 | gerald | 2011-03-06 10:05:31 -0800 (Sun, 06 Mar 2011) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-01-16]
+[Automatic manuf, services and enterprise-numbers update for 2011-03-06]
 ------------------------------------------------------------------------
-r35630 | gerald | 2011-01-23 10:05:33 -0800 (Sun, 23 Jan 2011) | 1 line
+r36185 | gerald | 2011-03-13 10:05:27 -0700 (Sun, 13 Mar 2011) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-01-23]
+[Automatic manuf, services and enterprise-numbers update for 2011-03-13]
 ------------------------------------------------------------------------
-r35636 | gerald | 2011-01-24 09:21:07 -0800 (Mon, 24 Jan 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Clear out old items.
-
-------------------------------------------------------------------------
-r35702 | gerald | 2011-01-30 10:06:58 -0800 (Sun, 30 Jan 2011) | 1 line
+r36218 | gerald | 2011-03-20 10:05:36 -0700 (Sun, 20 Mar 2011) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-01-30]
+[Automatic manuf, services and enterprise-numbers update for 2011-03-20]
 ------------------------------------------------------------------------
-r35793 | gerald | 2011-02-03 14:56:04 -0800 (Thu, 03 Feb 2011) | 16 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/tshark.c
-   M /trunk-1.2/wiretap/pcapng.c
-
-Copy over r35791 from the trunk.
-
-------------------------------------------------------------------------
-r35791 | gerald | 2011-02-03 14:50:49 -0800 (Thu, 03 Feb 2011) | 5 lines
-Changed paths:
-   M /trunk/tshark.c
-   M /trunk/wiretap/pcapng.c
-
-From Huzaifa Sidhpurwala of the Red Hat Security Response Team: Don't
-free uninitialized memory.
-
-See also: bug 5652.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r35799 | morriss | 2011-02-03 18:16:49 -0800 (Thu, 03 Feb 2011) | 8 lines
-Changed paths:
-   M /trunk-1.2/wiretap/pcapng.c
-
-Copy over revision from trunk:
-
-------------------------------------------------------------------------
-r35796 | morriss | 2011-02-03 21:08:47 -0500 (Thu, 03 Feb 2011) | 1 line
-
-Use g_strdup() instead of strdup()
-
-
-------------------------------------------------------------------------
-r35801 | guy | 2011-02-03 18:27:00 -0800 (Thu, 03 Feb 2011) | 12 lines
-Changed paths:
-   M /trunk-1.2/wiretap/pcapng.c
-
-Copy over revision from trunk:
-
-------------------------------------------------------------------------
-r35800 | guy | 2011-02-03 18:24:33 -0800 (Thu, 03 Feb 2011) | 7 lines
-
-Put more data into the "additional error information" messages.
-
-Get rid of debugging printouts that are equivalent to the "additional
-error information" messages.
-
-Return additional error info for all WTAP_ERR_BAD_RECORD errors.
-
-------------------------------------------------------------------------
-r35803 | guy | 2011-02-03 19:10:36 -0800 (Thu, 03 Feb 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/wiretap/pcapng.c
-
-That fix didn't quite port over without change.
-
-------------------------------------------------------------------------
-r35811 | guy | 2011-02-04 02:19:01 -0800 (Fri, 04 Feb 2011) | 7 lines
-Changed paths:
-   M /trunk-1.2/wiretap/k12.c
-
-Copy over revision from trunk:
-
-------------------------------------------------------------------------
-r35809 | guy | 2011-02-04 01:45:39 -0800 (Fri, 04 Feb 2011) | 2 lines
-
-Set the error code and additional information string in more cases.
-
-------------------------------------------------------------------------
-r35827 | gerald | 2011-02-04 08:24:49 -0800 (Fri, 04 Feb 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Add a CVE ID.
-
-------------------------------------------------------------------------
-r35839 | gerald | 2011-02-06 10:05:30 -0800 (Sun, 06 Feb 2011) | 1 line
+r36374 | gerald | 2011-03-27 10:05:13 -0700 (Sun, 27 Mar 2011) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-02-06]
+[Automatic manuf, services and enterprise-numbers update for 2011-03-27]
 ------------------------------------------------------------------------
-r35858 | gerald | 2011-02-07 11:40:34 -0800 (Mon, 07 Feb 2011) | 5 lines
+r36439 | gerald | 2011-04-03 10:05:35 -0700 (Sun, 03 Apr 2011) | 1 line
 Changed paths:
-   M /trunk-1.2/wiretap/pcapng.c
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-Check for a large packet_len. Fixes a bug reported by Huzaifa
-Sidhpurwala of the Red Hat Security Response Team.
-
-See also: bug 5661.
-
+[Automatic manuf, services and enterprise-numbers update for 2011-04-03]
 ------------------------------------------------------------------------
-r35860 | gerald | 2011-02-07 11:43:17 -0800 (Mon, 07 Feb 2011) | 2 lines
+r36541 | gerald | 2011-04-10 10:05:22 -0700 (Sun, 10 Apr 2011) | 1 line
 Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-Update the release notes.
-
+[Automatic manuf, services and enterprise-numbers update for 2011-04-10]
 ------------------------------------------------------------------------
-r35924 | gerald | 2011-02-11 16:06:23 -0800 (Fri, 11 Feb 2011) | 2 lines
+r36574 | gerald | 2011-04-11 17:43:52 -0700 (Mon, 11 Apr 2011) | 46 lines
 Changed paths:
+   M /trunk-1.2/Makefile.nmake
    M /trunk-1.2/config.nmake
-
-Check for Python 2.7.
-
-------------------------------------------------------------------------
-r35931 | gerald | 2011-02-12 09:57:11 -0800 (Sat, 12 Feb 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/packaging/portableapps/win32/makefile.nmake
-
-Cygwin 1.7 is much pickier about paths. Pass a POSIX path to bash.
-
-------------------------------------------------------------------------
-r35942 | gerald | 2011-02-13 10:05:31 -0800 (Sun, 13 Feb 2011) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-
-[Automatic manuf, services and enterprise-numbers update for 2011-02-13]
-------------------------------------------------------------------------
-r36015 | gerald | 2011-02-20 10:04:59 -0800 (Sun, 20 Feb 2011) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-   M /trunk-1.2/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-02-20]
-------------------------------------------------------------------------
-r36040 | etxrab | 2011-02-23 22:16:13 -0800 (Wed, 23 Feb 2011) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-isup.c
-
-Register the BICC dissector by name.
-------------------------------------------------------------------------
-r36044 | etxrab | 2011-02-23 22:24:50 -0800 (Wed, 23 Feb 2011) | 1 line
-Changed paths:
-   M /trunk-1.2/diameter/dictionary.dtd
-   M /trunk-1.2/diameter/dictionary.xml
-
-Update Diameter files.
-------------------------------------------------------------------------
-r36051 | gerald | 2011-02-24 10:37:39 -0800 (Thu, 24 Feb 2011) | 12 lines
-Changed paths:
    M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/wiretap/dct3trace.c
-
-Copy over r35953 from the trunk:
-
-------------------------------------------------------------------------
-r35953 | gerald | 2011-02-15 16:42:06 -0800 (Tue, 15 Feb 2011) | 2 lines
-Changed paths:
-   M /trunk/wiretap/dct3trace.c
-
-Fix a buffer overflow found by the Visual C++ analyzer.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r36054 | gerald | 2011-02-24 12:07:23 -0800 (Thu, 24 Feb 2011) | 27 lines
-Changed paths:
-   M /trunk-1.2/asn1/ldap/packet-ldap-template.c
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-dns.c
-   M /trunk-1.2/epan/dissectors/packet-dns.h
-   M /trunk-1.2/epan/dissectors/packet-ldap.c
-   M /trunk-1.2/epan/dissectors/packet-smb-common.c
-   M /trunk-1.2/epan/dissectors/packet-smb-common.h
-   M /trunk-1.2/epan/dissectors/packet-smb-logon.c
-
-Copy over r36029 with manual assistance:
-
-------------------------------------------------------------------------
-r36029 | gerald | 2011-02-22 16:51:02 -0800 (Tue, 22 Feb 2011) | 9 lines
-Changed paths:
-   M /trunk/asn1/ldap/packet-ldap-template.c
-   M /trunk/asn1/ldap/packet-ldap-template.h
-   M /trunk/epan/dissectors/packet-dns.c
-   M /trunk/epan/dissectors/packet-dns.h
-   M /trunk/epan/dissectors/packet-ldap.c
-   M /trunk/epan/dissectors/packet-ldap.h
-   M /trunk/epan/dissectors/packet-smb-common.c
-   M /trunk/epan/dissectors/packet-smb-common.h
-   M /trunk/epan/dissectors/packet-smb-logon.c
-
-Split get_dns_name() into get_dns_name() and expand_dns_name().
-
-In dissect_ms_compressed_string() dissect_mscldap_string() simply call
-expand_dns_name() instead of using duplicate (and insecure) code. This
-*might* break CLDAP and SMB dissection. If that's the case we should
-probably revert get_dns_name() and simplify expand_dns_name().
-
-Fixes infinite recursion errors found by joernchen of Phenoelit.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r36062 | gerald | 2011-02-24 17:04:46 -0800 (Thu, 24 Feb 2011) | 42 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/gtk/capture_dlg.c
+   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.2/epan/dissectors/packet-tcp.c
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+   M /trunk-1.2/text2pcap.c
    M /trunk-1.2/tools/win32-setup.sh
-   M /trunk-1.2/wiretap/lanalyzer.c
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r35633 | wmeier | 2011-01-23 12:59:12 -0800 (Sun, 23 Jan 2011) | 7 lines
-Changed paths:
-   M /trunk/gtk/capture_dlg.c
-
-Fix a crash which can occur if a user hits "Capture:Options" immediately followed by "Capture:Start"
-
-Fixes Bug #4645: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4645
-
-Essentially: The "Capture Start" code "interrupted" the "Capture Options" code and attempted
- to use not yet initialized "Capture Options" state.
-------------------------------------------------------------------------
-r35788 | wmeier | 2011-02-03 11:33:48 -0800 (Thu, 03 Feb 2011) | 12 lines
-Changed paths:
-   M /trunk/tools/win-setup.sh
-
-Fix: Cygwin make fails after updating to bash v 4.1.9.2
-
-Extracts from the cygwin Bash 4.1.9.2 release announcement:
-
-4a. For a single affected script, add this line just after the she-bang:
- (set -o igncr) 2>/dev/null && set -o igncr; # comment is needed
-
-4e. bash-4.1.9-1 dropped support for 'shopt -s igncr';
-
-I'm assuming this is backwards compatible; If not, we'll know quite shortly :) 
-------------------------------------------------------------------------
-r36061 | wmeier | 2011-02-24 16:40:22 -0800 (Thu, 24 Feb 2011) | 6 lines
-Changed paths:
-   M /trunk/wiretap/lanalyzer.c
-
-From Robert Bullen: Fix "Potential access violation when writing to LANalyzer files"
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5698
-
-(Note from me: Before the fix "File ! Save As" in Lanalyzer format
-                crashed quite consistently on my Windows 7)
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r36063 | gerald | 2011-02-24 17:08:12 -0800 (Thu, 24 Feb 2011) | 2 lines
-Changed paths:
-   M /trunk-1.2/docbook/release-notes.xml
-
-Add LANalyzer.
-
-------------------------------------------------------------------------
-r36082 | gerald | 2011-02-27 10:05:20 -0800 (Sun, 27 Feb 2011) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-   M /trunk-1.2/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-02-27]
-------------------------------------------------------------------------
-r36103 | gerald | 2011-02-28 17:09:32 -0800 (Mon, 28 Feb 2011) | 17 lines
-Changed paths:
-   M /trunk-1.2/asn1/ldap/ldap.cnf
-   M /trunk-1.2/asn1/ldap/packet-ldap-template.c
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-ldap.c
+   M /trunk-1.2/tools/win64-setup.sh
+   M /trunk-1.2/wiretap/netscreen.c
 
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r36101 | gerald | 2011-02-28 16:50:17 -0800 (Mon, 28 Feb 2011) | 5 lines
+r36174 | wmeier | 2011-03-08 16:43:49 -0800 (Tue, 08 Mar 2011) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ssl-utils.c
+
+Check that imported private key is RSA; Prevents a crash.
+
+Fixes Bug #5662
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5662
+------------------------------------------------------------------------
+r36232 | sake | 2011-03-21 15:04:22 -0700 (Mon, 21 Mar 2011) | 3 lines
+Changed paths:
+   M /trunk/wiretap/netscreen.c
+
+Fix for bug 5762, wireshark asserts on reading juniper snoop output when no hex data is present (snoop detail off).
+------------------------------------------------------------------------
+
+
+
+Copy over with manual intervention:
+
+------------------------------------------------------------------------
+r36162 | sake | 2011-03-08 03:26:34 -0800 (Tue, 08 Mar 2011) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tcp.c
+
+Fix for bug 5743 : tshark incorrectly calculates tcp stream for SYN packets when port numbers are re-used
+------------------------------------------------------------------------
+r36190 | gerald | 2011-03-14 09:00:51 -0700 (Mon, 14 Mar 2011) | 2 lines
 Changed paths:
    M /trunk/asn1/ldap/ldap.cnf
-   M /trunk/asn1/ldap/packet-ldap-template.c
    M /trunk/epan/dissectors/packet-ldap.c
 
-If we encounter an excessively long filter string or one with too many
-elements, add an expert item and throw a ReportedBoundsError. We may
-want to handle this more cleanly in the future but this avoids
-allocating a huge amount of memory.
+Properly initialize our filter counters.
+------------------------------------------------------------------------
+r36471 | tuexen | 2011-04-05 07:28:33 -0700 (Tue, 05 Apr 2011) | 3 lines
+Changed paths:
+   M /trunk/text2pcap.c
+
+Fix a typo in the help message.
+Reported by Matthias Wellmeyer.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r36613 | gerald | 2011-04-12 14:21:40 -0700 (Tue, 12 Apr 2011) | 18 lines
+Changed paths:
+   M /trunk-1.2/asn1/x509if/packet-x509if-template.c
+   M /trunk-1.2/asn1/x509if/x509if.cnf
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-x509if.c
+
+Copy over r36608 from the trunk:
+
+------------------------------------------------------------------------
+r36608 | gerald | 2011-04-12 13:39:48 -0700 (Tue, 12 Apr 2011) | 5 lines
+Changed paths:
+   M /trunk/asn1/x509if/packet-x509if-template.c
+   M /trunk/asn1/x509if/x509if.cnf
+   M /trunk/epan/dissectors/packet-x509if.c
+   M /trunk/epan/dissectors/packet-x509if.h
+
+Add x509if_frame_end() which is passed to register_frame_end_routine()
+and which resets our global variables. Remove a boolean which was used
+to track a char *; just check if the pointer is NULL instead. Fixes bugs
+5754 and 5793, hopefully without breaking anything.
 ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r36105 | gerald | 2011-02-28 17:14:28 -0800 (Mon, 28 Feb 2011) | 12 lines
+r36647 | gerald | 2011-04-14 14:29:30 -0700 (Thu, 14 Apr 2011) | 20 lines
 Changed paths:
-   M /trunk-1.2/epan/uat_load.l
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/gtk/export_object.c
 
-Copy over r36096 from the trunk:
+Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r36096 | stig | 2011-02-28 08:11:20 -0800 (Mon, 28 Feb 2011) | 4 lines
+r34805 | cmaynard | 2010-11-08 08:53:11 -0800 (Mon, 08 Nov 2010) | 4 lines
 Changed paths:
-   M /trunk/epan/uat_load.l
+   M /trunk/gtk/export_object.c
 
-Close UAT file after loading.
-
-Open files may prevent deleting a used profile with UAT files.
+Allow objects to be saved that otherwise couldn't be due to invalid characters
+in the filename, excessive filename lengths or duplicate filenames.  Fixes
+bug 1671.
 ------------------------------------------------------------------------
+r34808 | cmaynard | 2010-11-08 09:53:13 -0800 (Mon, 08 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk/gtk/export_object.c
+
+Make maxlen a gsize instead of a guint.
+------------------------------------------------------------------------
+
+Update the release notes.
 
 ------------------------------------------------------------------------

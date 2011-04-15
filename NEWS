@@ -1,4 +1,4 @@
-Wireshark 1.2.15 Release Notes
+Wireshark 1.2.16 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,49 +12,25 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
+   The following vulnerability has been fixed. See the security
    advisory for details and a workaround.
 
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that Wireshark could free an uninitialized pointer
-       while reading a malformed pcap-ng file. (Bug 5652)
+     o The X.509if dissector could crash. (Bug 5754, Bug 5793)
 
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
-
-       CVE-2011-0538
-
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a large packet length in a pcap-ng file could
-       crash Wireshark. (Bug 5661)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
-
-     o Wireshark could overflow a buffer while reading a Nokia DCT3
-       trace file. (Bug 5661)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.
-
-       CVE-2011-0713
-
-     o joernchen of Phenoelit discovered that the LDAP and SMB
-       dissectors could overflow the stack. (Bug 5717)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
-       versions including 1.0.x are also affected.)
-
-     o Xiaopeng Zhang of Fortinet's Fortiguard Labs discovered that
-       large LDAP Filter strings can consume excessive amounts of
-       memory. (Bug 5732)
-
-       Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3. (Prior
-       versions including 1.0.x are also affected.)
+       Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.
 
    The following bugs have been fixed:
 
-     o Wireshark Crashing by pressing 2 Buttons. (Bug 4645)
+     o Export HTTP > All - System Appears Hung (but isn't). (Bug
+       1671)
 
-     o Potential access violation when writing to LANalyzer files.
-       (Bug 5698)
+     o Wireshark crashes if SSL preferences RSA key is actually a DSA
+       key. (Bug 5662)
+
+     o tshark incorrectly calculates tcp stream for some syn packets.
+       (Bug 5743)
+
+     o Error when opening snoop from Juniper SSG-140. (Bug 5762)
 
   New and Updated Features
 
@@ -66,11 +42,11 @@ What's New
 
   Updated Protocol Support
 
-   LDAP, SMB
+   LDAP, SSL, TCP
 
   Updated Capture File Support
 
-   LANalyzer, Nokia DCT3, Pcap-ng
+   Snoop.
 
 Getting Wireshark
 
