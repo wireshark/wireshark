@@ -183,7 +183,7 @@ static guint32
 get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, guint8 *val_len){
 	guint8 oct;
 	guint32 val;
-	int num_bits, bit_offset = offset <<3;
+	int num_bits = 0, bit_offset = offset <<3;
 
 	oct = tvb_get_guint8(tvb, offset);
 	if((oct&0x80)==0){
@@ -282,7 +282,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	proto_item *item;
 	proto_tree *sub_tree;	
-	guint8 oct, rx, cc, val_len;
+	guint8 oct, rx, cc, val_len = 0;
 	int i, start_offset;
 
 	start_offset = offset;
@@ -399,7 +399,6 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 		/* Time_Stride encoded as
 		 * 4.5.6.  Self-describing variable-length values
 		 */
-		val_len = 0;
 		get_self_describing_var_len_val(tvb, sub_tree, offset, hf_rohc_rtp_time_stride, &val_len);
 		offset = offset + val_len;
 	}
