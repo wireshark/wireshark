@@ -903,6 +903,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rmt-fec.c
 	dissectors/packet-rmt-lct.c
 	dissectors/packet-rmt-norm.c
+	dissectors/packet-rohc.c
 	dissectors/packet-roofnet.c
 	dissectors/packet-rpc.c
 	dissectors/packet-rpcap.c
