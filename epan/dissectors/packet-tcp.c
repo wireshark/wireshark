@@ -4843,19 +4843,19 @@ proto_register_tcp(void)
             RVBD_FLAGS_TRPY_MODE, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_trpy_src,
-          { "CSH IP Addr", "tcp.options.rvbd.trpy.src.ip",
+          { "Src SH IP Addr", "tcp.options.rvbd.trpy.src.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_trpy_dst,
-          { "SSH IP Addr", "tcp.options.rvbd.trpy.dst.ip",
+          { "Dst SH IP Addr", "tcp.options.rvbd.trpy.dst.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_trpy_src_port,
-          { "CSH Inner Port", "tcp.options.rvbd.trpy.src.port",
+          { "Src SH Inner Port", "tcp.options.rvbd.trpy.src.port",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_trpy_dst_port,
-          { "SSH Inner Port", "tcp.options.rvbd.trpy.dst.port",
+          { "Dst SH Inner Port", "tcp.options.rvbd.trpy.dst.port",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_trpy_client_port,
