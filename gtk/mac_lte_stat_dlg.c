@@ -158,6 +158,9 @@ typedef struct mac_lte_common_stats {
     guint32 pch_bytes;
     guint32 rar_frames;
     guint32 rar_entries;
+
+    guint16  max_ul_ues_in_tti;
+    guint16  max_dl_ues_in_tti;
 } mac_lte_common_stats;
 
 
@@ -180,6 +183,9 @@ typedef struct mac_lte_stat_t {
     GtkWidget  *show_dct_errors_cb;
     GtkWidget  *dct_error_substring_lb;
     GtkWidget  *dct_error_substring_te;
+
+    GtkWidget  *ul_max_ues_per_tti;
+    GtkWidget  *dl_max_ues_per_tti;
 
     /* Common stats */
     mac_lte_common_stats common_stats;
@@ -364,6 +370,18 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         default:
             /* Error */
             return 0;
+    }
+
+    /* Check max UEs/tti counter */
+    switch (si->direction) {
+        case DIRECTION_UPLINK:
+            hs->common_stats.max_ul_ues_in_tti =
+                MAX(hs->common_stats.max_ul_ues_in_tti, si->ueInTTI);
+            break;
+        case DIRECTION_DOWNLINK:
+            hs->common_stats.max_dl_ues_in_tti =
+                MAX(hs->common_stats.max_dl_ues_in_tti, si->ueInTTI);
+            break;
     }
 
     /* For per-UE data, must create a new row if none already existing */
@@ -629,6 +647,12 @@ mac_lte_stat_draw(void *phs)
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
+
+    /* System data */
+    g_snprintf(buff, sizeof(buff), "Max UL UEs/TTI: %u", hs->common_stats.max_ul_ues_in_tti);
+    gtk_label_set_text(GTK_LABEL(hs->ul_max_ues_per_tti), buff);
+    g_snprintf(buff, sizeof(buff), "Max DL UEs/TTI: %u", hs->common_stats.max_dl_ues_in_tti);
+    gtk_label_set_text(GTK_LABEL(hs->dl_max_ues_per_tti), buff);
 
     /* Common channel data */
     g_snprintf(buff, sizeof(buff), "BCH Frames: %u", hs->common_stats.bch_frames);
@@ -924,10 +948,12 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkWidget     *bbox;
     GtkWidget     *top_level_vbox;
 
+    GtkWidget     *system_row_hbox;
     GtkWidget     *common_row_hbox;
     GtkWidget     *ues_vb;
     GtkWidget     *selected_ue_hb;
 
+    GtkWidget     *mac_lte_stat_system_lb;
     GtkWidget     *mac_lte_stat_common_channel_lb;
     GtkWidget     *mac_lte_stat_selected_ue_lb;
     GtkWidget     *selected_ue_vbox[NUM_CHANNEL_COLUMNS];
@@ -988,6 +1014,30 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
 
     gtk_container_set_border_width(GTK_CONTAINER(top_level_vbox), 6);
     gtk_widget_show(top_level_vbox);
+
+
+    /**********************************************/
+    /* System data                                */
+    /**********************************************/
+    mac_lte_stat_system_lb = gtk_frame_new("System Data");
+
+    /* Add max UEs/TTI counts in one row */
+    system_row_hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_system_lb), system_row_hbox);
+    gtk_container_set_border_width(GTK_CONTAINER(system_row_hbox), 5);
+
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_system_lb, FALSE, FALSE, 0);
+
+    /* Create labels (that will hold label and counter value) */
+    hs->ul_max_ues_per_tti = gtk_label_new("Max UL UEs/TTI:");
+    gtk_misc_set_alignment(GTK_MISC(hs->ul_max_ues_per_tti), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(system_row_hbox), hs->ul_max_ues_per_tti);
+    gtk_widget_show(hs->ul_max_ues_per_tti);
+
+    hs->dl_max_ues_per_tti = gtk_label_new("Max DL UEs/TTI:");
+    gtk_misc_set_alignment(GTK_MISC(hs->dl_max_ues_per_tti), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(system_row_hbox), hs->dl_max_ues_per_tti);
+    gtk_widget_show(hs->dl_max_ues_per_tti);
 
 
     /**********************************************/

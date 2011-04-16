@@ -2082,14 +2082,19 @@ typedef struct TTIInfoResult_t {
 static GHashTable *mac_lte_tti_info_result_hash = NULL;
 
 
-
-static void count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
+/* Work out which UE this is within TTI (within direction). Return answer */
+static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
 {
     gboolean same_tti = FALSE;
-    TTIInfoResult_t *result;
+    tti_info_t *tti_info;
+
+    /* Just return any previous result */
+    TTIInfoResult_t *result = g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    if (result != NULL) {
+        return result->ues_in_tti;
+    }
 
     /* Set tti_info based upon direction */
-    tti_info_t *tti_info;
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         tti_info = &UL_tti_info;
     }
@@ -2128,8 +2133,12 @@ static void count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     result->ues_in_tti = tti_info->ues_in_tti;
     g_hash_table_insert(mac_lte_tti_info_result_hash,
                         GUINT_TO_POINTER(pinfo->fd->num), result);
+
+    return tti_info->ues_in_tti;
 }
 
+
+/* Show which UE this is (within direction) for this TTI */
 static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuff_t *tvb, proto_tree *context_tree)
 {
     /* Look up result */
@@ -2178,9 +2187,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     volatile   guint32    is_truncated = FALSE;
 
     /* Maintain/show UEs/TTI count */
-    if (!pinfo->fd->flags.visited) {
-        count_ues_tti(p_mac_lte_info, pinfo);
-    }
+    tap_info->ueInTTI = count_ues_tti(p_mac_lte_info, pinfo);
     show_ues_tti(pinfo, p_mac_lte_info, tvb, context_tree);
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,

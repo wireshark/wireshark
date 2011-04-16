@@ -167,6 +167,7 @@ typedef struct mac_lte_tap_info {
     guint8   direction;
 
     guint8   isPHYRetx;
+    guint16  ueInTTI;
 
     nstime_t time;
 
