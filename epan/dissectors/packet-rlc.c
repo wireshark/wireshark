@@ -93,6 +93,7 @@ static int ett_rlc_sufi = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
+static dissector_handle_t bmc_handle;
 
 enum channel_type {
 	PCCH,
@@ -101,6 +102,7 @@ enum channel_type {
 	UL_DCCH,
 	DL_DCCH,
 	PS_DTCH,
+	DL_CTCH,
 };
 
 static const true_false_string rlc_ext_val = {
@@ -754,6 +756,10 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 		case DL_CCCH:
 			msgtype = RRC_MESSAGE_TYPE_DL_CCCH;
 			break;
+		case DL_CTCH:
+			msgtype = RRC_MESSAGE_TYPE_INVALID;
+			call_dissector(bmc_handle, tvb, pinfo, tree);
+			break;
 		case UL_DCCH:
 			msgtype = RRC_MESSAGE_TYPE_UL_DCCH;
 			break;
@@ -830,7 +836,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		}
 		/* add remaining data as fragment */
 		add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_length_remaining(tvb, offs), FALSE);
-		if (dissected == FALSE && check_col(pinfo->cinfo, COL_INFO))
+		if (dissected == FALSE)
 			col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment]");
 	}
 }
@@ -887,8 +893,7 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 					proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 				expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 					"Malformed Packet (Uses reserved LI)");
-				 if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+				col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 				return -1; /* just give up on this */
 			default:
 				/* since the LI is an offset (from the end of the header), it
@@ -902,8 +907,7 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 						proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 					expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 						"Malformed Packet (incorrect LI value)");
-					 if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+					col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 					return -1; /* just give up on this */
 				}
 				li[num_li].len = li[num_li].li - prev_li;
@@ -970,8 +974,7 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 	if (pinfo->fd->num == 0) return;
 	/* check for duplicates */
 	if (rlc_is_duplicate(RLC_UM, pinfo, seq, &orig_num) == TRUE) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment] [Duplicate]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment] [Duplicate]");
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
@@ -1062,8 +1065,7 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 					proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 				expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 					"Malformed Packet (invalid SUFI type)");
-		 		if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
 				return; /* invalid value, ignore the rest */
 		}
 	}
@@ -1091,8 +1093,7 @@ static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 			expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 				"Malformed Packet (invalid RLC AM control type %u)", type);
-		 	if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
 			return; /* invalid */
 	}
 }
@@ -1148,7 +1149,7 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 			next_tvb = NULL;
 		}
 	}
-	if (dissected == FALSE && check_col(pinfo->cinfo, COL_INFO))
+	if (dissected == FALSE)
 		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]");
 }
 
@@ -1169,8 +1170,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 	if (tree)
 		proto_tree_add_item(tree, hf_rlc_dc, tvb, 0, 1, FALSE);
 	if (dc == 0) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "RLC Control Frame");
+		col_set_str(pinfo->cinfo, COL_INFO, "RLC Control Frame");
 		dissect_rlc_control(tvb, pinfo, tree);
 		return;
 	}
@@ -1195,8 +1195,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 			proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 		expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 			"Malformed Packet (incorrect HE value)");
-		 if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 		return;
 	}
 
@@ -1222,8 +1221,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 	if (pinfo->fd->num == 0) return;
 	/* check for duplicates */
 	if (rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num) == TRUE) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]");
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
@@ -1235,10 +1233,8 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 static void dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *subtree = NULL;
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* PCCH is always RLC UM */
 	if (tree) {
@@ -1256,10 +1252,8 @@ static void dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item *ti = NULL;
 	proto_tree *subtree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	fpi = p_get_proto_data(pinfo->fd, proto_fp);
 	if (!fpi) return; /* dissection failure */
@@ -1280,6 +1274,29 @@ static void dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 }
 
+static void dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    fp_info *fpi;
+    proto_item *ti = NULL;
+    proto_tree *subtree = NULL;
+
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    fpi = p_get_proto_data(pinfo->fd, proto_fp);
+    if (!fpi) return; /* dissection failure */
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+        subtree = proto_item_add_subtree(ti, ett_rlc);
+    }
+
+    /* CTCH is always UM */
+    proto_item_append_text(ti, " UM (CTCH)");
+    dissect_rlc_um(DL_CTCH, tvb, pinfo, tree, subtree);
+}
+
 static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti = NULL;
@@ -1288,10 +1305,8 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	rlc_info *rlci;
 	enum channel_type channel;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	fpi = p_get_proto_data(pinfo->fd, proto_fp);
 	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
@@ -1324,10 +1339,8 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	fp_info *fpi;
 	rlc_info *rlci;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	fpi = p_get_proto_data(pinfo->fd, proto_fp);
 	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
@@ -1401,6 +1414,7 @@ proto_register_rlc(void)
 	proto_rlc = proto_register_protocol("RLC", "RLC", "rlc");
 	register_dissector("rlc.pcch", dissect_rlc_pcch, proto_rlc);
 	register_dissector("rlc.ccch", dissect_rlc_ccch, proto_rlc);
+	register_dissector("rlc.ctch", dissect_rlc_ctch, proto_rlc);
 	register_dissector("rlc.dcch", dissect_rlc_dcch, proto_rlc);
 	register_dissector("rlc.ps_dtch", dissect_rlc_ps_dtch, proto_rlc);
 
@@ -1415,4 +1429,5 @@ proto_reg_handoff_rlc(void)
 {
 	rrc_handle = find_dissector("rrc");
 	ip_handle = find_dissector("ip");
+	bmc_handle = find_dissector("bmc");
 }

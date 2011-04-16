@@ -55,6 +55,7 @@ static int ett_mac_hsdsch = -1;
 
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;
+static dissector_handle_t rlc_ctch_handle;
 static dissector_handle_t rlc_dcch_handle;
 static dissector_handle_t rlc_ps_dtch_handle;
 
@@ -387,8 +388,16 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					proto_item_append_text(ti, " (Unknown FACH Content");
 			}
 			break;
+        case TCTF_CTCH_FACH_FDD:
+            proto_item_append_text(ti, " (CTCH)");
+            channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_CTCH);
+            PROTO_ITEM_SET_GENERATED(channel_type);
+            /* CTCH over FACH is always octet aligned */
+            next_tvb = tvb_new_subset(tvb, 1, tvb_length_remaining(tvb, 1), -1);
+            call_dissector(rlc_ctch_handle, next_tvb, pinfo, tree);
+            break;
 		default:
-			proto_item_append_text(ti, " (Unknown FACH Content");
+            proto_item_append_text(ti, " (Unknown FACH Content)");
 	}
 }
 
@@ -601,6 +610,7 @@ proto_reg_handoff_umts_mac(void)
 {
 	rlc_pcch_handle = find_dissector("rlc.pcch");
 	rlc_ccch_handle = find_dissector("rlc.ccch");
+	rlc_ctch_handle = find_dissector("rlc.ctch");
 	rlc_dcch_handle = find_dissector("rlc.dcch");
 	rlc_ps_dtch_handle = find_dissector("rlc.ps_dtch");
 }

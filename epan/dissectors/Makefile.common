@@ -276,6 +276,7 @@ DISSECTOR_SRC = \
 	packet-bgp.c		\
 	packet-bittorrent.c 	\
 	packet-bjnp.c		\
+	packet-bmc.c		\
 	packet-bofl.c		\
 	packet-bootp.c		\
 	packet-bootparams.c	\
