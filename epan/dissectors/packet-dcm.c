@@ -5220,7 +5220,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	       so we should always hit this for a correct capture
 	    */
 
-	    if (pctx && pctx->abss_desc && g_str_has_suffix(pctx->abss_desc, "Storage")) {
+	    if (pctx->abss_desc && g_str_has_suffix(pctx->abss_desc, "Storage")) {
 		/* Should be done far more intelligent, e.g. does not catch the (Retired) ones */
 		if (flags == 0) {
 		    g_snprintf(desc_header, MAX_BUF_LEN, "%s Fragment", pctx->abss_desc);
@@ -6263,7 +6263,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (head && head->reassembled_in != pinfo->fd->num) {
 
-		    if (pdv && pdv->desc) {
+		    if (pdv->desc) {
 			/* We know the presentation context already */
 			g_snprintf(*pdv_description, MAX_BUF_LEN, "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
 		    }
