@@ -1649,8 +1649,7 @@ PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     if(!di->conformant_run){
         /* Append string to COL_INFO */
         if (param & PIDL_SET_COL_INFO) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
         }
         /* Save string to dcv->private_data */
         if((param & PIDL_STR_SAVE)
@@ -2399,10 +2398,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         hidden_item = proto_tree_add_boolean(dcerpc_tree, hf_dcerpc_unknown_if_id,
                                              tvb, offset, 0, TRUE);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " %s V%u",
-                             guids_resolve_uuid_to_str(&info->call_data->uuid), info->call_data->ver);
-        }
+        col_append_fstr (pinfo->cinfo, COL_INFO, " %s V%u",
+        guids_resolve_uuid_to_str(&info->call_data->uuid), info->call_data->ver);
 
         if (decrypted_tvb != NULL) {
             show_stub_data (decrypted_tvb, 0, dcerpc_tree, auth_info,
@@ -2424,10 +2421,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
+    col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
                       name, (info->ptype == PDU_REQ) ? "request" : "response");
-    }
 
     sub_dissect = (info->ptype == PDU_REQ) ?
         proc->dissect_rqst : proc->dissect_resp;
@@ -2559,8 +2554,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                                             "[Long frame (%d byte%s)]",
                                             remaining,
                                             plurality(remaining, "", "s"));
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                            col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
                                             "[Long frame (%d byte%s)]",
                                             remaining,
                                             plurality(remaining, "", "s"));
@@ -2936,13 +2930,11 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             g_hash_table_insert (dcerpc_binds, key, value);
         }
         if (!saw_ctx_item) {
-            if (check_col (pinfo->cinfo, COL_INFO)) {
-                if (num_ctx_items > 1)
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
+            if (num_ctx_items > 1)
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u",
-                                guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u",
+                            guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor);
             saw_ctx_item = TRUE;
         }
 
@@ -3046,21 +3038,19 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, &auth_info);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (num_results != 0) {
-            if (result == 0) {
-                /* XXX - only checks the last result */
-                col_append_fstr (pinfo->cinfo, COL_INFO,
-                                 " accept max_xmit: %u max_recv: %u",
-                                 max_xmit, max_recv);
-            } else {
-                /* XXX - only shows the last result and reason */
-                col_append_fstr (pinfo->cinfo, COL_INFO, " %s, reason: %s",
-                                 val_to_str(result, p_cont_result_vals,
-                                            "Unknown result (%u)"),
-                                 val_to_str(reason, p_provider_reason_vals,
-                                            "Unknown (%u)"));
-            }
+    if (num_results != 0) {
+        if (result == 0) {
+            /* XXX - only checks the last result */
+            col_append_fstr (pinfo->cinfo, COL_INFO,
+                             " accept max_xmit: %u max_recv: %u",
+                             max_xmit, max_recv);
+        } else {
+            /* XXX - only shows the last result and reason */
+            col_append_fstr (pinfo->cinfo, COL_INFO, " %s, reason: %s",
+                             val_to_str(result, p_cont_result_vals,
+                                        "Unknown result (%u)"),
+                             val_to_str(reason, p_provider_reason_vals,
+                                        "Unknown (%u)"));
         }
     }
 }
@@ -3077,10 +3067,8 @@ dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                     hdr->drep, hf_dcerpc_cn_reject_reason,
                                     &reason);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " reason: %s",
-                         val_to_str(reason, reject_reason_vals, "Unknown (%u)"));
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO, " reason: %s",
+                     val_to_str(reason, reject_reason_vals, "Unknown (%u)"));
 
     if (reason == PROTOCOL_VERSION_NOT_SUPPORTED) {
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -3106,21 +3094,13 @@ dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static const char *
 fragment_type(guint8 flags)
 {
-    flags = flags & PFC_FRAG_MASK;
-
-    if (flags == PFC_FIRST_FRAG)
-        return "first";
-
-    if (flags == 0)
-        return "middle";
-
-    if (flags == PFC_LAST_FRAG)
-        return "last";
-
-    if (flags == (PFC_FIRST_FRAG | PFC_LAST_FRAG))
-        return "whole";
-
-    return "unknown";
+    static const char* t[4] = {
+	"Mid",
+	"1st",
+	"Last",
+	"Single"
+    };
+    return t[flags & PFC_FRAG_MASK];
 }
 
 /* Dissect stub data (payload) of a DCERPC packet. */
@@ -3245,12 +3225,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
             pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
             hdr->drep, di, auth_info);
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " [DCE/RPC %s fragment]", fragment_type(hdr->flags));
-        }
-        expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
-                               "%s fragment", fragment_type(hdr->flags));
+	expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
+			       "%s fragment", fragment_type(hdr->flags));
+
         pinfo->fragmented = save_fragmented;
         return;
     }
@@ -3349,20 +3326,14 @@ end_cn_stub:
             if(parent_pi != NULL) {
                 proto_item_append_text(parent_pi, ", [Reas: #%u]", fd_head->reassembled_in);
             }
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO,
-                                " [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
             expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
                                    "%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
         }
     } else {
         /* Reassembly not complete - some fragments
            are missing.  Just show the stub data. */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " [DCE/RPC %s fragment]", fragment_type(hdr->flags));
-        }
         expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
                                "%s fragment", fragment_type(hdr->flags));
 
@@ -3469,10 +3440,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u ctx_id: %u",
-                         opnum, ctx_id);
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u ctx_id: %u",
+                     opnum, ctx_id);
 
     if (hdr->flags & PFC_OBJECT_UUID) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
@@ -3641,9 +3610,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " ctx_id: %u", ctx_id);
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO, " ctx_id: %u", ctx_id);
 
     offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_cancel_count, NULL);
@@ -3793,12 +3760,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
-                         " ctx_id: %u status: %s", ctx_id,
-                         val_to_str(status, reject_status_vals,
-                                    "Unknown (0x%08x)"));
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO,
+                     " ctx_id: %u status: %s", ctx_id,
+                     val_to_str(status, reject_status_vals,
+                                "Unknown (0x%08x)"));
 
     /* padding */
     offset += 4;
@@ -3921,8 +3886,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     }
                 } else {
                     /* PDU is fragmented and this isn't the first fragment */
-                    col_append_str(pinfo->cinfo, COL_INFO,
-                                   " [DCE/RPC fragment]");
                     if (dcerpc_tree) {
                         if (stub_length > 0) {
                             tvb_ensure_bytes_exist(tvb, offset, stub_length);
@@ -3954,8 +3917,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                               stub_length,
                                               TRUE);
                     }
-                    col_append_str(pinfo->cinfo, COL_INFO,
-                                   " [DCE/RPC fragment]");
                 } else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
                     if( value->rep_frame ){
                         fragment_data *fd_head;
@@ -3995,11 +3956,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                                          plurality(stub_length, "", "s"));
                                 }
                             }
-                        } else {
-                            /* Reassembly not complete - some fragments
-                               are missing */
-                            col_append_str(pinfo->cinfo, COL_INFO,
-                                           " [DCE/RPC fragment]");
                         }
                     }
                 } else {  /* MIDDLE fragment(s) */
@@ -4009,8 +3965,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                               stub_length,
                                               TRUE);
                     }
-                    col_append_str(pinfo->cinfo, COL_INFO,
-                                   " [DCE/RPC fragment]");
                 }
             }
         }
@@ -4394,14 +4348,12 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     hdr.call_id = dcerpc_tvb_get_ntohl (tvb, offset, hdr.drep);
     offset += 4;
 
-    if (check_col (pinfo->cinfo, COL_DCE_CALL)) {
-        if(pinfo->dcectxid == 0) {
-            col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
-        } else {
-            /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-             * prepend a delimiter */
-            col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "#%u", hdr.call_id);
-        }
+    if(pinfo->dcectxid == 0) {
+        col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
+    } else {
+        /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
+         * prepend a delimiter */
+        col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "#%u", hdr.call_id);
     }
 
     if (can_desegment && pinfo->can_desegment
@@ -4414,16 +4366,14 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if(pinfo->dcectxid != 0) {
-            /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-             * append a delimiter and set a column fence */
-            col_append_str (pinfo->cinfo, COL_INFO, " # ");
-            col_set_fence(pinfo->cinfo,COL_INFO);
-        }
-        col_add_fstr (pinfo->cinfo, COL_INFO, "%s: call_id: %u",
-                      pckt_vals[hdr.ptype].strptr, hdr.call_id);
+    if(pinfo->dcectxid != 0) {
+        /* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
+         * append a delimiter and set a column fence */
+        col_append_str (pinfo->cinfo, COL_INFO, " # ");
+        col_set_fence(pinfo->cinfo,COL_INFO);
     }
+    col_add_fstr (pinfo->cinfo, COL_INFO, "%s: call_id: %u",
+                  pckt_vals[hdr.ptype].strptr, hdr.call_id);
 
     if(pinfo->dcectxid != 0) {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU */
@@ -4455,7 +4405,9 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_WARN, "Bind not acknowledged");
 
     if (tree) {
-        proto_item_append_text(ti, " %s, Fragment:", val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"));
+        proto_item_append_text(ti, " %s, Fragment: %s",
+			       val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"),
+			       fragment_type(hdr.flags));
 
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_flags, tvb, offset, 1, hdr.flags);
         cn_flags_tree = proto_item_add_subtree (tf, ett_dcerpc_cn_flags);
@@ -4468,20 +4420,9 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
     proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
     proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
-    if( (hdr.flags & PFC_FIRST_FRAG) && (hdr.flags & PFC_LAST_FRAG) ) {
-        proto_item_append_text(ti, " Single");
-    } else {
-        if(hdr.flags & PFC_FIRST_FRAG) {
-            proto_item_append_text(ti, " 1st");
-        }
-        if(hdr.flags & PFC_LAST_FRAG) {
-            proto_item_append_text(ti, " Last");
-        }
-        if( !(hdr.flags & PFC_FIRST_FRAG) && !(hdr.flags & PFC_LAST_FRAG) ) {
-            proto_item_append_text(ti, " Mid");
-        }
-    }
     offset++;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment: %s", fragment_type(hdr.flags));
 
     if(dcerpc_tree){
         tf = proto_tree_add_bytes (dcerpc_tree, hf_dcerpc_drep, tvb, offset, 4, hdr.drep);
@@ -4684,7 +4625,7 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* if we had more than one Req/Resp in this PDU change the protocol column */
         /* this will formerly contain the last interface name, which may not be the same for all Req/Resp */
-        if (dcerpc_pdus >= 2 && check_col (pinfo->cinfo, COL_PROTOCOL))
+        if (dcerpc_pdus >= 2)
             col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "%u*DCERPC", dcerpc_pdus);
 
         if (pdu_len == 0) {
@@ -4869,10 +4810,8 @@ dissect_dcerpc_dg_fack (tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree,
                                         hdr->drep, hf_dcerpc_dg_fack_serial_num,
                                         &serial_num);
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
-                             serial_num);
-        }
+        col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
+                         serial_num);
         offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree,
                                         hdr->drep, hf_dcerpc_dg_fack_selack_len,
                                         &selack_len);
@@ -4897,11 +4836,9 @@ dissect_dcerpc_dg_reject_fault (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                     hdr->drep, hf_dcerpc_dg_status,
                                     &status);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
-                         ": status: %s",
-                         val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO,
+                     ": status: %s",
+                     val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 }
 
 static void
@@ -4916,9 +4853,8 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item *pi;
     proto_item *parent_pi;
 
-    if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u len: %u",
-                         di->call_data->opnum, hdr->frag_len );
+    col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u len: %u",
+                     di->call_data->opnum, hdr->frag_len );
 
     length = tvb_length_remaining (tvb, offset);
     reported_length = tvb_reported_length_remaining (tvb, offset);
@@ -4952,7 +4888,6 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 next_tvb, hdr->drep, di, NULL);
         } else {
             /* PDU is fragmented and this isn't the first fragment */
-            col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
             if (dcerpc_tree) {
                 if (length > 0) {
                     tvb_ensure_bytes_exist(tvb, offset, stub_length);
@@ -5005,14 +4940,9 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                 if(parent_pi != NULL) {
                     proto_item_append_text(parent_pi, ", [Reas: #%u]", fd_head->reassembled_in);
                 }
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                                    " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
             }
-        } else {
-            /* Reassembly isn't completed yet */
-            col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
         }
     }
     pinfo->fragmented = save_fragmented;
@@ -5195,8 +5125,7 @@ dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(parent_pi, ", [Req: #%u]", call_value->req_frame);
         }
 
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [req: #%u]", call_value->req_frame);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [req: #%u]", call_value->req_frame);
 
         nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &call_value->req_time);
         pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
@@ -5422,12 +5351,8 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_seqnum, tvb, offset, 4, hdr.seqnum);
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ": seq: %u", hdr.seqnum);
-    }
-    if (check_col (pinfo->cinfo, COL_DCE_CALL)) {
-        col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.seqnum);
-    }
+    col_append_fstr (pinfo->cinfo, COL_INFO, ": seq: %u", hdr.seqnum);
+    col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.seqnum);
     offset += 4;
 
     if (tree)
@@ -5448,12 +5373,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_frag_num, tvb, offset, 2, hdr.frag_num);
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (hdr.flags1 & PFCL1_FRAG) {
-            /* Fragmented - put the fragment number into the Info column */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " frag: %u",
-                             hdr.frag_num);
-        }
+    if (hdr.flags1 & PFCL1_FRAG) {
+        /* Fragmented - put the fragment number into the Info column */
+        col_append_fstr (pinfo->cinfo, COL_INFO, " frag: %u",
+                         hdr.frag_num);
     }
     offset += 2;
 
@@ -5463,12 +5386,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_serial_lo, tvb, offset, 1, hdr.serial_lo);
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (hdr.flags1 & PFCL1_FRAG) {
-            /* Fragmented - put the serial number into the Info column */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
-                             (hdr.serial_hi << 8) | hdr.serial_lo);
-        }
+    if (hdr.flags1 & PFCL1_FRAG) {
+        /* Fragmented - put the serial number into the Info column */
+        col_append_fstr (pinfo->cinfo, COL_INFO, " serial: %u",
+                         (hdr.serial_hi << 8) | hdr.serial_lo);
     }
     offset++;
 
