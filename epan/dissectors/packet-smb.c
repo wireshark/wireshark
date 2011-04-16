@@ -6159,7 +6159,9 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* File Size */
         /* We store the file_size in the fid_info */
-        fid_info->end_of_file=(guint64) tvb_get_letohl(tvb, offset);
+        if (fid_info) {
+                fid_info->end_of_file=(guint64) tvb_get_letohl(tvb, offset);
+        }
 	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -6174,7 +6176,9 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
            Try to remember the type of this fid so that we can dissect
            any future security descriptor (access mask) properly
          */
-        fid_info->type=SMB_FID_TYPE_UNKNOWN;
+        if (fid_info) {
+                fid_info->type=SMB_FID_TYPE_UNKNOWN;
+        }
         if(ftype==0){
                 if(isdir==0){
                         if(fid_info){
@@ -10194,7 +10198,9 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* end of file */
         /* We store the end of file */
-        fid_info->end_of_file=tvb_get_letoh64(tvb, offset);
+        if (fid_info) {
+                fid_info->end_of_file=tvb_get_letoh64(tvb, offset);
+        }
 	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
 	offset += 8;
 
