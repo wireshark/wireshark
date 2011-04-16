@@ -182,7 +182,7 @@ static const value_string rohc_var_len_vals[] =
 static guint32
 get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, guint8 *val_len){
 	guint8 oct;
-	guint32 val;
+	guint32 val = 0;
 	int num_bits = 0, bit_offset = offset <<3;
 
 	oct = tvb_get_guint8(tvb, offset);
