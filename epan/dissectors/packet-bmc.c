@@ -53,7 +53,6 @@ static int hf_bmc_message_description_type = -1;
 static int hf_bmc_offset_to_ctch_bs_index_of_first_transmission = -1;
 static int hf_bmc_broadcast_address = -1;
 static int hf_bmc_cb_data41 = -1;
-static int hf_bmc_cbs_schedule_message_extension = -1;
 static int hf_bmc_future_extension_bitmap = -1;
 static int hf_bmc_length_of_serial_number_list = -1;
 static int hf_bmc_ctch_bs_index = -1;
@@ -62,14 +61,14 @@ static int hf_bmc_ctch_bs_index = -1;
 #define MESSAGE_TYPE_SCHEDULE_MESSAGE   2
 #define MESSAGE_TYPE_CBS41_MESSAGE      3
 
-const static value_string message_type_vals[] = {
+static const value_string message_type_vals[] = {
     {MESSAGE_TYPE_CBS_MESSAGE, "CBS Message"},
     {MESSAGE_TYPE_SCHEDULE_MESSAGE, "Schedule Message"},
     {MESSAGE_TYPE_CBS41_MESSAGE, "CBS41 Message"},
     {0, NULL}
 };
 
-const static value_string message_description_type_vals[] = {
+static const value_string message_description_type_vals[] = {
     {0, "Repetition of new BMC CBS message within schedule period"},
     {1, "New BMC CBS message (a BMC CBS message never previously sent)"},
     {2, "Reading advised"},
@@ -142,7 +141,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return offset;
 }
 
-static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=1;
     
@@ -161,7 +160,7 @@ static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return offset;
 }
 
-static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=1, i, bitmap_offset, saved_offset;
     guint8 new_message_bitmap_len;
@@ -196,7 +195,7 @@ static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto
     bit=1;
     for (i=0; i<new_message_bitmap_len; i++) {
         byte = tvb_get_guint8(tvb,bitmap_offset+i);
-        for(mask=1; mask, bit<=length_of_cbs_schedule_period; mask<<=1, bit++) {
+        for(mask=1; bit<=length_of_cbs_schedule_period; mask<<=1, bit++) {
             message_description_type = tvb_get_guint8(tvb,offset);
             proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type, tvb, offset, 1, message_description_type, "Message %d Message Description Type: %s (%d)", bit, val_to_str(message_description_type, message_description_type_vals,"Unknown"), message_description_type);
             offset += 1;
@@ -235,7 +234,7 @@ static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto
     return offset;
 }
 
-static int dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=1;
     
@@ -335,7 +334,7 @@ proto_register_bmc(void)
     };
 
     proto_bmc = proto_register_protocol("Broadcast/Multicast Control", "BMC", "bmc");
-    register_dissector("bmc", dissect_bmc, proto_bmc);
+    new_register_dissector("bmc", dissect_bmc, proto_bmc);
 
     proto_register_field_array(proto_bmc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
