@@ -524,7 +524,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* look up the key */
       f_info = (struct imf_field *)g_hash_table_lookup(imf_field_table, key);
 
-      if(f_info == (struct imf_field *)NULL) {
+      if(f_info == NULL) {
         /* set as an unknown extension */
         f_info = imf_fields;
         unknown_offset = start_offset;
@@ -582,7 +582,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_imf_content_type(tvb, start_offset, end_offset - start_offset, item,
                                  &content_type_str, &parameters);
 
-      } else if(f_info && f_info->subdissector) {
+      } else if(f_info->subdissector) {
 
         /* we have a subdissector */
         f_info->subdissector(tvb, value_offset, end_offset - value_offset, item);
