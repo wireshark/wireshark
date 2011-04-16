@@ -5880,8 +5880,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   }
 
   /* Compose the content of the 'summary' column */
-  if ((pinfo != NULL) && (pinfo->cinfo != NULL) &&
-      (check_col(pinfo->cinfo, COL_INFO))) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     emem_strbuf_t *info_buf = ep_strbuf_new_label(NULL);
     struct SMCounterRecord *smcr_ptr = smcr_head;
 

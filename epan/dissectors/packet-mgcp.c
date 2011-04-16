@@ -1733,7 +1733,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					/* Store it */
 					g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
 				}
-				if (mgcp_call && mgcp_call->rsp_num)
+				if (mgcp_call->rsp_num)
 				{
 					proto_item* item = proto_tree_add_uint_format(tree, hf_mgcp_rsp_frame,
 					                                              tvb, 0, 0, mgcp_call->rsp_num,

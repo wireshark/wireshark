@@ -1486,7 +1486,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Store it */
 				g_hash_table_insert(radius_calls, new_radius_call_key, radius_call);
 			}
-			if (tree && radius_call && radius_call->rsp_num)
+			if (tree && radius_call->rsp_num)
 			{
 				proto_item* item;
 				item = proto_tree_add_uint_format(radius_tree,
