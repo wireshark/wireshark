@@ -807,7 +807,7 @@ DISSECTOR_SRC = \
 	packet-rip.c		\
 	packet-ripng.c		\
 	packet-rlc.c		\
-	packet-rlc-lte.c		\
+	packet-rlc-lte.c	\
 	packet-rlm.c		\
 	packet-rlogin.c		\
 	packet-rmcp.c		\
@@ -818,6 +818,7 @@ DISSECTOR_SRC = \
 	packet-rmt-fec.c	\
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
+	packet-rohc.c		\
 	packet-roofnet.c 	\
 	packet-rpc.c		\
 	packet-rpcap.c		\
@@ -931,8 +932,8 @@ DISSECTOR_SRC = \
 	packet-tns.c		\
 	packet-tpkt.c		\
 	packet-tpncp.c		\
-	packet-tr.c		\
-	packet-trill.c          \
+	packet-tr.c			\
+	packet-trill.c      \
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-tte.c		\
