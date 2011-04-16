@@ -1082,6 +1082,10 @@ static int      hf_cflow_post_vlanid		 = -1;
 static int      hf_cflow_ipv6_exthdr		 = -1;
 static int      hf_cflow_dstmac			 = -1;
 static int      hf_cflow_post_srcmac		 = -1;
+static int	hf_cflow_permanent_packets	 = -1;
+static int	hf_cflow_permanent_packets64	 = -1;
+static int	hf_cflow_permanent_octets	 = -1;
+static int	hf_cflow_permanent_octets64	 = -1;
 static int      hf_cflow_fragment_offset	 = -1;
 static int      hf_cflow_mpls_vpn_rd		 = -1;
 static int	hf_cflow_mpls_top_label_prefix_length = -1; /* ID: 91 */
@@ -2400,7 +2404,6 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		ti = NULL;
 		switch (pen_type) {
 
-		case 85: /* BYTES_PERMANENT */
 		case 1: /* bytes */
 			if (length == 4) {
 				ti = proto_tree_add_item(pdutree, hf_cflow_octets,
@@ -2415,7 +2418,6 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			}
 			break;
 
-		case 86: /* PACKETS_PERMANENT */
 		case 2: /* packets */
 			if (length == 4) {
 				ti = proto_tree_add_item(pdutree, hf_cflow_packets,
@@ -3033,6 +3035,34 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case 84: /* SAMPLER_NAME  */
 			ti = proto_tree_add_item(pdutree, hf_cflow_sampler_name,
 			    tvb, offset, length, ENC_NA);
+			break;
+
+		case 85: /* BYTES_PERMANENT */
+			if (length == 4) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_permanent_octets,
+				    tvb, offset, length, ENC_BIG_ENDIAN);
+			} else if (length == 8) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_permanent_octets64,
+				    tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				ti = proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "Running Octets: length %u", length);
+			}
+			break;
+
+		case 86: /* PACKETS_PERMANENT */
+			if (length == 4) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_permanent_packets,
+				    tvb, offset, length, ENC_BIG_ENDIAN);
+			} else if (length == 8) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_permanent_packets64,
+				    tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				ti = proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "Running Packets: length %u", length);
+			}
 			break;
 
 		case 88: /* fragmentOffset */
@@ -6001,6 +6031,26 @@ proto_register_netflow(void)
 		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
+		{&hf_cflow_permanent_packets, 
+		 {"Permanent Packets", "cflow.permanent_packets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Running Count of packets for permanent flows", HFILL}
+		 },
+		{&hf_cflow_permanent_packets64,
+		 {"Permanent Packets", "cflow.permanent_packets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Running Count of packets for permanent flows", HFILL}
+		 },
+		{&hf_cflow_permanent_octets,
+		 {"Permanent Octets", "cflow.permanent_octets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Running Count of bytes for permanent flows", HFILL}
+		 },
+		{&hf_cflow_permanent_octets64,
+		 {"Permanent Octets", "cflow.permanent_octets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Running Count of bytes for permanent flows", HFILL}
+		 },
 		{&hf_cflow_fragment_offset,
 		 {"Fragment Offset", "cflow.fragment_offset",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
