@@ -480,7 +480,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *rohc_tree, *ir_tree, *sub_tree;	
 	int offset = 0, length, x_bit_offset;
 	guint8 oct, code, size , cid, profile;
-	gint16 feedback_data_len;
+	gint16 feedback_data_len = 0;
 	gboolean is_add_cid = FALSE, d = FALSE;
 
 	length = tvb_length(tvb);
