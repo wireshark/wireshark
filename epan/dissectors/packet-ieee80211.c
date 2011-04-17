@@ -2024,6 +2024,8 @@ static int hf_ieee80211_tspec_surplus = -1;
 static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_ts_delay = -1;
 static int hf_ieee80211_tclas_process = -1;
+static int hf_ieee80211_tag_qos_cap_qos_info = -1;
+static int hf_ieee80211_tag_ext_supp_rates = -1;
 static int hf_ieee80211_sched_info = -1;
 static int hf_ieee80211_sched_info_agg = -1;
 static int hf_ieee80211_sched_info_tsid = -1;
@@ -5087,7 +5089,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
   }
 }
 /* 7.3.2.25 RSN information element */
-static void
+static int
 dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
   proto_item *rsn_gcs_item, *rsn_pcs_item, *rsn_akms_item, *rsn_cap_item, *rsn_pmkid_item, *rsn_gmcs_item;
@@ -5173,7 +5175,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   offset += 2;
   if(offset >= tag_end)
   {
-    return;
+    return offset;
   }
   /* 7.3.2.25.4 PMKID */
   proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5190,7 +5192,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 
   if(offset >= tag_end)
   {
-    return;
+    return offset;
   }
   /* Group Management Cipher Suite (802.11w)*/
   rsn_gmcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gmcs, tvb, offset, 4, FALSE);
@@ -5205,6 +5207,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   }
   offset += 4;
 
+  return offset;
 }
 
 static void
@@ -6289,7 +6292,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
 
     case TAG_SUPP_RATES: /* 7.3.2.2 Supported Rates element (1) */
-    case TAG_EXT_SUPP_RATES:
       if(tag_len < 1)
       {
         expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
@@ -7363,6 +7365,128 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;
       break;
 
+    case TAG_QOS_CAPABILITY: /* 7.3.2.35 QoS Capability element (46) */
+      if (tag_len != 1)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        break;
+      }
+      {
+        /* proto_item *ti_cap;
+        proto_tree *cap_tree; */
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_ieee80211_tag_qos_cap_qos_info, tvb, offset, 1, ENC_NA);
+        /* TODO : Add detail of QoS Info Field 7.3.1.17 QoS Info field ) */
+        offset += 1;
+      }
+      break;
+
+    case TAG_RSN_IE: /* 7.3.2.25 RSN information element (48) */
+      if (tag_len < 24)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 24", tag_len);
+        break;
+      }
+      offset += 2;
+
+      offset = dissect_rsn_ie(tree, tvb, offset, tag_len);
+      break;
+
+    case TAG_EXT_SUPP_RATES: /* 7.3.2.14 Extended Supported Rates element (50) */
+      if(tag_len < 1)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
+        break;
+      }
+      offset += 2;
+
+      while(offset < tag_end)
+      {
+        proto_tree_add_item(tree, hf_ieee80211_tag_ext_supp_rates, tvb, offset, 1, ENC_NA);
+        proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
+        offset += 1;
+      }
+      proto_item_append_text(ti, " [Mbit/sec]");
+      break;
+
+    case TAG_EXTENDED_CAPABILITIES: /* 7.3.2.27 Extended Capabilities information element (127) */
+    {
+      proto_item *ti_ex_cap;
+      proto_tree *ex_cap_tree;
+
+      if (tag_len < 1)
+      {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
+        break;
+      }
+      offset += 2;
+
+      /* Extended Capability octet 0 */
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 0)");
+      ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_ex_cap);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b0, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b1, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b2, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b3, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b4, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b6, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      /* Extended Capability octet 1 */
+      if (offset > tag_end) {
+        return offset;
+      }
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 1)");
+      offset += 1;
+
+      /* Extended Capability octet 2 */
+      if (offset > tag_end) {
+        return offset;
+      }
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 2)");
+      offset += 1;
+
+      /* Extended Capability octet 3 */
+      if (offset > tag_end) {
+        return offset;
+      }
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 3)");
+      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b28, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b29, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b30, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      /* Extended Capability octet 4 */
+      if (offset > tag_end) {
+        return offset;
+      }
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 4)");
+      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b37, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b38, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b39, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      /* Extended Capability octet 5 */
+      if (offset > tag_end) {
+        return offset;
+      }
+      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+      proto_item_append_text(ti_ex_cap, " (octet 5)");
+      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b40, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_serv_int_granularity, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      break;
+
     case TAG_CISCO_CCX1_CKIP:
       /* From WCS manual:
        * If Aironet IE support is enabled, the access point sends an Aironet
@@ -7455,10 +7579,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       break;
 
-    case TAG_RSN_IE:
-      /* Add Expert Info to check tag_len ? */
-      dissect_rsn_ie(tree, tvb, offset + 2, tag_len);
-      break;
+
 
     case TAG_MOBILITY_DOMAIN:
       dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
@@ -7629,94 +7750,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
 #endif /* MESH_OVERRIDES */
 
-      break;
-    /* The Capabilities field is a bit field indicating the capabilities being advertised
-     * by the STA transmitting the information element
-     */
-    case TAG_EXTENDED_CAPABILITIES:
-    {
-      guint tag_offset;
-      guint8 info_exchange;
-      proto_item *tii;
-      proto_tree *ex_cap_tree;
-
-      if (tag_len < 1)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Extended Capabilities: Error: Tag length must be at least 1 byte long");
-        break;
-      }
-      offset+=2;
-      tag_offset = offset;
-
-      /* Extended Capability octet 0 */
-      info_exchange = tvb_get_guint8 (tvb, offset);
-      tii = proto_tree_add_item (tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, FALSE);
-      ex_cap_tree = proto_item_add_subtree (tii, ett_tag_ex_cap);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b0, tvb, offset, 1, FALSE);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b3, tvb, offset, 1, FALSE);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b4, tvb, offset, 1, FALSE);
-      proto_tree_add_item (ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b6, tvb, offset, 1, FALSE);
-      offset++;
-
-      if (tag_len > offset - tag_offset) {
-        /* Extended Capability octet 1 */
-        offset++;
-      }
-
-      if (tag_len > offset - tag_offset) {
-        /* Extended Capability octet 2 */
-        offset++;
-      }
-
-      if (tag_len > offset - tag_offset) {
-        /* Extended Capability octet 3 */
-        tii = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb,
-                                  offset, 1, FALSE);
-        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b28,
-                            tvb, offset, 1, FALSE);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b29,
-                            tvb, offset, 1, FALSE);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b30,
-                            tvb, offset, 1, FALSE);
-        offset++;
-      }
-
-      if (tag_len > offset - tag_offset) {
-        /* Extended Capability octet 4 */
-        tii = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb,
-                                  offset, 1, FALSE);
-        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b37,
-                            tvb, offset, 1, FALSE);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b38,
-                            tvb, offset, 1, FALSE);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b39,
-                            tvb, offset, 1, FALSE);
-        offset++;
-      }
-
-      if (tag_len > offset - tag_offset) {
-        /* Extended Capability octet 5 */
-        tii = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb,
-                                  offset, 1, FALSE);
-        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
-        proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b40,
-                            tvb, offset, 1, FALSE);
-        proto_tree_add_item(ex_cap_tree,
-                            hf_ieee80211_tag_extended_capabilities_serv_int_granularity,
-                            tvb, offset, 1, FALSE);
-        offset++;
-      }
-
-      if (tag_len > (offset - tag_offset))
-      {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
-        break;
-      }
       break;
     }
     case TAG_ADVERTISEMENT_PROTOCOL:
@@ -13917,12 +13950,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_supported_channels_first,
      {"First Supported Channel", "wlan_mgt.supchan.first",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_channels_range,
      {"Supported Channel Range", "wlan_mgt.supchan.range",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_csa_channel_switch_mode,
@@ -14724,7 +14757,16 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tclas_process,
      {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
-      VALS (ieee80211_tclas_process_flag), 0, "TCLAS Processing", HFILL }},
+      VALS(ieee80211_tclas_process_flag), 0, "TCLAS Processing", HFILL }},
+
+    {&hf_ieee80211_tag_qos_cap_qos_info,
+     {"QoS Info", "wlan_mgt.tag.qos_cap.qos_info", FT_UINT8, BASE_HEX,
+      NULL, 0, "TCLAS Processing", HFILL }},
+
+    {&hf_ieee80211_tag_ext_supp_rates,
+     {"Extented Supported Rates", "wlan_mgt.extented_supported_rates",
+      FT_UINT8, BASE_NONE, VALS(ieee80211_supported_rates_vals), 0x0,
+      "In Mbit/sec, (B) for Basic Rates", HFILL }},
 
     {&hf_ieee80211_sched_info,
      {"Schedule Info", "wlan_mgt.sched.sched_info",
