@@ -2622,8 +2622,6 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, FALSE);
     acn_tree = proto_item_add_subtree(ti, ett_acn);
 
-    pdu_offsets.start = data_offset;
-
     /* add preamble, postamble and ACN Packet ID */
     proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, FALSE);
     data_offset += 2;
