@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-04-06)
+(last updated 2011-04-14)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -4580,7 +4580,7 @@ tunstall-pnc    1846/udp    Tunstall PNC
 #                           Robert M. Moore <robert.moore&tunstall.co.uk>
 slp-notify      1847/tcp    SLP Notification
 slp-notify      1847/udp    SLP Notification
-#                           James Kempf <james.kempf&sun.com> 
+#                           [RFC3082] 
 fjdocdist       1848/tcp    fjdocdist
 fjdocdist       1848/udp    fjdocdist
 #                           Yuichi Ohiwa <y-ohiwa&ael.fujitsu.co.jp>
@@ -16962,6 +16962,9 @@ References
 [RFC3077]  Duros, E., W. Dabbous, H. Izumiyama, N. Fujii, and Y. Zhang,
            "A Link-Layer Tunneling Mechanism for Unidirectional Links",
            RFC 3077, March 2001.
+
+[RFC3082]  J. Kempf, J. Goldschmidt, "Notification and Subscription for SLP",
+		   RFC 3082, March 2001
 
 [RFC3340]  M. Rose, G. Klyne, and D. Crocker, "The Application 
            Exchange Core", RFC 3340, July 2002.
