@@ -542,6 +542,12 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
 static gboolean global_mac_lte_attempt_srb_decode = TRUE;
 
+/* Where to take LCID -> DRB mappings from */
+enum lcid_drb_source {
+    FromStaticTable, FromConfigurationProtocol
+};
+static gint global_mac_lte_lcid_drb_source = (gint)FromStaticTable;
+
 /* Whether should attempt to track UL HARQ resends */
 static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
 
@@ -595,9 +601,9 @@ static const value_string rlc_channel_type_vals[] = {
 
 
 /* Mapping type */
-typedef struct drb_mapping_t {
+typedef struct lcid_drb_mapping_t {
     guint16 lcid;
-    gint drbid;
+    gint    drbid;
     rlc_channel_type_t channel_type;
 } lcid_drb_mapping_t;
 
@@ -611,6 +617,17 @@ UAT_VS_DEF(lcid_drb_mappings, channel_type, lcid_drb_mapping_t, 2, "AM")
 
 /* UAT object */
 static uat_t* lcid_drb_mappings_uat;
+
+/* Dynamic mappings (set by configuration protocol)
+   LCID is the index into the array of these */
+typedef struct dynamic_lcid_drb_mapping_t {
+    gboolean valid;
+    gint     drbid;
+    rlc_channel_type_t channel_type;
+} dynamic_lcid_drb_mapping_t;
+
+static dynamic_lcid_drb_mapping_t dynamic_lcid_drb_mapping[11];
+
 
 extern int proto_rlc_lte;
 
@@ -2155,6 +2172,70 @@ static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuf
 
 
 
+/* Lookup channel details for lcid */
+static void lookup_rlc_channel_from_lcid(guint8 lcid,
+                                         rlc_channel_type_t *rlc_channel_type,
+                                         guint8 *UM_seqnum_length,
+                                         gint *drb_id)
+{
+    /* Zero params (in case no match is found) */
+    *rlc_channel_type = rlcRaw;
+    *UM_seqnum_length = 0;
+    *drb_id = 0;
+
+    if (global_mac_lte_lcid_drb_source == (int)FromStaticTable) {
+
+        /* Look up in static (UAT) table */
+        guint m;
+        for (m=0; m < num_lcid_drb_mappings; m++) {
+            if (lcid == lcid_drb_mappings[m].lcid) {
+
+                *rlc_channel_type = lcid_drb_mappings[m].channel_type;
+
+                /* Set UM_seqnum_length */
+                switch (*rlc_channel_type) {
+                    case rlcUM5:
+                        *UM_seqnum_length = 5;
+                        break;
+                    case rlcUM10:
+                        *UM_seqnum_length = 10;
+                        break;
+                    default:
+                        break;
+                }
+
+                /* Set drb_id */
+                *drb_id = lcid_drb_mappings[m].drbid;
+                break;
+            }
+        }
+    }
+    else {
+        /* Look up setting gleaned from configuration protocol */
+        if (!dynamic_lcid_drb_mapping[lcid].valid) {
+            return;
+        }
+
+        *rlc_channel_type = dynamic_lcid_drb_mapping[lcid].channel_type;
+
+        /* Set UM_seqnum_length */
+        switch (*rlc_channel_type) {
+            case rlcUM5:
+                *UM_seqnum_length = 5;
+                break;
+            case rlcUM10:
+                *UM_seqnum_length = 10;
+                break;
+            default:
+                break;
+        }
+
+        /* Set drb_id */
+        *drb_id = dynamic_lcid_drb_mapping[lcid].drbid;
+    }
+}
+
+
 
 #define MAX_HEADERS_IN_PDU 1024
 
@@ -2881,33 +2962,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         else if ((lcids[n] >= 2) && (lcids[n] <= 10)) {
 
             /* Look for mapping for this LCID to drb channel set by UAT table */
-            rlc_channel_type_t rlc_channel_type = rlcRaw;
-            guint8 UM_seqnum_length = 0;
-            gint drb_id = 0;
+            rlc_channel_type_t rlc_channel_type;
+            guint8 UM_seqnum_length;
+            gint drb_id;
 
-            guint m;
-            for (m=0; m < num_lcid_drb_mappings; m++) {
-                if (lcids[n] == lcid_drb_mappings[m].lcid) {
-
-                    rlc_channel_type = lcid_drb_mappings[m].channel_type;
-
-                    /* Set UM_seqnum_length */
-                    switch (lcid_drb_mappings[m].channel_type) {
-                        case rlcUM5:
-                            UM_seqnum_length = 5;
-                            break;
-                        case rlcUM10:
-                            UM_seqnum_length = 10;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    /* Set drb_id */
-                    drb_id = lcid_drb_mappings[m].drbid;
-                    break;
-                }
-            }
+            lookup_rlc_channel_from_lcid(lcids[n],
+                                         &rlc_channel_type,
+                                         &UM_seqnum_length,
+                                         &drb_id);
 
             /* Dissect according to channel type */
             switch (rlc_channel_type) {
@@ -4162,6 +4224,13 @@ void proto_register_mac_lte(void)
         {NULL, NULL, -1}
     };
 
+    static enum_val_t lcid_drb_source_vals[] = {
+        {"from-static-stable",          "From static table",           FromStaticTable},
+        {"from-configuration-protocol", "From configuration protocol", FromConfigurationProtocol},
+        {NULL, NULL, -1}
+    };
+
+
     module_t *mac_lte_module;
 
     static uat_field_t lcid_drb_mapping_flds[] = {
@@ -4218,19 +4287,25 @@ void proto_register_mac_lte(void)
         "Will call LTE RLC dissector with standard settings as per RRC spec",
         &global_mac_lte_attempt_srb_decode);
 
-    lcid_drb_mappings_uat = uat_new("LCID -> drb Table",
-                               sizeof(lcid_drb_mapping_t),
-                               "drb_logchans",
-                               TRUE,
-                               (void*) &lcid_drb_mappings,
-                               &num_lcid_drb_mappings,
-                               UAT_CAT_FFMT,
-                               "",  /* TODO: is this ref to help manual? */
-                               lcid_drb_mapping_copy_cb,
-                               NULL,
-                               NULL,
-                               NULL,
-                               lcid_drb_mapping_flds );
+    prefs_register_enum_preference(mac_lte_module, "lcid_to_drb_mapping_source",
+        "Source of LCID -> drb channel settings",
+        "Set whether LCID -> drb Table is taken from static table (below) or from "
+        "info learned from control protocol (e.g. RRC)",
+        &global_mac_lte_lcid_drb_source, lcid_drb_source_vals, FALSE);
+
+    lcid_drb_mappings_uat = uat_new("Static LCID -> drb Table",
+                                    sizeof(lcid_drb_mapping_t),
+                                    "drb_logchans",
+                                    TRUE,
+                                    (void*) &lcid_drb_mappings,
+                                    &num_lcid_drb_mappings,
+                                    UAT_CAT_FFMT,
+                                    "",  /* TODO: is this ref to help manual? */
+                                    lcid_drb_mapping_copy_cb,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    lcid_drb_mapping_flds );
 
     prefs_register_uat_preference(mac_lte_module,
                                   "drb_table",
@@ -4261,6 +4336,43 @@ void proto_register_mac_lte(void)
     register_init_routine(&mac_lte_init_protocol);
 }
 
+
+/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar).
+   TODO: not using UEID yet - assume all UEs configured identically... */
+void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
+                                 guint8 srbid, guint8 drbid,
+                                 guint8  rlcMode, guint8 um_sn_length)
+{
+    /* Don't bother setting srb details - we just assume AM */
+    if (srbid != 0) {
+        return;
+    }
+
+    /* Ignore if LCID is out of range */
+    if ((lcid < 3) || (lcid > 10)) {
+        return;
+    }
+
+    /* Set array entry */
+    dynamic_lcid_drb_mapping[lcid].valid = TRUE;
+    dynamic_lcid_drb_mapping[lcid].drbid = drbid;
+    switch (rlcMode) {
+        case RLC_AM_MODE:
+            dynamic_lcid_drb_mapping[lcid].channel_type = rlcAM;
+            break;
+        case RLC_UM_MODE:
+            if (um_sn_length == 5) {
+                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM5;
+            }
+            else {
+                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM10;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
 mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)
