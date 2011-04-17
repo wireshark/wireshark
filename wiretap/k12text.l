@@ -395,7 +395,7 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 
 
 gboolean
-k12text_dump_open(wtap_dumper *wdh, int *err)
+k12text_dump_open(wtap_dumper *wdh, int *err _U_)
 {
     wdh->subtype_write = k12text_dump;
 
