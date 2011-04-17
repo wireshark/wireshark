@@ -947,12 +947,11 @@ ansi_a_so_int_to_str(
  * IOS 6.2.2.6
  */
 static guint8
-elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
