@@ -402,7 +402,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (computed_cksum == 0) {
 	  proto_item_append_text(it_checksum," [correct]");
 	} else {
-	  proto_item_append_text(it_checksum," [incorrect, shoubl be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
+	  proto_item_append_text(it_checksum," [incorrect, should be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
 	   expert_add_info_format(pinfo, it_checksum, PI_MALFORMED, PI_WARN, "Incorrect GRE Checksum");
 	}
       } 
@@ -448,21 +448,21 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         r_tree = proto_item_add_subtree(ti, ett_gre_routing);
 
         sre_af = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(gre_tree, hf_gre_routing_address_family , tvb, offset, 2, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_address_family , tvb, offset, 2, FALSE);
         offset += 2;
 
-        proto_tree_add_item(gre_tree, hf_gre_routing_sre_offset , tvb, offset, 1, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_sre_offset , tvb, offset, 1, FALSE);
         offset += 1;
 
         sre_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(gre_tree, hf_gre_routing_sre_length , tvb, offset, 1, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, FALSE);
         offset += 1;
 	
 	proto_item_set_len(it_routing, 2 + 1 +1 + sre_length);
         if (sre_af == 0 && sre_length == 0)
 	  break;
 
-        proto_tree_add_item(gre_tree, hf_gre_routing_information , tvb, offset, sre_length, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_information , tvb, offset, sre_length, FALSE);
        	offset += sre_length;
       }
     }
