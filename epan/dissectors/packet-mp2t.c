@@ -417,7 +417,10 @@ mp2t_depi_docsis_process_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     "DOCSIS MAC Frame: %u bytes", mac_frame_len);
                 dmpt_tree = proto_item_add_subtree(ti, ett_dmpt);
                 next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-                call_dissector(docsis_handle, next_tvb, pinfo, dmpt_tree);
+                if (docsis_handle)
+                    call_dissector(docsis_handle, next_tvb, pinfo, dmpt_tree);
+                else
+                    call_dissector(data_handle, next_tvb, pinfo, dmpt_tree);
 
                 offset += mac_frame_len;
                 remaining_length -= mac_frame_len;
