@@ -61,14 +61,16 @@ static gint global_rlc_lte_um_sequence_analysis = FALSE;
 /* By default don't call PDCP/RRC dissectors for SDU data */
 static gboolean global_rlc_lte_call_pdcp_for_srb = FALSE;
 
-enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12};
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled};
 static enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-off",   "Off",       PDCP_drb_off},
     {"pdcp-drb-sn-7",  "7-bit SN",  PDCP_drb_SN_7},
     {"pdcp-drb-sn-12", "12-bit SN", PDCP_drb_SN_12},
+    {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
 static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_off;
+static gint signalled_pdcp_sn_bits = 12;
 
 static gboolean global_rlc_lte_call_rrc = FALSE;
 
@@ -530,6 +532,11 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                 case PDCP_drb_SN_12:
                     p_pdcp_lte_info->seqnum_length = 12;
                     break;
+                case PDCP_drb_SN_signalled:
+                    /* Use whatever was signalled (e.g. in RRC) */
+                    p_pdcp_lte_info->seqnum_length = signalled_pdcp_sn_bits;
+                    break;
+
                 default:
                     DISSECTOR_ASSERT(FALSE);
                     break;
@@ -2130,6 +2137,13 @@ rlc_lte_init_protocol(void)
     rlc_lte_frame_repeated_nack_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
 }
 
+
+/* Configure number of PDCP SN bits to use for DRB channels.
+   TODO: currently assume all UEs/Channels will use the same length... */
+void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid _U_, guint8 drbid _U_, guint8 userplane_seqnum_length)
+{
+    signalled_pdcp_sn_bits = userplane_seqnum_length;
+}
 
 
 

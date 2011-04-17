@@ -84,6 +84,9 @@ typedef struct rlc_lte_tap_info {
 } rlc_lte_tap_info;
 
 
+/* Configure number of PDCP SN bits to use for DRB channels. */
+void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid, guint8 drbid, guint8 userplane_seqnum_length);
+
 
 /*****************************************************************/
 /* UDP framing format                                            */
