@@ -338,9 +338,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    hdr_offset = 0;
     ncp_hdr = &header;
-    commhdr = hdr_offset;
 
     ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
     ncp_tree = proto_item_add_subtree(ti, ett_ncp);
