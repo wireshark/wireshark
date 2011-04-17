@@ -576,7 +576,7 @@ void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(subtree, hf_siii_at_svch_busy, tvb, 0, 2, TRUE);
   proto_tree_add_item(subtree, hf_siii_at_svch_ahs, tvb, 0, 2, TRUE);
 
-  ti = proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, TRUE);
+  proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, TRUE);
 }
 
 void dissect_siii_svc_init(gint proto_siii)

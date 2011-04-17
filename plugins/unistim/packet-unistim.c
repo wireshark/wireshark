@@ -516,11 +516,10 @@ static gint
 dissect_basic_phone(proto_tree *msg_tree,
                     tvbuff_t *tvb,gint offset, guint msg_len){
    guint basic_cmd;
-   proto_item *ti;
 
    basic_cmd=tvb_get_guint8(tvb,offset);
 
-   ti=proto_tree_add_item(msg_tree,hf_basic_phone_cmd,tvb,offset,1,FALSE);
+   proto_tree_add_item(msg_tree,hf_basic_phone_cmd,tvb,offset,1,FALSE);
 
    offset+=1;msg_len-=1;
    switch(basic_cmd){

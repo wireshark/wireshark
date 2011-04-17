@@ -111,9 +111,6 @@ static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
-  proto_item* ti;
-  proto_tree* subtree_svc;
-  proto_tree* subtree_devstat;
 
   if(0 == telno) /* dissect hotplug field in AT0 only */
     dissect_siii_at_hp(tvb, pinfo, tree);
@@ -121,11 +118,8 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   /* offsets of service channel, device status and connections are unknown
    * this data could be extracted from svc communication during CP2
    */
-  ti = proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");
-  subtree_svc = proto_item_add_subtree(ti, ett_siii_at_svc);
-
-  ti = proto_tree_add_text(tree, tvb, 0, 0, "Device Status");
-  subtree_devstat = proto_item_add_subtree(ti, ett_siii_at_devstats);
+  proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");  
+  proto_tree_add_text(tree, tvb, 0, 0, "Device Status");
 }
 
 
