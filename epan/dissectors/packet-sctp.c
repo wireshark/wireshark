@@ -2053,10 +2053,10 @@ frag_equal(gconstpointer k1, gconstpointer k2)
   const frag_key* key2 = (const frag_key*) k2;
 
   return ( (key1->sport == key2->sport) &&
-           (key1->dport == key1->dport) &&
-           (key1->verification_tag == key1->verification_tag) &&
-           (key1->stream_id == key1->stream_id) &&
-           (key1->stream_seq_num == key1->stream_seq_num)
+           (key1->dport == key2->dport) &&
+           (key1->verification_tag == key2->verification_tag) &&
+           (key1->stream_id == key2->stream_id) &&
+           (key1->stream_seq_num == key2->stream_seq_num)
            ? TRUE : FALSE);
 }
 
