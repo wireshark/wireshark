@@ -2704,8 +2704,6 @@ elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     guint32     curr_offset;
     const gchar *str = NULL;
 
-    len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
