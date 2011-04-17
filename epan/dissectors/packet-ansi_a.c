@@ -3844,7 +3844,7 @@ elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 6.2.2.43
  */
 static guint8
-elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint16     value;
@@ -3852,7 +3852,6 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     gchar       mcc[4];
     gchar       mnc[4];
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3900,13 +3899,12 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.44
  */
 static guint8
-elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -4102,12 +4100,11 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * IOS 6.2.2.47
  */
 static guint8
-elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -4138,12 +4135,11 @@ elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.2.2.48
  */
 static guint8
-elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -4172,13 +4168,12 @@ elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.50
  */
 static guint8
-elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -4738,13 +4733,12 @@ elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.61
  */
 static guint8
-elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -4783,12 +4777,11 @@ elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * IOS 6.2.2.62
  */
 static guint8
-elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohl(tvb, curr_offset);
@@ -4811,14 +4804,13 @@ elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.63
  */
 static guint8
-elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     gint        temp_int;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5052,12 +5044,11 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * IOS 6.2.2.66
  */
 static guint8
-elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint16     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
@@ -7185,13 +7176,12 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 6.2.2.82
  */
 static guint8
-elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8714,7 +8704,7 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
  * Type Length Value (TLV) element dissector
  */
 static guint8
-elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len, const gchar *name_add)
+elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
     guint8      oct, parm_len;
     guint8      consumed;
@@ -8723,7 +8713,6 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     proto_item  *item;
     gint        dec_idx;
 
-    len = len;
     curr_offset = offset;
     consumed = 0;
 
