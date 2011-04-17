@@ -1042,12 +1042,14 @@ file_import_dlg_new()
     header_rblbl_1_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_1_hb, FALSE, FALSE, 2);
 
+	/* First entry in the group */
     header_eth_rb = gtk_radio_button_new_with_label(NULL, "Ethernet");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_eth_rb, "Prefix an Ethernet header to the frames");
 #else
     gtk_tooltips_set_tip(tooltips, header_eth_rb, "Prefix an Ethernet header to the frames", NULL);
 #endif
+	/* Get the group slist */
     header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_eth_rb));
     g_signal_connect(header_eth_rb, "toggled", G_CALLBACK(header_eth_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_eth_rb, FALSE, FALSE, 0);
@@ -1079,7 +1081,6 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, header_ipv4_rb, "Prefix an Ethernet and IPv4 header to the frames", NULL);
 #endif
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_ipv4_rb));
     g_signal_connect(header_ipv4_rb, "toggled", G_CALLBACK(header_ipv4_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_2_hb), header_ipv4_rb, FALSE, FALSE, 0);
 
@@ -1110,7 +1111,6 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, header_udp_rb, "Prefix an Ethernet, IPv4 and UDP header to the frames", NULL);
 #endif
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_udp_rb));
     g_signal_connect(header_udp_rb, "toggled", G_CALLBACK(header_udp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_3_hb), header_udp_rb, FALSE, FALSE, 0);
 
@@ -1141,7 +1141,6 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, header_tcp_rb, "Prefix an Ethernet, IPv4 and TCP header to the frames", NULL);
 #endif
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_tcp_rb));
     g_signal_connect(header_tcp_rb, "toggled", G_CALLBACK(header_tcp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_4_hb), header_tcp_rb, FALSE, FALSE, 0);
 
@@ -1172,7 +1171,6 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, header_sctp_rb, "Prefix an Ethernet, IPv4 and SCTP header to the frames", NULL);
 #endif
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_sctp_rb));
     g_signal_connect(header_sctp_rb, "toggled", G_CALLBACK(header_sctp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_5_hb), header_sctp_rb, FALSE, FALSE, 0);
 
@@ -1203,7 +1201,6 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, header_sctp_data_rb, "Prefix an Ethernet, IPv4 and SCTP DATA header to the frames", NULL);
 #endif
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_sctp_data_rb));
     g_signal_connect(header_sctp_data_rb, "toggled", G_CALLBACK(header_sctp_data_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_6_hb), header_sctp_data_rb, FALSE, FALSE, 0);
 
