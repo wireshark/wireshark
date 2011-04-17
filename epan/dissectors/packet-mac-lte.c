@@ -548,9 +548,6 @@ enum lcid_drb_source {
 };
 static gint global_mac_lte_lcid_drb_source = (gint)FromStaticTable;
 
-/* Whether should attempt to track UL HARQ resends */
-static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
-
 /* Threshold for warning in expert info about high BSR values */
 static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
@@ -2280,7 +2277,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tap_info->raw_length = p_mac_lte_info->length;
 
     /* For uplink frames, if this is logged as a resend, look for original tx */
-    if ((direction == DIRECTION_UPLINK) && global_mac_lte_attempt_ul_harq_resend_track) {
+    if (direction == DIRECTION_UPLINK) {
         TrackReportedULHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info, retx_ti);
     }
 
@@ -4260,6 +4257,7 @@ void proto_register_mac_lte(void)
     prefs_register_obsolete_preference(mac_lte_module, "decode_rar_ul_grant");
     prefs_register_obsolete_preference(mac_lte_module, "show_rlc_info_column");
     prefs_register_obsolete_preference(mac_lte_module, "attempt_to_detect_dl_harq_resend");
+    prefs_register_obsolete_preference(mac_lte_module, "attempt_to_track_ul_harq_resend");
 
     prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
         "Number of Re-Transmits before expert warning triggered",
@@ -4312,11 +4310,6 @@ void proto_register_mac_lte(void)
                                   "LCID -> DRB Mappings Table",
                                   "A table that maps from configurable lcids -> RLC logical channels",
                                   lcid_drb_mappings_uat);
-
-    prefs_register_bool_preference(mac_lte_module, "attempt_to_track_ul_harq_resend",
-        "Attempt to track UL HARQ resends",
-        "When logging at UE side, will look for original transmission",
-        &global_mac_lte_attempt_ul_harq_resend_track);
 
     prefs_register_uint_preference(mac_lte_module, "bsr_warn_threshold",
         "BSR size when warning should be issued (0 - 63)",
