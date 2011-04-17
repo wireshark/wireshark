@@ -2071,7 +2071,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 			  (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
-	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward    ");
+	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
@@ -2079,14 +2079,12 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 			  (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed    ");
-	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
-	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 			  (GtkAttachOptions) (GTK_FILL),
@@ -2678,7 +2676,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
-	raw_rb = gtk_radio_button_new_with_label (format_group, ".raw");
+	raw_rb = gtk_radio_button_new_with_label (NULL, ".raw");
 	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (raw_rb));
 	gtk_widget_show (raw_rb);
 	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
@@ -2687,7 +2685,6 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 
 
 	au_rb = gtk_radio_button_new_with_label (format_group, ".au");
-	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (au_rb));
 	gtk_widget_show (au_rb);
 	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 			  (GtkAttachOptions) (GTK_FILL),
@@ -2723,7 +2720,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 			  (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
-	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward    ");
+	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
@@ -2731,14 +2728,12 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 			  (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed    ");
-	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
-	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 			  (GtkAttachOptions) (GTK_FILL),
