@@ -3749,7 +3749,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 {
 
     guint16 length, quint_len, con_len;
-    guint8 cksn, count, sec_mode, len, iei;
+    guint8 count, sec_mode, len, iei;
     proto_tree *ext_tree_mm;
     proto_item *te;
     proto_item *tf = NULL;
@@ -3763,8 +3763,8 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     if (length < 1)
         return 3;
 
-    /* Octet 4 */
-    cksn = tvb_get_guint8(tvb, offset + 3) & 0x07;
+    /* Octet 4 (cksn)*/
+
     /* Octet 5 */
     sec_mode = (tvb_get_guint8(tvb, offset + 4) >> 6) & 0x03;
     count = (tvb_get_guint8(tvb, offset + 4) >> 3) & 0x07;
@@ -4693,8 +4693,6 @@ static int decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset++;
     proto_tree_add_text(ext_tree, tvb, offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset, auth_len));
 
-    offset = offset + auth_len;
-
     return (3 + length);
 
 }
@@ -4707,7 +4705,7 @@ static int decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 {
 
     guint16 length, port1, port2, tos;
-    guint8 tft_flags, tft_code, no_packet_filters, i, pf_id, pf_eval, pf_len, pf_content_id, proto, spare;
+    guint8 tft_flags, tft_code, no_packet_filters, i, pf_id, pf_eval, pf_len, pf_content_id, proto;
     guint pf_offset;
     guint32 mask_ipv4, addr_ipv4, ipsec_id, label;
     struct e_in6_addr addr_ipv6, mask_ipv6;
@@ -4721,7 +4719,6 @@ static int decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 
     tft_flags = tvb_get_guint8(tvb, offset + 3);
     tft_code = (tft_flags >> 5) & 0x07;
-    spare = (tft_flags >> 4) & 0x01;
     no_packet_filters = tft_flags & 0x0F;
 
     proto_tree_add_text(ext_tree_tft, tvb, offset + 1, 2, "TFT length: %u", length);
@@ -6105,7 +6102,9 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+#if 0 /* Fix Dead Store Warning */
     offset = offset + 2;
+#endif
     /* The payload shall be encoded as per the
      * Required-MBMS-Bearer-Capabilities AVP defined in 3GPP TS 29.061 [27],
      * excluding the AVP Header fields (as defined in IETF RFC 3588 [36], section 4.1).
@@ -6246,8 +6245,9 @@ static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * p
     proto_tree_add_item(ext_tree, hf_gtp_ext_ei, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_ext_gcsi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_ext_dti, tvb, offset, 1, ENC_BIG_ENDIAN);
+#if 0 /* Fix Dead Store Warning */
     offset++;
-
+#endif
     return 3 + length;
 
 }
