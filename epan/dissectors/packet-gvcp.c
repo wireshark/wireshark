@@ -109,7 +109,7 @@ static const value_string opcode_short_names[] = {
 static int
 dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint16 packet_type, packet_opcode, packet_plsize, packet_seqn;
+  guint16 packet_type, packet_opcode, packet_plsize;
   emem_strbuf_t *info;
 
   /* Check that there's enough data */
@@ -141,7 +141,6 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* dissect 8 byte header */
   packet_opcode = tvb_get_ntohs(tvb, 2);
   packet_plsize = tvb_get_ntohs(tvb, 4);
-  packet_seqn = tvb_get_ntohs(tvb, 6);
 
   /* allocate growable info string */
   info = ep_strbuf_new(val_to_str(packet_opcode, opcode_names, "Unknown opcode (0x%04x)"));
