@@ -31,35 +31,6 @@ Wireshark Info
 
     <para>
 
-      The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-0?.html">security advisory</ulink> for details and a workaround.
-
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.4.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-
-      </itemizedlist>
-
-    </para>
-
-    <para>
-
     The following bugs have been fixed:
 
       <itemizedlist>
@@ -73,6 +44,11 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark and TShark can crash while analyzing TCP packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5837">Bug
+          5837</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
@@ -101,12 +77,6 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-HTTP,
-LDAP,
-MySQL,
-NFS,
-sFlow,
-SSL,
 TCP
 
     </para>
@@ -115,6 +85,7 @@ TCP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
+There is no new or updated capture file support in this release.
 
     </para>
     </section>
