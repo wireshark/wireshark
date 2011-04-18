@@ -272,9 +272,12 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
     static guint buffer_len = 0x2000 ;
     guint bytes_read;
     guint last_read;
-    guint actual_len, left;
+    guint left;
     guint8 junk[0x14];
     guint8* writep;
+#ifdef DEBUG_K12
+    guint actual_len;
+#endif
 
     /* where the next unknown 0x10 bytes are stuffed to the file */
     guint junky_offset = 0x2000 - (gint) ( (file_offset - 0x200) % 0x2000 );
@@ -323,7 +326,10 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
         }
     }
 
-    actual_len = left = pntohl(buffer);
+    left = pntohl(buffer);
+#ifdef DEBUG_K12
+    actual_len = left;
+#endif
     junky_offset -= 0x4;
 
     K12_DBG(5,("get_record: GET length=%u",left));
