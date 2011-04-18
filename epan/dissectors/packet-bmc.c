@@ -32,7 +32,6 @@
 
 #include <epan/bitswap.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 static int dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -338,12 +337,4 @@ proto_register_bmc(void)
 
     proto_register_field_array(proto_bmc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_bmc(void)
-{
-    dissector_handle_t bmc_handle;
-
-    bmc_handle = new_create_dissector_handle(dissect_bmc, proto_bmc);
 }
