@@ -3,7 +3,7 @@
  * $Id$
  *
  * CoSine IPNOS L2 debug output parsing
- * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
+ * Copyright (c) 2002 by Motonori Shindo <motonori@shin.do>
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

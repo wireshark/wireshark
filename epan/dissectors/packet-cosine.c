@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Motonori Shindo <mshindo@mshindo.net>
+ * Motonori Shindo <motonori@shin.do>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

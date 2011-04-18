@@ -922,7 +922,7 @@ Lee Berger              <lberger[AT]roy.org> {
 	Fix to FT_UINT_STRING handling
 }
 
-Motonori Shindo         <mshindo[AT]mshindo.net> {
+Motonori Shindo         <motonori[AT]shin.do> {
 	Shiva PAP, EAP, and CBCP negotiation in LCP Callback Operation
 	    support in PPP dissector
 	Support for decoding additional data, for CHAP, in LCP
@@ -952,6 +952,7 @@ Motonori Shindo         <mshindo[AT]mshindo.net> {
 	Support for reading CoSine L2 debug output
 	Assorted LDP enhancements and fixes
 	Key Information dissection in EAPOL-Key messages
+	sFlow/NetFlow/IPFIX dissector enhancement
 }
 
 Terje Krogdahl          <tekr[AT]nextra.com> {
