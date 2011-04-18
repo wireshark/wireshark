@@ -1735,7 +1735,8 @@ again:
                     ? another_pdu_follows
                     : tvb_reported_length_remaining(tvb, offset);
                 proto_tree_add_bytes_format(tcp_tree, hf_tcp_data, tvb, offset,
-                    nbytes, NULL, "TCP segment data (%u byte%s)", nbytes,
+                    nbytes, tvb_get_ptr(tvb, offset, nbytes),
+		    "TCP segment data (%u byte%s)", nbytes,
                     plurality(nbytes, "", "s"));
 
                 print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
@@ -1886,8 +1887,9 @@ again:
          */
         nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
         proto_tree_add_bytes_format(tcp_tree, hf_tcp_data, tvb, deseg_offset,
-            -1, NULL, "TCP segment data (%u byte%s)", nbytes,
-            plurality(nbytes, "", "s"));
+            -1, tvb_get_ptr(tvb, deseg_offset, -1),
+	    "TCP segment data (%u byte%s)", nbytes,
+	    plurality(nbytes, "", "s"));
     }
     pinfo->can_desegment=0;
     pinfo->desegment_offset = 0;
