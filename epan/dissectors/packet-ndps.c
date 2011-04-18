@@ -59,9 +59,9 @@ static gboolean ndps_show_oids=FALSE;
 /* Global Attribute for evaluation of Values */
 static const char *global_attribute_name=NULL;
 
-static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
+static int dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
 
-static void dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, int);
+static int dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, int);
 
 static int hf_ndps_segments = -1;
 static int hf_ndps_segment = -1;
@@ -4174,7 +4174,6 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     guint32     ndps_xid;
     guint32     ndps_prog;
     guint32     ndps_packet_type;
-    guint32     ndps_rpc_version;
     int         foffset;
     guint32     ndps_hfname;
     guint32     ndps_func;
@@ -4222,7 +4221,6 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     else
     {
         col_set_str(pinfo->cinfo, COL_INFO, "C NDPS ");
-        ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, FALSE);
         foffset += 4;
         ndps_prog = tvb_get_ntohl(tvb, foffset);
@@ -4502,7 +4500,7 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ndps_defrag(tvb, pinfo, ndps_tree);
 }
 
-static void
+static int
 dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_prog, guint32 ndps_func, int foffset)
 {
     ndps_req_hash_value *request_value = NULL;
@@ -4687,7 +4685,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                         if (length_remaining == -1 || length > (guint32) length_remaining) /* Segmented Data */
                         {
                             proto_tree_add_item(btree, hf_ndps_data, tvb, foffset, -1, FALSE);
-                            return;
+                            return foffset;
                         }
                         if (length==4)
                         {
@@ -6428,7 +6426,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 length_remaining = tvb_length_remaining(tvb, foffset);
                 if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
-                    return;
+                    return foffset;
                 }
                 proto_tree_add_item(atree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
@@ -6715,7 +6713,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     default:
         break;
     }
-    return;
+    return foffset;
 }
 
 static int
@@ -6949,7 +6947,7 @@ return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffse
     return foffset;
 }
 
-static void
+static int
 dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
     conversation_t          *conversation = NULL;
@@ -7005,7 +7003,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     {
         proto_tree_add_uint(ndps_tree, hf_ndps_error_val, tvb, foffset, 4, error_val);
         col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
-        return;
+        return foffset;
     }
     if(ndps_func == 1 || ndps_func == 2)
     {
@@ -7017,13 +7015,13 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         foffset += 4;
         if (tvb_length_remaining(tvb,foffset) < 4 ) {
             col_append_str(pinfo->cinfo, COL_INFO, "- Error");
-            return;
+            return foffset;
         }
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_acc_results, tvb, foffset, 4, FALSE);
         foffset += 4;
         if (tvb_length_remaining(tvb,foffset) < 4) {
             col_append_str(pinfo->cinfo, COL_INFO, "- Error");
-            return;
+            return foffset;
         }
     }
     error_val = tvb_get_ntohl(tvb, foffset);
@@ -7036,7 +7034,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
         expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(expert_status, ndps_error_types, "Unknown NDPS Error (0x%08x)"));
         col_append_str(pinfo->cinfo, COL_INFO, "- Error");
-        return;
+        return foffset;
     }
     col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
     switch(ndps_prog)
@@ -7138,7 +7136,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 length_remaining = tvb_length_remaining(tvb, foffset);
                 if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
-                    return;
+                    return foffset;
                 }
                 proto_tree_add_item(btree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
@@ -8298,7 +8296,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 length_remaining = tvb_length_remaining(tvb, foffset);
                 if(length_remaining == -1 || (guint32) length_remaining < length)
                 {
-                    return;
+                    return foffset;
                 }
                 proto_tree_add_item(btree, hf_ndps_item_ptr, tvb, foffset, length, FALSE);
                 foffset += length;
@@ -8313,7 +8311,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     default:
         break;
     }
-    return;
+    return foffset;
 }
 
 void
