@@ -1493,7 +1493,6 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
                     packet_info * pinfo, proto_tree * iax2_tree,
                     proto_tree * main_tree)
 {
-  guint32 retransmission = 0;
   guint16 dcallno;
   guint32 ts;
   guint8 type;
@@ -1509,9 +1508,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   /*
    * remove the top bit for retransmission detection
    */
-  dcallno = tvb_get_ntohs(tvb, offset);
-  retransmission = dcallno & 0x8000;
-  dcallno = dcallno & 0x7FFF;
+  dcallno = tvb_get_ntohs(tvb, offset) & 0x7FFF;
   ts = tvb_get_ntohl(tvb, offset+2);
   type = tvb_get_guint8(tvb, offset + 8);
   csub = tvb_get_guint8(tvb, offset + 9);
@@ -1898,7 +1895,6 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
                                         guint16 scallno, packet_info * pinfo,
                                         proto_tree * iax2_tree, proto_tree *main_tree)
 {
-  guint32 ts;
   guint8 cmddata, trunkts;
   int ncalls = 0;
   /*iax_packet_data *iax_packet;*/
@@ -1934,7 +1930,6 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
     proto_tree_add_boolean(field_tree, hf_iax2_trunk_cmddata_ts, tvb, offset + 1, 1, cmddata);
 
     /* Timestamp */
-    ts = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(iax2_tree, hf_iax2_trunk_ts, tvb, offset + 2, 4, FALSE);
   }
   
