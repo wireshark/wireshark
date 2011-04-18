@@ -77,7 +77,6 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ti, *cwids_tree;
 	volatile int offset = 0;
 	guint16 capturelen;
-	guint remain;
 	void *pd_save;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
@@ -86,7 +85,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	cwids_tree = NULL;
 
-	while((remain = tvb_length_remaining(tvb, offset)) > 0) {
+	while(tvb_length_remaining(tvb, offset) > 0) {
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, FALSE);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 

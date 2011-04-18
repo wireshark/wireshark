@@ -2621,9 +2621,8 @@ dissect_isup_circuit_state_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint8 circuit_state;
   gint offset=0;
   gint i=0;
-  gint length;
 
-  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
+  while(tvb_reported_length_remaining(parameter_tvb, offset) > 0){
     circuit_state_item = proto_tree_add_text(parameter_tree, parameter_tvb,
                                              offset, -1,
                                              "Circuit# CIC+%u state", i);

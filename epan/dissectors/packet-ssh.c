@@ -363,7 +363,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	while((remain_length = tvb_reported_length_remaining(tvb,offset))> 0 ) {
+	while(tvb_reported_length_remaining(tvb,offset)> 0 ) {
 		need_desegmentation = FALSE;
 		last_offset = offset;
 		this_number = this_data->counter+number;

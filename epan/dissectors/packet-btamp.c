@@ -208,7 +208,7 @@ dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             "Controller list");
     btamp_controller_list_tree=proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
-    while ((length = tvb_length_remaining(tvb, offset)) >= 3) {
+    while (tvb_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
         ++idx;
     }
@@ -231,7 +231,7 @@ dissect_changenotify(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
             "Controller list");
     btamp_controller_list_tree=proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
-    while ((length = tvb_length_remaining(tvb, offset)) >= 3) {
+    while (tvb_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
         ++idx;
     }

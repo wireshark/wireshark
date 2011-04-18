@@ -1338,7 +1338,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
 		/* Add a recognised parameter type if we have one */
 		if (*hf != NULL && len > (tvb_current_offset - offset) &&
-		    (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+		    tvb_get_guint8(tvb,tvb_current_offset) == ':')
 		{
 			tvb_current_offset++;
 			tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset, (len - tvb_current_offset + offset));

@@ -921,7 +921,6 @@ content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                        int content_length, guint8 opcode)
 {
   gint          datalen;
-  int           len;
   gboolean      short_pkt = FALSE;
 
   /*
@@ -929,7 +928,7 @@ content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
    * the buffer. It is not necessary that we have all the
    * content_length bytes available to read.
    */
-  if ((len = tvb_reported_length_remaining (tvb, offset) != 0)) {
+  if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* bytes actually remaining in this tvbuff. */
     datalen = tvb_length_remaining (tvb, offset);
     if (content_length >= 0) {
@@ -1000,14 +999,14 @@ static int
 incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
   gint           next_offset;
-  int            linelen, len;
+  int            linelen;
   const guchar  *line, *lineend;
 
   const guchar  *next_token;
   int            tokenlen;
 
   /* expecting to read 'bytes' number of bytes from the buffer. */
-  if ((len = tvb_reported_length_remaining (tvb, offset)) != 0) {
+  if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,
@@ -1057,11 +1056,10 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   gint          next_offset;
   const guchar *next_token;
   const guchar *line, *lineend;
-  int           reported_datalen = -1;
   guint32       slabclass;
   guchar        response_chars[21];
 
-  while ((reported_datalen = tvb_reported_length_remaining (tvb, offset)) != 0) {
+  while (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,
@@ -1167,7 +1165,7 @@ static int
 get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
   gint           next_offset;
-  int            linelen, len;
+  int            linelen;
   const guchar  *line, *lineend;
   const guchar  *next_token;
   int            tokenlen;
@@ -1178,7 +1176,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   gchar          response_chars[21]; /* cover uint64 (20 + 1) bytes*/
 
   /* expecting to read 'bytes' number of bytes from the buffer. */
-  while ((len = tvb_reported_length_remaining (tvb, offset)) != 0) {
+  while (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,

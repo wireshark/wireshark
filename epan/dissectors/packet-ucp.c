@@ -1631,12 +1631,12 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_DCs);
     UcpHandleByte(hf_ucp_parm_MCLs);
     UcpHandleByte(hf_ucp_parm_RPI);
-    if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
+    if (tvb_get_guint8(tvb, offset++) != '/') {
         proto_tree_add_string(tree, hf_ucp_parm_CPg, tvb, offset - 1,1,
                               "(reserved for Code Page)");
         offset++;
     }
-    if ((intval = tvb_get_guint8(tvb, offset++)) != '/') {
+    if (tvb_get_guint8(tvb, offset++) != '/') {
         proto_tree_add_string(tree, hf_ucp_parm_RPLy, tvb, offset - 1,1,
                               "(reserved for Reply type)");
         offset++;

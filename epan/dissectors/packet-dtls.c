@@ -465,7 +465,6 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                     gboolean save_plaintext)
 {
   gint ret;
-  gint direction;
   SslDecoder* decoder;
   ret = 0;
 
@@ -479,7 +478,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
 
   /* retrive decoder for this packet direction */
-  if ((direction = ssl_packet_from_server(ssl, dtls_associations, pinfo)) != 0) {
+  if (ssl_packet_from_server(ssl, dtls_associations, pinfo) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
     decoder = ssl->server;
   }

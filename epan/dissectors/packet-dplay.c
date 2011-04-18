@@ -420,7 +420,7 @@ static gint display_unicode_string(proto_tree *tree, gint hf_index, tvbuff_t *tv
      * if we don't find the '\0'?  I think it's a feature.
      */
     len = 0;
-    while ((character = tvb_get_letohs(tvb, offset + len)) != '\0')
+    while (tvb_get_letohs(tvb, offset + len) != '\0')
         len += 2;
     len += 2;   /* count the '\0' too */
 

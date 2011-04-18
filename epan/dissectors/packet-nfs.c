@@ -4923,7 +4923,7 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* 
 	acc_req = civ->private_data;
 	/* Should never happen because ONC-RPC requires the call in order to dissect the reply. */
 	if (acc_req==NULL) {
-		return offset+=4;
+		return offset+4;
 	}
 	if(nfsv4) {
 		acc_supp = tvb_get_ntohl(tvb, offset+0);
@@ -4967,7 +4967,7 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* 
 				offset, 4, (mask_denied > 0 ? TRUE : FALSE ));
 	PROTO_ITEM_SET_GENERATED(ditem);
 
-	return offset+=4;
+	return offset+4;
 }
 
 /* RFC 1813, Page 40..43 */

@@ -3645,7 +3645,6 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
                        scsi_task_data_t *cdata)
 {
     guint8 pcode;
-    const gchar *valstr;
     int hf_pagecode;
 
     /* unless we have cdata there is not much point in continuing */
@@ -3653,8 +3652,8 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     pcode = tvb_get_guint8 (tvb, offset);
-    if ((valstr = match_strval (pcode & SCSI_MS_PCODE_BITS,
-                                scsi_spc_modepage_val)) == NULL) {
+    if (match_strval (pcode & SCSI_MS_PCODE_BITS,
+                                scsi_spc_modepage_val) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
          * device types; try to interpret it based on what we deduced,

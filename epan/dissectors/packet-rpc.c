@@ -1646,15 +1646,12 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void 
 make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 {
-
-	rpc_prog_info_value *rpc_prog = NULL;
-
 	/* sanity check: no one uses versions > 10 */
 	if(prog_ver>10){
 		return;
 	}
 
-	if( (rpc_prog = g_hash_table_lookup(rpc_progs, prpc_prog_key)) == NULL) {
+	if(g_hash_table_lookup(rpc_progs, prpc_prog_key) == NULL) {
 		/* ok this is not a known rpc program so we
 		 * will have to fake it.
 		 */

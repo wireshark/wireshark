@@ -271,7 +271,7 @@ display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, char **data)
 	* Get the length of the string.
 	*/
 	len = 0;
-	while ((character = tvb_get_ntohs(tvb, offset + len)) != '\0')
+	while (tvb_get_ntohs(tvb, offset + len) != '\0')
 		len += 2;
 
 	len += 2;   /* count the '\0' too */
