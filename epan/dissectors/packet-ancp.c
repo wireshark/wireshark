@@ -294,7 +294,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
     proto_item *sti = NULL;
     proto_tree *tlv_tree = NULL, *dsl_tree = NULL;
     guint8  tech_type;
-    guint16 blk_len, tlen, ttype, stlvtype, stlvlen;
+    guint16 tlen, ttype, stlvtype, stlvlen;
     gint16  num_tlvs, num_stlvs;
     gint    val;
 
@@ -337,7 +337,6 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_len, tvb,
                 offset, 2, FALSE);
-        blk_len = tvb_get_ntohs(tvb, offset);
         proto_item_append_text(sti, " (Extension Block)");
         offset += 2;
 
@@ -508,7 +507,6 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 
     proto_tree_add_item(ancp_cap_tree, hf_ancp_tot_len, tvb,
             offset, 2, FALSE);
-    tlv_len = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
     for ( ;numcaps; numcaps--) {
@@ -574,7 +572,6 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *sti = NULL;
         proto_tree *ancp_tree = NULL;
         guint8  byte;
-        guint16 len;
 
         ti = proto_tree_add_item(tree, proto_ancp, tvb, 0, -1, FALSE);
 
@@ -584,7 +581,6 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(ancp_tree, hf_ancp_len, tvb, offset, 2,
                 FALSE);
-        len = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_ver, tvb, offset, 1,
