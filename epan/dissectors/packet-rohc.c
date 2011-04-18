@@ -104,10 +104,16 @@ static int ett_rohc_ir_dyn = -1;
 static int ett_rohc_rtp_static = -1;
 static int ett_rohc_rtp_dynamic = -1;
 
-static gboolean g_small_cid = TRUE;
 /* RTP profile and IPv4 hard wired for now */
 static guint8 g_profile = 1;
 static guint8 g_version = 4;
+
+enum rohc_mode
+{
+  UNIDIRECTIONAL = 1,
+  OPTIMISTIC_BIDIRECTIONAL = 2,
+  RELIABLE_BIDIRECTIONAL = 3
+};
 
 typedef struct rohc_info
 {
@@ -123,13 +129,6 @@ typedef struct rohc_info
     unsigned short     profile;
 	proto_item         *last_created_item;
 } rohc_info;
-
-enum rohc_mode
-{
-  UNIDIRECTIONAL = 1,
-  OPTIMISTIC_BIDIRECTIONAL = 2,
-  RELIABLE_BIDIRECTIONAL = 3
-};
 
 /* ROHC Profiles */
 #define ROHC_PROFILE_RTP	1
@@ -572,7 +571,7 @@ static void
 dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti, *item, *ir_item;
-	proto_tree *rohc_tree, *ir_tree, *sub_tree;	
+	proto_tree *rohc_tree, *ir_tree, *sub_tree = NULL;
 	int offset = 0, length, x_bit_offset;
 	guint8 oct, code, size , cid, profile, val_len;
 	gint16 feedback_data_len = 0;
