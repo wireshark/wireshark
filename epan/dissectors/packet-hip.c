@@ -395,7 +395,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 phdr[2];
 
         /* Payload format RFC 5201 section 5.1 */
-        guint8 hiph_proto;                /* payload protocol              */
+        /* hiph_proto; */	          /* payload protocol              */
         guint8 hiph_hdr_len;              /* header length                 */
         guint8 hiph_shim6_fixed_bit_s;    /* This is always 0              */
         guint8 hiph_packet_type;          /* packet type                   */
@@ -412,7 +412,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
 
         newoffset = offset;
-        hiph_proto = tvb_get_guint8(tvb, newoffset);
+	/* hiph Proto */
         newoffset++;
         hiph_hdr_len = tvb_get_guint8(tvb, newoffset);
         newoffset++;
@@ -431,7 +431,6 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         checksum_h = tvb_get_ntohs(tvb, newoffset);
         newoffset += 2;
         control_h = tvb_get_ntohs(tvb, newoffset);
-        newoffset += 2;
 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(hiph_packet_type, pinfo_vals, "Unknown"));
 
@@ -723,7 +722,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_puzzle_o, tvb, newoffset, 2, FALSE);
                 /* Puzzle I */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,offset+8, 8, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,newoffset, 8, FALSE);
                 break;
         case PARAM_SOLUTION:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
