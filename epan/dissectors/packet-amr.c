@@ -430,7 +430,6 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 {
 	int offset = 0;
 	int bit_offset = 0;
-	int toc_offset = 0;
 	guint8 octet;
 	proto_item *item;
 	gboolean first_time;
@@ -486,7 +485,6 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
 		offset++;
 		bit_offset+=4;
-		toc_offset = offset;
 		/*
 		 *  A ToC entry takes the following format in octet-aligned mode:
 		 *
