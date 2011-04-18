@@ -228,16 +228,6 @@ static range_t *global_http_ssl_range = NULL;
 static range_t *http_tcp_range = NULL;
 static range_t *http_ssl_range = NULL;
 
-
-/*
- * Protocols implemented atop HTTP.
- */
-typedef enum {
-	PROTO_HTTP,		/* just HTTP */
-	PROTO_SSDP,		/* Simple Service Discovery Protocol */
-	PROTO_DAAP		/* Digital Audio Access Protocol */
-} http_proto_t;
-
 typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
 				 const guchar*, http_conv_t *);
 
@@ -589,7 +579,6 @@ static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     proto_tree *tree, http_conv_t *conv_data)
 {
-	http_proto_t	proto;
 	const char	*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
@@ -659,17 +648,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (pinfo->match_uint) {
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
-		proto = PROTO_SSDP;
 		proto_tag = "SSDP";
 		break;
 
 	case TCP_PORT_DAAP:
-		proto = PROTO_DAAP;
 		proto_tag = "DAAP";
 		break;
 
 	default:
-		proto = PROTO_HTTP;
 		proto_tag = "HTTP";
 		break;
 	}
@@ -1662,7 +1648,6 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			 http_conv_t *conv_data)
 {
 	int isHttpRequestOrReply = FALSE;
-	int prefix_len = 0;
 
 	/*
 	 * From RFC 2774 - An HTTP Extension Framework
@@ -1673,7 +1658,6 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 	if (linelen >= 2 && strncmp(data, "M-", 2) == 0) {
 		data += 2;
 		linelen -= 2;
-		prefix_len = 2;
 	}
 
 	/*
