@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.6">
+  <!ENTITY WiresharkCurrentVersion "1.4.7">
 
 ]>
 
@@ -43,12 +43,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          Wireshark and TShark can crash while analyzing TCP packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5837">Bug
-          5837</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
