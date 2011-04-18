@@ -1288,7 +1288,7 @@ dissect_h264_sei_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
  * 7.3.2.3 Supplemental enhancement information RBSP syntax
  * sei_rbsp( )
  */
-static void
+static int
 dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	gint bit_offset;
@@ -1305,6 +1305,7 @@ dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, g
 	/* rbsp_trailing_bits( ) 5 */
 	bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 
+	return bit_offset;
 }
 
 /* Ref 7.3.2.1 Sequence parameter set RBSP syntax */
@@ -1411,7 +1412,6 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	dissect_h264_exp_golomb_code(tree, hf_h264_log2_max_frame_num_minus4, tvb, &bit_offset, H264_UE_V);
 
 	/* pic_order_cnt_type 0 ue(v) */
-	offset = bit_offset>>3;
 	pic_order_cnt_type = dissect_h264_exp_golomb_code(tree,hf_h264_pic_order_cnt_type, tvb, &bit_offset, H264_UE_V);
 
 	if(pic_order_cnt_type == 0){
@@ -1499,7 +1499,7 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 {
 
 	gint bit_offset;
-	guint32 num_slice_groups_minus1, slice_group_map_type, pic_scaling_matrix_present_flag;
+	guint32 num_slice_groups_minus1, pic_scaling_matrix_present_flag;
 
 	bit_offset = offset<<3;
 
@@ -1521,7 +1521,8 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	num_slice_groups_minus1 = dissect_h264_exp_golomb_code(tree, hf_h264_num_slice_groups_minus1, tvb, &bit_offset, H264_UE_V);
 	if( num_slice_groups_minus1 > 0 ) {
 		/* slice_group_map_type 1 ue(v)*/
-		slice_group_map_type = dissect_h264_exp_golomb_code(tree, hf_h264_slice_group_map_type, tvb, &bit_offset, H264_UE_V);
+		dissect_h264_exp_golomb_code(tree, hf_h264_slice_group_map_type, tvb, &bit_offset, H264_UE_V);
+	/*	slice_group_map_type = dissect_h264_exp_golomb_code(tree, hf_h264_slice_group_map_type, tvb, &bit_offset, H264_UE_V);*/
 	/* if( slice_group_map_type == 0 )*/
 	/* for( iGroup = 0; iGroup <= num_slice_groups_minus1; iGroup++ )*/
 	/* run_length_minus1[ iGroup ] 1 ue(v)*/
