@@ -7320,7 +7320,6 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     proto_item *flags1_item;
     proto_tree *flags1_tree;
     proto_item *flags2_item;
-    proto_tree *flags2_tree;
     guint16 src_addr;
     guint16 dst_addr;
     guint16 wd_time;
@@ -7360,7 +7359,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     offset++;
 
     flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, FALSE);
-    flags2_tree = proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
+    proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
 
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
         hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
