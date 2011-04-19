@@ -381,7 +381,10 @@ mtp3_stat_gtk_win_create(
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
     dlg_p->table = create_list();
+	
+    gtk_widget_show(dlg_p->table);
 
+    gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
 
     /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
