@@ -107,7 +107,7 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
   guint8 extension_length;
   int offset = 0;
 
-  /* Strange in LibuTP the first bytes as the following definition 
+  /* Strange in LibuTP the first bytes as the following definition
      packet_type (4 high bits)
      protocol version (4 low bits)
   */
@@ -146,15 +146,15 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);   
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
         extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
-        
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);   
+
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
         extension_length = tvb_get_guint8(tvb, offset);
         proto_item_append_text(ti, " Selection Acks, Len=%d", extension_length);
         offset += 1;
-        
+
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, FALSE);
         offset += extension_length;
         proto_item_set_len(ti, 1 + 1 + extension_length);
@@ -165,15 +165,15 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);   
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
         extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
-        
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE); 
-        extension_length = tvb_get_guint8(tvb, offset);  
+
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
+        extension_length = tvb_get_guint8(tvb, offset);
         proto_item_append_text(ti, " Extension Bits, Len=%d", extension_length);
         offset += 1;
-        
+
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, FALSE);
         offset += extension_length;
         proto_item_set_len(ti, 1 + 1 + extension_length);
@@ -183,13 +183,13 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);   
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
         extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
-        
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE); 
+
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
         extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Unknown, Len=%d", extension_length);  
+        proto_item_append_text(ti, " Unknown, Len=%d", extension_length);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_unknown, tvb, offset, extension_length, FALSE);
@@ -211,9 +211,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
   /* set the info column */
-  col_clear(pinfo->cinfo,COL_INFO);
-
-    col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
+  col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
 
   if(tree)
   {
@@ -302,10 +300,10 @@ proto_register_bt_utp(void)
 
   /* Register protocol */
   proto_bt_utp = proto_register_protocol (
-			"uTorrent Transport Protocol",	/* name */
-			"BT-uTP",		/* short name */
-			"bt-utp"		/* abbrev */
-			);
+                        "uTorrent Transport Protocol",  /* name */
+                        "BT-uTP",               /* short name */
+                        "bt-utp"                /* abbrev */
+                        );
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -315,9 +313,9 @@ proto_register_bt_utp(void)
   bt_utp_module = prefs_register_protocol(proto_bt_utp, proto_reg_handoff_bt_utp);
 
   prefs_register_uint_preference(bt_utp_module, "udp_port",
-					   "uTorrent Transport Protocol UDP port",
-					   "Set the UDP port for uTorrent Transport Protocol.",
-					   10, &global_bt_utp_udp_port);
+                                           "uTorrent Transport Protocol UDP port",
+                                           "Set the UDP port for uTorrent Transport Protocol.",
+                                           10, &global_bt_utp_udp_port);
 }
 
 void
@@ -353,4 +351,4 @@ proto_reg_handoff_bt_utp(void)
  * ex: set shiftwidth=2 tabstop=8 expandtab
  * :indentSize=2:tabSize=8:noTabs=true:
  */
- 
+
