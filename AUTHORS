@@ -3255,6 +3255,11 @@ Roland Knall		<rknall [AT] gmail.com> {
 	Support for heuristic subdissectors for SERCOS III
 }
 
+Xiao Xiangquan		<xiaoxiangquan [AT] gmail.com> {
+	BT-UTP dissector
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
