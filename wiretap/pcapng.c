@@ -1346,8 +1346,8 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&bh, sizeof bh, fh);
 	if (bytes_read != sizeof bh) {
-		pcapng_debug0("pcapng_read_block: end of file or error");
 		*err = file_error(fh);
+		pcapng_debug3("pcapng_read_block: file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -1530,6 +1530,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	while (1) {
 		bytes_read = pcapng_read_block(wth->fh, FALSE, pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
+			wth->data_offset = *data_offset;
+			pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
 			pcapng_debug0("pcapng_read: couldn't read packet block");
 			return FALSE;
 		}
@@ -1566,6 +1568,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
 		    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
+		wth->data_offset = *data_offset + bytes_read;
+		pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
 		return FALSE;
 	}
 
