@@ -258,11 +258,21 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   struct bpf_program fcode;
   GtkWidget *filter_cm, *filter_te;
   const gchar *filter_text;
+#if GTK_CHECK_VERSION(2,6,0)
+#else
+	GtkTreeIter   iter;
+	GtkTreeModel *model;
+#endif
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
-  filter_te = GTK_COMBO(filter_cm)->entry;
-  filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
-
+  filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+#if GTK_CHECK_VERSION(2,6,0)
+  filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
+#else
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
+  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
+#endif
   if (strlen(filter_text) == 0) {
     colorize_filter_te_as_empty(filter_te);
     return;
@@ -1537,14 +1547,24 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   pcap_t *pd;
   struct bpf_program fcode;
 
-  GtkWidget *filter_cm, *filter_te;
+  GtkWidget *filter_cm;
   const gchar *filter_text;
+#if GTK_CHECK_VERSION(2,6,0)
+#else
+	GtkTreeIter   iter;
+	GtkTreeModel *model;
+#endif
 
   pd = pcap_open_dead(global_capture_opts.linktype, DUMMY_SNAPLENGTH);
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
-  filter_te = GTK_COMBO(filter_cm)->entry;
-  filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
+#if GTK_CHECK_VERSION(2,6,0)
+  filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
+#else
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
+  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
+#endif
 
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
@@ -1652,6 +1672,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
                 *help_bt;
+                GList *cf_entry;	
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_bt;
   GtkWidget     *decryption_cb;
@@ -2054,29 +2075,31 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
-  /* Create the capture filter combo */
-  filter_cm = gtk_combo_new();
+  /* Create the capture filter combo box*/
+  filter_cm = gtk_combo_box_entry_new_text ();
 
   cfilter_list = g_object_get_data(G_OBJECT(top_level), E_CFILTER_FL_KEY);
-  gtk_combo_disable_activate(GTK_COMBO(filter_cm));
-  gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_CM_KEY, filter_cm);
-  filter_te = GTK_COMBO(filter_cm)->entry;
+  filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
   colorize_filter_te_as_empty(filter_te);
   g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
 
-  if (cfilter_list != NULL)
-    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), cfilter_list);
+  if (cfilter_list != NULL){
+	for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {  
+		gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), cf_entry->data);
+	}
+  }
   if (global_capture_opts.cfilter)
-    gtk_entry_set_text(GTK_ENTRY(filter_te), global_capture_opts.cfilter);
+	gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), global_capture_opts.cfilter);
+
 #if GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_tooltip_text(filter_te,
+  gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it."
 			      );
 #else
-  gtk_tooltips_set_tip(tooltips, filter_te,
+  gtk_tooltips_set_tip(tooltips, filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
     NULL);
@@ -2971,7 +2994,7 @@ capture_dlg_prep(gpointer parent_w) {
 #ifdef HAVE_PCAP_CREATE
             *monitor_cb,
 #endif
-            *pcap_ng_cb, *filter_te, *filter_cm,
+            *pcap_ng_cb,*filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
@@ -2995,6 +3018,11 @@ capture_dlg_prep(gpointer parent_w) {
   gchar *cf_name;
   gchar *dirname;
   gint32 tmp;
+#if GTK_CHECK_VERSION(2,6,0)
+#else
+	GtkTreeIter   iter;
+	GtkTreeModel *model;
+#endif
 
   if_cb      = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
 #ifdef HAVE_PCAP_REMOTE
@@ -3011,7 +3039,7 @@ capture_dlg_prep(gpointer parent_w) {
 #endif
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PCAP_NG_KEY);
   filter_cm  = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
-  filter_te  = GTK_COMBO(filter_cm)->entry;
+ /* filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));*/
   file_te    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
   multi_files_on_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
   ringbuffer_nbf_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_CB_KEY);
@@ -3096,7 +3124,14 @@ capture_dlg_prep(gpointer parent_w) {
      until a filter is set, which means they aren't bound at all if
      no filter is set, which means no packets arrive as input on that
      socket, which means Wireshark never sees any packets. */
-  filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
+#if GTK_CHECK_VERSION(2,6,0)
+  filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
+#else
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
+  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
+#endif
+
   if (global_capture_opts.cfilter)
     g_free(global_capture_opts.cfilter);
   g_assert(filter_text != NULL);
