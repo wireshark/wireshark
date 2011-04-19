@@ -846,13 +846,20 @@ DLL_LDFLAGS =
 DLL_LDFLAGS = /MANIFEST:no
 !ENDIF
 
+# Enable Safe Exception Handler.
+# http://msdn.microsoft.com/en-us/magazine/cc337897.aspx
+!IF $(MSC_VER_REQUIRED) >= 1300
+LOCAL_CFLAGS= $(LOCAL_CFLAGS) /GS
+LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /SafeSEH
+!ENDIF
+
 # Enable ASLR. Requires VS2008 or later.
 # http://blogs.msdn.com/b/vcblog/archive/2009/05/21/dynamicbase-and-nxcompat.aspx
-# DEP is handled in init_process_policies()
+# DEP (/NXCompat) is handled in init_process_policies() via SetProcessDEPPolicy.
 
 # ASLR http://msdn.microsoft.com/en-us/library/bb384887.aspx
 !IF $(MSC_VER_REQUIRED) >= 1500
-LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /DYNAMICBASE
+LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /DYNAMICBASE /FIXED:no
 !ENDIF
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS) $(DLL_LDFLAGS)
