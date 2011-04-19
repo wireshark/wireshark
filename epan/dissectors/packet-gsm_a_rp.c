@@ -533,7 +533,7 @@ proto_register_gsm_a_rp(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_gsm_a_rp_msg_type,
-		{ "RP Message Type",	"gsm_a.rp_msg_type",
+		{ "RP Message Type",	"gsm_a_rp.msg_type",
 		FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
 		NULL, HFILL }
 	},

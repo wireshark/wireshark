@@ -2366,7 +2366,7 @@ proto_register_v52(void)
           FT_UINT8,    BASE_HEX, VALS(steady_signal_values),            0x7f,
           NULL, HFILL } },
         {&hf_v52_digit_ack,
-          { "Digit ack request indication","v2.digit_ack",
+          { "Digit ack request indication","v52.digit_ack",
           FT_UINT8,    BASE_HEX, VALS(digit_ack_values),                0x40,
           NULL, HFILL } },
         {&hf_v52_digit_spare,

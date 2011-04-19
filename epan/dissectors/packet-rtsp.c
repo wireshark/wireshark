@@ -1262,7 +1262,7 @@ proto_register_rtsp(void)
 			{ "RDTFeatureLevel", "rtsp.rdt-feature-level", FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }},
 		{ &hf_rtsp_X_Vig_Msisdn,
-			{ "X-Vig-Msisdn", "X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
+			{ "X-Vig-Msisdn", "rtsp.X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }},
 
 

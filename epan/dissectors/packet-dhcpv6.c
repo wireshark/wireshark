@@ -1939,13 +1939,13 @@ proto_register_dhcpv6(void)
         { &hf_clientfqdn_s,
           { "S bit", "dhcpv6.clientfqdn.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "Whether the server SHOULD or SHOULD NOT perform the AAAA RR (FQDN-to-address) DNS updates", HFILL}},
         { &hf_remoteid_enterprise,
-          { "Enterprise ID", "dhvpv6.remoteid.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "RemoteID Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.remoteid.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "RemoteID Enterprise Number", HFILL }},
         { &hf_vendoropts_enterprise,
-          { "Enterprise ID", "dhvpv6.vendoropts.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor opts Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.vendoropts.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor opts Enterprise Number", HFILL }},
         { &hf_vendorclass_enterprise,
-          { "Enterprise ID", "dhvpv6.vendorclass.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor Class Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.vendorclass.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor Class Enterprise Number", HFILL }},
         { &hf_duiden_enterprise,
-          { "Enterprise ID", "dhvpv6.duiden.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "DUID EN Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.duiden.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "DUID EN Enterprise Number", HFILL }},
 
     };
     static gint *ett[] = {

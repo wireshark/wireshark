@@ -2129,7 +2129,7 @@ proto_register_bthci_cmd(void)
 				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_num_link_keys,
-			{ "Number of Link Keys", "bthci_cmd_num_link_keys",
+			{ "Number of Link Keys", "bthci_cmd.num_link_keys",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},

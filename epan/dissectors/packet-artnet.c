@@ -2486,7 +2486,7 @@ proto_register_artnet(void) {
     /* ArtTodControl */
     { &hf_artnet_tod_control,
       { "ArtTodControl packet",
-        "artner.tod_control",
+        "artnet.tod_control",
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtTodControl packet", HFILL }},
 

@@ -107,7 +107,7 @@ proto_register_rs_misc (void)
 		{ "Key Size", "rs_misc.login_get_info_rqst_key_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_misc_login_get_info_rqst_key_t,
-		{ "Key", "rs.misc_login_get_info_rqst_key_t", FT_STRING, BASE_NONE,
+		{ "Key", "rs_misc.login_get_info_rqst_key_t", FT_STRING, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }}
 	};
 

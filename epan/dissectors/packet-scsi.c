@@ -5275,7 +5275,7 @@ proto_register_scsi (void)
           {"Task Aborted Status", "scsi.mode.tac", FT_BOOLEAN, 8,
            TFS (&scsi_modesns_tas_val), 0x80, NULL, HFILL}},
         { &hf_scsi_modesns_rac,
-          {"Report a Check", "ssci.mode.rac", FT_BOOLEAN, 8,
+          {"Report a Check", "scsi.mode.rac", FT_BOOLEAN, 8,
            TFS (&scsi_modesns_rac_val), 0x40, NULL, HFILL}},
         { &hf_scsi_protocol,
           {"Protocol", "scsi.proto", FT_UINT8, BASE_DEC, VALS (scsi_proto_val),

@@ -2044,51 +2044,51 @@ proto_register_l2tp(void)
 			NULL, HFILL }},
 
 		{ &hf_l2tp_cookie,
-		{ "Cookie","lt2p.cookie", FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "Cookie","l2tp.cookie", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_def,
-		{ "Default L2-Specific Sublayer","lt2p.l2_spec_def", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Default L2-Specific Sublayer","l2tp.l2_spec_def", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_atm,
-		{ "ATM-Specific Sublayer","lt2p.l2_spec_atm", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "ATM-Specific Sublayer","l2tp.l2_spec_atm", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_docsis_dmpt,
-		{ "DOCSIS DMPT - Specific Sublayer","lt2p.l2_spec_docsis_dmpt", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "DOCSIS DMPT - Specific Sublayer","l2tp.l2_spec_docsis_dmpt", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_v,
-		{ "V-bit","lt2p.l2_spec_v", FT_BOOLEAN, 8, NULL, 0x80,
+		{ "V-bit","l2tp.l2_spec_v", FT_BOOLEAN, 8, NULL, 0x80,
 			"VCCV Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_s,
-		{ "S-bit","lt2p.l2_spec_s", FT_BOOLEAN, 8, NULL, 0x40,
+		{ "S-bit","l2tp.l2_spec_s", FT_BOOLEAN, 8, NULL, 0x40,
 			"Sequence Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_t,
-		{ "T-bit","lt2p.l2_spec_t", FT_BOOLEAN, 8, NULL, 0x08,
+		{ "T-bit","l2tp.l2_spec_t", FT_BOOLEAN, 8, NULL, 0x08,
 			"Transport Type Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_g,
-		{ "G-bit","lt2p.l2_spec_g", FT_BOOLEAN, 8, NULL, 0x04,
+		{ "G-bit","l2tp.l2_spec_g", FT_BOOLEAN, 8, NULL, 0x04,
 			"EFCI Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_c,
-		{ "C-bit","lt2p.l2_spec_c", FT_BOOLEAN, 8, NULL, 0x02,
+		{ "C-bit","l2tp.l2_spec_c", FT_BOOLEAN, 8, NULL, 0x02,
 			"CLP Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_u,
-		{ "U-bit","lt2p.l2_spec_u", FT_BOOLEAN, 8, NULL, 0x01,
+		{ "U-bit","l2tp.l2_spec_u", FT_BOOLEAN, 8, NULL, 0x01,
 			"C/R Bit", HFILL }},
 
 		{ &hf_l2tp_l2_spec_flow_id,
-		{ "Flow ID","lt2p.l2_spec_flow_id", FT_UINT8, BASE_HEX, NULL, FLOW_ID_MASK,
+		{ "Flow ID","l2tp.l2_spec_flow_id", FT_UINT8, BASE_HEX, NULL, FLOW_ID_MASK,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_sequence,
-		{ "Sequence Number","lt2p.l2_spec_sequence", FT_UINT24, BASE_DEC, NULL, 0x0,
+		{ "Sequence Number","l2tp.l2_spec_sequence", FT_UINT24, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_l2tp_cisco_avp_type,

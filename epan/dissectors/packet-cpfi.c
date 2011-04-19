@@ -402,7 +402,7 @@ proto_register_cpfi(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
     { &hf_cpfi_word_two,
-      { "Word two", "cfpi.word_two",
+      { "Word two", "cpfi.word_two",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
 

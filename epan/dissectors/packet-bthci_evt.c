@@ -3153,7 +3153,7 @@ proto_register_bthci_evt(void)
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_curr_role,
-			{ "Current Role", "bthci_evt_curr_role",
+			{ "Current Role", "bthci_evt.curr_role",
 				FT_UINT8, BASE_HEX, VALS(evt_role_vals_handle), 0x0,
 				"Current role for this connection handle", HFILL }
 		},

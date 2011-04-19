@@ -3670,7 +3670,7 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_dns_apl_coded_prefix,
-      { "Prefix Length", "hf.dns.apl.coded.prefix",
+      { "Prefix Length", "dns.apl.coded.prefix",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_dns_apl_negation,

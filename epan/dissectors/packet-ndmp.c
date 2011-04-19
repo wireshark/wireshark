@@ -4227,7 +4227,7 @@ proto_register_ndmp(void)
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
 		NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
 	{ &hf_ndmp_class_list, {
-		"Ext Class List", "ndmp_class_list", FT_NONE, BASE_NONE,
+		"Ext Class List", "ndmp.class_list", FT_NONE, BASE_NONE,
 		NULL, 0, "List of extension classes", HFILL }},
 	{ &hf_ndmp_ex_class_id, {
 		"Class ID", "ndmp.class.id", FT_UINT32, BASE_HEX,

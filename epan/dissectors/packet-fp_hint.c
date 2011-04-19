@@ -545,7 +545,7 @@ proto_register_fp_hint(void)
 		/* traffic format details */
 		{ &hf_fph_tf, { "Traffic Format", "fp_hint.tf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_fph_tf_n, { "N", "fp_hint.tf.n", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_fph_tf_size, { "Size", "fp_hintf.tf.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_tf_size, { "Size", "fp_hint.tf.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 		/* DDI information for E-DCH */
 		{ &hf_fph_ddi_entry, { "DDI Entry", "fp_hint.ddi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_fph_ddi_value, { "DDI", "fp_hint.ddi.value", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },

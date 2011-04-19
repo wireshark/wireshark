@@ -83,7 +83,7 @@ proto_register_snaeth(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_snaeth_len,
-		{ "Length",	"snaeth_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Length",	"snaeth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Length of LLC payload", HFILL }},
 	};
 	static gint *ett[] = {

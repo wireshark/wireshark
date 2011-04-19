@@ -3236,7 +3236,7 @@ void proto_register_edonkey(void) {
             { "AICH Root Hash", "edonkey.emule.aich_root_hash",
                 FT_BYTES, BASE_NONE, NULL, 0, "eMule AICH Root Hash", HFILL } },
         { &hf_emule_aich_hash_entry,
-            { "AICH Hash Entry", "emule_aich_hash_entry",
+            { "AICH Hash Entry", "edonkey.emule.aich_hash_entry",
                 FT_NONE, BASE_NONE, NULL, 0, "eMule AICH Hash Entry", HFILL } },
         { &hf_emule_aich_hash_id,
             { "AICH Hash ID", "edonkey.emule.aich_hash_id",
