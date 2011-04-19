@@ -55,6 +55,8 @@
 #define BITTORRENT_MESSAGE_REQUEST        6
 #define BITTORRENT_MESSAGE_PIECE          7
 #define BITTORRENT_MESSAGE_CANCEL         8
+#define BITTORRENT_MESSAGE_PORT           9
+#define BITTORRENT_MESSAGE_EXTENDED      20
 
 #define BITTORRENT_HEADER_LENGTH          4
 
@@ -82,6 +84,8 @@ static const value_string bittorrent_messages[] = {
    { BITTORRENT_MESSAGE_REQUEST, "Request" },
    { BITTORRENT_MESSAGE_PIECE, "Piece" },
    { BITTORRENT_MESSAGE_CANCEL, "Cancel" },
+   { BITTORRENT_MESSAGE_PORT, "Port" },
+   { BITTORRENT_MESSAGE_EXTENDED, "Extended" },
    { AZUREUS_MESSAGE_KEEP_ALIVE, "Keepalive" },
    { AZUREUS_MESSAGE_HANDSHAKE, "Azureus Handshake" },
    { AZUREUS_MESSAGE_BT_HANDSHAKE, "Azureus BitTorrent Handshake" },
@@ -115,6 +119,8 @@ static const struct amp_message amp_messages[] = {
    { "BT_REQUEST", BITTORRENT_MESSAGE_REQUEST },
    { "BT_PIECE", BITTORRENT_MESSAGE_PIECE },
    { "BT_CANCEL", BITTORRENT_MESSAGE_CANCEL },
+   { "BT_PORT", BITTORRENT_MESSAGE_PORT },
+   { "BT_EXTENDED", BITTORRENT_MESSAGE_EXTENDED },
    { "AZ_HANDSHAKE", AZUREUS_MESSAGE_HANDSHAKE },
    { "BT_HANDSHAKE", AZUREUS_MESSAGE_BT_HANDSHAKE },
    { "AZ_PEER_EXCHANGE", AZUREUS_MESSAGE_PEER_EXCHANGE },
@@ -154,6 +160,8 @@ static gint hf_azureus_jpc_addrlen      = -1;
 static gint hf_azureus_jpc_addr         = -1;
 static gint hf_azureus_jpc_port         = -1;
 static gint hf_azureus_jpc_session      = -1;
+static gint hf_bittorrent_port          = -1;
+static gint hf_bittorrent_extended      = -1;
 
 static gint ett_bittorrent = -1;
 static gint ett_bittorrent_msg = -1;
@@ -281,7 +289,7 @@ static guint get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, in
       /* Do some sanity checking of the message, if we have the ID byte */
       if(tvb_offset_exists(tvb, offset + BITTORRENT_HEADER_LENGTH)) {
          type = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH);
-         if(type <= BITTORRENT_MESSAGE_CANCEL && length<0x1000000) {
+         if((type <= BITTORRENT_MESSAGE_PORT || type == BITTORRENT_MESSAGE_EXTENDED) && length<0x1000000) {
             /* This seems to be a valid BitTorrent header with a known
                type identifier */
             return BITTORRENT_HEADER_LENGTH + length;
@@ -579,6 +587,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    proto_item *ti;
    guint32 piece_index, piece_begin, piece_length;
    guint32 stringlen;
+   guint16 dht_port;
 
    if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
       /* Check for data from the middle of a message. */
@@ -685,6 +694,17 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
       }
+      break;
+
+   case BITTORRENT_MESSAGE_PORT:
+      /* port as payload */
+      dht_port = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_uint(mtree, hf_bittorrent_port, tvb, offset, 2, dht_port); offset += 2;
+      break;
+
+   case BITTORRENT_MESSAGE_EXTENDED:
+      /* extended message content */
+      proto_tree_add_item(mtree, hf_bittorrent_extended, tvb, offset, length, FALSE);
       break;
 
    case BITTORRENT_MESSAGE_HAVE:
@@ -910,6 +930,12 @@ proto_register_bittorrent(void)
       },
       { &hf_azureus_jpc_session,
         { "Session ID", "bittorrent.jpc.session", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_bittorrent_port,
+        { "Port", "bittorrent.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_bittorrent_extended,
+        { "Extended Message", "bittorrent.extended", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       }
    };
 
