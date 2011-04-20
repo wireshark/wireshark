@@ -65,9 +65,9 @@ static dissector_handle_t data_handle = NULL;
 void
 packet_init(void)
 {
-  frame_handle = find_dissector("frame");
-  data_handle = find_dissector("data");
-  proto_malformed = proto_get_id_by_filter_name("malformed");
+	frame_handle = find_dissector("frame");
+	data_handle = find_dissector("data");
+	proto_malformed = proto_get_id_by_filter_name("malformed");
 }
 
 void
@@ -308,8 +308,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.dcerpc_procedure_name="";
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 
-        /* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
-        edt->pi.ethertype = G_MAXINT;
+	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
+	edt->pi.ethertype = G_MAXINT;
 
 	EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
 
@@ -1228,11 +1228,11 @@ dtbl_entry_get_initial_handle (dtbl_entry_t *dtbl_entry)
 /**************************************************/
 
 typedef struct dissector_foreach_info {
-  gpointer     caller_data;
-  DATFunc      caller_func;
-  GHFunc       next_func;
-  const gchar  *table_name;
-  ftenum_t     selector_type;
+	gpointer     caller_data;
+	DATFunc      caller_func;
+	GHFunc       next_func;
+	const gchar  *table_name;
+	ftenum_t     selector_type;
 } dissector_foreach_info_t;
 
 /*
@@ -1635,7 +1635,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			status = TRUE;
 			break;
 		} else {
-			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned true",
+			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned false",
 					 proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol))));
 
 			/*
