@@ -128,15 +128,37 @@ AC_SUBST(XSLTPROC)
 AC_SUBST(XMLLINT)
 
 #
-# Set CLANG if the compiler is clang, to handle compiler options
-# supported both by GCC and clang.  (This does *not* include
-# -no-cpp-precomp; clang says "clang: warning: argument unused during
-# compilation: '-no-cpp-precomp'" if you use it.)
+# Set "ac_supports_gcc_flags" if the compiler is known to support GCC-style
+# flags such as -pedantic, -W warning flags and -f feature flags.  Currently,
+# we assume GCC and clang do; other compilers should be added here.
 #
-if test "x$GCC" != "xyes" ; then
-	if test "x$CC" = "xclang" ; then
-		CLANG=yes
-	fi
+# This is done to avoid getting tripped up by compilers that support
+# those flags but give them a different meaning.
+#
+if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+	ac_supports_gcc_flags=yes
+fi
+
+#
+# Set "ac_supports_W_linker_passthrough" if the compiler is known to
+# support "-Wl,{options}" to pass options through to the linker.
+# Currently, we assume GCC, xlc, and clang do; other compilers should
+# be added here.
+#
+if test "x$GCC" = "xyes" -o "x$CC" = "xxlc" -o "x$CC" = "xclang" ; then
+	ac_supports_W_linker_passthrough=yes
+fi
+
+#
+# Set "ac_supports_attribute_unused" if the compiler is known to
+# support "__attribute__(unused)".
+# Currently, we assume GCC and clang do; other compilers should
+# be added here.
+#
+# XXX - do this with a compiler test?
+#
+if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+	ac_supports_W_linker_passthrough=yes
 fi
 
 if test "x$CC_FOR_BUILD" = x
@@ -345,12 +367,12 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 # Use the faster pre gcc 4.5 floating point precision
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 
-AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
-###AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,-M])
-###AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--cref])
-# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-flto])
-# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhopr])
-# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhole-program])
+AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
+###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,-M])
+###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--cref])
+# AC_WIRESHARK_LDFLAGS_CHECK([-flto])
+# AC_WIRESHARK_LDFLAGS_CHECK([-fwhopr])
+# AC_WIRESHARK_LDFLAGS_CHECK([-fwhole-program])
 
 #
 # If we're running GCC or clang, add '-D_U_="__attribute__((unused))"' to
@@ -361,14 +383,15 @@ AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
 #
 # XXX - other compilers?
 #
-if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
+if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
   CFLAGS="-D_U_=\"__attribute__((unused))\" $CFLAGS"
 else
   CFLAGS="-D_U_=\"\" $CFLAGS"
 fi
 
 #
-# If we're running GCC or clang, enable a barrier "stop on warning".
+# If the compiler supports GCC-style flags, enable a barrier "stop on
+# warning".
 # This barrier is set for a very large part of the code. However, it is
 # typically not set for "generated" code  (flex, ans2wrs, idl2wrs, ...)
 #
@@ -378,7 +401,7 @@ AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
 		  [Treat warnings as errors (only for GCC or clang). @<:@default=yes@:>@]),
 [
-  if test \( "x$GCC" = "xyes" -o "x$CLANG" = "xyes" \) -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
+  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -386,7 +409,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 ],
-  if test \( "x$GCC" = "xyes" -o "x$CLANG" = "xyes" \) -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
+  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -444,8 +467,19 @@ else
 		# apparently-legal code won't compile with its precompiled
 		# headers.
 		#
-		CFLAGS="-no-cpp-precomp $CFLAGS"
-		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		# On the other hand, if it's called "clang", it's not a
+		# GCC derivative, and it whines if you pass it
+		# -no-cpp-precomp.
+		#
+		if test "x$CC" != "xclang" ; then
+			CFLAGS="-no-cpp-precomp $CFLAGS"
+			AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		else
+			#
+			# Clang, clang, clang went the trolley....
+			#
+			AC_MSG_RESULT(none needed)
+		fi
 		;;
 	*)
 		AC_MSG_RESULT(none needed)

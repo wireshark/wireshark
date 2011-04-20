@@ -1681,20 +1681,19 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 	fi
 ])
 
-#AC_WIRESHARK_GCC_LDFLAGS_CHECK
+#AC_WIRESHARK_LDFLAGS_CHECK
 #
 # $1 : ldflag(s) to test
 #
-# The macro first determines if the compiler is GCC. Then compile with the
-# defined ldflags. The defined flags are added to LDFLAGS only if the
-# compilation succeeds.
+# The macro first determines if the compiler supports "-Wl,{option}" to
+# pass options through to the linker. Then it attempts to compile with
+# the defined ldflags. The defined flags are added to LDFLAGS only if
+# the compilation succeeds.
 #
-# XXX - clang as well?
-#
-AC_DEFUN([AC_WIRESHARK_GCC_LDFLAGS_CHECK],
+AC_DEFUN([AC_WIRESHARK_LDFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to LDFLAGS)
-if test "x$GCC" != "x"; then
+if test "x$ac_supports_W_linker_passthrough" = "xyes"; then
   LDFLAGS_saved="$CFLAGS"
   LDFLAGS="$LDFLAGS $GCC_OPTION"
   AC_LINK_IFELSE([
@@ -1718,14 +1717,17 @@ fi
 #
 # $1 : cflags to test
 #
-# The macro first determines if the compiler is GCC or clang. Then compile with
-# the defined cflags. The defined flags are added to CFLAGS only if the
-# compilation succeeds.
+# The macro first determines if the compiler supports GCC-style flags.
+# Then it attempts to compile with the defined cflags.  The defined
+# flags are added to CFLAGS only if the compilation succeeds.
+#
+# We do this because not all such options are necessarily supported by
+# the version of the particular compiler we're using.
 #
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
-if test "x$GCC" != "x" -o "x$CLANG" != "x" ; then
+if test "x$ac_supports_gcc_flags" = "xyes" ; then
   CFLAGS_saved="$CFLAGS"
   CFLAGS="$CFLAGS $GCC_OPTION"
   AC_COMPILE_IFELSE([
@@ -1779,7 +1781,7 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 		GTK_LIBS="$GTK_LIBS -ligemacintegration"
 	])
 
-	if test x$have_ige_mac == x
+	if test x$have_ige_mac = x
 	then
 		#
 		# Not found - check for the old integration functions in
@@ -1796,7 +1798,7 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 		])
 	fi
 
-	if test x$have_ige_mac == x
+	if test x$have_ige_mac = x
 	then
 		#
 		# Not found - check for the old integration functions in
