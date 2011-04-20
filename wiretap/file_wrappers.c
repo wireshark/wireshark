@@ -230,27 +230,125 @@ fast_seek_reset(FILE_T state _U_)
 
 #ifdef HAVE_LIBZ
 
-/* Get next byte from input, or -1 if end or error. */
-#define NEXT() ((state->avail_in == 0 && fill_in_buffer(state) == -1) ? -1 : \
+/* Get next byte from input, or -1 if end or error.
+ *
+ * Note:
+ *
+ *	1) errors from raw_read(), and thus from fill_in_buffer(), are
+ *	"sticky", and fill_in_buffer() won't do any reading if there's
+ *	an error;
+ *
+ *	2) GZ_GETC() returns -1 on an EOF;
+ *
+ * so it's safe to make multiple GZ_GETC() calls and only check the
+ * last one for an error. */
+#define GZ_GETC() ((state->avail_in == 0 && fill_in_buffer(state) == -1) ? -1 : \
                 (state->avail_in == 0 ? -1 : \
                  (state->avail_in--, *(state->next_in)++)))
 
+/* Get a one-byte integer and return 0 on success and the value in *ret.
+   Otherwise -1 is returned, state->err is set, and *ret is not modified. */
+static int
+gz_next1(FILE_T state, guint8 *ret)
+{
+	int ch;
+
+	ch = GZ_GETC();
+	if (ch == -1) {
+		if (state->err == 0) {
+			/* EOF */
+			state->err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
+	}
+	*ret = ch;
+	return 0;
+}
+
+/* Get a two-byte little-endian integer and return 0 on success and the value
+   in *ret.  Otherwise -1 is returned, state->err is set, and *ret is not
+   modified. */
+static int
+gz_next2(FILE_T state, guint16 *ret)
+{
+	guint16 val;
+	int ch;
+
+	val = GZ_GETC();
+	ch = GZ_GETC();
+	if (ch == -1) {
+		if (state->err == 0) {
+			/* EOF */
+			state->err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
+	}
+	val += (guint16)ch << 8;
+	*ret = val;
+	return 0;
+}
+
 /* Get a four-byte little-endian integer and return 0 on success and the value
-   in *ret.  Otherwise -1 is returned and *ret is not modified. */
+   in *ret.  Otherwise -1 is returned, state->err is set, and *ret is not
+   modified. */
 static int
 gz_next4(FILE_T state, guint32 *ret)
 {
 	guint32 val;
 	int ch;
 
-	val = NEXT();
-	val += (unsigned)NEXT() << 8;
-	val += (guint32)NEXT() << 16;
-	ch = NEXT();
-	if (ch == -1)
+	val = GZ_GETC();
+	val += (unsigned)GZ_GETC() << 8;
+	val += (guint32)GZ_GETC() << 16;
+	ch = GZ_GETC();
+	if (ch == -1) {
+		if (state->err == 0) {
+			/* EOF */
+			state->err = WTAP_ERR_SHORT_READ;
+		}
 		return -1;
+	}
 	val += (guint32)ch << 24;
 	*ret = val;
+	return 0;
+}
+
+/* Skip the specified number of bytes and return 0 on success.  Otherwise -1
+   is returned. */
+static int
+gz_skipn(FILE_T state, size_t n)
+{
+	while (n != 0) {
+		if (GZ_GETC() == -1) {
+			if (state->err == 0) {
+				/* EOF */
+				state->err = WTAP_ERR_SHORT_READ;
+			}
+			return -1;
+		}
+		n--;
+	}
+	return 0;
+}
+
+/* Skip a null-terminated string and return 0 on success.  Otherwise -1
+   is returned. */
+static int
+gz_skipzstr(FILE_T state)
+{
+	int ch;
+
+	/* It's null-terminated, so scan until we read a byte with
+	   the value 0 or get an error. */
+	while ((ch = GZ_GETC()) > 0)
+		;
+	if (ch == -1) {
+		if (state->err == 0) {
+			/* EOF */
+			state->err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
+	}
 	return 0;
 }
 
@@ -380,12 +478,13 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	   got before the error.  The next attempt to read
 	   something past that data will get the error. */
 	if (ret == Z_STREAM_END) {
-		if (gz_next4(state, &crc) == -1 || gz_next4(state, &len) == -1)
-			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-		else if (crc != strm->adler)
-			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-		else if (len != (strm->total_out & 0xffffffffL))
-			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+		if (gz_next4(state, &crc) != -1 &&
+		    gz_next4(state, &len) != -1) {
+			if (crc != strm->adler)
+				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+			if (len != (strm->total_out & 0xffffffffL))
+				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+		}
 		state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
 		g_free(state->fast_seek_cur);
 		state->fast_seek_cur = NULL;
@@ -412,48 +511,70 @@ gz_head(FILE_T state)
 		if (state->avail_in == 0 && fill_in_buffer(state) == -1)
 			return -1;
 		if (state->avail_in && state->next_in[0] == 139) {
-			unsigned len;
-			int flags;
+			guint8 cm;
+			guint8 flags;
+			guint16 len;
+			guint16 hcrc;
 
 			/* we have a gzip header, woo hoo! */
 			state->avail_in--;
 			state->next_in++;
 
-			/* skip rest of header */
-			if (NEXT() != 8) {      /* compression method */
+			/* read rest of header */
+
+			/* compression method (CM) */
+			if (gz_next1(state, &cm) == -1)
+				return -1;
+			if (cm != 8) {
 				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
 				return -1;
 			}
-			flags = NEXT();
+
+			/* flags (FLG) */
+			if (gz_next1(state, &flags) == -1)
+				return -1;
 			if (flags & 0xe0) {     /* reserved flag bits */
 				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
 				return -1;
 			}
-			NEXT();                 /* modification time */
-			NEXT();
-			NEXT();
-			NEXT();
-			NEXT();                 /* extra flags */
-			NEXT();                 /* operating system */
-			if (flags & 4) {        /* extra field */
-				len = (unsigned)NEXT();
-				len += (unsigned)NEXT() << 8;
-				while (len--)
-					if (NEXT() < 0)
-						break;
+
+			/* modification time (MTIME) */
+			if (gz_skipn(state, 4) == -1)
+				return -1;
+
+			/* extra flags (XFL) */
+			if (gz_skipn(state, 1) == -1)
+				return -1;
+
+			/* operating system (OS) */
+			if (gz_skipn(state, 1) == -1)
+				return -1;
+
+			if (flags & 4) {
+				/* extra field - get XLEN */
+				if (gz_next2(state, &len) == -1)
+					return -1;
+
+				/* skip the extra field */
+				if (gz_skipn(state, len) == -1)
+					return -1;
 			}
-			if (flags & 8)          /* file name */
-				while (NEXT() > 0)
-					;
-			if (flags & 16)         /* comment */
-				while (NEXT() > 0)
-					;
-			if (flags & 2) {        /* header crc */
-				NEXT();
-				NEXT();
+			if (flags & 8) {
+				/* file name */
+				if (gz_skipzstr(state) == -1)
+					return -1;
 			}
-			/* an unexpected end of file is not checked for here -- it will be
-			   noticed on the first request for uncompressed data */
+			if (flags & 16) {
+				/* comment */
+				if (gz_skipzstr(state) == -1)
+					return -1;
+			}
+			if (flags & 2) {
+				/* header crc */
+				if (gz_next2(state, &hcrc) == -1)
+					return -1;
+				/* XXX - check the CRC? */
+			}
 
 			/* set up for decompression */
 			inflateReset(&(state->strm));
@@ -734,10 +855,14 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 			strm->adler = here->data.zlib.adler;
 			strm->total_out = here->data.zlib.total_out;
 			if (here->data.zlib.bits) {
-				int ret = NEXT();
+				int ret = GZ_GETC();
 
 				if (ret == -1) {
-					/* *err = ???; */
+					if (state->err == 0) {
+						/* EOF */
+						*err = WTAP_ERR_SHORT_READ;
+					} else
+						*err = state->err;
 					return -1;
 				}
 
