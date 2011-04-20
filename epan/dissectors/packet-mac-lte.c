@@ -2082,7 +2082,7 @@ typedef struct tti_info_t {
     nstime_t ttiStartTime;
     guint ues_in_tti;
 } tti_info_t;
-    
+
 static tti_info_t UL_tti_info;
 static tti_info_t DL_tti_info;
 
@@ -2123,7 +2123,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
         gint nseconds_between_packets =
               pinfo->fd->abs_ts.nsecs -  tti_info->ttiStartTime.nsecs;
 
-        /* Round difference to nearest millisecond */
+        /* Round difference to nearest microsecond */
         gint total_us_gap = (seconds_between_packets*1000000) +
                            ((nseconds_between_packets+500) / 1000);
 
@@ -3474,6 +3474,11 @@ mac_lte_init_protocol(void)
         g_hash_table_destroy(mac_lte_tti_info_result_hash);
     }
 
+    /* Reset structs */
+    memset(&UL_tti_info, 0, sizeof(UL_tti_info));
+    UL_tti_info.subframe = 0xff;  /* Invalid value */
+    memset(&DL_tti_info, 0, sizeof(DL_tti_info));
+    DL_tti_info.subframe = 0xff;  /* Invalid value */
 
     /* Now create them over */
     mac_lte_msg3_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
