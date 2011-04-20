@@ -1775,7 +1775,7 @@ msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
     guint ad;
 
     for (i = 1; i < len && i < 9; i++) {
-        ad = tvb_get_guint8(tvb, offset + 1);
+        ad = tvb_get_guint8(tvb, offset + i);
         bits8to5 = (ad >> 4) & 0x0F;
         bits4to1 = ad & 0x0F;
         if (bits4to1 < 0xA)
