@@ -31,21 +31,34 @@
 
 #define DEFAULT_UDP_PORT 55627
 
+enum {
+  ST_DATA  = 0,
+  ST_FIN   = 1,
+  ST_STATE = 2,
+  ST_RESET = 3,
+  ST_SYN   = 4,
+  ST_NUM_STATES,
+};
+
+/* V0 hdr: "flags"; V1 hdr: "type" */
 static const value_string bt_utp_type_vals[] = {
-  { 0, "Data" },
-  { 1, "Fin" },
-  { 2, "State" },
-  { 3, "Reset" },
-  { 4, "Syn" },
+  { ST_DATA,  "Data"  },
+  { ST_FIN,   "Fin"   },
+  { ST_STATE, "State" },
+  { ST_RESET, "Reset" },
+  { ST_SYN,   "Syn"   },
   { 0, NULL }
 };
 
-#define EXT_NO_EXTENSION    0
-#define EXT_SELECTION_ACKS  1
-#define EXT_EXTENSION_BITS  2
+enum {
+  EXT_NO_EXTENSION    = 0,
+  EXT_SELECTION_ACKS  = 1,
+  EXT_EXTENSION_BITS  = 2,
+  EXT_NUM_EXT,
+};
 
 static const value_string bt_utp_extension_type_vals[] = {
-  { EXT_NO_EXTENSION, "No Extension" },
+  { EXT_NO_EXTENSION,   "No Extension" },
   { EXT_SELECTION_ACKS, "Selective acks" },
   { EXT_EXTENSION_BITS, "Extension bits" },
   { 0, NULL }
@@ -53,9 +66,43 @@ static const value_string bt_utp_extension_type_vals[] = {
 
 static int proto_bt_utp = -1;
 
-/* Specifications: BEP-0029
+/* ---  "Original" utp Header ("version 0" ?) --------------
+
+See utp.cpp source code @ https://github.com/bittorrent/libutp
+
+-- Fixed Header --
+
++-------+-------+---------------+---------------+---------------+
+| connection_id                                                 |
++-------+-------+---------------+---------------+---------------+
+| timestamp_seconds                                             |
++---------------+---------------+---------------+---------------+
+| timestamp_microseconds                                        |
++---------------+---------------+---------------+---------------+
+| timestamp_difference_microseconds                             |
++---------------+---------------+---------------+---------------+
+| wnd_size      | ext           | flags         | seq_nr [ho]   |
++---------------+---------------+---------------+---------------+
+| seq_nr [lo]   | ack_nr                        |
++---------------+---------------+---------------+
+
+-- Extension Field(s) --
+
+0               8               16
++---------------+---------------+---------------+---------------+
+| extension     | len           | bitmask
++---------------+---------------+---------------+---------------+
+                                |
++---------------+---------------+....
+
+*/
+
+/* --- Version 1 Header ----------------
+
+Specifications: BEP-0029
 http://www.bittorrent.org/beps/bep_0029.html
 
+-- Fixed Header --
 Fields Types
 0       4       8               16              24              32
 +-------+-------+---------------+---------------+---------------+
@@ -70,6 +117,11 @@ Fields Types
 | seq_nr                        | ack_nr                        |
 +---------------+---------------+---------------+---------------+
 
+XXX: It appears that the above is to be interpreted as indicating
+     that 'ver' is in the low-order 4 bits of byte 0 (mask: 0x0f).
+     (See utp.cpp @ https://github.com/bittorrent/libutp)
+
+-- Extension Field(s) --
 0               8               16
 +---------------+---------------+---------------+---------------+
 | extension     | len           | bitmask
@@ -77,17 +129,24 @@ Fields Types
                                 |
 +---------------+---------------+....
 */
+
+#define V1_FIXED_HDR_SIZE 20
+
 static int hf_bt_utp_ver = -1;
 static int hf_bt_utp_type = -1;
+static int hf_bt_utp_flags = -1;
 static int hf_bt_utp_extension = -1;
 static int hf_bt_utp_next_extension_type = -1;
 static int hf_bt_utp_extension_len = -1;
 static int hf_bt_utp_extension_bitmask = -1;
 static int hf_bt_utp_extension_unknown = -1;
-static int hf_bt_utp_connection_id = -1;
-static int hf_bt_utp_timestamp_ms = -1;
-static int hf_bt_utp_timestamp_diff_ms = -1;
-static int hf_bt_utp_wnd_size = -1;
+static int hf_bt_utp_connection_id_v0 = -1;
+static int hf_bt_utp_connection_id_v1 = -1;
+static int hf_bt_utp_timestamp_sec = -1;
+static int hf_bt_utp_timestamp_us = -1;
+static int hf_bt_utp_timestamp_diff_us = -1;
+static int hf_bt_utp_wnd_size_v0 = -1;
+static int hf_bt_utp_wnd_size_v1 = -1;
 static int hf_bt_utp_seq_nr = -1;
 static int hf_bt_utp_ack_nr = -1;
 
@@ -98,6 +157,44 @@ static guint global_bt_utp_udp_port = DEFAULT_UDP_PORT;
 
 void proto_reg_handoff_bt_utp(void);
 
+static gboolean
+utp_is_v1(tvbuff_t *tvb) {
+  guint8 v1_ver_type;
+  guint8 v1_ext;
+  guint  len;
+
+  v1_ver_type = tvb_get_guint8(tvb, 0);
+  v1_ext      = tvb_get_guint8(tvb, 1);
+
+  if (((v1_ver_type & 0x0f) != 1)             ||
+      ((v1_ver_type>>4)     >= ST_NUM_STATES) ||
+      (v1_ext               >= EXT_NUM_EXT)) {
+    return FALSE;  /* Not V1 (or corrupt) */
+  }
+
+  /* The simple heuristic above (based upon code from utp.cpp) suggests the header is "V1";
+   *  However, based upon a capture seen, the simple heuristic does not appear to be sufficient.
+   *  So: Also do some length checking:
+   *   The length of "V1" frames should be 20, 26, 30, 34, 36, 38, ...
+   *   fixed hdr len:    20
+   *   extension9s) len:  6, 10, 14, 16, 18, 20, ...
+   *   XXX: this is a hack and should be replaced !!
+   */
+  len = tvb_reported_length(tvb);
+  if (len < V1_FIXED_HDR_SIZE) {
+    return TRUE;  /* Invalid ?: pretend V1 anyways */
+  }
+  len -= V1_FIXED_HDR_SIZE;
+  if ((len ==  0) ||
+      (len ==  6) ||
+      (len == 10) ||
+      (len == 14) ||
+      ((len > 14) && (len%2 == 0))) {
+    return TRUE; /* looks like V1 */
+  }
+  return FALSE;   /* Not V1 (or corrupt) */
+}
+
 static int
 dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
 {
@@ -105,30 +202,56 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
   proto_tree *ext_tree;
   guint8 extension_type;
   guint8 extension_length;
-  int offset = 0;
+  int    offset  = 0;
 
-  /* Strange in LibuTP the first bytes as the following definition
-     packet_type (4 high bits)
-     protocol version (4 low bits)
-  */
-  proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, FALSE);
-  proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, FALSE);
-  offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-  extension_type = tvb_get_guint8(tvb, offset);
-  offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_connection_id, tvb, offset, 2, FALSE);
-  offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_ms, tvb, offset, 4, FALSE);
-  offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_ms, tvb, offset, 4, FALSE);
-  offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_wnd_size, tvb, offset, 4, FALSE);
-  offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
-  offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
-  offset += 2;
+  /* Determine header version */
+
+  if (!utp_is_v1(tvb)) {
+    /* "Original" (V0) */
+    proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, FALSE);
+    offset += 1;
+    proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+    extension_type = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, FALSE);
+    offset += 1;
+    proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+    offset += 2;
+    proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+    offset += 2;
+  } else {
+    /* V1 */
+    /* Strange: Contrary to BEP-29, in LibuTP (utp.cpp) the first byte has the following definition:
+       packet_type (4 high bits)
+       protocol version (4 low bits)
+    */
+    proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, FALSE);
+    offset += 1;
+    proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+    extension_type = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, FALSE);
+    offset += 2;
+    proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+    offset += 2;
+    proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+    offset += 2;
+  }
 
   /* display the extension tree */
 
@@ -136,7 +259,7 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
    *      ignoring the "end-of-list" [EXT_NO_EXTENSION] extension type.
    *      Should we just quit when EXT_NO_EXTENSION is encountered ?
    */
-  while(offset < (int)tvb_length(tvb))
+  while(offset < (int)tvb_reported_length(tvb))
   {
     switch(extension_type){
       case EXT_SELECTION_ACKS: /* 1 */
@@ -232,6 +355,11 @@ proto_register_bt_utp(void)
       FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL }
     },
+    { &hf_bt_utp_flags,
+      { "Flags", "bt-utp.flags",
+      FT_UINT8, BASE_DEC,  VALS(bt_utp_type_vals), 0x0,
+      NULL, HFILL }
+    },
     { &hf_bt_utp_type,
       { "Type", "bt-utp.type",
       FT_UINT8, BASE_DEC,  VALS(bt_utp_type_vals), 0xF0,
@@ -262,22 +390,37 @@ proto_register_bt_utp(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_bt_utp_connection_id,
+    { &hf_bt_utp_connection_id_v0,
+      { "Connection ID", "bt-utp.connection_id",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_utp_connection_id_v1,
       { "Connection ID", "bt-utp.connection_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_bt_utp_timestamp_ms,
-      { "Timestamp Microseconds", "bt-utp.timestamp_ms",
+    { &hf_bt_utp_timestamp_sec,
+      { "Timestamp seconds", "bt-utp.timestamp_sec",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_bt_utp_timestamp_diff_ms,
-      { "Timestamp Difference Microseconds", "bt-utp.timestamp_diff_ms",
+    { &hf_bt_utp_timestamp_us,
+      { "Timestamp Microseconds", "bt-utp.timestamp_us",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_bt_utp_wnd_size,
+    { &hf_bt_utp_timestamp_diff_us,
+      { "Timestamp Difference Microseconds", "bt-utp.timestamp_diff_us",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_utp_wnd_size_v0,
+      { "Windows Size", "bt-utp.wnd_size",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_utp_wnd_size_v1,
       { "Windows Size", "bt-utp.wnd_size",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
