@@ -96,7 +96,7 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir
 # a register.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissector-reg \
+register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
     $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n "$(PYTHON)"; then \
 		echo Making register.c with python ; \

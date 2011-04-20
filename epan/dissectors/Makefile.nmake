@@ -76,7 +76,7 @@ packet-rrc.obj : packet-rrc.c
 # All subsequent arguments are the files to scan.
 #
 
-register.c: $(ALL_DISSECTORS_SRC) ..\..\tools\make-dissector-reg.py ..\..\tools\make-dissector-reg
+register.c: $(ALL_DISSECTORS_SRC) Makefile.common ..\..\tools\make-dissector-reg.py ..\..\tools\make-dissector-reg
 !IFDEF PYTHON
 	@echo Making register.c (using python)
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTORS_SRC)
