@@ -319,7 +319,6 @@ set_if_capabilities(gboolean monitor_mode_changed)
   GSList *curr_addr;
   if_addr_t *addr;
   GtkWidget *if_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  GtkWidget *entry = GTK_COMBO(if_cb)->entry;
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget *iftype_cbx;
   int iftype;
@@ -331,7 +330,20 @@ set_if_capabilities(gboolean monitor_mode_changed)
   GtkWidget *advanced_bt;
 #endif
 
-  entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+#if GTK_CHECK_VERSION(2,6,0)
+  entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
+#else
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(if_cb), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
+  gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
+#endif
+  
+  if(!entry_text)
+	  entry_text = '\0';
+
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
   cap_settings = capture_get_cap_settings(if_name);
@@ -348,7 +360,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
   /* retrieve the advanced button pointer */
-  advanced_bt = g_object_get_data(G_OBJECT(entry),AIRPCAP_OPTIONS_ADVANCED_KEY);
+  advanced_bt = g_object_get_data(G_OBJECT(gtk_bin_get_child(GTK_BIN(if_cb))),AIRPCAP_OPTIONS_ADVANCED_KEY);
   airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,if_name);
   airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
   if (airpcap_if_selected != NULL) {
@@ -896,9 +908,11 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 static void
 update_interface_list()
 {
-  GtkWidget *if_cb, *iftype_cbx, *remote_bt;
-  GList     *if_list, *combo_list;
-  int        iftype, prev_iftype, err;
+  GtkWidget    *if_cb, *iftype_cbx, *remote_bt;
+  GList        *if_list, *combo_list, *combo_list_entry;
+  GtkTreeModel *model;
+
+  int        iftype, prev_iftype, err, n_interfaces, i=0;
   gchar     *err_str;
 
   if (cap_open_w == NULL)
@@ -940,16 +954,26 @@ update_interface_list()
       return;
     }
 
-    gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), NULL);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "");
+	/* Empty the interface combo box */
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
+	n_interfaces = gtk_tree_model_iter_n_children(model,NULL);
+	while(i < n_interfaces){
+		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), i);
+	}
+
   } else if (iftype == CAPTURE_IFREMOTE) {
     /* New remote interface */
     iftype_combo_box_add (iftype_cbx);
   }
   combo_list = build_capture_combo_list(if_list, TRUE);
-  gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
+  for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {  
+      gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
+  }
+
   if (combo_list == NULL)
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), "");
+
+  gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
 
   free_capture_combo_list(combo_list);
 
@@ -1672,7 +1696,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
                 *help_bt;
-                GList *cf_entry;	
+                GList *cf_entry;
+                GList *combo_list_entry;
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_bt;
   GtkWidget     *decryption_cb;
@@ -1699,6 +1724,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar         *cap_title;
   gchar         *if_device="";
   if_info_t     *if_info;
+  int           if_index = 0;
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -1818,10 +1844,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(if_hb), iftype_cbx, FALSE, FALSE, 0);
 #endif
 
-  if_cb = gtk_combo_new();
-  combo_list = build_capture_combo_list(if_list, TRUE);
-  if (combo_list != NULL)
-    gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
   if (global_capture_opts.iface == NULL && prefs.capture_device != NULL) {
     /* No interface was specified on the command line or in a previous
        capture, but there is one specified in the preferences file;
@@ -1840,6 +1862,33 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     g_free(if_device);
   }
+
+  /* If we have a prefered interface, get the string to compare with to select the active text*/
+  if (global_capture_opts.iface != NULL) {
+      if_device = build_capture_combo_name(if_list, global_capture_opts.iface);
+  }
+
+  if_cb = gtk_combo_box_new_text();
+  combo_list = build_capture_combo_list(if_list, TRUE);
+  if (combo_list != NULL){
+	for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {  
+		gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
+		/* Do we have a prefered if(if_device != NULL), 
+		 * if we do compare to the entry we are making 
+		 * and make that entry active if they are equal.
+		 */
+		if((if_device)&&(strcmp(if_device, combo_list_entry->data) == 0)) {
+			gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),if_index);
+		}
+		if_index++;
+	}
+	if(!if_device)
+		/* If we did not have an prefered interface make the first one active */
+		gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
+  }
+  /* If we allocated the string free it */
+  g_free(if_device);
+
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
 
 #ifdef HAVE_AIRPCAP
@@ -1848,14 +1897,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,global_capture_opts.iface);
 #endif
 
-  if (global_capture_opts.iface != NULL) {
-    if_device = build_capture_combo_name(if_list, global_capture_opts.iface);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_device);
-    g_free(if_device);
-  } else if (combo_list != NULL) {
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
-                       (char *)combo_list->data);
-  }
   free_capture_combo_list(combo_list);
 #ifdef HAVE_PCAP_REMOTE
   /* Only delete if fetched local */
@@ -1863,10 +1904,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   free_interface_list(if_list);
 #if GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_tooltip_text(GTK_COMBO(if_cb)->entry,
+  gtk_widget_set_tooltip_text(if_cb,
 "Choose which interface (network adapter) will be used to capture packets from. Be sure to select the correct one, as it's a common mistake to select the wrong interface.");			      
 #else
-  gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
+  gtk_tooltips_set_tip(tooltips, if_cb,
     "Choose which interface (network adapter) will be used to capture packets from. "
     "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
 #endif
@@ -1952,7 +1993,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
-  g_signal_connect(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
+  g_signal_connect(gtk_bin_get_child(GTK_BIN(if_cb)), "changed",
                    G_CALLBACK(capture_prep_interface_changed_cb), NULL);
 
   /* Promiscuous mode row */
@@ -2129,7 +2170,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Both the callback and the data are global */
   g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb),airpcap_tb);
-  g_object_set_data(G_OBJECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry)),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
+  g_object_set_data(G_OBJECT(gtk_bin_get_child(GTK_BIN(if_cb))),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
 
   if(airpcap_if_selected != NULL) {
     /* It is an airpcap interface */
@@ -2667,7 +2708,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      entries, so that if the user types Return there, we act as if the
      "OK" button had been selected, as happens if Return is typed if some
      widget that *doesn't* handle the Return key has the input focus. */
-  dlg_set_activate(GTK_COMBO(if_cb)->entry, ok_bt);
+  dlg_set_activate(gtk_bin_get_child(GTK_BIN(if_cb)), ok_bt);
   dlg_set_activate(filter_te, ok_bt);
   dlg_set_activate(file_te, ok_bt);
 
@@ -3067,8 +3108,17 @@ capture_dlg_prep(gpointer parent_w) {
   n_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
 
-  entry_text =
-    g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+#if GTK_CHECK_VERSION(2,6,0)
+  entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
+#else
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(if_cb), &iter);
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
+  gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
+#endif
+  
+  if(!entry_text)
+	  entry_text = '\0';
+
   if_text = g_strstrip(entry_text);
   if_name = get_if_name(if_text);
   if (*if_name == '\0') {
