@@ -179,7 +179,7 @@ static void init_open_routines(void) {
 
 	g_array_append_vals(open_routines_arr,open_routines_base,N_FILE_TYPES);
 
-	open_routines = (wtap_open_routine_t*)open_routines_arr->data;
+	open_routines = (wtap_open_routine_t*)(void *)open_routines_arr->data;
 }
 
 void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_magic) {
@@ -190,7 +190,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 	else
 		g_array_append_val(open_routines_arr,open_routine);
 
-	open_routines = (wtap_open_routine_t*)open_routines_arr->data;
+	open_routines = (wtap_open_routine_t*)(void *)open_routines_arr->data;
 }
 
 /*
@@ -662,7 +662,7 @@ static void init_file_types(void) {
 
 	g_array_append_vals(dump_open_table_arr,dump_open_table_base,wtap_num_file_types);
 
-	dump_open_table = (const struct file_type_info*)dump_open_table_arr->data;
+	dump_open_table = (const struct file_type_info*)(void *)dump_open_table_arr->data;
 }
 
 int wtap_register_file_type(const struct file_type_info* fi) {
@@ -670,7 +670,7 @@ int wtap_register_file_type(const struct file_type_info* fi) {
 
 	g_array_append_val(dump_open_table_arr,*fi);
 
-	dump_open_table = (const struct file_type_info*)dump_open_table_arr->data;
+	dump_open_table = (const struct file_type_info*)(void *)dump_open_table_arr->data;
 
 	return wtap_num_file_types++;
 }
