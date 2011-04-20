@@ -376,7 +376,7 @@ static int erf_read_header(FILE_T fh,
 		  *bytes_read += (guint32)sizeof(erf_exhdr);
 	  *packet_size -=  (guint32)sizeof(erf_exhdr);
 	  skiplen += (guint32)sizeof(erf_exhdr);
-	  erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
+	  erf_exhdr_sw = pntohll(erf_exhdr);
 	  if (i < max)
 	    memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
 	  type = erf_exhdr[0];
