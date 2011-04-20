@@ -131,16 +131,14 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
   offset += 2;
 
   /* display the extension tree */
-  while(offset <= (int)tvb_length(tvb))
+
+  /* XXX: This code loops thru the packet bytes until reaching the end of the PDU
+   *      ignoring the "end-of-list" [EXT_NO_EXTENSION] extension type.
+   *      Should we just quit when EXT_NO_EXTENSION is encountered ?
+   */
+  while(offset < (int)tvb_length(tvb))
   {
     switch(extension_type){
-      case EXT_NO_EXTENSION: /* 0 */
-      {
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, 1, FALSE);
-        proto_item_append_text(ti, " No Extension (End)");
-        offset += 1;
-        break;
-      }
       case EXT_SELECTION_ACKS: /* 1 */
       {
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
@@ -160,7 +158,7 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         proto_item_set_len(ti, 1 + 1 + extension_length);
         break;
       }
-      case EXT_EXTENSION_BITS: /* 1 */
+      case EXT_EXTENSION_BITS: /* 2 */
       {
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
@@ -205,9 +203,9 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
 static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *sub_tree;
-  int decoded_length = 0;
+  proto_tree *sub_tree = NULL;
+  int decoded_length;
+
   /* set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
   /* set the info column */
@@ -215,10 +213,13 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(tree)
   {
+    proto_item *ti;
     ti = proto_tree_add_item(tree, proto_bt_utp, tvb, 0, -1, FALSE);
     sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
-    decoded_length = dissect_utp_header(tvb, sub_tree);
   }
+
+  decoded_length = dissect_utp_header(tvb, sub_tree);
+
   return decoded_length;
 }
 
