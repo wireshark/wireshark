@@ -1432,11 +1432,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				guint16 items_field = tvb_get_ntohs(tvb, offset );
 
 				/* Dissect each defined bit flag in the SDES item content */
-				for ( i = 0;
-				      i < sizeof(contents) / sizeof(contents[0]) &&
-				      i < sizeof(hf_rtcp_app_poc1_conn_content) /
-				          sizeof(hf_rtcp_app_poc1_conn_content[0]);
-				      ++i )
+				for ( i = 0; i < 5; i++)
 				{
 					proto_tree_add_item( content_tree, hf_rtcp_app_poc1_conn_content[i], tvb, offset, 2, FALSE );
 					contents[i] = items_field & (1 << (15-i));
