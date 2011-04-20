@@ -438,8 +438,23 @@ if test "x$GCC" = "xyes" ; then
 		#
 		# See comments above about Apple's lovely C compiler.
 		#
-		CFLAGS="-no-cpp-precomp $CFLAGS"
-		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		# NOTE: to AC_PROG_CC, "GCC" means "any compiler that
+		# defines __GNUC__"; clang defines __GNUC__, so that
+		# means we think clang is GCC.
+		#
+		# clang whines about -no-cpp-precomp being unused
+		# so we check whether this is really clang, and
+		# only add -no-cpp-precomp if it's not.
+		#
+		if test "x$CC" != "xclang" ; then
+			CFLAGS="-no-cpp-precomp $CFLAGS"
+			AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+		else
+			#
+			# Clang, clang, clang went the trolley....
+			#
+			AC_MSG_RESULT(none needed)
+		fi
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
@@ -471,9 +486,13 @@ else
 		# GCC derivative, and it whines if you pass it
 		# -no-cpp-precomp.
 		#
+		# XXX - is there any version of autoconf we support
+		# where it uses another way to decide if the compiler
+		# is GCC or not?
+		#
 		if test "x$CC" != "xclang" ; then
 			CFLAGS="-no-cpp-precomp $CFLAGS"
-			AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
+			AC_MSG_RESULT(Apple CC - added -no-cpp-precomp)
 		else
 			#
 			# Clang, clang, clang went the trolley....
