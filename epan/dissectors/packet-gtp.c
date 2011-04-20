@@ -1724,24 +1724,28 @@ struct _gtp_hdr {
 static guint8 gtp_version = 0;
 static const char *yesno[] = { "no", "yes" };
 
-static const gchar hex_digits[10] = {'0','1','2','3','4','5','6','7','8','9'};
+#define BCD2CHAR(d)         ((d) | 0x30)
 
 static gchar *
 id_to_str(tvbuff_t *tvb, gint offset)
 {
     static gchar str[17] = "                ";
     guint8 bits8to5, bits4to1;
-    int i, j = 0;
+    int i, j;
     guint8 ad;
 
-    for (i = 0; i < 8; i++) {
+    for (i = j = 0; i < 8; i++) {
         ad = tvb_get_guint8(tvb, offset + i);
-        bits8to5 = (ad >> 4) & 0x0F;
-        bits4to1 = ad & 0x0F;
-        if (bits4to1 < 0xA)
-            str[j++] = hex_digits[bits4to1];
-        if (bits8to5 < 0xA)
-            str[j++] = hex_digits[bits8to5];
+        bits8to5 = hi_nibble(ad);
+        bits4to1 = lo_nibble(ad);
+        if (bits4to1 <= 9)
+            str[j++] = BCD2CHAR(bits4to1);
+        else
+            j++;
+        if (bits8to5 <= 9)
+            str[j++] = BCD2CHAR(bits8to5);
+        else
+            j++;
     }
     str[j] = '\0';
     return str;
@@ -1750,20 +1754,7 @@ id_to_str(tvbuff_t *tvb, gint offset)
 static gchar *
 imsi_to_str(tvbuff_t *tvb, gint offset)
 {
-    static gchar str[17] = "                ";
-    int i, j = 0;
-    guint8 ad;
-
-    for (i = 0; i < 8; i++) {
-        ad = tvb_get_guint8(tvb, offset + i);
-        if ((ad & 0x0F) <= 9)
-            str[j++] = (ad & 0x0F) + 0x30;
-        if (((ad >> 4) & 0x0F) <= 9)
-            str[j++] = ((ad >> 4) & 0x0F) + 0x30;
-    }
-    str[j] = '\0';
-
-    return str;
+    return id_to_str(tvb, offset);
 }
 
 static gchar *
@@ -1771,17 +1762,21 @@ msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
 {
     static gchar str[18] = "+                ";
     guint8 bits8to5, bits4to1;
-    int i, j = 1;
+    int i, j;
     guint ad;
 
-    for (i = 1; i < len && i < 9; i++) {
+    for (i = j = 1; i < MIN(len, 9); i++) {
         ad = tvb_get_guint8(tvb, offset + i);
-        bits8to5 = (ad >> 4) & 0x0F;
-        bits4to1 = ad & 0x0F;
-        if (bits4to1 < 0xA)
-            str[j++] = hex_digits[bits4to1];
-        if (bits8to5 < 0xA)
-            str[j++] = hex_digits[bits8to5];
+        bits8to5 = hi_nibble(ad);
+        bits4to1 = lo_nibble(ad);
+        if (bits4to1 <= 9)
+            str[j++] = BCD2CHAR(bits4to1);
+        else
+            j++;
+        if (bits8to5 <= 9)
+            str[j++] = BCD2CHAR(bits8to5);
+        else
+            j++;
     }
     str[j] = '\0';
 
