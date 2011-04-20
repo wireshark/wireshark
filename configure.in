@@ -127,6 +127,18 @@ AC_SUBST(PYTHON)
 AC_SUBST(XSLTPROC)
 AC_SUBST(XMLLINT)
 
+#
+# Set CLANG if the compiler is clang, to handle compiler options
+# supported both by GCC and clang.  (This does *not* include
+# -no-cpp-precomp; clang says "clang: warning: argument unused during
+# compilation: '-no-cpp-precomp'" if you use it.)
+#
+if test "x$GCC" != "xyes" ; then
+	if test "x$CC" = "xclang" ; then
+		CLANG=yes
+	fi
+fi
+
 if test "x$CC_FOR_BUILD" = x
 then
        CC_FOR_BUILD=$CC
@@ -341,19 +353,22 @@ AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhole-program])
 
 #
-# If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
-# so we can use _U_ to flag unused function arguments and not get warnings
-# about them. Otherwise, add '-D_U_=""', so that _U_ used to flag an unused
-# function argument will compile with non-GCC compilers.
+# If we're running GCC or clang, add '-D_U_="__attribute__((unused))"' to
+# CFLAGS as well, so we can use _U_ to flag unused function arguments and
+# not get warnings about them. Otherwise, add '-D_U_=""', so that _U_ used
+# to flag an unused function argument will compile with non-GCC, non-clang
+# compilers.
 #
-if test "x$GCC" = "xyes" ; then
+# XXX - other compilers?
+#
+if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
   CFLAGS="-D_U_=\"__attribute__((unused))\" $CFLAGS"
 else
   CFLAGS="-D_U_=\"\" $CFLAGS"
 fi
 
 #
-# If we're running gcc, will enable a barrier "stop on warning".
+# If we're running GCC or clang, enable a barrier "stop on warning".
 # This barrier is set for a very large part of the code. However, it is
 # typically not set for "generated" code  (flex, ans2wrs, idl2wrs, ...)
 #
@@ -361,9 +376,9 @@ warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [Treat warnings as errors (only for gcc). @<:@default=yes@:>@]),
+		  [Treat warnings as errors (only for GCC or clang). @<:@default=yes@:>@]),
 [
-  if test "x$GCC" = "xyes" -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
+  if test \( "x$GCC" = "xyes" -o "x$CLANG" = "xyes" \) -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -371,7 +386,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 ],
-  if test "x$GCC" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
+  if test \( "x$GCC" = "xyes" -o "x$CLANG" = "xyes" \) -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -661,12 +676,12 @@ AC_ARG_ENABLE(profile-build,
 AM_CONDITIONAL(USE_PROFILE_BUILD, test x$enable_profile_build = xyes)
 AC_MSG_CHECKING(if profile builds must be generated)
 if test "x$enable_profile_build" = "xyes" ; then
-	if test "x$GCC" = "xyes" ; then
+	if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
 		AC_MSG_RESULT(yes)
 		CFLAGS=" -pg $CFLAGS"
 	else
 		AC_MSG_RESULT(no)
-		echo "Building profile binaries currently only supported for GCC."
+		echo "Building profile binaries currently only supported for GCC and clang."
 	fi
 else
 	AC_MSG_RESULT(no)

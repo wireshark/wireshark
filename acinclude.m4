@@ -1689,6 +1689,8 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 # defined ldflags. The defined flags are added to LDFLAGS only if the
 # compilation succeeds.
 #
+# XXX - clang as well?
+#
 AC_DEFUN([AC_WIRESHARK_GCC_LDFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to LDFLAGS)
@@ -1716,14 +1718,14 @@ fi
 #
 # $1 : cflags to test
 #
-# The macro first determines if the compiler is GCC. Then compile with the
-# defined cflags. The defined flags are added to CFLAGS only if the compilation
-# succeeds.
+# The macro first determines if the compiler is GCC or clang. Then compile with
+# the defined cflags. The defined flags are added to CFLAGS only if the
+# compilation succeeds.
 #
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
-if test "x$GCC" != "x"; then
+if test "x$GCC" != "x" -o "x$CLANG" != "x" ; then
   CFLAGS_saved="$CFLAGS"
   CFLAGS="$CFLAGS $GCC_OPTION"
   AC_COMPILE_IFELSE([
