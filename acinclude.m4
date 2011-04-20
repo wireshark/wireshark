@@ -1724,12 +1724,21 @@ fi
 # We do this because not all such options are necessarily supported by
 # the version of the particular compiler we're using.
 #
+# NOTE: clang, by default, only warns about unknown -W options.
+# If we're using clang, we turn on -Werror=unknown-warning-option
+# so that it fails if we pass it a -W option it doesn't know about
+# but doesn't fail for any other warning that the test program might
+# produce.
+#
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
 if test "x$ac_supports_gcc_flags" = "xyes" ; then
   CFLAGS_saved="$CFLAGS"
   CFLAGS="$CFLAGS $GCC_OPTION"
+  if test "x$CC" = "xclang" ; then
+    CFLAGS="$CFLAGS -Werror=unknown-warning-option"
+  fi
   AC_COMPILE_IFELSE([
     AC_LANG_SOURCE([[
                       int foo;
