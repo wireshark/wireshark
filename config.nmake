@@ -850,7 +850,9 @@ DLL_LDFLAGS = /MANIFEST:no
 # http://msdn.microsoft.com/en-us/magazine/cc337897.aspx
 !IF $(MSC_VER_REQUIRED) >= 1300
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /GS
+!IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
 LOCAL_LDFLAGS= $(LOCAL_LDFLAGS) /SafeSEH
+!ENDIF
 !ENDIF
 
 # Enable ASLR. Requires VS2008 or later.
