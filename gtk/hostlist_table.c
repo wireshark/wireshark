@@ -825,11 +825,9 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     gchar   *table_text;
     int      i;
     unsigned idx;
-    hostlist_talker_t *host;
     guint64  value;
 
     gtk_tree_model_get(model, iter, INDEX_COLUMN, &idx, -1);
-    host = &g_array_index(csv->talkers->hosts, hostlist_talker_t, idx);
 
     for (i=0; i< csv->nb_cols; i++) {
         if (i)
@@ -1736,15 +1734,12 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 {
     hostlist_talker_t *talker=NULL;
     int talker_idx=0;
-    gboolean new_talker;
 
-    new_talker=FALSE;
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
     /* if we dont have any entries at all yet */
     if(hl->hosts==NULL){
         hl->hosts=g_array_sized_new(FALSE, FALSE, sizeof(hostlist_talker_t), 10000);
-        talker_idx=0;
         hl->hashtable = g_hash_table_new_full(host_hash,
                                               host_match, /* key_equal_func */
                                               g_free,     /* key_destroy_func */
@@ -1768,7 +1763,6 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
     if(talker==NULL){
         host_key_t *new_key;
         hostlist_talker_t host;
-        new_talker=TRUE;
 
         COPY_ADDRESS(&host.address, addr);
         host.sat=sat;
