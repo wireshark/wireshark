@@ -3,7 +3,7 @@
  * Significantly based on packet-giop.c
  * Copyright 2009 Alvaro Vega Garcia <avega at tid dot es>
  *
- * According with Unreliable Multicast Draft Adopted Specification 
+ * According with Unreliable Multicast Draft Adopted Specification
  * 2001 October (OMG)
  * Chapter 29: Unreliable Multicast Inter-ORB Protocol (MIOP)
  * http://www.omg.org/technology/documents/specialized_corba.htm
@@ -35,11 +35,8 @@
 #endif
 
 #include <errno.h>
-#include <ctype.h>
 #include <glib.h>
 #include <math.h>
-
-#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/emem.h>
@@ -87,7 +84,7 @@ static gint hf_miop_unique_id = -1;
 
 static gint ett_miop = -1;
 
-#define MIOP_MAGIC 	 "MIOP"
+#define MIOP_MAGIC   "MIOP"
 
 static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 
@@ -113,7 +110,7 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   if (pinfo->ptype != PT_UDP)
     return FALSE;
-  
+
   dissect_miop (tvb, pinfo, tree);
 
   /* TODO: make reasembly */
@@ -133,16 +130,16 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   guint8 hdr_version;
   guint version_major;
   guint version_minor;
-  
+
   guint8 flags;
 
   guint16 packet_length;
   guint packet_number;
   guint number_of_packets;
   gboolean little_endian;
-  
+
   guint32 unique_id_len;
-  
+
   emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, MIOP_MAGIC);
@@ -157,18 +154,18 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   if (hdr_version != 16)
     {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
-		    version_major, version_minor);
+                    version_major, version_minor);
       if (tree)
-	{
-	  ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
-	  miop_tree = proto_item_add_subtree (ti, ett_miop);
-	  proto_tree_add_text (miop_tree, tvb, 0, -1,
-			       "Version %u.%u",
-			       version_major, version_minor);
-	  expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
-			       "MIOP version %u.%u not supported",
-			       version_major, version_minor);
-	}
+        {
+          ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
+          miop_tree = proto_item_add_subtree (ti, ett_miop);
+          proto_tree_add_text (miop_tree, tvb, 0, -1,
+                               "Version %u.%u",
+                               version_major, version_minor);
+          expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+                               "MIOP version %u.%u not supported",
+                               version_major, version_minor);
+        }
       return;
     }
 
@@ -189,13 +186,13 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   }
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "MIOP %u.%u Packet s=%d (%u of %u)",
-		version_major, version_minor, packet_length, 
-		packet_number + 1, 
-		number_of_packets);
+                version_major, version_minor, packet_length,
+                packet_number + 1,
+                number_of_packets);
 
   if (tree)
     {
-          
+
       ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
       miop_tree = proto_item_add_subtree (ti, ett_miop);
 
@@ -203,17 +200,17 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       proto_tree_add_item(miop_tree, hf_miop_magic, tvb, offset, 4, FALSE);
       offset += 4;
       proto_tree_add_uint_format(miop_tree, hf_miop_hdr_version, tvb, offset, 1, hdr_version,
-			   "Version: %u.%u", version_major, version_minor);
+                                 "Version: %u.%u", version_major, version_minor);
       offset++;
       if (flags & 0x01) {
-	ep_strbuf_printf(flags_strbuf, "little-endian");
+        ep_strbuf_printf(flags_strbuf, "little-endian");
       }
       if (flags & 0x02) {
-	ep_strbuf_append_printf(flags_strbuf, "%s%s",
-				flags_strbuf->len ? ", " : "", "last message");
+        ep_strbuf_append_printf(flags_strbuf, "%s%s",
+                                flags_strbuf->len ? ", " : "", "last message");
       }
       ti = proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
-					    flags, "0x%02x (%s)", flags, flags_strbuf->str);
+                                            flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
       proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, little_endian);
       offset += 2;
@@ -233,15 +230,15 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
       offset += 4;
       proto_tree_add_item(miop_tree, hf_miop_unique_id, tvb, offset, unique_id_len,
-			  little_endian);
+                          little_endian);
 
       if (packet_number == 0) {
         /*  It is the first packet of the collection
-            We can call to GIOP dissector to show more about this first 
-            uncompleted GIOP message 
+            We can call to GIOP dissector to show more about this first
+            uncompleted GIOP message
         */
         tvbuff_t *payload_tvb;
-      
+
         offset += unique_id_len;
         payload_tvb = tvb_new_subset_remaining (tvb, offset);
         dissect_giop(payload_tvb, pinfo, tree);
@@ -256,7 +253,7 @@ void proto_register_miop (void) {
 
 
   /* A header field is something you can search/filter on.
-   * 
+   *
    * We create a structure to register our fields. It consists of an
    * array of hf_register_info structures, each of which are of the format
    * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
@@ -294,7 +291,7 @@ void proto_register_miop (void) {
   };
 
   proto_miop = proto_register_protocol("Unreliable Multicast Inter-ORB Protocol", "MIOP",
-				       "miop");
+                                       "miop");
   proto_register_field_array (proto_miop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
@@ -311,5 +308,5 @@ void proto_reg_handoff_miop (void) {
   dissector_add_handle("udp.port", miop_handle);    /* for 'Decode As' */
 
   heur_dissector_add("udp", dissect_miop_heur, proto_miop);
-    
+
 }
