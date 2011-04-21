@@ -34,9 +34,7 @@
 # include "config.h"
 #endif
 
-#include <errno.h>
 #include <glib.h>
-#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/emem.h>
