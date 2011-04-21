@@ -1705,7 +1705,36 @@ this_was_not_sasl:
 		goto this_was_not_normal_ldap;
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
+	/*
+	 * The minimun size of a LDAP pdu is 7 bytes
+	 *
+	 * dumpasn1 -hh ldap-unbind-min.dat
+	 *
+	 *     <30 05 02 01 09 42 00>
+	 *    0    5: SEQUENCE {
+	 *     <02 01 09>
+	 *    2    1:   INTEGER 9
+	 *     <42 00>
+	 *    5    0:   [APPLICATION 2]
+	 *          :     Error: Object has zero length.
+	 *          :   }
+	 *
+	 * dumpasn1 -hh ldap-unbind-windows.dat
+	 *
+	 *     <30 84 00 00 00 05 02 01 09 42 00>
+	 *    0    5: SEQUENCE {
+	 *     <02 01 09>
+	 *    6    1:   INTEGER 9
+	 *     <42 00>
+	 *    9    0:   [APPLICATION 2]
+	 *          :     Error: Object has zero length.
+	 *          :   }
+	 *
+	 * 6 bytes would also be ok to get the full length of
+	 * the pdu, but as the smallest pdu can be 7 bytes
+	 * we can use 7.
+	 */
+	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 7, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
 
 	goto end;
 
