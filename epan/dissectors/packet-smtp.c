@@ -255,7 +255,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conversation_t            *conversation;
   struct smtp_session_state *session_state;
   const guchar              *line, *linep, *lineend;
-  guchar                    c;
   guint32                   code;
   int                       linelen = 0;
   gint                      length_remaining;
@@ -475,7 +474,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            */
           linep = line;
           lineend = line + linelen;
-          while (linep < lineend && (c = *linep) != ' ')
+          while (linep < lineend && *linep != ' ')
             linep++;
           cmdlen = (int)(linep - line);
           if (line_is_smtp_command(line, cmdlen)) {
