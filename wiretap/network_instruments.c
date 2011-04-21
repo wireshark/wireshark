@@ -514,10 +514,6 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
 	g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
 
 	/* create the file header */
-	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {
-		*err = errno;
-		return FALSE;
-	}
 	memset(&file_header, 0x00, sizeof(capture_file_header));
 	g_strlcpy(file_header.observer_version, network_instruments_magic, 32);
 	file_header.offset_to_first_packet = (guint16) (sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment));

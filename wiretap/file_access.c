@@ -464,11 +464,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open },
 
 	/* WTAP_FILE_NETXRAY_OLD */
-	{ "Cinco Networks NetXRay 1.x", "netxray1", "*.cap", ".cap", FALSE, FALSE,
+	{ "Cinco Networks NetXRay 1.x", "netxray1", "*.cap", ".cap", TRUE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_0 */
-	{ "Cinco Networks NetXRay 2.0 or later", "netxray2", "*.cap", ".cap", FALSE, FALSE,
+	{ "Cinco Networks NetXRay 2.0 or later", "netxray2", "*.cap", ".cap", TRUE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_COSINE */
@@ -536,7 +536,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", TRUE, FALSE,
+	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", FALSE, FALSE,
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
@@ -564,7 +564,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL},
 
 	/* WTAP_FILE_K12 */
-	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", FALSE, FALSE,
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", TRUE, FALSE,
 		k12_dump_can_write_encap, k12_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
