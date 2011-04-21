@@ -33,12 +33,7 @@
 # include "config.h"
 #endif
 
-#include <errno.h>
-#include <ctype.h>
 #include <glib.h>
-#include <math.h>
-
-#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -97,15 +92,15 @@ static const value_string ziop_compressor_ids[] = {
 
 
 static const value_string giop_message_types[] = {
-	{ 0x0, "Request" },
-	{ 0x1, "Reply"},
-	{ 0x2, "CancelRequest"},
-	{ 0x3, "LocateRequest"},
-	{ 0x4, "LocateReply"},
-	{ 0x5, "CloseConnection"},
-	{ 0x6, "MessageError"},
-	{ 0x7, "Fragment"},
-	{ 0, NULL}
+  { 0x0, "Request" },
+  { 0x1, "Reply"},
+  { 0x2, "CancelRequest"},
+  { 0x3, "LocateRequest"},
+  { 0x4, "LocateReply"},
+  { 0x5, "CloseConnection"},
+  { 0x6, "MessageError"},
+  { 0x7, "Fragment"},
+  { 0, NULL}
 };
 
 
@@ -189,7 +184,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
           /* Set dissector */
           conversation_set_dissector(conversation, ziop_tcp_handle);
-	}
+        }
       dissect_ziop_tcp (tvb, pinfo, tree);
     }
   else
@@ -223,26 +218,26 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
        (giop_version_minor < 2) )  /* earlier than GIOP 1.2 */
     {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
-		    giop_version_major, giop_version_minor);
+                    giop_version_major, giop_version_minor);
       if (tree)
-	{
-	  ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
-	  ziop_tree = proto_item_add_subtree (ti, ett_ziop);
-	  proto_tree_add_text (ziop_tree, tvb, 4, 2,
-			       "Version %u.%u not supported",
-			       giop_version_major,
-			       giop_version_minor);
-	}
+        {
+          ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
+          ziop_tree = proto_item_add_subtree (ti, ett_ziop);
+          proto_tree_add_text (ziop_tree, tvb, 4, 2,
+                               "Version %u.%u not supported",
+                               giop_version_major,
+                               giop_version_minor);
+        }
       call_dissector(data_handle, tvb, pinfo, tree);
       return;
     }
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
-		giop_version_major,
-		giop_version_minor,
-		val_to_str(message_type, giop_message_types,
-			   "Unknown message type (0x%02x)")
-		);
+                giop_version_major,
+                giop_version_minor,
+                val_to_str(message_type, giop_message_types,
+                           "Unknown message type (0x%02x)")
+                );
 
   if (tree)
     {
@@ -264,10 +259,10 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       little_endian = flags & 0x01;
 
       if (flags & 0x01) {
-	ep_strbuf_printf(flags_strbuf, "little-endian");
+        ep_strbuf_printf(flags_strbuf, "little-endian");
       }
       ti = proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
-					    flags, "0x%02x (%s)", flags, flags_strbuf->str);
+                                            flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
 
       proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, FALSE);
@@ -324,7 +319,7 @@ void proto_register_ziop (void) {
   };
 
   proto_ziop = proto_register_protocol("Zipped Inter-ORB Protocol", "ZIOP",
-				       "ziop");
+                                       "ziop");
   proto_register_field_array (proto_ziop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
