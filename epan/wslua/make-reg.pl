@@ -56,6 +56,9 @@ print H "extern void wslua_register_classes(lua_State* L);\n";
 print H "extern void wslua_register_functions(lua_State* L);\n"; 
 print H "\n\n";
 
+print C "#ifdef HAVE_CONFIG_H\n";
+print C '#include "config.h"' . "\n";
+print C "#endif\n\n";
 
 print C '#include "wslua.h"' . "\n\n"; 
 print C "void wslua_register_classes(lua_State* L) { \n"; 

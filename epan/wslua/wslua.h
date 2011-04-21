@@ -31,10 +31,6 @@
 #ifndef _PACKET_LUA_H
 #define _PACKET_LUA_H
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <glib.h>
 #include <errno.h>
 #include <string.h>
