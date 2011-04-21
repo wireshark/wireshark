@@ -669,10 +669,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
 									tvb, idx, 4, FALSE);
 
-				avp_vendor_id  = tvb_get_ntohl(tvb, idx);
-
 				idx += 4;
-				avp_len -= 4;
 				continue;
 			}
 			else {
@@ -1565,7 +1562,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
-		ti = proto_tree_add_text(l2tp_tree, tvb, 0, 4,
+		proto_tree_add_text(l2tp_tree, tvb, 0, 4,
 					 "Packet Type: %s Session Id=%u",
 					 data_msg, sid);
 	}
@@ -1624,7 +1621,6 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			if (avp_type == CONTROL_MESSAGE) {
 				/* We print message type */
 				msg_type = tvb_get_ntohs(tvb, tmp_idx);
-				tmp_idx += 2;
 				col_add_fstr(pinfo->cinfo, COL_INFO,
 					     "%s - %s (tunnel id=%u)",
 					     control_msg ,
