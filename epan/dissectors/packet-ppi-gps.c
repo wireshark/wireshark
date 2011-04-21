@@ -364,7 +364,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint32 t_herr, t_verr, t_terr;
     guint32 t_appspecific_num;
     /* initialize the timestamp value(s) */
-    gps_timestamp.secs = gps_timestamp.nsecs = gps_time_size = already_processed_fractime = 0;
+    gps_timestamp.secs = gps_timestamp.nsecs = already_processed_fractime = 0;
 
     /* Clear out stuff in the info column */
     if (check_col(pinfo->cinfo,COL_INFO))
