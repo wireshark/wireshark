@@ -665,9 +665,9 @@ static void process_control_avps(tvbuff_t *tvb,
 			/* Special Case for handling Extended Vendor Id */
 			if (avp_type == EXTENDED_VENDOR_ID) {
 				idx += 2;
-				avp_len -= 2;
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
 									tvb, idx, 4, FALSE);
+
 
 				idx += 4;
 				continue;
@@ -1550,7 +1550,7 @@ static void
 process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *l2tp_tree = NULL;
-	proto_item *l2tp_item = NULL, *ti;
+	proto_item *l2tp_item = NULL;
 
 	int idx = 0;
 	int sid;
