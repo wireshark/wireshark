@@ -601,7 +601,6 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
     break;
   default:
-    opc = 0;	/* just to avoid a compiler warning */
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
