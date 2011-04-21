@@ -2935,7 +2935,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	/* then comes an INTEGER (version)*/
-	offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+	get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
 	if((tmp_class!=BER_CLASS_UNI)||(tmp_tag!=BER_UNI_TAG_INTEGER)) {
 		return 0;
 	}
