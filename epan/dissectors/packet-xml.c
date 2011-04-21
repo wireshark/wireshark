@@ -179,7 +179,6 @@ static void
 dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbparse_t* tt;
-	tvbparse_elem_t* tok = NULL;
 	static GPtrArray* stack = NULL;
 	xml_frame_t* current_frame;
 	char* colinfo_str;
@@ -220,7 +219,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	current_frame->tree = proto_item_add_subtree(current_frame->item,current_frame->ns->ett);
 	current_frame->last_item = current_frame->item;
 
-	while(( tok = tvbparse_get(tt, want) )) ;
+	while(tvbparse_get(tt, want)) ;
 
 	pinfo->private_data = current_frame;  /* pass XML structure to the dissector calling XML */
 }
