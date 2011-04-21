@@ -88,9 +88,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <string.h>
 #include <glib.h>
 #include <math.h>
@@ -112,9 +109,6 @@
 #include <epan/emem.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
-
-#include <ctype.h>
-#include "isprint.h"
 
 #include "packet-wps.h"
 #include "packet-wifi-p2p.h"
@@ -2491,7 +2485,7 @@ int get_mimo_ns (gboolean chan_width, guint8 output_grouping)
 
   if (chan_width)
   {
-      switch (output_grouping)
+    switch (output_grouping)
       {
         case 1:
           ns = 114;
@@ -2510,22 +2504,22 @@ int get_mimo_ns (gboolean chan_width, guint8 output_grouping)
       }
   } else {
     switch (output_grouping)
-    {
-      case 1:
-        ns = 56;
-        break;
+      {
+        case 1:
+          ns = 56;
+          break;
 
-      case 2:
-        ns = 30;
-        break;
+        case 2:
+          ns = 30;
+          break;
 
-      case 4:
-        ns = 16;
-        break;
+        case 4:
+          ns = 16;
+          break;
 
-      default:
-        ns = 0;
-    }
+        default:
+          ns = 0;
+      }
   }
 
   return ns;
@@ -2833,17 +2827,17 @@ capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld
  * old versions of the MadWifi driver?
  */
 
-#define PRISM_HEADER_LENGTH	144             /* Default Prism Header Length */
-#define PRISM_DID_HOSTTIME 	0x00010044 	/* Host time element */
-#define PRISM_DID_MACTIME 	0x00020044 	/* Mac time element */
-#define PRISM_DID_CHANNEL 	0x00030044 	/* Channel element */
-#define PRISM_DID_RSSI 		0x00040044 	/* RSSI element */
-#define PRISM_DID_SQ 		0x00050044	/* SQ element */
-#define PRISM_DID_SIGNAL 	0x00060044 	/* Signal element */
-#define PRISM_DID_NOISE 	0x00070044 	/* Noise element */
-#define PRISM_DID_RATE 		0x00080044 	/* Rate element */
-#define PRISM_DID_ISTX 		0x00090044 	/* Is Tx frame */
-#define PRISM_DID_FRMLEN 	0x000A0044 	/* Frame length */
+#define PRISM_HEADER_LENGTH     144             /* Default Prism Header Length */
+#define PRISM_DID_HOSTTIME      0x00010044      /* Host time element */
+#define PRISM_DID_MACTIME       0x00020044      /* Mac time element */
+#define PRISM_DID_CHANNEL       0x00030044      /* Channel element */
+#define PRISM_DID_RSSI          0x00040044      /* RSSI element */
+#define PRISM_DID_SQ            0x00050044      /* SQ element */
+#define PRISM_DID_SIGNAL        0x00060044      /* Signal element */
+#define PRISM_DID_NOISE         0x00070044      /* Noise element */
+#define PRISM_DID_RATE          0x00080044      /* Rate element */
+#define PRISM_DID_ISTX          0x00090044      /* Is Tx frame */
+#define PRISM_DID_FRMLEN        0x000A0044      /* Frame length */
 
 static const value_string prism_did_vals[] =
 {
@@ -2883,12 +2877,12 @@ prism_rate_base_custom(gchar *result, guint32 rate)
 static gchar *
 prism_rate_return(guint32 rate)
 {
-    gchar *result=NULL;
-    result = ep_alloc(SHORT_STR);
-    result[0] = '\0';
-    prism_rate_base_custom(result, rate);
+  gchar *result=NULL;
+  result = ep_alloc(SHORT_STR);
+  result[0] = '\0';
+  prism_rate_base_custom(result, rate);
 
-    return result;
+  return result;
 }
 
 
@@ -4533,23 +4527,23 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
 static gchar *
 rsn_pcs_return(guint32 pcs)
 {
-    gchar *result=NULL;
-    result = ep_alloc(SHORT_STR);
-    result[0] = '\0';
-    rsn_pcs_base_custom(result, pcs);
+  gchar *result=NULL;
+  result = ep_alloc(SHORT_STR);
+  result[0] = '\0';
+  rsn_pcs_base_custom(result, pcs);
 
-    return result;
+  return result;
 }
 
 static gchar *
 rsn_akms_return(guint32 akms)
 {
-    gchar *result=NULL;
-    result = ep_alloc(SHORT_STR);
-    result[0] = '\0';
-    rsn_akms_base_custom(result, akms);
+  gchar *result=NULL;
+  result = ep_alloc(SHORT_STR);
+  result[0] = '\0';
+  rsn_akms_base_custom(result, akms);
 
-    return result;
+  return result;
 }
 
 static void
@@ -5106,7 +5100,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   rsn_gcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gcs, tvb, offset, 4, FALSE);
   rsn_gcs_tree = proto_item_add_subtree(rsn_gcs_item, ett_rsn_gcs_tree);
   proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_oui, tvb, offset, 3, FALSE);
-    /* Check if OUI is 00:0F:AC	(ieee80211) */
+    /* Check if OUI is 00:0F:AC (ieee80211) */
   if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
   {
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, FALSE);
@@ -5126,7 +5120,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     rsn_sub_pcs_item = proto_tree_add_item(rsn_pcs_tree, hf_ieee80211_rsn_pcs, tvb, offset, 4, FALSE);
     rsn_sub_pcs_tree = proto_item_add_subtree(rsn_sub_pcs_item, ett_rsn_sub_pcs_tree);
     proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_oui, tvb, offset, 3, FALSE);
-    /* Check if OUI is 00:0F:AC	(ieee80211) */
+    /* Check if OUI is 00:0F:AC (ieee80211) */
     if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
     {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, FALSE);
@@ -5150,7 +5144,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     rsn_sub_akms_tree = proto_item_add_subtree(rsn_sub_akms_item, ett_rsn_sub_akms_tree);
     proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_oui, tvb, offset, 3, FALSE);
 
-    /* Check if OUI is 00:0F:AC	(ieee80211) */
+    /* Check if OUI is 00:0F:AC (ieee80211) */
     if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
     {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, FALSE);
@@ -6958,10 +6952,10 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
              }
              if(offset < sub_tag_end)
              {
-		ti = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
-		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
-	        offset = sub_tag_end;
-	     }
+               ti = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
+               expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+               offset = sub_tag_end;
+             }
             }
 
             break;
@@ -7261,7 +7255,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             break;
         }
       }
-      
+
     case TAG_QUIET: /* 7.3.2.23 Quiet element (40) */
       if (tag_len != 6)
       {
@@ -7275,7 +7269,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;
 
       proto_tree_add_item(tree, hf_ieee80211_tag_quiet_period, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti, " Period: %d", tvb_get_guint8(tvb, offset));      
+      proto_item_append_text(ti, " Period: %d", tvb_get_guint8(tvb, offset));
       offset += 1;
 
       proto_tree_add_item(tree, hf_ieee80211_tag_quiet_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -7284,7 +7278,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
       proto_tree_add_item(tree, hf_ieee80211_tag_quiet_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       proto_item_append_text(ti, " Offset: %d", tvb_get_letohs(tvb, offset));
-      offset += 2;        
+      offset += 2;
       break;
 
 
@@ -7296,7 +7290,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       {
         proto_item *ti_sup_map;
-        proto_tree *sub_map_tree; 
+        proto_tree *sub_map_tree;
         offset += 2;
 
         proto_tree_add_item(tree, hf_ieee80211_tag_dfs_owner, tvb, offset, 6, ENC_NA);
@@ -7304,7 +7298,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 6;
 
         proto_tree_add_item(tree, hf_ieee80211_tag_dfs_recovery_interval, tvb, offset, 1, ENC_NA);
-        offset += 1;         
+        offset += 1;
 
         while(offset < tag_end)
         {
@@ -7314,18 +7308,18 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           proto_tree_add_item(sub_map_tree, hf_ieee80211_tag_dfs_map, tvb, offset, 1, ENC_NA);
           offset += 2;
         }
-        break; 
+        break;
       }
     case TAG_ERP_INFO: /* 7.3.2.13 ERP Information element (42) */
     case TAG_ERP_INFO_OLD:
-      if (tag_len != 1)      
+      if (tag_len != 1)
       {
         expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       {
         proto_item *ti_erp;
-        proto_tree *erp_tree; 
+        proto_tree *erp_tree;
 
         offset += 2;
 
@@ -7333,11 +7327,11 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         erp_tree = proto_item_add_subtree(ti_erp, ett_tag_erp_info_tree);
         proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_erp_present, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_use_protection, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_barker_preamble_mode, tvb, offset, 1, ENC_NA); 
-        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_reserved, tvb, offset, 1, ENC_NA);       
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_barker_preamble_mode, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(erp_tree, hf_ieee80211_tag_erp_info_reserved, tvb, offset, 1, ENC_NA);
         offset += 1;
-        break; 
-      }     
+        break;
+      }
 
     case TAG_TS_DELAY: /* 7.3.2.32 TS Delay element (43) */
       if (tag_len != 4)
@@ -9973,7 +9967,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* DID */
         if(tree) {
             ti_did = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did, tvb, offset, 12, TRUE);
-	    prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
+            prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, TRUE);
             did = tvb_get_letohl(tvb, offset);
@@ -14288,7 +14282,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_quiet_period,
      {"Period", "wlan_mgt.quiet.period",
       FT_UINT8, BASE_DEC, NULL, 0, "Set to the number of beacon intervals between the start of regularly scheduled quiet intervals", HFILL }},
- 
+
     {&hf_ieee80211_tag_quiet_duration,
      {"Duration", "wlan_mgt.quiet.duration",
       FT_UINT16, BASE_DEC, NULL, 0, "Set to the duration of the quiet interval", HFILL }},
@@ -14308,11 +14302,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_dfs_channel_map,
      {"Channel Map", "wlan_mgt.dfs.channel_map",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL  }},
-      
+
     {&hf_ieee80211_tag_dfs_channel_number,
      {"Channel Number", "wlan_mgt.dfs.channel_number",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL  }},
-  
+
     {&hf_ieee80211_tag_dfs_map,
      {"Map", "wlan_mgt.dfs.map",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL  }},
@@ -14336,7 +14330,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_erp_info_reserved,
      {"Reserved", "wlan_mgt.erp_info.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL  }},
-                                                                    
+
     /* Table 7-35a-Capabilities field */
     {&hf_ieee80211_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
