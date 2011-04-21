@@ -1062,7 +1062,6 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		hfs = hf_arr;
 		etts = ett_arr;
 		g_ptr_array_add(hier,g_strdup("xml"));
-		root_element = &xml_ns;
 	} else {
 		/*
 		 * if we were given a proto_name the namespace will be registered
