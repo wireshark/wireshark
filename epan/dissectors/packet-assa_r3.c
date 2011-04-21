@@ -5631,7 +5631,6 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
       guint32 packetCRC = tvb_get_letohs (tvb, offset + 5);
       guint32 packetXor = tvb_get_guint8 (tvb, offset + 7);
       guint32 calculatedCRC = 0;
-      guint32 calculatedXor = 0;
 
       if ((calculatedCRC = utilCrcCalculate (tvb_get_ptr (tvb, start_offset + 1, packetLen - 3), packetLen - 3, 0x0000)) == packetCRC)
         proto_tree_add_uint_format (tail_tree, hf_r3_crc, tvb, offset + 5, 2, packetCRC, "CRC: 0x%04x (correct)", packetCRC);
@@ -5644,7 +5643,7 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
         PROTO_ITEM_SET_GENERATED (tmp_item);
       }
 
-      if ((calculatedXor = (packetLen ^ 0xff)) == packetXor)
+      if ((packetLen ^ 0xff) == (int)packetXor)
         proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor, "XOR: 0x%02x (correct)", packetXor);
       else
       {
