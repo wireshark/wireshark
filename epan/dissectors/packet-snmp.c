@@ -551,7 +551,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 	/* then we have the  value's header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	value_offset = offset = get_ber_length(tvb, offset, &value_len, &ind);
+	value_offset = get_ber_length(tvb, offset, &value_len, &ind);
 
 	if (! (!pc) ) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"the value must be in primitive encoding");
