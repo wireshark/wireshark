@@ -127,6 +127,7 @@ raw_read(FILE_T state, unsigned char *buf, unsigned int count, unsigned *have)
 	} while (*have < count);
 	if (ret < 0) {
 		state->err = errno;
+		state->err_info = NULL;
 		return -1;
 	}
 	if (ret == 0)
@@ -259,6 +260,7 @@ gz_next1(FILE_T state, guint8 *ret)
 		if (state->err == 0) {
 			/* EOF */
 			state->err = WTAP_ERR_SHORT_READ;
+			state->err_info = NULL;
 		}
 		return -1;
 	}
@@ -281,6 +283,7 @@ gz_next2(FILE_T state, guint16 *ret)
 		if (state->err == 0) {
 			/* EOF */
 			state->err = WTAP_ERR_SHORT_READ;
+			state->err_info = NULL;
 		}
 		return -1;
 	}
@@ -306,6 +309,7 @@ gz_next4(FILE_T state, guint32 *ret)
 		if (state->err == 0) {
 			/* EOF */
 			state->err = WTAP_ERR_SHORT_READ;
+			state->err_info = NULL;
 		}
 		return -1;
 	}
@@ -324,6 +328,7 @@ gz_skipn(FILE_T state, size_t n)
 			if (state->err == 0) {
 				/* EOF */
 				state->err = WTAP_ERR_SHORT_READ;
+				state->err_info = NULL;
 			}
 			return -1;
 		}
@@ -347,6 +352,7 @@ gz_skipzstr(FILE_T state)
 		if (state->err == 0) {
 			/* EOF */
 			state->err = WTAP_ERR_SHORT_READ;
+			state->err_info = NULL;
 		}
 		return -1;
 	}
@@ -405,6 +411,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		if (state->avail_in == 0) {
 			/* EOF */
 			state->err = WTAP_ERR_SHORT_READ;
+			state->err_info = NULL;
 			break;
 		}
 
@@ -428,6 +435,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		if (ret == Z_MEM_ERROR) {
 			/* This means "not enough memory". */
 			state->err = ENOMEM;
+			state->err_info = NULL;
 			break;
 		}
 		if (ret == Z_DATA_ERROR) {              /* deflate stream invalid */
@@ -1252,7 +1260,13 @@ gz_init(GZWFILE_T state)
     if (ret != Z_OK) {
         g_free(state->out);
         g_free(state->in);
-        state->err = WTAP_ERR_ZLIB + ret;
+        if (ret == Z_MEM_ERROR) {
+        	/* This means "not enough memory". */
+        	state->err = ENOMEM;
+        } else {
+        	/* This "shouldn't happen". */
+        	state->err = WTAP_ERR_INTERNAL;
+        }
         return -1;
     }
 
@@ -1312,7 +1326,8 @@ gz_comp(GZWFILE_T state, int flush)
         have = strm->avail_out;
         ret = deflate(strm, flush);
         if (ret == Z_STREAM_ERROR) {
-            state->err = WTAP_ERR_ZLIB + Z_STREAM_ERROR;
+            /* This "shouldn't happen". */
+            state->err = WTAP_ERR_INTERNAL;
             return -1;
         }
         have -= strm->avail_out;

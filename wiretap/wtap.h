@@ -1008,17 +1008,8 @@ int wtap_register_encap_type(char* name, char* short_name);
 	/* An attempt to seek failed, reason unknown */
 #define WTAP_ERR_DECOMPRESS			-21
 	/* Error decompressing */
-
-/* Errors from zlib; zlib error Z_xxx turns into Wiretap error
-   WTAP_ERR_ZLIB + Z_xxx.
-
-   WTAP_ERR_ZLIB_MIN and WTAP_ERR_ZLIB_MAX bound the range of zlib
-   errors; we leave room for 100 positive and 100 negative error
-   codes. */
-
-#define	WTAP_ERR_ZLIB				-200
-#define	WTAP_ERR_ZLIB_MAX			-100
-#define	WTAP_ERR_ZLIB_MIN			-300
+#define WTAP_ERR_INTERNAL			-22
+	/* "Shouldn't happen" internal errors */
 
 #ifdef __cplusplus
 }

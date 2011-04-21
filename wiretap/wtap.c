@@ -588,7 +588,8 @@ static const char *wtap_errlist[] = {
 	"The standard input cannot be opened for random access",
 	"That file format doesn't support compression",
 	NULL,
-	"Uncompression error"
+	"Uncompression error",
+	"Internal error"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
@@ -599,14 +600,6 @@ const char
 	unsigned int wtap_errlist_index;
 
 	if (err < 0) {
-#ifdef HAVE_LIBZ
-		if (err >= WTAP_ERR_ZLIB_MIN && err <= WTAP_ERR_ZLIB_MAX) {
-			/* Assume it's a zlib error. */
-			g_snprintf(errbuf, 128, "Uncompression error: %s",
-			    zError(err - WTAP_ERR_ZLIB));
-			return errbuf;
-		}
-#endif
 		wtap_errlist_index = -1 - err;
 		if (wtap_errlist_index >= WTAP_ERRLIST_SIZE) {
 			g_snprintf(errbuf, 128, "Error %d", err);
