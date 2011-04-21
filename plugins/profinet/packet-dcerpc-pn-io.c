@@ -7318,7 +7318,6 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     proto_item *f_item;
     proto_tree *f_tree;
     proto_item *flags1_item;
-    proto_tree *flags1_tree;
     proto_item *flags2_item;
     guint16 src_addr;
     guint16 dst_addr;
@@ -7334,8 +7333,6 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     guint8 prm_flag2_reserved;
     guint8 prm_flag2_f_block_id;
     guint8 prm_flag2_f_par_version;
-
-    prm_flag1 = 0;
     
     f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter); 
@@ -7343,7 +7340,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 
     
     flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, FALSE);
-    flags1_tree = proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
+    proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
 
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq); 
