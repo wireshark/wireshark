@@ -261,7 +261,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean                  eom_seen = FALSE;
   gint                      next_offset;
   gint                      loffset = 0;
-  gboolean                  is_continuation_line;
   int                       cmdlen;
   fragment_data             *frag_msg = NULL;
   tvbuff_t                  *next_tvb;
@@ -788,12 +787,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } else
         cmdresp_tree = NULL;
 
-      /*
-       * Is it a continuation line?
-       */
-      is_continuation_line =
-        (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
-
       line = tvb_get_ptr(tvb, offset, linelen);
       if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
           && isdigit(line[2])) {
@@ -834,11 +827,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       offset = next_offset;
 
-      /*
-       * If it's not a continuation line, quit.
-       */
-      /* if (!is_continuation_line)
-         break; */
     }
   }
 }
