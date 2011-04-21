@@ -1802,7 +1802,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				if (avp_type == CONTROL_MESSAGE) {
 					/* We print message type */
-					msg_type = tvb_get_ntohs(tvb, (tmp_idx+=2));
+					msg_type = tvb_get_ntohs(tvb, tmp_idx);
 					col_add_fstr(pinfo->cinfo, COL_INFO,
 						     "%s - %s (tunnel id=%u, session id=%u)",
 						     control_msg,
