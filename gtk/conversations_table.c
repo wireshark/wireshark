@@ -1935,7 +1935,7 @@ ct_create_popup_menu(conversations_table *ct)
 	gtk_action_group_add_actions (action_group,							/* the action group */
 								conv_filter_menu_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(conv_filter_menu_entries),	/* the number of entries */
-								(gpointer)ct);							/* data to pass to the action callbacks */
+								ct);									/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
