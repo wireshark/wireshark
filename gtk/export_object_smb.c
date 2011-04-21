@@ -243,7 +243,6 @@ find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
 	active_file	*in_list_file;
 
 	row=-1;
-	i=0;
 	last=g_slist_length(GSL_active_files)-1;
 
 	/* We lookup in reverse order because it is more likely that the file
@@ -461,7 +460,6 @@ eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
 			}
 		g_slist_free(GSL_active_files);
 		GSL_active_files=NULL;
-		i=g_slist_length(GSL_active_files);
 	}
 
 	/* Initialize the tree */
