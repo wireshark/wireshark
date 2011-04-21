@@ -380,11 +380,11 @@ my %deprecatedGtkFunctions = (
 		'gtk_color_selection_set_change_palette_hook',	'E',
 		'gtk_color_selection_set_color',			'E',
 		'gtk_color_selection_set_update_policy',	'E',
-		'gtk_combo_disable_activate',			'W', # GtkComboBoxEntry ... (avail since 2.4/2.6/2.10/2.14)
-		'gtk_combo_new',						'W',
-		'gtk_combo_set_case_sensitive',			'W',
+		'gtk_combo_disable_activate',			'E', # GtkComboBoxEntry ... (avail since 2.4/2.6/2.10/2.14)
+		'gtk_combo_new',						'E',
+		'gtk_combo_set_case_sensitive',			'E',
 		'gtk_combo_set_item_string',			'E',
-		'gtk_combo_set_popdown_strings',		'W',
+		'gtk_combo_set_popdown_strings',		'E',
 		'gtk_combo_set_use_arrows',				'E',
 		'gtk_combo_set_use_arrows_always',		'E',
 		'gtk_combo_set_value_in_list',			'E',
@@ -734,109 +734,109 @@ my %deprecatedGtkFunctions = (
 		'gtk_signal_emit_stop_by_name',			'E',
 		'gtk_signal_emitv',				'E',
 		'gtk_signal_emitv_by_name',			'E',
-		'GTK_SIGNAL_FUNC',				'E',
-		'gtk_signal_handler_block',			'E',
+		'GTK_SIGNAL_FUNC',						'E',
+		'gtk_signal_handler_block',				'E',
 		'gtk_signal_handler_block_by_data',		'E',
 		'gtk_signal_handler_block_by_func',		'E',
 		'gtk_signal_handler_pending',			'E',
 		'gtk_signal_handler_pending_by_func',		'E',
-		'gtk_signal_handler_unblock',			'E',
+		'gtk_signal_handler_unblock',				'E',
 		'gtk_signal_handler_unblock_by_data',		'E',
 		'gtk_signal_handler_unblock_by_func',		'E',
-		'gtk_signal_lookup',				'E',
-		'gtk_signal_name',				'E',
-		'gtk_signal_new',				'E',
-		'gtk_signal_newv',				'E',
-		'GTK_SIGNAL_OFFSET',				'E',
-		'gtk_socket_steal',				'E',
+		'gtk_signal_lookup',						'E',
+		'gtk_signal_name',							'E',
+		'gtk_signal_new',							'E',
+		'gtk_signal_newv',							'E',
+		'GTK_SIGNAL_OFFSET',						'E',
+		'gtk_socket_steal',							'E',
 		'gtk_spin_button_get_value_as_float',		'E', # gtk_spin_button_get_value() [==]
-		'GTK_STRUCT_OFFSET',				'E',
-		'gtk_style_apply_default_pixmap',		'E',
-		'gtk_style_get_font',				'E',
-		'gtk_style_ref',				'E',
-		'gtk_style_set_font',				'E',
-		'gtk_style_unref',				'E', # g_object_unref() [==?]
-		'gtk_text_backward_delete',			'E',
-		'gtk_text_forward_delete',			'E',
-		'gtk_text_freeze',				'E',
-		'gtk_text_get_length',				'E',
-		'gtk_text_get_point',				'E',
-		'GTK_TEXT_INDEX',				'E',
-		'gtk_text_insert',				'E', # GtkTextView (GtkText "known to be buggy" !)
-		'gtk_text_new',					'E',
-		'gtk_text_set_adjustments',			'E',
-		'gtk_text_set_editable',			'E',
-		'gtk_text_set_line_wrap',			'E',
-		'gtk_text_set_point',				'E',
-		'gtk_text_set_word_wrap',			'E',
-		'gtk_text_thaw',				'E',
-		'gtk_timeout_add',				'E', # g_timeout_add()
-		'gtk_timeout_add_full',				'E',
-		'gtk_timeout_remove',				'E', # g_source_remove()
-		'gtk_tips_query_new',				'E',
-		'gtk_tips_query_set_caller',			'E',
-		'gtk_tips_query_set_labels',			'E',
-		'gtk_tips_query_start_query',			'E',
-		'gtk_tips_query_stop_query',			'E',
-		'gtk_toggle_button_set_state',			'E', # gtk_toggle_button_set_active [==]
-		'gtk_toolbar_append_element',			'E',
-		'gtk_toolbar_append_item',			'E',
-		'gtk_toolbar_append_space',			'E', # Use gtk_toolbar_insert() instead
-		'gtk_toolbar_append_widget',			'E', # ??
-		'gtk_toolbar_get_tooltips',			'E',
-		'gtk_toolbar_insert_element',			'E',
-		'gtk_toolbar_insert_item',			'E',
-		'gtk_toolbar_insert_space',			'E',
-		'gtk_toolbar_insert_stock',			'E',
-		'gtk_toolbar_insert_widget',			'E',
-		'gtk_toolbar_prepend_element',			'E',
-		'gtk_toolbar_prepend_item',			'E',
-		'gtk_toolbar_prepend_space',			'E',
-		'gtk_toolbar_prepend_widget',			'E',
-		'gtk_toolbar_remove_space',			'E',
-		'gtk_toolbar_set_tooltips',			'E',
-		'gtk_tree_append',				'E',
-		'gtk_tree_child_position',			'E',
-		'gtk_tree_clear_items',				'E',
-		'gtk_tree_insert',				'E',
-		'gtk_tree_item_collapse',			'E',
-		'gtk_tree_item_deselect',			'E',
-		'gtk_tree_item_expand',				'E',
-		'gtk_tree_item_new',				'E',
-		'gtk_tree_item_new_with_label',			'E',
-		'gtk_tree_item_remove_subtree',			'E',
-		'gtk_tree_item_select',				'E',
-		'gtk_tree_item_set_subtree',			'E',
-		'GTK_TREE_ITEM_SUBTREE',			'E',
-		'gtk_tree_model_get_iter_root',			'E',
-		'gtk_tree_new',					'E',
-		'gtk_tree_path_new_root',			'E',
-		'gtk_tree_prepend',				'E',
-		'gtk_tree_remove_item',				'E',
-		'gtk_tree_remove_items',			'E',
-		'GTK_TREE_ROOT_TREE',				'E',
-		'gtk_tree_select_child',			'E',
-		'gtk_tree_select_item',				'E',
-		'GTK_TREE_SELECTION_OLD',			'E',
-		'gtk_tree_set_selection_mode',			'E',
-		'gtk_tree_set_view_lines',			'E',
-		'gtk_tree_set_view_mode',			'E',
-		'gtk_tree_unselect_child',			'E',
-		'gtk_tree_unselect_item',			'E',
+		'GTK_STRUCT_OFFSET',						'E',
+		'gtk_style_apply_default_pixmap',			'E',
+		'gtk_style_get_font',						'E',
+		'gtk_style_ref',							'E',
+		'gtk_style_set_font',						'E',
+		'gtk_style_unref',							'E', # g_object_unref() [==?]
+		'gtk_text_backward_delete',					'E',
+		'gtk_text_forward_delete',					'E',
+		'gtk_text_freeze',							'E',
+		'gtk_text_get_length',						'E',
+		'gtk_text_get_point',						'E',
+		'GTK_TEXT_INDEX',							'E',
+		'gtk_text_insert',							'E', # GtkTextView (GtkText "known to be buggy" !)
+		'gtk_text_new',								'E',
+		'gtk_text_set_adjustments',					'E',
+		'gtk_text_set_editable',					'E',
+		'gtk_text_set_line_wrap',					'E',
+		'gtk_text_set_point',						'E',
+		'gtk_text_set_word_wrap',					'E',
+		'gtk_text_thaw',							'E',
+		'gtk_timeout_add',							'E', # g_timeout_add()
+		'gtk_timeout_add_full',						'E',
+		'gtk_timeout_remove',						'E', # g_source_remove()
+		'gtk_tips_query_new',						'E',
+		'gtk_tips_query_set_caller',				'E',
+		'gtk_tips_query_set_labels',				'E',
+		'gtk_tips_query_start_query',				'E',
+		'gtk_tips_query_stop_query',				'E',
+		'gtk_toggle_button_set_state',				'E', # gtk_toggle_button_set_active [==]
+		'gtk_toolbar_append_element',				'E',
+		'gtk_toolbar_append_item',					'E',
+		'gtk_toolbar_append_space',					'E', # Use gtk_toolbar_insert() instead
+		'gtk_toolbar_append_widget',				'E', # ??
+		'gtk_toolbar_get_tooltips',					'E',
+		'gtk_toolbar_insert_element',				'E',
+		'gtk_toolbar_insert_item',					'E',
+		'gtk_toolbar_insert_space',					'E',
+		'gtk_toolbar_insert_stock',					'E',
+		'gtk_toolbar_insert_widget',				'E',
+		'gtk_toolbar_prepend_element',				'E',
+		'gtk_toolbar_prepend_item',					'E',
+		'gtk_toolbar_prepend_space',				'E',
+		'gtk_toolbar_prepend_widget',				'E',
+		'gtk_toolbar_remove_space',					'E',
+		'gtk_toolbar_set_tooltips',					'E',
+		'gtk_tree_append',							'E',
+		'gtk_tree_child_position',					'E',
+		'gtk_tree_clear_items',						'E',
+		'gtk_tree_insert',							'E',
+		'gtk_tree_item_collapse',					'E',
+		'gtk_tree_item_deselect',					'E',
+		'gtk_tree_item_expand',						'E',
+		'gtk_tree_item_new',						'E',
+		'gtk_tree_item_new_with_label',				'E',
+		'gtk_tree_item_remove_subtree',				'E',
+		'gtk_tree_item_select',						'E',
+		'gtk_tree_item_set_subtree',				'E',
+		'GTK_TREE_ITEM_SUBTREE',					'E',
+		'gtk_tree_model_get_iter_root',				'E',
+		'gtk_tree_new',								'E',
+		'gtk_tree_path_new_root',					'E',
+		'gtk_tree_prepend',							'E',
+		'gtk_tree_remove_item',						'E',
+		'gtk_tree_remove_items',					'E',
+		'GTK_TREE_ROOT_TREE',						'E',
+		'gtk_tree_select_child',					'E',
+		'gtk_tree_select_item',						'E',
+		'GTK_TREE_SELECTION_OLD',					'E',
+		'gtk_tree_set_selection_mode',				'E',
+		'gtk_tree_set_view_lines',					'E',
+		'gtk_tree_set_view_mode',					'E',
+		'gtk_tree_unselect_child',					'E',
+		'gtk_tree_unselect_item',					'E',
 		'gtk_tree_view_tree_to_widget_coords',		'E',
 		'gtk_tree_view_widget_to_tree_coords',		'E',
-		'gtk_type_class',				'E', # g_type_class_peek() or g_type_class_ref()
-		'GTK_TYPE_CTREE_NODE',				'E',
-		'gtk_type_enum_find_value',			'E',
-		'gtk_type_enum_get_values',			'E',
-		'gtk_type_flags_find_value',			'E',
-		'gtk_type_flags_get_values',			'E',
-		'gtk_type_from_name',				'E',
-		'gtk_type_init',				'E',
-		'gtk_type_is_a',				'E',
-		'GTK_TYPE_IS_OBJECT',				'E',
-		'gtk_type_name',				'E',
-		'gtk_type_new',					'E',
+		'gtk_type_class',							'E', # g_type_class_peek() or g_type_class_ref()
+		'GTK_TYPE_CTREE_NODE',						'E',
+		'gtk_type_enum_find_value',					'E',
+		'gtk_type_enum_get_values',					'E',
+		'gtk_type_flags_find_value',				'E',
+		'gtk_type_flags_get_values',				'E',
+		'gtk_type_from_name',						'E',
+		'gtk_type_init',							'E',
+		'gtk_type_is_a',							'E',
+		'GTK_TYPE_IS_OBJECT',						'E',
+		'gtk_type_name',							'E',
+		'gtk_type_new',								'E',
 		'gtk_type_parent',				'E',
 		'gtk_type_unique',				'E',
 		'GTK_VALUE_BOOL',				'E',
@@ -859,24 +859,24 @@ my %deprecatedGtkFunctions = (
 		'gtk_vbutton_box_get_spacing_default',		'E',
 		'gtk_vbutton_box_set_layout_default',		'E',
 		'gtk_vbutton_box_set_spacing_default',		'E',
-		'gtk_widget_draw',				'E', # gtk_widget_queue_draw_area():
-									#  "in general a better choice if you want
-									#  to draw a region of a widget."
-		'gtk_widget_pop_visual',			'E',
-		'gtk_widget_push_visual',			'E',
-		'gtk_widget_queue_clear',			'E',
-		'gtk_widget_queue_clear_area',			'E',
-		'gtk_widget_ref',				'E', # g_object_ref() [==]
-		'gtk_widget_restore_default_style',		'E',
-		'gtk_widget_set',				'E', # g_object_set() [==]
-		'gtk_widget_set_default_visual',		'E',
-		'gtk_widget_set_rc_style',			'E',
-		'gtk_widget_set_uposition',			'E', # ?? (see GTK documentation)
-		'gtk_widget_set_usize',				'E', # gtk_widget_set_size_request()
-		'gtk_widget_set_visual',			'E',
-		'gtk_widget_unref',				'E',
-		'gtk_window_position',				'E',
-		'gtk_window_set_policy',			'E', # >>? gtk_window_set_resizable()
+		'gtk_widget_draw',							'E',	# gtk_widget_queue_draw_area():
+															#  "in general a better choice if you want
+															#  to draw a region of a widget."
+		'gtk_widget_pop_visual',					'E',
+		'gtk_widget_push_visual',					'E',
+		'gtk_widget_queue_clear',					'E',
+		'gtk_widget_queue_clear_area',				'E',
+		'gtk_widget_ref',							'E', # g_object_ref() [==]
+		'gtk_widget_restore_default_style',			'E',
+		'gtk_widget_set',							'E', # g_object_set() [==]
+		'gtk_widget_set_default_visual',			'E',
+		'gtk_widget_set_rc_style',					'E',
+		'gtk_widget_set_uposition',					'E', # ?? (see GTK documentation)
+		'gtk_widget_set_usize',						'E', # gtk_widget_set_size_request()
+		'gtk_widget_set_visual',					'E',
+		'gtk_widget_unref',							'E',
+		'gtk_window_position',						'E',
+		'gtk_window_set_policy',					'E', # >>? gtk_window_set_resizable()
 ##
 ## Deprecated for GTK+ versions greater than 2.4
 ## Note that entries marked with 'W' are currently being used by Wireshark
@@ -884,66 +884,66 @@ my %deprecatedGtkFunctions = (
 ##
 ## Deprecated as of GTK+ 2.12 but to be replaced only when Wireshark requires GTK+ 2.12 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_tooltips_data_get',			'E', # new API: GtkToolTip (avail since 2.12) ...
-		'gtk_tooltips_disable',				'E',
-		'gtk_tooltips_enable',				'E',
-		'gtk_tooltips_force_window',			'E',
+		'gtk_tooltips_data_get',					'E', # new API: GtkToolTip (avail since 2.12) ...
+		'gtk_tooltips_disable',						'E',
+		'gtk_tooltips_enable',						'E',
+		'gtk_tooltips_force_window',				'E',
 		'gtk_tooltips_get_info_from_tip_window',	'E',
-##		'gtk_tooltips_new',				'W',
-		'gtk_tooltips_set_delay',			'E',
-##		'gtk_tooltips_set_tip',				'W',
-##		'gtk_tool_item_set_tooltip',			'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+##		'gtk_tooltips_new',							'W',
+		'gtk_tooltips_set_delay',					'E',
+##		'gtk_tooltips_set_tip',						'W',
+##		'gtk_tool_item_set_tooltip',				'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_scale_button_get_orientation',		'E', # gtk_orientable_get_orientation()		(avail since 2.16)
-		'gtk_scale_button_set_orientation',		'E', # gtk_orientable_set_orientation()		(avail since 2.16)
-		'gtk_toolbar_get_orientation',			'E', # gtk_orientable_get_orientation()		(avail since 2.16)
-##		'gtk_toolbar_set_orientation',			'W', # gtk_orientable_set_orientation()		(avail since 2.16)
-		'gtk_status_icon_set_tooltip',			'E', # gtk_status_icon_set_tooltip_text()	(avail since 2.16)
-		'gtk_widget_get_action',			'E', # gtk_activatable_get_related_action()	(avail since 2.16)
+		'gtk_scale_button_get_orientation',			'E', # gtk_orientable_get_orientation()		(avail since 2.16)
+		'gtk_scale_button_set_orientation',			'E', # gtk_orientable_set_orientation()		(avail since 2.16)
+		'gtk_toolbar_get_orientation',				'E', # gtk_orientable_get_orientation()		(avail since 2.16)
+##		'gtk_toolbar_set_orientation',				'W', # gtk_orientable_set_orientation()		(avail since 2.16)
+		'gtk_status_icon_set_tooltip',				'E', # gtk_status_icon_set_tooltip_text()	(avail since 2.16)
+		'gtk_widget_get_action',					'E', # gtk_activatable_get_related_action()	(avail since 2.16)
 ##
 ## Deprecated as of GTK+ 2.18 but to be replaced only when Wireshark requires GTK+ 2.12 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_cell_view_get_cell_renderers',		'E', # gtk_cell_layout_get_cells ()		(avail since 2.12)
+		'gtk_cell_view_get_cell_renderers',			'E', # gtk_cell_layout_get_cells ()		(avail since 2.12)
 ##		'gtk_tree_view_column_get_cell_renderers',	'W', # gtk_cell_layout_get_cells ()		(avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.20 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
-		'GTK_WIDGET_APP_PAINTABLE',			'E', # gtk_widget_get_app_paintable()		(avail since 2.18)
-		'GTK_WIDGET_CAN_DEFAULT',			'E', # gtk_widget_getcan_default()		(avail since 2.18)
-		'GTK_WIDGET_CAN_FOCUS',				'E', # gtk_widget_getcan_focus()		(avail since 2.18)
-		'GTK_WIDGET_COMPOSITE_CHILD',			'E', # gtk_widget_getcomposite_child()		(avail since 2.18)
-		'GTK_WIDGET_DOUBLE_BUFFERED',			'E', # gtk_widget_getdouble_buffered()		(avail since 2.18)
-		'GTK_WIDGET_DRAWABLE',				'E', # gtk_widget_getdrawable()			(avail since 2.18)
-		'GTK_WIDGET_FLAGS',				'E', # gtk_widget_getflags()			(avail since 2.18)
-		'GTK_WIDGET_HAS_DEFAULT',			'E', # gtk_widget_gethas_default()		(avail since 2.18)
-		'GTK_WIDGET_HAS_FOCUS',				'E', # gtk_widget_gethas_focus()		(avail since 2.18)
-		'GTK_WIDGET_HAS_GRAB',				'E', # gtk_widget_gethas_grab()			(avail since 2.18)
-		'GTK_WIDGET_IS_SENSITIVE',			'E', # gtk_widget_getis_sensitive()		(avail since 2.18)
-		'GTK_WIDGET_MAPPED',				'E', # gtk_widget_getmapped()			(avail since 2.18)
-		'GTK_WIDGET_NO_WINDOW',				'W', # gtk_widget_getno_window()		(avail since 2.18)
-		'GTK_WIDGET_PARENT_SENSITIVE',			'E', # gtk_widget_getparent_sensitive()		(avail since 2.18)
-		'GTK_WIDGET_RC_STYLE',				'E', # gtk_widget_getrc_style()			(avail since 2.18)
-		'GTK_WIDGET_REALIZED',				'W', # gtk_widget_getrealized()			(avail since 2.18)
-		'GTK_WIDGET_RECEIVES_DEFAULT',			'E', # gtk_widget_getreceives_default()		(avail since 2.18)
-		'GTK_WIDGET_SAVED_STATE',			'E', # gtk_widget_getsaved_state()		(avail since 2.18)
-		'GTK_WIDGET_SENSITIVE',				'W', # gtk_widget_getsensitive()		(avail since 2.18)
-		'GTK_WIDGET_STATE',				'W', # gtk_widget_getstate()			(avail since 2.18)
-		'GTK_WIDGET_TOPLEVEL',				'E', # gtk_widget_gettoplevel()			(avail since 2.18)
-		'GTK_WIDGET_TYPE',				'E', # gtk_widget_gettype()			(avail since 2.18)
-		'GTK_WIDGET_VISIBLE',				'W', # gtk_widget_getvisible()			(avail since 2.18)
+		'GTK_WIDGET_APP_PAINTABLE',					'E', # gtk_widget_get_app_paintable()		(avail since 2.18)
+		'GTK_WIDGET_CAN_DEFAULT',					'E', # gtk_widget_getcan_default()		(avail since 2.18)
+		'GTK_WIDGET_CAN_FOCUS',						'E', # gtk_widget_getcan_focus()		(avail since 2.18)
+		'GTK_WIDGET_COMPOSITE_CHILD',				'E', # gtk_widget_getcomposite_child()		(avail since 2.18)
+		'GTK_WIDGET_DOUBLE_BUFFERED',				'E', # gtk_widget_getdouble_buffered()		(avail since 2.18)
+		'GTK_WIDGET_DRAWABLE',						'E', # gtk_widget_getdrawable()			(avail since 2.18)
+		'GTK_WIDGET_FLAGS',							'E', # gtk_widget_getflags()			(avail since 2.18)
+		'GTK_WIDGET_HAS_DEFAULT',					'E', # gtk_widget_gethas_default()		(avail since 2.18)
+		'GTK_WIDGET_HAS_FOCUS',						'E', # gtk_widget_gethas_focus()		(avail since 2.18)
+		'GTK_WIDGET_HAS_GRAB',						'E', # gtk_widget_gethas_grab()			(avail since 2.18)
+		'GTK_WIDGET_IS_SENSITIVE',					'E', # gtk_widget_getis_sensitive()		(avail since 2.18)
+		'GTK_WIDGET_MAPPED',						'E', # gtk_widget_getmapped()			(avail since 2.18)
+		'GTK_WIDGET_NO_WINDOW',						'W', # gtk_widget_getno_window()		(avail since 2.18)
+		'GTK_WIDGET_PARENT_SENSITIVE',				'E', # gtk_widget_getparent_sensitive()		(avail since 2.18)
+		'GTK_WIDGET_RC_STYLE',						'E', # gtk_widget_getrc_style()			(avail since 2.18)
+		'GTK_WIDGET_REALIZED',						'W', # gtk_widget_getrealized()			(avail since 2.18)
+		'GTK_WIDGET_RECEIVES_DEFAULT',				'E', # gtk_widget_getreceives_default()		(avail since 2.18)
+		'GTK_WIDGET_SAVED_STATE',					'E', # gtk_widget_getsaved_state()		(avail since 2.18)
+		'GTK_WIDGET_SENSITIVE',						'W', # gtk_widget_getsensitive()		(avail since 2.18)
+		'GTK_WIDGET_STATE',							'W', # gtk_widget_getstate()			(avail since 2.18)
+		'GTK_WIDGET_TOPLEVEL',						'E', # gtk_widget_gettoplevel()			(avail since 2.18)
+		'GTK_WIDGET_TYPE',							'E', # gtk_widget_gettype()			(avail since 2.18)
+		'GTK_WIDGET_VISIBLE',						'W', # gtk_widget_getvisible()			(avail since 2.18)
 ## Deprecated as of GTK+ 2.22 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_dialog_get_has_separator',			'E', # This function will be removed in GTK+ 3
-		'gtk_dialog_set_has_separator',			'E', # This function will be removed in GTK+ 3
-		'gtk_icon_view_get_orientation',		'E', # gtk_icon_view_get_item_orientation()
-		'gtk_icon_view_set_orientation',		'E', # gtk_icon_view_set_item_orientation()
-		'gtk_item_deselect',				'E', # gtk_menu_item_deselect()
-		'gtk_item_select',				'E', # gtk_menu_item_select()
-		'gtk_item_toggle',				'E', #
-		'gtk_recent_manager_get_limit',			'E', # Use GtkRecentChooser
-		'gtk_recent_manager_set_limit',			'E', #
+		'gtk_dialog_get_has_separator',				'E', # This function will be removed in GTK+ 3
+		'gtk_dialog_set_has_separator',				'E', # This function will be removed in GTK+ 3
+		'gtk_icon_view_get_orientation',			'E', # gtk_icon_view_get_item_orientation()
+		'gtk_icon_view_set_orientation',			'E', # gtk_icon_view_set_item_orientation()
+		'gtk_item_deselect',						'E', # gtk_menu_item_deselect()
+		'gtk_item_select',							'E', # gtk_menu_item_select()
+		'gtk_item_toggle',							'E', #
+		'gtk_recent_manager_get_limit',				'E', # Use GtkRecentChooser
+		'gtk_recent_manager_set_limit',				'E', #
 
 );
 
