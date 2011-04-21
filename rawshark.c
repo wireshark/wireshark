@@ -1338,6 +1338,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                 svalue = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->display & BASE_RANGE_STRING) {
                                     g_string_append(label_s, rval_to_str(svalue, RVALS(hfinfo->strings), "Unknown"));
+                                } else if (hfinfo->display & BASE_EXT_STRING) {
+                                    g_string_append(label_s, val_to_str_ext(svalue, (value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
                                     g_string_append(label_s, val_to_str(svalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
@@ -1349,6 +1351,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                 uvalue = fvalue_get_uinteger(&finfo->value);
                                 if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
                                     g_string_append(label_s, rval_to_str(uvalue, RVALS(hfinfo->strings), "Unknown"));
+                                } else if (hfinfo->display & BASE_EXT_STRING) {
+                                    g_string_append(label_s, val_to_str_ext(uvalue, (value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
                                     g_string_append(label_s, val_to_str(uvalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
