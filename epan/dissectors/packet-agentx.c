@@ -356,7 +356,7 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags, enum 
 		NORLEL(flags, oid[i], tvb, (offset+4) + (i*4));
 	}
 
-	if(!(slen = convert_oid_to_str(&oid[0], n_subid, &str_oid[0], 2048, prefix)))
+	if(!convert_oid_to_str(&oid[0], n_subid, &str_oid[0], 2048, prefix))
 		slen = g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
