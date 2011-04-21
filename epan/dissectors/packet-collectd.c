@@ -616,23 +616,23 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	pi = proto_tree_add_text (pt, tvb, offset + 6, length - 6, "Dispatch simulation");
 	pt = proto_item_add_subtree(pi, ett_collectd_dispatch);
 	proto_tree_add_text (pt, tvb, vdispatch->host_off, vdispatch->host_len,
-			     "Host: %s", vdispatch->host);
+			     "Host: %s", vdispatch->host ? vdispatch->host : "(null)");
 	proto_tree_add_text (pt, tvb, vdispatch->plugin_off,
 			     vdispatch->plugin_len,
-			     "Plugin: %s", vdispatch->plugin);
+			     "Plugin: %s", vdispatch->plugin ? vdispatch->plugin : "(null)");
 	if (vdispatch->plugin_instance)
 		proto_tree_add_text (pt, tvb, vdispatch->plugin_instance_off,
 				     vdispatch->plugin_instance_len,
 				     "Plugin instance: %s", vdispatch->plugin_instance);
 	proto_tree_add_text (pt, tvb, vdispatch->type_off, vdispatch->type_len,
-			     "Type: %s", vdispatch->type);
+			     "Type: %s", vdispatch->type ? vdispatch->type : "(null)");
 	if (vdispatch->type_instance)
 		proto_tree_add_text(pt, tvb, vdispatch->type_instance_off,
 				    vdispatch->type_instance_len,
 				    "Type instance: %s", vdispatch->type_instance);
 	proto_tree_add_text (pt, tvb, vdispatch->time_off, 8,
 			     "Timestamp: %"G_GINT64_MODIFIER"u (%s)",
-			     vdispatch->time, vdispatch->time_str);
+			     vdispatch->time, vdispatch->time_str ? vdispatch->time_str : "(null)");
 	proto_tree_add_text (pt, tvb, vdispatch->interval_off, 8,
 			     "Interval: %"G_GINT64_MODIFIER"u",
 			     vdispatch->interval);
@@ -1113,7 +1113,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ndispatch.time_str = vdispatch.time_str;
 
 				proto_item_set_text (pi, "collectd TIME segment: %"G_GINT64_MODIFIER"u (%s)",
-						     vdispatch.time, vdispatch.time_str);
+						     vdispatch.time, vdispatch.time_str ? vdispatch.time_str : "(null)");
 			}
 
 			break;
@@ -1181,10 +1181,10 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pt = proto_item_add_subtree(pi, ett_collectd_dispatch);
 			proto_tree_add_text (pt, tvb, ndispatch.host_off,
 					     ndispatch.host_len,
-					     "Host: %s", ndispatch.host);
+					     "Host: %s", ndispatch.host ? ndispatch.host : "(null)");
 			proto_tree_add_text (pt, tvb, ndispatch.time_off, 8,
 					     "Timestamp: %"G_GINT64_MODIFIER"u (%s)",
-					     ndispatch.time, ndispatch.time_str);
+					     ndispatch.time, ndispatch.time_str ? ndispatch.time_str : "(null)");
 			proto_tree_add_text (pt, tvb, ndispatch.severity_off, 8,
 					     "Severity: %s (%#"G_GINT64_MODIFIER"x)",
 					     val_to_str((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
