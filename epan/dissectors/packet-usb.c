@@ -1875,7 +1875,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     int type, endpoint;
     guint8 setup_flag;
     proto_tree *tree = NULL;
-    guint32 src_device, dst_device, tmp_addr;
+    guint32 tmp_addr;
     static usb_address_t src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint32 src_endpoint, dst_endpoint;
     gboolean is_request=FALSE;
@@ -1904,14 +1904,14 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     /* Set up addresses and ports. */
     if (is_request) {
-        src_addr.device = src_device = 0xffffffff;
+        src_addr.device = 0xffffffff;
         src_addr.endpoint = src_endpoint = NO_ENDPOINT;
-        dst_addr.device = dst_device = htolel(tmp_addr);
+        dst_addr.device = htolel(tmp_addr);
         dst_addr.endpoint = dst_endpoint = htolel(endpoint);
     } else {
-        src_addr.device = src_device = htolel(tmp_addr);
+        src_addr.device = htolel(tmp_addr);
         src_addr.endpoint = src_endpoint = htolel(endpoint);
-        dst_addr.device = dst_device = 0xffffffff;
+        dst_addr.device = 0xffffffff;
         dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
     }
 
