@@ -56,13 +56,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
-
-#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/emem.h>
@@ -91,223 +87,223 @@ static gboolean cops_desegment = TRUE;
 /* Null string of type "guchar[]". */
 static const guchar nullstring[] = "";
 
-#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : nullstring)
+#define SAFE_STRING(s)  (((s) != NULL) ? (s) : nullstring)
 
 static const value_string cops_flags_vals[] = {
-  { 0x00,          "None" },
-  { 0x01,          "Solicited Message Flag Bit" },
-  { 0, NULL },
+    { 0x00,          "None" },
+    { 0x01,          "Solicited Message Flag Bit" },
+    { 0, NULL },
 };
 
 /* The different COPS message types */
 enum cops_op_code {
-  COPS_NO_MSG,          /* Not a COPS Message type     */
+    COPS_NO_MSG,          /* Not a COPS Message type     */
 
-  COPS_MSG_REQ,         /* Request (REQ)               */
-  COPS_MSG_DEC,         /* Decision (DEC)              */
-  COPS_MSG_RPT,         /* Report State (RPT)          */
-  COPS_MSG_DRQ,         /* Delete Request State (DRQ)  */
-  COPS_MSG_SSQ,         /* Synchronize State Req (SSQ) */
-  COPS_MSG_OPN,         /* Client-Open (OPN)           */
-  COPS_MSG_CAT,         /* Client-Accept (CAT)         */
-  COPS_MSG_CC,          /* Client-Close (CC)           */
-  COPS_MSG_KA,          /* Keep-Alive (KA)             */
-  COPS_MSG_SSC,         /* Synchronize Complete (SSC)  */
+    COPS_MSG_REQ,         /* Request (REQ)               */
+    COPS_MSG_DEC,         /* Decision (DEC)              */
+    COPS_MSG_RPT,         /* Report State (RPT)          */
+    COPS_MSG_DRQ,         /* Delete Request State (DRQ)  */
+    COPS_MSG_SSQ,         /* Synchronize State Req (SSQ) */
+    COPS_MSG_OPN,         /* Client-Open (OPN)           */
+    COPS_MSG_CAT,         /* Client-Accept (CAT)         */
+    COPS_MSG_CC,          /* Client-Close (CC)           */
+    COPS_MSG_KA,          /* Keep-Alive (KA)             */
+    COPS_MSG_SSC,         /* Synchronize Complete (SSC)  */
 
-  COPS_LAST_OP_CODE     /* For error checking          */
+    COPS_LAST_OP_CODE     /* For error checking          */
 };
 
 static const value_string cops_op_code_vals[] = {
-  { COPS_MSG_REQ,          "Request (REQ)" },
-  { COPS_MSG_DEC,          "Decision (DEC)" },
-  { COPS_MSG_RPT,          "Report State (RPT)" },
-  { COPS_MSG_DRQ,          "Delete Request State (DRQ)" },
-  { COPS_MSG_SSQ,          "Synchronize State Req (SSQ)" },
-  { COPS_MSG_OPN,          "Client-Open (OPN)" },
-  { COPS_MSG_CAT,          "Client-Accept (CAT)" },
-  { COPS_MSG_CC,           "Client-Close (CC)" },
-  { COPS_MSG_KA,           "Keep-Alive (KA)" },
-  { COPS_MSG_SSC,          "Synchronize Complete (SSC)" },
-  { 0, NULL },
+    { COPS_MSG_REQ,          "Request (REQ)" },
+    { COPS_MSG_DEC,          "Decision (DEC)" },
+    { COPS_MSG_RPT,          "Report State (RPT)" },
+    { COPS_MSG_DRQ,          "Delete Request State (DRQ)" },
+    { COPS_MSG_SSQ,          "Synchronize State Req (SSQ)" },
+    { COPS_MSG_OPN,          "Client-Open (OPN)" },
+    { COPS_MSG_CAT,          "Client-Accept (CAT)" },
+    { COPS_MSG_CC,           "Client-Close (CC)" },
+    { COPS_MSG_KA,           "Keep-Alive (KA)" },
+    { COPS_MSG_SSC,          "Synchronize Complete (SSC)" },
+    { 0, NULL },
 };
 
 
 /* The different objects in COPS messages */
 enum cops_c_num {
-  COPS_NO_OBJECT,        /* Not a COPS Object type               */
+    COPS_NO_OBJECT,        /* Not a COPS Object type               */
 
-  COPS_OBJ_HANDLE,       /* Handle Object (Handle)               */
-  COPS_OBJ_CONTEXT,      /* Context Object (Context)             */
-  COPS_OBJ_IN_INT,       /* In-Interface Object (IN-Int)         */
-  COPS_OBJ_OUT_INT,      /* Out-Interface Object (OUT-Int)       */
-  COPS_OBJ_REASON,       /* Reason Object (Reason)               */
-  COPS_OBJ_DECISION,     /* Decision Object (Decision)           */
-  COPS_OBJ_LPDPDECISION, /* LPDP Decision Object (LPDPDecision)  */
-  COPS_OBJ_ERROR,        /* Error Object (Error)                 */
-  COPS_OBJ_CLIENTSI,     /* Client Specific Information Object (ClientSI) */
-  COPS_OBJ_KATIMER,      /* Keep-Alive Timer Object (KATimer)    */
-  COPS_OBJ_PEPID,        /* PEP Identification Object (PEPID)    */
-  COPS_OBJ_REPORT_TYPE,  /* Report-Type Object (Report-Type)     */
-  COPS_OBJ_PDPREDIRADDR, /* PDP Redirect Address Object (PDPRedirAddr) */
-  COPS_OBJ_LASTPDPADDR,  /* Last PDP Address (LastPDPaddr)       */
-  COPS_OBJ_ACCTTIMER,    /* Accounting Timer Object (AcctTimer)  */
-  COPS_OBJ_INTEGRITY,    /* Message Integrity Object (Integrity) */
-  COPS_LAST_C_NUM        /* For error checking                   */
+    COPS_OBJ_HANDLE,       /* Handle Object (Handle)               */
+    COPS_OBJ_CONTEXT,      /* Context Object (Context)             */
+    COPS_OBJ_IN_INT,       /* In-Interface Object (IN-Int)         */
+    COPS_OBJ_OUT_INT,      /* Out-Interface Object (OUT-Int)       */
+    COPS_OBJ_REASON,       /* Reason Object (Reason)               */
+    COPS_OBJ_DECISION,     /* Decision Object (Decision)           */
+    COPS_OBJ_LPDPDECISION, /* LPDP Decision Object (LPDPDecision)  */
+    COPS_OBJ_ERROR,        /* Error Object (Error)                 */
+    COPS_OBJ_CLIENTSI,     /* Client Specific Information Object (ClientSI) */
+    COPS_OBJ_KATIMER,      /* Keep-Alive Timer Object (KATimer)    */
+    COPS_OBJ_PEPID,        /* PEP Identification Object (PEPID)    */
+    COPS_OBJ_REPORT_TYPE,  /* Report-Type Object (Report-Type)     */
+    COPS_OBJ_PDPREDIRADDR, /* PDP Redirect Address Object (PDPRedirAddr) */
+    COPS_OBJ_LASTPDPADDR,  /* Last PDP Address (LastPDPaddr)       */
+    COPS_OBJ_ACCTTIMER,    /* Accounting Timer Object (AcctTimer)  */
+    COPS_OBJ_INTEGRITY,    /* Message Integrity Object (Integrity) */
+    COPS_LAST_C_NUM        /* For error checking                   */
 };
 
 static const value_string cops_c_num_vals[] = {
-  { COPS_OBJ_HANDLE,       "Handle Object (Handle)" },
-  { COPS_OBJ_CONTEXT,      "Context Object (Context)" },
-  { COPS_OBJ_IN_INT,       "In-Interface Object (IN-Int)" },
-  { COPS_OBJ_OUT_INT,      "Out-Interface Object (OUT-Int)" },
-  { COPS_OBJ_REASON,       "Reason Object (Reason)" },
-  { COPS_OBJ_DECISION,     "Decision Object (Decision)" },
-  { COPS_OBJ_LPDPDECISION, "LPDP Decision Object (LPDPDecision)" },
-  { COPS_OBJ_ERROR,        "Error Object (Error)" },
-  { COPS_OBJ_CLIENTSI,     "Client Specific Information Object (ClientSI)" },
-  { COPS_OBJ_KATIMER,      "Keep-Alive Timer Object (KATimer)" },
-  { COPS_OBJ_PEPID,        "PEP Identification Object (PEPID)" },
-  { COPS_OBJ_REPORT_TYPE,  "Report-Type Object (Report-Type)" },
-  { COPS_OBJ_PDPREDIRADDR, "PDP Redirect Address Object (PDPRedirAddr)" },
-  { COPS_OBJ_LASTPDPADDR,  "Last PDP Address (LastPDPaddr)" },
-  { COPS_OBJ_ACCTTIMER,    "Accounting Timer Object (AcctTimer)" },
-  { COPS_OBJ_INTEGRITY,    "Message Integrity Object (Integrity)" },
-  { 0, NULL },
+    { COPS_OBJ_HANDLE,       "Handle Object (Handle)" },
+    { COPS_OBJ_CONTEXT,      "Context Object (Context)" },
+    { COPS_OBJ_IN_INT,       "In-Interface Object (IN-Int)" },
+    { COPS_OBJ_OUT_INT,      "Out-Interface Object (OUT-Int)" },
+    { COPS_OBJ_REASON,       "Reason Object (Reason)" },
+    { COPS_OBJ_DECISION,     "Decision Object (Decision)" },
+    { COPS_OBJ_LPDPDECISION, "LPDP Decision Object (LPDPDecision)" },
+    { COPS_OBJ_ERROR,        "Error Object (Error)" },
+    { COPS_OBJ_CLIENTSI,     "Client Specific Information Object (ClientSI)" },
+    { COPS_OBJ_KATIMER,      "Keep-Alive Timer Object (KATimer)" },
+    { COPS_OBJ_PEPID,        "PEP Identification Object (PEPID)" },
+    { COPS_OBJ_REPORT_TYPE,  "Report-Type Object (Report-Type)" },
+    { COPS_OBJ_PDPREDIRADDR, "PDP Redirect Address Object (PDPRedirAddr)" },
+    { COPS_OBJ_LASTPDPADDR,  "Last PDP Address (LastPDPaddr)" },
+    { COPS_OBJ_ACCTTIMER,    "Accounting Timer Object (AcctTimer)" },
+    { COPS_OBJ_INTEGRITY,    "Message Integrity Object (Integrity)" },
+    { 0, NULL },
 };
 
 
 /* The different objects in COPS-PR messages */
 enum cops_s_num {
-  COPS_NO_PR_OBJECT,     /* Not a COPS-PR Object type               */
-  COPS_OBJ_PRID,         /* Provisioning Instance Identifier (PRID) */
-  COPS_OBJ_PPRID,        /* Prefix Provisioning Instance Identifier (PPRID) */
-  COPS_OBJ_EPD,          /* Encoded Provisioning Instance Data (EPD) */
-  COPS_OBJ_GPERR,        /* Global Provisioning Error Object (GPERR) */
-  COPS_OBJ_CPERR,        /* PRC Class Provisioning Error Object (CPERR) */
-  COPS_OBJ_ERRPRID,      /* Error Provisioning Instance Identifier (ErrorPRID)*/
+    COPS_NO_PR_OBJECT,     /* Not a COPS-PR Object type               */
+    COPS_OBJ_PRID,         /* Provisioning Instance Identifier (PRID) */
+    COPS_OBJ_PPRID,        /* Prefix Provisioning Instance Identifier (PPRID) */
+    COPS_OBJ_EPD,          /* Encoded Provisioning Instance Data (EPD) */
+    COPS_OBJ_GPERR,        /* Global Provisioning Error Object (GPERR) */
+    COPS_OBJ_CPERR,        /* PRC Class Provisioning Error Object (CPERR) */
+    COPS_OBJ_ERRPRID,      /* Error Provisioning Instance Identifier (ErrorPRID)*/
 
-  COPS_LAST_S_NUM        /* For error checking                   */
+    COPS_LAST_S_NUM        /* For error checking                   */
 };
 
 
 static const value_string cops_s_num_vals[] = {
-  { COPS_OBJ_PRID,         "Provisioning Instance Identifier (PRID)" },
-  { COPS_OBJ_PPRID,        "Prefix Provisioning Instance Identifier (PPRID)" },
-  { COPS_OBJ_EPD,          "Encoded Provisioning Instance Data (EPD)" },
-  { COPS_OBJ_GPERR,        "Global Provisioning Error Object (GPERR)" },
-  { COPS_OBJ_CPERR,        "PRC Class Provisioning Error Object (CPERR)" },
-  { COPS_OBJ_ERRPRID,      "Error Provisioning Instance Identifier (ErrorPRID)" },
-  { 0, NULL },
+    { COPS_OBJ_PRID,         "Provisioning Instance Identifier (PRID)" },
+    { COPS_OBJ_PPRID,        "Prefix Provisioning Instance Identifier (PPRID)" },
+    { COPS_OBJ_EPD,          "Encoded Provisioning Instance Data (EPD)" },
+    { COPS_OBJ_GPERR,        "Global Provisioning Error Object (GPERR)" },
+    { COPS_OBJ_CPERR,        "PRC Class Provisioning Error Object (CPERR)" },
+    { COPS_OBJ_ERRPRID,      "Error Provisioning Instance Identifier (ErrorPRID)" },
+    { 0, NULL },
 
 };
 
 /* R-Type is carried within the Context Object */
 static const value_string cops_r_type_vals[] = {
-  { 0x01, "Incoming-Message/Admission Control request" },
-  { 0x02, "Resource-Allocation request" },
-  { 0x04, "Outgoing-Message request" },
-  { 0x08, "Configuration request" },
-  { 0, NULL },
+    { 0x01, "Incoming-Message/Admission Control request" },
+    { 0x02, "Resource-Allocation request" },
+    { 0x04, "Outgoing-Message request" },
+    { 0x08, "Configuration request" },
+    { 0, NULL },
 };
 /* S-Type is carried within the ClientSI Object for COPS-PR*/
 static const value_string cops_s_type_vals[] = {
-  { 0x01, "BER" },
-  { 0, NULL },
+    { 0x01, "BER" },
+    { 0, NULL },
 };
 
 /* Reason-Code is carried within the Reason object */
 static const value_string cops_reason_vals[] = {
-  { 1,  "Unspecified" },
-  { 2,  "Management" },
-  { 3,  "Preempted (Another request state takes precedence)" },
-  { 4,  "Tear (Used to communicate a signaled state removal)" },
-  { 5,  "Timeout (Local state has timed-out)" },
-  { 6,  "Route Change (Change invalidates request state)" },
-  { 7,  "Insufficient Resources (No local resource available)" },
-  { 8,  "PDP's Directive (PDP decision caused the delete)" },
-  { 9,  "Unsupported decision (PDP decision not supported)" },
-  { 10, "Synchronize Handle Unknown" },
-  { 11, "Transient Handle (stateless event)" },
-  { 12, "Malformed Decision (could not recover)" },
-  { 13, "Unknown COPS Object from PDP" },
-  { 0, NULL },
+    { 1,  "Unspecified" },
+    { 2,  "Management" },
+    { 3,  "Preempted (Another request state takes precedence)" },
+    { 4,  "Tear (Used to communicate a signaled state removal)" },
+    { 5,  "Timeout (Local state has timed-out)" },
+    { 6,  "Route Change (Change invalidates request state)" },
+    { 7,  "Insufficient Resources (No local resource available)" },
+    { 8,  "PDP's Directive (PDP decision caused the delete)" },
+    { 9,  "Unsupported decision (PDP decision not supported)" },
+    { 10, "Synchronize Handle Unknown" },
+    { 11, "Transient Handle (stateless event)" },
+    { 12, "Malformed Decision (could not recover)" },
+    { 13, "Unknown COPS Object from PDP" },
+    { 0, NULL },
 };
 
 /* Command-Code is carried within the Decision object if C-Type is 1 */
 static const value_string cops_dec_cmd_code_vals[] = {
-  { 0, "NULL Decision (No configuration data available)" },
-  { 1, "Install (Admit request/Install configuration)" },
-  { 2, "Remove (Remove request/Remove configuration)" },
-  { 0, NULL },
+    { 0, "NULL Decision (No configuration data available)" },
+    { 1, "Install (Admit request/Install configuration)" },
+    { 2, "Remove (Remove request/Remove configuration)" },
+    { 0, NULL },
 };
 
 /* Decision flags are also carried with the Decision object if C-Type is 1 */
 static const value_string cops_dec_cmd_flag_vals[] = {
-  { 0x00, "<None set>" },
-  { 0x01, "Trigger Error (Trigger error message if set)" },
-  { 0, NULL },
+    { 0x00, "<None set>" },
+    { 0x01, "Trigger Error (Trigger error message if set)" },
+    { 0, NULL },
 };
 
 /* Error-Code from Error object */
 static const value_string cops_error_vals[] = {
-  {1,  "Bad handle" },
-  {2,  "Invalid handle reference" },
-  {3,  "Bad message format (Malformed Message)" },
-  {4,  "Unable to process (server gives up on query)" },
-  {5,  "Mandatory client-specific info missing" },
-  {6,  "Unsupported client" },
-  {7,  "Mandatory COPS object missing" },
-  {8,  "Client Failure" },
-  {9,  "Communication Failure" },
-  {10, "Unspecified" },
-  {11, "Shutting down" },
-  {12, "Redirect to Preferred Server" },
-  {13, "Unknown COPS Object" },
-  {14, "Authentication Failure" },
-  {15, "Authentication Required" },
-  {0,  NULL },
+    {1,  "Bad handle" },
+    {2,  "Invalid handle reference" },
+    {3,  "Bad message format (Malformed Message)" },
+    {4,  "Unable to process (server gives up on query)" },
+    {5,  "Mandatory client-specific info missing" },
+    {6,  "Unsupported client" },
+    {7,  "Mandatory COPS object missing" },
+    {8,  "Client Failure" },
+    {9,  "Communication Failure" },
+    {10, "Unspecified" },
+    {11, "Shutting down" },
+    {12, "Redirect to Preferred Server" },
+    {13, "Unknown COPS Object" },
+    {14, "Authentication Failure" },
+    {15, "Authentication Required" },
+    {0,  NULL },
 };
 /* Error-Code from GPERR object */
 static const value_string cops_gperror_vals[] = {
-  {1,  "AvailMemLow" },
-  {2,  "AvailMemExhausted" },
-  {3,  "unknownASN.1Tag" },
-  {4,  "maxMsgSizeExceeded" },
-  {5,  "unknownError" },
-  {6,  "maxRequestStatesOpen" },
-  {7,  "invalidASN.1Length" },
-  {8,  "invalidObjectPad" },
-  {9,  "unknownPIBData" },
-  {10, "unknownCOPSPRObject" },
-  {11, "malformedDecision" },
-  {0,  NULL },
+    {1,  "AvailMemLow" },
+    {2,  "AvailMemExhausted" },
+    {3,  "unknownASN.1Tag" },
+    {4,  "maxMsgSizeExceeded" },
+    {5,  "unknownError" },
+    {6,  "maxRequestStatesOpen" },
+    {7,  "invalidASN.1Length" },
+    {8,  "invalidObjectPad" },
+    {9,  "unknownPIBData" },
+    {10, "unknownCOPSPRObject" },
+    {11, "malformedDecision" },
+    {0,  NULL },
 };
 
 /* Error-Code from CPERR object */
 static const value_string cops_cperror_vals[] = {
-  {1,  "priSpaceExhausted" },
-  {2,  "priInstanceInvalid" },
-  {3,  "attrValueInvalid" },
-  {4,  "attrValueSupLimited" },
-  {5,  "attrEnumSupLimited" },
-  {6,  "attrMaxLengthExceeded" },
-  {7,  "attrReferenceUnknown" },
-  {8,  "priNotifyOnly" },
-  {9,  "unknownPrc" },
-  {10, "tooFewAttrs" },
-  {11, "invalidAttrType" },
-  {12, "deletedInRef" },
-  {13, "priSpecificError" },
-  {0,  NULL },
+    {1,  "priSpaceExhausted" },
+    {2,  "priInstanceInvalid" },
+    {3,  "attrValueInvalid" },
+    {4,  "attrValueSupLimited" },
+    {5,  "attrEnumSupLimited" },
+    {6,  "attrMaxLengthExceeded" },
+    {7,  "attrReferenceUnknown" },
+    {8,  "priNotifyOnly" },
+    {9,  "unknownPrc" },
+    {10, "tooFewAttrs" },
+    {11, "invalidAttrType" },
+    {12, "deletedInRef" },
+    {13, "priSpecificError" },
+    {0,  NULL },
 };
 
 
 /* Report-Type from Report-Type object */
 static const value_string cops_report_type_vals[] = {
-  {1, " Success   : Decision was successful at the PEP" },
-  {2, " Failure   : Decision could not be completed by PEP" },
-  {3, " Accounting: Accounting update for an installed state" },
-  {0, NULL },
+    {1, " Success   : Decision was successful at the PEP" },
+    {2, " Failure   : Decision could not be completed by PEP" },
+    {3, " Accounting: Accounting update for an installed state" },
+    {0, NULL },
 };
 
 
@@ -318,24 +314,24 @@ static const value_string cops_report_type_vals[] = {
 
 /* static dissector_handle_t sdp_handle; */
 
-#define COPS_CLIENT_PC_DQOS	0x8008
-#define COPS_CLIENT_PC_MM	0x800a
+#define COPS_CLIENT_PC_DQOS     0x8008
+#define COPS_CLIENT_PC_MM       0x800a
 
 static const value_string cops_client_type_vals[] = {
-	{0,                   "None"},
-	{1,                   "RSVP"},
-	{2,                   "DiffServ QoS"},
-	{0x8001,              "IP Highway"},
-	{0x8002,              "IP Highway"},
-	{0x8003,              "IP Highway"},
-	{0x8004,              "IP Highway"},
-	{0x8005,              "Fujitsu"},
-	{0x8006,              "HP OpenView PolicyXpert"},
-	{0x8007,              "HP OpenView PolicyXpert"},
-	{COPS_CLIENT_PC_DQOS, "PacketCable Dynamic Quality-of-Service"},
-	{0x8009,              "3GPP"},
-	{COPS_CLIENT_PC_MM,   "PacketCable Multimedia"},
-	{0, NULL},
+    {0,                   "None"},
+    {1,                   "RSVP"},
+    {2,                   "DiffServ QoS"},
+    {0x8001,              "IP Highway"},
+    {0x8002,              "IP Highway"},
+    {0x8003,              "IP Highway"},
+    {0x8004,              "IP Highway"},
+    {0x8005,              "Fujitsu"},
+    {0x8006,              "HP OpenView PolicyXpert"},
+    {0x8007,              "HP OpenView PolicyXpert"},
+    {COPS_CLIENT_PC_DQOS, "PacketCable Dynamic Quality-of-Service"},
+    {0x8009,              "3GPP"},
+    {COPS_CLIENT_PC_MM,   "PacketCable Multimedia"},
+    {0, NULL},
 };
 
 /* The next tables are for PacketCable */
@@ -343,203 +339,203 @@ static const value_string cops_client_type_vals[] = {
 /* Transaction ID table */
 static const value_string table_cops_dqos_transaction_id[] =
 {
-  { 0x1,  "Gate Alloc" },
-  { 0x2,  "Gate Alloc Ack" },
-  { 0x3,  "Gate Alloc Err" },
-  { 0x4,  "Gate Set" },
-  { 0x5,  "Gate Set Ack" },
-  { 0x6,  "Gate Set Err" },
-  { 0x7,  "Gate Info" },
-  { 0x8,  "Gate Info Ack" },
-  { 0x9,  "Gate Info Err" },
-  { 0xa,  "Gate Delete" },
-  { 0xb,  "Gate Delete Ack" },
-  { 0xc,  "Gate Delete Err" },
-  { 0xd,  "Gate Open" },
-  { 0xe,  "Gate Close" },
-  { 0, NULL },
+    { 0x1,  "Gate Alloc" },
+    { 0x2,  "Gate Alloc Ack" },
+    { 0x3,  "Gate Alloc Err" },
+    { 0x4,  "Gate Set" },
+    { 0x5,  "Gate Set Ack" },
+    { 0x6,  "Gate Set Err" },
+    { 0x7,  "Gate Info" },
+    { 0x8,  "Gate Info Ack" },
+    { 0x9,  "Gate Info Err" },
+    { 0xa,  "Gate Delete" },
+    { 0xb,  "Gate Delete Ack" },
+    { 0xc,  "Gate Delete Err" },
+    { 0xd,  "Gate Open" },
+    { 0xe,  "Gate Close" },
+    { 0, NULL },
 };
 
 /* Direction */
 static const value_string table_cops_direction[] =
 {
-  { 0x0,  "Downstream gate" },
-  { 0x1,  "Upstream gate" },
-  { 0, NULL },
+    { 0x0,  "Downstream gate" },
+    { 0x1,  "Upstream gate" },
+    { 0, NULL },
 };
 
 /* Session Class */
 static const value_string table_cops_session_class[] =
 {
-  { 0x0,  "Unspecified" },
-  { 0x1,  "Normal priority VoIP session" },
-  { 0x2,  "High priority VoIP session" },
-  { 0x3,  "Reserved" },
-  { 0, NULL },
+    { 0x0,  "Unspecified" },
+    { 0x1,  "Normal priority VoIP session" },
+    { 0x2,  "High priority VoIP session" },
+    { 0x3,  "Reserved" },
+    { 0, NULL },
 };
 
 /* Reason Code */
 static const value_string table_cops_reason_code[] =
 {
-  { 0x0,  "Gate Delete Operation" },
-  { 0x1,  "Gate Close Operation" },
-  { 0, NULL },
+    { 0x0,  "Gate Delete Operation" },
+    { 0x1,  "Gate Close Operation" },
+    { 0, NULL },
 };
 
 /* Reason Sub Code - Delete */
 static const value_string table_cops_reason_subcode_delete[] =
 {
-  { 0x0,  "Normal Operation" },
-  { 0x1,  "Local Gate-coordination not completed" },
-  { 0x2,  "Remote Gate-coordination not completed" },
-  { 0x3,  "Authorization revoked" },
-  { 0x4,  "Unexpected Gate-Open" },
-  { 0x5,  "Local Gate-Close failure" },
-  { 0x127,"Unspecified error" },
-  { 0, NULL },
+    { 0x0,  "Normal Operation" },
+    { 0x1,  "Local Gate-coordination not completed" },
+    { 0x2,  "Remote Gate-coordination not completed" },
+    { 0x3,  "Authorization revoked" },
+    { 0x4,  "Unexpected Gate-Open" },
+    { 0x5,  "Local Gate-Close failure" },
+    { 0x127,"Unspecified error" },
+    { 0, NULL },
 };
 
 /* Reason Sub Code - Close */
 static const value_string table_cops_reason_subcode_close[] =
 {
-  { 0x0,  "Client initiated release (normal operation)" },
-  { 0x1,  "Reservation reassignment (e.g., for priority session)" },
-  { 0x2,  "Lack of reservation maintenance (e.g., RSVP refreshes)" },
-  { 0x3,  "Lack of Docsis Mac-layer responses (e.g., station maintenance)" },
-  { 0x4,  "Timer T0 expiration; no Gate-Set received from CMS" },
-  { 0x5,  "Timer T1 expiration; no Commit received from MTA" },
-  { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
-  { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
-  { 0x127,"Unspecified error" },
-  { 0, NULL },
+    { 0x0,  "Client initiated release (normal operation)" },
+    { 0x1,  "Reservation reassignment (e.g., for priority session)" },
+    { 0x2,  "Lack of reservation maintenance (e.g., RSVP refreshes)" },
+    { 0x3,  "Lack of Docsis Mac-layer responses (e.g., station maintenance)" },
+    { 0x4,  "Timer T0 expiration; no Gate-Set received from CMS" },
+    { 0x5,  "Timer T1 expiration; no Commit received from MTA" },
+    { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
+    { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
+    { 0x127,"Unspecified error" },
+    { 0, NULL },
 };
 
 /* PacketCable Error */
 static const value_string table_cops_packetcable_error[] =
 {
-  { 0x1,  "No gates urrently available" },
-  { 0x2,  "Unknown Gate ID" },
-  { 0x3,  "Illegal Session Class value" },
-  { 0x4,  "Subscriber exceeded gate limit" },
-  { 0x5,  "Gate already set" },
-  { 0x6,  "Missing Required Object" },
-  { 0x7,  "Invalid Object" },
-  { 0x127,"Unspecified error" },
-  { 0, NULL },
+    { 0x1,  "No gates urrently available" },
+    { 0x2,  "Unknown Gate ID" },
+    { 0x3,  "Illegal Session Class value" },
+    { 0x4,  "Subscriber exceeded gate limit" },
+    { 0x5,  "Gate already set" },
+    { 0x6,  "Missing Required Object" },
+    { 0x7,  "Invalid Object" },
+    { 0x127,"Unspecified error" },
+    { 0, NULL },
 };
 
 
 /* PacketCable Multimedia */
 
 static const value_string table_cops_mm_transaction_id[] = {
-	{1,  "Reserved"},
-	{2,  "Reserved"},
-	{3,  "Reserved"},
-	{4,  "Gate Set"},
-	{5,  "Gate Set Ack"},
-	{6,  "Gate Set Err"},
-	{7,  "Gate Info"},
-	{8,  "Gate Info Ack"},
-	{9,  "Gate Info Err"},
-	{10, "Gate Delete"},
-	{11, "Gate Delete Ack"},
-	{12, "Gate Delete Err"},
-	{13, "Gate Open"},
-	{14, "Gate Close"},
-	{15, "Gate Report State"},
-	{16, "Invalid Gate Cmd Err"},
-	{17, "PDP Config"},
-	{18, "PDP Config Ack"},
-	{19, "PDP Config Error"},
-	{20, "Synch Request"},
-	{21, "Synch Report"},
-	{22, "Synch Complete"},
-	{23, "Message Receipt"},
-	{0, NULL },
+    {1,  "Reserved"},
+    {2,  "Reserved"},
+    {3,  "Reserved"},
+    {4,  "Gate Set"},
+    {5,  "Gate Set Ack"},
+    {6,  "Gate Set Err"},
+    {7,  "Gate Info"},
+    {8,  "Gate Info Ack"},
+    {9,  "Gate Info Err"},
+    {10, "Gate Delete"},
+    {11, "Gate Delete Ack"},
+    {12, "Gate Delete Err"},
+    {13, "Gate Open"},
+    {14, "Gate Close"},
+    {15, "Gate Report State"},
+    {16, "Invalid Gate Cmd Err"},
+    {17, "PDP Config"},
+    {18, "PDP Config Ack"},
+    {19, "PDP Config Error"},
+    {20, "Synch Request"},
+    {21, "Synch Report"},
+    {22, "Synch Complete"},
+    {23, "Message Receipt"},
+    {0, NULL },
 };
 
 static const value_string pcmm_activation_state_vals[] = {
-	{0, "Inactive"},
-	{1, "Active"},
-	{0, NULL },
+    {0, "Inactive"},
+    {1, "Active"},
+    {0, NULL },
 };
 
 static const value_string pcmm_action_vals[] = {
-	{0, "Add classifier"},
-	{1, "Replace classifier"},
-	{2, "Delete classifier"},
-	{3, "No change"},
-	{0, NULL },
+    {0, "Add classifier"},
+    {1, "Replace classifier"},
+    {2, "Delete classifier"},
+    {3, "No change"},
+    {0, NULL },
 };
 
 static const value_string pcmm_flow_spec_service_vals[] = {
-	{2, "Guaranteed Rate"},
-	{5, "Controlled Load"},
-	{0, NULL },
+    {2, "Guaranteed Rate"},
+    {5, "Controlled Load"},
+    {0, NULL },
 };
 
 static const value_string pcmm_report_type_vals[] = {
-	{0, "Standard Report Data"},
-	{1, "Complete Gate Data"},
-	{0, NULL},
+    {0, "Standard Report Data"},
+    {1, "Complete Gate Data"},
+    {0, NULL},
 };
 
 static const value_string pcmm_synch_type_vals[] = {
-	{0, "Full Synchronization"},
-	{1, "Incremental Synchronization"},
-	{0, NULL},
+    {0, "Full Synchronization"},
+    {1, "Incremental Synchronization"},
+    {0, NULL},
 };
 
 static const value_string pcmm_packetcable_error_code[] = {
-	{1,  "Insufficient Resources"},
-	{2,  "Unknown GateID"},
-	{6,  "Missing Required Object"},
-	{7,  "Invalid Object"},
-	{8,  "Volume-Based Usage Limit Exceeded"},
-	{9,  "Time-Based Usage Limit Exceeded"},
-	{10, "Session Class Limit Exceeded"},
-	{11, "Undefined Service Class Name"},
-	{12, "Incompatible Envelope"},
-	{13, "Invalid SubscriberID"},
-	{14, "Unauthorized AMID"},
-	{15, "Number of Classifiers Not Supported"},
-	{16, "Policy Exception"},
-	{17, "Invalid Field Value in Object"},
-	{18, "Transport Error"},
-	{19, "Unknown Gate Command"},
-	{20, "Unauthorized PSID"},
-	{21, "No State for PDP"},
-	{22, "Unsupported Synch Type"},
-	{23, "Incremental Data Incomplete"},
-	{127, "Other, Unspecified Error"},
-	{0, NULL},
+    {1,  "Insufficient Resources"},
+    {2,  "Unknown GateID"},
+    {6,  "Missing Required Object"},
+    {7,  "Invalid Object"},
+    {8,  "Volume-Based Usage Limit Exceeded"},
+    {9,  "Time-Based Usage Limit Exceeded"},
+    {10, "Session Class Limit Exceeded"},
+    {11, "Undefined Service Class Name"},
+    {12, "Incompatible Envelope"},
+    {13, "Invalid SubscriberID"},
+    {14, "Unauthorized AMID"},
+    {15, "Number of Classifiers Not Supported"},
+    {16, "Policy Exception"},
+    {17, "Invalid Field Value in Object"},
+    {18, "Transport Error"},
+    {19, "Unknown Gate Command"},
+    {20, "Unauthorized PSID"},
+    {21, "No State for PDP"},
+    {22, "Unsupported Synch Type"},
+    {23, "Incremental Data Incomplete"},
+    {127, "Other, Unspecified Error"},
+    {0, NULL},
 };
 
 static const value_string pcmm_gate_state[] = {
-	{1, "Idle/Closed"},
-	{2, "Authorized"},
-	{3, "Reserved"},
-	{4, "Committed"},
-	{5, "Committed-Recovery"},
-	{0, NULL},
+    {1, "Idle/Closed"},
+    {2, "Authorized"},
+    {3, "Reserved"},
+    {4, "Committed"},
+    {5, "Committed-Recovery"},
+    {0, NULL},
 };
 
 static const value_string pcmm_gate_state_reason[] = {
-	{1,  "Close initiated by CMTS due to reservation reassignment"},
-	{2,  "Close initiated by CMTS due to lack of DOCSIS MAC-layer responses"},
-	{3,  "Close initiated by CMTS due to timer T1 expiration"},
-	{4,  "Close initiated by CMTS due to timer T2 expiration"},
-	{5,  "Inactivity timer expired due to Service Flow inactivity (timer T3 expiration)"},
-	{6,  "Close initiated by CMTS due to lack of Reservation Maintenance"},
-	{7,  "Gate state unchanged, but volume limit reached"},
-	{8,  "Close initiated by CMTS due to timer T4 expiration"},
-	{9,  "Gate state unchanged, but timer T2 expiration caused reservation reduction"},
-	{10, "Gate state unchanged, but time limit reached"},
-	{11, "Close initiated by Policy Server or CMTS, volume limit reached"},
-	{12, "Close initiated by Policy Server or CMTS, time limit reached"},
-	{13, "Close initiated by CMTS, other"},
-	{65535, "Other"},
-	{0, NULL},
+    {1,  "Close initiated by CMTS due to reservation reassignment"},
+    {2,  "Close initiated by CMTS due to lack of DOCSIS MAC-layer responses"},
+    {3,  "Close initiated by CMTS due to timer T1 expiration"},
+    {4,  "Close initiated by CMTS due to timer T2 expiration"},
+    {5,  "Inactivity timer expired due to Service Flow inactivity (timer T3 expiration)"},
+    {6,  "Close initiated by CMTS due to lack of Reservation Maintenance"},
+    {7,  "Gate state unchanged, but volume limit reached"},
+    {8,  "Close initiated by CMTS due to timer T4 expiration"},
+    {9,  "Gate state unchanged, but timer T2 expiration caused reservation reduction"},
+    {10, "Gate state unchanged, but time limit reached"},
+    {11, "Close initiated by Policy Server or CMTS, volume limit reached"},
+    {12, "Close initiated by Policy Server or CMTS, time limit reached"},
+    {13, "Close initiated by CMTS, other"},
+    {65535, "Other"},
+    {0, NULL},
 };
 
 
@@ -784,10 +780,10 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
                                      guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len);
 
 static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
-									oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p);
+                                                                        oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p);
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-									   guint8 s_num, guint8 s_type, int len,
-									   oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len);
+                                                                           guint8 s_num, guint8 s_type, int len,
+                                                                           oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len);
 
 /* Added for PacketCable */
 static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, const char *);
@@ -818,12 +814,12 @@ static gboolean cops_packetcable = TRUE;
 
 /* COPS PR Tags */
 
-#define COPS_IPA    0		/* IP Address */
-#define COPS_U32    2		/* Unsigned 32*/
-#define COPS_TIT    3		/* TimeTicks */
-#define COPS_OPQ    4		/* Opaque */
-#define COPS_I64    10		/* Integer64 */
-#define COPS_U64    11		/* Uinteger64 */
+#define COPS_IPA    0           /* IP Address */
+#define COPS_U32    2           /* Unsigned 32*/
+#define COPS_TIT    3           /* TimeTicks */
+#define COPS_OPQ    4           /* Opaque */
+#define COPS_I64    10          /* Integer64 */
+#define COPS_U64    11          /* Uinteger64 */
 
 /* COPS PR Types */
 
@@ -842,42 +838,42 @@ typedef struct _COPS_CNV COPS_CNV;
 
 struct _COPS_CNV
 {
-	guint class;
-	guint tag;
-	gint  syntax;
-	const gchar *name;
-	int* hfidp;
+  guint class;
+  guint tag;
+  gint  syntax;
+  const gchar *name;
+  int* hfidp;
 };
 
 static COPS_CNV CopsCnv [] =
 {
-	{BER_CLASS_UNI, BER_UNI_TAG_NULL,			COPS_NULL,      "NULL" , &hf_cops_epd_null},
-	{BER_CLASS_UNI, BER_UNI_TAG_INTEGER,		COPS_INTEGER,   "INTEGER", &hf_cops_epd_int},
-	{BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING,	COPS_OCTETSTR,  "OCTET STRING", &hf_cops_epd_octets},
-	{BER_CLASS_UNI, BER_UNI_TAG_OID,			COPS_OBJECTID,  "OBJECTID", &hf_cops_epd_oid},
-	{BER_CLASS_APP, COPS_IPA,					COPS_IPADDR,    "IPADDR", &hf_cops_epd_ipv4},
-	{BER_CLASS_APP, COPS_U32,					COPS_UNSIGNED32,"UNSIGNED32", &hf_cops_epd_u32},
-	{BER_CLASS_APP, COPS_TIT,					COPS_TIMETICKS, "TIMETICKS", &hf_cops_epd_ticks},
-	{BER_CLASS_APP, COPS_OPQ,					COPS_OPAQUE,    "OPAQUE", &hf_cops_epd_opaque},
-	{BER_CLASS_APP, COPS_I64,					COPS_INTEGER64, "INTEGER64", &hf_cops_epd_i64},
-	{BER_CLASS_APP, COPS_U64,					COPS_UNSIGNED64, "UNSIGNED64", &hf_cops_epd_u64},
-	{BER_CLASS_ANY,       0,         -1,                  NULL, NULL}
+    {BER_CLASS_UNI, BER_UNI_TAG_NULL,           COPS_NULL,      "NULL" , &hf_cops_epd_null},
+    {BER_CLASS_UNI, BER_UNI_TAG_INTEGER,        COPS_INTEGER,   "INTEGER", &hf_cops_epd_int},
+    {BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING,    COPS_OCTETSTR,  "OCTET STRING", &hf_cops_epd_octets},
+    {BER_CLASS_UNI, BER_UNI_TAG_OID,            COPS_OBJECTID,  "OBJECTID", &hf_cops_epd_oid},
+    {BER_CLASS_APP, COPS_IPA,                   COPS_IPADDR,    "IPADDR", &hf_cops_epd_ipv4},
+    {BER_CLASS_APP, COPS_U32,                   COPS_UNSIGNED32,"UNSIGNED32", &hf_cops_epd_u32},
+    {BER_CLASS_APP, COPS_TIT,                   COPS_TIMETICKS, "TIMETICKS", &hf_cops_epd_ticks},
+    {BER_CLASS_APP, COPS_OPQ,                   COPS_OPAQUE,    "OPAQUE", &hf_cops_epd_opaque},
+    {BER_CLASS_APP, COPS_I64,                   COPS_INTEGER64, "INTEGER64", &hf_cops_epd_i64},
+    {BER_CLASS_APP, COPS_U64,                   COPS_UNSIGNED64, "UNSIGNED64", &hf_cops_epd_u64},
+    {BER_CLASS_ANY, 0,                          -1,              NULL, NULL}
 };
 
 static int cops_tag_cls2syntax ( guint tag, guint cls ) {
-	COPS_CNV *cnv;
+    COPS_CNV *cnv;
 
 
-	cnv = CopsCnv;
-	while (cnv->syntax != -1)
-	{
-		if (cnv->tag == tag && cnv->class == cls)
-		{
-			return *(cnv->hfidp);
-		}
-		cnv++;
-	}
-	return hf_cops_epd_unknown;
+    cnv = CopsCnv;
+    while (cnv->syntax != -1)
+    {
+        if (cnv->tag == tag && cnv->class == cls)
+        {
+            return *(cnv->hfidp);
+        }
+        cnv++;
+    }
+    return hf_cops_epd_unknown;
 }
 
 
@@ -886,1668 +882,1668 @@ static int cops_tag_cls2syntax ( guint tag, guint cls ) {
 static void
 dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
-                   get_cops_pdu_len, dissect_cops_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, cops_desegment, 8,
+                     get_cops_pdu_len, dissect_cops_pdu);
 }
 
 static guint
 get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  /*
-   * Get the length of the COPS message.
-   */
-  return tvb_get_ntohl(tvb, offset + 4);
+    /*
+     * Get the length of the COPS message.
+     */
+    return tvb_get_ntohl(tvb, offset + 4);
 }
 
 static void
 dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 op_code;
-  guint16 client_type;
-  int object_len;
+    guint8 op_code;
+    guint16 client_type;
+    int object_len;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
-  col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-  op_code = tvb_get_guint8(tvb, 1);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
-               val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
+    op_code = tvb_get_guint8(tvb, 1);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
+                 val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
 
-  /* Currently used by PacketCable */
-  client_type = tvb_get_ntohs(tvb, 2);
+    /* Currently used by PacketCable */
+    client_type = tvb_get_ntohs(tvb, 2);
 
-  if (tree) {
-    proto_item *ti, *tv;
-    proto_tree *cops_tree, *ver_flags_tree;
-    guint32 msg_len;
-    guint32 offset = 0;
-    guint8 ver_flags;
-    gint garbage;
+    if (tree) {
+        proto_item *ti, *tv;
+        proto_tree *cops_tree, *ver_flags_tree;
+        guint32 msg_len;
+        guint32 offset = 0;
+        guint8 ver_flags;
+        gint garbage;
 
-    ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, FALSE);
-    cops_tree = proto_item_add_subtree(ti, ett_cops);
+        ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, FALSE);
+        cops_tree = proto_item_add_subtree(ti, ett_cops);
 
-    /* Version and flags share the same byte, put them in a subtree */
-    ver_flags = tvb_get_guint8(tvb, offset);
-    tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
-                                      ver_flags, "Version: %u, Flags: %s",
-                                      hi_nibble(ver_flags),
-                                      val_to_str(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
-    ver_flags_tree = proto_item_add_subtree(tv, ett_cops_ver_flags);
-    proto_tree_add_uint(ver_flags_tree, hf_cops_version, tvb, offset, 1, ver_flags);
-    proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
-    offset++;
+        /* Version and flags share the same byte, put them in a subtree */
+        ver_flags = tvb_get_guint8(tvb, offset);
+        tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
+                                        ver_flags, "Version: %u, Flags: %s",
+                                        hi_nibble(ver_flags),
+                                        val_to_str(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
+        ver_flags_tree = proto_item_add_subtree(tv, ett_cops_ver_flags);
+        proto_tree_add_uint(ver_flags_tree, hf_cops_version, tvb, offset, 1, ver_flags);
+        proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
+        offset++;
 
-    proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, FALSE);
-    offset ++;
-    proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, FALSE);
-    offset += 2;
+        proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, FALSE);
+        offset ++;
+        proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, FALSE);
+        offset += 2;
 
-    msg_len = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, msg_len);
-    offset += 4;
+        msg_len = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, msg_len);
+        offset += 4;
 
-    while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
-      object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
-      if (object_len < 0)
-        return;
-      offset += object_len;
+        while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
+            object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
+            if (object_len < 0)
+                return;
+            offset += object_len;
+        }
+
+        garbage = tvb_length_remaining(tvb, offset);
+        if (garbage > 0)
+            proto_tree_add_text(cops_tree, tvb, offset, garbage,
+                                "Trailing garbage: %d byte%s", garbage,
+                                plurality(garbage, "", "s"));
     }
-
-    garbage = tvb_length_remaining(tvb, offset);
-    if (garbage > 0)
-      proto_tree_add_text(cops_tree, tvb, offset, garbage,
-                          "Trailing garbage: %d byte%s", garbage,
-                          plurality(garbage, "", "s"));
-  }
 }
 
 static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
 {
-  switch (c_num) {
-  case COPS_OBJ_HANDLE:
-    if (c_type == 1)
-      return "Client Handle";
-    break;
-  case COPS_OBJ_IN_INT:
-  case COPS_OBJ_OUT_INT:
-    if (c_type == 1)
-      return "IPv4 Address + Interface";
-    else if (c_type == 2)
-      return "IPv6 Address + Interface";
-    break;
-  case COPS_OBJ_DECISION:
-  case COPS_OBJ_LPDPDECISION:
-    if (c_type == 1)
-      return "Decision Flags (Mandatory)";
-    else if (c_type == 2)
-      return "Stateless Data";
-    else if (c_type == 3)
-      return "Replacement Data";
-    else if (c_type == 4)
-      return "Client Specific Decision Data";
-    else if (c_type == 5)
-      return "Named Decision Data";
-    break;
-  case COPS_OBJ_CLIENTSI:
-    if (c_type == 1)
-      return "Signaled ClientSI";
-    else if (c_type == 2)
-      return "Named ClientSI";
-    break;
-  case COPS_OBJ_KATIMER:
-    if (c_type == 1)
-      return "Keep-alive timer value";
-    break;
-  case COPS_OBJ_PDPREDIRADDR:
-  case COPS_OBJ_LASTPDPADDR:
-    if (c_type == 1)
-      return "IPv4 Address + TCP Port";
-    else if (c_type == 2)
-      return "IPv6 Address + TCP Port";
-    break;
-  case COPS_OBJ_ACCTTIMER:
-    if (c_type == 1)
-      return "Accounting timer value";
-    break;
-  case COPS_OBJ_INTEGRITY:
-    if (c_type == 1)
-      return "HMAC digest";
-    break;
-  }
+    switch (c_num) {
+    case COPS_OBJ_HANDLE:
+        if (c_type == 1)
+            return "Client Handle";
+        break;
+    case COPS_OBJ_IN_INT:
+    case COPS_OBJ_OUT_INT:
+        if (c_type == 1)
+            return "IPv4 Address + Interface";
+        else if (c_type == 2)
+            return "IPv6 Address + Interface";
+        break;
+    case COPS_OBJ_DECISION:
+    case COPS_OBJ_LPDPDECISION:
+        if (c_type == 1)
+            return "Decision Flags (Mandatory)";
+        else if (c_type == 2)
+            return "Stateless Data";
+        else if (c_type == 3)
+            return "Replacement Data";
+        else if (c_type == 4)
+            return "Client Specific Decision Data";
+        else if (c_type == 5)
+            return "Named Decision Data";
+        break;
+    case COPS_OBJ_CLIENTSI:
+        if (c_type == 1)
+            return "Signaled ClientSI";
+        else if (c_type == 2)
+            return "Named ClientSI";
+        break;
+    case COPS_OBJ_KATIMER:
+        if (c_type == 1)
+            return "Keep-alive timer value";
+        break;
+    case COPS_OBJ_PDPREDIRADDR:
+    case COPS_OBJ_LASTPDPADDR:
+        if (c_type == 1)
+            return "IPv4 Address + TCP Port";
+        else if (c_type == 2)
+            return "IPv6 Address + TCP Port";
+        break;
+    case COPS_OBJ_ACCTTIMER:
+        if (c_type == 1)
+            return "Accounting timer value";
+        break;
+    case COPS_OBJ_INTEGRITY:
+        if (c_type == 1)
+            return "HMAC digest";
+        break;
+    }
 
-  return "";
+    return "";
 }
 
 static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type)
 {
-  int object_len, contents_len;
-  guint8 c_num, c_type;
-  proto_item *ti;
-  proto_tree *obj_tree;
-  const char *type_str;
+    int object_len, contents_len;
+    guint8 c_num, c_type;
+    proto_item *ti;
+    proto_tree *obj_tree;
+    const char *type_str;
 
-  object_len = tvb_get_ntohs(tvb, offset);
-  if (object_len < COPS_OBJECT_HDR_SIZE) {
-    /* Bogus! */
-    proto_tree_add_text(tree, tvb, offset, 2,
-                        "Bad COPS object length: %u, should be at least %u",
-                        object_len, COPS_OBJECT_HDR_SIZE);
-    return -1;
-  }
-  c_num = tvb_get_guint8(tvb, offset + 2);
-  c_type = tvb_get_guint8(tvb, offset + 3);
-
-  ti = proto_tree_add_uint_format(tree, hf_cops_obj_c_num, tvb, offset, object_len, c_num,
-                                  "%s: %s", val_to_str(c_num, cops_c_num_vals, "Unknown"),
-                                  cops_c_type_to_str(c_num, c_type));
-  obj_tree = proto_item_add_subtree(ti, ett_cops_obj);
-
-  proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
-  offset += 2;
-
-  proto_tree_add_uint(obj_tree, hf_cops_obj_c_num, tvb, offset, 1, c_num);
-  offset++;
-
-  type_str = cops_c_type_to_str(c_num, c_type);
-  proto_tree_add_uint_format_value(obj_tree, hf_cops_obj_c_type, tvb, offset, 1, c_type,
-                      "%s%s%u%s",
-                      type_str,
-                      strlen(type_str) ? " (" : "",
-                      c_type,
-                      strlen(type_str) ? ")" : "");
-  offset++;
-
-  contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-  dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len);
-
-  /* Pad to 32bit boundary */
-  if (object_len % sizeof (guint32))
-    object_len += (sizeof (guint32) - object_len % sizeof (guint32));
-
-  return object_len;
-}
-
-static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
-									oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p)
-{
-  int object_len, contents_len;
-  guint8 s_num, s_type;
-  const char *type_str;
-  int ret;
-  proto_tree *cops_pr_tree, *obj_tree;
-  proto_item *ti;
-
-  cops_pr_tree = proto_item_add_subtree(tree, ett_cops_pr_obj);
-
-  while (pr_len >= COPS_OBJECT_HDR_SIZE) {
     object_len = tvb_get_ntohs(tvb, offset);
     if (object_len < COPS_OBJECT_HDR_SIZE) {
-      /* Bogus! */
-      proto_tree_add_text(tree, tvb, offset, 2,
-                          "Bad COPS PR object length: %u, should be at least %u",
-                          object_len, COPS_OBJECT_HDR_SIZE);
-      return;
+        /* Bogus! */
+        proto_tree_add_text(tree, tvb, offset, 2,
+                            "Bad COPS object length: %u, should be at least %u",
+                            object_len, COPS_OBJECT_HDR_SIZE);
+        return -1;
     }
-    s_num = tvb_get_guint8(tvb, offset + 2);
+    c_num = tvb_get_guint8(tvb, offset + 2);
+    c_type = tvb_get_guint8(tvb, offset + 3);
 
-    ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
-                                    "%s", val_to_str(s_num, cops_s_num_vals, "Unknown"));
-    obj_tree = proto_item_add_subtree(ti, ett_cops_pr_obj);
+    ti = proto_tree_add_uint_format(tree, hf_cops_obj_c_num, tvb, offset, object_len, c_num,
+                                    "%s: %s", val_to_str(c_num, cops_c_num_vals, "Unknown"),
+                                    cops_c_type_to_str(c_num, c_type));
+    obj_tree = proto_item_add_subtree(ti, ett_cops_obj);
 
     proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
     offset += 2;
-    pr_len -= 2;
 
-    proto_tree_add_uint(obj_tree, hf_cops_obj_s_num, tvb, offset, 1, s_num);
+    proto_tree_add_uint(obj_tree, hf_cops_obj_c_num, tvb, offset, 1, c_num);
     offset++;
-    pr_len--;
 
-    s_type = tvb_get_guint8(tvb, offset);
-    type_str = val_to_str(s_type, cops_s_type_vals, "Unknown");
-    proto_tree_add_text(obj_tree, tvb, offset, 1, "S-Type: %s%s%u%s",
-                        type_str,
-                        strlen(type_str) ? " (" : "",
-                        s_type,
-                        strlen(type_str) ? ")" : "");
+    type_str = cops_c_type_to_str(c_num, c_type);
+    proto_tree_add_uint_format_value(obj_tree, hf_cops_obj_c_type, tvb, offset, 1, c_type,
+                                     "%s%s%u%s",
+                                     type_str,
+                                     strlen(type_str) ? " (" : "",
+                                     c_type,
+                                     strlen(type_str) ? ")" : "");
     offset++;
-    pr_len--;
 
     contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-    ret = dissect_cops_pr_object_data(tvb, pinfo, offset, obj_tree, s_num, s_type, contents_len,
-									  oid_info_p, pprid_subids_p, pprid_subids_len_p);
-    if (ret < 0)
-      break;
+    dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len);
 
     /* Pad to 32bit boundary */
     if (object_len % sizeof (guint32))
-      object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+        object_len += (sizeof (guint32) - object_len % sizeof (guint32));
 
-    pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
-    offset += object_len - COPS_OBJECT_HDR_SIZE;
-  }
+    return object_len;
+}
+
+static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
+                                    oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p)
+{
+    int object_len, contents_len;
+    guint8 s_num, s_type;
+    const char *type_str;
+    int ret;
+    proto_tree *cops_pr_tree, *obj_tree;
+    proto_item *ti;
+
+    cops_pr_tree = proto_item_add_subtree(tree, ett_cops_pr_obj);
+
+    while (pr_len >= COPS_OBJECT_HDR_SIZE) {
+        object_len = tvb_get_ntohs(tvb, offset);
+        if (object_len < COPS_OBJECT_HDR_SIZE) {
+            /* Bogus! */
+            proto_tree_add_text(tree, tvb, offset, 2,
+                                "Bad COPS PR object length: %u, should be at least %u",
+                                object_len, COPS_OBJECT_HDR_SIZE);
+            return;
+        }
+        s_num = tvb_get_guint8(tvb, offset + 2);
+
+        ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
+                                        "%s", val_to_str(s_num, cops_s_num_vals, "Unknown"));
+        obj_tree = proto_item_add_subtree(ti, ett_cops_pr_obj);
+
+        proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
+        offset += 2;
+        pr_len -= 2;
+
+        proto_tree_add_uint(obj_tree, hf_cops_obj_s_num, tvb, offset, 1, s_num);
+        offset++;
+        pr_len--;
+
+        s_type = tvb_get_guint8(tvb, offset);
+        type_str = val_to_str(s_type, cops_s_type_vals, "Unknown");
+        proto_tree_add_text(obj_tree, tvb, offset, 1, "S-Type: %s%s%u%s",
+                            type_str,
+                            strlen(type_str) ? " (" : "",
+                            s_type,
+                            strlen(type_str) ? ")" : "");
+        offset++;
+        pr_len--;
+
+        contents_len = object_len - COPS_OBJECT_HDR_SIZE;
+        ret = dissect_cops_pr_object_data(tvb, pinfo, offset, obj_tree, s_num, s_type, contents_len,
+                                          oid_info_p, pprid_subids_p, pprid_subids_len_p);
+        if (ret < 0)
+            break;
+
+        /* Pad to 32bit boundary */
+        if (object_len % sizeof (guint32))
+            object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+
+        pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
+        offset += object_len - COPS_OBJECT_HDR_SIZE;
+    }
 }
 
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
                                      guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len)
 {
-  proto_item *ti;
-  proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
-  guint16 r_type, m_type, reason, reason_sub, cmd_code, cmd_flags, error, error_sub, tcp_port;
-  guint32 ipv4addr, ifindex;
-  struct e_in6_addr ipv6addr;
-  oid_info_t* oid_info = NULL;
-  guint32* pprid_subids = NULL;
-  guint pprid_subids_len = 0;
+    proto_item *ti;
+    proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
+    guint16 r_type, m_type, reason, reason_sub, cmd_code, cmd_flags, error, error_sub, tcp_port;
+    guint32 ipv4addr, ifindex;
+    struct e_in6_addr ipv6addr;
+    oid_info_t* oid_info = NULL;
+    guint32* pprid_subids = NULL;
+    guint pprid_subids_len = 0;
 
-  switch (c_num) {
-  case COPS_OBJ_CONTEXT:
-    r_type = tvb_get_ntohs(tvb, offset);
-    m_type = tvb_get_ntohs(tvb, offset + 2);
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: R-Type: %s, M-Type: %u",
-                             val_to_str(r_type, cops_r_type_vals, "Unknown"),
-                             m_type);
+    switch (c_num) {
+    case COPS_OBJ_CONTEXT:
+        r_type = tvb_get_ntohs(tvb, offset);
+        m_type = tvb_get_ntohs(tvb, offset + 2);
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: R-Type: %s, M-Type: %u",
+                                 val_to_str(r_type, cops_r_type_vals, "Unknown"),
+                                 m_type);
 
-    r_type_tree = proto_item_add_subtree(ti, ett_cops_r_type_flags);
-    proto_tree_add_uint(r_type_tree, hf_cops_r_type_flags, tvb, offset, 2, r_type);
-    offset += 2;
-    proto_tree_add_uint(r_type_tree, hf_cops_m_type_flags, tvb, offset, 2, m_type);
+        r_type_tree = proto_item_add_subtree(ti, ett_cops_r_type_flags);
+        proto_tree_add_uint(r_type_tree, hf_cops_r_type_flags, tvb, offset, 2, r_type);
+        offset += 2;
+        proto_tree_add_uint(r_type_tree, hf_cops_m_type_flags, tvb, offset, 2, m_type);
 
-    break;
-  case COPS_OBJ_IN_INT:
-  case COPS_OBJ_OUT_INT:
-    if (c_type == 1) {          /* IPv4 */
-      ipv4addr = tvb_get_ipv4(tvb, offset);
-      ifindex = tvb_get_ntohl(tvb, offset + 4);
-      ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, ifIndex: %u",
-                               ip_to_str((guint8 *)&ipv4addr), ifindex);
-      itf_tree = proto_item_add_subtree(ti, ett_cops_itf);
-      proto_tree_add_ipv4(itf_tree,
-                          (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv4 : hf_cops_out_int_ipv4,
-                          tvb, offset, 4, ipv4addr);
-      offset += 4;
-    } else if (c_type == 2) {   /* IPv6 */
-      tvb_get_ipv6(tvb, offset, &ipv6addr);
-      ifindex = tvb_get_ntohl(tvb, offset + sizeof ipv6addr);
-      ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, ifIndex: %u",
-                               ip6_to_str(&ipv6addr), ifindex);
-      itf_tree = proto_item_add_subtree(ti, ett_cops_itf);
-      proto_tree_add_ipv6(itf_tree,
-                          (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv6 : hf_cops_out_int_ipv6,
-                          tvb, offset, 16, (guint8 *)&ipv6addr);
-      offset += 16;
-    } else {
-      break;
+        break;
+    case COPS_OBJ_IN_INT:
+    case COPS_OBJ_OUT_INT:
+        if (c_type == 1) {          /* IPv4 */
+            ipv4addr = tvb_get_ipv4(tvb, offset);
+            ifindex = tvb_get_ntohl(tvb, offset + 4);
+            ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, ifIndex: %u",
+                                     ip_to_str((guint8 *)&ipv4addr), ifindex);
+            itf_tree = proto_item_add_subtree(ti, ett_cops_itf);
+            proto_tree_add_ipv4(itf_tree,
+                                (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv4 : hf_cops_out_int_ipv4,
+                                tvb, offset, 4, ipv4addr);
+            offset += 4;
+        } else if (c_type == 2) {   /* IPv6 */
+            tvb_get_ipv6(tvb, offset, &ipv6addr);
+            ifindex = tvb_get_ntohl(tvb, offset + sizeof ipv6addr);
+            ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, ifIndex: %u",
+                                     ip6_to_str(&ipv6addr), ifindex);
+            itf_tree = proto_item_add_subtree(ti, ett_cops_itf);
+            proto_tree_add_ipv6(itf_tree,
+                                (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv6 : hf_cops_out_int_ipv6,
+                                tvb, offset, 16, (guint8 *)&ipv6addr);
+            offset += 16;
+        } else {
+            break;
+        }
+        proto_tree_add_uint(itf_tree, hf_cops_int_ifindex, tvb, offset, 4, ifindex);
+
+        break;
+    case COPS_OBJ_REASON:
+        reason = tvb_get_ntohs(tvb, offset);
+        reason_sub = tvb_get_ntohs(tvb, offset + 2);
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Reason-Code: %s, Reason Sub-code: 0x%04x",
+                                 val_to_str(reason, cops_reason_vals, "<Unknown value>"), reason_sub);
+        reason_tree = proto_item_add_subtree(ti, ett_cops_reason);
+        proto_tree_add_uint(reason_tree, hf_cops_reason, tvb, offset, 2, reason);
+        offset += 2;
+        if (reason == 13) {
+            proto_tree_add_text(reason_tree, tvb, offset, 2, "Reason Sub-code: "
+                                "Unknown object's C-Num %u, C-Type %u",
+                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+        } else
+            proto_tree_add_uint(reason_tree, hf_cops_reason_sub, tvb, offset, 2, reason_sub);
+
+        break;
+    case COPS_OBJ_DECISION:
+    case COPS_OBJ_LPDPDECISION:
+        if (c_type == 1) {
+            cmd_code = tvb_get_ntohs(tvb, offset);
+            cmd_flags = tvb_get_ntohs(tvb, offset + 2);
+            ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Command-Code: %s, Flags: %s",
+                                     val_to_str(cmd_code, cops_dec_cmd_code_vals, "<Unknown value>"),
+                                     val_to_str(cmd_flags, cops_dec_cmd_flag_vals, "<Unknown flag>"));
+            dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
+            proto_tree_add_uint(dec_tree, hf_cops_dec_cmd_code, tvb, offset, 2, cmd_code);
+            offset += 2;
+            proto_tree_add_uint(dec_tree, hf_cops_dec_flags, tvb, offset, 2, cmd_flags);
+        } else if (c_type == 5) { /*COPS-PR Data*/
+            ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
+            dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
+            dissect_cops_pr_objects(tvb, pinfo, offset, dec_tree, len, &oid_info, &pprid_subids, &pprid_subids_len);
+        }
+
+        /* PacketCable : Analyze the remaining data if available */
+        if (client_type == COPS_CLIENT_PC_DQOS && c_type == 4) {
+            cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
+        } else if (client_type == COPS_CLIENT_PC_MM && c_type == 4) {
+            cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
+        }
+
+        break;
+    case COPS_OBJ_ERROR:
+        if (c_type != 1)
+            break;
+
+        error = tvb_get_ntohs(tvb, offset);
+        error_sub = tvb_get_ntohs(tvb, offset + 2);
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
+                                 val_to_str(error, cops_error_vals, "<Unknown value>"), error_sub);
+        error_tree = proto_item_add_subtree(ti, ett_cops_error);
+        proto_tree_add_uint(error_tree, hf_cops_error, tvb, offset, 2, error);
+        offset += 2;
+        if (error == 13) {
+            proto_tree_add_text(error_tree, tvb, offset, 2, "Error Sub-code: "
+                                "Unknown object's C-Num %u, C-Type %u",
+                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+        } else
+            proto_tree_add_uint(error_tree, hf_cops_error_sub, tvb, offset, 2, error_sub);
+
+        break;
+    case COPS_OBJ_CLIENTSI:
+
+        /* For PacketCable */
+        if (client_type == COPS_CLIENT_PC_DQOS && c_type == 1) {
+            cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
+            break;
+        } else if (client_type == COPS_CLIENT_PC_MM && c_type == 1) {
+            cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
+            break;
+        }
+
+        if (c_type != 2) /*Not COPS-PR data*/
+            break;
+
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
+        clientsi_tree = proto_item_add_subtree(ti, ett_cops_clientsi);
+
+        dissect_cops_pr_objects(tvb, pinfo, offset, clientsi_tree, len, &oid_info, &pprid_subids, &pprid_subids_len);
+
+        break;
+    case COPS_OBJ_KATIMER:
+        if (c_type != 1)
+            break;
+
+        proto_tree_add_item(tree, hf_cops_katimer, tvb, offset + 2, 2, FALSE);
+        if (tvb_get_ntohs(tvb, offset + 2) == 0)
+            proto_tree_add_text(tree, tvb, offset, 0, "Value of zero implies infinity.");
+
+        break;
+    case COPS_OBJ_PEPID:
+        if (c_type != 1)
+            break;
+
+        if (tvb_strnlen(tvb, offset, len) == -1) {
+            proto_item *pep_ti;
+            pep_ti = proto_tree_add_text(tree, tvb, offset, len, "PEP Id is not a NULL terminated ASCII string");
+            expert_add_info_format(pinfo, pep_ti, PI_MALFORMED, PI_NOTE,
+                                   "PEP Id is not a NULL terminated ASCII string");
+            PROTO_ITEM_SET_GENERATED(pep_ti);
+        }
+        else
+            proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
+                                tvb_strnlen(tvb, offset, len) + 1, FALSE);
+
+        break;
+    case COPS_OBJ_REPORT_TYPE:
+        if (c_type != 1)
+            break;
+
+        proto_tree_add_item(tree, hf_cops_report_type, tvb, offset, 2, FALSE);
+
+        break;
+    case COPS_OBJ_PDPREDIRADDR:
+    case COPS_OBJ_LASTPDPADDR:
+        if (c_type == 1) {          /* IPv4 */
+            ipv4addr = tvb_get_ipv4(tvb, offset);
+            tcp_port = tvb_get_ntohs(tvb, offset + 4 + 2);
+            ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, TCP Port Number: %u",
+                                     ip_to_str((guint8 *)&ipv4addr), tcp_port);
+            pdp_tree = proto_item_add_subtree(ti, ett_cops_pdp);
+            proto_tree_add_ipv4(pdp_tree,
+                                (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv4 : hf_cops_lastpdpaddr_ipv4,
+                                tvb, offset, 4, ipv4addr);
+            offset += 4;
+        } else if (c_type == 2) {   /* IPv6 */
+            tvb_get_ipv6(tvb, offset, &ipv6addr);
+            tcp_port = tvb_get_ntohs(tvb, offset + sizeof ipv6addr + 2);
+            ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, TCP Port Number: %u",
+                                     ip6_to_str(&ipv6addr), tcp_port);
+            pdp_tree = proto_item_add_subtree(ti, ett_cops_pdp);
+            proto_tree_add_ipv6(pdp_tree,
+                                (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv6 : hf_cops_lastpdpaddr_ipv6,
+                                tvb, offset, 16, (guint8 *)&ipv6addr);
+            offset += 16;
+        } else {
+            break;
+        }
+        offset += 2;
+        proto_tree_add_uint(pdp_tree, hf_cops_pdp_tcp_port, tvb, offset, 2, tcp_port);
+
+        break;
+    case COPS_OBJ_ACCTTIMER:
+        if (c_type != 1)
+            break;
+
+        proto_tree_add_item(tree, hf_cops_accttimer, tvb, offset + 2, 2, FALSE);
+        if (tvb_get_ntohs(tvb, offset + 2) == 0)
+            proto_tree_add_text(tree, tvb, offset, 0, "Value of zero means "
+                                "there SHOULD be no unsolicited accounting updates.");
+
+        break;
+    case COPS_OBJ_INTEGRITY:
+        if (c_type != 1)
+            break;      /* Not HMAC digest */
+
+        proto_tree_add_item(tree, hf_cops_key_id, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_cops_seq_num, tvb, offset + 4, 4, FALSE);
+        proto_tree_add_text(tree, tvb, offset + 8 , len - 8, "Contents: Keyed Message Digest");
+
+        break;
+    default:
+        proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
+
+        break;
     }
-    proto_tree_add_uint(itf_tree, hf_cops_int_ifindex, tvb, offset, 4, ifindex);
-
-    break;
-  case COPS_OBJ_REASON:
-    reason = tvb_get_ntohs(tvb, offset);
-    reason_sub = tvb_get_ntohs(tvb, offset + 2);
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Reason-Code: %s, Reason Sub-code: 0x%04x",
-                             val_to_str(reason, cops_reason_vals, "<Unknown value>"), reason_sub);
-    reason_tree = proto_item_add_subtree(ti, ett_cops_reason);
-    proto_tree_add_uint(reason_tree, hf_cops_reason, tvb, offset, 2, reason);
-    offset += 2;
-    if (reason == 13) {
-      proto_tree_add_text(reason_tree, tvb, offset, 2, "Reason Sub-code: "
-                          "Unknown object's C-Num %u, C-Type %u",
-                          tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
-    } else
-      proto_tree_add_uint(reason_tree, hf_cops_reason_sub, tvb, offset, 2, reason_sub);
-
-    break;
-  case COPS_OBJ_DECISION:
-  case COPS_OBJ_LPDPDECISION:
-    if (c_type == 1) {
-      cmd_code = tvb_get_ntohs(tvb, offset);
-      cmd_flags = tvb_get_ntohs(tvb, offset + 2);
-      ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Command-Code: %s, Flags: %s",
-                               val_to_str(cmd_code, cops_dec_cmd_code_vals, "<Unknown value>"),
-                               val_to_str(cmd_flags, cops_dec_cmd_flag_vals, "<Unknown flag>"));
-      dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
-      proto_tree_add_uint(dec_tree, hf_cops_dec_cmd_code, tvb, offset, 2, cmd_code);
-      offset += 2;
-      proto_tree_add_uint(dec_tree, hf_cops_dec_flags, tvb, offset, 2, cmd_flags);
-    } else if (c_type == 5) { /*COPS-PR Data*/
-      ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
-      dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
-      dissect_cops_pr_objects(tvb, pinfo, offset, dec_tree, len, &oid_info, &pprid_subids, &pprid_subids_len);
-    }
-
-    /* PacketCable : Analyze the remaining data if available */
-    if (client_type == COPS_CLIENT_PC_DQOS && c_type == 4) {
-	cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
-    } else if (client_type == COPS_CLIENT_PC_MM && c_type == 4) {
-	cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
-    }
-
-    break;
-  case COPS_OBJ_ERROR:
-    if (c_type != 1)
-      break;
-
-    error = tvb_get_ntohs(tvb, offset);
-    error_sub = tvb_get_ntohs(tvb, offset + 2);
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                             val_to_str(error, cops_error_vals, "<Unknown value>"), error_sub);
-    error_tree = proto_item_add_subtree(ti, ett_cops_error);
-    proto_tree_add_uint(error_tree, hf_cops_error, tvb, offset, 2, error);
-    offset += 2;
-    if (error == 13) {
-      proto_tree_add_text(error_tree, tvb, offset, 2, "Error Sub-code: "
-                          "Unknown object's C-Num %u, C-Type %u",
-                          tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
-    } else
-      proto_tree_add_uint(error_tree, hf_cops_error_sub, tvb, offset, 2, error_sub);
-
-    break;
-  case COPS_OBJ_CLIENTSI:
-
-    /* For PacketCable */
-    if (client_type == COPS_CLIENT_PC_DQOS && c_type == 1) {
-       cops_analyze_packetcable_dqos_obj(tvb, pinfo, tree, op_code, offset);
-       break;
-    } else if (client_type == COPS_CLIENT_PC_MM && c_type == 1) {
-       cops_analyze_packetcable_mm_obj(tvb, pinfo, tree, op_code, offset);
-       break;
-    }
-
-    if (c_type != 2) /*Not COPS-PR data*/
-      break;
-
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
-    clientsi_tree = proto_item_add_subtree(ti, ett_cops_clientsi);
-
-    dissect_cops_pr_objects(tvb, pinfo, offset, clientsi_tree, len, &oid_info, &pprid_subids, &pprid_subids_len);
-
-    break;
-  case COPS_OBJ_KATIMER:
-    if (c_type != 1)
-      break;
-
-    proto_tree_add_item(tree, hf_cops_katimer, tvb, offset + 2, 2, FALSE);
-    if (tvb_get_ntohs(tvb, offset + 2) == 0)
-      proto_tree_add_text(tree, tvb, offset, 0, "Value of zero implies infinity.");
-
-    break;
-  case COPS_OBJ_PEPID:
-    if (c_type != 1)
-      break;
-
-    if (tvb_strnlen(tvb, offset, len) == -1) {
-      proto_item *pep_ti;
-      pep_ti = proto_tree_add_text(tree, tvb, offset, len, "PEP Id is not a NULL terminated ASCII string");
-      expert_add_info_format(pinfo, pep_ti, PI_MALFORMED, PI_NOTE,
-                             "PEP Id is not a NULL terminated ASCII string");
-      PROTO_ITEM_SET_GENERATED(pep_ti);
-    }
-    else
-      proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
-                          tvb_strnlen(tvb, offset, len) + 1, FALSE);
-
-    break;
-  case COPS_OBJ_REPORT_TYPE:
-    if (c_type != 1)
-      break;
-
-    proto_tree_add_item(tree, hf_cops_report_type, tvb, offset, 2, FALSE);
-
-    break;
-  case COPS_OBJ_PDPREDIRADDR:
-  case COPS_OBJ_LASTPDPADDR:
-    if (c_type == 1) {          /* IPv4 */
-      ipv4addr = tvb_get_ipv4(tvb, offset);
-      tcp_port = tvb_get_ntohs(tvb, offset + 4 + 2);
-      ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, TCP Port Number: %u",
-                               ip_to_str((guint8 *)&ipv4addr), tcp_port);
-      pdp_tree = proto_item_add_subtree(ti, ett_cops_pdp);
-      proto_tree_add_ipv4(pdp_tree,
-                          (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv4 : hf_cops_lastpdpaddr_ipv4,
-                          tvb, offset, 4, ipv4addr);
-      offset += 4;
-    } else if (c_type == 2) {   /* IPv6 */
-      tvb_get_ipv6(tvb, offset, &ipv6addr);
-      tcp_port = tvb_get_ntohs(tvb, offset + sizeof ipv6addr + 2);
-      ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, TCP Port Number: %u",
-                               ip6_to_str(&ipv6addr), tcp_port);
-      pdp_tree = proto_item_add_subtree(ti, ett_cops_pdp);
-      proto_tree_add_ipv6(pdp_tree,
-                          (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv6 : hf_cops_lastpdpaddr_ipv6,
-                          tvb, offset, 16, (guint8 *)&ipv6addr);
-      offset += 16;
-    } else {
-      break;
-    }
-    offset += 2;
-    proto_tree_add_uint(pdp_tree, hf_cops_pdp_tcp_port, tvb, offset, 2, tcp_port);
-
-    break;
-  case COPS_OBJ_ACCTTIMER:
-    if (c_type != 1)
-      break;
-
-    proto_tree_add_item(tree, hf_cops_accttimer, tvb, offset + 2, 2, FALSE);
-    if (tvb_get_ntohs(tvb, offset + 2) == 0)
-      proto_tree_add_text(tree, tvb, offset, 0, "Value of zero means "
-                          "there SHOULD be no unsolicited accounting updates.");
-
-    break;
-  case COPS_OBJ_INTEGRITY:
-    if (c_type != 1)
-      break;      /* Not HMAC digest */
-
-    proto_tree_add_item(tree, hf_cops_key_id, tvb, offset, 4, FALSE);
-    proto_tree_add_item(tree, hf_cops_seq_num, tvb, offset + 4, 4, FALSE);
-    proto_tree_add_text(tree, tvb, offset + 8 , len - 8, "Contents: Keyed Message Digest");
-
-    break;
-  default:
-    proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
-
-    break;
-  }
 }
 
 static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8* encoded_subids, guint encoded_len, guint32** subids_p) {
-	guint i;
-	guint n = 0;
-	guint32 subid = 0;
-	guint32* subids;
-	guint32* subid_overflow;
+    guint i;
+    guint n = 0;
+    guint32 subid = 0;
+    guint32* subids;
+    guint32* subid_overflow;
 
-	for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
+    for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
 
-	*subids_p = subids = ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
-	subid_overflow = subids+n+pprid_subids_len;
-	for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
+    *subids_p = subids = ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
+    subid_overflow = subids+n+pprid_subids_len;
+    for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
 
-	subids += pprid_subids_len;
+    subids += pprid_subids_len;
 
 
-	for (i=0; i<encoded_len; i++){
-		guint8 byte = encoded_subids[i];
+    for (i=0; i<encoded_len; i++){
+        guint8 byte = encoded_subids[i];
 
-		subid <<= 7;
-		subid |= byte & 0x7F;
+        subid <<= 7;
+        subid |= byte & 0x7F;
 
-		if (byte & 0x80) {
-			continue;
-		}
+        if (byte & 0x80) {
+            continue;
+        }
 
-		DISSECTOR_ASSERT(subids < subid_overflow);
-		*subids++ = subid;
-		subid = 0;
-	}
+        DISSECTOR_ASSERT(subids < subid_overflow);
+        *subids++ = subid;
+        subid = 0;
+    }
 
-	return pprid_subids_len+n;
+    return pprid_subids_len+n;
 }
 
 
 static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-									   guint8 s_num, guint8 s_type, int len,
-									   oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len) {
-  proto_item *ti;
-  proto_tree *asn_tree, *gperror_tree, *cperror_tree;
-  guint16 gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
-  asn1_ctx_t actx;
+                                       guint8 s_num, guint8 s_type, int len,
+                                       oid_info_t** oid_info_p, guint32** pprid_subids, guint* pprid_subids_len) {
+    proto_item *ti;
+    proto_tree *asn_tree, *gperror_tree, *cperror_tree;
+    guint16 gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
+    asn1_ctx_t actx;
 
-  memset(&actx,0,sizeof(actx));
-  actx.pinfo = pinfo;
+    memset(&actx,0,sizeof(actx));
+    actx.pinfo = pinfo;
 
-  switch (s_num){
-	  case COPS_OBJ_PPRID: {
-		  tvbuff_t* oid_tvb = NULL;
+    switch (s_num){
+    case COPS_OBJ_PPRID: {
+        tvbuff_t* oid_tvb = NULL;
 
-		  if (s_type != 1) /* Not Prefix Provisioning Instance Identifier (PPRID) */
-			  break;
-		  /* Never tested this branch */
-		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
-		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
+        if (s_type != 1) /* Not Prefix Provisioning Instance Identifier (PPRID) */
+            break;
+        /* Never tested this branch */
+        ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+        asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		  offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
+        offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
 
-		  if (oid_tvb) {
-			  guint encoid_len = tvb_length_remaining(oid_tvb,0);
-			  guint8* encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
+        if (oid_tvb) {
+            guint encoid_len = tvb_length_remaining(oid_tvb,0);
+            guint8* encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
 
-			  (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
-		  }
-		  break;
-	  }
-	  case COPS_OBJ_PRID: {
-		  guint32* subids;
-		  guint subids_len;
-		  guint matched;
-		  guint left;
-		  gint8 ber_class;
-		  gboolean ber_pc;
-		  gint32 ber_tag;
-		  guint encoid_len;
-		  guint8* encoid;
-		  oid_info_t* oid_info;
+            (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
+        }
+        break;
+    }
+    case COPS_OBJ_PRID: {
+        guint32* subids;
+        guint subids_len;
+        guint matched;
+        guint left;
+        gint8 ber_class;
+        gboolean ber_pc;
+        gint32 ber_tag;
+        guint encoid_len;
+        guint8* encoid;
+        oid_info_t* oid_info;
 
-		  if (s_type != 1) break; /* Not Provisioning Instance Identifier (PRID) */
+        if (s_type != 1) break; /* Not Provisioning Instance Identifier (PRID) */
 
-		  ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
-		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
+        ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+        asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		  offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
-		  offset = get_ber_length(tvb, offset, &encoid_len, NULL);
+        offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
+        offset = get_ber_length(tvb, offset, &encoid_len, NULL);
 
-		  /* TODO: check pc, class and tag */
+        /* TODO: check pc, class and tag */
 
-		  encoid = ep_tvb_memdup(tvb,offset,encoid_len);
+        encoid = ep_tvb_memdup(tvb,offset,encoid_len);
 
-		  if (*pprid_subids) {
-			  /* Never tested this branch */
-			  subids_len = redecode_oid(*pprid_subids, *pprid_subids_len, encoid, encoid_len, &subids);
-			  encoid_len = oid_subid2encoded(subids_len, subids, &encoid);
-		  } else {
-			  subids_len = oid_encoded2subid(encoid, encoid_len, &subids);
-		  }
+        if (*pprid_subids) {
+            /* Never tested this branch */
+            subids_len = redecode_oid(*pprid_subids, *pprid_subids_len, encoid, encoid_len, &subids);
+            encoid_len = oid_subid2encoded(subids_len, subids, &encoid);
+        } else {
+            subids_len = oid_encoded2subid(encoid, encoid_len, &subids);
+        }
 
-		  proto_tree_add_oid(asn_tree,hf_cops_prid_oid,tvb,offset,encoid_len,encoid);
+        proto_tree_add_oid(asn_tree,hf_cops_prid_oid,tvb,offset,encoid_len,encoid);
 
-		  oid_info = oid_get(subids_len, subids, &matched, &left);
+        oid_info = oid_get(subids_len, subids, &matched, &left);
 
-		  /*
-		     TODO: from RFC 3159 find-out how the values are mapped,
-		           when instead of an oid for an xxEntry
-		           we have one decribing a scalar or something else,
-		           what's bellow works in most cases but is not complete.
-		   */
-		  if (left <= 1 && oid_info->kind == OID_KIND_ROW) {
-			  *oid_info_p = oid_info;
-		  } else {
-			  *oid_info_p = NULL;
-		  }
+        /*
+          TODO: from RFC 3159 find-out how the values are mapped;
+          when instead of an oid for an xxEntry
+          we have one describing a scalar or something else;
+          what's below works in most cases but is not complete.
+        */
+        if (left <= 1 && oid_info->kind == OID_KIND_ROW) {
+            *oid_info_p = oid_info;
+        } else {
+            *oid_info_p = NULL;
+        }
 
-		  break;
-	  }
-	  case COPS_OBJ_EPD: {
-		  oid_info_t* oid_info;
-		  guint end_offset = offset + len;
+        break;
+    }
+    case COPS_OBJ_EPD: {
+        oid_info_t* oid_info;
+        guint end_offset = offset + len;
 
-		  if (s_type != 1) break;/* Not Encoded Provisioning Instance Data (EPD) */
+        if (s_type != 1) break;/* Not Encoded Provisioning Instance Data (EPD) */
 
-		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
-		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
+        ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+        asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		  /*
-		   * XXX: LAZYNESS WARNING:
-		   * We are assuming that for the first element in the sequence
-		   * that describes an entry subid==1, and, that the subsequent elements
-		   * use ++subid; This is true for all IETF's PIBs (and good sense
-		   * indicates it should be this way) but AFAIK there's nothing in
-		   * SMIv2 that imposes this restriction.  -- a lazy lego
-		   */
+        /*
+         * XXX: LAZYNESS WARNING:
+         * We are assuming that for the first element in the sequence
+         * that describes an entry subid==1, and, that the subsequent elements
+         * use ++subid; This is true for all IETF's PIBs (and good sense
+         * indicates it should be this way) but AFAIK there's nothing in
+         * SMIv2 that imposes this restriction.  -- a lazy lego
+         */
 
-		  if(*oid_info_p) {
-			  if ((*oid_info_p)->kind == OID_KIND_ROW) {
-				  oid_info = emem_tree_lookup32((*oid_info_p)->children,1);
-			  } else {
-				  oid_info = NULL;
-			  }
-		  } else {
-			  oid_info = NULL;
-		  }
+        if(*oid_info_p) {
+            if ((*oid_info_p)->kind == OID_KIND_ROW) {
+                oid_info = emem_tree_lookup32((*oid_info_p)->children,1);
+            } else {
+                oid_info = NULL;
+            }
+        } else {
+            oid_info = NULL;
+        }
 
 
-		  while(offset < end_offset) {
-			  gint8 ber_class;
-			  gboolean ber_pc;
-			  gint32 ber_tag;
-			  guint32 ber_length;
-			  gboolean ber_ind;
+        while(offset < end_offset) {
+            gint8 ber_class;
+            gboolean ber_pc;
+            gint32 ber_tag;
+            guint32 ber_length;
+            gboolean ber_ind;
 
-			  offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
-			  offset = get_ber_length(tvb, offset, &ber_length, &ber_ind);
+            offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
+            offset = get_ber_length(tvb, offset, &ber_length, &ber_ind);
 
-			  if (oid_info) {
-				  /*
-				   * XXX: LAZYNESS WARNING:
-				   * We are assuming that the value of the sequenced item is of
-				   * the right class, the right type and the right legth.
-				   * We should check that to avoid throwing a Malformed packet and
-				   * keep dissecting.
-				   * We should verify the class and the tag match what we expect as well,
-				   * but COPS and SNMP use different tags (&#@$!) so the typedata in oid_info_t
-				   * does not work here.
-				   * -- a lazy lego
-				   */
+            if (oid_info) {
+                /*
+                 * XXX: LAZYNESS WARNING:
+                 * We are assuming that the value of the sequenced item is of
+                 * the right class, the right type and the right legth.
+                 * We should check that to avoid throwing a Malformed packet and
+                 * keep dissecting.
+                 * We should verify the class and the tag match what we expect as well,
+                 * but COPS and SNMP use different tags (&#@$!) so the typedata in oid_info_t
+                 * does not work here.
+                 * -- a lazy lego
+                 */
 
-				  proto_tree_add_item(asn_tree,oid_info->value_hfid,tvb,offset,ber_length,FALSE);
+                proto_tree_add_item(asn_tree,oid_info->value_hfid,tvb,offset,ber_length,FALSE);
 
-				  oid_info = emem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
-			  } else {
-				  int hfid = cops_tag_cls2syntax( ber_tag, ber_class );
-				  proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,FALSE);
-			  }
+                oid_info = emem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
+            } else {
+                int hfid = cops_tag_cls2syntax( ber_tag, ber_class );
+                proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,FALSE);
+            }
 
-			  offset += ber_length;
-		  }
+            offset += ber_length;
+        }
 
-		  (*oid_info_p) = NULL;
-		  break;
-	  }
-	  case COPS_OBJ_ERRPRID: {
-		  if (s_type != 1) break; /*Not  Error Provisioning Instance Identifier (ErrorPRID)*/
+        (*oid_info_p) = NULL;
+        break;
+    }
+    case COPS_OBJ_ERRPRID: {
+        if (s_type != 1) break; /*Not  Error Provisioning Instance Identifier (ErrorPRID)*/
 
-		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
-		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
+        ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+        asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		  offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
+        offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
 
-		  break;
-	  }
-  case COPS_OBJ_GPERR:
-    if (s_type != 1) /* Not Global Provisioning Error Object (GPERR) */
-      break;
+        break;
+    }
+    case COPS_OBJ_GPERR:
+        if (s_type != 1) /* Not Global Provisioning Error Object (GPERR) */
+            break;
 
-    gperror = tvb_get_ntohs(tvb, offset);
-    gperror_sub = tvb_get_ntohs(tvb, offset + 2);
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                       val_to_str(gperror, cops_gperror_vals, "<Unknown value>"), gperror_sub);
-    gperror_tree = proto_item_add_subtree(ti, ett_cops_gperror);
-    proto_tree_add_uint(gperror_tree, hf_cops_gperror, tvb, offset, 2, gperror);
-    offset += 2;
-    if (gperror == 13) {
-      proto_tree_add_text(gperror_tree, tvb, offset, 2, "Error Sub-code: "
-                          "Unknown object's C-Num %u, C-Type %u",
-                          tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
-    } else
-      proto_tree_add_uint(gperror_tree, hf_cops_gperror_sub, tvb, offset, 2, gperror_sub);
+        gperror = tvb_get_ntohs(tvb, offset);
+        gperror_sub = tvb_get_ntohs(tvb, offset + 2);
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
+                                 val_to_str(gperror, cops_gperror_vals, "<Unknown value>"), gperror_sub);
+        gperror_tree = proto_item_add_subtree(ti, ett_cops_gperror);
+        proto_tree_add_uint(gperror_tree, hf_cops_gperror, tvb, offset, 2, gperror);
+        offset += 2;
+        if (gperror == 13) {
+            proto_tree_add_text(gperror_tree, tvb, offset, 2, "Error Sub-code: "
+                                "Unknown object's C-Num %u, C-Type %u",
+                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+        } else
+            proto_tree_add_uint(gperror_tree, hf_cops_gperror_sub, tvb, offset, 2, gperror_sub);
 
-    break;
-  case COPS_OBJ_CPERR:
-    if (s_type != 1) /*Not PRC Class Provisioning Error Object (CPERR) */
-      break;
+        break;
+    case COPS_OBJ_CPERR:
+        if (s_type != 1) /*Not PRC Class Provisioning Error Object (CPERR) */
+            break;
 
-    cperror = tvb_get_ntohs(tvb, offset);
-    cperror_sub = tvb_get_ntohs(tvb, offset + 2);
-    ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                       val_to_str(cperror, cops_cperror_vals, "<Unknown value>"), cperror_sub);
-    cperror_tree = proto_item_add_subtree(ti, ett_cops_cperror);
-    proto_tree_add_uint(cperror_tree, hf_cops_cperror, tvb, offset, 2, cperror);
-    offset += 2;
-    if (cperror == 13) {
-      proto_tree_add_text(cperror_tree, tvb, offset, 2, "Error Sub-code: "
-                          "Unknown object's S-Num %u, C-Type %u",
-                          tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
-    } else
-      proto_tree_add_uint(cperror_tree, hf_cops_cperror_sub, tvb, offset, 2, cperror_sub);
+        cperror = tvb_get_ntohs(tvb, offset);
+        cperror_sub = tvb_get_ntohs(tvb, offset + 2);
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
+                                 val_to_str(cperror, cops_cperror_vals, "<Unknown value>"), cperror_sub);
+        cperror_tree = proto_item_add_subtree(ti, ett_cops_cperror);
+        proto_tree_add_uint(cperror_tree, hf_cops_cperror, tvb, offset, 2, cperror);
+        offset += 2;
+        if (cperror == 13) {
+            proto_tree_add_text(cperror_tree, tvb, offset, 2, "Error Sub-code: "
+                                "Unknown object's S-Num %u, C-Type %u",
+                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+        } else
+            proto_tree_add_uint(cperror_tree, hf_cops_cperror_sub, tvb, offset, 2, cperror_sub);
 
-    break;
-  default:
-    proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
-    break;
-  }
+        break;
+    default:
+        proto_tree_add_text(tree, tvb, offset, len, "Contents: %d bytes", len);
+        break;
+    }
 
-  return 0;
+    return 0;
 }
 
 
 /* Register the protocol with Wireshark */
 void proto_register_cops(void)
 {
-  /* Setup list of header fields */
-  static hf_register_info hf[] = {
-    { &hf_cops_ver_flags,
-      { "Version and Flags",           "cops.ver_flags",
-      FT_UINT8, BASE_HEX, NULL, 0x0,
-      "Version and Flags in COPS Common Header", HFILL }
-    },
-    { &hf_cops_version,
-      { "Version",           "cops.version",
-      FT_UINT8, BASE_DEC, NULL, 0xF0,
-      "Version in COPS Common Header", HFILL }
-    },
-    { &hf_cops_flags,
-      { "Flags",           "cops.flags",
-      FT_UINT8, BASE_HEX, VALS(cops_flags_vals), 0x0F,
-      "Flags in COPS Common Header", HFILL }
-    },
-    { &hf_cops_op_code,
-      { "Op Code",           "cops.op_code",
-      FT_UINT8, BASE_DEC, VALS(cops_op_code_vals), 0x0,
-      "Op Code in COPS Common Header", HFILL }
-    },
-    { &hf_cops_client_type,
-      { "Client Type",           "cops.client_type",
-      FT_UINT16, BASE_DEC, VALS(cops_client_type_vals), 0x0,
-      "Client Type in COPS Common Header", HFILL }
-    },
-    { &hf_cops_msg_len,
-      { "Message Length",           "cops.msg_len",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Message Length in COPS Common Header", HFILL }
-    },
-    { &hf_cops_obj_len,
-      { "Object Length",           "cops.obj.len",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Object Length in COPS Object Header", HFILL }
-    },
-    { &hf_cops_obj_c_num,
-      { "C-Num",           "cops.c_num",
-      FT_UINT8, BASE_DEC, VALS(cops_c_num_vals), 0x0,
-      "C-Num in COPS Object Header", HFILL }
-    },
-    { &hf_cops_obj_c_type,
-      { "C-Type",           "cops.c_type",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      "C-Type in COPS Object Header", HFILL }
-    },
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+        { &hf_cops_ver_flags,
+          { "Version and Flags",           "cops.ver_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Version and Flags in COPS Common Header", HFILL }
+        },
+        { &hf_cops_version,
+          { "Version",           "cops.version",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            "Version in COPS Common Header", HFILL }
+        },
+        { &hf_cops_flags,
+          { "Flags",           "cops.flags",
+            FT_UINT8, BASE_HEX, VALS(cops_flags_vals), 0x0F,
+            "Flags in COPS Common Header", HFILL }
+        },
+        { &hf_cops_op_code,
+          { "Op Code",           "cops.op_code",
+            FT_UINT8, BASE_DEC, VALS(cops_op_code_vals), 0x0,
+            "Op Code in COPS Common Header", HFILL }
+        },
+        { &hf_cops_client_type,
+          { "Client Type",           "cops.client_type",
+            FT_UINT16, BASE_DEC, VALS(cops_client_type_vals), 0x0,
+            "Client Type in COPS Common Header", HFILL }
+        },
+        { &hf_cops_msg_len,
+          { "Message Length",           "cops.msg_len",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Message Length in COPS Common Header", HFILL }
+        },
+        { &hf_cops_obj_len,
+          { "Object Length",           "cops.obj.len",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Object Length in COPS Object Header", HFILL }
+        },
+        { &hf_cops_obj_c_num,
+          { "C-Num",           "cops.c_num",
+            FT_UINT8, BASE_DEC, VALS(cops_c_num_vals), 0x0,
+            "C-Num in COPS Object Header", HFILL }
+        },
+        { &hf_cops_obj_c_type,
+          { "C-Type",           "cops.c_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "C-Type in COPS Object Header", HFILL }
+        },
 
-    { &hf_cops_obj_s_num,
-      { "S-Num",           "cops.s_num",
-      FT_UINT8, BASE_DEC, VALS(cops_s_num_vals), 0x0,
-      "S-Num in COPS-PR Object Header", HFILL }
-    },
-    { &hf_cops_obj_s_type,
-      { "S-Type",           "cops.s_type",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      "S-Type in COPS-PR Object Header", HFILL }
-    },
+        { &hf_cops_obj_s_num,
+          { "S-Num",           "cops.s_num",
+            FT_UINT8, BASE_DEC, VALS(cops_s_num_vals), 0x0,
+            "S-Num in COPS-PR Object Header", HFILL }
+        },
+        { &hf_cops_obj_s_type,
+          { "S-Type",           "cops.s_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "S-Type in COPS-PR Object Header", HFILL }
+        },
 
-    { &hf_cops_r_type_flags,
-      { "R-Type",           "cops.context.r_type",
-      FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
-      "R-Type in COPS Context Object", HFILL }
-    },
-    { &hf_cops_m_type_flags,
-      { "M-Type",           "cops.context.m_type",
-      FT_UINT16, BASE_HEX, NULL, 0xFFFF,
-      "M-Type in COPS Context Object", HFILL }
-    },
-    { &hf_cops_in_int_ipv4,
-      { "IPv4 address",           "cops.in-int.ipv4",
-      FT_IPv4, BASE_NONE, NULL, 0,
-      "IPv4 address in COPS IN-Int object", HFILL }
-    },
-    { &hf_cops_in_int_ipv6,
-      { "IPv6 address",           "cops.in-int.ipv6",
-      FT_IPv6, BASE_NONE, NULL, 0,
-      "IPv6 address in COPS IN-Int object", HFILL }
-    },
-    { &hf_cops_out_int_ipv4,
-      { "IPv4 address",           "cops.out-int.ipv4",
-      FT_IPv4, BASE_NONE, NULL, 0,
-      "IPv4 address in COPS OUT-Int object", HFILL }
-    },
-    { &hf_cops_out_int_ipv6,
-      { "IPv6 address",           "cops.out-int.ipv6",
-      FT_IPv6, BASE_NONE, NULL, 0,
-      "IPv6 address in COPS OUT-Int", HFILL }
-    },
-    { &hf_cops_int_ifindex,
-      { "ifIndex",           "cops.in-out-int.ifindex",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      "If SNMP is supported, corresponds to MIB-II ifIndex", HFILL }
-    },
-    { &hf_cops_reason,
-      { "Reason",           "cops.reason",
-      FT_UINT16, BASE_DEC, VALS(cops_reason_vals), 0,
-      "Reason in Reason object", HFILL }
-    },
-    { &hf_cops_reason_sub,
-      { "Reason Sub-code",           "cops.reason_sub",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Reason Sub-code in Reason object", HFILL }
-    },
-    { &hf_cops_dec_cmd_code,
-      { "Command-Code",           "cops.decision.cmd",
-      FT_UINT16, BASE_DEC, VALS(cops_dec_cmd_code_vals), 0,
-      "Command-Code in Decision/LPDP Decision object", HFILL }
-    },
-    { &hf_cops_dec_flags,
-      { "Flags",           "cops.decision.flags",
-      FT_UINT16, BASE_HEX, VALS(cops_dec_cmd_flag_vals), 0xffff,
-      "Flags in Decision/LPDP Decision object", HFILL }
-    },
-    { &hf_cops_error,
-      { "Error",           "cops.error",
-      FT_UINT16, BASE_DEC, VALS(cops_error_vals), 0,
-      "Error in Error object", HFILL }
-    },
-    { &hf_cops_error_sub,
-      { "Error Sub-code",           "cops.error_sub",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Error Sub-code in Error object", HFILL }
-    },
-    { &hf_cops_katimer,
-      { "Contents: KA Timer Value",           "cops.katimer.value",
-      FT_UINT16, BASE_DEC, NULL, 0,
-      "Keep-Alive Timer Value in KATimer object", HFILL }
-    },
-    { &hf_cops_pepid,
-      { "Contents: PEP Id",           "cops.pepid.id",
-      FT_STRING, BASE_NONE, NULL, 0,
-      "PEP Id in PEPID object", HFILL }
-    },
-    { &hf_cops_report_type,
-      { "Contents: Report-Type",           "cops.report_type",
-      FT_UINT16, BASE_DEC, VALS(cops_report_type_vals), 0,
-      "Report-Type in Report-Type object", HFILL }
-    },
-    { &hf_cops_pdprediraddr_ipv4,
-      { "IPv4 address",           "cops.pdprediraddr.ipv4",
-      FT_IPv4, BASE_NONE, NULL, 0,
-      "IPv4 address in COPS PDPRedirAddr object", HFILL }
-    },
-    { &hf_cops_pdprediraddr_ipv6,
-      { "IPv6 address",           "cops.pdprediraddr.ipv6",
-      FT_IPv6, BASE_NONE, NULL, 0,
-      "IPv6 address in COPS PDPRedirAddr object", HFILL }
-    },
-    { &hf_cops_lastpdpaddr_ipv4,
-      { "IPv4 address",           "cops.lastpdpaddr.ipv4",
-      FT_IPv4, BASE_NONE, NULL, 0,
-      "IPv4 address in COPS LastPDPAddr object", HFILL }
-    },
-    { &hf_cops_lastpdpaddr_ipv6,
-      { "IPv6 address",           "cops.lastpdpaddr.ipv6",
-      FT_IPv6, BASE_NONE, NULL, 0,
-      "IPv6 address in COPS LastPDPAddr object", HFILL }
-    },
-    { &hf_cops_pdp_tcp_port,
-      { "TCP Port Number",           "cops.pdp.tcp_port",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-       "TCP Port Number of PDP in PDPRedirAddr/LastPDPAddr object", HFILL }
-    },
-    { &hf_cops_accttimer,
-      { "Contents: ACCT Timer Value",           "cops.accttimer.value",
-      FT_UINT16, BASE_DEC, NULL, 0,
-      "Accounting Timer Value in AcctTimer object", HFILL }
-    },
-    { &hf_cops_key_id,
-      { "Contents: Key ID",           "cops.integrity.key_id",
-      FT_UINT32, BASE_DEC, NULL, 0,
-      "Key ID in Integrity object", HFILL }
-    },
-    { &hf_cops_seq_num,
-      { "Contents: Sequence Number",           "cops.integrity.seq_num",
-      FT_UINT32, BASE_DEC, NULL, 0,
-      "Sequence Number in Integrity object", HFILL }
-    },
-    { &hf_cops_gperror,
-      { "Error",           "cops.gperror",
-      FT_UINT16, BASE_DEC, VALS(cops_gperror_vals), 0,
-      "Error in Error object", HFILL }
-    },
-    { &hf_cops_gperror_sub,
-      { "Error Sub-code",           "cops.gperror_sub",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Error Sub-code in Error object", HFILL }
-    },
-    { &hf_cops_cperror,
-      { "Error",           "cops.cperror",
-      FT_UINT16, BASE_DEC, VALS(cops_cperror_vals), 0,
-      "Error in Error object", HFILL }
-    },
-    { &hf_cops_cperror_sub,
-      { "Error Sub-code",           "cops.cperror_sub",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Error Sub-code in Error object", HFILL }
-    },
-  { &hf_cops_prid_oid, { "PRID Instance Identifier", "cops.prid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_pprid_oid, { "Prefix Identifier", "cops.pprid.prefix_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_errprid_oid, { "ErrorPRID Instance Identifier", "cops.errprid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_unknown, { "EPD Unknown Data", "cops.epd.unknown", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_null, { "EPD Null Data", "cops.epd.null", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_int, { "EPD Integer Data", "cops.epd.int", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_octets, { "EPD Octet String Data", "cops.epd.octets", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_oid, { "EPD OID Data", "cops.epd.oid", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_ipv4, { "EPD IPAddress Data", "cops.epd.ipv4", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_u32, { "EPD Unsigned32 Data", "cops.epd.unsigned32", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_ticks, { "EPD TimeTicks Data", "cops.epd.timeticks", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_opaque, { "EPD Opaque Data", "cops.epd.opaque", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_i64, { "EPD Inetger64 Data", "cops.epd.integer64", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-  { &hf_cops_epd_u64, { "EPD Unsigned64 Data", "cops.epd.unsigned64", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cops_r_type_flags,
+          { "R-Type",           "cops.context.r_type",
+            FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
+            "R-Type in COPS Context Object", HFILL }
+        },
+        { &hf_cops_m_type_flags,
+          { "M-Type",           "cops.context.m_type",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            "M-Type in COPS Context Object", HFILL }
+        },
+        { &hf_cops_in_int_ipv4,
+          { "IPv4 address",           "cops.in-int.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IPv4 address in COPS IN-Int object", HFILL }
+        },
+        { &hf_cops_in_int_ipv6,
+          { "IPv6 address",           "cops.in-int.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "IPv6 address in COPS IN-Int object", HFILL }
+        },
+        { &hf_cops_out_int_ipv4,
+          { "IPv4 address",           "cops.out-int.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IPv4 address in COPS OUT-Int object", HFILL }
+        },
+        { &hf_cops_out_int_ipv6,
+          { "IPv6 address",           "cops.out-int.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "IPv6 address in COPS OUT-Int", HFILL }
+        },
+        { &hf_cops_int_ifindex,
+          { "ifIndex",           "cops.in-out-int.ifindex",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "If SNMP is supported, corresponds to MIB-II ifIndex", HFILL }
+        },
+        { &hf_cops_reason,
+          { "Reason",           "cops.reason",
+            FT_UINT16, BASE_DEC, VALS(cops_reason_vals), 0,
+            "Reason in Reason object", HFILL }
+        },
+        { &hf_cops_reason_sub,
+          { "Reason Sub-code",           "cops.reason_sub",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "Reason Sub-code in Reason object", HFILL }
+        },
+        { &hf_cops_dec_cmd_code,
+          { "Command-Code",           "cops.decision.cmd",
+            FT_UINT16, BASE_DEC, VALS(cops_dec_cmd_code_vals), 0,
+            "Command-Code in Decision/LPDP Decision object", HFILL }
+        },
+        { &hf_cops_dec_flags,
+          { "Flags",           "cops.decision.flags",
+            FT_UINT16, BASE_HEX, VALS(cops_dec_cmd_flag_vals), 0xffff,
+            "Flags in Decision/LPDP Decision object", HFILL }
+        },
+        { &hf_cops_error,
+          { "Error",           "cops.error",
+            FT_UINT16, BASE_DEC, VALS(cops_error_vals), 0,
+            "Error in Error object", HFILL }
+        },
+        { &hf_cops_error_sub,
+          { "Error Sub-code",           "cops.error_sub",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "Error Sub-code in Error object", HFILL }
+        },
+        { &hf_cops_katimer,
+          { "Contents: KA Timer Value",           "cops.katimer.value",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Keep-Alive Timer Value in KATimer object", HFILL }
+        },
+        { &hf_cops_pepid,
+          { "Contents: PEP Id",           "cops.pepid.id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "PEP Id in PEPID object", HFILL }
+        },
+        { &hf_cops_report_type,
+          { "Contents: Report-Type",           "cops.report_type",
+            FT_UINT16, BASE_DEC, VALS(cops_report_type_vals), 0,
+            "Report-Type in Report-Type object", HFILL }
+        },
+        { &hf_cops_pdprediraddr_ipv4,
+          { "IPv4 address",           "cops.pdprediraddr.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IPv4 address in COPS PDPRedirAddr object", HFILL }
+        },
+        { &hf_cops_pdprediraddr_ipv6,
+          { "IPv6 address",           "cops.pdprediraddr.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "IPv6 address in COPS PDPRedirAddr object", HFILL }
+        },
+        { &hf_cops_lastpdpaddr_ipv4,
+          { "IPv4 address",           "cops.lastpdpaddr.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IPv4 address in COPS LastPDPAddr object", HFILL }
+        },
+        { &hf_cops_lastpdpaddr_ipv6,
+          { "IPv6 address",           "cops.lastpdpaddr.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "IPv6 address in COPS LastPDPAddr object", HFILL }
+        },
+        { &hf_cops_pdp_tcp_port,
+          { "TCP Port Number",           "cops.pdp.tcp_port",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "TCP Port Number of PDP in PDPRedirAddr/LastPDPAddr object", HFILL }
+        },
+        { &hf_cops_accttimer,
+          { "Contents: ACCT Timer Value",           "cops.accttimer.value",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Accounting Timer Value in AcctTimer object", HFILL }
+        },
+        { &hf_cops_key_id,
+          { "Contents: Key ID",           "cops.integrity.key_id",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Key ID in Integrity object", HFILL }
+        },
+        { &hf_cops_seq_num,
+          { "Contents: Sequence Number",           "cops.integrity.seq_num",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Sequence Number in Integrity object", HFILL }
+        },
+        { &hf_cops_gperror,
+          { "Error",           "cops.gperror",
+            FT_UINT16, BASE_DEC, VALS(cops_gperror_vals), 0,
+            "Error in Error object", HFILL }
+        },
+        { &hf_cops_gperror_sub,
+          { "Error Sub-code",           "cops.gperror_sub",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "Error Sub-code in Error object", HFILL }
+        },
+        { &hf_cops_cperror,
+          { "Error",           "cops.cperror",
+            FT_UINT16, BASE_DEC, VALS(cops_cperror_vals), 0,
+            "Error in Error object", HFILL }
+        },
+        { &hf_cops_cperror_sub,
+          { "Error Sub-code",           "cops.cperror_sub",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "Error Sub-code in Error object", HFILL }
+        },
+        { &hf_cops_prid_oid, { "PRID Instance Identifier", "cops.prid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_pprid_oid, { "Prefix Identifier", "cops.pprid.prefix_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_errprid_oid, { "ErrorPRID Instance Identifier", "cops.errprid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_unknown, { "EPD Unknown Data", "cops.epd.unknown", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_null, { "EPD Null Data", "cops.epd.null", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_int, { "EPD Integer Data", "cops.epd.int", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_octets, { "EPD Octet String Data", "cops.epd.octets", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_oid, { "EPD OID Data", "cops.epd.oid", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_ipv4, { "EPD IPAddress Data", "cops.epd.ipv4", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_u32, { "EPD Unsigned32 Data", "cops.epd.unsigned32", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_ticks, { "EPD TimeTicks Data", "cops.epd.timeticks", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_opaque, { "EPD Opaque Data", "cops.epd.opaque", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_i64, { "EPD Inetger64 Data", "cops.epd.integer64", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cops_epd_u64, { "EPD Unsigned64 Data", "cops.epd.unsigned64", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
 
-    /* Added for PacketCable */
+        /* Added for PacketCable */
 
-    { &hf_cops_subtree,
-      { "Object Subtree", "cops.pc_subtree",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_ds_field,
-      { "DS Field (DSCP or TOS)", "cops.pc_ds_field",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_direction,
-      { "Direction", "cops.pc_direction",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_gate_spec_flags,
-      { "Flags", "cops.pc_gate_spec_flags",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_protocol_id,
-      { "Protocol ID", "cops.pc_protocol_id",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_session_class,
-      { "Session Class", "cops.pc_session_class",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_algorithm,
-      { "Algorithm", "cops.pc_algorithm",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_cmts_ip_port,
-      { "CMTS IP Port", "cops.pc_cmts_ip_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_prks_ip_port,
-      { "PRKS IP Port", "cops.pc_prks_ip_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_srks_ip_port,
-      { "SRKS IP Port", "cops.pc_srks_ip_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dest_port,
-      { "Destination IP Port", "cops.pc_dest_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_packetcable_err_code,
-      { "Error Code", "cops.pc_packetcable_err_code",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_packetcable_sub_code,
-      { "Error Sub Code", "cops.pc_packetcable_sub_code",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_remote_flags,
-      { "Flags", "cops.pc_remote_flags",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_close_subcode,
-      { "Reason Sub Code", "cops.pc_close_subcode",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_gate_command_type,
-      { "Gate Command Type", "cops.pc_gate_command_type",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_reason_code,
-      { "Reason Code", "cops.pc_reason_code",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_delete_subcode,
-      { "Reason Sub Code", "cops.pc_delete_subcode",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_src_port,
-      { "Source IP Port", "cops.pc_src_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_t1_value,
-      { "Timer T1 Value (sec)", "cops.pc_t1_value",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_t7_value,
-      { "Timer T7 Value (sec)", "cops.pc_t7_value",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_t8_value,
-      { "Timer T8 Value (sec)", "cops.pc_t8_value",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_transaction_id,
-      { "Transaction Identifier", "cops.pc_transaction_id",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_cmts_ip,
-      { "CMTS IP Address", "cops.pc_cmts_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_prks_ip,
-      { "PRKS IP Address", "cops.pc_prks_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_srks_ip,
-      { "SRKS IP Address", "cops.pc_srks_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dfcdc_ip,
-      { "DF IP Address CDC", "cops.pc_dfcdc_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dfccc_ip,
-      { "DF IP Address CCC", "cops.pc_dfccc_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dfcdc_ip_port,
-      { "DF IP Port CDC", "cops.pc_dfcdc_ip_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dfccc_ip_port,
-      { "DF IP Port CCC", "cops.pc_dfccc_ip_port",
-        FT_UINT16, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dfccc_id,
-      { "CCC ID", "cops.pc_dfccc_id",
-        FT_UINT32, BASE_DEC, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_activity_count,
-      { "Count", "cops.pc_activity_count",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_dest_ip,
-      { "Destination IP Address", "cops.pc_dest_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_gate_id,
-      { "Gate Identifier", "cops.pc_gate_id",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_max_packet_size,
-      { "Maximum Packet Size", "cops.pc_max_packet_size",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_min_policed_unit,
-      { "Minimum Policed Unit", "cops.pc_min_policed_unit",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_peak_data_rate,
-      { "Peak Data Rate", "cops.pc_peak_data_rate",
-        FT_FLOAT, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_spec_rate,
-      { "Rate", "cops.pc_spec_rate",
-        FT_FLOAT, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_remote_gate_id,
-      { "Remote Gate ID", "cops.pc_remote_gate_id",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_reserved,
-      { "Reserved", "cops.pc_reserved",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_key,
-      { "Security Key", "cops.pc_key",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_slack_term,
-      { "Slack Term", "cops.pc_slack_term",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_src_ip,
-      { "Source IP Address", "cops.pc_src_ip",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_subscriber_id_ipv4,
-      { "Subscriber Identifier (IPv4)", "cops.pc_subscriber_id4",
-        FT_IPv4, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_subscriber_id_ipv6,
-      { "Subscriber Identifier (IPv6)", "cops.pc_subscriber_id6",
-        FT_IPv6, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_token_bucket_rate,
-      { "Token Bucket Rate", "cops.pc_token_bucket_rate",
-        FT_FLOAT, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_token_bucket_size,
-      { "Token Bucket Size", "cops.pc_token_bucket_size",
-        FT_FLOAT, BASE_NONE, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_bcid,
-      { "Billing Correlation ID", "cops.pc_bcid",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        NULL, HFILL }
-    },
-    { &hf_cops_pc_bcid_ts,
-      { "BDID Timestamp", "cops.pc_bcid_ts",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        "BCID Timestamp", HFILL }
-    },
-    { &hf_cops_pc_bcid_ev,
-      { "BDID Event Counter", "cops.pc_bcid_ev",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
-        "BCID Event Counter", HFILL }
-    },
+        { &hf_cops_subtree,
+          { "Object Subtree", "cops.pc_subtree",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_ds_field,
+          { "DS Field (DSCP or TOS)", "cops.pc_ds_field",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_direction,
+          { "Direction", "cops.pc_direction",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_gate_spec_flags,
+          { "Flags", "cops.pc_gate_spec_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_protocol_id,
+          { "Protocol ID", "cops.pc_protocol_id",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_session_class,
+          { "Session Class", "cops.pc_session_class",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_algorithm,
+          { "Algorithm", "cops.pc_algorithm",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_cmts_ip_port,
+          { "CMTS IP Port", "cops.pc_cmts_ip_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_prks_ip_port,
+          { "PRKS IP Port", "cops.pc_prks_ip_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_srks_ip_port,
+          { "SRKS IP Port", "cops.pc_srks_ip_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dest_port,
+          { "Destination IP Port", "cops.pc_dest_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_packetcable_err_code,
+          { "Error Code", "cops.pc_packetcable_err_code",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_packetcable_sub_code,
+          { "Error Sub Code", "cops.pc_packetcable_sub_code",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_remote_flags,
+          { "Flags", "cops.pc_remote_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_close_subcode,
+          { "Reason Sub Code", "cops.pc_close_subcode",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_gate_command_type,
+          { "Gate Command Type", "cops.pc_gate_command_type",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_reason_code,
+          { "Reason Code", "cops.pc_reason_code",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_delete_subcode,
+          { "Reason Sub Code", "cops.pc_delete_subcode",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_src_port,
+          { "Source IP Port", "cops.pc_src_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_t1_value,
+          { "Timer T1 Value (sec)", "cops.pc_t1_value",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_t7_value,
+          { "Timer T7 Value (sec)", "cops.pc_t7_value",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_t8_value,
+          { "Timer T8 Value (sec)", "cops.pc_t8_value",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_transaction_id,
+          { "Transaction Identifier", "cops.pc_transaction_id",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_cmts_ip,
+          { "CMTS IP Address", "cops.pc_cmts_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_prks_ip,
+          { "PRKS IP Address", "cops.pc_prks_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_srks_ip,
+          { "SRKS IP Address", "cops.pc_srks_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dfcdc_ip,
+          { "DF IP Address CDC", "cops.pc_dfcdc_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dfccc_ip,
+          { "DF IP Address CCC", "cops.pc_dfccc_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dfcdc_ip_port,
+          { "DF IP Port CDC", "cops.pc_dfcdc_ip_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dfccc_ip_port,
+          { "DF IP Port CCC", "cops.pc_dfccc_ip_port",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dfccc_id,
+          { "CCC ID", "cops.pc_dfccc_id",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_activity_count,
+          { "Count", "cops.pc_activity_count",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_dest_ip,
+          { "Destination IP Address", "cops.pc_dest_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_gate_id,
+          { "Gate Identifier", "cops.pc_gate_id",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_max_packet_size,
+          { "Maximum Packet Size", "cops.pc_max_packet_size",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_min_policed_unit,
+          { "Minimum Policed Unit", "cops.pc_min_policed_unit",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_peak_data_rate,
+          { "Peak Data Rate", "cops.pc_peak_data_rate",
+            FT_FLOAT, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_spec_rate,
+          { "Rate", "cops.pc_spec_rate",
+            FT_FLOAT, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_remote_gate_id,
+          { "Remote Gate ID", "cops.pc_remote_gate_id",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_reserved,
+          { "Reserved", "cops.pc_reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_key,
+          { "Security Key", "cops.pc_key",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_slack_term,
+          { "Slack Term", "cops.pc_slack_term",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_src_ip,
+          { "Source IP Address", "cops.pc_src_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_subscriber_id_ipv4,
+          { "Subscriber Identifier (IPv4)", "cops.pc_subscriber_id4",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_subscriber_id_ipv6,
+          { "Subscriber Identifier (IPv6)", "cops.pc_subscriber_id6",
+            FT_IPv6, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_token_bucket_rate,
+          { "Token Bucket Rate", "cops.pc_token_bucket_rate",
+            FT_FLOAT, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_token_bucket_size,
+          { "Token Bucket Size", "cops.pc_token_bucket_size",
+            FT_FLOAT, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_bcid,
+          { "Billing Correlation ID", "cops.pc_bcid",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cops_pc_bcid_ts,
+          { "BDID Timestamp", "cops.pc_bcid_ts",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            "BCID Timestamp", HFILL }
+        },
+        { &hf_cops_pc_bcid_ev,
+          { "BDID Event Counter", "cops.pc_bcid_ev",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            "BCID Event Counter", HFILL }
+        },
 
-    { &hf_cops_pcmm_amid_app_type,
-	    { "AMID Application Type", "cops.pc_mm_amid_application_type",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia AMID Application Type", HFILL }
-    },
-    { &hf_cops_pcmm_amid_am_tag,
-	    { "AMID Application Manager Tag", "cops.pc_mm_amid_am_tag",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia AMID Application Manager Tag", HFILL }
-    },
+        { &hf_cops_pcmm_amid_app_type,
+          { "AMID Application Type", "cops.pc_mm_amid_application_type",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia AMID Application Type", HFILL }
+        },
+        { &hf_cops_pcmm_amid_am_tag,
+          { "AMID Application Manager Tag", "cops.pc_mm_amid_am_tag",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia AMID Application Manager Tag", HFILL }
+        },
 
-    { &hf_cops_pcmm_gate_spec_flags,
-	    { "Flags", "cops.pc_mm_gs_flags",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia GateSpec Flags", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_dscp_tos_field,
-	    { "DSCP/TOS Field",           "cops.pc_mm_gs_dscp",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia GateSpec DSCP/TOS Field", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_dscp_tos_mask,
-	    { "DSCP/TOS Mask",           "cops.pc_mm_gs_dscp_mask",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia GateSpec DSCP/TOS Mask", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_session_class_id,
-	    { "SessionClassID", "cops.pc_mm_gs_scid",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia GateSpec SessionClassID", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_session_class_id_priority,
-	    { "SessionClassID Priority", "cops.pc_mm_gs_scid_prio",
-	    FT_UINT8, BASE_DEC, NULL, 0x07,
-	    "PacketCable Multimedia GateSpec SessionClassID Priority", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_session_class_id_preemption,
-	    { "SessionClassID Preemption", "cops.pc_mm_gs_scid_preempt",
-	    FT_UINT8, BASE_DEC, NULL, 0x08,
-	    "PacketCable Multimedia GateSpec SessionClassID Preemption", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_session_class_id_configurable,
-	    { "SessionClassID Configurable", "cops.pc_mm_gs_scid_conf",
-	    FT_UINT8, BASE_DEC, NULL, 0xf0,
-	    "PacketCable Multimedia GateSpec SessionClassID Configurable", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_timer_t1,
-	    { "Timer T1", "cops.pc_mm_gs_timer_t1",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia GateSpec Timer T1", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_timer_t2,
-	    { "Timer T2", "cops.pc_mm_gs_timer_t2",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia GateSpec Timer T2", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_timer_t3,
-	    { "Timer T3", "cops.pc_mm_gs_timer_t3",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia GateSpec Timer T3", HFILL }
-    },
-    { &hf_cops_pcmm_gate_spec_timer_t4,
-	    { "Timer T4", "cops.pc_mm_gs_timer_t4",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia GateSpec Timer T4", HFILL }
-    },
+        { &hf_cops_pcmm_gate_spec_flags,
+          { "Flags", "cops.pc_mm_gs_flags",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia GateSpec Flags", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_dscp_tos_field,
+          { "DSCP/TOS Field",           "cops.pc_mm_gs_dscp",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia GateSpec DSCP/TOS Field", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_dscp_tos_mask,
+          { "DSCP/TOS Mask",           "cops.pc_mm_gs_dscp_mask",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia GateSpec DSCP/TOS Mask", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_session_class_id,
+          { "SessionClassID", "cops.pc_mm_gs_scid",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia GateSpec SessionClassID", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_session_class_id_priority,
+          { "SessionClassID Priority", "cops.pc_mm_gs_scid_prio",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            "PacketCable Multimedia GateSpec SessionClassID Priority", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_session_class_id_preemption,
+          { "SessionClassID Preemption", "cops.pc_mm_gs_scid_preempt",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            "PacketCable Multimedia GateSpec SessionClassID Preemption", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_session_class_id_configurable,
+          { "SessionClassID Configurable", "cops.pc_mm_gs_scid_conf",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            "PacketCable Multimedia GateSpec SessionClassID Configurable", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_timer_t1,
+          { "Timer T1", "cops.pc_mm_gs_timer_t1",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia GateSpec Timer T1", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_timer_t2,
+          { "Timer T2", "cops.pc_mm_gs_timer_t2",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia GateSpec Timer T2", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_timer_t3,
+          { "Timer T3", "cops.pc_mm_gs_timer_t3",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia GateSpec Timer T3", HFILL }
+        },
+        { &hf_cops_pcmm_gate_spec_timer_t4,
+          { "Timer T4", "cops.pc_mm_gs_timer_t4",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia GateSpec Timer T4", HFILL }
+        },
 
-    { &hf_cops_pcmm_classifier_protocol_id,
-	    { "Protocol ID", "cops.pc_mm_classifier_proto_id",
-	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Protocol ID", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dscp_tos_field,
-	    { "DSCP/TOS Field", "cops.pc_mm_classifier_dscp",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier DSCP/TOS Field", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dscp_tos_mask,
-	    { "DSCP/TOS Mask", "cops.pc_mm_classifier_dscp_mask",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier DSCP/TOS Mask", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_src_addr,
-	    { "Source address", "cops.pc_mm_classifier_src_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier Source IP Address", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_src_mask,
-	    { "Source mask", "cops.pc_mm_classifier_src_mask",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Mask", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dst_addr,
-	    { "Destination address", "cops.pc_mm_classifier_dst_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier Destination IP Address", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dst_mask,
-	    { "Destination mask", "cops.pc_mm_classifier_dst_mask",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier Destination Mask", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_src_port,
-	    { "Source Port", "cops.pc_mm_classifier_src_port",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Port", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_src_port_end,
-	    { "Source Port End", "cops.pc_mm_classifier_src_port_end",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Port End", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dst_port,
-	    { "Destination Port", "cops.pc_mm_classifier_dst_port",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Port", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dst_port_end,
-	    { "Destination Port End", "cops.pc_mm_classifier_dst_port_end",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Port End", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_priority,
-	    { "Priority", "cops.pc_mm_classifier_priority",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Priority", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_classifier_id,
-	    { "Classifier Id", "cops.pc_mm_classifier_id",
-	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier ID", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_activation_state,
-	    { "Activation State", "cops.pc_mm_classifier_activation_state",
-	    FT_UINT8, BASE_HEX, pcmm_activation_state_vals, 0,
-	    "PacketCable Multimedia Classifier Activation State", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_action,
-	    { "Action", "cops.pc_mm_classifier_action",
-	    FT_UINT8, BASE_HEX, pcmm_action_vals, 0,
-	    "PacketCable Multimedia Classifier Action", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_flags,
-	    { "Flags", "cops.pc_mm_classifier_flags",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Flags", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_tc_low,
-	    { "tc-low", "cops.pc_mm_classifier_tc_low",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier tc-low", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_tc_high,
-	    { "tc-high", "cops.pc_mm_classifier_tc_high",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier tc-high", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_tc_mask,
-	    { "tc-mask", "cops.pc_mm_classifier_tc_mask",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier tc-mask", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_flow_label,
-	    { "Flow Label", "cops.pc_mm_classifier_flow_label",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Flow Label", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_next_header_type,
-	    { "Next Header Type", "cops.pc_mm_classifier_next_header_type",
-	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Next Header Type", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_source_prefix_length,
-	    { "Source Prefix Length", "cops.pc_mm_classifier_source_prefix_length",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Source Prefix Length", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_destination_prefix_length,
-	    { "Destination Prefix Length", "cops.pc_mm_classifier_destination_prefix_length",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifier Destination Prefix Length", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_src_addr_v6,
-	    { "IPv6 Source Address", "cops.pc_mm_classifier_src_addr_v6",
-	    FT_IPv6, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier IPv6 Source Address", HFILL }
-    },
-    { &hf_cops_pcmm_classifier_dst_addr_v6,
-	    { "IPv6 Destination Address", "cops.pc_mm_classifier_dst_addr_v6",
-	    FT_IPv6, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia Classifier IPv6 Destination Address", HFILL }
-    },
+        { &hf_cops_pcmm_classifier_protocol_id,
+          { "Protocol ID", "cops.pc_mm_classifier_proto_id",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Protocol ID", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dscp_tos_field,
+          { "DSCP/TOS Field", "cops.pc_mm_classifier_dscp",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier DSCP/TOS Field", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dscp_tos_mask,
+          { "DSCP/TOS Mask", "cops.pc_mm_classifier_dscp_mask",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier DSCP/TOS Mask", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_src_addr,
+          { "Source address", "cops.pc_mm_classifier_src_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier Source IP Address", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_src_mask,
+          { "Source mask", "cops.pc_mm_classifier_src_mask",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier Source Mask", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dst_addr,
+          { "Destination address", "cops.pc_mm_classifier_dst_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier Destination IP Address", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dst_mask,
+          { "Destination mask", "cops.pc_mm_classifier_dst_mask",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier Destination Mask", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_src_port,
+          { "Source Port", "cops.pc_mm_classifier_src_port",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Classifier Source Port", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_src_port_end,
+          { "Source Port End", "cops.pc_mm_classifier_src_port_end",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Classifier Source Port End", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dst_port,
+          { "Destination Port", "cops.pc_mm_classifier_dst_port",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Classifier Source Port", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dst_port_end,
+          { "Destination Port End", "cops.pc_mm_classifier_dst_port_end",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Classifier Source Port End", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_priority,
+          { "Priority", "cops.pc_mm_classifier_priority",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Priority", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_classifier_id,
+          { "Classifier Id", "cops.pc_mm_classifier_id",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier ID", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_activation_state,
+          { "Activation State", "cops.pc_mm_classifier_activation_state",
+            FT_UINT8, BASE_HEX, pcmm_activation_state_vals, 0,
+            "PacketCable Multimedia Classifier Activation State", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_action,
+          { "Action", "cops.pc_mm_classifier_action",
+            FT_UINT8, BASE_HEX, pcmm_action_vals, 0,
+            "PacketCable Multimedia Classifier Action", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_flags,
+          { "Flags", "cops.pc_mm_classifier_flags",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Flags", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_tc_low,
+          { "tc-low", "cops.pc_mm_classifier_tc_low",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier tc-low", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_tc_high,
+          { "tc-high", "cops.pc_mm_classifier_tc_high",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier tc-high", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_tc_mask,
+          { "tc-mask", "cops.pc_mm_classifier_tc_mask",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier tc-mask", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_flow_label,
+          { "Flow Label", "cops.pc_mm_classifier_flow_label",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Flow Label", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_next_header_type,
+          { "Next Header Type", "cops.pc_mm_classifier_next_header_type",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Next Header Type", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_source_prefix_length,
+          { "Source Prefix Length", "cops.pc_mm_classifier_source_prefix_length",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Source Prefix Length", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_destination_prefix_length,
+          { "Destination Prefix Length", "cops.pc_mm_classifier_destination_prefix_length",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Classifier Destination Prefix Length", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_src_addr_v6,
+          { "IPv6 Source Address", "cops.pc_mm_classifier_src_addr_v6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier IPv6 Source Address", HFILL }
+        },
+        { &hf_cops_pcmm_classifier_dst_addr_v6,
+          { "IPv6 Destination Address", "cops.pc_mm_classifier_dst_addr_v6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia Classifier IPv6 Destination Address", HFILL }
+        },
 
-    { &hf_cops_pcmm_flow_spec_envelope,
-	    { "Envelope", "cops.pc_mm_fs_envelope",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Flow Spec Envelope", HFILL }
-    },
-    { &hf_cops_pcmm_flow_spec_service_number,
-	    { "Service Number", "cops.pc_mm_fs_svc_num",
-	    FT_UINT8, BASE_DEC, pcmm_flow_spec_service_vals, 0,
-	    "PacketCable Multimedia Flow Spec Service Number", HFILL }
-    },
+        { &hf_cops_pcmm_flow_spec_envelope,
+          { "Envelope", "cops.pc_mm_fs_envelope",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Flow Spec Envelope", HFILL }
+        },
+        { &hf_cops_pcmm_flow_spec_service_number,
+          { "Service Number", "cops.pc_mm_fs_svc_num",
+            FT_UINT8, BASE_DEC, pcmm_flow_spec_service_vals, 0,
+            "PacketCable Multimedia Flow Spec Service Number", HFILL }
+        },
 
-    { &hf_cops_pcmm_docsis_scn,
-	    { "Service Class Name", "cops.pc_mm_docsis_scn",
-	    FT_STRINGZ, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia DOCSIS Service Class Name", HFILL }
-    },
+        { &hf_cops_pcmm_docsis_scn,
+          { "Service Class Name", "cops.pc_mm_docsis_scn",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia DOCSIS Service Class Name", HFILL }
+        },
 
-    { &hf_cops_pcmm_envelope,
-	    { "Envelope", "cops.pc_mm_envelope",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Envelope", HFILL }
-    },
+        { &hf_cops_pcmm_envelope,
+          { "Envelope", "cops.pc_mm_envelope",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Envelope", HFILL }
+        },
 
-    { &hf_cops_pcmm_traffic_priority,
-	    { "Traffic Priority", "cops.pc_mm_tp",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Traffic Priority", HFILL }
-    },
-    { &hf_cops_pcmm_request_transmission_policy,
-	    { "Request Transmission Policy", "cops.pc_mm_rtp",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Traffic Priority", HFILL }
-    },
-    { &hf_cops_pcmm_max_sustained_traffic_rate,
-	    { "Maximum Sustained Traffic Rate", "cops.pc_mm_mstr",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Maximum Sustained Traffic Rate", HFILL }
-    },
-    { &hf_cops_pcmm_max_traffic_burst,
-	    { "Maximum Traffic Burst", "cops.pc_mm_mtb",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Maximum Traffic Burst", HFILL }
-    },
-    { &hf_cops_pcmm_min_reserved_traffic_rate,
-	    { "Minimum Reserved Traffic Rate", "cops.pc_mm_mrtr",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Minimum Reserved Traffic Rate", HFILL }
-    },
-    { &hf_cops_pcmm_ass_min_rtr_packet_size,
-	    { "Assumed Minimum Reserved Traffic Rate Packet Size", "cops.pc_mm_amrtrps",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Committed Envelope Assumed Minimum Reserved Traffic Rate Packet Size", HFILL }
-    },
-    { &hf_cops_pcmm_max_concat_burst,
-		{ "Maximum Concatenated Burst", "cops.pc_mm_mcburst",
-		FT_UINT16, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Committed Envelope Maximum Concatenated Burst", HFILL }
-    },
-    { &hf_cops_pcmm_req_att_mask,
-		{ "Required Attribute Mask", "cops.pc_mm_ramask",
-		FT_UINT16, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Committed Envelope Required Attribute Mask", HFILL }
-    },
-    { &hf_cops_pcmm_forbid_att_mask,
-		{ "Forbidden Attribute Mask", "cops.pc_mm_famask",
-		FT_UINT16, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Committed Envelope Forbidden Attribute Mask", HFILL }
-    },
-    { &hf_cops_pcmm_att_aggr_rule_mask,
-		{ "Attribute Aggregation Rule Mask", "cops.pc_mm_aarmask",
-		FT_UINT16, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Committed Envelope Attribute Aggregation Rule Mask", HFILL }
-    },
+        { &hf_cops_pcmm_traffic_priority,
+          { "Traffic Priority", "cops.pc_mm_tp",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Traffic Priority", HFILL }
+        },
+        { &hf_cops_pcmm_request_transmission_policy,
+          { "Request Transmission Policy", "cops.pc_mm_rtp",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Traffic Priority", HFILL }
+        },
+        { &hf_cops_pcmm_max_sustained_traffic_rate,
+          { "Maximum Sustained Traffic Rate", "cops.pc_mm_mstr",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Maximum Sustained Traffic Rate", HFILL }
+        },
+        { &hf_cops_pcmm_max_traffic_burst,
+          { "Maximum Traffic Burst", "cops.pc_mm_mtb",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Maximum Traffic Burst", HFILL }
+        },
+        { &hf_cops_pcmm_min_reserved_traffic_rate,
+          { "Minimum Reserved Traffic Rate", "cops.pc_mm_mrtr",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Minimum Reserved Traffic Rate", HFILL }
+        },
+        { &hf_cops_pcmm_ass_min_rtr_packet_size,
+          { "Assumed Minimum Reserved Traffic Rate Packet Size", "cops.pc_mm_amrtrps",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Assumed Minimum Reserved Traffic Rate Packet Size", HFILL }
+        },
+        { &hf_cops_pcmm_max_concat_burst,
+          { "Maximum Concatenated Burst", "cops.pc_mm_mcburst",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Maximum Concatenated Burst", HFILL }
+        },
+        { &hf_cops_pcmm_req_att_mask,
+          { "Required Attribute Mask", "cops.pc_mm_ramask",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Required Attribute Mask", HFILL }
+        },
+        { &hf_cops_pcmm_forbid_att_mask,
+          { "Forbidden Attribute Mask", "cops.pc_mm_famask",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Forbidden Attribute Mask", HFILL }
+        },
+        { &hf_cops_pcmm_att_aggr_rule_mask,
+          { "Attribute Aggregation Rule Mask", "cops.pc_mm_aarmask",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Committed Envelope Attribute Aggregation Rule Mask", HFILL }
+        },
 
-    { &hf_cops_pcmm_nominal_polling_interval,
-	    { "Nominal Polling Interval", "cops.pc_mm_npi",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Nominal Polling Interval", HFILL }
-    },
+        { &hf_cops_pcmm_nominal_polling_interval,
+          { "Nominal Polling Interval", "cops.pc_mm_npi",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Nominal Polling Interval", HFILL }
+        },
 
-    { &hf_cops_pcmm_tolerated_poll_jitter,
-	    { "Tolerated Poll Jitter", "cops.pc_mm_tpj",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Tolerated Poll Jitter", HFILL }
-    },
+        { &hf_cops_pcmm_tolerated_poll_jitter,
+          { "Tolerated Poll Jitter", "cops.pc_mm_tpj",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Tolerated Poll Jitter", HFILL }
+        },
 
-    { &hf_cops_pcmm_unsolicited_grant_size,
-	    { "Unsolicited Grant Size", "cops.pc_mm_ugs",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Unsolicited Grant Size", HFILL }
-    },
-    { &hf_cops_pcmm_grants_per_interval,
-	    { "Grants Per Interval", "cops.pc_mm_gpi",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Grants Per Interval", HFILL }
-    },
-    { &hf_cops_pcmm_nominal_grant_interval,
-	    { "Nominal Grant Interval", "cops.pc_mm_ngi",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Nominal Grant Interval", HFILL }
-    },
-    { &hf_cops_pcmm_tolerated_grant_jitter,
-	    { "Tolerated Grant Jitter", "cops.pc_mm_tgj",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Tolerated Grant Jitter", HFILL }
-    },
+        { &hf_cops_pcmm_unsolicited_grant_size,
+          { "Unsolicited Grant Size", "cops.pc_mm_ugs",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Unsolicited Grant Size", HFILL }
+        },
+        { &hf_cops_pcmm_grants_per_interval,
+          { "Grants Per Interval", "cops.pc_mm_gpi",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Grants Per Interval", HFILL }
+        },
+        { &hf_cops_pcmm_nominal_grant_interval,
+          { "Nominal Grant Interval", "cops.pc_mm_ngi",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Nominal Grant Interval", HFILL }
+        },
+        { &hf_cops_pcmm_tolerated_grant_jitter,
+          { "Tolerated Grant Jitter", "cops.pc_mm_tgj",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Tolerated Grant Jitter", HFILL }
+        },
 
-    { &hf_cops_pcmm_down_resequencing,
-		{ "Downstream Resequencing", "cops.pc_mm_downres",
-		FT_UINT32, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Downstream Resequencing", HFILL }
-	},
+        { &hf_cops_pcmm_down_resequencing,
+          { "Downstream Resequencing", "cops.pc_mm_downres",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Downstream Resequencing", HFILL }
+        },
 
-	{ &hf_cops_pcmm_down_peak_traffic_rate,
-		{ "Downstream Peak Traffic Rate", "cops.pc_mm_downpeak",
-		FT_UINT32, BASE_DEC, NULL, 0,
-		"PacketCable Multimedia Downstream Peak Traffic Rate", HFILL }
-	},
+        { &hf_cops_pcmm_down_peak_traffic_rate,
+          { "Downstream Peak Traffic Rate", "cops.pc_mm_downpeak",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Downstream Peak Traffic Rate", HFILL }
+        },
 
-    { &hf_cops_pcmm_max_downstream_latency,
-	    { "Maximum Downstream Latency", "cops.pc_mm_mdl",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Maximum Downstream Latency", HFILL }
-    },
+        { &hf_cops_pcmm_max_downstream_latency,
+          { "Maximum Downstream Latency", "cops.pc_mm_mdl",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Maximum Downstream Latency", HFILL }
+        },
 
-    { &hf_cops_pcmm_volume_based_usage_limit,
-	    { "Usage Limit", "cops.pc_mm_vbul_ul",
-	    FT_UINT64, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Volume-Based Usage Limit", HFILL }
-    },
+        { &hf_cops_pcmm_volume_based_usage_limit,
+          { "Usage Limit", "cops.pc_mm_vbul_ul",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Volume-Based Usage Limit", HFILL }
+        },
 
-    { &hf_cops_pcmm_time_based_usage_limit,
-	    { "Usage Limit", "cops.pc_mm_tbul_ul",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Time-Based Usage Limit", HFILL }
-    },
+        { &hf_cops_pcmm_time_based_usage_limit,
+          { "Usage Limit", "cops.pc_mm_tbul_ul",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Time-Based Usage Limit", HFILL }
+        },
 
-    { &hf_cops_pcmm_gate_time_info,
-	    { "Gate Time Info", "cops.pc_mm_gti",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Gate Time Info", HFILL }
-    },
+        { &hf_cops_pcmm_gate_time_info,
+          { "Gate Time Info", "cops.pc_mm_gti",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Gate Time Info", HFILL }
+        },
 
-    { &hf_cops_pcmm_gate_usage_info,
-	    { "Gate Usage Info", "cops.pc_mm_gui",
-	    FT_UINT64, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Gate Usage Info", HFILL }
-    },
+        { &hf_cops_pcmm_gate_usage_info,
+          { "Gate Usage Info", "cops.pc_mm_gui",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Gate Usage Info", HFILL }
+        },
 
-    { &hf_cops_pcmm_packetcable_error_code,
-	    { "Error-Code", "cops.pc_mm_error_ec",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia PacketCable-Error Error-Code", HFILL }
-    },
-    { &hf_cops_pcmm_packetcable_error_subcode,
-	    { "Error-code", "cops.pc_mm_error_esc",
-	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia PacketCable-Error Error Sub-code", HFILL }
-    },
+        { &hf_cops_pcmm_packetcable_error_code,
+          { "Error-Code", "cops.pc_mm_error_ec",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia PacketCable-Error Error-Code", HFILL }
+        },
+        { &hf_cops_pcmm_packetcable_error_subcode,
+          { "Error-code", "cops.pc_mm_error_esc",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia PacketCable-Error Error Sub-code", HFILL }
+        },
 
-    { &hf_cops_pcmm_packetcable_gate_state,
-	    { "State", "cops.pc_mm_gs_state",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Gate State", HFILL }
-    },
-    { &hf_cops_pcmm_packetcable_gate_state_reason,
-	    { "Reason", "cops.pc_mm_gs_reason",
-	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Gate State Reason", HFILL }
-    },
-    { &hf_cops_pcmm_packetcable_version_info_major,
-	    { "Major Version Number", "cops.pc_mm_vi_major",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Major Version Number", HFILL }
-    },
-    { &hf_cops_pcmm_packetcable_version_info_minor,
-	    { "Minor Version Number", "cops.pc_mm_vi_minor",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia Minor Version Number", HFILL }
-    },
+        { &hf_cops_pcmm_packetcable_gate_state,
+          { "State", "cops.pc_mm_gs_state",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Gate State", HFILL }
+        },
+        { &hf_cops_pcmm_packetcable_gate_state_reason,
+          { "Reason", "cops.pc_mm_gs_reason",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Gate State Reason", HFILL }
+        },
+        { &hf_cops_pcmm_packetcable_version_info_major,
+          { "Major Version Number", "cops.pc_mm_vi_major",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Major Version Number", HFILL }
+        },
+        { &hf_cops_pcmm_packetcable_version_info_minor,
+          { "Minor Version Number", "cops.pc_mm_vi_minor",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia Minor Version Number", HFILL }
+        },
 
-    { &hf_cops_pcmm_psid,
-	    { "PSID", "cops.pc_mm_psid",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "PacketCable Multimedia PSID", HFILL }
-    },
+        { &hf_cops_pcmm_psid,
+          { "PSID", "cops.pc_mm_psid",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "PacketCable Multimedia PSID", HFILL }
+        },
 
-    { &hf_cops_pcmm_synch_options_report_type,
-	    { "Report Type", "cops.pc_mm_synch_options_report_type",
-	    FT_UINT8, BASE_DEC, pcmm_report_type_vals, 0,
-	    "PacketCable Multimedia Synch Options Report Type", HFILL }
-    },
-    { &hf_cops_pcmm_synch_options_synch_type,
-	    { "Synch Type", "cops.pc_mm_synch_options_synch_type",
-	    FT_UINT8, BASE_DEC, pcmm_synch_type_vals, 0,
-	    "PacketCable Multimedia Synch Options Synch Type", HFILL }
-    },
+        { &hf_cops_pcmm_synch_options_report_type,
+          { "Report Type", "cops.pc_mm_synch_options_report_type",
+            FT_UINT8, BASE_DEC, pcmm_report_type_vals, 0,
+            "PacketCable Multimedia Synch Options Report Type", HFILL }
+        },
+        { &hf_cops_pcmm_synch_options_synch_type,
+          { "Synch Type", "cops.pc_mm_synch_options_synch_type",
+            FT_UINT8, BASE_DEC, pcmm_synch_type_vals, 0,
+            "PacketCable Multimedia Synch Options Synch Type", HFILL }
+        },
 
-    { &hf_cops_pcmm_msg_receipt_key,
-	    { "Msg Receipt Key", "cops.pc_mm_msg_receipt_key",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Msg Receipt Key", HFILL }
-    },
+        { &hf_cops_pcmm_msg_receipt_key,
+          { "Msg Receipt Key", "cops.pc_mm_msg_receipt_key",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia Msg Receipt Key", HFILL }
+        },
 
-    { &hf_cops_pcmm_userid,
-	    { "UserID", "cops.pc_mm_userid",
-	    FT_STRING, BASE_NONE, NULL, 0,
-	    "PacketCable Multimedia UserID", HFILL }
-    },
+        { &hf_cops_pcmm_userid,
+          { "UserID", "cops.pc_mm_userid",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "PacketCable Multimedia UserID", HFILL }
+        },
 
-    { &hf_cops_pcmm_sharedresourceid,
-	    { "SharedResourceID", "cops.pc_mm_sharedresourceid",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia SharedResourceID", HFILL }
-    },
+        { &hf_cops_pcmm_sharedresourceid,
+          { "SharedResourceID", "cops.pc_mm_sharedresourceid",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "PacketCable Multimedia SharedResourceID", HFILL }
+        },
 
-    /* End of addition for PacketCable */
+        /* End of addition for PacketCable */
 
-  };
+    };
 
-  /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_cops,
-    &ett_cops_ver_flags,
-    &ett_cops_obj,
-    &ett_cops_pr_obj,
-    &ett_cops_obj_data,
-    &ett_cops_r_type_flags,
-    &ett_cops_itf,
-    &ett_cops_reason,
-    &ett_cops_decision,
-    &ett_cops_error,
-    &ett_cops_clientsi,
-    &ett_cops_asn1,
-    &ett_cops_gperror,
-    &ett_cops_cperror,
-    &ett_cops_pdp,
-    &ett_cops_subtree,
-    &ett_docsis_request_transmission_policy,
-  };
+    /* Setup protocol subtree array */
+    static gint *ett[] = {
+        &ett_cops,
+        &ett_cops_ver_flags,
+        &ett_cops_obj,
+        &ett_cops_pr_obj,
+        &ett_cops_obj_data,
+        &ett_cops_r_type_flags,
+        &ett_cops_itf,
+        &ett_cops_reason,
+        &ett_cops_decision,
+        &ett_cops_error,
+        &ett_cops_clientsi,
+        &ett_cops_asn1,
+        &ett_cops_gperror,
+        &ett_cops_cperror,
+        &ett_cops_pdp,
+        &ett_cops_subtree,
+        &ett_docsis_request_transmission_policy,
+    };
 
-  module_t* cops_module;
+    module_t* cops_module;
 
-  /* Register the protocol name and description */
-  proto_cops = proto_register_protocol("Common Open Policy Service",
-      "COPS", "cops");
+    /* Register the protocol name and description */
+    proto_cops = proto_register_protocol("Common Open Policy Service",
+                                         "COPS", "cops");
 
-  /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_cops, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+    /* Required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_cops, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-  /* Make dissector findable by name */
-  register_dissector("cops", dissect_cops, proto_cops);
+    /* Make dissector findable by name */
+    register_dissector("cops", dissect_cops, proto_cops);
 
-  /* Register our configuration options for cops */
-  cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);
-  prefs_register_uint_preference(cops_module,"tcp.cops_port",
-                                 "COPS TCP Port",
-                                 "Set the TCP port for COPS messages",
-                                 10,&global_cops_tcp_port);
-  prefs_register_bool_preference(cops_module, "desegment",
-                                 "Reassemble COPS messages spanning multiple TCP segments",
-                                 "Whether the COPS dissector should reassemble messages spanning multiple TCP segments."
-                                 " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-                                 &cops_desegment);
+    /* Register our configuration options for cops */
+    cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);
+    prefs_register_uint_preference(cops_module,"tcp.cops_port",
+                                   "COPS TCP Port",
+                                   "Set the TCP port for COPS messages",
+                                   10,&global_cops_tcp_port);
+    prefs_register_bool_preference(cops_module, "desegment",
+                                   "Reassemble COPS messages spanning multiple TCP segments",
+                                   "Whether the COPS dissector should reassemble messages spanning multiple TCP segments."
+                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   &cops_desegment);
 
-  /* For PacketCable */
-  prefs_register_bool_preference(cops_module, "packetcable",
-                                 "Decode for PacketCable clients",
-                                 "Decode the COPS messages using PacketCable clients. (Select port 2126)",
-                                 &cops_packetcable);
+    /* For PacketCable */
+    prefs_register_bool_preference(cops_module, "packetcable",
+                                   "Decode for PacketCable clients",
+                                   "Decode the COPS messages using PacketCable clients. (Select port 2126)",
+                                   &cops_packetcable);
 
-  prefs_register_static_text_preference(cops_module, "info_pibs",
-      "PIB settings can be changed in the Name Resolution preferences",
-      "PIB settings can be changed in the Name Resolution preferences");
+    prefs_register_static_text_preference(cops_module, "info_pibs",
+                                          "PIB settings can be changed in the Name Resolution preferences",
+                                          "PIB settings can be changed in the Name Resolution preferences");
 
-  prefs_register_obsolete_preference(cops_module, "typefrommib");
+    prefs_register_obsolete_preference(cops_module, "typefrommib");
 }
 
 void proto_reg_handoff_cops(void)
 {
-  static gboolean cops_prefs_initialized = FALSE;
-  static dissector_handle_t cops_handle;
-  static guint cops_tcp_port;
+    static gboolean cops_prefs_initialized = FALSE;
+    static dissector_handle_t cops_handle;
+    static guint cops_tcp_port;
 
-  if (!cops_prefs_initialized) {
-    cops_handle = find_dissector("cops");
-    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
-    cops_prefs_initialized = TRUE;
-  } else {
-    dissector_delete_uint("tcp.port",cops_tcp_port,cops_handle);
-  }
-  cops_tcp_port = global_cops_tcp_port;
+    if (!cops_prefs_initialized) {
+        cops_handle = find_dissector("cops");
+        dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
+        dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
+        cops_prefs_initialized = TRUE;
+    } else {
+        dissector_delete_uint("tcp.port",cops_tcp_port,cops_handle);
+    }
+    cops_tcp_port = global_cops_tcp_port;
 
-  dissector_add_uint("tcp.port", cops_tcp_port, cops_handle);
+    dissector_add_uint("tcp.port", cops_tcp_port, cops_handle);
 }
 
 
@@ -2582,239 +2578,239 @@ void proto_reg_handoff_cops(void)
 static proto_item *
 info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
 {
-     proto_item *pi = NULL;
-     guint8   *codestr;
-     guint8   code8  = 0;
-     guint16  code16 = 0;
-     guint32  codeipv4 = 0;
-     guint32  code32 = 0;
-     guint64  code64 = 0;
-     float    codefl = 0.0f;
+    proto_item *pi = NULL;
+    guint8   *codestr;
+    guint8   code8  = 0;
+    guint16  code16 = 0;
+    guint32  codeipv4 = 0;
+    guint32  code32 = 0;
+    guint64  code64 = 0;
+    float    codefl = 0.0f;
 
-     /* Special section for printing strings */
-	 if (mode==FMT_STR) {
-		 codestr = tvb_get_ephemeral_string(tvb, offset, octets);
-		 pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
-	         offset, octets, codestr, "%-28s : %s", str, codestr);
-		 return pi;
-	 }
+    /* Special section for printing strings */
+    if (mode==FMT_STR) {
+        codestr = tvb_get_ephemeral_string(tvb, offset, octets);
+        pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
+                                          offset, octets, codestr, "%-28s : %s", str, codestr);
+        return pi;
+    }
 
-     /* Print information elements in the specified way */
-     switch (octets) {
+    /* Print information elements in the specified way */
+    switch (octets) {
 
-     case 1:
-             /* Get the octet */
-             code8 = tvb_get_guint8( tvb, offset );
-             if (vsp == NULL) {
+    case 1:
+        /* Get the octet */
+        code8 = tvb_get_guint8( tvb, offset );
+        if (vsp == NULL) {
+            /* Hexadecimal format */
+            if (mode==FMT_HEX)
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code8,"%-28s : 0x%02x",str,code8);
+            else
+                /* Print an 8 bits integer */
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code8,"%-28s : %u",str,code8);
+        } else {
+            if (mode==FMT_HEX)
                 /* Hexadecimal format */
-                if (mode==FMT_HEX)
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code8,"%-28s : 0x%02x",str,code8);
-                else
-                   /* Print an 8 bits integer */
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code8,"%-28s : %u",str,code8);
-             } else {
-               if (mode==FMT_HEX)
-                  /* Hexadecimal format */
-                  pi = proto_tree_add_uint_format(
-                      stt, *hf_proto_parameter,tvb, offset, octets, code8,
-                      "%-28s : %s (0x%02x)",str,val_to_str(code8, vsp, "Unknown"),code8);
-               else
-                  /* String table indexed */
-                  pi = proto_tree_add_uint_format(
-                      stt, *hf_proto_parameter,tvb, offset, octets, code8,
-                      "%-28s : %s (%u)",str,val_to_str(code8, vsp, "Unknown"),code8);
-             }
-             break;
+                pi = proto_tree_add_uint_format(
+                    stt, *hf_proto_parameter,tvb, offset, octets, code8,
+                    "%-28s : %s (0x%02x)",str,val_to_str(code8, vsp, "Unknown"),code8);
+            else
+                /* String table indexed */
+                pi = proto_tree_add_uint_format(
+                    stt, *hf_proto_parameter,tvb, offset, octets, code8,
+                    "%-28s : %s (%u)",str,val_to_str(code8, vsp, "Unknown"),code8);
+        }
+        break;
 
-       case 2:
+    case 2:
 
-             /* Get the next two octets */
-             code16 = tvb_get_ntohs(tvb,offset);
-             if (vsp == NULL) {
+        /* Get the next two octets */
+        code16 = tvb_get_ntohs(tvb,offset);
+        if (vsp == NULL) {
+            /* Hexadecimal format */
+            if (mode==FMT_HEX)
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code16,"%-28s : 0x%04x",str,code16);
+            else
+                /* Print a 16 bits integer */
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code16,"%-28s : %u",str,code16);
+        }  else {
+            if (mode==FMT_HEX)
                 /* Hexadecimal format */
-                if (mode==FMT_HEX)
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code16,"%-28s : 0x%04x",str,code16);
-                else
-                   /* Print a 16 bits integer */
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code16,"%-28s : %u",str,code16);
-             }  else {
-                if (mode==FMT_HEX)
-                   /* Hexadecimal format */
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code16,"%-28s : %s (0x%04x)", str,
-                       val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
-                else
-                   /* Print a 16 bits integer */
-                   pi = proto_tree_add_uint_format(
-                       stt, *hf_proto_parameter,tvb, offset, octets, code16,
-                       "%-28s : %s (%u)",str,val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
-             }
-             break;
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code16,"%-28s : %s (0x%04x)", str,
+                                                val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
+            else
+                /* Print a 16 bits integer */
+                pi = proto_tree_add_uint_format(
+                    stt, *hf_proto_parameter,tvb, offset, octets, code16,
+                    "%-28s : %s (%u)",str,val_to_str(code16, vsp, "Unknown (0x%04x)"),code16);
+        }
+        break;
 
-        case 4:
+    case 4:
 
-             /* Get the next four octets */
-             switch (mode) {
-               case FMT_FLT:  codefl  = tvb_get_ntohieee_float(tvb,offset);
-                              break;
-               case FMT_IPv4: codeipv4 = tvb_get_ipv4(tvb, offset);
-                              break;
-               default:       code32  = tvb_get_ntohl(tvb,offset);
-	     }
+        /* Get the next four octets */
+        switch (mode) {
+        case FMT_FLT:  codefl  = tvb_get_ntohieee_float(tvb,offset);
+            break;
+        case FMT_IPv4: codeipv4 = tvb_get_ipv4(tvb, offset);
+            break;
+        default:       code32  = tvb_get_ntohl(tvb,offset);
+        }
 
-             if (vsp == NULL) {
-                /* Hexadecimal format */
-                if (mode==FMT_HEX) {
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
-                       offset, octets, code32,"%-28s : 0x%08x",str,code32);
-                   break;
-                }
-                /* Ip address format*/
-                if (mode==FMT_IPv4) {
-                   pi = proto_tree_add_ipv4(stt, *hf_proto_parameter,tvb, offset, octets, codeipv4);
-                   break;
-                }
-                /* Ieee float format */
-                if (mode==FMT_FLT) {
-                   pi = proto_tree_add_float_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                       codefl,"%-28s : %.10g",str,codefl);
-                   break;
-                }
-                /* Print a 32 bits integer */
+        if (vsp == NULL) {
+            /* Hexadecimal format */
+            if (mode==FMT_HEX) {
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb,
+                                                offset, octets, code32,"%-28s : 0x%08x",str,code32);
+                break;
+            }
+            /* Ip address format*/
+            if (mode==FMT_IPv4) {
+                pi = proto_tree_add_ipv4(stt, *hf_proto_parameter,tvb, offset, octets, codeipv4);
+                break;
+            }
+            /* Ieee float format */
+            if (mode==FMT_FLT) {
+                pi = proto_tree_add_float_format(stt, *hf_proto_parameter,tvb, offset, octets,
+                                                 codefl,"%-28s : %.10g",str,codefl);
+                break;
+            }
+            /* Print a 32 bits integer */
+            pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
+                                            code32,"%-28s : %u",str,code32);
+        } else {
+            /* Hexadecimal format */
+            if (mode==FMT_HEX)
                 pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                    code32,"%-28s : %u",str,code32);
-             } else {
-                /* Hexadecimal format */
-                if (mode==FMT_HEX)
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                           code32,"%-28s : %s (0x%08x)",str,val_to_str(code32, vsp, "Unknown"),code32);
-                else
-                   /* String table indexed */
-                   pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                       code32,"%-28s : %s (%u)",str,val_to_str(code32, vsp, "Unknown"),code32);
-             }
-             break;
+                                                code32,"%-28s : %s (0x%08x)",str,val_to_str(code32, vsp, "Unknown"),code32);
+            else
+                /* String table indexed */
+                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
+                                                code32,"%-28s : %s (%u)",str,val_to_str(code32, vsp, "Unknown"),code32);
+        }
+        break;
 
         /* In case of more than 4 octets.... */
-        default:
+    default:
 
-             if (mode==FMT_HEX) {
-                pi = proto_tree_add_item(stt, *hf_proto_parameter,
-                   tvb, offset, octets, ENC_NA);
-             } else if (mode==FMT_IPv6 && octets==16) {
-                pi = proto_tree_add_item(stt, *hf_proto_parameter, tvb, offset, octets,
-                   ENC_NA);
-             } else if (mode==FMT_DEC && octets==8) {
-                code64 = tvb_get_ntoh64(tvb, offset);
-                pi = proto_tree_add_uint64_format(stt, *hf_proto_parameter, tvb, offset, octets,
-                   code64, "%-28s : %" G_GINT64_MODIFIER "u", str, code64);
-             } else {
-                pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,
-                   tvb, offset, octets, code32,"%s",str);
-             }
-             break;
+        if (mode==FMT_HEX) {
+            pi = proto_tree_add_item(stt, *hf_proto_parameter,
+                                     tvb, offset, octets, ENC_NA);
+        } else if (mode==FMT_IPv6 && octets==16) {
+            pi = proto_tree_add_item(stt, *hf_proto_parameter, tvb, offset, octets,
+                                     ENC_NA);
+        } else if (mode==FMT_DEC && octets==8) {
+            code64 = tvb_get_ntoh64(tvb, offset);
+            pi = proto_tree_add_uint64_format(stt, *hf_proto_parameter, tvb, offset, octets,
+                                              code64, "%-28s : %" G_GINT64_MODIFIER "u", str, code64);
+        } else {
+            pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,
+                                            tvb, offset, octets, code32,"%s",str);
+        }
+        break;
 
-     }
-     return pi;
+    }
+    return pi;
 }
 
 /* Print the subtree information for cops */
 static proto_tree *
 info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const char *str) {
-     proto_item *tv;
+    proto_item *tv;
 
-     tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, "%s", str);
-     return( proto_item_add_subtree( tv, ett_cops_subtree ) );
+    tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, "%s", str);
+    return( proto_item_add_subtree( tv, ett_cops_subtree ) );
 }
 
 /* Cops - Section : D-QoS Transaction ID */
 static void
 cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op_code, guint n, guint32 offset) {
 
-     proto_tree *stt;
-     guint16  code16;
-     char info[50];
+    proto_tree *stt;
+    guint16  code16;
+    char info[50];
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"D-QoS Transaction ID");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,"D-QoS Transaction ID");
+    offset += 4;
 
-     /* Transaction Identifier */
-     info_to_display(tvb,stt,offset,2,"D-QoS Transaction Identifier", NULL,FMT_DEC,&hf_cops_pc_transaction_id);
-     offset +=2;
+    /* Transaction Identifier */
+    info_to_display(tvb,stt,offset,2,"D-QoS Transaction Identifier", NULL,FMT_DEC,&hf_cops_pc_transaction_id);
+    offset +=2;
 
-     /* Gate Command Type */
-     code16 = tvb_get_ntohs(tvb,offset);
-     proto_tree_add_uint_format(stt, hf_cops_pc_gate_command_type,tvb, offset, 2,
-            code16,"%-28s : %s (%u)", "Gate Command Type",
-            val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
+    /* Gate Command Type */
+    code16 = tvb_get_ntohs(tvb,offset);
+    proto_tree_add_uint_format(stt, hf_cops_pc_gate_command_type,tvb, offset, 2,
+                               code16,"%-28s : %s (%u)", "Gate Command Type",
+                               val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
 
-     /* Write the right data into the 'info field' on the Gui */
-     g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
-		val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
+    /* Write the right data into the 'info field' on the Gui */
+    g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
+               val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
 
-     col_clear(pinfo->cinfo, COL_INFO);
-     col_add_str(pinfo->cinfo, COL_INFO,info);
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_str(pinfo->cinfo, COL_INFO,info);
 }
 
 /* Cops - Section : Subscriber IDv4 */
 static void
 cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     proto_item *tv;
+    proto_item *tv;
 
-     /* Create a subtree */
-     tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv4)");
-     offset += 4;
+    /* Create a subtree */
+    tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv4)");
+    offset += 4;
 
-     /* Subscriber Identifier */
-     info_to_display(tvb,tv,offset,4,"Subscriber Identifier (IPv4)", NULL,FMT_IPv4,&hf_cops_pc_subscriber_id_ipv4);
+    /* Subscriber Identifier */
+    info_to_display(tvb,tv,offset,4,"Subscriber Identifier (IPv4)", NULL,FMT_IPv4,&hf_cops_pc_subscriber_id_ipv4);
 }
 
 /* Cops - Section : Subscriber IDv6 */
 static void
 cops_subscriber_id_v6(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     proto_item *tv;
+    proto_item *tv;
 
-     /* Create a subtree */
-     tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv6)");
-     offset += 4;
+    /* Create a subtree */
+    tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv6)");
+    offset += 4;
 
-     /* Subscriber Identifier */
-     info_to_display(tvb,tv,offset,16,"Subscriber Identifier (IPv6)", NULL,FMT_IPv6,&hf_cops_pc_subscriber_id_ipv6);
+    /* Subscriber Identifier */
+    info_to_display(tvb,tv,offset,16,"Subscriber Identifier (IPv6)", NULL,FMT_IPv6,&hf_cops_pc_subscriber_id_ipv6);
 }
 
 /* Cops - Section : Gate ID */
 static void
 cops_gate_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     proto_tree *stt;
+    proto_tree *stt;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"Gate ID");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,"Gate ID");
+    offset += 4;
 
-     /* Gate Identifier */
-     info_to_display(tvb,stt,offset,4,"Gate Identifier", NULL,FMT_HEX,&hf_cops_pc_gate_id);
+    /* Gate Identifier */
+    info_to_display(tvb,stt,offset,4,"Gate Identifier", NULL,FMT_HEX,&hf_cops_pc_gate_id);
 }
 
 /* Cops - Section : Activity Count */
 static void
 cops_activity_count(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     proto_tree *stt;
+    proto_tree *stt;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"Activity Count");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,"Activity Count");
+    offset += 4;
 
-     /* Activity Count */
-     info_to_display(tvb,stt,offset,4,"Count", NULL,FMT_DEC,&hf_cops_pc_activity_count);
+    /* Activity Count */
+    info_to_display(tvb,stt,offset,4,"Count", NULL,FMT_DEC,&hf_cops_pc_activity_count);
 }
 
 /* Cops - Section : Gate Specifications */
@@ -3148,7 +3144,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
 
      /* Write the right data into the 'info field' on the Gui */
      g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
-		val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
+                val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
 
      col_clear(pinfo->cinfo, COL_INFO);
      col_add_str(pinfo->cinfo, COL_INFO,info);
@@ -3189,11 +3185,11 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      ti = info_to_display(tvb,stt,offset,1,"Flags",NULL,FMT_HEX,&hf_cops_pcmm_gate_spec_flags);
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree );
      proto_tree_add_text(object_tree, tvb, offset, 1, "%s gate",
-	    decode_boolean_bitfield(gs_flags, 1 << 0, 8,
-		    "Upstream", "Downstream"));
+                         decode_boolean_bitfield(gs_flags, 1 << 0, 8,
+                                                 "Upstream", "Downstream"));
      proto_tree_add_text(object_tree, tvb, offset, 1, "%s DSCP/TOS overwrite",
-	    decode_boolean_bitfield(gs_flags, 1 << 1, 8,
-		    "Enable", "Disable"));
+                         decode_boolean_bitfield(gs_flags, 1 << 1, 8,
+                                                 "Enable", "Disable"));
      offset += 1;
 
      /* DiffServ Code Point */
@@ -3237,7 +3233,7 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 
     /* Create a subtree */
     stt = info_to_cops_subtree(tvb,st,n,offset,
-	extended ? "Extended Classifier" : "Classifier");
+                               extended ? "Extended Classifier" : "Classifier");
     offset += 4;
 
     /* Protocol ID */
@@ -3257,9 +3253,9 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
     offset += 4;
 
     if (extended) {
-	/* Source Mask */
-	info_to_display(tvb,stt,offset,4,"Source Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_src_mask);
-	offset += 4;
+        /* Source Mask */
+        info_to_display(tvb,stt,offset,4,"Source Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_src_mask);
+        offset += 4;
     }
 
     /* Destination IP Address */
@@ -3267,9 +3263,9 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
     offset += 4;
 
     if (extended) {
-	/* Destination Mask */
-	info_to_display(tvb,stt,offset,4,"Destination Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_dst_mask);
-	offset += 4;
+        /* Destination Mask */
+        info_to_display(tvb,stt,offset,4,"Destination Mask",NULL,FMT_IPv4,&hf_cops_pcmm_classifier_dst_mask);
+        offset += 4;
     }
 
     /* Source IP Port */
@@ -3277,9 +3273,9 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
     offset += 2;
 
     if (extended) {
-	/* Source Port End */
-	info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
-	offset += 2;
+        /* Source Port End */
+        info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
+        offset += 2;
     }
 
     /* Destination IP Port */
@@ -3287,15 +3283,15 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
     offset += 2;
 
     if (extended) {
-	/* Destination Port End */
-	info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
-	offset += 2;
+        /* Destination Port End */
+        info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
+        offset += 2;
     }
 
     if (extended) {
-	/* ClassifierID */
-	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
-	offset += 2;
+        /* ClassifierID */
+        info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
+        offset += 2;
     }
 
     /* Priority */
@@ -3303,13 +3299,13 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
     offset += 1;
 
     if (extended) {
-	/* Activation State */
-	info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
-	offset += 1;
+        /* Activation State */
+        info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
+        offset += 1;
 
-	/* Action */
-	info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
-	offset += 1;
+        /* Action */
+        info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
+        offset += 1;
     }
 
     /* 3 octets Not specified */
@@ -3370,33 +3366,33 @@ cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
     info_to_display(tvb,stt,offset,2,"Source Port Start",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port);
     offset += 2;
 
-	/* Source Port End */
-	info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
-	offset += 2;
+    /* Source Port End */
+    info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
+    offset += 2;
 
     /* Destination IP Port */
     info_to_display(tvb,stt,offset,2,"Destination Port Start",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port);
     offset += 2;
 
-	/* Destination Port End */
-	info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
-	offset += 2;
+    /* Destination Port End */
+    info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
+    offset += 2;
 
-	/* ClassifierID */
-	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
-	offset += 2;
+    /* ClassifierID */
+    info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
+    offset += 2;
 
     /* Priority */
     info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
     offset += 1;
 
-	/* Activation State */
-	info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
-	offset += 1;
+    /* Activation State */
+    info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
+    offset += 1;
 
-	/* Action */
-	info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
-	offset += 1;
+    /* Action */
+    info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
+    offset += 1;
 
     /* 3 octets Not specified */
     offset += 3;
@@ -3528,25 +3524,25 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 static void
 cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
 
-     proto_tree *stt;
+    proto_tree *stt;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,object_len,offset,"DOCSIS Service Class Name");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,object_len,offset,"DOCSIS Service Class Name");
+    offset += 4;
 
-     /* Envelope */
-     info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
-     offset += 1;
+    /* Envelope */
+    info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
+    offset += 1;
 
-     proto_tree_add_text(stt, tvb, offset, 3, "Reserved");
-     offset += 3;
+    proto_tree_add_text(stt, tvb, offset, 3, "Reserved");
+    offset += 3;
 
-     if (object_len >= 12) {
-	    proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, FALSE);
-	    offset += object_len - 8;
-     } else {
-	    proto_tree_add_text(stt, tvb, offset - 8, 2, "Invalid object length: %u", object_len);
-     }
+    if (object_len >= 12) {
+        proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, FALSE);
+        offset += object_len - 8;
+    } else {
+        proto_tree_add_text(stt, tvb, offset - 8, 2, "Invalid object length: %u", object_len);
+    }
 }
 
 /* New functions were made with the i04 suffix to maintain backward compatibility with I03
@@ -4394,194 +4390,194 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
 /* Cops - Section : Downstream Service */
 static void
 cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
-     proto_item *ti;
-     proto_tree *stt, *object_tree;
+    proto_item *ti;
+    proto_tree *stt, *object_tree;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"Downstream Service");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,"Downstream Service");
+    offset += 4;
 
-     /* Envelope */
-     info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
-     offset += 1;
+    /* Envelope */
+    info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
+    offset += 1;
 
-     proto_tree_add_text(stt, tvb, offset, 3, "Reserved");
-     offset += 3;
+    proto_tree_add_text(stt, tvb, offset, 3, "Reserved");
+    offset += 3;
 
-     /* Authorized Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
-     object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
+    /* Authorized Envelope */
+    ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Authorized Envelope");
+    object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
-     /* Traffic Priority */
-     info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
-     offset += 1;
+    /* Traffic Priority */
+    info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
+    offset += 1;
 
-     /* Downstream Resequencing */
-     info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
-     offset += 1;
+    /* Downstream Resequencing */
+    info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
+    offset += 1;
 
-     proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
-     offset += 2;
+    proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
+    offset += 2;
 
-     /* Maximum Sustained Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
-     offset += 4;
+    /* Maximum Sustained Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
+    offset += 4;
 
-     /* Maximum Traffic Burst */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
-     offset += 4;
+    /* Maximum Traffic Burst */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
+    offset += 4;
 
-     /* Minimum Reserved Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
-     offset += 4;
+    /* Minimum Reserved Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
+    offset += 4;
 
-     /* Assumed Minimum Reserved Traffic Rate Packet Size */
-     info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
-     offset += 2;
+    /* Assumed Minimum Reserved Traffic Rate Packet Size */
+    info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
+    offset += 2;
 
-     /* Reserved */
-     info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
-     offset += 2;
+    /* Reserved */
+    info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
+    offset += 2;
 
-     /* Maximum Downstream Latency */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
-     offset += 4;
+    /* Maximum Downstream Latency */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
+    offset += 4;
 
-     /* Downstream Peak Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-     offset += 4;
+    /* Downstream Peak Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+    offset += 4;
 
-     /* Required Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-     offset += 4;
+    /* Required Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+    offset += 4;
 
-     /* Forbidden Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-     offset += 4;
+    /* Forbidden Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+    offset += 4;
 
-     if (i05) {
-       /* Attribute Aggregation Rule Mask */
-       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
-       offset += 4;
-     }
+    if (i05) {
+        /* Attribute Aggregation Rule Mask */
+        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+        offset += 4;
+    }
 
-     if (n < 56) return;
+    if (n < 56) return;
 
-     /* Reserved Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
-     object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
+    /* Reserved Envelope */
+    ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
+    object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
-     /* Traffic Priority */
-     info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
-     offset += 1;
+    /* Traffic Priority */
+    info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
+    offset += 1;
 
-     /* Downstream Resequencing */
-	 info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
-	 offset += 1;
+    /* Downstream Resequencing */
+    info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
+    offset += 1;
 
-     proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
-     offset += 2;
+    proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
+    offset += 2;
 
-     /* Maximum Sustained Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
-     offset += 4;
+    /* Maximum Sustained Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
+    offset += 4;
 
-     /* Maximum Traffic Burst */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
-     offset += 4;
+    /* Maximum Traffic Burst */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
+    offset += 4;
 
-     /* Minimum Reserved Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
-     offset += 4;
+    /* Minimum Reserved Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
+    offset += 4;
 
-     /* Assumed Minimum Reserved Traffic Rate Packet Size */
-     info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
-     offset += 2;
+    /* Assumed Minimum Reserved Traffic Rate Packet Size */
+    info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
+    offset += 2;
 
-     /* Reserved */
-     info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
-     offset += 2;
+    /* Reserved */
+    info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
+    offset += 2;
 
-     /* Maximum Downstream Latency */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
-     offset += 4;
+    /* Maximum Downstream Latency */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
+    offset += 4;
 
-     /* Downstream Peak Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-     offset += 4;
+    /* Downstream Peak Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+    offset += 4;
 
-     /* Required Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-     offset += 4;
+    /* Required Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+    offset += 4;
 
-     /* Forbidden Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-     offset += 4;
+    /* Forbidden Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+    offset += 4;
 
-     if (i05) {
-       /* Attribute Aggregation Rule Mask */
-       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
-       offset += 4;
-     }
+    if (i05) {
+        /* Attribute Aggregation Rule Mask */
+        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+        offset += 4;
+    }
 
-     if (n < 80) return;
+    if (n < 80) return;
 
-     /* Committed Envelope */
-     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
-     object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
+    /* Committed Envelope */
+    ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
+    object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
 
-     /* Traffic Priority */
-     info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
-     offset += 1;
+    /* Traffic Priority */
+    info_to_display(tvb,object_tree,offset,1,"Traffic Priority",NULL,FMT_HEX,&hf_cops_pcmm_traffic_priority);
+    offset += 1;
 
-     /* Downstream Resequencing */
-	 info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
-	 offset += 1;
+    /* Downstream Resequencing */
+    info_to_display(tvb,object_tree,offset,1,"Downstream Resequencing",NULL,FMT_HEX,&hf_cops_pcmm_down_resequencing);
+    offset += 1;
 
-     proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
-     offset += 2;
+    proto_tree_add_text(object_tree, tvb, offset, 2, "Reserved");
+    offset += 2;
 
-     /* Maximum Sustained Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
-     offset += 4;
+    /* Maximum Sustained Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Sustained Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_max_sustained_traffic_rate);
+    offset += 4;
 
-     /* Maximum Traffic Burst */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
-     offset += 4;
+    /* Maximum Traffic Burst */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Traffic Burst",NULL,FMT_DEC,&hf_cops_pcmm_max_traffic_burst);
+    offset += 4;
 
-     /* Minimum Reserved Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
-     offset += 4;
+    /* Minimum Reserved Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Minimum Reserved Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_min_reserved_traffic_rate);
+    offset += 4;
 
-     /* Assumed Minimum Reserved Traffic Rate Packet Size */
-     info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
-     offset += 2;
+    /* Assumed Minimum Reserved Traffic Rate Packet Size */
+    info_to_display(tvb,object_tree,offset,2,"Assumed Minimum Reserved Traffic Rate Packet Size",NULL,FMT_DEC,&hf_cops_pcmm_ass_min_rtr_packet_size);
+    offset += 2;
 
-     /* Reserved */
-     info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
-     offset += 2;
+    /* Reserved */
+    info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
+    offset += 2;
 
-     /* Maximum Downstream Latency */
-     info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
-     offset += 4;
+    /* Maximum Downstream Latency */
+    info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
+    offset += 4;
 
-     /* Downstream Peak Traffic Rate */
-     info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
-     offset += 4;
+    /* Downstream Peak Traffic Rate */
+    info_to_display(tvb,object_tree,offset,4,"Downstream Peak Traffic Rate",NULL,FMT_DEC,&hf_cops_pcmm_down_peak_traffic_rate);
+    offset += 4;
 
-     /* Required Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
-     offset += 4;
+    /* Required Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Required Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_req_att_mask);
+    offset += 4;
 
-     /* Forbidden Attribute Mask */
-     info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
-     offset += 4;
+    /* Forbidden Attribute Mask */
+    info_to_display(tvb,object_tree,offset,4,"Forbidden Attribute Mask",NULL,FMT_DEC,&hf_cops_pcmm_forbid_att_mask);
+    offset += 4;
 
-     if (i05) {
-       /* Attribute Aggregation Rule Mask */
-       info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
-       offset += 4;
-     }
+    if (i05) {
+        /* Attribute Aggregation Rule Mask */
+        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
+        offset += 4;
+    }
 }
 
 /* Cops - Section : Upstream Drop */
@@ -5413,15 +5409,15 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
 static void
 cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
 
-     proto_tree *stt;
+    proto_tree *stt;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,object_len,offset,"Volume-Based Usage Limit");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,object_len,offset,"Volume-Based Usage Limit");
+    offset += 4;
 
-     /* Usage Limit */
-     proto_tree_add_item(stt, hf_cops_pcmm_volume_based_usage_limit, tvb, offset, 8,
-	    FALSE);
+    /* Usage Limit */
+    proto_tree_add_item(stt, hf_cops_pcmm_volume_based_usage_limit, tvb, offset, 8,
+                        FALSE);
 }
 
 /* Cops - Section : Time-Based Usage Limit */
@@ -5486,28 +5482,28 @@ cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 static void
 cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     proto_tree *stt;
-     guint16 code, subcode;
+    proto_tree *stt;
+    guint16 code, subcode;
 
-     /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Error");
-     offset += 4;
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Error");
+    offset += 4;
 
-     code = tvb_get_ntohs(tvb, offset);
-     proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_code, tvb, offset, 2, code,
-	    "Error Code: %s (%u)", val_to_str(code, pcmm_packetcable_error_code, "Unknown"),
-	    code);
-     offset += 2;
+    code = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_code, tvb, offset, 2, code,
+                               "Error Code: %s (%u)", val_to_str(code, pcmm_packetcable_error_code, "Unknown"),
+                               code);
+    offset += 2;
 
-     subcode = tvb_get_ntohs(tvb, offset);
-     if (code == 6 || code == 7)
-	    proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_subcode,
-		    tvb, offset, 2, code, "Error-Subcode: 0x%02x, S-Num: 0x%02x, S-Type: 0x%02x",
-		    subcode, subcode >> 8, subcode & 0xf);
-     else
-	    proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_subcode,
-		    tvb, offset, 2, code, "Error-Subcode: 0x%04x", subcode);
-     offset += 2;
+    subcode = tvb_get_ntohs(tvb, offset);
+    if (code == 6 || code == 7)
+        proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_subcode,
+                                   tvb, offset, 2, code, "Error-Subcode: 0x%02x, S-Num: 0x%02x, S-Type: 0x%02x",
+                                   subcode, subcode >> 8, subcode & 0xf);
+    else
+        proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_subcode,
+                                   tvb, offset, 2, code, "Error-Subcode: 0x%04x", subcode);
+    offset += 2;
 }
 
 /* Cops - Section : Gate State */
@@ -5652,102 +5648,102 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     /* Only if this option is enabled by the Gui */
     if ( cops_packetcable == FALSE ) {
-       return;
+        return;
     }
 
     /* Do the remaining client specific objects */
     remdata = tvb_length_remaining(tvb, offset);
     while (remdata > 4) {
 
-       /* In case we have remaining data, then lets try to get this analyzed */
-       object_len   = tvb_get_ntohs(tvb, offset);
-       if (object_len < 4) {
-	proto_tree_add_text(tree, tvb, offset, 2,
-	    "Incorrect PacketCable object length %u < 4", object_len);
-	return;
-       }
+        /* In case we have remaining data, then lets try to get this analyzed */
+        object_len   = tvb_get_ntohs(tvb, offset);
+        if (object_len < 4) {
+            proto_tree_add_text(tree, tvb, offset, 2,
+                                "Incorrect PacketCable object length %u < 4", object_len);
+            return;
+        }
 
-       s_num        = tvb_get_guint8(tvb, offset + 2);
-       s_type       = tvb_get_guint8(tvb, offset + 3);
+        s_num        = tvb_get_guint8(tvb, offset + 2);
+        s_type       = tvb_get_guint8(tvb, offset + 3);
 
-       /* Glom the s_num and s_type together to make switching easier */
-       num_type_glob = s_num << 8 | s_type;
+        /* Glom the s_num and s_type together to make switching easier */
+        num_type_glob = s_num << 8 | s_type;
 
-       /* Perform the appropriate functions */
-       switch (num_type_glob){
+        /* Perform the appropriate functions */
+        switch (num_type_glob){
         case PCDQ_TRANSACTION_ID:
-               cops_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
-               break;
+            cops_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
+            break;
         case PCDQ_SUBSCRIBER_IDv4:
-               cops_subscriber_id_v4(tvb, tree, object_len, offset);
-               break;
+            cops_subscriber_id_v4(tvb, tree, object_len, offset);
+            break;
         case PCDQ_SUBSCRIBER_IDv6:
-               cops_subscriber_id_v6(tvb, tree, object_len, offset);
-               break;
+            cops_subscriber_id_v6(tvb, tree, object_len, offset);
+            break;
         case PCDQ_GATE_ID:
-               cops_gate_id(tvb, tree, object_len, offset);
-               break;
+            cops_gate_id(tvb, tree, object_len, offset);
+            break;
         case PCDQ_ACTIVITY_COUNT:
-               cops_activity_count(tvb, tree, object_len, offset);
-               break;
+            cops_activity_count(tvb, tree, object_len, offset);
+            break;
         case PCDQ_GATE_SPEC:
-               cops_gate_specs(tvb, tree, object_len, offset);
-               break;
+            cops_gate_specs(tvb, tree, object_len, offset);
+            break;
         case PCDQ_REMOTE_GATE_INFO:
-               cops_remote_gate_info(tvb, tree, object_len, offset);
-               break;
+            cops_remote_gate_info(tvb, tree, object_len, offset);
+            break;
         case PCDQ_EVENT_GENERATION_INFO:
-               cops_event_generation_info(tvb, tree, object_len, offset);
-               break;
+            cops_event_generation_info(tvb, tree, object_len, offset);
+            break;
         case PCDQ_PACKETCABLE_ERROR:
-               cops_packetcable_error(tvb, tree, object_len, offset);
-               break;
+            cops_packetcable_error(tvb, tree, object_len, offset);
+            break;
         case PCDQ_ELECTRONIC_SURVEILLANCE:
-               cops_surveillance_parameters(tvb, tree, object_len, offset);
-               break;
+            cops_surveillance_parameters(tvb, tree, object_len, offset);
+            break;
         case PCDQ_PACKETCABLE_REASON:
-               cops_packetcable_reason(tvb, tree, object_len, offset);
-               break;
-       }
+            cops_packetcable_reason(tvb, tree, object_len, offset);
+            break;
+        }
 
-       /* Tune offset */
-       offset += object_len;
+        /* Tune offset */
+        offset += object_len;
 
-       /* See what we can still get from the buffer */
-       remdata = tvb_length_remaining(tvb, offset);
+        /* See what we can still get from the buffer */
+        remdata = tvb_length_remaining(tvb, offset);
     }
 }
 
 /* XXX - This duplicates code in the DOCSIS dissector. */
 static void
 decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_tree *tree, gint hf) {
-	proto_tree *drtp_tree;
-	proto_item *item;
-	guint32 policy = tvb_get_ntohl(tvb, offset);
-	int i;
-	char bit_fld[48];
-	static const value_string drtp_vals[] = {
-		{ 1 << 0, "The Service Flow MUST NOT use \"all CMs\" broadcast request opportunities" },
-		{ 1 << 1, "The Service Flow MUST NOT use Priority Request multicast request opportunities" },
-		{ 1 << 2, "The Service Flow MUST NOT use Request/Data opportunities for Requests" },
-		{ 1 << 3, "The Service Flow MUST NOT use Request/Data opportunities for Data" },
-		{ 1 << 4, "The Service Flow MUST NOT piggyback requests with data" },
-		{ 1 << 5, "The Service Flow MUST NOT concatenate data" },
-		{ 1 << 6, "The Service Flow MUST NOT fragment data" },
-		{ 1 << 7, "The Service Flow MUST NOT suppress payload headers" },
-		{ 1 << 8, "The Service Flow MUST drop packets that do not fit in the Unsolicited Grant Size" },
-		{ 0, NULL }
-	};
+    proto_tree *drtp_tree;
+    proto_item *item;
+    guint32 policy = tvb_get_ntohl(tvb, offset);
+    int i;
+    char bit_fld[48];
+    static const value_string drtp_vals[] = {
+        { 1 << 0, "The Service Flow MUST NOT use \"all CMs\" broadcast request opportunities" },
+        { 1 << 1, "The Service Flow MUST NOT use Priority Request multicast request opportunities" },
+        { 1 << 2, "The Service Flow MUST NOT use Request/Data opportunities for Requests" },
+        { 1 << 3, "The Service Flow MUST NOT use Request/Data opportunities for Data" },
+        { 1 << 4, "The Service Flow MUST NOT piggyback requests with data" },
+        { 1 << 5, "The Service Flow MUST NOT concatenate data" },
+        { 1 << 6, "The Service Flow MUST NOT fragment data" },
+        { 1 << 7, "The Service Flow MUST NOT suppress payload headers" },
+        { 1 << 8, "The Service Flow MUST drop packets that do not fit in the Unsolicited Grant Size" },
+        { 0, NULL }
+    };
 
-	item = proto_tree_add_item (tree, hf, tvb, offset, 4, FALSE);
-	drtp_tree = proto_item_add_subtree(item, ett_docsis_request_transmission_policy);
-	for (i = 0 ; i <= 8; i++) {
-		if (policy & drtp_vals[i].value) {
-			decode_bitfield_value(bit_fld, policy, drtp_vals[i].value, 32);
-			proto_tree_add_text(drtp_tree, tvb, offset, 4, "%s%s",
-				bit_fld, drtp_vals[i].strptr);
-		}
-	}
+    item = proto_tree_add_item (tree, hf, tvb, offset, 4, FALSE);
+    drtp_tree = proto_item_add_subtree(item, ett_docsis_request_transmission_policy);
+    for (i = 0 ; i <= 8; i++) {
+        if (policy & drtp_vals[i].value) {
+            decode_bitfield_value(bit_fld, policy, drtp_vals[i].value, 32);
+            proto_tree_add_text(drtp_tree, tvb, offset, 4, "%s%s",
+                                bit_fld, drtp_vals[i].strptr);
+        }
+    }
 }
 
 
@@ -5794,159 +5790,159 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* Only if this option is enabled by the Gui */
     if ( cops_packetcable == FALSE ) {
-       return;
+        return;
     }
 
     /* Do the remaining client specific objects */
     while (tvb_reported_length_remaining(tvb, offset) > 4) {
 
-       /* In case we have remaining data, then lets try to get this analyzed */
-       object_len   = tvb_get_ntohs(tvb, offset);
-       if (object_len < 4) {
-	proto_tree_add_text(tree, tvb, offset, 2,
-	    "Incorrect PacketCable object length %u < 4", object_len);
-	return;
-       }
+        /* In case we have remaining data, then lets try to get this analyzed */
+        object_len   = tvb_get_ntohs(tvb, offset);
+        if (object_len < 4) {
+            proto_tree_add_text(tree, tvb, offset, 2,
+                                "Incorrect PacketCable object length %u < 4", object_len);
+            return;
+        }
 
-       s_num        = tvb_get_guint8(tvb, offset + 2);
-       s_type       = tvb_get_guint8(tvb, offset + 3);
+        s_num        = tvb_get_guint8(tvb, offset + 2);
+        s_type       = tvb_get_guint8(tvb, offset + 3);
 
-       /* Glom the s_num and s_type together to make switching easier */
-       num_type_glob = s_num << 8 | s_type;
+        /* Glom the s_num and s_type together to make switching easier */
+        num_type_glob = s_num << 8 | s_type;
 
-       /* Perform the appropriate functions */
-       switch (num_type_glob){
+        /* Perform the appropriate functions */
+        switch (num_type_glob){
         case PCMM_TRANSACTION_ID:
-               cops_mm_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
-               break;
+            cops_mm_transaction_id(tvb, pinfo, tree, op_code, object_len, offset);
+            break;
         case PCMM_AMID:
-               cops_amid(tvb, tree, object_len, offset);
-               break;
+            cops_amid(tvb, tree, object_len, offset);
+            break;
         case PCMM_SUBSCRIBER_ID:
-               cops_subscriber_id_v4(tvb, tree, object_len, offset);
-               break;
+            cops_subscriber_id_v4(tvb, tree, object_len, offset);
+            break;
         case PCMM_SUBSCRIBER_ID_V6:
-               cops_subscriber_id_v6(tvb, tree, object_len, offset);
-               break;
+            cops_subscriber_id_v6(tvb, tree, object_len, offset);
+            break;
         case PCMM_GATE_ID:
-               cops_gate_id(tvb, tree, object_len, offset);
-               break;
+            cops_gate_id(tvb, tree, object_len, offset);
+            break;
         case PCMM_GATE_SPEC:
-               cops_mm_gate_spec(tvb, tree, object_len, offset);
-               break;
+            cops_mm_gate_spec(tvb, tree, object_len, offset);
+            break;
         case PCMM_CLASSIFIER:
-               cops_classifier(tvb, tree, object_len, offset, FALSE);
-               break;
+            cops_classifier(tvb, tree, object_len, offset, FALSE);
+            break;
         case PCMM_EXTENDED_CLASSIFIER:
-               cops_classifier(tvb, tree, object_len, offset, TRUE);
-               break;
+            cops_classifier(tvb, tree, object_len, offset, TRUE);
+            break;
         case PCMM_IPV6_CLASSIFIER:
-        	   cops_ipv6_classifier(tvb, tree, object_len, offset);
-			   break;
+            cops_ipv6_classifier(tvb, tree, object_len, offset);
+            break;
         case PCMM_FLOW_SPEC:
-               cops_flow_spec(tvb, tree, object_len, offset);
-               break;
+            cops_flow_spec(tvb, tree, object_len, offset);
+            break;
         case PCMM_DOCSIS_SERVICE_CLASS_NAME:
-               cops_docsis_service_class_name(tvb, tree, object_len, offset);
-               break;
+            cops_docsis_service_class_name(tvb, tree, object_len, offset);
+            break;
         case PCMM_BEST_EFFORT_SERVICE:
-		       if (object_len == 44 || object_len == 80 || object_len == 116)
-			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, TRUE);
-		       else if (object_len == 40 || object_len == 72 || object_len == 104)
-			   cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, FALSE);
-		       else
-		    	   cops_best_effort_service(tvb, tree, object_len, offset);
-		       break;
+            if (object_len == 44 || object_len == 80 || object_len == 116)
+                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 40 || object_len == 72 || object_len == 104)
+                cops_best_effort_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_best_effort_service(tvb, tree, object_len, offset);
+            break;
         case PCMM_NON_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 48 || object_len == 88 || object_len == 128)
-			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
-        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
-			   cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
-        	   else
-        		   cops_non_real_time_polling_service(tvb, tree, object_len, offset);
-               break;
+            if (object_len == 48 || object_len == 88 || object_len == 128)
+                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 44 || object_len == 80 || object_len == 116)
+                cops_non_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_non_real_time_polling_service(tvb, tree, object_len, offset);
+            break;
         case PCMM_REAL_TIME_POLLING_SERVICE:
-        	   if (object_len == 48 || object_len == 88 || object_len == 128)
-			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
-        	   else if (object_len == 44 || object_len == 80 || object_len == 116)
-			   cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
-        	   else
-        		   cops_real_time_polling_service(tvb, tree, object_len, offset);
-               break;
+            if (object_len == 48 || object_len == 88 || object_len == 128)
+                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 44 || object_len == 80 || object_len == 116)
+                cops_real_time_polling_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_real_time_polling_service(tvb, tree, object_len, offset);
+            break;
         case PCMM_UNSOLICITED_GRANT_SERVICE:
-        	   if (object_len == 36 || object_len == 64 || object_len == 92)
-			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, TRUE);
-        	   else if (object_len == 32 || object_len == 56 || object_len == 80)
-			  cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, FALSE);
-        	   else
-        		   cops_unsolicited_grant_service(tvb, tree, object_len, offset);
-        	   break;
+            if (object_len == 36 || object_len == 64 || object_len == 92)
+                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 32 || object_len == 56 || object_len == 80)
+                cops_unsolicited_grant_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_unsolicited_grant_service(tvb, tree, object_len, offset);
+            break;
         case PCMM_UGS_WITH_ACTIVITY_DETECTION:
-        	   if (object_len == 44 || object_len == 80 || object_len == 116)
-			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, TRUE);
-        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
-			  cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, FALSE);
-        	   else
-        		   cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
-        	   break;
+            if (object_len == 44 || object_len == 80 || object_len == 116)
+                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 40 || object_len == 72 || object_len == 104)
+                cops_ugs_with_activity_detection_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_ugs_with_activity_detection(tvb, tree, object_len, offset);
+            break;
         case PCMM_DOWNSTREAM_SERVICE:
-        	   if (object_len == 48 || object_len == 88 || object_len == 128)
-			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
-        	   else if (object_len == 40 || object_len == 72 || object_len == 104)
-			   cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
-        	   else
-        		   cops_downstream_service(tvb, tree, object_len, offset);
-        	   break;
+            if (object_len == 48 || object_len == 88 || object_len == 128)
+                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, TRUE);
+            else if (object_len == 40 || object_len == 72 || object_len == 104)
+                cops_downstream_service_i04_i05(tvb, tree, object_len, offset, FALSE);
+            else
+                cops_downstream_service(tvb, tree, object_len, offset);
+            break;
         case PCMM_UPSTREAM_DROP:
-        	   cops_upstream_drop_i04(tvb, tree, object_len, offset);
-        	   break;
+            cops_upstream_drop_i04(tvb, tree, object_len, offset);
+            break;
         case PCMM_EVENT_GENERATION_INFO:
-               cops_mm_event_generation_info(tvb, tree, object_len, offset);
-               break;
+            cops_mm_event_generation_info(tvb, tree, object_len, offset);
+            break;
         case PCMM_VOLUME_BASED_USAGE_LIMIT:
-               cops_volume_based_usage_limit(tvb, tree, object_len, offset);
-               break;
+            cops_volume_based_usage_limit(tvb, tree, object_len, offset);
+            break;
         case PCMM_TIME_BASED_USAGE_LIMIT:
-               cops_time_based_usage_limit(tvb, tree, object_len, offset);
-               break;
+            cops_time_based_usage_limit(tvb, tree, object_len, offset);
+            break;
         case PCMM_OPAQUE_DATA:
-               cops_opaque_data(tvb, tree, object_len, offset);
-               break;
+            cops_opaque_data(tvb, tree, object_len, offset);
+            break;
         case PCMM_GATE_TIME_INFO:
-               cops_gate_time_info(tvb, tree, object_len, offset);
-               break;
+            cops_gate_time_info(tvb, tree, object_len, offset);
+            break;
         case PCMM_GATE_USAGE_INFO:
-               cops_gate_usage_info(tvb, tree, object_len, offset);
-               break;
+            cops_gate_usage_info(tvb, tree, object_len, offset);
+            break;
         case PCMM_PACKETCABLE_ERROR:
-               cops_packetcable_mm_error(tvb, tree, object_len, offset);
-               break;
+            cops_packetcable_mm_error(tvb, tree, object_len, offset);
+            break;
         case PCMM_GATE_STATE:
-               cops_gate_state(tvb, tree, object_len, offset);
-               break;
+            cops_gate_state(tvb, tree, object_len, offset);
+            break;
         case PCMM_VERSION_INFO:
-               cops_version_info(tvb, tree, object_len, offset);
-               break;
+            cops_version_info(tvb, tree, object_len, offset);
+            break;
         case PCMM_PSID:
-               cops_psid(tvb, tree, object_len, offset);
-               break;
+            cops_psid(tvb, tree, object_len, offset);
+            break;
         case PCMM_SYNCH_OPTIONS:
-               cops_synch_options(tvb, tree, object_len, offset);
-               break;
+            cops_synch_options(tvb, tree, object_len, offset);
+            break;
         case PCMM_MSG_RECEIPT_KEY:
-               cops_msg_receipt_key(tvb, tree, object_len, offset);
-               break;
+            cops_msg_receipt_key(tvb, tree, object_len, offset);
+            break;
         case PCMM_USERID:
-               cops_userid(tvb, tree, object_len, offset);
-               break;
+            cops_userid(tvb, tree, object_len, offset);
+            break;
         case PCMM_SHAREDRESOURCEID:
-               cops_sharedresourceid(tvb, tree, object_len, offset);
-               break;
+            cops_sharedresourceid(tvb, tree, object_len, offset);
+            break;
 
-       }
+        }
 
-       /* Tune offset */
-       offset += object_len;
+        /* Tune offset */
+        offset += object_len;
     }
 }
 
