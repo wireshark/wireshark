@@ -415,7 +415,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
 gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 		      union wtap_pseudo_header *pseudo_header,
 		      guchar *pd, int length,
-		      int *err, gchar **err_info _U_);
+		      int *err, gchar **err_info);
 void nstrace_close(wtap *wth);
 void nstrace_sequential_close(wtap *wth);
 
@@ -483,7 +483,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 	if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
 	{
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		g_free(nstrace_buf);
 		return 0;
 	}
@@ -491,7 +491,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(nstrace_buf, page_size, wth->fh);
 	if (bytes_read != page_size)
 	{
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		g_free(nstrace_buf);
 		return 0;
 	}
@@ -518,7 +518,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		/* Reset the read pointer to start of the file. */
 		if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
 		{
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			g_free(nstrace->pnstrace_buf);
 			g_free(nstrace);
 			return 0;
@@ -528,7 +528,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 		bytes_read = file_read(nstrace_buf, page_size, wth->fh);
 		if (bytes_read != page_size)
 		{
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			g_free(nstrace->pnstrace_buf);
 			g_free(nstrace);
 			return 0;
@@ -953,7 +953,7 @@ gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset
 
 gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int bytes_read;
 
@@ -966,8 +966,12 @@ gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 	** Read the packet data.
 	*/
 	bytes_read = file_read(pd, length, wth->random_fh);
-	if (bytes_read != length)
+	if (bytes_read != length) {
+		*err = file_error(wth->random_fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
+	}
 
 	if (wth->file_type == WTAP_FILE_NETSCALER_1_0)
 	{

@@ -305,25 +305,25 @@ extern gint wtap_num_file_types;
 	}
 #endif
 
-#define wtap_file_read_unknown_bytes(target, num_bytes, fh, err) \
+#define wtap_file_read_unknown_bytes(target, num_bytes, fh, err, err_info) \
 	G_STMT_START \
 	{ \
 		int _bytes_read; \
 		_bytes_read = file_read((target), (num_bytes), (fh)); \
 		if (_bytes_read != (int) (num_bytes)) { \
-			*(err) = file_error((fh)); \
+			*(err) = file_error((fh), (err_info)); \
 			return FALSE; \
 		} \
 	} \
 	G_STMT_END
 
-#define wtap_file_read_expected_bytes(target, num_bytes, fh, err) \
+#define wtap_file_read_expected_bytes(target, num_bytes, fh, err, err_info) \
 	G_STMT_START \
 	{ \
 		int _bytes_read; \
 		_bytes_read = file_read((target), (num_bytes), (fh)); \
 		if (_bytes_read != (int) (num_bytes)) { \
-			*(err) = file_error((fh)); \
+			*(err) = file_error((fh), (err_info)); \
 			if (*(err) == 0 && _bytes_read > 0) { \
 				*(err) = WTAP_ERR_SHORT_READ; \
 			} \

@@ -2766,29 +2766,34 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      cmdarg_err("\"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
+      cmdarg_err("The file \"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
                  cf->filename, err_info);
       g_free(err_info);
       break;
 
     case WTAP_ERR_CANT_READ:
-      cmdarg_err("An attempt to read from \"%s\" failed for some unknown reason.",
+      cmdarg_err("An attempt to read from the file \"%s\" failed for some unknown reason.",
                  cf->filename);
       break;
 
     case WTAP_ERR_SHORT_READ:
-      cmdarg_err("\"%s\" appears to have been cut short in the middle of a packet.",
+      cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
                  cf->filename);
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      cmdarg_err("\"%s\" appears to be damaged or corrupt.\n(%s)",
+      cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
                  cf->filename, err_info);
       g_free(err_info);
       break;
 
+    case WTAP_ERR_DECOMPRESS:
+      cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n"
+                 "(%s)", cf->filename, err_info);
+      break;
+
     default:
-      cmdarg_err("An error occurred while reading \"%s\": %s.",
+      cmdarg_err("An error occurred while reading the file \"%s\": %s.",
                  cf->filename, wtap_strerror(err));
       break;
     }
@@ -3530,6 +3535,15 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_SHORT_WRITE:
       errmsg = "A full header couldn't be written to the file \"%s\".";
+      break;
+
+    case WTAP_ERR_DECOMPRESS:
+      /* Seen only when opening a capture file for reading. */
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
+                 "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
       break;
 
     default:

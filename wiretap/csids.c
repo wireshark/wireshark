@@ -61,7 +61,7 @@ typedef struct {
 } csids_t;
 
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
-int csids_open(wtap *wth, int *err, gchar **err_info _U_)
+int csids_open(wtap *wth, int *err, gchar **err_info)
 {
   /* There is no file header. There is only a header for each packet
    * so we read a packet header and compare the caplen with iplen. They
@@ -80,7 +80,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
   /* check the file to make sure it is a csids file. */
   bytesRead = file_read( &hdr, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( wth->fh );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 ) {
       return -1;
     } else {
@@ -94,7 +94,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
   hdr.caplen = pntohs( &hdr.caplen );
   bytesRead = file_read( &tmp, 2, wth->fh );
   if( bytesRead != 2 ) {
-    *err = file_error( wth->fh );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 ) {
       return -1;
     } else {
@@ -103,7 +103,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
   }
   bytesRead = file_read( &iplen, 2, wth->fh );
   if( bytesRead != 2 ) {
-    *err = file_error( wth->fh );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 ) {
       return -1;
     } else {
@@ -151,7 +151,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
   csids_t *csids = (csids_t *)wth->priv;
@@ -163,7 +163,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
 
   bytesRead = file_read( &hdr, sizeof( struct csids_header) , wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( wth->fh );
+    *err = file_error( wth->fh, err_info );
     if (*err == 0 && bytesRead != 0)
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
@@ -179,7 +179,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
 
   bytesRead = file_read( buf, hdr.caplen, wth->fh );
   if( bytesRead != hdr.caplen ) {
-    *err = file_error( wth->fh );
+    *err = file_error( wth->fh, err_info );
     if (*err == 0)
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
@@ -220,7 +220,7 @@ csids_seek_read (wtap *wth,
 
   bytesRead = file_read( &hdr, sizeof( struct csids_header), wth->random_fh );
   if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( wth->random_fh );
+    *err = file_error( wth->random_fh, err_info );
     if( *err == 0 ) {
       *err = WTAP_ERR_SHORT_READ;
     }
@@ -238,7 +238,7 @@ csids_seek_read (wtap *wth,
 
   bytesRead = file_read( pd, hdr.caplen, wth->random_fh );
   if( bytesRead != hdr.caplen ) {
-    *err = file_error( wth->random_fh );
+    *err = file_error( wth->random_fh, err_info );
     if( *err == 0 ) {
       *err = WTAP_ERR_SHORT_READ;
     }

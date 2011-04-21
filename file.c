@@ -742,6 +742,14 @@ cf_read(capture_file *cf, gboolean from_save)
       errmsg = errmsg_errno;
       break;
 
+    case WTAP_ERR_DECOMPRESS:
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The compressed capture file appears to be damaged or corrupt.\n"
+                 "(%s)", err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
+      break;
+
     default:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "An error occurred while reading the"
@@ -1444,6 +1452,14 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
            "The capture file %%s appears to be damaged or corrupt.\n(%s)",
            err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
+      break;
+
+    case WTAP_ERR_DECOMPRESS:
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The compressed capture file %%s appears to be damaged or corrupt.\n"
+                 "(%s)", err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
@@ -3908,6 +3924,13 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Gzip compression not supported by this file type.");
+      break;
+
+    case WTAP_ERR_DECOMPRESS:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "The compressed file \"%s\" appears to be damaged or corrupt.\n"
+            "(%s)", filename, err_info);
+      g_free(err_info);
       break;
 
     default:

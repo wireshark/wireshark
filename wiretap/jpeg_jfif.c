@@ -83,7 +83,7 @@ jpeg_jfif_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err);
+	wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err, err_info);
 
 	wth->data_offset += packet_size;
 
@@ -116,7 +116,8 @@ jpeg_jfif_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err);
+	wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err,
+	    err_info);
 
 	*err = 0;
 	*err_info = NULL;
@@ -133,7 +134,7 @@ jpeg_jfif_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic_buf, sizeof(magic_buf), wth->fh);
 	if (bytes_read != (int) sizeof(magic_buf)) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0) {
 			*err_info = NULL;
 			ret = -1;

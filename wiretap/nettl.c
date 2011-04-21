@@ -188,11 +188,11 @@ static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err, gchar **err_info, gboolean *fddihack);
 static gboolean nettl_read_rec_data(FILE_T fh, guchar *pd, int length,
-		int *err, gboolean fddihack);
+		int *err, gchar **err_info, gboolean fddihack);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
-int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
+int nettl_open(wtap *wth, int *err, gchar **err_info)
 {
     struct nettl_file_hdr file_hdr;
     guint16 dummy[2];
@@ -206,7 +206,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(file_hdr.magic, MAGIC_SIZE, wth->fh);
     if (bytes_read != MAGIC_SIZE) {
-    	*err = file_error(wth->fh);
+    	*err = file_error(wth->fh, err_info);
 	if (*err != 0)
 	    return -1;
 	return 0;
@@ -221,7 +221,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     bytes_read = file_read(file_hdr.file_name, FILE_HDR_SIZE - MAGIC_SIZE,
 			   wth->fh);
     if (bytes_read != FILE_HDR_SIZE - MAGIC_SIZE) {
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
 	if (*err != 0)
 	    return -1;
 	return 0;
@@ -338,7 +338,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
      */
     buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
     if (!nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-		wth->phdr.caplen, err, fddihack))
+		wth->phdr.caplen, err, err_info, fddihack))
 	return FALSE;	/* Read error */
     wth->data_offset += wth->phdr.caplen;
     return TRUE;
@@ -371,7 +371,8 @@ nettl_seek_read(wtap *wth, gint64 seek_off,
     /*
      * Read the packet data.
      */
-    return nettl_read_rec_data(wth->random_fh, pd, length, err, fddihack);
+    return nettl_read_rec_data(wth->random_fh, pd, length, err, err_info,
+        fddihack);
 }
 
 static int
@@ -393,7 +394,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&rec_hdr.hdr_len, sizeof rec_hdr.hdr_len, fh);
     if (bytes_read != sizeof rec_hdr.hdr_len) {
-	*err = file_error(fh);
+	*err = file_error(fh, err_info);
 	if (*err != 0)
 	    return -1;
 	if (bytes_read != 0) {
@@ -412,7 +413,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     }
     bytes_read = file_read(&rec_hdr.subsys, NETTL_REC_HDR_LEN - 2, fh);
     if (bytes_read != NETTL_REC_HDR_LEN - 2) {
-	*err = file_error(fh);
+	*err = file_error(fh, err_info);
 	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
 	return -1;
@@ -506,7 +507,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	            /* outbound appears to have variable padding */
 		    bytes_read = file_read(dummyc, 9, fh);
 		    if (bytes_read != 9) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0)
 			    *err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -559,7 +560,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
 	    bytes_read = file_read(&drv_eth_hdr, NS_LS_DRV_ETH_HDR_LEN, fh);
 	    if (bytes_read != NS_LS_DRV_ETH_HDR_LEN) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 		    *err = WTAP_ERR_SHORT_READ;
 		return -1;
@@ -649,7 +650,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddihack)
+nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+	gchar **err_info, gboolean fddihack)
 {
     int bytes_read;
     guchar *p=NULL;
@@ -679,7 +681,7 @@ nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gboolean fddiha
        bytes_read = file_read(pd, length, fh);
 
     if (bytes_read != length) {
-	*err = file_error(fh);
+	*err = file_error(fh, err_info);
 	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
 	return FALSE;

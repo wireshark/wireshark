@@ -95,9 +95,9 @@ static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
 	int *err, gchar **err_info);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
-	int *err);
+	int *err, gchar **err_info);
 static gboolean radcom_read_rec_data(FILE_T fh, guchar *pd, int length,
-	int *err);
+	int *err, gchar **err_info);
 
 int radcom_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -111,7 +111,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(r_magic, 8, wth->fh);
 	if (bytes_read != 8) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -133,7 +133,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(t_magic, 11, wth->fh);
 	if (bytes_read != 11) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -146,7 +146,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
             errno = WTAP_ERR_CANT_READ;
             bytes_read = file_read(t_magic, 11, wth->fh);
             if (bytes_read != 11) {
-                *err = file_error(wth->fh);
+                *err = file_error(wth->fh, err_info);
                 if (*err != 0)
                     return -1;
                 return 0;
@@ -160,7 +160,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&start_date, sizeof(struct frame_date),
                                wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -259,14 +259,14 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 
 read_error:
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
 	if (*err != 0)
 		return -1;
 	return 0;
 }
 
 /* Read the next packet */
-static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int	ret;
@@ -280,7 +280,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 
 	/* Read record header. */
 	*data_offset = wth->data_offset;
-	ret = radcom_read_rec_header(wth->fh, &hdr, err);
+	ret = radcom_read_rec_header(wth->fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
@@ -335,7 +335,8 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 		 * XXX - is this stuff a pseudo-header?
 		 * The direction appears to be in the "hdr.dce" field.
 		 */
-		if (!radcom_read_rec_data(wth->fh, phdr, sizeof phdr, err))
+		if (!radcom_read_rec_data(wth->fh, phdr, sizeof phdr, err,
+		    err_info))
 			return FALSE;	/* Read error */
 		wth->data_offset += 8;
 		length -= 8;
@@ -349,7 +350,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	if (!radcom_read_rec_data(wth->fh,
-	    buffer_start_ptr(wth->frame_buffer), length, err))
+	    buffer_start_ptr(wth->frame_buffer), length, err, err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
@@ -361,7 +362,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(&fcs, sizeof fcs, wth->fh);
 		if (bytes_read != sizeof fcs) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return FALSE;
@@ -375,7 +376,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 static gboolean
 radcom_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
@@ -385,7 +386,7 @@ radcom_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 
 	/* Read record header. */
-	ret = radcom_read_rec_header(wth->random_fh, &hdr, err);
+	ret = radcom_read_rec_header(wth->random_fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -412,7 +413,7 @@ radcom_seek_read(wtap *wth, gint64 seek_off,
 		 * The direction appears to be in the "hdr.dce" field.
 		 */
 		if (!radcom_read_rec_data(wth->random_fh, phdr, sizeof phdr,
-		    err))
+		    err, err_info))
 			return FALSE;	/* Read error */
 		break;
 	}
@@ -420,18 +421,19 @@ radcom_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return radcom_read_rec_data(wth->random_fh, pd, length, err);
+	return radcom_read_rec_data(wth->random_fh, pd, length, err, err_info);
 }
 
 static int
-radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err)
+radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(hdr, sizeof *hdr, fh);
 	if (bytes_read != sizeof *hdr) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err != 0)
 			return -1;
 		if (bytes_read != 0) {
@@ -444,7 +446,8 @@ radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err)
 }
 
 static gboolean
-radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -452,7 +455,7 @@ radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

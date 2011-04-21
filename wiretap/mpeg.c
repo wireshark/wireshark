@@ -75,15 +75,14 @@ mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 }
 
 static int 
-mpeg_read_header(wtap *wth, int *err, gchar **err_info _U_,
-		guint32 *n)
+mpeg_read_header(wtap *wth, int *err, gchar **err_info, guint32 *n)
 {
 	int bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(n, sizeof *n, wth->fh);
 	if (bytes_read != sizeof *n) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
@@ -95,7 +94,8 @@ mpeg_read_header(wtap *wth, int *err, gchar **err_info _U_,
 }
 
 static gboolean
-mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+		gchar **err_info)
 {
 	int	bytes_read;
 
@@ -103,7 +103,7 @@ mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -114,8 +114,7 @@ mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 #define SCRHZ 27000000
 
 static gboolean 
-mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
-		gint64 *data_offset)
+mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	guint32 n;
@@ -136,7 +135,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 
 		bytes_read = file_read(&stream, sizeof stream, wth->fh);
 		if (bytes_read != sizeof stream) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 
@@ -148,14 +147,14 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 
 			bytes_read = file_read(&pack1, sizeof pack1, wth->fh);
 			if (bytes_read != sizeof pack1) {
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
 			}
 			bytes_read = file_read(&pack0, sizeof pack0, wth->fh);
 			if (bytes_read != sizeof pack0) {
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
@@ -169,7 +168,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 					bytes_read = file_read(&stuffing,
 							sizeof stuffing, wth->fh);
 					if (bytes_read != sizeof stuffing) {
-						*err = file_error(wth->fh);
+						*err = file_error(wth->fh, err_info);
 						return FALSE;
 					}
 					stuffing &= 0x07;
@@ -198,7 +197,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 			guint16 length;
 			bytes_read = file_read(&length, sizeof length, wth->fh);
 			if (bytes_read != sizeof length) {
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 				if (*err == 0 && bytes_read != 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return FALSE;
@@ -230,7 +229,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!mpeg_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-				packet_size, err))
+				packet_size, err, err_info))
 		return FALSE;
 	wth->data_offset += packet_size;
 	wth->phdr.ts = ts;
@@ -242,11 +241,11 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 static gboolean
 mpeg_seek_read(wtap *wth, gint64 seek_off,
 		union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length,
-		int *err, gchar **err_info _U_)
+		int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	return mpeg_read_rec_data(wth->random_fh, pd, length, err);
+	return mpeg_read_rec_data(wth->random_fh, pd, length, err, err_info);
 }
 
 struct _mpeg_magic {
@@ -261,7 +260,7 @@ struct _mpeg_magic {
 };
 
 int 
-mpeg_open(wtap *wth, int *err, gchar **err_info _U_)
+mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic_buf[16];
@@ -271,7 +270,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic_buf, sizeof magic_buf, wth->fh);
 	if (bytes_read != (int) sizeof magic_buf) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;

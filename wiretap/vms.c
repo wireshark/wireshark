@@ -166,7 +166,7 @@ static long vms_seek_next_packet(wtap *wth, int *err)
     cur_off = file_tell(wth->fh);
     if (cur_off == -1) {
       /* Error */
-      *err = file_error(wth->fh);
+      *err = file_error(wth->fh, err_info);
       hdr = NULL;
       return -1;
     }
@@ -186,7 +186,7 @@ static long vms_seek_next_packet(wtap *wth, int *err)
 	   equivalent to "ferror()" in zlib, alas,
 	   so we don't have a wrapper to check for
 	   an error). */
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
       }
       break;
     }
@@ -200,12 +200,13 @@ static long vms_seek_next_packet(wtap *wth, int *err)
  * a VMS trace file.
  *
  * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value.
+ * if we get an I/O error, "*err" will be set to a non-zero value and
+ * "*err_info will be set to null or an additional error string.
  *
  * Leaves file handle at begining of line that contains the VMS Magic
  * identifier.
  */
-static gboolean vms_check_file_type(wtap *wth, int *err)
+static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
 {
   char	buf[VMS_LINE_LENGTH];
   guint	reclen, line;
@@ -217,7 +218,7 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
     mpos = file_tell(wth->fh);
     if (mpos == -1) {
       /* Error. */
-      *err = file_error(wth->fh);
+      *err = file_error(wth->fh, err_info);
       return FALSE;
     }
     if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
@@ -245,7 +246,7 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
       if (file_eof(wth->fh))
 	*err = 0;
       else
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
       return FALSE;
     }
   }
@@ -254,10 +255,10 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
 }
 
 
-int vms_open(wtap *wth, int *err, gchar **err_info _U_)
+int vms_open(wtap *wth, int *err, gchar **err_info)
 {
     /* Look for VMS header */
-    if (!vms_check_file_type(wth, err)) {
+    if (!vms_check_file_type(wth, err, err_info)) {
         if (*err == 0)
             return 0;
         else
@@ -290,7 +291,7 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     offset = file_tell(wth->fh);
 #endif
     if (offset < 1) {
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         return FALSE;
     }
 
@@ -386,7 +387,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     /* Skip lines until one starts with a hex number */
     do {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-            *err = file_error(fh);
+            *err = file_error(fh, err_info);
 	    if ((*err == 0) && (csec != 101)) {
 		*err = WTAP_ERR_SHORT_READ;
             }
@@ -463,7 +464,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 
     for (i = 0; i < pkt_len; i += 16) {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-            *err = file_error(fh);
+            *err = file_error(fh, err_info);
             if (*err == 0) {
                 *err = WTAP_ERR_SHORT_READ;
             }
@@ -473,7 +474,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
         if (i == 0) {
 	    while (! isdumpline(line)) { /* advance to start of hex data */
 	        if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-		    *err = file_error(fh);
+		    *err = file_error(fh, err_info);
 		    if (*err == 0) {
 		        *err = WTAP_ERR_SHORT_READ;
 		    }
@@ -498,7 +499,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
      * Wiretap API, we should parse those lines and return "n" as
      * a packet drop count. */
     if (!file_gets(line, VMS_LINE_LENGTH, fh)) {
-        *err = file_error(fh);
+        *err = file_error(fh, err_info);
         if (*err == 0) {
             /* There is no next line, so there's no "TCPIPtrace could not
              * save n packets" line; not an error. */

@@ -189,7 +189,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(magic, sizeof magic, wth->fh);
     if (bytes_read != sizeof magic)
     {
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         if (*err != 0)
             return -1;
         return 0;
@@ -204,7 +204,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(&vfile_hdr, sizeof vfile_hdr, wth->fh);
     if (bytes_read != sizeof vfile_hdr)
     {
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         if (*err != 0)
             return -1;
         return 0;
@@ -319,7 +319,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     bytes_read = file_read(&vpkt_hdr, phdr_size, wth->fh);
     if (bytes_read != phdr_size)
     {
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         if (*err == 0 && bytes_read != 0)
         {
             *err = WTAP_ERR_SHORT_READ;
@@ -339,7 +339,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
        bytes_read = file_read(&vatm_hdr, ahdr_size, wth->fh);
        if (bytes_read != ahdr_size)
        {
-           *err = file_error(wth->fh);
+           *err = file_error(wth->fh, err_info);
            if (*err == 0 && bytes_read != 0)
            {
                *err = WTAP_ERR_SHORT_READ;
@@ -372,7 +372,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
 
     if (bytes_read != (int) packet_size)
     {
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -478,7 +478,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
    the direction flag works. */
 static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
     struct visual_pkt_hdr vpkt_hdr;
     struct visual_atm_hdr vatm_hdr;
@@ -505,7 +505,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&vpkt_hdr, phdr_size, wth->random_fh);
     if (bytes_read != phdr_size) {
-    	*err = file_error(wth->random_fh);
+    	*err = file_error(wth->random_fh, err_info);
     	if (*err == 0)
     	    *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -519,7 +519,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
        bytes_read = file_read(&vatm_hdr, ahdr_size, wth->random_fh);
        if (bytes_read != ahdr_size)
        {
-           *err = file_error(wth->fh);
+           *err = file_error(wth->fh, err_info);
            if (*err == 0 && bytes_read != 0)
            {
                *err = WTAP_ERR_SHORT_READ;

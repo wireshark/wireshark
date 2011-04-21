@@ -49,7 +49,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 
 	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -73,7 +73,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 
 	bytes_read = file_read(buf, packet_size, wth->fh);
 	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -92,7 +92,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
 	int bytes_read;
@@ -102,7 +102,7 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 
 	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->random_fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -110,7 +110,7 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 
 	bytes_read = file_read(pd, length, wth->random_fh);
 	if (bytes_read != length) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -121,7 +121,7 @@ static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
 	return TRUE;
 }
 
-int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
+int hcidump_open(wtap *wth, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
 	guint8 type;
@@ -129,7 +129,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		return (*err != 0) ? -1 : 0;
 	}
 
@@ -139,7 +139,7 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	bytes_read = file_read(&type, 1, wth->fh);
 	if (bytes_read != 1) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		return (*err != 0) ? -1 : 0;
 	}
 

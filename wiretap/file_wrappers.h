@@ -26,7 +26,7 @@
 
 extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
 extern gint64 file_tell(FILE_T stream);
-extern int file_error(FILE_T fh);
+extern int file_error(FILE_T fh, gchar **err_info);
 
 extern FILE_T file_open(const char *path);
 extern FILE_T filed_open(int fildes);

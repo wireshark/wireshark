@@ -58,8 +58,10 @@
 
 static gboolean empty_line(const gchar *line);
 static gboolean info_line(const gchar *line);
-static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr);
-static gboolean netscreen_check_file_type(wtap *wth, int *err);
+static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+	char *hdr);
+static gboolean netscreen_check_file_type(wtap *wth, int *err,
+	gchar **err_info);
 static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
@@ -110,8 +112,10 @@ static gboolean info_line(const gchar *line)
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset. Copy the header line to hdr. Returns -1 on failure,
-   and sets "*err" to the error and set hdr as NULL. */
-static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr)
+   and sets "*err" to the error, sets "*err_info" to null or an
+   additional error string, and sets hdr to NULL. */
+static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+    char *hdr)
 {
 	gint64 cur_off;
 	char buf[NETSCREEN_LINE_LENGTH];
@@ -120,7 +124,7 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr)
 		cur_off = file_tell(wth->fh);
 		if (cur_off == -1) {
 			/* Error */
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			hdr = NULL;
 			return -1;
 		}
@@ -136,7 +140,7 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr)
 				*err = 0;
 			} else {
 				/* We got an error. */
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 			}
 			break;
 		}
@@ -149,9 +153,10 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr)
  * NetScreen snoop output.
  *
  * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value.
+ * if we get an I/O error, "*err" will be set to a non-zero value and
+ * "*err_info" is set to null or an additional error string.
  */
-static gboolean netscreen_check_file_type(wtap *wth, int *err)
+static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
 {
 	char	buf[NETSCREEN_LINE_LENGTH];
 	guint	reclen, line;
@@ -176,7 +181,7 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err)
 			if (file_eof(wth->fh))
 				*err = 0;
 			else
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 	}
@@ -185,11 +190,11 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err)
 }
 
 
-int netscreen_open(wtap *wth, int *err, gchar **err_info _U_)
+int netscreen_open(wtap *wth, int *err, gchar **err_info)
 {
 
 	/* Look for a NetScreen snoop header line */
-	if (!netscreen_check_file_type(wth, err)) {
+	if (!netscreen_check_file_type(wth, err, err_info)) {
 		if (*err == 0)
 			return 0;
 		else
@@ -224,7 +229,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	gchar		dststr[13];
 
 	/* Find the next packet */
-	offset = netscreen_seek_next_packet(wth, err, line);
+	offset = netscreen_seek_next_packet(wth, err, err_info, line);
 	if (offset < 0)
 		return FALSE;
 
@@ -307,7 +312,7 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 	}
 
 	if (file_gets(line, NETSCREEN_LINE_LENGTH, wth->random_fh) == NULL) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}

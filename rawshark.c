@@ -990,27 +990,32 @@ load_cap_file(capture_file *cf)
         switch (err) {
 
             case WTAP_ERR_UNSUPPORTED_ENCAP:
-                cmdarg_err("\"%s\" has a packet with a network type that Rawshark doesn't support.\n(%s)",
+                cmdarg_err("The file \"%s\" has a packet with a network type that Rawshark doesn't support.\n(%s)",
                            cf->filename, err_info);
                 break;
 
             case WTAP_ERR_CANT_READ:
-                cmdarg_err("An attempt to read from \"%s\" failed for some unknown reason.",
+                cmdarg_err("An attempt to read from the file \"%s\" failed for some unknown reason.",
                            cf->filename);
                 break;
 
             case WTAP_ERR_SHORT_READ:
-                cmdarg_err("\"%s\" appears to have been cut short in the middle of a packet.",
+                cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
                            cf->filename);
                 break;
 
             case WTAP_ERR_BAD_RECORD:
-                cmdarg_err("\"%s\" appears to be damaged or corrupt.\n(%s)",
+                cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
+                           cf->filename, err_info);
+                break;
+
+            case WTAP_ERR_DECOMPRESS:
+                cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n(%s)",
                            cf->filename, err_info);
                 break;
 
             default:
-                cmdarg_err("An error occurred while reading \"%s\": %s.",
+                cmdarg_err("An error occurred while reading the file \"%s\": %s.",
                            cf->filename, wtap_strerror(err));
                 break;
         }

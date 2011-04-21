@@ -325,11 +325,11 @@ static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
-    union netxrayrec_hdr *hdr, int *err);
+    union netxrayrec_hdr *hdr, int *err, gchar **err_info);
 static guint netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr);
 static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
-    guint32 packet_size, int *err);
+    guint32 packet_size, int *err, gchar **err_info);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
@@ -383,7 +383,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -402,7 +402,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -912,7 +912,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean netxray_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
@@ -931,7 +931,7 @@ reread:
 		return FALSE;
 	}
 	/* Read record header. */
-	hdr_size = netxray_read_rec_header(wth, wth->fh, &hdr, err);
+	hdr_size = netxray_read_rec_header(wth, wth->fh, &hdr, err, err_info);
 	if (hdr_size == 0) {
 		/*
 		 * Error or EOF.
@@ -998,7 +998,7 @@ reread:
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	pd = buffer_start_ptr(wth->frame_buffer);
-	if (!netxray_read_rec_data(wth->fh, pd, packet_size, err))
+	if (!netxray_read_rec_data(wth->fh, pd, packet_size, err, err_info))
 		return FALSE;
 	wth->data_offset += packet_size;
 
@@ -1044,7 +1044,7 @@ reread:
 static gboolean
 netxray_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	union netxrayrec_hdr hdr;
 	gboolean ret;
@@ -1052,7 +1052,8 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!netxray_read_rec_header(wth, wth->random_fh, &hdr, err)) {
+	if (!netxray_read_rec_header(wth, wth->random_fh, &hdr, err,
+	    err_info)) {
 		if (*err == 0) {
 			/*
 			 * EOF - we report that as a short read, as
@@ -1067,7 +1068,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	ret = netxray_read_rec_data(wth->random_fh, pd, length, err);
+	ret = netxray_read_rec_data(wth->random_fh, pd, length, err, err_info);
 	if (!ret)
 		return FALSE;
 
@@ -1080,7 +1081,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 
 static int
 netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
-    int *err)
+    int *err, gchar **err_info)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	bytes_read;
@@ -1104,7 +1105,7 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(hdr, hdr_size, fh);
 	if (bytes_read != hdr_size) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return 0;
 		if (bytes_read != 0) {
@@ -1446,7 +1447,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 
 static gboolean
 netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
-    int *err)
+    int *err, gchar **err_info)
 {
 	int	bytes_read;
 
@@ -1454,7 +1455,7 @@ netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
 	bytes_read = file_read(data_ptr, packet_size, fh);
 
 	if (bytes_read <= 0 || (guint32)bytes_read != packet_size) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

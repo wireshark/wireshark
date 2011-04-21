@@ -145,7 +145,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(LE_record_type, 2, wth->fh);
 	bytes_read += file_read(LE_record_length, 2, wth->fh);
 	if (bytes_read != 4) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -180,7 +180,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		bytes_read = file_read(LE_record_type, 2, wth->fh);
 		bytes_read += file_read(LE_record_length, 2, wth->fh);
 		if (bytes_read != 4) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			if (*err != 0) {
 				g_free(wth->priv);
 				return -1;
@@ -201,7 +201,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				bytes_read = file_read(summary, sizeof summary,
 				    wth->fh);
 				if (bytes_read != sizeof summary) {
-					*err = file_error(wth->fh);
+					*err = file_error(wth->fh, err_info);
 					if (*err != 0) {
 						g_free(wth->priv);
 						return -1;
@@ -295,7 +295,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(LE_record_type, 2, wth->fh);
 	if (bytes_read != 2) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -304,7 +304,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	wth->data_offset += 2;
 	bytes_read = file_read(LE_record_length, 2, wth->fh);
 	if (bytes_read != 2) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -331,7 +331,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(descriptor, DESCRIPTOR_LEN, wth->fh);
 	if (bytes_read != DESCRIPTOR_LEN) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -346,7 +346,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -404,7 +404,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int bytes_read;
 
@@ -416,7 +416,7 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 	 */
 	bytes_read = file_read(pd, length, wth->random_fh);
 	if (bytes_read != length) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

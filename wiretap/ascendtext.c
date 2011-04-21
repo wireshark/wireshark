@@ -93,7 +93,7 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static gint64 ascend_seek(wtap *wth, int *err)
+static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
 {
   int byte;
   gint64 date_off = -1, cur_off, packet_off;
@@ -121,7 +121,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
           cur_off = file_tell(wth->fh);
           if (cur_off == -1) {
             /* Error. */
-            *err = file_error(wth->fh);
+            *err = file_error(wth->fh, err_info);
             return -1;
           }
 
@@ -156,7 +156,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
   } else {
     /* We (presumably) got an error (there's no equivalent to "ferror()"
        in zlib, alas, so we don't have a wrapper to check for an error). */
-    *err = file_error(wth->fh);
+    *err = file_error(wth->fh, err_info);
   }
   return -1;
 
@@ -173,7 +173,7 @@ found:
   return packet_off;
 }
 
-int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
+int ascend_open(wtap *wth, int *err, gchar **err_info)
 {
   gint64 offset;
   struct stat statbuf;
@@ -187,7 +187,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
      fill it in. */
   wth->priv = NULL;
 
-  offset = ascend_seek(wth, err);
+  offset = ascend_seek(wth, err, err_info);
   if (offset == -1) {
     if (*err == 0)
       return 0;
@@ -285,7 +285,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
                 SEEK_SET, err) == -1)
     return FALSE;
 
-    offset = ascend_seek(wth, err);
+    offset = ascend_seek(wth, err, err_info);
     if (offset == -1)
       return FALSE;
   if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,

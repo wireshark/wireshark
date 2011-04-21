@@ -89,13 +89,13 @@ static char seekLine[DAINTREE_MAX_LINE_SIZE];
 static char readData[READDATA_BUF_SIZE];
 static char seekData[SEEKDATA_BUF_SIZE];
 
-static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header _U_,
 	guchar *pd, int len, int *err,
-	gchar **err_info _U_);
+	gchar **err_info);
 
 static guint daintree_sna_hex_char(guchar *str, int *err);
 
@@ -136,7 +136,7 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 /* Read the capture file sequentially
  * Wireshark scans the file with sequential reads during preview and initial display. */
 static gboolean
-daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
+daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	guint64 seconds;
 
@@ -146,7 +146,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	 * if others appear in the file, they are tossed */
 	do {
 		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh) == NULL) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			return FALSE; /* all done */
 		}
 		wth->data_offset += strlen(readLine);
@@ -200,7 +200,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	*pseudo_header _U_, guchar *pd, int len, int *err,
-	gchar **err_info _U_)
+	gchar **err_info)
 {
 	guint pkt_len;
 
@@ -211,7 +211,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	 * if we find any others, we toss them */
 	do {
 		if (file_gets(seekLine, DAINTREE_MAX_LINE_SIZE, wth->random_fh) == NULL) {
-			*err = file_error(wth->random_fh);
+			*err = file_error(wth->random_fh, err_info);
 			return FALSE; /* all done */
 		}
 	} while (seekLine[0] == COMMENT_LINE);

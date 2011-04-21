@@ -301,7 +301,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
             return 0;
         } else if ( bytes_read < 0x14 ){
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-            *err = file_error(fh);
+            *err = file_error(fh, err_info);
             if (*err == 0) {
                 *err = WTAP_ERR_SHORT_READ;
             }
@@ -318,7 +318,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
             return 0;
         } else if ( bytes_read != 0x4 ) {
             K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-            *err = file_error(fh);
+            *err = file_error(fh, err_info);
             if (*err == 0) {
                 *err = WTAP_ERR_SHORT_READ;
             }
@@ -355,7 +355,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 
             if ( last_read != left ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-                *err = file_error(fh);
+                *err = file_error(fh, err_info);
                 if (*err == 0) {
                     *err = WTAP_ERR_SHORT_READ;
                 }
@@ -369,7 +369,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 
             if ( last_read != junky_offset ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",last_read, junky_offset));
-                *err = file_error(fh);
+                *err = file_error(fh, err_info);
                 if (*err == 0) {
                     *err = WTAP_ERR_SHORT_READ;
                 }
@@ -382,7 +382,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 
             if ( last_read != 0x10 ) {
                 K12_DBG(1,("get_record: SHORT READ OR ERROR"));
-                *err = file_error(fh);
+                *err = file_error(fh, err_info);
                 if (*err == 0) {
                     *err = WTAP_ERR_SHORT_READ;
                 }
@@ -691,7 +691,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 
     if ( file_read(header_buffer,0x200,wth->fh) != 0x200 ) {
         K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
-        *err = file_error(wth->fh);
+        *err = file_error(wth->fh, err_info);
         if (*err != 0) {
             return -1;
         }

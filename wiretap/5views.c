@@ -106,9 +106,9 @@ typedef struct
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean _5views_read_rec_data(FILE_T fh, guchar *pd, int length,
-    int *err);
+    int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh,
-    t_5VW_TimeStamped_Header  *hdr, int *err);
+    t_5VW_TimeStamped_Header  *hdr, int *err, gchar **err_info);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
@@ -128,7 +128,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof(t_5VW_Info_Header)) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -184,7 +184,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	/* read the remaining header information */
 	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof (t_5VW_Capture_Header)- sizeof(t_5VW_Info_Header) ) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -204,7 +204,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean
-_5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
+_5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 	int	bytes_read;
@@ -213,7 +213,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 	do
 	{
-		bytes_read = _5views_read_header(wth, wth->fh, &TimeStamped_Header, err);
+		bytes_read = _5views_read_header(wth, wth->fh, &TimeStamped_Header, err, err_info);
 		if (bytes_read == -1) {
 			/*
 			 * We failed to read the header.
@@ -245,7 +245,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!_5views_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err))
+	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
 
 	wth->data_offset += packet_size;
@@ -271,7 +271,8 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 
 static gboolean
-_5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+_5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+   gchar **err_info)
 {
 	int	bytes_read;
 
@@ -279,7 +280,7 @@ _5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -294,7 +295,7 @@ _5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 
    Return -1 on an error, or the number of bytes of header read on success. */
 static int
-_5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   int *err)
+_5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   int *err, gchar **err_info)
 {
 	int	bytes_read, bytes_to_read;
 
@@ -303,7 +304,7 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 	/* Read record header. */
 	bytes_read = file_read(hdr, bytes_to_read, fh);
 	if (bytes_read != bytes_to_read) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -316,14 +317,14 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 static gboolean
 _5views_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 	/*
 	 * Read the packet data.
 	 */
-	if (!_5views_read_rec_data(wth->random_fh, pd, length, err))
+	if (!_5views_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;
 
 	switch (wth->file_encap) {

@@ -68,7 +68,7 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
   buffer_assure_space(wth->frame_buffer, packet_size);
   buf = buffer_start_ptr(wth->frame_buffer);
 
-  wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err);
+  wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err, err_info);
 
   wth->data_offset += packet_size;
 
@@ -88,7 +88,7 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
                                union wtap_pseudo_header *pseudo_header _U_,
-                               guint8 *pd, int length, int *err, gchar **err_info _U_)
+                               guint8 *pd, int length, int *err, gchar **err_info)
 {
   int packet_size = length;
 
@@ -101,19 +101,19 @@ static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err);
+  wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err, err_info);
 
   return TRUE;
 }
 
-int tnef_open(wtap *wth, int *err, gchar **err_info _U_)
+int tnef_open(wtap *wth, int *err, gchar **err_info)
 {
   int bytes_read;
   guint32 magic;
 
   bytes_read = file_read(&magic, sizeof magic, wth->fh);
   if (bytes_read != sizeof magic) {
-    *err = file_error(wth->fh);
+    *err = file_error(wth->fh, err_info);
     return (*err != 0) ? -1 : 0;
   }
 

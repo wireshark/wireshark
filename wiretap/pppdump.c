@@ -211,7 +211,7 @@ typedef struct _pppdump_t {
 
 static int
 process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
-    int *err, pkt_id *pid);
+    int *err, gchar **err_info, pkt_id *pid);
 
 static gboolean
 collate(pppdump_t*, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
@@ -248,7 +248,7 @@ init_state(pppdump_t *state)
 
 
 int
-pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
+pppdump_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
 	pppdump_t	*state;
@@ -261,7 +261,8 @@ pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
 	* representing the timestamp.
 	*/
 
-	wtap_file_read_unknown_bytes(buffer, sizeof(buffer), wth->fh, err);
+	wtap_file_read_unknown_bytes(buffer, sizeof(buffer), wth->fh, err,
+	    err_info);
 
 	if (buffer[0] == PPPD_RESET_TIME &&
 			(buffer[5] == PPPD_SENT_DATA ||
@@ -373,7 +374,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  */
 static int
 process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
-    int *err, pkt_id *pid)
+    int *err, gchar **err_info, pkt_id *pid)
 {
 	int	c;
 	int	num_bytes = n;
@@ -382,7 +383,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 	for (; num_bytes > 0; --num_bytes) {
 		c = file_getc(fh);
 		if (c == EOF) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
@@ -548,7 +549,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		g_assert(num_bytes_to_skip == 0);
 		pkt = state->pkt;
 		num_written = process_data(state, fh, pkt, state->num_bytes,
-		    pd, err, pid);
+		    pd, err, err_info, pid);
 
 		if (num_written < 0) {
 			return FALSE;
@@ -628,7 +629,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 					n--;
 				}
 				num_written = process_data(state, fh, pkt, n,
-				    pd, err, pid);
+				    pd, err, err_info, pid);
 
 				if (num_written < 0) {
 					return FALSE;
@@ -647,14 +648,14 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_RESET_TIME:
-				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
+				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
 				state->offset += sizeof(guint32);
 				state->timestamp = pntohl(&time_long);
 				state->tenths = 0;
 				break;
 
 			case PPPD_TIME_STEP_LONG:
-				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
+				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err, err_info);
 				state->offset += sizeof(guint32);
 				state->tenths += pntohl(&time_long);
 
@@ -666,7 +667,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 				break;
 
 			case PPPD_TIME_STEP_SHORT:
-				wtap_file_read_unknown_bytes(&time_short, sizeof(guint8), fh, err);
+				wtap_file_read_unknown_bytes(&time_short, sizeof(guint8), fh, err, err_info);
 				state->offset += sizeof(guint8);
 				state->tenths += time_short;
 
@@ -687,7 +688,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	}
 
 done:
-	*err = file_error(fh);
+	*err = file_error(fh, err_info);
 	if (*err == 0) {
 		if (state->offset != start_offset) {
 			/*

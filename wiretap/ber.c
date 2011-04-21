@@ -75,7 +75,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
   buffer_assure_space(wth->frame_buffer, packet_size);
   buf = buffer_start_ptr(wth->frame_buffer);
 
-  wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err);
+  wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err, err_info);
 
   wth->data_offset += packet_size;
 
@@ -94,7 +94,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 }
 
 static gboolean ber_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_,
-			      guint8 *pd, int length, int *err, gchar **err_info _U_)
+			      guint8 *pd, int length, int *err, gchar **err_info)
 {
   int packet_size = length;
 
@@ -107,12 +107,12 @@ static gboolean ber_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err);
+  wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err, err_info);
 
   return TRUE;
 }
 
-int ber_open(wtap *wth, int *err, gchar **err_info _U_)
+int ber_open(wtap *wth, int *err, gchar **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
@@ -128,7 +128,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
 
   bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wth->fh);
   if (bytes_read != BER_BYTES_TO_CHECK) {
-    *err = file_error(wth->fh);
+    *err = file_error(wth->fh, err_info);
     return (*err != 0) ? -1 : 0;
   }
 

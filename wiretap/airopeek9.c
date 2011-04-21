@@ -94,7 +94,8 @@ static gboolean airopeekv9_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 
-static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err)
+static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
+				gchar **err_info)
 {
     int c;
     const char *cp;
@@ -107,7 +108,7 @@ static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err)
 	    if (file_eof(wth->fh))
 		return 0;	/* EOF */
 	    else {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		return -1;	/* error */
 	    }
 	}
@@ -126,7 +127,8 @@ static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err)
 
 
 static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
-					const char *separators, int *err)
+					const char *separators, int *err,
+					gchar **err_info)
 {
     int c;
     char *cp;
@@ -139,7 +141,7 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 	    if (file_eof(wth->fh))
 		return 0;	/* EOF */
 	    else {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		return -1;	/* error */
 	    }
 	}
@@ -155,7 +157,8 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 }
 
 
-static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
+static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
+				gchar **err_info)
 {
     int ret;
     char str_num[12];
@@ -163,7 +166,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
     char *p;
 
     ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
-					 err);
+					 err, err_info);
     if (ret != 1) {
 	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
 	   -1 means error, and "err" has been set. */
@@ -194,7 +197,8 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     #define NUM_AIROPEEK9_ENCAPS (sizeof airopeek9_encap / sizeof airopeek9_encap[0])
     airopeek9_t *airopeek9;
 
-    wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err);
+    wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err,
+                                 err_info);
 
     if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
 	return 0;	/* doesn't begin with a "\177ver" section */
@@ -207,13 +211,13 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
      * we have the file version (and possibly check to make sure all
      * tags are properly opened and closed).
      */
-    ret = wtap_file_read_pattern (wth, "<FileVersion>", err);
+    ret = wtap_file_read_pattern (wth, "<FileVersion>", err, err_info);
     if (ret != 1) {
 	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
 	   -1 means error, and "err" has been set. */
 	return ret;
     }
-    ret = wtap_file_read_number (wth, &fileVersion, err);
+    ret = wtap_file_read_number (wth, &fileVersion, err, err_info);
     if (ret != 1) {
 	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
 	   -1 means error, and "err" has been set. */
@@ -239,7 +243,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
      * we have the file version (and possibly check to make sure all
      * tags are properly opened and closed).
      */
-    ret = wtap_file_read_pattern (wth, "<MediaType>", err);
+    ret = wtap_file_read_pattern (wth, "<MediaType>", err, err_info);
     if (ret == -1)
 	return -1;
     if (ret == 0) {
@@ -249,7 +253,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     }
     /* XXX - this appears to be 0 in both the EtherPeek and AiroPeek
        files we've seen; should we require it to be 0? */
-    ret = wtap_file_read_number (wth, &mediaType, err);
+    ret = wtap_file_read_number (wth, &mediaType, err, err_info);
     if (ret == -1)
 	return -1;
     if (ret == 0) {
@@ -258,7 +262,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     }
 
-    ret = wtap_file_read_pattern (wth, "<MediaSubType>", err);
+    ret = wtap_file_read_pattern (wth, "<MediaSubType>", err, err_info);
     if (ret == -1)
 	return -1;
     if (ret == 0) {
@@ -266,7 +270,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	*err_info = g_strdup("airopeekv9: <MediaSubType> tag not found");
 	return -1;
     }
-    ret = wtap_file_read_number (wth, &mediaSubType, err);
+    ret = wtap_file_read_number (wth, &mediaSubType, err, err_info);
     if (ret == -1)
 	return -1;
     if (ret == 0) {
@@ -282,7 +286,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     }
 
-    ret = wtap_file_read_pattern (wth, "pkts", err);
+    ret = wtap_file_read_pattern (wth, "pkts", err, err_info);
     if (ret == -1)
 	return -1;
     if (ret == 0) {
@@ -361,7 +365,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	   XXX - this assumes all values are 4 bytes long. */
 	bytes_read = file_read(tag_value, sizeof tag_value, fh);
 	if (bytes_read != (int) sizeof tag_value) {
-	    *err = file_error(fh);
+	    *err = file_error(fh, err_info);
 	    if (*err == 0) {
 		if (bytes_read > 0)
 		    *err = WTAP_ERR_SHORT_READ;
@@ -508,7 +512,8 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     /* read the frame data */
     buffer_assure_space(wth->frame_buffer, hdr_info.sliceLength);
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-				  hdr_info.sliceLength, wth->fh, err);
+				  hdr_info.sliceLength, wth->fh, err,
+				  err_info);
     wth->data_offset += hdr_info.sliceLength;
 
     /* recalculate and fill in packet time stamp */
@@ -591,6 +596,6 @@ airopeekv9_seek_read(wtap *wth, gint64 seek_off,
      * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
      */
     errno = WTAP_ERR_CANT_READ;
-    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
+    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
     return TRUE;
 }

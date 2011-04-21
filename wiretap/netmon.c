@@ -179,9 +179,9 @@ static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
-    int *err);
+    int *err, gchar **err_info);
 static void netmon_sequential_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
@@ -208,7 +208,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -223,7 +223,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -341,7 +341,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(frame_table, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		g_free(frame_table);
@@ -437,7 +437,7 @@ again:
 
 	bytes_read = file_read(&hdr, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -491,7 +491,7 @@ again:
 			return FALSE;
 		}
 		if (!netmon_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
-		    err))
+		    err, err_info))
 			return FALSE;	/* Read error */
 
 		/*
@@ -512,7 +512,8 @@ again:
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_ptr = buffer_start_ptr(wth->frame_buffer);
-	if (!netmon_read_rec_data(wth->fh, data_ptr, packet_size, err))
+	if (!netmon_read_rec_data(wth->fh, data_ptr, packet_size, err,
+	    err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -586,7 +587,7 @@ again:
 
 		bytes_read = file_read(&trlr, trlr_size, wth->fh);
 		if (bytes_read != trlr_size) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			if (*err == 0 && bytes_read != 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
@@ -653,7 +654,7 @@ again:
 static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -662,7 +663,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_ATM_PDUS:
 		if (!netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err)) {
+		    err, err_info)) {
 			/* Read error */
 			return FALSE;
 		}
@@ -679,7 +680,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!netmon_read_rec_data(wth->random_fh, pd, length, err))
+	if (!netmon_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;
 
 	/*
@@ -694,7 +695,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 
 static gboolean
 netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err)
+    int *err, gchar **err_info)
 {
 	struct netmon_atm_hdr atm_phdr;
 	int	bytes_read;
@@ -703,7 +704,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&atm_phdr, sizeof (struct netmon_atm_hdr), fh);
 	if (bytes_read != sizeof (struct netmon_atm_hdr)) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -727,7 +728,8 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean
-netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -735,7 +737,7 @@ netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

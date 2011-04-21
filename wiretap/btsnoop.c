@@ -78,9 +78,10 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
-static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err);
+static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info);
 
-int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
+int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof btsnoop_magic];
@@ -92,7 +93,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -107,7 +108,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -174,7 +175,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -197,7 +198,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-		packet_size, err)) {
+		packet_size, err, err_info)) {
 		return FALSE;	/* Read error */
 	}
 	wth->data_offset += packet_size;
@@ -237,7 +238,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_) {
+    int *err, gchar **err_info) {
 	int	bytes_read;
 	struct btsnooprec_hdr hdr;
 	guint32 flags;
@@ -248,7 +249,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->random_fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -258,7 +259,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!snoop_read_rec_data(wth->random_fh, pd, length, err))
+	if (!snoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;	/* failed */
 
 	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
@@ -288,7 +289,8 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static gboolean
-snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -296,7 +298,7 @@ snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

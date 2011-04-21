@@ -100,8 +100,10 @@ static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
 static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error
+   and "*err_info" to null or an additional error string. */
+static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err,
+    gchar **err_info)
 {
   int byte;
   unsigned int level = 0;
@@ -115,7 +117,7 @@ static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
         cur_off = file_tell(wth->fh);
         if (cur_off == -1) {
           /* Error. */
-          *err = file_error(wth->fh);
+          *err = file_error(wth->fh, err_info);
           return -1;
         }
         return cur_off + 1;
@@ -129,7 +131,7 @@ static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
     *err = 0;
   } else {
     /* We got an error. */
-    *err = file_error(wth->fh);
+    *err = file_error(wth->fh, err_info);
   }
   return -1;
 }
@@ -141,9 +143,11 @@ static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err)
  * a DBS Ethertrace text trace file.
  *
  * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value.
+ * if we get an I/O error, "*err" will be set to a non-zero value and
+ * "*err_info" will be set to null or an error string.
  */
-static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
+static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err,
+    gchar **err_info)
 {
 	char	buf[DBS_ETHERWATCH_LINE_LENGTH];
 	int	line, byte;
@@ -178,7 +182,7 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
 			if (file_eof(wth->fh))
 				*err = 0;
 			else
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 	}
@@ -187,10 +191,10 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
 }
 
 
-int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info _U_)
+int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for DBS ETHERWATCH header */
-	if (!dbs_etherwatch_check_file_type(wth, err)) {
+	if (!dbs_etherwatch_check_file_type(wth, err, err_info)) {
 		if (*err == 0)
 			return 0;
 		else
@@ -217,7 +221,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	int	pkt_len;
 
 	/* Find the next packet */
-	offset = dbs_etherwatch_seek_next_packet(wth, err);
+	offset = dbs_etherwatch_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
 
@@ -335,7 +339,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	 * extract the useful information
 	 */
 	if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -378,7 +382,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 
 	/* Read the next line of the record header */
 	if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -489,7 +493,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	count = 0;
 	while (count < pkt_len) {
 		if (file_gets(line, DBS_ETHERWATCH_LINE_LENGTH, fh) == NULL) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}

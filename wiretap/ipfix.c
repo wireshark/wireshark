@@ -128,7 +128,7 @@ typedef struct ipfix_set_header_s {
 static gboolean
 ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, gchar **err_info)
 {
-    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err);  /* macro which does a return if read fails */
+    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err, err_info);  /* macro which does a return if read fails */
 
     /* fix endianess, because IPFIX files are always big-endian */
     pfx_hdr->version = g_ntohs(pfx_hdr->version);
@@ -218,7 +218,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
         /* check each Set in IPFIX Message for sanity */
         while (checked_len < msg_hdr.message_length) {
-            wtap_file_read_expected_bytes(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh, err);
+            wtap_file_read_expected_bytes(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh, err, err_info);
             set_hdr.set_length = g_ntohs(set_hdr.set_length);
             if ((set_hdr.set_length < IPFIX_SET_HDR_SIZE) ||
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
@@ -273,7 +273,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     buffer_assure_space(wth->frame_buffer, msg_hdr.message_length);
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-                   msg_hdr.message_length, wth->fh, err);
+                   msg_hdr.message_length, wth->fh, err, err_info);
 
     wth->phdr.len = msg_hdr.message_length;
     wth->phdr.caplen = msg_hdr.message_length;
@@ -320,7 +320,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
     }
 
-    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
+    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
 
     return TRUE;
 }

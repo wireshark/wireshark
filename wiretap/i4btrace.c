@@ -42,9 +42,11 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
-static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
+static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err,
+    gchar **err_info);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
-static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err);
+static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info);
 static void i4b_set_pseudo_header(i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
 
@@ -56,7 +58,7 @@ static void i4b_set_pseudo_header(i4b_trace_hdr_t *hdr,
 	    (unsigned)hdr.unit > 4 || (unsigned)hdr.type > 4 || \
 	    (unsigned)hdr.dir > 2 || (unsigned)hdr.trunc > 2048))
 
-int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
+int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	i4b_trace_hdr_t hdr;
@@ -67,7 +69,7 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof(hdr), wth->fh);
 	if (bytes_read != sizeof(hdr)) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -129,7 +131,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 
 	/* Read record header. */
 	*data_offset = wth->data_offset;
-	ret = i4b_read_rec_header(wth->fh, &hdr, err);
+	ret = i4b_read_rec_header(wth->fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
@@ -155,7 +157,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	bufp = buffer_start_ptr(wth->frame_buffer);
-	if (!i4b_read_rec_data(wth->fh, bufp, length, err))
+	if (!i4b_read_rec_data(wth->fh, bufp, length, err, err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
@@ -188,7 +190,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 static gboolean
 i4btrace_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;
@@ -197,7 +199,7 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 
 	/* Read record header. */
-	ret = i4b_read_rec_header(wth->random_fh, &hdr, err);
+	ret = i4b_read_rec_header(wth->random_fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -213,18 +215,18 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return i4b_read_rec_data(wth->random_fh, pd, length, err);
+	return i4b_read_rec_data(wth->random_fh, pd, length, err, err_info);
 }
 
 static int
-i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err)
+i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err, gchar **err_info)
 {
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(hdr, sizeof *hdr, fh);
 	if (bytes_read != sizeof *hdr) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err != 0)
 			return -1;
 		if (bytes_read != 0) {
@@ -257,7 +259,7 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 }
 
 static gboolean
-i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gchar **err_info)
 {
 	int	bytes_read;
 
@@ -265,7 +267,7 @@ i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

@@ -185,6 +185,14 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             errmsg = "A full header couldn't be written to the file \"%s\".";
             break;
 
+        case WTAP_ERR_DECOMPRESS:
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
+                       "(%s)", err_info);
+            g_free(err_info);
+            errmsg = errmsg_errno;
+            break;
+
         default:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" could not be %s: %s.",

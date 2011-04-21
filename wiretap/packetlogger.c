@@ -50,22 +50,22 @@ typedef struct packetlogger_header {
 
 #define PACKETLOGGER_HEADER_SIZE 12
 
-static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
 				       union wtap_pseudo_header *pseudo_header _U_,
 				       guchar *pd, int length, int *err,
-				       gchar **err_info _U_);
+				       gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
-					 FILE_T fh, int *err);
+					 FILE_T fh, int *err, gchar **err_info);
 
 
-int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
+int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;
 	guint8 type;
 
-	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
+	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info))
 		return -1;
 
 	if (file_read(&type, 1, wth->fh) <= 0)
@@ -100,7 +100,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	*data_offset = wth->data_offset;
 
-	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
+	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info))
 		return FALSE;
 
 	if (pl_hdr.len < 8) {
@@ -114,7 +114,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			       pl_hdr.len - 8,
 			       wth->fh);
 	if(bytes_read != pl_hdr.len - 8) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -135,7 +135,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 static gboolean
 packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		       *pseudo_header _U_, guchar *pd, int length, int *err,
-		       gchar **err_info _U_)
+		       gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;
 	guint bytes_read;
@@ -143,7 +143,7 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!packetlogger_read_header(&pl_hdr, wth->random_fh, err)) {
+	if(!packetlogger_read_header(&pl_hdr, wth->random_fh, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -158,7 +158,7 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 
 	bytes_read = file_read(pd, pl_hdr.len - 8, wth->random_fh);
 	if(bytes_read != (pl_hdr.len - 8)) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -169,7 +169,8 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 }
 
 static gboolean
-packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err)
+packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err,
+			 gchar **err_info)
 {
 	guint bytes_read = 0;
 
@@ -181,7 +182,7 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err)
 	pl_hdr->ts = GUINT64_FROM_BE(pl_hdr->ts);
 
 	if(bytes_read < PACKETLOGGER_HEADER_SIZE) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if(*err == 0 && bytes_read > 0)
 			*err = WTAP_ERR_SHORT_READ;
 

@@ -76,7 +76,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
-    int *err);
+    int *err, gchar **err_info);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
@@ -95,7 +95,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -166,7 +166,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -635,7 +635,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Read the padding.
 		 */
-		if (!libpcap_read_rec_data(wth->fh, fddi_padding, 3, err))
+		if (!libpcap_read_rec_data(wth->fh, fddi_padding, 3, err,
+		    err_info))
 			return FALSE;	/* Read error */
 	}
 
@@ -657,7 +658,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!libpcap_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err))
+	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -723,7 +724,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err))
+	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;	/* failed */
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
@@ -789,7 +790,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 	}
 	bytes_read = file_read(hdr, bytes_to_read, wth->fh);
 	if (bytes_read != bytes_to_read) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -875,7 +876,8 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 }
 
 static gboolean
-libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -883,7 +885,7 @@ libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

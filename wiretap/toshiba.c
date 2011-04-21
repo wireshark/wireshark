@@ -122,8 +122,9 @@ static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error
+   and "*err_info" to null or an additional error string. */
+static gint64 toshiba_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
   int byte;
   guint level = 0;
@@ -137,7 +138,7 @@ static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
         cur_off = file_tell(wth->fh);
         if (cur_off == -1) {
           /* Error. */
-          *err = file_error(wth->fh);
+          *err = file_error(wth->fh, err_info);
           return -1;
         }
         return cur_off + 1;
@@ -151,7 +152,7 @@ static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
     *err = 0;
   } else {
     /* We got an error. */
-    *err = file_error(wth->fh);
+    *err = file_error(wth->fh, err_info);
   }
   return -1;
 }
@@ -163,9 +164,10 @@ static gint64 toshiba_seek_next_packet(wtap *wth, int *err)
  * a Toshiba trace file.
  *
  * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value.
+ * if we get an I/O error, "*err" will be set to a non-zero value and
+ * "*err_info" will be set to null or an additional error string.
  */
-static gboolean toshiba_check_file_type(wtap *wth, int *err)
+static gboolean toshiba_check_file_type(wtap *wth, int *err, gchar **err_info)
 {
 	char	buf[TOSHIBA_LINE_LENGTH];
 	guint	i, reclen, level, line;
@@ -200,7 +202,7 @@ static gboolean toshiba_check_file_type(wtap *wth, int *err)
 			if (file_eof(wth->fh))
 				*err = 0;
 			else
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 	}
@@ -209,10 +211,10 @@ static gboolean toshiba_check_file_type(wtap *wth, int *err)
 }
 
 
-int toshiba_open(wtap *wth, int *err, gchar **err_info _U_)
+int toshiba_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for Toshiba header */
-	if (!toshiba_check_file_type(wth, err)) {
+	if (!toshiba_check_file_type(wth, err, err_info)) {
 		if (*err == 0)
 			return 0;
 		else
@@ -239,7 +241,7 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	int	pkt_len;
 
 	/* Find the next packet */
-	offset = toshiba_seek_next_packet(wth, err);
+	offset = toshiba_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
 
@@ -303,7 +305,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	 * extract the useful information
 	 */
 	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -333,7 +335,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	 */
 	do {
 		if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
@@ -398,7 +400,7 @@ parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 
 	for (i = 0; i < hex_lines; i++) {
 		if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}

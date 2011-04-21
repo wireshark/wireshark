@@ -71,7 +71,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 			      union wtap_pseudo_header *pseudo_header, guchar *pd,
 			      int length, int *err, gchar **err_info);
 
-extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
+extern int erf_open(wtap *wth, int *err, gchar **err_info)
 {
   int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   int valid_prev = 0;
@@ -108,7 +108,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
     if (r == 0 ) break;
     if (r != sizeof(header)) {
-      if ((*err = file_error(wth->fh)) != 0) {
+      if ((*err = file_error(wth->fh, err_info)) != 0) {
 	return -1;
       } else {
 	/* ERF header too short accept the file,
@@ -178,7 +178,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     type = header.type;
     while (type & 0x80){
 	    if (file_read(&erf_ext_header, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
-		    *err = file_error(wth->fh);
+		    *err = file_error(wth->fh, err_info);
 		    return -1;
 	    }
 	    packet_size -= (guint32)sizeof(erf_ext_header);
@@ -197,7 +197,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     case ERF_TYPE_COLOR_MC_HDLC_POS:
     case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
       if (file_read(&mc_hdr,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
 	return -1;
       }
       packet_size -= (guint32)sizeof(mc_hdr);
@@ -206,7 +206,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     case ERF_TYPE_COLOR_ETH:
     case ERF_TYPE_DSM_COLOR_ETH:
       if (file_read(&eth_hdr,sizeof(eth_hdr),wth->fh) != sizeof(eth_hdr)) {
-	*err = file_error(wth->fh);
+	*err = file_error(wth->fh, err_info);
 	return -1;
       }
       packet_size -= (guint32)sizeof(eth_hdr);
@@ -282,7 +282,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
     buffer_assure_space(wth->frame_buffer, packet_size);
     
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-				(gint32)(packet_size), wth->fh, err );
+				(gint32)(packet_size), wth->fh, err, err_info);
     wth->data_offset += packet_size;
 
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -306,7 +306,8 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
       return FALSE;
   } while ( erf_header.type == ERF_TYPE_PAD );
 
-  wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err);
+  wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err,
+                                err_info);
 
   return TRUE;
 }
@@ -328,7 +329,8 @@ static int erf_read_header(FILE_T fh,
   guint32 skiplen=0;
   int i = 0 , max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
-  wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err);
+  wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err,
+                                err_info);
   if (bytes_read != NULL) {
     *bytes_read = sizeof(*erf_header);
   }
@@ -371,7 +373,8 @@ static int erf_read_header(FILE_T fh,
   /* Copy the ERF extension header into the pseudo header */
   type = erf_header->type;
   while (type & 0x80){
-	  wtap_file_read_expected_bytes(&erf_exhdr, sizeof(erf_exhdr), fh, err);
+	  wtap_file_read_expected_bytes(&erf_exhdr, sizeof(erf_exhdr), fh, err,
+	                                err_info);
 	  if (bytes_read != NULL)
 		  *bytes_read += (guint32)sizeof(erf_exhdr);
 	  *packet_size -=  (guint32)sizeof(erf_exhdr);
@@ -408,7 +411,8 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_ETH:
   case ERF_TYPE_COLOR_ETH:
   case ERF_TYPE_DSM_COLOR_ETH:
-    wtap_file_read_expected_bytes(&eth_hdr, sizeof(eth_hdr), fh, err);
+    wtap_file_read_expected_bytes(&eth_hdr, sizeof(eth_hdr), fh, err,
+                                  err_info);
     if (bytes_read != NULL)
       *bytes_read += (guint32)sizeof(eth_hdr);
     *packet_size -=  (guint32)sizeof(eth_hdr);
@@ -424,7 +428,8 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_MC_AAL2:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
   case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
-    wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err);
+    wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err,
+                                  err_info);
     if (bytes_read != NULL)
       *bytes_read += (guint32)sizeof(mc_hdr);
     *packet_size -=  (guint32)sizeof(mc_hdr);

@@ -94,12 +94,12 @@ static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
     int *header_size);
 static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
-    int *err);
+    int *err, gchar **err_info);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
@@ -253,7 +253,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -268,7 +268,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -329,7 +329,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&rec_hdr, sizeof rec_hdr, wth->fh);
 	if (bytes_read != sizeof rec_hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		if (*err != 0) {
@@ -463,7 +463,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -515,7 +515,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
-		    err))
+		    err, err_info))
 			return FALSE;	/* Read error */
 
 		/*
@@ -566,7 +566,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err))
+	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -609,7 +609,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(padbuf, bytes_to_read, wth->fh);
 		if (bytes_read != bytes_to_read) {
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return FALSE;
@@ -633,7 +633,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_ATM_PDUS:
 		if (!snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err)) {
+		    err, err_info)) {
 			/* Read error */
 			return FALSE;
 		}
@@ -663,7 +663,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!snoop_read_rec_data(wth->random_fh, pd, length, err))
+	if (!snoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;	/* failed */
 
 	/*
@@ -678,7 +678,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 
 static gboolean
 snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err)
+    int *err, gchar **err_info)
 {
 	struct snoop_atm_hdr atm_phdr;
 	int	bytes_read;
@@ -688,7 +688,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&atm_phdr, sizeof (struct snoop_atm_hdr), fh);
 	if (bytes_read != sizeof (struct snoop_atm_hdr)) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -781,7 +781,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&whdr, sizeof (shomiti_wireless_header), fh);
 	if (bytes_read != sizeof (shomiti_wireless_header)) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -825,7 +825,8 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 }
 
 static gboolean
-snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
+snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -833,7 +834,7 @@ snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	bytes_read = file_read(pd, length, fh);
 
 	if (bytes_read != length) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

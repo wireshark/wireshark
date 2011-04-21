@@ -45,14 +45,14 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
-    int *err);
+    int *err, gchar **err_info);
 static gboolean iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr,
-    int packet_size, int *err);
+    int packet_size, int *err, gchar **err_info);
 static void fill_in_pseudo_header(int encap, const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header, guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
 
-int iptrace_open(wtap *wth, int *err, gchar **err_info _U_)
+int iptrace_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char name[12];
@@ -60,7 +60,7 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(name, 11, wth->fh);
 	if (bytes_read != 11) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -123,7 +123,7 @@ typedef struct {
 #define IPTRACE_1_0_PDATA_SIZE	22	/* packet data */
 
 /* Read the next packet */
-static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int			ret;
@@ -136,7 +136,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
 	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_1_0_PHDR_SIZE,
-	    err);
+	    err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
@@ -169,13 +169,15 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
 		/*
 		 * Read the padding.
 		 */
-		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err))
+		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err,
+		    err_info))
 			return FALSE;	/* Read error */
 	}
 
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
+	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err,
+	    err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -213,7 +215,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
 
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int			ret;
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
@@ -225,7 +227,7 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
 
 	/* Read the descriptor data */
 	ret = iptrace_read_rec_header(wth->random_fh, header,
-	    IPTRACE_1_0_PHDR_SIZE, err);
+	    IPTRACE_1_0_PHDR_SIZE, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -248,12 +250,14 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
 		/*
 		 * Read the padding.
 		 */
-		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3, err))
+		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3,
+		    err, err_info))
 			return FALSE;	/* Read error */
 	}
 
 	/* Get the packet data */
-	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
+	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err,
+	    err_info))
 		return FALSE;
 
 	/* Fill in the pseudo_header. */
@@ -302,7 +306,7 @@ typedef struct {
 #define IPTRACE_2_0_PDATA_SIZE	32	/* packet data */
 
 /* Read the next packet */
-static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int			ret;
@@ -315,7 +319,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
 	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_2_0_PHDR_SIZE,
-	    err);
+	    err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
@@ -348,13 +352,15 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 		/*
 		 * Read the padding.
 		 */
-		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err))
+		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err,
+		    err_info))
 			return FALSE;	/* Read error */
 	}
 
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
+	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err,
+	    err_info))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -392,7 +398,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	int			ret;
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
@@ -404,7 +410,7 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
 
 	/* Read the descriptor data */
 	ret = iptrace_read_rec_header(wth->random_fh, header,
-	    IPTRACE_2_0_PHDR_SIZE, err);
+	    IPTRACE_2_0_PHDR_SIZE, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -427,12 +433,14 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
 		/*
 		 * Read the padding.
 		 */
-		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3, err))
+		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3,
+		    err, err_info))
 			return FALSE;	/* Read error */
 	}
 
 	/* Get the packet data */
-	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
+	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err,
+	    err_info))
 		return FALSE;
 
 	/* Fill in the pseudo-header. */
@@ -443,14 +451,15 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
 }
 
 static int
-iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err)
+iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(header, header_len, fh);
 	if (bytes_read != header_len) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err != 0)
 			return -1;
 		if (bytes_read != 0) {
@@ -463,7 +472,8 @@ iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err)
 }
 
 static gboolean
-iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
+iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err,
+    gchar **err_info)
 {
 	int	bytes_read;
 
@@ -471,7 +481,7 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 	bytes_read = file_read( data_ptr, packet_size, fh );
 
 	if (bytes_read != packet_size) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;

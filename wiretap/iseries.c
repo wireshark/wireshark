@@ -151,8 +151,9 @@ static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
 				   union wtap_pseudo_header *pseudo_header,
 				   guint8 * pd, int len, int *err,
 				   gchar ** err_info);
-static gboolean iseries_check_file_type (wtap * wth, int *err, int format);
-static gint64 iseries_seek_next_packet (wtap * wth, int *err);
+static gboolean iseries_check_file_type (wtap * wth, int *err, gchar **err_info,
+					 int format);
+static gint64 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info);
 static int iseries_parse_packet (wtap * wth, FILE_T fh,
 				 union wtap_pseudo_header *pseudo_header,
 				 guint8 * pd, int *err, gchar ** err_info);
@@ -161,7 +162,7 @@ static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
 					  int len);
 
 int
-iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
+iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
   int bytes_read;
   char magic[ISERIES_HDR_MAGIC_LEN];
@@ -179,7 +180,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
   bytes_read = file_read (&magic, sizeof magic, wth->fh);
   if (bytes_read != sizeof magic)
     {
-      *err = file_error (wth->fh);
+      *err = file_error (wth->fh, err_info);
       if (*err != 0)
 	return -1;
       return 0;
@@ -196,7 +197,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
        * Do some basic sanity checking to ensure we can handle the
        * contents of this trace
        */
-      if (!iseries_check_file_type (wth, err, ISERIES_FORMAT_ASCII))
+      if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_ASCII))
 	{
 	  if (*err == 0)
 	    return 0;
@@ -228,7 +229,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
        * Do some basic sanity checking to ensure we can handle the
        * contents of this trace
        */
-      if (!iseries_check_file_type (wth, err, ISERIES_FORMAT_UNICODE))
+      if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_UNICODE))
 	{
 	  if (*err == 0)
 	    return 0;
@@ -259,7 +260,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
  * requisit requirements and additional information.
  */
 static gboolean
-iseries_check_file_type (wtap * wth, int *err, int format)
+iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 {
   guint line;
   int num_items_scanned;
@@ -332,7 +333,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	  if (file_eof (wth->fh))
 	    *err = 0;
 	  else
-	    *err = file_error (wth->fh);
+	    *err = file_error (wth->fh, err_info);
 	  return FALSE;
 	}
     }
@@ -352,7 +353,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   /*
    * Locate the next packet
    */
-  offset = iseries_seek_next_packet (wth, err);
+  offset = iseries_seek_next_packet (wth, err, err_info);
   if (offset < 1)
     return FALSE;
 
@@ -372,10 +373,11 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
 
 /*
  * Seeks to the beginning of the next packet, and returns the
- * byte offset.  Returns -1 on failure, and sets "*err" to the error.
+ * byte offset.  Returns -1 on failure, and sets "*err" to the error
+ * and "*err_info" to null or an additional error string.
  */
 static gint64
-iseries_seek_next_packet (wtap * wth, int *err)
+iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
   char buf[ISERIES_LINE_LENGTH];
@@ -385,7 +387,8 @@ iseries_seek_next_packet (wtap * wth, int *err)
 
   /*
    * Seeks to the beginning of the next packet, and returns the
-   * byte offset.  Returns -1 on failure, and sets "*err" to the error.
+   * byte offset.  Returns -1 on failure, and sets "*err" to the error
+   * and "*err_info" to null or an additional error string.
    */
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
     {
@@ -412,7 +415,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	      cur_off = file_tell (wth->fh);
 	      if (cur_off == -1)
 		{
-		  *err = file_error (wth->fh);
+		  *err = file_error (wth->fh, err_info);
 		  return -1;
 		}
 	      if (file_seek (wth->fh, cur_off - buflen, SEEK_SET, err) == -1)
@@ -433,7 +436,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	  else
 	    {
 	      /* We got an error. */
-	      *err = file_error (wth->fh);
+	      *err = file_error (wth->fh, err_info);
 	    }
 	  return -1;
 	}
@@ -508,7 +511,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       cur_off = file_tell (fh);
       if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
 	{
-	  *err = file_error (fh);
+	  *err = file_error (fh, err_info);
 	  if (*err == 0)
 	    {
 	      *err = WTAP_ERR_SHORT_READ;
@@ -614,7 +617,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	    }
 	  else
 	    {
-	      *err = file_error (fh);
+	      *err = file_error (fh, err_info);
 	      if (*err == 0)
 		{
 		  *err = WTAP_ERR_SHORT_READ;
@@ -698,7 +701,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  if (cur_off == -1)
 	    {
 	      /* Error. */
-	      *err = file_error (fh);
+	      *err = file_error (fh, err_info);
 	      return -1;
 	    }
 	  if (file_seek (fh, cur_off - buflen, SEEK_SET, err) == -1)

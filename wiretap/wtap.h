@@ -1002,10 +1002,12 @@ int wtap_register_encap_type(char* name, char* short_name);
 	/* LZ77 compressed data has bad offset to string */
 #define	WTAP_ERR_RANDOM_OPEN_STDIN		-18
 	/* We're trying to open the standard input for random access */
-#define WTAP_ERR_COMPRESSION_NOT_SUPPORTED -19
+#define WTAP_ERR_COMPRESSION_NOT_SUPPORTED	-19
 	/* The filetype doesn't support output compression */
 #define	WTAP_ERR_CANT_SEEK			-20
 	/* An attempt to seek failed, reason unknown */
+#define WTAP_ERR_DECOMPRESS			-21
+	/* Error decompressing */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error
    WTAP_ERR_ZLIB + Z_xxx.

@@ -91,6 +91,7 @@ struct wtap_reader {
 	int seek;               /* true if seek request pending */
 	/* error information */
 	int err;                /* error code */
+	char *err_info;         /* additional error information string for some errors */
 
 	unsigned int  avail_in;  /* number of bytes available at next_in */
 	unsigned char *next_in;  /* next input byte */
@@ -402,7 +403,8 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		if (state->avail_in == 0 && fill_in_buffer(state) == -1)
 			break;
 		if (state->avail_in == 0) {
-			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+			/* EOF */
+			state->err = WTAP_ERR_SHORT_READ;
 			break;
 		}
 
@@ -413,8 +415,14 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		ret = inflate(strm, Z_BLOCK);
 		state->avail_in = strm->avail_in;
 		state->next_in = strm->next_in;
-		if (ret == Z_STREAM_ERROR || ret == Z_NEED_DICT) {
-			state->err = WTAP_ERR_ZLIB + Z_STREAM_ERROR;
+		if (ret == Z_STREAM_ERROR) {
+			state->err = WTAP_ERR_DECOMPRESS;
+			state->err_info = strm->msg;
+			break;
+		}
+		if (ret == Z_NEED_DICT) {
+			state->err = WTAP_ERR_DECOMPRESS;
+			state->err_info = "preset dictionary needed";
 			break;
 		}
 		if (ret == Z_MEM_ERROR) {
@@ -423,7 +431,8 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 			break;
 		}
 		if (ret == Z_DATA_ERROR) {              /* deflate stream invalid */
-			state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+			state->err = WTAP_ERR_DECOMPRESS;
+			state->err_info = strm->msg;
 			break;
 		}
 		/*
@@ -480,10 +489,13 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	if (ret == Z_STREAM_END) {
 		if (gz_next4(state, &crc) != -1 &&
 		    gz_next4(state, &len) != -1) {
-			if (crc != strm->adler)
-				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
-			if (len != (strm->total_out & 0xffffffffL))
-				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+			if (crc != strm->adler) {
+				state->err = WTAP_ERR_DECOMPRESS;
+				state->err_info = "bad CRC";
+			} else if (len != (strm->total_out & 0xffffffffL)) {
+				state->err = WTAP_ERR_DECOMPRESS;
+				state->err_info = "length field wrong";
+			}
 		}
 		state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
 		g_free(state->fast_seek_cur);
@@ -526,7 +538,8 @@ gz_head(FILE_T state)
 			if (gz_next1(state, &cm) == -1)
 				return -1;
 			if (cm != 8) {
-				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+				state->err = WTAP_ERR_DECOMPRESS;
+				state->err_info = "unknown compression method";
 				return -1;
 			}
 
@@ -534,7 +547,8 @@ gz_head(FILE_T state)
 			if (gz_next1(state, &flags) == -1)
 				return -1;
 			if (flags & 0xe0) {     /* reserved flag bits */
-				state->err = WTAP_ERR_ZLIB + Z_DATA_ERROR;
+				state->err = WTAP_ERR_DECOMPRESS;
+				state->err_info = "reserved flag bits set";
 				return -1;
 			}
 
@@ -686,6 +700,7 @@ gz_reset(FILE_T state)
 
 	state->seek = 0;              /* no seek request pending */
 	state->err = 0;               /* clear error */
+	state->err_info = NULL;
 	state->pos = 0;               /* no uncompressed data yet */
 	state->avail_in = 0;          /* no input data yet */
 }
@@ -844,6 +859,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		file->eof = 0;
 		file->seek = 0;
 		file->err = 0;
+		file->err_info = NULL;
 		file->avail_in = 0;
 
 #ifdef HAVE_LIBZ
@@ -902,6 +918,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		file->eof = 0;
 		file->seek = 0;
 		file->err = 0;
+		file->err_info = NULL;
 		file->avail_in = 0;
 		file->pos += offset;
 		return file->pos;
@@ -1105,12 +1122,16 @@ file_eof(FILE_T file)
 /*
  * Routine to return a Wiretap error code (0 for no error, an errno
  * for a file error, or a WTAP_ERR_ code for other errors) for an
- * I/O stream.
+ * I/O stream.  Also returns an error string for some errors.
  */
 int
-file_error(FILE_T fh)
+file_error(FILE_T fh, gchar **err_info)
 {
-	return fh->err;
+	if (fh->err != 0) {
+		*err_info = (fh->err_info == NULL) ? NULL : g_strdup(fh->err_info);
+		return fh->err;
+	}
+	return 0;
 }
 
 void
@@ -1118,6 +1139,7 @@ file_clearerr(FILE_T stream)
 {
 	/* clear error and end-of-file */
 	stream->err = 0;
+	stream->err_info = NULL;
 	stream->eof = 0;
 }
 
@@ -1136,6 +1158,7 @@ file_close(FILE_T file)
 	}
 	g_free(file->fast_seek_cur);
 	file->err = 0;
+	file->err_info = NULL;
 	g_free(file);
 	return close(fd);
 }

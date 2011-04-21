@@ -105,8 +105,9 @@ static int parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static gint64 eyesdn_seek_next_packet(wtap *wth, int *err)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error
+   and "*err_info" to null or an additional error string. */
+static gint64 eyesdn_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
 	int byte;
 	gint64 cur_off;
@@ -116,7 +117,7 @@ static gint64 eyesdn_seek_next_packet(wtap *wth, int *err)
 			cur_off = file_tell(wth->fh);
 			if (cur_off == -1) {
 				/* Error. */
-				*err = file_error(wth->fh);
+				*err = file_error(wth->fh, err_info);
 				return -1;
 			}
 			return cur_off;
@@ -127,12 +128,12 @@ static gint64 eyesdn_seek_next_packet(wtap *wth, int *err)
 		*err = 0;
 	} else {
 		/* We got an error. */
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 	}
 	return -1;
 }
 
-int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
+int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 {
 	int	bytes_read;
 	char	magic[EYESDN_HDR_MAGIC_SIZE];
@@ -141,7 +142,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -169,7 +170,7 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	int	pkt_len;
 
 	/* Find the next packet */
-	offset = eyesdn_seek_next_packet(wth, err);
+	offset = eyesdn_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
 
@@ -235,7 +236,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	 * information.
 	 */
 	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
@@ -304,7 +305,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 
 		cur_off = file_tell(fh);
 		if (esc_read(cell, CELL_LEN, fh) != CELL_LEN) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -386,7 +387,7 @@ parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
 	bytes_read = esc_read(buf, pkt_len, fh);
 	if (bytes_read != pkt_len) {
 		if (bytes_read == -2) {
-			*err = file_error(fh);
+			*err = file_error(fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 		} else if (bytes_read == -1) {

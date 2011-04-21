@@ -82,23 +82,23 @@ typedef struct commview_header {
 #define MEDIUM_WIFI		1
 #define MEDIUM_TOKEN_RING	2
 
-static gboolean commview_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   union wtap_pseudo_header *pseudo_header,
 				   guchar *pd, int length, int *err,
-				   gchar **err_info _U_);
+				   gchar **err_info);
 static gboolean  commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
-				      int *err);
+				      int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
 			      const union wtap_pseudo_header *pseudo_header _U_,
 			      const guchar *pd, int *err);
 
-int commview_open(wtap *wth, int *err, gchar **err_info _U_)
+int commview_open(wtap *wth, int *err, gchar **err_info)
 {
 	commview_header_t cv_hdr;
 
-	if(!commview_read_header(&cv_hdr, wth->fh, err))
+	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info))
 		return -1;
 
 	/* If any of these fields do not match what we expect, bail out. */
@@ -133,7 +133,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 }
 
 static gboolean
-commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
+commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	commview_header_t cv_hdr;
 	struct tm tm;
@@ -141,7 +141,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 	*data_offset = wth->data_offset;
 
-	if(!commview_read_header(&cv_hdr, wth->fh, err))
+	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info))
 		return FALSE;
 
 	wth->data_offset += COMMVIEW_HEADER_SIZE;
@@ -170,7 +170,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
 			       cv_hdr.data_len, wth->fh);
 	if(bytes_read != cv_hdr.data_len) {
-		*err = file_error(wth->fh);
+		*err = file_error(wth->fh, err_info);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -198,7 +198,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		   *pseudo_header, guchar *pd, int length, int *err,
-		   gchar **err_info _U_)
+		   gchar **err_info)
 {
 	commview_header_t cv_hdr;
 	int bytes_read;
@@ -206,7 +206,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!commview_read_header(&cv_hdr, wth->random_fh, err)) {
+	if(!commview_read_header(&cv_hdr, wth->random_fh, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -229,7 +229,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 
 	bytes_read = file_read(pd, cv_hdr.data_len, wth->random_fh);
 	if(bytes_read != cv_hdr.data_len) {
-		*err = file_error(wth->random_fh);
+		*err = file_error(wth->random_fh, err_info);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
@@ -240,7 +240,8 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 }
 
 static gboolean
-commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
+commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err,
+    gchar **err_info)
 {
 	int bytes_read = 0;
 
@@ -270,7 +271,7 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
 	cv_hdr->usecs = GUINT32_FROM_LE(cv_hdr->usecs);
 
 	if(bytes_read < COMMVIEW_HEADER_SIZE) {
-		*err = file_error(fh);
+		*err = file_error(fh, err_info);
 		if(*err == 0 && bytes_read > 0)
 			*err = WTAP_ERR_SHORT_READ;
 

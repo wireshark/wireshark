@@ -585,7 +585,10 @@ static const char *wtap_errlist[] = {
 	"Uncompression error: data oddly truncated",
 	"Uncompression error: data would overflow buffer",
 	"Uncompression error: bad LZ77 offset",
-	"The standard input cannot be opened for random access"
+	"The standard input cannot be opened for random access",
+	"That file format doesn't support compression",
+	NULL,
+	"Uncompression error"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
@@ -710,7 +713,7 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * last packet of the file.
 		 */
 		if (*err == 0)
-			*err = file_error(wth->fh);
+			*err = file_error(wth->fh, err_info);
 		return FALSE;	/* failure */
 	}
 

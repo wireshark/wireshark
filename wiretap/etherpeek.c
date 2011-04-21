@@ -159,7 +159,7 @@ static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
 
-int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
+int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 {
 	etherpeek_header_t ep_hdr;
 	struct timeval reference_time;
@@ -176,7 +176,7 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 	 */
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
-		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err);
+		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err, err_info);
 	wth->data_offset += sizeof(ep_hdr.master);
 
 	/*
@@ -204,7 +204,7 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info _U_)
 		        ETHERPEEK_V567_HDR_SIZE);
 		wtap_file_read_unknown_bytes(
 			&ep_hdr.secondary.v567,
-			sizeof(ep_hdr.secondary.v567), wth->fh, err);
+			sizeof(ep_hdr.secondary.v567), wth->fh, err, err_info);
 		wth->data_offset += sizeof(ep_hdr.secondary.v567);
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
@@ -381,7 +381,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err,
+	    err_info);
 	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
@@ -424,7 +425,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
 			return FALSE;
 		}
-		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->fh, err);
+		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->fh, err,
+		    err_info);
 
 		/*
 		 * We don't treat the radio information as packet data.
@@ -449,7 +451,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	/* read the frame data */
 	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-	                              sliceLength, wth->fh, err);
+	                              sliceLength, wth->fh, err, err_info);
 	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
@@ -488,7 +490,7 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 
 	/* Read the packet header. */
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
-	    err);
+	    err, err_info);
 	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
 
 	switch (wth->file_encap) {
@@ -507,7 +509,7 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 			return FALSE;
 		}
 		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->random_fh,
-		    err);
+		    err, err_info);
 
 		etherpeek_fill_pseudo_header_v7(pseudo_header,
 		    &radio_hdr);
@@ -525,7 +527,8 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
+	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err,
+	    err_info);
 	return TRUE;
 }
 
@@ -539,7 +542,7 @@ etherpeek_fill_pseudo_header_v7(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->ieee_802_11.signal_level = radio_hdr->signal_level;
 }
 
-static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	etherpeek_t *etherpeek = (etherpeek_t *)wth->priv;
@@ -571,7 +574,8 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	 */
 	*data_offset = wth->data_offset;
 
-	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err,
+	    err_info);
 	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
@@ -603,7 +607,7 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	/* read the frame data */
 	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-	                              sliceLength, wth->fh, err);
+	                              sliceLength, wth->fh, err, err_info);
 	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
@@ -634,7 +638,7 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 static gboolean
 etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	int pkt_encap;
@@ -645,7 +649,7 @@ etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
 		return FALSE;
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
-	    err);
+	    err, err_info);
 
 	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
 	pkt_encap = WTAP_ENCAP_UNKNOWN;
@@ -667,6 +671,7 @@ etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
 	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
+	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err,
+	    err_info);
 	return TRUE;
 }
