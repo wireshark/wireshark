@@ -266,9 +266,9 @@ ep_check_canary_integrity(const char* fmt, ...)
 
 		while (canary_next != NULL) {
 			canary_next = emem_canary_next(ep_packet_mem.canary, canary_next, NULL);
-			/* XXX, check if canary_last is inside allocated memory? */
+			/* XXX, check if canary_next is inside allocated memory? */
 
-			if (npc->canary_last == (void *) -1)
+			if (canary_next == (void *) -1)
 				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s", there, here);
 		}
 	}
