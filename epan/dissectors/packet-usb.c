@@ -1304,7 +1304,6 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     flags&=~0x40;
     proto_tree_add_item(flags_tree, hf_usb_configuration_remotewakeup, tvb, offset, 1, TRUE);
     proto_item_append_text(flags_item, "  %sREMOTE-WAKEUP", (flags&0x20)?"":"NO ");
-    flags&=~0x20;
     offset++;
 
     /* bMaxPower */
