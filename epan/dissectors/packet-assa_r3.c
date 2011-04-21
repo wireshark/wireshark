@@ -4306,7 +4306,7 @@ static void dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start
     proto_tree_add_bits_item (tmp_tree [17], hf_r3_dumpm41t81_reg11_notused,    tvb, offset_in_bits, 8, TRUE);  offset_in_bits += 8;
     proto_tree_add_bits_item (tmp_tree [18], hf_r3_dumpm41t81_reg12_notused,    tvb, offset_in_bits, 8, TRUE);  offset_in_bits += 8;
     proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_rs,         tvb, offset_in_bits - 8, 4, TRUE);  offset_in_bits += 4;
-    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_notused,    tvb, offset_in_bits - 8, 4, TRUE);  offset_in_bits += 4;
+    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_notused,    tvb, offset_in_bits - 8, 4, TRUE);
   }
 }
 
