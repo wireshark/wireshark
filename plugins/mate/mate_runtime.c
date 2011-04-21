@@ -385,7 +385,7 @@ static void analyze_gop(mate_gop* gop) {
 	mate_gog* gog = NULL;
 	gchar* key = NULL;
 
-	if ( ! ( gog = gop->gog ) ) {
+	if ( ! gop->gog  ) {
 		/* no gog, let's either find one or create it if due */
 		dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no gog");
 
