@@ -338,6 +338,7 @@ hostlist_sort_column(GtkTreeModel *model,
 #endif
     }
     g_assert_not_reached();
+    return 0;
 }
 
 static void

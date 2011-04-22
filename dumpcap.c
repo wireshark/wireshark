@@ -3902,6 +3902,7 @@ main(int argc, char *argv[])
         /* capture failed */
         exit_main(1);
     }
+    return 0; /* never here, make compiler happy */
 }
 
 
