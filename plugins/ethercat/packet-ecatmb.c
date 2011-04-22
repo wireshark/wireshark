@@ -1141,6 +1141,8 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                anItem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_macfilter, tvb, offset, MIN(eoe_length-offset, ETHERCAT_EOE_MACFILTER_LEN), TRUE);
                if( eoe_length-offset >= ETHERCAT_EOE_MACFILTER_LEN )
                {
+                  proto_tree *ecat_eoe_macfilter_filtermask_tree;
+
                   ecat_eoe_macfilter_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter);
                   proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_macfiltercount, tvb, offset, 4, TRUE);
                   proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_maskcount, tvb, offset, 4, TRUE);
@@ -1155,9 +1157,9 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   offset+=16*ETHERNET_ADDRESS_LEN;
 
                   anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*sizeof(guint32), TRUE);
-                  proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filtermask);
+                  ecat_eoe_macfilter_filtermask_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filtermask);
                   for( nCnt=0; nCnt<options.v.MacFilterMaskCount; nCnt++)
-                     proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*sizeof(guint32), sizeof(guint32), TRUE);
+                     proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*sizeof(guint32), sizeof(guint32), TRUE);
                }
                else
                   proto_item_append_text(anItem, " - Invalid length!");
