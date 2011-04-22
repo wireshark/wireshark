@@ -777,7 +777,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         /* Dynamic (not stack) memory required for address column. */
-        gchar    *addr = ep_alloc(8);
+        void     *addr = ep_alloc(8);
         gchar    *dst, *dst_oui;
 
         /* Get the address */
@@ -897,7 +897,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         /* Dynamic (not stack) memory required for address column. */
-        gchar   *addr = ep_alloc(8);
+        void    *addr = ep_alloc(8);
         gchar   *src, *src_oui;
 
         /* Get the address. */
