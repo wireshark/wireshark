@@ -291,7 +291,7 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
 
 	/* XXX: is this enough to guess it? */
-	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
+	if (tag==BER_UNI_TAG_OCTETSTRING) {
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &bctp_tvb);
 
 		if (bctp_tvb) {
