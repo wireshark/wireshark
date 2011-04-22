@@ -1743,16 +1743,15 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 static void
 dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, gchar *msg)
 {
-    proto_item *item;
+    /*proto_item *item;*/
     /*proto_tree *tree;*/
 
     /*item=proto_tree_add_string(megaco_tree, hf_megaco_h245, tvb,
         offset, len, msg );
         */
-    item = proto_tree_add_text(megaco_tree, tvb, offset, len,
-            "%s", msg);
+    /*item = */proto_tree_add_text(megaco_tree, tvb, offset, len, "%s", msg);
 
-    /*tree = */proto_item_add_subtree(item, ett_megaco_h245);
+    /*tree = proto_item_add_subtree(item, ett_megaco_h245); */
 
     /* arbitrary maximum length */
     if(len<20480){
