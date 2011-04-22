@@ -1284,7 +1284,7 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return FALSE;
       }
       type = erf_exhdr[0];
-      erf_exhdr_sw = pntohll(erf_exhdr[0]);
+      erf_exhdr_sw = pntohll(erf_exhdr);
       if (i < max)
 	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
       *psize += 8;
