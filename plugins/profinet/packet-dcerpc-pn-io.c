@@ -7317,8 +7317,8 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 {
     proto_item *f_item;
     proto_tree *f_tree;
-    proto_item *flags1_item;
-    proto_item *flags2_item;
+    proto_item *flags_item;
+    proto_tree *flags_tree;
     guint16 src_addr;
     guint16 dst_addr;
     guint16 wd_time;
@@ -7339,41 +7339,41 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     proto_item_set_text(f_item, "F-Parameter: ");        
 
     
-    flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, FALSE);
-    proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
+    flags_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, FALSE);
+    flags_tree = proto_item_add_subtree(flags_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_sil, &prm_flag1_sil); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_crc_len, &prm_flag1_crc_len); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_reserved, &prm_flag1_reserved); 
     prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_reserved;
     offset++;
 
-    flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, FALSE);
-    proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
+    flags_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, FALSE);
+    flags_tree = proto_item_add_subtree(flags_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
     prm_flag2 = prm_flag2_reserved|prm_flag2_f_block_id|prm_flag2_f_par_version;
     offset++;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
                     hf_pn_io_profisafe_f_src_addr, &src_addr); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
                     hf_pn_io_profisafe_f_dst_addr, &dst_addr); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
                     hf_pn_io_profisafe_f_wd_time, &wd_time); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
                     hf_pn_io_profisafe_f_par_crc, &par_crc); 
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, crc:0x%04x",
