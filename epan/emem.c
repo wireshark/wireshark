@@ -540,26 +540,22 @@ print_alloc_stats()
 #endif
 
 static gboolean
-emem_verify_pointer(emem_header_t *hdr, const void *ptr)
+emem_verify_pointer_list(const emem_chunk_t *chunk_list, const void *ptr)
 {
 	const gchar *cptr = ptr;
-	emem_chunk_t *used_list[2];
-	guint8 used_list_idx;
-	emem_chunk_t *chunk;
+	const emem_chunk_t *chunk;
 
-	used_list[0] = hdr->free_list;
-	used_list[1] = hdr->used_list;
-
-	for (used_list_idx=0; used_list_idx < G_N_ELEMENTS(used_list); ++used_list_idx) {
-		chunk = used_list[used_list_idx];
-		for ( ; chunk ; chunk = chunk->next) {
-			if (cptr >= (chunk->buf + chunk->free_offset_init) &&
-				cptr < (chunk->buf + chunk->free_offset))
-				return TRUE;
-		}
+	for (chunk = chunk_list; chunk; chunk = chunk->next) {
+		if (cptr >= (chunk->buf + chunk->free_offset_init) && cptr < (chunk->buf + chunk->free_offset))
+			return TRUE;
 	}
-
 	return FALSE;
+}
+
+static gboolean
+emem_verify_pointer(const emem_header_t *hdr, const void *ptr)
+{
+	return emem_verify_pointer_list(hdr->free_list, ptr) || emem_verify_pointer_list(hdr->used_list, ptr);
 }
 
 gboolean
