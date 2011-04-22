@@ -26,7 +26,8 @@
 #ifndef __EMEM_H__
 #define __EMEM_H__
 
-#include "g_gnuc_malloc.h"
+#include "g_gnuc.h"
+
 /** @file
  */
 /**  Initialize all the memory allocation pools described below.

@@ -1,5 +1,5 @@
-/* g_gnuc_malloc.h
- * Definitions of macro to conditionally do GCC malloc optimization
+/* g_gnuc.h
+ * Definitions of macros to conditionally do GCC optimization or code checks
  *
  * $Id$
  *
@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __G_GNUC_MALLOC_H__
-#define __G_GNUC_MALLOC_H__
+#ifndef __G_GNUC_H__
+#define __G_GNUC_H__
 
 /**
  * GLib 2.6 has the ability to enable better optimization of malloc functions.
@@ -38,4 +38,8 @@
 	#define G_GNUC_NULL_TERMINATED
 #endif
 
-#endif /* g_gnuc_malloc.h */
+#if ! GLIB_CHECK_VERSION(2,10,0)
+	#define G_GNUC_WARN_UNUSED_RESULT
+#endif
+
+#endif /* g_gnuc.h */
