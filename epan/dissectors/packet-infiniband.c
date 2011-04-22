@@ -1500,8 +1500,8 @@ static guint32 opCode_PAYLD[] = {
 * RC_ACKNOWLEDGE
 * }; */
 
-static gchar *src_addr = NULL,     /* the address to be displayed in the source/destination columns */
-             *dst_addr = NULL;     /* (lid/gid number) will be stored here */
+static void *src_addr = NULL,     /* the address to be displayed in the source/destination columns */
+            *dst_addr = NULL;     /* (lid/gid number) will be stored here */
 
 #define ADDR_MAX_LEN  sizeof("IPv6 over IB Packet")      /* maximum length of src_addr and dst_addr is for IPoIB
                                                             where we print an explanation string */
