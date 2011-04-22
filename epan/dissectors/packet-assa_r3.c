@@ -2871,12 +2871,41 @@ static hf_register_info hf [] =
   { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_TIMEZONE],         { "Timezone",           "r3.manageuser.timezone",         FT_UINT32,  BASE_HEX,     NULL, 0x0, NULL, HFILL }}
 };
 
-typedef struct dissectorParser_s
+typedef struct commandDissectorParser_s
 {
   cmdCommand_e command;
   void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
 }
-dissectorParser_t;
+commandDissectorParser_t;
+
+typedef struct commandMfgDissectorParser_s
+{
+  cmdMfgCommand_e command;
+  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
+}
+commandMfgDissectorParser_t;
+
+typedef struct responseTypeDissectorParser_s
+{
+  responseType_e command;
+  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
+}
+responseTypeDissectorParser_t;
+
+typedef struct upstreamCommandDissectorParser_s
+{
+  upstreamCommand_e command;
+  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
+}
+upstreamCommandDissectorParser_t;
+
+typedef struct mfgFieldDissectorParser_s
+{
+  mfgField_e command;
+  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
+}
+mfgFieldDissectorParser_t;
+
 
 /*
  *  Dissectors for each command
@@ -2914,7 +2943,7 @@ static void dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, guint32 start_offset, guin
 static void dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static dissectorParser_t r3command_dissect [] =
+static commandDissectorParser_t r3command_dissect [] =
 {
   { CMD_RESPONSE,                  dissect_r3_cmd_response },
   { CMD_HANDSHAKE,                 dissect_r3_cmd_handshake },
@@ -2986,7 +3015,7 @@ static void dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, guint32 start
 static void dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static dissectorParser_t r3commandmfg_dissect [] =
+static commandMfgDissectorParser_t r3commandmfg_dissect [] =
 {
   { CMDMFG_SETSERIALNUMBER,       dissect_r3_cmdmfg_setserialnumber },
   { CMDMFG_SETCRYPTKEY,           dissect_r3_cmdmfg_setcryptkey },
@@ -3028,7 +3057,7 @@ static dissectorParser_t r3commandmfg_dissect [] =
 static void dissect_r3_response_singlebyte (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static dissectorParser_t r3response_dissect [] =
+static responseTypeDissectorParser_t r3response_dissect [] =
 {
   { RESPONSETYPE_OK,                  dissect_r3_response_singlebyte },
   { RESPONSETYPE_ERROR,               dissect_r3_response_singlebyte },
@@ -3110,7 +3139,7 @@ static void dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, guint32 s
 static void dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static dissectorParser_t r3upstreamcommand_dissect [] =
+static upstreamCommandDissectorParser_t r3upstreamcommand_dissect [] =
 {
   { UPSTREAMCOMMAND_RESERVED,           dissect_r3_upstreamcommand_reserved },
   { UPSTREAMCOMMAND_DEBUGMSG,           dissect_r3_upstreamcommand_debugmsg },
@@ -3159,7 +3188,7 @@ static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start
 static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static dissectorParser_t r3upstreammfgfield_dissect [] =
+static mfgFieldDissectorParser_t r3upstreammfgfield_dissect [] =
 {
   { MFGFIELD_IOPINS,              dissect_r3_upstreammfgfield_iopins },
   { MFGFIELD_ADCS,                dissect_r3_upstreammfgfield_adcs },
