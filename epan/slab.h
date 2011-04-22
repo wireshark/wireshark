@@ -68,8 +68,8 @@
 
 #define SLAB_FREE(item, type)						\
 {									\
-	((union type ## slab_item *)item)->next_free = type ## _free_list;	\
-	type ## _free_list = (union type ## slab_item *)item;		\
+	((union type ## slab_item *)(void *)item)->next_free = type ## _free_list;	\
+	type ## _free_list = (union type ## slab_item *)(void *)item;		\
 }
 
 #endif /* slab.h */
