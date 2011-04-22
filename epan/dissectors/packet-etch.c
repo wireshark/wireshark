@@ -192,7 +192,7 @@ gbl_symbols_free(void) {
   if (gbl_symbols_array != NULL) {
     value_string *vs_p;
     guint i;
-    vs_p = (value_string *)gbl_symbols_array->data;
+    vs_p = (value_string *)(void *)gbl_symbols_array->data;
     for (i=0; i<gbl_symbols_array->len; i++) {
       g_free((gchar *)vs_p[i].strptr);
     }
@@ -227,7 +227,7 @@ gbl_symbols_vs_ext_new(void) {
   DISSECTOR_ASSERT(gbl_symbols_vs_ext == NULL);
   DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_sort(gbl_symbols_array, gbl_symbols_compare_vs);
-  gbl_symbols_vs_ext = value_string_ext_new((value_string *)gbl_symbols_array->data,
+  gbl_symbols_vs_ext = value_string_ext_new((value_string *)(void *)gbl_symbols_array->data,
                                             gbl_symbols_array->len+1,
                                             "etch-global-symbols" );
 }
