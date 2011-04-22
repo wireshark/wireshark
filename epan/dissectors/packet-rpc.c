@@ -1643,7 +1643,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  and version values.
  */
 
-static void 
+static void
 make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 {
 	/* sanity check: no one uses versions > 10 */
@@ -2244,6 +2244,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (flavor == FLAVOR_AUTHGSSAPI_MSG) {
 			procname = (char *)match_strval(gss_proc, rpc_authgssapi_proc);
 		}
+
+		/* Don't pass NULL string pointers to the format routines below */
+		if (!procname)
+			procname = "(null)";
 
 		rpc_prog_key.prog = prog;
 		if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
