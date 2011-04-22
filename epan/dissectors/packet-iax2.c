@@ -1892,18 +1892,14 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
 
 
 static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
-                                        guint16 scallno, packet_info * pinfo,
-                                        proto_tree * iax2_tree, proto_tree *main_tree)
+                                        guint16 scallno _U_, packet_info * pinfo,
+                                        proto_tree * iax2_tree, proto_tree *main_tree _U_)
 {
   guint8 cmddata, trunkts;
   int ncalls = 0;
   /*iax_packet_data *iax_packet;*/
   proto_item *cd, *nc = NULL;
   proto_tree *field_tree = NULL;
-
-  /* shut the compiler up */
-  scallno = scallno;
-  main_tree = main_tree;
 
   cmddata = tvb_get_guint8(tvb, offset + 1);
   trunkts = cmddata & IAX2_TRUNK_TS;
@@ -2170,7 +2166,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
 static void dissect_payload(tvbuff_t *tvb, guint32 offset,
                             packet_info *pinfo, proto_tree *iax2_tree,
-                            proto_tree *tree, guint32 ts, gboolean video,
+                            proto_tree *tree, guint32 ts _U_, gboolean video,
                             iax_packet_data *iax_packet)
 {
 #if 0
@@ -2180,9 +2176,6 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   guint32 codec = iax_packet -> codec;
   guint32 nbytes;
   iax_call_data *iax_call = iax_packet -> call_data;
-
-  /* keep compiler quiet */
-  ts = ts;
 
   if( offset >= tvb_reported_length (tvb)) {
     col_append_str (pinfo->cinfo, COL_INFO, ", empty frame" );
