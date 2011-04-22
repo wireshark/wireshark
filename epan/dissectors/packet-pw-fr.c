@@ -159,7 +159,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 			}
 		}
 	}
-	if ((payload_size == 0))
+	if (payload_size == 0)
 	{		
 		packet_quality |= PQ_PAYLOAD_SIZE_ZERO;
 	}
