@@ -81,15 +81,15 @@
 
 typedef  struct nspr_header_v10
 {
-	guint16	ph_RecordType;	/* Record Type */
-	guint16	ph_RecordSize;	/* Record Size including header */
+	guint8	ph_RecordType[2];	/* Record Type */
+	guint8	ph_RecordSize[2];	/* Record Size including header */
 } nspr_header_v10_t;
 #define	nspr_header_v10_s	sizeof(nspr_header_v10_t)
 
 /* This is V20 short header (2 bytes long) to be included where needed */
 #define NSPR_HEADER_V20(prefix) \
-    guint8 prefix##_RecordType;    /* Record Type */ \
-	guint8 prefix##_RecordSize     /* Record Size including header */	\
+	guint8 prefix##_RecordType;	/* Record Type */ \
+	guint8 prefix##_RecordSize	/* Record Size including header */	\
 					/* end of declaration */
 
 /* This is new long header (3 bytes long) to be included where needed */
@@ -119,9 +119,9 @@ typedef  struct nspr_hd_v20
 /* Performance Data Header with device number */
 typedef  struct nspr_headerdev_v10
 {
-	guint16	ph_RecordType;	/* Record Type */
-	guint16	ph_RecordSize;	/* Record Size including header */
-	guint32	ph_DevNo;	/* Network Device (NIC/CONN) number */
+	guint8	ph_RecordType[2];	/* Record Type */
+	guint8	ph_RecordSize[2];	/* Record Size including header */
+	guint8	ph_DevNo[4];		/* Network Device (NIC/CONN) number */
 } nspr_headerdev_v10_t;
 #define	nspr_headerdev_v10_s	sizeof(nspr_headerdev_v10_t)
 
@@ -153,7 +153,7 @@ typedef	struct nspr_signature_v10
 	nspr_header_v10_t phd;	/* performance header */
 	guint8	sig_EndianType;	/* Endian Type for the data */
 	guint8	sig_Reserved0;
-	guint16	sig_Reserved1;
+	guint8	sig_Reserved1[2];
 	gchar	sig_Signature[NSPR_SIGSIZE_V10];	/* Signature value */
 } nspr_signature_v10_t;
 #define	nspr_signature_v10_s	sizeof(nspr_signature_v10_t)
@@ -171,8 +171,8 @@ typedef	struct nspr_signature_v20
 typedef	struct nspr_abstime_v10
 {
 	nspr_header_v10_t phd;	/* performance header */
-	guint32	abs_RelTime;	/* relative time is ms from last time */
-	guint32	abs_Time;	/* absolute time in seconds from 1970 */
+	guint8	abs_RelTime[4];	/* relative time is ms from last time */
+	guint8	abs_Time[4];	/* absolute time in seconds from 1970 */
 } nspr_abstime_v10_t;
 #define	nspr_abstime_v10_s	sizeof(nspr_abstime_v10_t)
 
@@ -181,8 +181,8 @@ typedef	struct nspr_abstime_v10
 typedef	struct nspr_abstime_v20
 {
 	NSPR_HEADER_V20(abs);	/* short performance header */
-	guint16	abs_RelTime;	/* relative time is ms from last time */
-	guint32	abs_Time;	/* absolute time in seconds from 1970 */
+	guint8	abs_RelTime[2];	/* relative time is ms from last time */
+	guint8	abs_Time[4];	/* absolute time in seconds from 1970 */
 } nspr_abstime_v20_t;
 #define	nspr_abstime_v20_s	sizeof(nspr_abstime_v20_t)
 
@@ -192,125 +192,123 @@ typedef	struct nspr_abstime_v20
 typedef	struct	nspr_pktracefull_v10
 {
 	nspr_headerdev_v10_t phd;	/* performance header */
-	guint32	fp_RelTimeHr;	/* High resolution relative time */
-	guint8	fp_Data[1];	/* packet data starts here */
+	guint8	fp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	fp_Data[1];		/* packet data starts here */
 } nspr_pktracefull_v10_t;
 #define	nspr_pktracefull_v10_s	(nspr_hdev_v10_s + 4)
 
 /* new full packet trace structure v20 */
 typedef	struct	nspr_pktracefull_v20
 {
-	NSPR_HEADER3B_V20(fp);	/* long performance header */
-	guint8	fp_DevNo;	/* Network Device (NIC) number */
-	guint32	fp_RelTimeHr;	/* High resolution relative time */
-	guint8	fp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V20(fp);		/* long performance header */
+	guint8	fp_DevNo;		/* Network Device (NIC) number */
+	guint8	fp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	fp_Data[4];		/* packet data starts here */
 } nspr_pktracefull_v20_t;
 #define	nspr_pktracefull_v20_s	(sizeof(nspr_pktracefull_v20_t) - 4)
 
 /* new full packet trace structure v21 */
 typedef	struct	nspr_pktracefull_v21
 {
-	NSPR_HEADER3B_V21(fp);	/* long performance header */
-	guint8	fp_DevNo;	/* Network Device (NIC) number */
-	guint32	fp_RelTimeHr;	/* High resolution relative time */
-	guint32	fp_PcbDevNo;	/* PCB devno */
-	guint32	fp_lPcbDevNo;	/* link PCB devno */
-	guint8	fp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V21(fp);		/* long performance header */
+	guint8	fp_DevNo;		/* Network Device (NIC) number */
+	guint8	fp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	fp_PcbDevNo[4];		/* PCB devno */
+	guint8	fp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	fp_Data[4];		/* packet data starts here */
 } nspr_pktracefull_v21_t;
 #define	nspr_pktracefull_v21_s	(sizeof(nspr_pktracefull_v21_t) - 4)
 
 /* new full packet trace structure v22 */
 typedef	struct	nspr_pktracefull_v22
 {
-	NSPR_HEADER3B_V22(fp);	/* long performance header */
-	guint8	fp_DevNo;	/* Network Device (NIC) number */
-	guint32	fp_RelTimeHr;	/* High resolution relative time */
-	guint32	fp_PcbDevNo;	/* PCB devno */
-	guint32	fp_lPcbDevNo;	/* link PCB devno */
-	guint16	fp_VlanTag;
-	guint8	fp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V22(fp);		/* long performance header */
+	guint8	fp_DevNo;		/* Network Device (NIC) number */
+	guint8	fp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	fp_PcbDevNo[4];		/* PCB devno */
+	guint8	fp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	fp_VlanTag[2];		/* vlan tag */
+	guint8	fp_Data[2];		/* packet data starts here */
 } nspr_pktracefull_v22_t;
-#define	nspr_pktracefull_v22_s	(sizeof(nspr_pktracefull_v22_t) - 4)
+#define	nspr_pktracefull_v22_s	(sizeof(nspr_pktracefull_v22_t) - 2)
 
 typedef	struct	nspr_pktracefull_v23
 {
-	NSPR_HEADER3B_V22(fp);	/* long performance header */
-	guint8	fp_DevNo;	/* Network Device (NIC) number */
-	guint32	fp_AbsTimeLowHdr;	/* High resolution low time */
-	guint32 fp_AbsTimeHighHdr; /* Higher value of the absolute time */
-	guint32	fp_PcbDevNo;	/* PCB devno */
-	guint32	fp_lPcbDevNo;	/* link PCB devno */
-	guint16 fp_VlanTag; /* vlan tag */
-	guint16 fp_Coreid; /* coreid of the packet */
-	guint8	fp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V22(fp);		/* long performance header */
+	guint8	fp_DevNo;		/* Network Device (NIC) number */
+	guint8	fp_AbsTimeHr[8];	/* High resolution absolute time */
+	guint8	fp_PcbDevNo[4];		/* PCB devno */
+	guint8	fp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	fp_VlanTag[2];		/* vlan tag */
+	guint8	fp_Coreid[2];		/* coreid of the packet */
+	guint8	fp_Data[2];		/* packet data starts here */
 } nspr_pktracefull_v23_t;
-#define	nspr_pktracefull_v23_s	(sizeof(nspr_pktracefull_v23_t) - 4)
+#define	nspr_pktracefull_v23_s	(sizeof(nspr_pktracefull_v23_t) - 2)
 
 /* partial packet trace structure */
 typedef	struct	nspr_pktracepart_v10
 {
 	nspr_headerdev_v10_t phd;	/* performance header */
-	guint32	pp_RelTimeHr;	/* High resolution relative time */
-	guint16	pp_PktSizeOrg;	/* Original packet size */
-	guint16	pp_PktOffset;	/* starting offset in packet */
-	guint8	pp_Data[1];	/* packet data starts here */
+	guint8	pp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	pp_PktSizeOrg[2];	/* Original packet size */
+	guint8	pp_PktOffset[2];	/* starting offset in packet */
+	guint8	pp_Data[1];		/* packet data starts here */
 } nspr_pktracepart_v10_t;
 #define	nspr_pktracepart_v10_s	(nspr_pktracefull_v10_s + 4)
 
 /* new partial packet trace structure */
 typedef	struct	nspr_pktracepart_v20
 {
-	NSPR_HEADER3B_V20(pp);	/* long performance header */
-	guint8	pp_DevNo;	/* Network Device (NIC) number */
-	guint32	pp_RelTimeHr;	/* High resolution relative time */
-	guint16	pp_PktSizeOrg;	/* Original packet size */
-	guint16	pp_PktOffset;	/* starting offset in packet */
-	guint8	pp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V20(pp);		/* long performance header */
+	guint8	pp_DevNo;		/* Network Device (NIC) number */
+	guint8	pp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	pp_PktSizeOrg[2];	/* Original packet size */
+	guint8	pp_PktOffset[2];	/* starting offset in packet */
+	guint8	pp_Data[4];		/* packet data starts here */
 } nspr_pktracepart_v20_t;
 #define	nspr_pktracepart_v20_s	(sizeof(nspr_pktracepart_v20_t) -4)
 
 /* new partial packet trace structure */
 typedef	struct	nspr_pktracepart_v21
 {
-	NSPR_HEADER3B_V21(pp);	/* long performance header */
-	guint8	pp_DevNo;	/* Network Device (NIC) number */
-	guint32	pp_RelTimeHr;	/* High resolution relative time */
-	guint16	pp_PktSizeOrg;	/* Original packet size */
-	guint16	pp_PktOffset;	/* starting offset in packet */
-	guint32	pp_PcbDevNo;	/* PCB devno */
-	guint32	pp_lPcbDevNo;	/* link PCB devno */
-	guint8	pp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V21(pp);		/* long performance header */
+	guint8	pp_DevNo;		/* Network Device (NIC) number */
+	guint8	pp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	pp_PktSizeOrg[2];	/* Original packet size */
+	guint8	pp_PktOffset[2];	/* starting offset in packet */
+	guint8	pp_PcbDevNo[4];		/* PCB devno */
+	guint8	pp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	pp_Data[4];		/* packet data starts here */
 } nspr_pktracepart_v21_t;
 #define	nspr_pktracepart_v21_s	(sizeof(nspr_pktracepart_v21_t) -4)
 
 /* new partial packet trace structure v22 */
 typedef	struct	nspr_pktracepart_v22
 {
-	NSPR_HEADER3B_V22(pp);	/* long performance header */
-	guint8	pp_DevNo;	/* Network Device (NIC) number */
-	guint32	pp_RelTimeHr;	/* High resolution relative time */
-	guint16	pp_PktSizeOrg;	/* Original packet size */
-	guint16	pp_PktOffset;	/* starting offset in packet */
-	guint32	pp_PcbDevNo;	/* PCB devno */
-	guint32	pp_lPcbDevNo;	/* link PCB devno */
-	guint16	pp_VlanTag; 	/* Vlan Tag */
-	guint8	pp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V22(pp);		/* long performance header */
+	guint8	pp_DevNo;		/* Network Device (NIC) number */
+	guint8	pp_RelTimeHr[4];	/* High resolution relative time */
+	guint8	pp_PktSizeOrg[2];	/* Original packet size */
+	guint8	pp_PktOffset[2];	/* starting offset in packet */
+	guint8	pp_PcbDevNo[4];		/* PCB devno */
+	guint8	pp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	pp_VlanTag[2];	 	/* Vlan Tag */
+	guint8	pp_Data[2];		/* packet data starts here */
 } nspr_pktracepart_v22_t;
-#define	nspr_pktracepart_v22_s	(sizeof(nspr_pktracepart_v22_t) -4)
+#define	nspr_pktracepart_v22_s	(sizeof(nspr_pktracepart_v22_t) -2)
 
 typedef	struct	nspr_pktracepart_v23
 {
-	NSPR_HEADER3B_V22(pp);	/* long performance header */
-	guint8	pp_DevNo;	/* Network Device (NIC) number */
-	guint32	pp_AbsTimeLowHdr;	/* High resolution low time */
-	guint32 pp_AbsTimeHighHdr; /* Higher value of the absolute time */
-	guint16	pp_PktSizeOrg;	/* Original packet size */
-	guint16	pp_PktOffset;	/* starting offset in packet */
-	guint32	pp_PcbDevNo;	/* PCB devno */
-	guint32	pp_lPcbDevNo;	/* link PCB devno */
-	guint16	pp_VlanTag;	/* vlan tag */
-	guint16 pp_Coreid; /* Coreid of the packet */
-	guint8	pp_Data[4];	/* packet data starts here */
+	NSPR_HEADER3B_V22(pp);		/* long performance header */
+	guint8	pp_DevNo;		/* Network Device (NIC) number */
+	guint8	pp_AbsTimeHr[8];	/* High resolution absolute time */
+	guint8	pp_PktSizeOrg[2];	/* Original packet size */
+	guint8	pp_PktOffset[2];	/* starting offset in packet */
+	guint8	pp_PcbDevNo[4];		/* PCB devno */
+	guint8	pp_lPcbDevNo[4];	/* link PCB devno */
+	guint8	pp_VlanTag[2];		/* vlan tag */
+	guint8	pp_Coreid[2];		/* Coreid of the packet */
+	guint8	pp_Data[4];		/* packet data starts here */
 } nspr_pktracepart_v23_t;
 #define	nspr_pktracepart_v23_s	(sizeof(nspr_pktracepart_v23_t) -4)
 
@@ -750,13 +748,13 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 			case NSPR_ABSTIME_V10:
 
-				ns_setabstime(nstrace, pletohl(&((nspr_abstime_v10_t *) fp)->abs_Time), pletohl(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
+				ns_setabstime(nstrace, pletohl(((nspr_abstime_v10_t *) fp)->abs_Time), pletohl(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
 				nstrace_buf_offset += pletohs(&fp->nsprRecordSize);
 				break;
 
 			case NSPR_RELTIME_V10:
 
-				ns_setrelativetime(nstrace, ((nspr_abstime_v10_t *) fp)->abs_RelTime);
+				ns_setrelativetime(nstrace, pletohl(((nspr_abstime_v10_t *) fp)->abs_RelTime));
 				nstrace_buf_offset += pletohs(&fp->nsprRecordSize);
 				break;
 
@@ -782,15 +780,15 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 #define TIMEDEFV20(fp,type) \
 	do {\
-		nsg_creltime += ns_hrtime2nsec(pletohl(&fp->type##_RelTimeHr));\
+		nsg_creltime += ns_hrtime2nsec(pletohl(fp->type##_RelTimeHr));\
 		wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
 		wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
 	}while(0)
 
 #define TIMEDEFV23(fp,type) \
 	do {\
-		/* access _AbsTimeHighHdr as a 64bit value */\
-		nsg_creltime = (((guint64)fp->type##_AbsTimeHighHdr<<32) | (fp->type##_AbsTimeLowHdr));\
+		/* access _AbsTimeHr as a 64bit value */\
+		nsg_creltime = pletohll(fp->type##_AbsTimeHr);\
 		wth->phdr.ts.secs = (guint32) (nsg_creltime / 1000000000);\
 		wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
 	}while(0)
@@ -1084,11 +1082,14 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
 	if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 	{
+		guint16 val16b;
 		nspr_signature_v10_t sig10;
 
 		/* populate the record */
-		sig10.phd.ph_RecordType = htoles(NSPR_SIGNATURE_V10);
-		sig10.phd.ph_RecordSize = htoles(nspr_signature_v10_s);
+		val16b = htoles(NSPR_SIGNATURE_V10);
+		memcpy(sig10.phd.ph_RecordType, &val16b, sizeof sig10.phd.ph_RecordType);
+		val16b = htoles(nspr_signature_v10_s);
+		memcpy(sig10.phd.ph_RecordSize, &val16b, sizeof sig10.phd.ph_RecordSize);
 		memset(sig10.sig_Signature, 0, NSPR_SIGSIZE_V10);
 		g_strlcpy(sig10.sig_Signature, NSPR_SIGSTR_V10, NSPR_SIGSIZE_V10);
 
@@ -1137,18 +1138,23 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 	{
+		guint16 val16;
+		guint32 reltime;
+		guint64 abstime;
 		nspr_abstime_v10_t abs10;
-		nspr_pktracefull_v10_t fp10;
 
 		/* populate the record */
-		abs10.phd.ph_RecordType = htoles(NSPR_ABSTIME_V10);
-		abs10.phd.ph_RecordSize = htoles(nspr_abstime_v10_s);
+		val16 = htoles(NSPR_ABSTIME_V10);
+		memcpy(abs10.phd.ph_RecordType, &val16, sizeof abs10.phd.ph_RecordType);
+		val16 = htoles(nspr_abstime_v10_s);
+		memcpy(abs10.phd.ph_RecordSize, &val16, sizeof abs10.phd.ph_RecordSize);
 
-		memcpy(&fp10, pd, nspr_pktracefull_v10_s);
-		nsg_creltime = ns_hrtime2nsec(fp10.fp_RelTimeHr);
+		memcpy(&reltime, ((nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr, sizeof reltime);
+		nsg_creltime = ns_hrtime2nsec(reltime);
 
-		abs10.abs_RelTime = 0;
-		abs10.abs_Time = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+		memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
+		abstime = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+		memcpy(abs10.abs_Time, &abstime, sizeof abs10.abs_Time);
 
 		/* Write the record into the file */
 		if (!wtap_dump_file_write(wdh, &abs10, nspr_abstime_v10_s, err))
@@ -1159,17 +1165,19 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
+		guint32 reltime;
+		guint64 abstime;
 		nspr_abstime_v20_t abs20;
-		nspr_pktracefull_v20_t fp20;
 
 		abs20.abs_RecordType = NSPR_ABSTIME_V20;
 		abs20.abs_RecordSize = nspr_abstime_v20_s;
 
-		memcpy(&fp20, pd, nspr_pktracefull_v20_s);
-		nsg_creltime = ns_hrtime2nsec(fp20.fp_RelTimeHr);
+		memcpy(&reltime, ((nspr_pktracefull_v20_t *)pd)->fp_RelTimeHr, sizeof reltime);
+		nsg_creltime = ns_hrtime2nsec(reltime);
 
-		abs20.abs_RelTime = 0;
-		abs20.abs_Time = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+		memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
+		abstime = htolel((guint32)phdr->ts.secs - (guint32)(nsg_creltime/1000000000));
+		memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
 
 		/* Write the record into the file */
 		if (!wtap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
