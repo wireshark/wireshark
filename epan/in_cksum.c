@@ -75,7 +75,7 @@ in_cksum(const vec_t *vec, int veclen)
 	for (; veclen != 0; vec++, veclen--) {
 		if (vec->len == 0)
 			continue;
-		w = (const guint16 *)vec->ptr;
+		w = (const guint16 *)(void *)vec->ptr;
 		if (mlen == -1) {
 			/*
 			 * The first byte of this chunk is the continuation
@@ -87,7 +87,7 @@ in_cksum(const vec_t *vec, int veclen)
 			 */
 			s_util.c[1] = *(const guint8 *)w;
 			sum += s_util.s;
-			w = (const guint16 *)((const guint8 *)w + 1);
+			w = (const guint16 *)(void *)((const guint8 *)w + 1);
 			mlen = vec->len - 1;
 		} else
 			mlen = vec->len;
@@ -98,7 +98,7 @@ in_cksum(const vec_t *vec, int veclen)
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const guint8 *)w;
-			w = (const guint16 *)((const guint8 *)w + 1);
+			w = (const guint16 *)(void *)((const guint8 *)w + 1);
 			mlen--;
 			byte_swapped = 1;
 		}
