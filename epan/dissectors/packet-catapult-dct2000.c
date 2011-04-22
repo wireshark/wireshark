@@ -990,7 +990,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             offset++;
 
                             /* Transport channel type */
-                            p_pdcp_lte_info->BCCHTransport = (LogicalChannelType)tvb_get_guint8(tvb, offset);
+                            p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
                                                 tvb, offset, 1, FALSE);
                             offset++;
