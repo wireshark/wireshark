@@ -1097,13 +1097,10 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 
 /* attempt to parse the header of a mux pdu */
 static gboolean
-attempt_mux_level0_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
+attempt_mux_level0_header_parse(guint32 nbytes _U_, guint32 hdr _U_, guint32 *minlen _U_)
 {
     /* level 0 isn't byte-aligned, so is a complete pain to implement */
     DISSECTOR_ASSERT_NOT_REACHED();
-    nbytes = nbytes;
-    hdr=hdr;
-    minlen=minlen;
     return FALSE;
 }
 
