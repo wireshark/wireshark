@@ -1159,15 +1159,9 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
  * 4.5.2.4
  */
 static void
-param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
+param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, guint len _U_, guint32 offset)
 {
     guint32	value;
-
-    /*
-     * XXX avoid warning for now, may use this variable
-     * for validation later
-     */
-    len = len;
 
     value = tvb_get_guint8(tvb, offset);
 

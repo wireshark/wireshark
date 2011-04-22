@@ -1715,11 +1715,10 @@ trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 }
 
 static void
-trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
+trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len _U_, guint32 offset, gchar *add_string, int string_len)
 {
     guint8	oct;
 
-    len = len;
     oct = tvb_get_guint8(tvb, offset);
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xfc, 8);

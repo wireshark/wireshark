@@ -1158,13 +1158,12 @@ elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * IOS 6.2.2.8
  */
 static guint8
-elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -1271,12 +1270,11 @@ elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.9
  */
 static guint8
-elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
@@ -2301,12 +2299,11 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.17
  */
 static guint8
-elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2809,12 +2806,11 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 6.2.2.22
  */
 static guint8
-elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
@@ -2846,14 +2842,13 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.23
  */
 static guint8
-elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
     guint32     curr_offset;
     const gchar *str;
 
-    len = len;
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
@@ -2915,7 +2910,6 @@ elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     guint8      oct;
     guint32     curr_offset;
 
-    len = len;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7513,7 +7507,6 @@ elem_is2000_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint32     curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len, "IS-95/IS-2000 Cause Information");
