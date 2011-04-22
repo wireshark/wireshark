@@ -514,13 +514,18 @@ extern void proto_cleanup(void);
 */
 extern gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);
 
-
+/* XXX where should this go? */
+#ifdef __GNUC__
+#define WARN_IF_UNUSED __attribute__ ((warn_unused_result))
+#else
+#define WARN_IF_UNUSED
+#endif
 
 /** Create a subtree under an existing item.
  @param ti the parent item of the new subtree
  @param idx one of the ett_ array elements registered with proto_register_subtree_array()
  @return the new subtree */
-extern proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx);
+extern proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx) WARN_IF_UNUSED;
 
 /** Get an existing subtree under an item.
  @param ti the parent item of the subtree
