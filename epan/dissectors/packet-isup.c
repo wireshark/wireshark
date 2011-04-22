@@ -3714,7 +3714,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
       save_fragmented = pinfo->fragmented;
       pinfo->fragmented = TRUE;
       more_frag = TRUE;
-      if ((si_and_apm_seg_ind == 0))
+      if (si_and_apm_seg_ind == 0)
         more_frag = FALSE;
 
       frag_msg = fragment_add_seq_next(parameter_tvb, offset, pinfo,
