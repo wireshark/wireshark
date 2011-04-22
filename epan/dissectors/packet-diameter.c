@@ -145,7 +145,7 @@ struct _avp_type_t {
 	diam_avp_dissector_t v16;
 	diam_avp_dissector_t rfc;
 	enum ftenum ft;
-	base_display_e base;
+	int base;
 	avp_constructor_t build;
 };
 
