@@ -1748,7 +1748,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 	guint8 i, num_of_screens;
 	proto_item *ti;
 	proto_tree *screen_tree;
-	
+
 	num_of_screens = tvb_get_guint8(tvb, *offset);
 	proto_tree_add_text(tree, tvb, *offset, 1, "Number of screens: %d", num_of_screens);
 	*offset += 1;
@@ -1772,7 +1772,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_flags, tvb, *offset, 4, FALSE);
 		*offset += 4;
 	}
-	
+
 	return 0;
 }
 
@@ -2416,8 +2416,6 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	bytes_needed = (number_of_colors * 6) + 5;
 	VNC_BYTES_NEEDED(bytes_needed);
-
-	proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
 
 	*offset += 2;
 
