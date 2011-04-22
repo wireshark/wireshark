@@ -983,7 +983,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		stat_info->call_id = session_id;
 		stat_info->frame_label = frame_label;
 		stat_info->call_state = VOIP_CALL_SETUP;
-		stat_info->call_active_state = VOIP_NO_STATE;
+		stat_info->call_active_state = VOIP_ACTIVE;
 		stat_info->frame_comment = frame_label;
 		tap_queue_packet(voip_tap, pinfo, stat_info);
 	}
