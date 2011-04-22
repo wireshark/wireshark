@@ -401,9 +401,8 @@ dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_attrauthblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_attrauthblk_v2(tvbuff_t *tvb _U_, int offset, proto_tree *tree _U_)
 {
-    tvb=tvb; tree=tree; /* silence gcc for now */
     /* add code in here to handle attribute authentication */
     return offset;
 }

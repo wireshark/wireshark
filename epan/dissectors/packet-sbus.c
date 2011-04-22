@@ -1696,7 +1696,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                    /* Response: Read system infomation (without interpretation of module info)*/
                             case SBUS_RD_SYSTEM_INFORMATION:
-                                   if (((request_val->sysinfo) == 0x00)){ /*sysinfo 0*/
+                                   if (request_val->sysinfo == 0x00){ /*sysinfo 0*/
                                           offset += 1; /* this byte is always 0x01*/
                                           /*Add subtree for Data*/
                                           dt = proto_tree_add_text(sbus_tree, tvb, offset,

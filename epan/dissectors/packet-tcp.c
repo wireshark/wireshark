@@ -584,8 +584,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
          */
         msp=se_tree_lookup32_le(multisegment_pdus, nxtseq-1);
         if(msp){
-            if( (pinfo->fd->num==msp->first_frame)
-            ){
+            if(pinfo->fd->num==msp->first_frame) {
                 proto_item *item;
                 nstime_t ns;
 

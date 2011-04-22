@@ -246,7 +246,7 @@ xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name) {
 
 	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
-		if ((xml_item->type == XML_FRAME_TAG)) {
+		if (xml_item->type == XML_FRAME_TAG) {
 			if (!name) {  /* get the 1st tag */
 	        	tag = xml_item;
 				break;
@@ -282,7 +282,7 @@ xml_frame_t *xml_get_cdata(xml_frame_t *frame) {
 
 	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
-		if ((xml_item->type == XML_FRAME_CDATA)) {
+		if (xml_item->type == XML_FRAME_CDATA) {
         	cdata = xml_item;
 			break;
 		}
