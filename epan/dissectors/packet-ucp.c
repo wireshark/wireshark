@@ -1648,11 +1648,12 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
         ;
     if ((tmpoff - offset) > 1) {
         int      len = tmpoff - offset - 1;
+	proto_tree *subtree;
 
         ti = proto_tree_add_item(tree, hf_ucp_parm_XSer, tvb, offset, len, FALSE);
         tmptvb = tvb_new_subset(tvb, offset, len + 1, len + 1);
-        proto_item_add_subtree(ti, ett_XSer);
-        ucp_handle_XSer(ti, tmptvb);
+        subtree = proto_item_add_subtree(ti, ett_XSer);
+        ucp_handle_XSer(subtree, tmptvb);
     }
     offset = tmpoff;
     UcpHandleData(hf_ucp_parm_RES4);
