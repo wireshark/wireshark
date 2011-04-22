@@ -274,16 +274,16 @@ typedef struct _header_field_info header_field_info;
 /** information describing a header field */
 struct _header_field_info {
 	/* ---------- set by dissector --------- */
-	const char		*name;           /**< full name of this field */
-	const char		*abbrev;         /**< abbreviated name of this field */
-	enum ftenum		 type;           /**< field type, one of FT_ (from ftypes.h) */
-	int				 display;        /**< one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
-	const void		*strings;        /**< value_string, range_string or true_false_string,
+	const char		*name;           /**< [FIELDNAME] full name of this field */
+	const char		*abbrev;         /**< [FIELDABBREV] abbreviated name of this field */
+	enum ftenum		 type;           /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
+	int			 display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
+	const void		*strings;        /**< [FIELDCONVERT] value_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the
 				                      associated protocol_t structure */
-	guint32			 bitmask;        /**< bitmask of interesting bits */
-	const char		*blurb;          /**< Brief description of field */
+	guint32			 bitmask;        /**< [BITMASK] bitmask of interesting bits */
+	const char		*blurb;          /**< [FIELDDESCR] Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
 	int					 id;             /**< Field ID */
