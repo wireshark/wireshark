@@ -196,63 +196,71 @@ utp_is_v1(tvbuff_t *tvb) {
 }
 
 static int
-dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
+dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
+{
+    /* "Original" (V0) */
+  proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, FALSE);
+  offset += 1;
+  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+
+  *extension_type = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, FALSE);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str(tvb_get_guint8(tvb, offset), bt_utp_type_vals, "Unknown %d"));
+  offset += 1;
+  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+  offset += 2;
+  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  return offset;
+}
+
+static int
+dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
+{
+  /* V1 */
+  /* Strange: Contrary to BEP-29, in LibuTP (utp.cpp) the first byte has the following definition:
+     packet_type (4 high bits)
+     protocol version (4 low bits)
+  */
+  proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, FALSE);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str((tvb_get_guint8(tvb, offset) >> 4), bt_utp_type_vals, "Unknown %d"));
+  offset += 1;
+  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+  *extension_type = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, FALSE);
+  offset += 2;
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, FALSE);
+  offset += 4;
+  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+  offset += 2;
+  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  return offset;
+}
+
+static int
+dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, guint8 *extension_type)
 {
   proto_item *ti;
   proto_tree *ext_tree;
-  guint8 extension_type;
   guint8 extension_length;
-  int    offset  = 0;
-
-  /* Determine header version */
-
-  if (!utp_is_v1(tvb)) {
-    /* "Original" (V0) */
-    proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, FALSE);
-    offset += 1;
-    proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-    extension_type = tvb_get_guint8(tvb, offset);
-    offset += 1;
-    proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, FALSE);
-    offset += 1;
-    proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
-    offset += 2;
-    proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
-    offset += 2;
-  } else {
-    /* V1 */
-    /* Strange: Contrary to BEP-29, in LibuTP (utp.cpp) the first byte has the following definition:
-       packet_type (4 high bits)
-       protocol version (4 low bits)
-    */
-    proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, FALSE);
-    offset += 1;
-    proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-    extension_type = tvb_get_guint8(tvb, offset);
-    offset += 1;
-    proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, FALSE);
-    offset += 2;
-    proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, FALSE);
-    offset += 4;
-    proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
-    offset += 2;
-    proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
-    offset += 2;
-  }
-
   /* display the extension tree */
 
   /* XXX: This code loops thru the packet bytes until reaching the end of the PDU
@@ -261,14 +269,14 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
    */
   while(offset < (int)tvb_reported_length(tvb))
   {
-    switch(extension_type){
+    switch(*extension_type){
       case EXT_SELECTION_ACKS: /* 1 */
       {
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-        extension_type = tvb_get_guint8(tvb, offset);
+        *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
@@ -287,7 +295,7 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-        extension_type = tvb_get_guint8(tvb, offset);
+        *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
@@ -305,7 +313,7 @@ dissect_utp_header(tvbuff_t *tvb, proto_tree *tree)
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
-        extension_type = tvb_get_guint8(tvb, offset);
+        *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
@@ -327,7 +335,8 @@ static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *sub_tree = NULL;
-  int decoded_length;
+  int decoded_length = 0;
+  guint8 extension_type;
 
   /* set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
@@ -341,7 +350,15 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
   }
 
-  decoded_length = dissect_utp_header(tvb, sub_tree);
+  /* Determine header version */
+
+  if (!utp_is_v1(tvb)) {
+      decoded_length = dissect_utp_header_v0(tvb, pinfo, sub_tree, decoded_length, &extension_type);
+  } else {
+      decoded_length = dissect_utp_header_v1(tvb, pinfo, sub_tree,  decoded_length, &extension_type);
+  }
+
+  decoded_length = dissect_utp_extension(tvb, pinfo, sub_tree, decoded_length, &extension_type);
 
   return decoded_length;
 }
