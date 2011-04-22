@@ -1218,14 +1218,13 @@ smpp_handle_dlist(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
     guint8       entries;
     int          tmpoff = *offset;
-    proto_item  *sub_tree = NULL;
+    proto_tree  *sub_tree = NULL;
     guint8       dest_flag;
 
-    if ((entries = tvb_get_guint8(tvb, tmpoff++)))
-    {
-        sub_tree = proto_tree_add_item(tree, hf_smpp_dlist,
-                                        tvb, *offset, 1, FALSE);
-        proto_item_add_subtree(sub_tree, ett_dlist);
+    if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
+	proto_item  *pi;
+        pi = proto_tree_add_item(tree, hf_smpp_dlist, tvb, *offset, 1, FALSE);
+        sub_tree = proto_item_add_subtree(pi, ett_dlist);
     }
     while (entries--)
     {
@@ -1258,13 +1257,13 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
     guint8       entries;
     int          tmpoff = *offset;
-    proto_item  *sub_tree = NULL;
+    proto_tree  *sub_tree = NULL;
 
-    if ((entries = tvb_get_guint8(tvb, tmpoff++)))
-    {
-        sub_tree = proto_tree_add_item(tree, hf_smpp_dlist_resp,
-                                       tvb, *offset, 1, FALSE);
-        proto_item_add_subtree(sub_tree, ett_dlist_resp);
+    if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
+	proto_item  *pi;
+        pi = proto_tree_add_item(tree, hf_smpp_dlist_resp,
+			         tvb, *offset, 1, FALSE);
+        sub_tree = proto_item_add_subtree(pi, ett_dlist_resp);
     }
     while (entries--)
     {
@@ -1289,13 +1288,13 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
 static void
 smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
-    proto_item  *tlvs_tree = NULL;
+    proto_tree *tlvs_tree = NULL;
+    proto_item *pi;
 
-    if (tvb_reported_length_remaining(tvb, *offset) >= 1)
-    {
-        tlvs_tree = proto_tree_add_item(tree, hf_smpp_opt_params,
-                                       tvb, *offset, -1, FALSE);
-        proto_item_add_subtree(tlvs_tree, ett_opt_params);
+    if (tvb_reported_length_remaining(tvb, *offset) >= 1) {
+        pi = proto_tree_add_item(tree, hf_smpp_opt_params,
+			         tvb, *offset, -1, FALSE);
+        tlvs_tree = proto_item_add_subtree(pi, ett_opt_params);
     }
 
     while (tvb_reported_length_remaining(tvb, *offset) >= 1)
@@ -1312,11 +1311,11 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
         tag = tvb_get_ntohs(tvb, *offset);
         length = tvb_get_ntohs(tvb, (*offset+2));
 
-        sub_tree = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param,
-                                              tvb, *offset, length+4,
-                                              "Optional parameter: %s (0x%04x)",
-                                              val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
-        proto_item_add_subtree(sub_tree, ett_opt_param);
+        pi = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param, tvb,
+					*offset, length+4,
+					"Optional parameter: %s (0x%04x)",
+					val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
+        sub_tree = proto_item_add_subtree(pi, ett_opt_param);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
 
@@ -1671,12 +1670,12 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
     guint8       val;
     int off = *offset;
-    proto_item *subtree = NULL;
+    proto_tree *subtree = NULL;
+    proto_item *pi;
 
     val = tvb_get_guint8(tvb, off);
-    subtree = proto_tree_add_uint(tree,
-                                  hf_smpp_data_coding, tvb, off, 1, val);
-    proto_item_add_subtree(subtree, ett_dcs);
+    pi = proto_tree_add_uint(tree, hf_smpp_data_coding, tvb, off, 1, val);
+    subtree = proto_item_add_subtree(pi, ett_dcs);
     /* SMPP Data Coding Scheme */
     proto_tree_add_uint(subtree, hf_smpp_dcs, tvb, off, 1, val);
     /* GSM SMS Data Coding Scheme */
