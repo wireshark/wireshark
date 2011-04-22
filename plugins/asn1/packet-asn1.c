@@ -2582,7 +2582,7 @@ index_typedef(GNode *node, gpointer data)
 	t->refs = g_ptr_array_new();	/* collect references here */
 	node = g_node_first_child(node); /* the real type */
 	tag = (TBLTag *)node->data;
-	if ((tag->type == TBLTYPE_Type) && (((TBLType *)tag)->typeId == TBL_CHOICE)) {
+	if ((tag->type == TBLTYPE_Type) && (((TBLType *)(void *)tag)->typeId == TBL_CHOICE)) {
 		/* no reasonable default... ! */
 		t->defclass = 3; /* Private .... */
 		t->deftag= 9999; /* a random value */
