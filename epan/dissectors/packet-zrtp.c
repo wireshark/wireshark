@@ -126,8 +126,6 @@ static gint ett_zrtp = -1;
 static gint ett_zrtp_msg = -1;
 static gint ett_zrtp_msg_data = -1;
 
-static gint ett_zrtp_msg_encrypted = -1;
-static gint ett_zrtp_msg_pvr = -1;
 static gint ett_zrtp_msg_hc = -1;
 static gint ett_zrtp_msg_kc = -1;
 static gint ett_zrtp_msg_ac = -1;
@@ -469,7 +467,7 @@ dissect_Conf2ACK(packet_info *pinfo) {
   dummy_srtp_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;
   dummy_srtp_info->mki_len = 0;
   dummy_srtp_info->auth_tag_len = 4;
-  
+
   srtp_add_address(pinfo, &pinfo->net_src, pinfo->srcport, pinfo->destport,
                    "ZRTP", PINFO_FD_NUM(pinfo), FALSE, NULL, dummy_srtp_info);
 
@@ -519,7 +517,7 @@ dissect_GoClear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   col_set_str(pinfo->cinfo, COL_INFO, "GoClear Packet");
 
   /* Now we should clear the SRT(C)P session... */
-  
+
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
 }
 
@@ -534,7 +532,6 @@ dissect_Error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
 static void
 dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part) {
-  proto_item   *ti;
   unsigned int data_offset=24;
   int linelen;
 
@@ -545,13 +542,11 @@ dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int par
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
-  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
-  proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
+  proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
 }
 
 static void
 dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
-  proto_item   *ti;
   unsigned int data_offset=24;
   int linelen;
 
@@ -560,13 +555,11 @@ dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
-  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
-  proto_item_add_subtree(ti,ett_zrtp_msg_encrypted);
+  proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
 }
 
 static void
 dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part) {
-  proto_item   *ti;
   unsigned int msg_offset=12;
   unsigned int data_offset=56;
   int linelen, pvr_len;
@@ -582,8 +575,7 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pbxs,tvb,data_offset+24,8,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+32);
   pvr_len = linelen-8-4;
-  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,(part==1)?"pvr Data":"pvi Data");
-  proto_item_add_subtree(ti,ett_zrtp_msg_pvr);
+  proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,(part==1)?"pvr Data":"pvi Data");
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+32+pvr_len,8,FALSE);
 }
 
@@ -1160,8 +1152,6 @@ proto_register_zrtp(void)
     &ett_zrtp,
     &ett_zrtp_msg,
     &ett_zrtp_msg_data,
-    &ett_zrtp_msg_encrypted,
-    &ett_zrtp_msg_pvr,
     &ett_zrtp_msg_hc,
     &ett_zrtp_msg_kc,
     &ett_zrtp_msg_ac,
