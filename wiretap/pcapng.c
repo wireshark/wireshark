@@ -1828,7 +1828,11 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 			if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
 				break;
 
-			sa4 = (struct sockaddr_in *) ai->ai_addr;
+			/*
+			 * The joys of BSD sockaddrs.  In practice, this
+			 * cast is alignment-safe.
+			 */
+			sa4 = (struct sockaddr_in *)(void *)ai->ai_addr;
 			memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
 			rec_off += 4;
 
@@ -1850,7 +1854,11 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 			if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
 				break;
 
-			sa6 = (struct sockaddr_in6 *) ai->ai_addr;
+			/*
+			 * The joys of BSD sockaddrs.  In practice, this
+			 * cast is alignment-safe.
+			 */
+			sa6 = (struct sockaddr_in6 *)(void *)ai->ai_addr;
 			memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
 			rec_off += 4;
 
