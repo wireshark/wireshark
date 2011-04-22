@@ -261,7 +261,7 @@ dissect_sdp_error_response(proto_tree *t, tvbuff_t *tvb, int offset) {
 }
 
 static int
-get_sdp_data_element(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, guint32 *service, guint32 *service_val)
+get_sdp_data_element(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, void **val, guint32 *service, guint32 *service_val)
 {
 	int size, start_offset, type_size;
 	guint8 byte0;
@@ -546,7 +546,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 	proto_item_append_text(ti_sa, ", value = %s", attr_val);
 
 	if( pinfo->fd->flags.visited ==0) {
-		guint8 *val, type;
+		void *val;
+		guint8 type;
 		guint32 service, service_val;
 		btsdp_data_t *service_item;
 
@@ -583,12 +584,14 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 			case ATTR_ID_GOEP_L2CAP_PSM_GROUP_ID_IP_SUBNET:
 				/* GOEP L2CAP PSM? */
 				{
-				guint8 *psm;
+				void *psm;
+				guint8 *psm_guint8;
 
 				get_sdp_data_element(tvb, offset+ 3, id, &type, &psm,  &service, &service_val);
+				psm_guint8 = psm;
 
-				if( (type == 1) && (*psm & 0x1) ) {
-					service_item->channel = *psm;
+				if( (type == 1) && (*psm_guint8 & 0x1) ) {
+					service_item->channel = *psm_guint8;
 					service_item->protocol = BTSDP_L2CAP_PROTOCOL_UUID;
 					service_item->flags = 0;
 				}
@@ -777,7 +780,8 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
 
 		if (pinfo->fd->flags.visited == 0)  {
 			guint32 service, service_val;
-			guint8 type, *val = NULL;
+			guint8 type;
+			void *val = NULL;
 
 			service_item=se_tree_lookup32(service_table, token);
 
