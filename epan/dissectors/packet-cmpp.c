@@ -346,11 +346,12 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 {
 	guint8 month,day,hour,minute,second;
 	guint32 ismg_code;
-	proto_item *sub_tree;
+	proto_item *pi;
+	proto_tree *sub_tree;
 	char *strval;
 
-	sub_tree = proto_tree_add_item(tree, field, tvb, offset, 8, FALSE);
-	proto_item_add_subtree(sub_tree, ett_msg_id);
+	pi = proto_tree_add_item(tree, field, tvb, offset, 8, FALSE);
+	sub_tree = proto_item_add_subtree(pi, ett_msg_id);
 
 	month = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
 	day = (tvb_get_ntohs(tvb, offset) & 0x0F80) >> 7;
@@ -471,9 +472,11 @@ cmpp_submit_resp(proto_tree *tree, tvbuff_t *tvb)
 static void
 cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, gint  field, guint offset)
 {
-	proto_item *sub_tree;
-	sub_tree = proto_tree_add_item(tree, field, tvb, offset, CMPP_DELIVER_REPORT_LEN, FALSE);
-	proto_item_add_subtree(sub_tree, ett_deliver_report);
+	proto_item *pi;
+	proto_tree *sub_tree;
+
+	pi = proto_tree_add_item(tree, field, tvb, offset, CMPP_DELIVER_REPORT_LEN, FALSE);
+	sub_tree = proto_item_add_subtree(pi, ett_deliver_report);
 	cmpp_msg_id(sub_tree, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
 	cmpp_octet_string(sub_tree, tvb, hf_cmpp_deliver_Report_Stat, offset, 7);
