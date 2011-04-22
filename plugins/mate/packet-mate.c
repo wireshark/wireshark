@@ -193,8 +193,7 @@ static void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	proto_item *gop_pdu_item;
 	proto_tree *gop_pdu_tree;
 	mate_pdu* gop_pdus;
-	float  rel_time;
-	float  gop_time;
+	float rel_time;
 	float pdu_rel_time;
 	const gchar* pdu_str;
 	const gchar* type_str;
@@ -227,7 +226,7 @@ static void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 
 		gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, gop->cfg->ett_children);
 
-		rel_time = gop_time = gop->start_time;
+		rel_time = gop->start_time;
 
 		type_str = (gop->cfg->pdu_tree_mode == GOP_FRAME_TREE ) ? "in frame:" : "id:";
 
