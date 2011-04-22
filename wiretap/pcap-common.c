@@ -1077,7 +1077,12 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
 	gint32 iso_numdesc, i;
 
 	if (byte_swapped) {
-		phdr = (struct linux_usb_phdr *)pd;
+		/*
+		 * Greasy hack, but we never directly direference any of
+		 * the fields in *phdr, we just get offsets of and
+		 * addresses of its members, so it's safe.
+		 */
+		phdr = (struct linux_usb_phdr *)(void *)pd;
 
 		if (packet_size < END_OFFSETOF(phdr, &phdr->id))
 			return;
@@ -1143,10 +1148,13 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
 		if (phdr->transfer_type == URB_ISOCHRONOUS) {
 			/* swap the values in struct linux_usb_isodesc */
 
+			/*
+			 * See previous "Greasy hack" comment.
+			 */
 			if (header_len_64_bytes) {
-				pisodesc = (struct linux_usb_isodesc*)(pd + 64);
+				pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 64);
 			} else {
-				pisodesc = (struct linux_usb_isodesc*)(pd + 48);
+				pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 48);
 			}
 			iso_numdesc = phdr->s.iso.numdesc;
 			for (i = 0; i < iso_numdesc; i++) {
@@ -1276,7 +1284,7 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return FALSE;
       }
       type = erf_exhdr[0];
-      erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
+      erf_exhdr_sw = pntohll(erf_exhdr[0]);
       if (i < max)
 	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
       *psize += 8;
