@@ -265,7 +265,8 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
     unsigned char	 tByte;
     unsigned char	 tType;
     unsigned char	 tLen;
-    proto_item     	*subTree = NULL;
+    proto_tree     	*subTree = NULL;
+    proto_item		*pi;
 
     tByte = tvb_get_guint8(tvb, offset++);
     tType = (tByte & 0x78) >> 3;
@@ -273,9 +274,9 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 	tLen = tvb_get_guint8(tvb, offset++);
     else
 	tLen = tByte & 0x03;
-    subTree = proto_tree_add_uint(tree, hf_wtp_tpi_type,
+    pi = proto_tree_add_uint(tree, hf_wtp_tpi_type,
 				  tvb, 0, tvb_length(tvb), tType);
-    proto_item_add_subtree(subTree, ett_tpilist);
+    subTree = proto_item_add_subtree(pi, ett_tpilist);
     switch (tType) {
 	case 0x00:			/* Error*/
 	    /* \todo	*/
