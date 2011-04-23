@@ -1,4 +1,20 @@
-%top{
+/*
+ * We don't use unput, so don't generate code for it.
+ */
+%option nounput
+
+/*
+ * We don't read from the terminal.
+ */
+%option never-interactive
+
+/*
+ * Prefix scanner routines with "df_" rather than "yy", so this scanner
+ * can coexist with other scanners.
+ */
+%option prefix="df_"
+
+%{
 /*
  * $Id$
  *
@@ -24,25 +40,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-}
 
-/*
- * We don't use unput, so don't generate code for it.
- */
-%option nounput
-
-/*
- * We don't read from the terminal.
- */
-%option never-interactive
-
-/*
- * Prefix scanner routines with "df_" rather than "yy", so this scanner
- * can coexist with other scanners.
- */
-%option prefix="df_"
-
-%{
 #include <stdlib.h>
 #include <errno.h>
 
