@@ -176,7 +176,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	gcp.h			\
 	geoip_db.h		\
 	golay.h			\
-	g_gnuc_malloc.h		\
+	g_gnuc.h		\
 	greproto.h		\
 	guid-utils.h		\
 	h225-persistentdata.h	\
