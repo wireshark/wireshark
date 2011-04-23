@@ -119,7 +119,6 @@ static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item	*volatile ti = NULL;
-	nstime_t	ts;
 	guint		cap_len = 0, frame_len = 0;
 	proto_tree	*volatile tree;
         proto_item  *item;
@@ -213,38 +212,30 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-		ts = pinfo->fd->abs_ts;
-
 		proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-				    0, 0, &ts);
-		if(ts.nsecs < 0 || ts.nsecs >= 1000000000) {
+				    0, 0, &(pinfo->fd->abs_ts));
+		if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
 			item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
-							  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) ts.nsecs);
+							  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) pinfo->fd->abs_ts.nsecs);
 			PROTO_ITEM_SET_GENERATED(item);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
 		}
 
 		if(generate_epoch_time) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
-					    0, 0, &ts);
+					    0, 0, &(pinfo->fd->abs_ts));
 		}
 
-		ts = pinfo->fd->del_cap_ts;
-
 		item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-					   0, 0, &ts);
+					   0, 0, &(pinfo->fd->del_cap_ts));
 		PROTO_ITEM_SET_GENERATED(item);
-
-		ts = pinfo->fd->del_dis_ts;
 
 		item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
-					   0, 0, &ts);
+					   0, 0, &(pinfo->fd->del_dis_ts));
 		PROTO_ITEM_SET_GENERATED(item);
 
-		ts = pinfo->fd->rel_ts;
-
 		item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-					   0, 0, &ts);
+					   0, 0, &(pinfo->fd->rel_ts));
 		PROTO_ITEM_SET_GENERATED(item);
 
 		if(pinfo->fd->flags.ref_time){
