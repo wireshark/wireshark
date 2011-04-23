@@ -3701,6 +3701,11 @@ void change_configuration_profile (const gchar *profile_name)
      }
    }
 
+   /* Then check if changing to another profile */
+   if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
+     return;
+   }
+
    /* Get the current geometry, before writing it to disk */
    main_save_window_geometry(top_level);
 
