@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-04-16)
+(last updated 2011-04-24)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -14756,7 +14756,7 @@ Decimal
 3688
   Sagem Orga GmbH
     Michael Zimdars
-      oid&sagem-orga.com
+      med.oid&morpho.com
 3689
   New Technology Development, Inc.
     Rich Lyman
@@ -33210,9 +33210,9 @@ Decimal
     Daniel Raedel
       dr&jardix.de
 8314
-  PEUS Systems GmbH
-    Myasnykov Dmytro
-      dm&peus.de
+  AVL Emission Test Systems GmbH (previous was 'PEUS Systems GmbH')
+    Michael Speck
+      Michael.Speck&avl.com
 8315
   Minacom Labs Inc.
     Patrice Gagnon
@@ -127923,7 +127923,7 @@ Decentralization / Helenic Public Administra
       hans.schillstrom&deltanode.com
 32085
   E.ON IT GmbH
-    Jennifer Weidle, Sebastian Heil, Christian Mueller
+    Jennifer Weidle, Sebastian Heil
       pki&eon.com
 32086
   Fiberblaze
@@ -136724,8 +136724,8 @@ Decentralization / Helenic Public Administra
       matti.swan&elisa.fi
 34285
   S.C. DigiSign S.A.
-    Marius Daniel PESTINA
-      dan.pestina&digisign.ro
+    Iosif  Szavuj
+      admin&digisign.ro
 34286
   Feusi Bildungszentrum AG
     Heinz Dubach
@@ -149354,7 +149354,7 @@ Decentralization / Helenic Public Administra
 37442
   ANF Authority of Certification Ecuador, S.A.
     Isabel Fàbregas
-      isabel.fabregas&anf.es
+      fdiaz&anf.es
 37443
   Centina Systems
     Paul Pantages
@@ -150416,9 +150416,9 @@ Decentralization / Helenic Public Administra
     Rob Versluis
       info&rocrail.net
 37708
-  Systola Forwardingm GmbH
+  Systola Forwarding GmbH
     Roman Kuznetsov
-      rk&systola.de
+      support&systola.de
 37709
   S3 Satcom Ltd
     John Kennett
@@ -150619,6 +150619,198 @@ Decentralization / Helenic Public Administra
   Actidata Company
     Sergey Firsov
       admin&telemetr.net
+37759
+  WXXR Network Technology Ltd. BEIJING
+    Neil Lin
+      neillin&wxxr.com.cn
+37760
+  Powertech Automation Solutions Pvt. Ltd
+    Vivek Patwardhan
+      vivek.patwardhan&pasl.in
+37761
+  Altitude Software
+    Joaquim Freitas
+      joaquim.freitas&altitude.com
+37762
+  Neotion R&D
+    Remi Verchere
+      rverchere&neotion.com
+37763
+  Bitxenio, S.L.
+    Miguelanxo Otero Salgueiro
+      miguelanxo&bitxenio.com
+37764
+  Portel Servicios Telemáticos
+    Carlos Martín
+      c.martin&portel.es
+37765
+  LHERITIER
+    Pierre FICHET
+      pfichet&lheritier-alcen.com
+37766
+  Beijing Banggoo Networks Co,Ltd.
+    James Zhang
+      glzhang&banggoo.cn
+37767
+  Gartner Inc.
+    Peter Heilig
+      peter.heilig&gartner.com
+37768
+  Bundesministerium für Arbeit und Soziales
+    Fridolin Smolka
+      fridolin.smolka&bmas.bund.de
+37769
+  Koramis GmbH
+    Michael Fess
+      m.fess&koramis.de
+37770
+  IDmachines LLC
+    Salvatore D'Agostino
+      sal&idmachines.com
+37771
+  Linkwise Technology Private Limited
+    Shirley Koh
+      shirley&linkwisetech.com
+37772
+  AERODEV
+    Martin Chen
+      chenmj&aerodev.com
+37773
+  OAO NESK Novorossiyskenergosbit
+    Kokorin Artem Vladimirovich
+      KokorinAV&nesk.ru
+37774
+  51.6 Noord B.V.
+    Marcel de Kock
+      marcel.dekock&516noord.nl
+37775
+  BaoBros Studio
+    Winnow Cai
+      winnow.cai&baobros.com
+37776
+  Co. Ltd. "RCS Labs"
+    Artem Marchenko
+      artem.marchenko&rcslabs.ru
+37777
+  Cabinet Pierre Guerin
+    Pierre Guerin
+      pierre.guerin&cab-cpg.net
+37778
+  Northern Design (Electronics) Ltd
+    Paul Connor
+      paul.connor&ndmeter.co.uk
+37779
+  Nuvolas
+    Andre Joswig
+      info&nuvolas.de
+37780
+  MicroRIGHT Corporation
+    Aaron Moreau-Cook
+      ops&microright.com
+37781
+  eZuce Inc
+    George Niculae
+      george&ezuce.com
+37782
+  KindleIT
+    Rodolfo Hansen
+      rhansen&kitsd.com
+37783
+  Wolf Pond Creative LLC
+    Thomas Davis
+      tommy&wolfpond.com
+37784
+  IDC Solutions Pty Ltd
+    James Yong
+      jamesy&idcsolutions.com.au
+37785
+  Ingenieurbuero Jan F Westerkamp (IBW)
+    Jan F Westerkamp
+      oid&ib-westerkamp.de
+37786
+  Galtronics Telemetry, Inc.
+    Mike Lafferty
+      mike.lafferty&galtronics.com
+37787
+  Emirates Identity Authority
+    Mohamed Al Redaini
+      Mohamed.AlRedaini&emiratesid.ae
+37788
+  Syslife
+    Antoine Natale
+      a.natale&syslife.com
+37789
+  Novapost SAS
+    Dr. Jorge Tellez
+      jorge.tellez&novapost.fr
+37790
+  Gould International UK Ltd
+    Tim Garvin
+      timg&gouldinternational.co.uk
+37791
+  PortaOne, Inc.
+    Lutay Alexander
+      Alexander.Lutay&portaone.com
+37792
+  Enfuse Inc
+    Hong Wang
+      hwang&inscopeinternational.com
+37793
+  Squirrel Solutions Ltd
+    Matt Jenkins
+      matt&sqsol.co.uk
+37794
+  DVR Support Center
+    Jon Swatzell
+      engineering&pco-inc.com
+37795
+  Centre Hospitalier du Nord
+    Aloyse Gilbert
+      aloyse.gilbert&chdn.lu
+37796
+  PTS Group AG
+    Sören Lifka
+      s.lifka&ptsgroup.de
+37797
+  Graylog2
+    Lennart Koopmann
+      lennart&socketfeed.com
+37798
+  Pcmedic
+    Tiago Lourenço Geada
+      tiago.geada&pcmedic.pt
+37799
+  Coloriuris A.I.E.
+    Pedro J. Canut
+      webmaster&coloriuris.net
+37800
+  Aster Data Systems, Inc
+    Dinkar Gupta
+      dgupta&asterdata.com
+37801
+  Innovactive Engineering s.r.l.
+    Lorenzo Maiorfi
+      maiorfi&innovactive.it
+37802
+  Sypris Solutions, Inc
+    Ed Charbeneau
+      ed.charbeneau&sypris.com
+37803
+  California State University San Marcos
+    Diane Petersen
+      kai&csusm.edu
+37804
+  Spirit Software Solutions
+    Graeme Elliott
+      gelliott&spiritsoftware.biz
+37805
+  Team Simoco Ltd.
+    Richard Stimson
+      Richard.Stimson&TeamSimoco.com
+37806
+  North Power Coporation (EVN NPC)
+    Trung Huu Truong
+      trungdtbk&gmail.com
 
 
 End of Document
