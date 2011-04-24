@@ -127,6 +127,7 @@ static gboolean
 edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer user_data)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
+	header_field_info faked_hfinfo;
 	field_info faked_finfo;
 	int val = -1;
 	GSList *src_le;
@@ -152,9 +153,11 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 			if (DataPtr->pd_bitoffset < 4) {
 				DataPtr->pd[DataPtr->pd_offset] = (DataPtr->pd[DataPtr->pd_offset] & 0x0f) | (val << 4);
 				DataPtr->pd_bitoffset = 4;
+				faked_hfinfo.bitmask = 0x0f;
 			} else {
 				DataPtr->pd[DataPtr->pd_offset] = (DataPtr->pd[DataPtr->pd_offset] & 0xf0) | val;
 				DataPtr->pd_bitoffset = 8;
+				faked_hfinfo.bitmask = 0xf0;
 			}
 			/* DataPtr->pd_bitoffset += 4; */
 		}
@@ -203,13 +206,15 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		DataPtr->pd_bitoffset = 0; /* first bit */
 	}
 
+	if (recent.gui_bytes_view == BYTES_BITS)
+		faked_hfinfo.bitmask = (1 << (7-DataPtr->pd_bitoffset));
+
 	/* redissect if changed */
 	if (val != -1) {
 		/* XXX, can be optimized? */
 		epan_dissect_cleanup(&(DataPtr->edt));
-		memset(&(DataPtr->edt), 0, sizeof(DataPtr->edt));
 		epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-		epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, &cfile.cinfo);
+		epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
 		add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 		proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 	}
@@ -219,16 +224,14 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	faked_finfo.start = DataPtr->pd_offset;
 	faked_finfo.length = 1;
 	faked_finfo.hfinfo = NULL;
-	faked_finfo.flags = 0;
+	faked_finfo.flags = FI_BIG_ENDIAN;
 	faked_finfo.ds_tvb = NULL;
-	/* XXX, in bitview bitmask single bit. */
+	faked_finfo.hfinfo = &faked_hfinfo;
 
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
 		const data_source *src = src_le->data;
 		tvbuff_t *tvb = src->tvb;
 		
-		src = src_le->data;
-
 		if (tvb && tvb->real_data == DataPtr->pd) {
 			faked_finfo.ds_tvb = tvb;
 			break;
@@ -277,7 +280,6 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
 
-  memset(&(DataPtr->edt), 0, sizeof(DataPtr->edt));
   epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
   epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
           DataPtr->frame, &cfile.cinfo);
@@ -397,7 +399,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
             finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
         {
             /* I haven't really test if TVB subsets works, but why not? :> */
-            int pd_offset = DataPtr->pd - finfo->ds_tvb->real_data;
+            int pd_offset = (int) (DataPtr->pd - finfo->ds_tvb->real_data);
 
             /* some code from packet_hex_print */
             int finfo_offset = finfo->start;
