@@ -1993,7 +1993,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
-  g_signal_connect(gtk_bin_get_child(GTK_BIN(if_cb)), "changed",
+  g_signal_connect(GTK_COMBO_BOX(if_cb), "changed",
                    G_CALLBACK(capture_prep_interface_changed_cb), NULL);
 
   /* Promiscuous mode row */
