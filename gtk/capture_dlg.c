@@ -1868,7 +1868,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       if_device = build_capture_combo_name(if_list, global_capture_opts.iface);
   }
 
-  if_cb = gtk_combo_box_new_text();
+  if_cb = gtk_combo_box_entry_new_text();
   combo_list = build_capture_combo_list(if_list, TRUE);
   if (combo_list != NULL){
 	for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {  
