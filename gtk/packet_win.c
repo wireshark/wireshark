@@ -78,7 +78,7 @@ struct PacketWinData {
 	GtkWidget  *tree_view;
 	GtkWidget  *bv_nb_ptr;
  	field_info *finfo_selected;
-	epan_dissect_t	*edt;
+	epan_dissect_t	edt;
 
 	int pd_offset;
 	int pd_bitoffset;
@@ -198,17 +198,20 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		/* XXX, last bit/octect? */
 	}
 
-	if ((guint)DataPtr->pd_offset >= DataPtr->frame->cap_len)
+	if ((guint)DataPtr->pd_offset >= DataPtr->frame->cap_len) {
 		DataPtr->pd_offset = 0;
+		DataPtr->pd_bitoffset = 0; /* first bit */
+	}
 
 	/* redissect if changed */
 	if (val != -1) {
 		/* XXX, can be optimized? */
-		epan_dissect_free(DataPtr->edt);
-		DataPtr->edt = epan_dissect_new(TRUE, TRUE);
-		epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, &cfile.cinfo);
-		add_byte_views(DataPtr->edt, DataPtr->tree_view, DataPtr->bv_nb_ptr);
-		proto_tree_draw(DataPtr->edt->tree, DataPtr->tree_view);
+		epan_dissect_cleanup(&(DataPtr->edt));
+		memset(&(DataPtr->edt), 0, sizeof(DataPtr->edt));
+		epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+		epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, &cfile.cinfo);
+		add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
+		proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 	}
 
 	/* hack, fake finfo, point to DataPtr->pd_offset */
@@ -220,7 +223,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	faked_finfo.ds_tvb = NULL;
 	/* XXX, in bitview bitmask single bit. */
 
-	for (src_le = DataPtr->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
 		const data_source *src = src_le->data;
 		tvbuff_t *tvb = src->tvb;
 		
@@ -273,10 +276,12 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
   DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
-  DataPtr->edt = epan_dissect_new(TRUE, TRUE);
-  epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd,
+
+  memset(&(DataPtr->edt), 0, sizeof(DataPtr->edt));
+  epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+  epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
           DataPtr->frame, &cfile.cinfo);
-  epan_dissect_fill_in_columns(DataPtr->edt, FALSE, TRUE);
+  epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 
   /*
    * Build title of window by getting column data constructed when the
@@ -333,8 +338,8 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
-  add_byte_views(DataPtr->edt, tree_view, DataPtr->bv_nb_ptr);
-  proto_tree_draw(DataPtr->edt->tree, tree_view);
+  add_byte_views(&(DataPtr->edt), tree_view, DataPtr->bv_nb_ptr);
+  proto_tree_draw(DataPtr->edt.tree, tree_view);
 
   DataPtr->finfo_selected = NULL;
   DataPtr->pd_offset = 0;
@@ -348,7 +353,7 @@ destroy_new_window(GtkObject *object _U_, gpointer user_data)
   struct PacketWinData *DataPtr = user_data;
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
-  epan_dissect_free(DataPtr->edt);
+  epan_dissect_cleanup(&(DataPtr->edt));
   g_free(DataPtr->pd);
   g_free(DataPtr);
 }
