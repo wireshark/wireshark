@@ -368,6 +368,18 @@ build_conversation_filter(int action, gboolean show_dialog)
     return buf;
 }
 
+static void 
+new_window_cb(GtkWidget *widget)
+{
+	new_packet_window(widget, FALSE);
+}
+
+static void 
+edit_window_cb(GtkWidget *widget)
+{
+	new_packet_window(widget, TRUE);
+}
+
 static void
 conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
 {
@@ -1050,6 +1062,8 @@ static const char *ui_desc_menubar =
 "        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
 "        <separator/>\n"
+"        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
+"        <separator/>\n"
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
 "    </menu>\n"
@@ -1418,6 +1432,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
+   { "/Edit/EditPacket",				NULL,				"_Edit Packet",							NULL,						NULL,			G_CALLBACK(edit_window_cb) },
 
 
    { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
@@ -1781,6 +1796,8 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
     {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Edit packet",							NULL,				GTK_MENU_FUNC(edit_window_cb), 0, NULL, NULL, },
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
     {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
@@ -5991,6 +6008,8 @@ set_menus_for_selected_packet(capture_file *cf)
 
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnorePacket",
                          frame_selected);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
+                         frame_selected);
 #else /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity_old("/Edit/Mark All Displayed Packets (toggle)",
                          cf->displayed_count > 0);
@@ -6003,6 +6022,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          another_is_marked);
 
     set_menu_sensitivity_old("/Edit/Ignore Packet (toggle)",
+                         frame_selected);
+    set_menu_sensitivity_old("/Edit/Edit packet",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",

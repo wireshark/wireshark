@@ -35,7 +35,7 @@
  *
  * @param widget parent widget (unused)
  */
-extern void new_window_cb(GtkWidget *widget);
+extern void new_packet_window(GtkWidget *widget, gboolean editable);
 
 /** Destroy all popup packet windows.
  */
