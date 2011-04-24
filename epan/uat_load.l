@@ -220,17 +220,14 @@ comment #[^\n]*\n
 <SEPARATOR>{newline} {
 	linenum++;
 	ERROR(("expecting field %s in previous line",uat->fields[colnum].name));
-	BEGIN START_OF_LINE;
 }
 
 <SEPARATOR>. {
 	ERROR(("unexpected char '%s' while looking for field %s",yytext,uat->fields[colnum].name));
-	BEGIN ERRORED;
 }
 
 <END_OF_RECORD>{separator} {
 	ERROR(("more fields than required"));
-	BEGIN ERRORED;
 }
 
 <END_OF_RECORD>{newline} {
@@ -262,7 +259,6 @@ comment #[^\n]*\n
 
 <END_OF_RECORD>. {
 	ERROR(("unexpected char while looking for end of line"));
-	BEGIN ERRORED;
 }
 
 <ERRORED>{newline} { linenum++; BEGIN START_OF_LINE; }
