@@ -1134,18 +1134,22 @@ new_packet_list_check_end(void)
 	return at_end;
 }
 
-gint
-new_packet_list_find_row_from_data(gpointer data, gboolean select_flag)
+/*
+ * Given a frame_data structure, scroll to and select the row in the
+ * packet list corresponding to that frame.  If there is no such
+ * row, return FALSE, otherwise return TRUE.
+ */
+gboolean
+new_packet_list_select_row_from_data(frame_data *fdata_needle)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
-	frame_data *fdata_needle = data;
 
 	/* Initializes iter with the first iterator in the tree (the one at the path "0")
 	 * and returns TRUE. Returns FALSE if the tree is empty
 	 */
 	if(!gtk_tree_model_get_iter_first(model, &iter))
-		return -1;
+		return FALSE;
 
 	do {
 		PacketListRecord *record;
@@ -1155,14 +1159,13 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select_flag)
 		fdata = record->fdata;
 
 		if(fdata == fdata_needle) {
-			if(select_flag)
-				scroll_to_and_select_iter(model, NULL, &iter);
+			scroll_to_and_select_iter(model, NULL, &iter);
 
-			return fdata->num;
+			return TRUE;
 		}
 	} while (gtk_tree_model_iter_next(model, &iter));
 
-	return -1;
+	return FALSE;
 }
 
 void

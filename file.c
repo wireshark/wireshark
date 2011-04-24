@@ -1923,7 +1923,15 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     if (selected_frame_num == 0) {
       new_packet_list_select_first_row();
     }else{
-      new_packet_list_find_row_from_data(selected_frame, TRUE);
+      if (!new_packet_list_select_row_from_data(selected_frame)) {
+        /* We didn't find a row corresponding to this frame.
+           This means that the frame isn't being displayed currently,
+           so we can't select it. */
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                      "%sEnd of capture exceeded!%s\n\n"
+                      "The capture file is probably not fully dissected.",
+                      simple_dialog_primary_start(), simple_dialog_primary_end());
+      }
     }
   }
 
@@ -3214,7 +3222,7 @@ find_packet(capture_file *cf,
   progdlg_t   *progbar = NULL;
   gboolean     stop_flag;
   int          count;
-  int          row;
+  gboolean     found;
   float        progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
@@ -3357,16 +3365,16 @@ find_packet(capture_file *cf,
   if (new_fd != NULL) {
     /* Find and select */
     cf->search_in_progress = TRUE;
-    row = new_packet_list_find_row_from_data(fdata, TRUE);
+    found = new_packet_list_select_row_from_data(new_fd);
     cf->search_in_progress = FALSE;
     cf->search_pos = 0; /* Reset the position */
-    if (row == -1) {
-      /* We didn't find a row even though we know that a frame
-       * exists that satifies the search criteria. This means that the
-       * frame isn't being displayed currently so we can't select it. */
+    if (!found) {
+      /* We didn't find a row corresponding to this frame.
+         This means that the frame isn't being displayed currently,
+         so we can't select it. */
       simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
                     "%sEnd of capture exceeded!%s\n\n"
-                    "The capture file is probably not fully loaded.",
+                    "The capture file is probably not fully dissected.",
                     simple_dialog_primary_start(), simple_dialog_primary_end());
       return FALSE;
     }
@@ -3395,7 +3403,16 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     return FALSE;   /* we failed to go to that packet */
   }
 
-  new_packet_list_find_row_from_data(fdata, TRUE);
+  if (!new_packet_list_select_row_from_data(fdata)) {
+    /* We didn't find a row corresponding to this frame.
+       This means that the frame isn't being displayed currently,
+       so we can't select it. */
+    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                  "%sEnd of capture exceeded!%s\n\n"
+                  "The capture file is probably not fully dissected.",
+                  simple_dialog_primary_start(), simple_dialog_primary_end());
+    return FALSE;
+  }
   return TRUE;  /* we got to that packet */
 }
 

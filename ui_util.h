@@ -71,7 +71,7 @@ void new_packet_list_select_first_row(void);
 void new_packet_list_select_last_row(void);
 void new_packet_list_moveto_end(void);
 gboolean new_packet_list_check_end(void);
-gint new_packet_list_find_row_from_data(gpointer data, gboolean select);
+gboolean new_packet_list_select_row_from_data(frame_data *fdata_needle);
 void new_packet_list_resize_column(gint col);
 
 #ifdef __cplusplus
