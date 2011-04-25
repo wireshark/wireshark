@@ -690,7 +690,7 @@ static void register_mibs() {
 						}
 					}
 
-					hf.hfinfo.strings = VALS(vals->data);
+					hf.hfinfo.strings = vals->data;
 					g_array_free(vals,FALSE);
 				}
 #if 0 /* packet-snmp does not handle bits yet */
