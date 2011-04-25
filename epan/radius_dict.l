@@ -461,7 +461,7 @@ static void setup_tlvs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	} vs;
 
 	if (g_hash_table_lookup_extended(value_strings, s->name, &key, &vs.p)) {
-		s->vs = (value_string*) vs.a->data;
+		s->vs = (value_string*)(void *)vs.a->data;
 		g_array_free(vs.a, FALSE);
 		g_hash_table_remove(value_strings, key);
 		g_free(key);
@@ -478,7 +478,7 @@ static void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	} vs;
 
 	if (g_hash_table_lookup_extended(value_strings,a->name,&key,&vs.p) ) {
-		a->vs = (value_string*) vs.a->data;
+		a->vs = (value_string*)(void *)vs.a->data;
 		g_array_free(vs.a,FALSE);
 		g_hash_table_remove(value_strings,key);
 		g_free(key);
@@ -496,13 +496,13 @@ static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
 }
 
 static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
-    value_string* vs = (value_string*)(((GArray*)v)->data);
+	value_string* vs = (value_string*)(void *)(((GArray*)v)->data);
 
 	g_free(k);
 
-    for (;vs->strptr;vs++) {
-        g_free((void*)vs->strptr);
-    }
+	for (;vs->strptr;vs++) {
+		g_free((void*)vs->strptr);
+	}
 
 	g_array_free(v,TRUE);
 	return TRUE;
