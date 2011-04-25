@@ -58,7 +58,9 @@
 #include "../print.h"
 #include "../ui_util.h"
 #include "../summary.h"
+#include "../simple_dialog.h"
 
+#include "gtk/font_utils.h"
 #include "gtk/main.h"
 #include "gtk/packet_win.h"
 #include "gtk/main_proto_draw.h"
@@ -67,6 +69,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/recent.h"
 
+#define BV_SIZE 75
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
@@ -82,6 +85,21 @@ struct PacketWinData {
 
 	int pd_offset;
 	int pd_bitoffset;
+};
+
+struct FieldinfoWinData {
+	frame_data *frame;	   /* The frame being displayed */
+	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
+	guint8     *pd;		   /* Data for packet */
+	int start_offset;
+
+	field_info *finfo;
+/* fvalue */
+	GtkWidget *edit;
+	GtkWidget *repr;
+/* byteviews */
+	GtkWidget *bv;
+	GtkWidget *app_bv;
 };
 
 /* List of all the packet-detail windows popped up. */
@@ -123,6 +141,278 @@ button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
   return FALSE;
 }
 
+static field_info *
+proto_finfo_find(proto_tree *tree, field_info *old_finfo)
+{
+	proto_node *node;
+
+	for (node = tree->first_child; node != NULL; node = node->next) {
+		field_info *cur = PNODE_FINFO(node);
+
+		if (!cur)
+			continue;
+
+		/* check everything, if it doesn't work report to me */
+		if (cur->hfinfo == old_finfo->hfinfo && 
+			cur->start == old_finfo->start && cur->length == old_finfo->length &&
+			cur->appendix_start == old_finfo->appendix_start && cur->appendix_length == old_finfo->appendix_length &&
+			cur->tree_type == old_finfo->tree_type && cur->flags == old_finfo->flags)
+		{
+			return cur;
+		}
+
+		if ((cur = proto_finfo_find((proto_tree *)node, old_finfo)))
+			return cur;
+	}
+	return NULL;
+}
+
+static gboolean
+finfo_window_refresh(struct FieldinfoWinData *DataPtr)
+{
+	field_info *old_finfo = DataPtr->finfo;
+	field_info *finfo = NULL;
+	epan_dissect_t edt;
+
+	const guint8 *data;
+	GtkWidget *byte_view;
+	gchar label_str[ITEM_LABEL_LENGTH];
+
+	/* redisect */
+	epan_dissect_init(&edt, TRUE, TRUE);
+	/* Makes any sense?
+	if (old_finfo->hfinfo)
+		proto_tree_prime_hfid(edt.tree, old_finfo->hfinfo->id);
+	*/
+	epan_dissect_run(&edt, &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
+
+	/* Try to find finfo which looks like old_finfo.
+	 * We might not found one, if protocol requires specific magic values, etc... */
+	if (!(finfo = proto_finfo_find(edt.tree, old_finfo))) {
+		epan_dissect_cleanup(&edt);
+		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), "[finfo not found, try with another value, or restore old. If you think it is bug, fill bugreport]");
+		return FALSE;
+	}
+
+	if (DataPtr->bv && (byte_view = get_notebook_bv_ptr(DataPtr->bv))) {
+		data = tvb_get_ptr(finfo->ds_tvb, finfo->start, finfo->length);
+		packet_hex_print(byte_view, data, cfile.current_frame, NULL, finfo->length);
+	}
+
+	if (DataPtr->app_bv && (byte_view = get_notebook_bv_ptr(DataPtr->app_bv))) {
+		data = tvb_get_ptr(finfo->ds_tvb, finfo->appendix_start, finfo->appendix_length);
+		packet_hex_print(byte_view, data, cfile.current_frame, NULL, finfo->appendix_length);
+	}
+
+	/* XXX, update fvalue_edit, e.g. when hexedit was changed */
+
+	proto_item_fill_label(finfo, label_str);
+	gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), label_str);
+	epan_dissect_cleanup(&edt);
+	return TRUE;
+}
+
+static void
+finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
+{
+	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
+	const field_info *finfo = DataPtr->finfo;
+
+	gdouble val = gtk_spin_button_get_value(spinbutton);
+
+	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
+
+	/* XXX, appendix? */
+	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
+	int finfo_length = finfo->length;
+
+	if (finfo_offset < DataPtr->frame->cap_len && finfo_offset + finfo_length < DataPtr->frame->cap_len) {
+		guint64 u_val;
+
+		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
+			u_val = (guint64) ((gint) val);
+
+		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
+			u_val = (guint64) val;
+
+		if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) {
+			while (finfo_length) {
+				/* XXX, bitmask */
+				DataPtr->pd[finfo_offset++] = u_val & 0xff;
+				u_val >>= 8;
+				finfo_length--;
+			}
+		} else {
+			while (finfo_length) {
+				/* XXX, bitmask */
+				DataPtr->pd[finfo_offset + (--finfo_length)] = u_val & 0xff;
+				u_val >>= 8;
+			}
+		}
+	}
+	finfo_window_refresh(user_data);
+}
+
+static gint
+new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
+{
+	field_info *finfo = DataPtr->finfo;
+	GtkWidget *dialog = gtk_dialog_new_with_buttons("Editing finfo: ....",
+			GTK_WINDOW(w),
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+			NULL);
+
+	GtkWidget *dialog_vbox = GTK_DIALOG(dialog)->vbox;
+	GtkWidget *fvalue_edit;
+	GtkWidget *native_repr;
+
+	GtkWidget *bv_nb_ptr;
+
+	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
+	gint result;
+
+	if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 ||
+			finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32)
+	{
+		GtkObject *adj;
+		int bitcount = 0;
+
+		if (finfo_type == FT_INT8 || finfo_type == FT_UINT8)
+			bitcount = 8;
+		if (finfo_type == FT_INT16 || finfo_type == FT_UINT16)
+			bitcount = 16;
+		if (finfo_type == FT_INT24 || finfo_type == FT_UINT24)
+			bitcount = 24;
+		if (finfo_type == FT_INT32 || finfo_type == FT_UINT32)
+			bitcount = 32;
+
+		/* XXX, limit to finfo->length */
+		/* XXX, I'm little worried about these casts from (unsigned) integer to double... */
+
+		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
+			adj = gtk_adjustment_new((double) fvalue_get_sinteger(&finfo->value), (double) -(G_GINT64_CONSTANT(1) << (bitcount-1)), (double) ((G_GINT64_CONSTANT(1) << (bitcount-1))-1), 1.0, 10.0, 0);
+		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
+			adj = gtk_adjustment_new((double) fvalue_get_uinteger(&finfo->value), 0.0, (double) ((G_GINT64_CONSTANT(1U) << bitcount)-1), 1.0, 10.0, 0);
+		else {
+			g_assert_not_reached();
+			goto not_supported;
+		}
+		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
+
+		gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(fvalue_edit), TRUE);
+		g_signal_connect(fvalue_edit, "value-changed", G_CALLBACK(finfo_integer_changed), DataPtr);
+
+	} else if (finfo_type == FT_BOOLEAN) {
+		fvalue_edit = gtk_check_button_new();
+
+	} else {
+not_supported:
+		fvalue_edit = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<not supported>");
+		gtk_entry_set_editable(GTK_ENTRY(fvalue_edit), FALSE);
+		gtk_widget_set_sensitive(fvalue_edit, FALSE);
+	}
+	gtk_box_pack_start(GTK_BOX(dialog_vbox), fvalue_edit, FALSE, FALSE, 0);
+	gtk_widget_show(fvalue_edit);
+
+	DataPtr->edit = fvalue_edit;
+
+	native_repr = gtk_entry_new();
+	gtk_entry_set_editable(GTK_ENTRY(native_repr), FALSE);
+	gtk_widget_set_sensitive(native_repr, FALSE);
+	gtk_box_pack_start(GTK_BOX(dialog_vbox), native_repr, FALSE, FALSE, 0);
+	gtk_widget_show(native_repr);
+
+	DataPtr->repr = native_repr;
+
+	/* raw hex edit */
+	if (finfo->start >= 0 && finfo->length > 0) {
+		/* Byte view */
+		bv_nb_ptr = byte_view_new();
+		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
+		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
+		gtk_widget_show(bv_nb_ptr);
+
+		DataPtr->bv = bv_nb_ptr;
+	}
+	if (finfo->appendix_start >= 0 && finfo->appendix_length > 0) {
+		/* Appendix byte view */
+		bv_nb_ptr = byte_view_new();
+		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
+		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
+		gtk_widget_show(bv_nb_ptr);
+
+		DataPtr->app_bv = bv_nb_ptr;
+	}
+
+	gtk_window_set_default_size(GTK_WINDOW(dialog), DEF_WIDTH, -1);
+	finfo_window_refresh(DataPtr);
+	result = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+	return result;
+}
+
+static void
+edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer user_data)
+{
+	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	field_info *finfo;
+
+	model = gtk_tree_view_get_model(tree_view);
+	if (!gtk_tree_model_get_iter(model, &iter, path))
+		return;
+
+	gtk_tree_model_get(model, &iter, 1, &finfo, -1);
+	if (!finfo) 
+		return;
+
+	/* XXX, simple_dialog() is shown on top of main_window, instead of edit_window. */
+
+	if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
+			finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
+	{
+		struct FieldinfoWinData data;
+
+		if (!FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN) && !FI_GET_FLAG(finfo, FI_BIG_ENDIAN)) {
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Item can't be edited. Not added by proto_tree_add_item()");
+			return;
+		}
+		/* XXX, verify if value stored in finfo is the same as in backed tvb
+		if (0) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Item can't be edited. Value stored in finfo doesn't match value from tvb.");
+			return;
+		}
+		 */
+
+		data.frame = DataPtr->frame;
+		data.pseudo_header = DataPtr->pseudo_header;
+		data.pd = g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
+		data.start_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
+
+		data.finfo = finfo;
+		data.app_bv = data.bv = NULL;
+		data.repr = data.edit = NULL;
+
+		if (new_finfo_window(DataPtr->main, &data) == GTK_RESPONSE_ACCEPT) {
+			/* DataPtr->pseudo_header = data.pseudo_header; */
+			memcpy(DataPtr->pd, data.pd, DataPtr->frame->cap_len);
+
+			epan_dissect_cleanup(&(DataPtr->edt));
+			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+			epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
+			add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
+			proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
+		}
+		g_free(data.pd);
+
+	} else
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Item can't be edited. FI_GENERATED or tvb not subset of packet data (uncompressed?)");
+}
+
 static gboolean
 edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer user_data)
 {
@@ -153,11 +443,9 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 			if (DataPtr->pd_bitoffset < 4) {
 				DataPtr->pd[DataPtr->pd_offset] = (DataPtr->pd[DataPtr->pd_offset] & 0x0f) | (val << 4);
 				DataPtr->pd_bitoffset = 4;
-				faked_hfinfo.bitmask = 0x0f;
 			} else {
 				DataPtr->pd[DataPtr->pd_offset] = (DataPtr->pd[DataPtr->pd_offset] & 0xf0) | val;
 				DataPtr->pd_bitoffset = 8;
-				faked_hfinfo.bitmask = 0xf0;
 			}
 			/* DataPtr->pd_bitoffset += 4; */
 		}
@@ -206,8 +494,18 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		DataPtr->pd_bitoffset = 0; /* first bit */
 	}
 
-	if (recent.gui_bytes_view == BYTES_BITS)
+	switch (recent.gui_bytes_view) {
+	case BYTES_HEX:
+		faked_hfinfo.bitmask = 
+			(DataPtr->pd_bitoffset == 0) ? 0xf0 :
+			(DataPtr->pd_bitoffset == 4) ? 0x0f :
+			0xff;
+		break;
+
+	case BYTES_BITS:
 		faked_hfinfo.bitmask = (1 << (7-DataPtr->pd_bitoffset));
+		break;
+	}
 
 	/* redissect if changed */
 	if (val != -1) {
@@ -223,10 +521,9 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	faked_finfo.appendix_length = 0;
 	faked_finfo.start = DataPtr->pd_offset;
 	faked_finfo.length = 1;
-	faked_finfo.hfinfo = NULL;
+	faked_finfo.hfinfo = &faked_hfinfo;
 	faked_finfo.flags = FI_BIG_ENDIAN;
 	faked_finfo.ds_tvb = NULL;
-	faked_finfo.hfinfo = &faked_hfinfo;
 
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
 		const data_source *src = src_le->data;
@@ -254,7 +551,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
 #define NewWinTitleLen 1000
   char Title[NewWinTitleLen] = "";
   const char *TextPtr;
-  gint tv_size = 95, bv_size = 75;
+  gint tv_size = 95;
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *tv_scrollw,
                       *bv_nb_ptr;
@@ -321,7 +618,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   /* Byte view */
   bv_nb_ptr = byte_view_new();
   gtk_paned_pack2(GTK_PANED(pane), bv_nb_ptr, FALSE, FALSE);
-  gtk_widget_set_size_request(bv_nb_ptr, -1, bv_size);
+  gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
   gtk_widget_show(bv_nb_ptr);
 
   DataPtr->main = main_w;
@@ -336,6 +633,8 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   g_signal_connect(tree_view, "button_press_event", G_CALLBACK(button_press_handler), NULL);
   if (editable && DataPtr->frame->cap_len != 0) {
     g_signal_connect(main_w, "key-press-event", G_CALLBACK(edit_pkt_win_key_pressed_cb), DataPtr);
+    /* XXX, popup-menu instead of row-activated? */
+    g_signal_connect(tree_view, "row-activated", G_CALLBACK(edit_pkt_tree_row_activated_cb), DataPtr);
   }
   g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
@@ -399,7 +698,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
             finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
         {
             /* I haven't really test if TVB subsets works, but why not? :> */
-            int pd_offset = (int) (DataPtr->pd - finfo->ds_tvb->real_data);
+            int pd_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
             /* some code from packet_hex_print */
             int finfo_offset = finfo->start;
@@ -409,13 +708,11 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
                 finfo_offset = finfo->appendix_start;
                 finfo_len = finfo->appendix_length;
             }
-            /* Don't care about things like bitmask or LE/BE, just point DataPtr->tvb_[bit]offset to proper offsets.
-             * TODO: We might want to add another dialog to edit only selected value.
-             */
 
+            /* Don't care about things like bitmask or LE/BE, just point DataPtr->tvb_[bit]offset to proper offsets. */
             if (finfo_offset >= 0 && finfo_len > 0) {
                 DataPtr->pd_offset = pd_offset + finfo_offset;
-                DataPtr->pd_bitoffset = 0;
+                DataPtr->pd_bitoffset = 0; /* XXX */
             }
 
             if (DataPtr->pd_offset < 0)
