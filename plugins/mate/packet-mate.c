@@ -335,8 +335,8 @@ proto_reg_handoff_mate(void)
 
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
-				proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
-				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
+				proto_register_field_array(proto_mate, (hf_register_info*)(void *)mc->hfrs->data, mc->hfrs->len );
+				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate_runtime);
 
 				tap_error = register_tap_listener("frame", &mate_tap_data,
