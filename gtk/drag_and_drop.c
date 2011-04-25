@@ -331,7 +331,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 #endif
 
         /* if another file read is still in progress, do nothing but warn the user */
-        if((cfile.state == FILE_READ_IN_PROGRESS)) {
+        if(cfile.state == FILE_READ_IN_PROGRESS) {
             simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         "%sDrag and Drop currently not possible!%s\n\n"
