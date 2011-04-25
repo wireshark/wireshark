@@ -234,6 +234,10 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 
 		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
 			u_val = (guint64) val;
+		else {
+			g_assert_not_reached();
+			return;
+		}
 
 		if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) {
 			while (finfo_length) {
