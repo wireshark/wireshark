@@ -1788,7 +1788,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	h225_is_faststart = pi->is_faststart;
 
 	/* not in the list? then create a new entry */
-	if ((callsinfo==NULL)){
+	if (callsinfo==NULL){
 		callsinfo = g_malloc0(sizeof(voip_calls_info_t));
 		callsinfo->call_active_state = VOIP_ACTIVE;
 		callsinfo->call_state = VOIP_UNKNOWN;
