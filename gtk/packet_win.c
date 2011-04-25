@@ -191,23 +191,33 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 	if (!(finfo = proto_finfo_find(edt.tree, old_finfo))) {
 		epan_dissect_cleanup(&edt);
 		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), "[finfo not found, try with another value, or restore old. If you think it is bug, fill bugreport]");
+		if (DataPtr->bv)
+			gtk_widget_hide(DataPtr->bv);
+		if (DataPtr->app_bv)
+			gtk_widget_hide(DataPtr->app_bv);
 		return FALSE;
 	}
 
 	if (DataPtr->bv && (byte_view = get_notebook_bv_ptr(DataPtr->bv))) {
+		gtk_widget_show(DataPtr->bv);
 		data = tvb_get_ptr(finfo->ds_tvb, finfo->start, finfo->length);
-		packet_hex_print(byte_view, data, cfile.current_frame, NULL, finfo->length);
+		packet_hex_print(byte_view, data, DataPtr->frame, NULL, finfo->length);
 	}
 
 	if (DataPtr->app_bv && (byte_view = get_notebook_bv_ptr(DataPtr->app_bv))) {
+		gtk_widget_show(DataPtr->app_bv);
 		data = tvb_get_ptr(finfo->ds_tvb, finfo->appendix_start, finfo->appendix_length);
-		packet_hex_print(byte_view, data, cfile.current_frame, NULL, finfo->appendix_length);
+		packet_hex_print(byte_view, data, DataPtr->frame, NULL, finfo->appendix_length);
 	}
 
 	/* XXX, update fvalue_edit, e.g. when hexedit was changed */
 
-	proto_item_fill_label(finfo, label_str);
-	gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), label_str);
+	if (finfo->rep == NULL) {
+		proto_item_fill_label(finfo, label_str);
+		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), label_str);
+	} else
+		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), finfo->rep->representation);
+		
 	epan_dissect_cleanup(&edt);
 	return TRUE;
 }
@@ -218,15 +228,14 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
 	const field_info *finfo = DataPtr->finfo;
 
-	gdouble val = gtk_spin_button_get_value(spinbutton);
-
-	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
-
 	/* XXX, appendix? */
 	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
 	int finfo_length = finfo->length;
+	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
 
-	if (finfo_offset < DataPtr->frame->cap_len && finfo_offset + finfo_length < DataPtr->frame->cap_len) {
+	gdouble val = gtk_spin_button_get_value(spinbutton);
+
+	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
 		guint64 u_val;
 
 		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
@@ -254,7 +263,7 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 			}
 		}
 	}
-	finfo_window_refresh(user_data);
+	finfo_window_refresh(DataPtr);
 }
 
 static gint
@@ -271,7 +280,6 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 	GtkWidget *dialog_vbox = GTK_DIALOG(dialog)->vbox;
 	GtkWidget *fvalue_edit;
 	GtkWidget *native_repr;
-
 	GtkWidget *bv_nb_ptr;
 
 	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
@@ -303,8 +311,8 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 			g_assert_not_reached();
 			goto not_supported;
 		}
-		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
 
+		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
 		gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(fvalue_edit), TRUE);
 		g_signal_connect(fvalue_edit, "value-changed", G_CALLBACK(finfo_integer_changed), DataPtr);
 
@@ -315,7 +323,7 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 not_supported:
 		fvalue_edit = gtk_entry_new();
 		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<not supported>");
-		gtk_entry_set_editable(GTK_ENTRY(fvalue_edit), FALSE);
+		gtk_editable_set_editable(GTK_EDITABLE(fvalue_edit), FALSE);
 		gtk_widget_set_sensitive(fvalue_edit, FALSE);
 	}
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), fvalue_edit, FALSE, FALSE, 0);
@@ -324,7 +332,7 @@ not_supported:
 	DataPtr->edit = fvalue_edit;
 
 	native_repr = gtk_entry_new();
-	gtk_entry_set_editable(GTK_ENTRY(native_repr), FALSE);
+	gtk_editable_set_editable(GTK_EDITABLE(native_repr), FALSE);
 	gtk_widget_set_sensitive(native_repr, FALSE);
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), native_repr, FALSE, FALSE, 0);
 	gtk_widget_show(native_repr);
@@ -337,7 +345,6 @@ not_supported:
 		bv_nb_ptr = byte_view_new();
 		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
-		gtk_widget_show(bv_nb_ptr);
 
 		DataPtr->bv = bv_nb_ptr;
 	}
@@ -346,7 +353,6 @@ not_supported:
 		bv_nb_ptr = byte_view_new();
 		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
-		gtk_widget_show(bv_nb_ptr);
 
 		DataPtr->app_bv = bv_nb_ptr;
 	}
