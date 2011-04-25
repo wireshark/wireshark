@@ -758,9 +758,9 @@ static void register_mibs() {
 
 	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
 
-	proto_register_field_array(proto_mibs, (hf_register_info*)hfa->data, hfa->len);
+	proto_register_field_array(proto_mibs, (hf_register_info*)(void*)hfa->data, hfa->len);
 
-	proto_register_subtree_array((gint**)etta->data, etta->len);
+	proto_register_subtree_array((gint**)(void*)etta->data, etta->len);
 
 
 	g_array_free(etta,TRUE);
