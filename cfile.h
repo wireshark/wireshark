@@ -46,6 +46,19 @@ typedef enum {
   SD_BACKWARD
 } search_direction;
 
+/*
+ * We store the frame_data structures in a radix tree, with 1024
+ * elements per level.  The leaf nodes are arrays of 1024 frame_data
+ * structures; the nodes above them are arrays of 1024 pointers to
+ * the nodes below them.  The capture_file structure has a pointer
+ * to the root node.
+ *
+ * As frame numbers are 32 bits, and as 1024 is 2^10, that gives us
+ * up to 4 levels of tree.
+ */
+#define LOG2_NODES_PER_LEVEL	10
+#define NODES_PER_LEVEL		(1<<LOG2_NODES_PER_LEVEL)
+
 typedef struct _capture_file {
   file_state   state;           /* Current state of capture file */
   gchar       *filename;        /* Name of capture file */
@@ -84,21 +97,10 @@ typedef struct _capture_file {
   /* packet data */
   union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
-  /* memory chunks have been deprecated in favor of the slice allocator,
-   * which has been added in 2.10
-   */
-#if GLIB_CHECK_VERSION(2,10,0)
-
-#else
-  GMemChunk   *plist_chunk;     /* Memory chunk for frame_data structures */
-#endif
-  frame_data  *plist_start;     /* Packet list */
-  frame_data  *plist_end;       /* Last packet in list */
-  frame_data  *first_displayed; /* First frame displayed */
-  frame_data  *last_displayed;  /* Last frame displayed */
-  /* The next two are used to speed up frame number -> frame data searches */
-  guint32      last_found_num;  /* Frame number we last found */
-  frame_data  *last_found_fd;   /* The corresponding frame_data */
+  /* frames */
+  void        *ptree_root;      /* Pointer to the root node */
+  guint32      first_displayed; /* Frame number of first frame displayed */
+  guint32      last_displayed;  /* Frame number of last frame displayed */
   column_info  cinfo;           /* Column formatting information */
   frame_data  *current_frame;   /* Frame data for current frame */
   gint         current_row;     /* Row number for current frame */
@@ -106,9 +108,9 @@ typedef struct _capture_file {
   field_info  *finfo_selected;	/* Field info for currently selected field */
 } capture_file;
 
-void cap_file_init(capture_file *cf);
+extern void cap_file_init(capture_file *cf);
 
-void cap_file_add_fdata(capture_file *cf, frame_data *fdata);
+extern frame_data *cap_file_add_fdata(capture_file *cf, frame_data *fdata);
 
 /*
  * Find the frame_data for the specified frame number.
@@ -116,5 +118,10 @@ void cap_file_add_fdata(capture_file *cf, frame_data *fdata);
  * forward and backward sequential passes through the packets.
  */
 extern frame_data *cap_file_find_fdata(capture_file *cf, guint32 num);
+
+/*
+ * Free up all the frame information for a capture file.
+ */
+extern void cap_file_free_frames(capture_file *cf);
 
 #endif /* cfile.h */

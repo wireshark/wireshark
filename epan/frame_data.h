@@ -40,8 +40,6 @@
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
 typedef struct _frame_data {
-  struct _frame_data *next; /**< Next element in list */
-  struct _frame_data *prev; /**< Previous element in list */
   GSList      *pfd;         /**< Per frame proto data */
   guint32      num;         /**< Frame number */
   guint32      pkt_len;     /**< Packet length */

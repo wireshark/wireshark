@@ -177,6 +177,7 @@ ph_stats_t*
 ph_stats_new(void)
 {
 	ph_stats_t	*ps;
+	guint32		framenum;
 	frame_data	*frame;
 	guint		tot_packets, tot_bytes;
 	progdlg_t	*progbar = NULL;
@@ -212,7 +213,9 @@ ph_stats_new(void)
 	tot_packets = 0;
 	tot_bytes = 0;
 
-	for (frame = cfile.plist_start; frame != NULL; frame = frame->next) {
+	for (framenum = 1; framenum <= cfile.count; framenum++) {
+		frame = cap_file_find_fdata(&cfile, framenum);
+
 		/* Create the progress bar if necessary.
 		   We check on every iteration of the loop, so that
 		   it takes no longer than the standard time to create

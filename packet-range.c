@@ -43,7 +43,7 @@
 
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {
-  guint32       current_count;
+  guint32       framenum;
   guint32       mark_low;
   guint32       mark_high;
   guint32       displayed_mark_low;
@@ -79,11 +79,11 @@ static void packet_range_calc(packet_range_t *range) {
    * data must be entered in the widget by the user.
    */
 
-  current_count = 0;
-  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
-      current_count++;
+  for(framenum = 1; framenum <= cfile.count; framenum++) {
+      packet = cap_file_find_fdata(&cfile, framenum);
+
       if (cfile.current_frame == packet) {
-          range->selected_packet = current_count;
+          range->selected_packet = framenum;
       }
       if (packet->flags.passed_dfilter) {
           range->displayed_cnt++;
@@ -98,18 +98,18 @@ static void packet_range_calc(packet_range_t *range) {
                     range->displayed_ignored_marked_cnt++;
                 }
                 if (displayed_mark_low == 0) {
-                   displayed_mark_low = current_count;
+                   displayed_mark_low = framenum;
                 }
-                if (current_count > displayed_mark_high) {
-                   displayed_mark_high = current_count;
+                if (framenum > displayed_mark_high) {
+                   displayed_mark_high = framenum;
                 }
             }
 
             if (mark_low == 0) {
-               mark_low = current_count;
+               mark_low = framenum;
             }
-            if (current_count > mark_high) {
-               mark_high = current_count;
+            if (framenum > mark_high) {
+               mark_high = framenum;
             }
       }
       if (packet->flags.ignored) {
@@ -120,12 +120,11 @@ static void packet_range_calc(packet_range_t *range) {
       }
   }
 
-  current_count = 0;
-  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
-      current_count++;
+  for(framenum = 1; framenum <= cfile.count; framenum++) {
+      packet = cap_file_find_fdata(&cfile, framenum);
 
-      if (current_count >= mark_low &&
-          current_count <= mark_high)
+      if (framenum >= mark_low &&
+          framenum <= mark_high)
       {
           range->mark_range_cnt++;
           if (packet->flags.ignored) {
@@ -133,8 +132,8 @@ static void packet_range_calc(packet_range_t *range) {
           }
       }
 
-      if (current_count >= displayed_mark_low &&
-          current_count <= displayed_mark_high)
+      if (framenum >= displayed_mark_low &&
+          framenum <= displayed_mark_high)
       {
           if (packet->flags.passed_dfilter) {
             range->displayed_mark_range_cnt++;
@@ -159,7 +158,7 @@ static void packet_range_calc(packet_range_t *range) {
 
 /* (re-)calculate the user specified packet range counts */
 static void packet_range_calc_user(packet_range_t *range) {
-  guint32       current_count;
+  guint32       framenum;
   frame_data    *packet;
 
   range->user_range_cnt             = 0L;
@@ -167,11 +166,10 @@ static void packet_range_calc_user(packet_range_t *range) {
   range->displayed_user_range_cnt   = 0L;
   range->displayed_ignored_user_range_cnt = 0L;
 
-  current_count = 0;
-  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
-      current_count++;
+  for(framenum = 1; framenum <= cfile.count; framenum++) {
+      packet = cap_file_find_fdata(&cfile, framenum);
 
-      if (value_is_in_range(range->user_range, current_count)) {
+      if (value_is_in_range(range->user_range, framenum)) {
           range->user_range_cnt++;
           if (packet->flags.ignored) {
               range->ignored_user_range_cnt++;

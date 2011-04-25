@@ -1586,7 +1586,7 @@ new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 		/* Due to performance impact with large captures, don't check the filtered list for
 		an ignored frame; just check the first. If a ignored frame exists but isn't first and
 		the user wants to unignore all the displayed frames, they will just re-exec the shortcut. */
-		fdata = cfile.first_displayed;
+		fdata = cap_file_find_fdata(&cfile, cfile.first_displayed);
 		if (fdata->flags.ignored==TRUE) {
 			ignore_all_displayed_frames(FALSE);
 		} else {

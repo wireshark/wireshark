@@ -189,8 +189,6 @@ frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 cum_bytes)
 {
-  fdata->next = NULL;
-  fdata->prev = NULL;
   fdata->pfd = NULL;
   fdata->num = num;
   fdata->pkt_len = phdr->len;

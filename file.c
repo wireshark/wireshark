@@ -399,28 +399,15 @@ cf_reset_state(capture_file *cf)
   /* ...which means we have nothing to save. */
   cf->user_saved = FALSE;
 
-#if GLIB_CHECK_VERSION(2,10,0)
-  if (cf->plist_start != NULL)
-    g_slice_free_chain(frame_data, cf->plist_start, next);
-#else
-  /* memory chunks have been deprecated in favor of the slice allocator,
-   * which has been added in 2.10
-   */
-  if (cf->plist_chunk != NULL) {
-    g_mem_chunk_destroy(cf->plist_chunk);
-    cf->plist_chunk = NULL;
-  }
-#endif
   dfilter_free(cf->rfcode);
   cf->rfcode = NULL;
-  cf->plist_start = NULL;
-  cf->plist_end = NULL;
+  cap_file_free_frames(cf);
   cf_unselect_packet(cf);   /* nothing to select */
-  cf->first_displayed = NULL;
-  cf->last_displayed = NULL;
+  cf->first_displayed = 0;
+  cf->last_displayed = 0;
 
   /* No frame selected, no field in that frame selected. */
-  cf->current_frame = NULL;
+  cf->current_frame = 0;
   cf->current_row = 0;
   cf->finfo_selected = NULL;
 
@@ -430,7 +417,6 @@ cf_reset_state(capture_file *cf)
   new_packet_list_thaw();
 
   cf->f_datalen = 0;
-  cf->count = 0;
   nstime_set_zero(&cf->elapsed_time);
 
   reset_tap_listeners();
@@ -605,7 +591,7 @@ cf_read(capture_file *cf, gboolean from_save)
           /* (on smaller files the display update takes longer than reading the file) */
 #ifdef HAVE_LIBPCAP
           if (progbar_quantum > 500000 || displayed_once == 0) {
-            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
+            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
               displayed_once = 1;
               new_packet_list_thaw();
               if (auto_scroll_live)
@@ -683,7 +669,7 @@ cf_read(capture_file *cf, gboolean from_save)
      WTAP_ENCAP_PER_PACKET). */
   cf->lnk_t = wtap_file_encap(cf->wth);
 
-  cf->current_frame = cf->first_displayed;
+  cf->current_frame = cap_file_find_fdata(cf, cf->first_displayed);
   cf->current_row = 0;
 
   new_packet_list_thaw();
@@ -694,7 +680,7 @@ cf_read(capture_file *cf, gboolean from_save)
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
-  if (cf->first_displayed != NULL){
+  if (cf->first_displayed != 0){
     new_packet_list_select_first_row();
   }
 
@@ -869,7 +855,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /* moving to the end of the packet list - if the user requested so and
      we have some new packets. */
-  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
+  if (newly_displayed_packets && auto_scroll_live && cf->count != 0)
       new_packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -955,7 +941,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ABORTED;
   }
 
-  if (auto_scroll_live && cf->plist_end != NULL)
+  if (auto_scroll_live && cf->count != 0)
     new_packet_list_moveto_end();
 
   /* We're done reading sequentially through the file. */
@@ -1163,11 +1149,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        We thus need to leave behind bread crumbs so that
        "cf_select_packet()" can find this frame.  See the comment
        in "cf_select_packet()". */
-    if (cf->first_displayed == NULL)
-      cf->first_displayed = fdata;
+    if (cf->first_displayed == 0)
+      cf->first_displayed = fdata->num;
 
     /* This is the last frame we've seen so far. */
-    cf->last_displayed = fdata;
+    cf->last_displayed = fdata->num;
   }
 
   epan_dissect_cleanup(&edt);
@@ -1193,65 +1179,45 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
   const guchar *buf = wtap_buf_ptr(cf->wth);
+  frame_data    fdlocal;
+  guint32       framenum;
   frame_data   *fdata;
   int           passed;
   int           row = -1;
 
-  cf->count++;
+  /* The frame number of this packet is one more than the count of
+     frames in this packet. */
+  framenum = cf->count + 1;
 
-  /* Allocate the next list entry, and add it to the list.
-   * memory chunks have been deprecated in favor of the slice allocator,
-   * which has been added in 2.10
-   */
-#if GLIB_CHECK_VERSION(2,10,0)
-  fdata = g_slice_new(frame_data);
-#else
-  fdata = g_mem_chunk_alloc(cf->plist_chunk);
-#endif
-
-  frame_data_init(fdata, cf->count, phdr, offset, cum_bytes);
-  init_col_text(fdata, cf->cinfo.num_cols);
+  frame_data_init(&fdlocal, framenum, phdr, offset, cum_bytes);
+  /* Note - if the packet doesn't pass the read filter, and is thus
+     not added to the capture_file's collection of packets, the
+     column text arrays aren't free; they're alocated with
+     se_alloc0(), so they eventually get freed when we close the
+     file. */
+  init_col_text(&fdlocal, cf->cinfo.num_cols);
 
   passed = TRUE;
   if (cf->rfcode) {
     epan_dissect_t edt;
     epan_dissect_init(&edt, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, cf->rfcode);
-    epan_dissect_run(&edt, pseudo_header, buf, fdata, NULL);
+    epan_dissect_run(&edt, pseudo_header, buf, &fdlocal, NULL);
     passed = dfilter_apply_edt(cf->rfcode, &edt);
     epan_dissect_cleanup(&edt);
   }
 
   if (passed) {
-    cap_file_add_fdata(cf, fdata);
+    /* This does a shallow copy of fdlocal, which is good enough. */
+    fdata = cap_file_add_fdata(cf, &fdlocal);
 
-    cf->f_datalen = offset + fdata->cap_len;
+    cf->f_datalen = offset + fdlocal.cap_len;
 
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
                                       filtering_tap_listeners, tap_flags,
                                       pseudo_header, buf, TRUE, TRUE);
     }
-  } else {
-    /* We didn't pass read filter so roll back count */
-    cf->count--;
-
-    /* XXX - if we didn't have read filters, or if we could avoid
-       allocating the "frame_data" structure until we knew whether
-       the frame passed the read filter, we could use a G_ALLOC_ONLY
-       memory chunk...
-
-       ...but, at least in one test I did, where I just made the chunk
-       a G_ALLOC_ONLY chunk and read in a huge capture file, it didn't
-       seem to save a noticeable amount of time or space. */
-#if GLIB_CHECK_VERSION(2,10,0)
-  /* memory chunks have been deprecated in favor of the slice allocator,
-   * which has been added in 2.10
-   */
-    g_slice_free(frame_data,fdata);
-#else
-    g_mem_chunk_free(cf->plist_chunk, fdata);
-#endif
   }
 
   return row;
@@ -1705,8 +1671,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 
   /* We don't yet know which will be the first and last frames displayed. */
-  cf->first_displayed = NULL;
-  cf->last_displayed = NULL;
+  cf->first_displayed = 0;
+  cf->last_displayed = 0;
 
   /* We currently don't display any packets */
   cf->displayed_count = 0;
@@ -3502,7 +3468,7 @@ cf_select_packet(capture_file *cf, int row)
        GtkCList; see the comment in "add_packet_to_packet_list()". */
 
        if (row == 0 && cf->first_displayed == cf->last_displayed)
-         fdata = cf->first_displayed;
+         fdata = cap_file_find_fdata(cf, cf->first_displayed);
   }
 
   /* If fdata _still_ isn't set simply give up. */

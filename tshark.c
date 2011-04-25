@@ -1202,11 +1202,9 @@ main(int argc, char *argv[])
       arg_error = TRUE;
 #endif
       break;
-#if GLIB_CHECK_VERSION(2,10,0)
     case 'P':        /* Perform two pass analysis */
       perform_two_pass_analysis = TRUE;
       break;
-#endif
     case 'n':        /* No name resolution */
       gbl_resolv_flags = RESOLV_NONE;
       break;
@@ -1818,10 +1816,7 @@ main(int argc, char *argv[])
 
   g_free(cf_name);
 
-#if GLIB_CHECK_VERSION(2,10,0)
-  if (cfile.plist_start != NULL)
-    g_slice_free_chain(frame_data, cfile.plist_start, next);
-#endif
+  cap_file_free_frames(&cfile);
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
@@ -2387,25 +2382,26 @@ capture_cleanup(int signum _U_)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-#if GLIB_CHECK_VERSION(2,10,0)
 static gboolean
 process_packet_first_pass(capture_file *cf,
                gint64 offset, const struct wtap_pkthdr *whdr,
                union wtap_pseudo_header *pseudo_header, const guchar *pd)
 {
-  frame_data *fdata = g_slice_new(frame_data);
+  frame_data fdlocal;
+  guint32 framenum;
   epan_dissect_t edt;
   gboolean passed;
 
-  /* Count this packet. */
-  cf->count++;
+  /* The frame number of this packet is one more than the count of
+     frames in this packet. */
+  framenum = cf->count + 1;
 
   /* If we're not running a display filter and we're not printing any
      packet information, we don't need to do a dissection. This means
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
-  frame_data_init(fdata, cf->count, whdr, offset, cum_bytes);
+  frame_data_init(&fdlocal, framenum, whdr, offset, cum_bytes);
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
@@ -2426,10 +2422,10 @@ process_packet_first_pass(capture_file *cf,
     if (cf->rfcode)
       epan_dissect_prime_dfilter(&edt, cf->rfcode);
 
-    frame_data_set_before_dissect(fdata, &cf->elapsed_time,
+    frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &first_ts, &prev_dis_ts, &prev_cap_ts);
 
-    epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
+    epan_dissect_run(&edt, pseudo_header, pd, &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -2437,11 +2433,9 @@ process_packet_first_pass(capture_file *cf,
   }
 
   if (passed) {
-    frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
-    cap_file_add_fdata(cf, fdata);
+    frame_data_set_after_dissect(&fdlocal, &cum_bytes, &prev_dis_ts);
+    cap_file_add_fdata(cf, &fdlocal);
   }
-  else
-    g_slice_free(frame_data, fdata);
 
   if (do_dissection)
     epan_dissect_cleanup(&edt);
@@ -2560,7 +2554,6 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
   }
   return passed;
 }
-#endif
 
 static int
 load_cap_file(capture_file *cf, char *save_file, int out_file_type,
@@ -2646,7 +2639,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   tap_flags = union_of_tap_listener_flags();
 
   if (perform_two_pass_analysis) {
-#if GLIB_CHECK_VERSION(2,10,0)
+    guint32 framenum;
     frame_data *fdata;
     int old_max_packet_count = max_packet_count;
 
@@ -2674,7 +2667,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     max_packet_count = old_max_packet_count;
 
-    for (fdata = cf->plist_start; err == 0 && fdata != NULL; fdata = fdata->next) {
+    for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
+      fdata = cap_file_find_fdata(cf, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
           cf->pd, fdata->cap_len, &err, &err_info)) {
         if (process_packet_second_pass(cf, fdata,
@@ -2705,7 +2699,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
     }
-#endif
   }
   else {
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
