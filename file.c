@@ -1636,7 +1636,8 @@ static void
 rescan_packets(capture_file *cf, const char *action, const char *action_item,
         gboolean refilter, gboolean redissect)
 {
-    /* Rescan packets new packet list */
+  /* Rescan packets new packet list */
+  guint32     framenum;
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
@@ -1742,7 +1743,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   selected_frame_seen = FALSE;
 
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
+  for (framenum = 1; framenum <= cf->count; framenum++) {
+    fdata = cap_file_find_fdata(cf, framenum);
+
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -1855,7 +1858,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        even though the user requested that the scan stop, and that
        would leave the user stuck with an Wireshark grinding on
        until it finishes.  Should we just stick them with that? */
-    for (; fdata != NULL; fdata = fdata->next) {
+    for (; framenum <= cf->count; framenum++) {
+      fdata = cap_file_find_fdata(cf, framenum);
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
     }
@@ -1948,13 +1952,16 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 static void
 ref_time_packets(capture_file *cf)
 {
+  guint32 framenum;
   frame_data *fdata;
 
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
   cum_bytes = 0;
 
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
+  for (framenum = 1; framenum <= cf->count; framenum++) {
+    fdata = cap_file_find_fdata(cf, framenum);
+
     /* just add some value here until we know if it is being displayed or not */
     fdata->cum_bytes = cum_bytes + fdata->pkt_len;
 
@@ -2031,6 +2038,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
                          union wtap_pseudo_header *, const guint8 *, void *),
     void *callback_args)
 {
+  guint32 framenum;
   frame_data *fdata;
   union wtap_pseudo_header pseudo_header;
   guint8      pd[WTAP_MAX_PACKET_SIZE+1];
@@ -2061,9 +2069,11 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 
   packet_range_process_init(range);
 
-  /* Iterate through the list of packets, printing the packets that
+  /* Iterate through all the packets, printing the packets that
      were selected by the current display filter.  */
-  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
+  for (framenum = 1; framenum <= cf->count; framenum++) {
+    fdata = cap_file_find_fdata(cf, framenum);
+
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -3217,6 +3227,7 @@ find_packet(capture_file *cf,
             void *criterion, search_direction dir)
 {
   frame_data  *start_fd;
+  guint32      framenum;
   frame_data  *fdata;
   frame_data  *new_fd = NULL;
   progdlg_t   *progbar = NULL;
@@ -3237,7 +3248,7 @@ find_packet(capture_file *cf,
        picked, calling a routine to run the filter on the packet, see if
        it matches, and stop if so.  */
     count = 0;
-    fdata = start_fd;
+    framenum = start_fd->num;
 
     /* Update the progress bar when it gets to this value. */
     progbar_nextstep = 0;
@@ -3293,8 +3304,7 @@ find_packet(capture_file *cf,
       /* Go past the current frame. */
       if (dir == SD_BACKWARD) {
         /* Go on to the previous frame. */
-        fdata = fdata->prev;
-        if (fdata == NULL) {
+        if (framenum == 1) {
           /*
            * XXX - other apps have a bit more of a detailed message
            * for this, and instead of offering "OK" and "Cancel",
@@ -3306,30 +3316,32 @@ find_packet(capture_file *cf,
           if (prefs.gui_find_wrap)
           {
               statusbar_push_temporary_msg("Search reached the beginning. Continuing at end.");
-              fdata = cf->plist_end;    /* wrap around */
+              framenum = cf->count;     /* wrap around */
           }
           else
           {
               statusbar_push_temporary_msg("Search reached the beginning.");
-              fdata = start_fd;        /* stay on previous packet */
+              framenum = start_fd->num; /* stay on previous packet */
           }
-        }
+        } else
+          framenum--;
       } else {
         /* Go on to the next frame. */
-        fdata = fdata->next;
-        if (fdata == NULL) {
+        if (framenum == cf->count) {
           if (prefs.gui_find_wrap)
           {
               statusbar_push_temporary_msg("Search reached the end. Continuing at beginning.");
-              fdata = cf->plist_start;    /* wrap around */
+              framenum = 1;             /* wrap around */
           }
           else
           {
               statusbar_push_temporary_msg("Search reached the end.");
-              fdata = start_fd;     /* stay on previous packet */
+              framenum = start_fd->num; /* stay on previous packet */
           }
-        }
+        } else
+          framenum++;
       }
+      fdata = cap_file_find_fdata(cf, framenum);
 
       count++;
 
@@ -3388,8 +3400,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
 
-  for (fdata = cf->plist_start; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
-    ;
+  fdata = cap_file_find_fdata(cf, fnumber);
 
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */

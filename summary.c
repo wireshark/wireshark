@@ -92,7 +92,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 {
 
   frame_data    *first_frame, *cur_frame;
-  int 		i;
+  guint32        i;
   frame_data    *cur_glist;
 
   st->start_time = 0;

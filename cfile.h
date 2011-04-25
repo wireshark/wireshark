@@ -55,11 +55,11 @@ typedef struct _capture_file {
   gint64       f_datalen;       /* Size of capture file data (uncompressed) */
   guint16      cd_t;            /* File type of capture file */
   int          lnk_t;           /* Link-layer type with which to save capture */
-  int          count;           /* Total number of frames */
-  int          displayed_count; /* Number of displayed frames */
-  int          marked_count;    /* Number of marked frames */
-  int          ignored_count;   /* Number of ignored frames */
-  int          ref_time_count;  /* Number of time referenced frames */
+  guint32      count;           /* Total number of frames */
+  guint32      displayed_count; /* Number of displayed frames */
+  guint32      marked_count;    /* Number of marked frames */
+  guint32      ignored_count;   /* Number of ignored frames */
+  guint32      ref_time_count;  /* Number of time referenced frames */
   gboolean     drops_known;     /* TRUE if we know how many packets were dropped */
   guint32      drops;           /* Dropped packets */
   nstime_t     elapsed_time;    /* Elapsed time */
@@ -96,6 +96,9 @@ typedef struct _capture_file {
   frame_data  *plist_end;       /* Last packet in list */
   frame_data  *first_displayed; /* First frame displayed */
   frame_data  *last_displayed;  /* Last frame displayed */
+  /* The next two are used to speed up frame number -> frame data searches */
+  guint32      last_found_num;  /* Frame number we last found */
+  frame_data  *last_found_fd;   /* The corresponding frame_data */
   column_info  cinfo;           /* Column formatting information */
   frame_data  *current_frame;   /* Frame data for current frame */
   gint         current_row;     /* Row number for current frame */
@@ -106,5 +109,12 @@ typedef struct _capture_file {
 void cap_file_init(capture_file *cf);
 
 void cap_file_add_fdata(capture_file *cf, frame_data *fdata);
+
+/*
+ * Find the frame_data for the specified frame number.
+ * Do some caching to make this work reasonably fast for
+ * forward and backward sequential passes through the packets.
+ */
+extern frame_data *cap_file_find_fdata(capture_file *cf, guint32 num);
 
 #endif /* cfile.h */

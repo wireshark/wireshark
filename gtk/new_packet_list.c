@@ -1492,8 +1492,10 @@ static void
 mark_all_displayed_frames(gboolean set)
 {
 	/* XXX: we might need a progressbar here */
+	guint32 framenum;
 	frame_data *fdata;
-	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+	for (framenum = 1; framenum <= cfile.count; framenum++) {
+		fdata = cap_file_find_fdata(&cfile, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(set, fdata);
 	}
@@ -1517,8 +1519,10 @@ static void
 toggle_mark_all_displayed_frames()
 {
 	/* XXX: we might need a progressbar here */
+	guint32 framenum;
 	frame_data *fdata;
-	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+	for (framenum = 1; framenum <= cfile.count; framenum++) {
+		fdata = cap_file_find_fdata(&cfile, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(!fdata->flags.marked, fdata);
 	}
@@ -1562,12 +1566,14 @@ new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 static void
 ignore_all_displayed_frames(gboolean set)
 {
+	guint32 framenum;
 	frame_data *fdata;
 
 	/* XXX: we might need a progressbar here */
-	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+	for (framenum = 1; framenum <= cfile.count; framenum++) {
+		fdata = cap_file_find_fdata(&cfile, framenum);
 		if( fdata->flags.passed_dfilter )
-		set_frame_ignore(set, fdata);
+			set_frame_ignore(set, fdata);
 	}
 	redissect_packets();
 }
@@ -1590,12 +1596,14 @@ new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 }
 
 static void
-unignore_all_frames()
+unignore_all_frames(void)
 {
+	guint32 framenum;
 	frame_data *fdata;
 
 	/* XXX: we might need a progressbar here */
-	for (fdata = cfile.plist_start; fdata != NULL && cfile.ignored_count > 0; fdata = fdata->next) {
+	for (framenum = 1; framenum <= cfile.count; framenum++) {
+		fdata = cap_file_find_fdata(&cfile, framenum);
 		set_frame_ignore(FALSE, fdata);
 	}
 	redissect_packets();
@@ -1612,8 +1620,10 @@ static void
 untime_reference_all_frames()
 {
 	/* XXX: we might need a progressbar here */
+	guint32 framenum;
 	frame_data *fdata;
-	for (fdata = cfile.plist_start; fdata != NULL && cfile.ref_time_count > 0; fdata = fdata->next) {
+	for (framenum = 1; framenum <= cfile.count && cfile.ref_time_count > 0; framenum++) {
+		fdata = cap_file_find_fdata(&cfile, framenum);
 		if (fdata->flags.ref_time == 1) {
 			set_frame_reftime(FALSE, fdata, cfile.current_row);
 		}
