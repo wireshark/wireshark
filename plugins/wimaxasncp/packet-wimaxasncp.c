@@ -2581,7 +2581,7 @@ static void add_tlv_reg_info(
     switch (tlv->decoder)
     {
     case WIMAXASNCP_TLV_UNKNOWN:
-        g_free((gpointer*)blurb);
+        g_free(blurb);
 
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE,
@@ -2595,9 +2595,9 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_COMPOUND:
     case WIMAXASNCP_TLV_FLAG0:
-        g_free((gpointer*)name);
-        g_free((gpointer*)abbrev);
-        g_free((gpointer*)blurb);
+        g_free(name);
+        g_free(abbrev);
+        g_free(blurb);
         break;
 
     case WIMAXASNCP_TLV_BYTES:
@@ -2646,8 +2646,8 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_ID:
-        g_free((gpointer*)name);
-        g_free((gpointer*)abbrev);
+        g_free(name);
+        g_free(abbrev);
 
         name = "IPv4 Address";
 
@@ -2706,8 +2706,8 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_IP_ADDRESS:
-        g_free((gpointer*)name);
-        g_free((gpointer*)abbrev);
+        g_free(name);
+        g_free(abbrev);
 
         name = "IPv4 Address";
 
@@ -3352,7 +3352,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                 }
 
                 /* Set enums to use with this TLV */
-                tlv->enum_vs = (value_string*)array->data;
+                tlv->enum_vs = (value_string*)(void*)array->data;
             }
 
             add_tlv_reg_info(tlv);
@@ -3416,11 +3416,11 @@ register_wimaxasncp_fields(const char* unused _U_)
          * used */
     proto_register_field_array(
         proto_wimaxasncp,
-        (hf_register_info*)wimaxasncp_build_dict.hf->data,
+        (hf_register_info*)(void *)wimaxasncp_build_dict.hf->data,
         wimaxasncp_build_dict.hf->len);
 
     proto_register_subtree_array(
-        (gint**)wimaxasncp_build_dict.ett->data,
+        (gint**)(void *)wimaxasncp_build_dict.ett->data,
         wimaxasncp_build_dict.ett->len);
 }
 
