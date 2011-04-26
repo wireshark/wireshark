@@ -43,182 +43,199 @@
 
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {
-  guint32       framenum;
-  guint32       mark_low;
-  guint32       mark_high;
-  guint32       displayed_mark_low;
-  guint32       displayed_mark_high;
-  frame_data    *packet;
+    guint32       framenum;
+    guint32       mark_low;
+    guint32       mark_high;
+    guint32       displayed_mark_low;
+    guint32       displayed_mark_high;
+    frame_data    *packet;
 
 
-  range->selected_packet        = 0L;
+    range->selected_packet        = 0L;
 
-  mark_low                      = 0L;
-  mark_high                     = 0L;
-  range->mark_range_cnt         = 0L;
-  range->ignored_cnt            = 0L;
-  range->ignored_marked_cnt     = 0L;
-  range->ignored_mark_range_cnt = 0L;
-  range->ignored_user_range_cnt = 0L;
+    mark_low                      = 0L;
+    mark_high                     = 0L;
+    range->mark_range_cnt         = 0L;
+    range->ignored_cnt            = 0L;
+    range->ignored_marked_cnt     = 0L;
+    range->ignored_mark_range_cnt = 0L;
+    range->ignored_user_range_cnt = 0L;
 
-  displayed_mark_low            = 0L;
-  displayed_mark_high           = 0L;
-  range->displayed_cnt          = 0L;
-  range->displayed_marked_cnt   = 0L;
-  range->displayed_mark_range_cnt=0L;
-  range->displayed_ignored_cnt            = 0L;
-  range->displayed_ignored_marked_cnt     = 0L;
-  range->displayed_ignored_mark_range_cnt = 0L;
-  range->displayed_ignored_user_range_cnt = 0L;
+    displayed_mark_low            = 0L;
+    displayed_mark_high           = 0L;
+    range->displayed_cnt          = 0L;
+    range->displayed_marked_cnt   = 0L;
+    range->displayed_mark_range_cnt=0L;
+    range->displayed_ignored_cnt            = 0L;
+    range->displayed_ignored_marked_cnt     = 0L;
+    range->displayed_ignored_mark_range_cnt = 0L;
+    range->displayed_ignored_user_range_cnt = 0L;
 
-  /* The next for-loop is used to obtain the amount of packets to be processed
-   * and is used to present the information in the Save/Print As widget.
-   * We have different types of ranges: All the packets, the number
-   * of packets of a marked range, a single packet, and a user specified
-   * packet range. The last one is not calculated here since this
-   * data must be entered in the widget by the user.
-   */
+    /* This doesn't work unless you have a full set of frame_data
+     * structures for all packets in the capture, which is not,
+     * for example, the case when TShark is doing a one-pass
+     * read of a file or a live capture.
+     */
+    if (cfile.ptree_root != NULL) {
+        /* The next for-loop is used to obtain the amount of packets
+         * to be processed and is used to present the information in
+         * the Save/Print As widget.
+         * We have different types of ranges: All the packets, the number
+         * of packets of a marked range, a single packet, and a user specified
+         * packet range. The last one is not calculated here since this
+         * data must be entered in the widget by the user.
+         */
 
-  for(framenum = 1; framenum <= cfile.count; framenum++) {
-      packet = cap_file_find_fdata(&cfile, framenum);
+        for(framenum = 1; framenum <= cfile.count; framenum++) {
+            packet = cap_file_find_fdata(&cfile, framenum);
 
-      if (cfile.current_frame == packet) {
-          range->selected_packet = framenum;
-      }
-      if (packet->flags.passed_dfilter) {
-          range->displayed_cnt++;
-      }
-      if (packet->flags.marked) {
-            if (packet->flags.ignored) {
-                range->ignored_marked_cnt++;
+            if (cfile.current_frame == packet) {
+                range->selected_packet = framenum;
             }
             if (packet->flags.passed_dfilter) {
-                range->displayed_marked_cnt++;
+                range->displayed_cnt++;
+            }
+            if (packet->flags.marked) {
                 if (packet->flags.ignored) {
-                    range->displayed_ignored_marked_cnt++;
+                    range->ignored_marked_cnt++;
                 }
-                if (displayed_mark_low == 0) {
-                   displayed_mark_low = framenum;
+                if (packet->flags.passed_dfilter) {
+                    range->displayed_marked_cnt++;
+                    if (packet->flags.ignored) {
+                        range->displayed_ignored_marked_cnt++;
+                    }
+                    if (displayed_mark_low == 0) {
+                       displayed_mark_low = framenum;
+                    }
+                    if (framenum > displayed_mark_high) {
+                       displayed_mark_high = framenum;
+                    }
                 }
-                if (framenum > displayed_mark_high) {
-                   displayed_mark_high = framenum;
+
+                if (mark_low == 0) {
+                   mark_low = framenum;
+                }
+                if (framenum > mark_high) {
+                   mark_high = framenum;
                 }
             }
-
-            if (mark_low == 0) {
-               mark_low = framenum;
-            }
-            if (framenum > mark_high) {
-               mark_high = framenum;
-            }
-      }
-      if (packet->flags.ignored) {
-          range->ignored_cnt++;
-          if (packet->flags.passed_dfilter) {
-              range->displayed_ignored_cnt++;
-          }
-      }
-  }
-
-  for(framenum = 1; framenum <= cfile.count; framenum++) {
-      packet = cap_file_find_fdata(&cfile, framenum);
-
-      if (framenum >= mark_low &&
-          framenum <= mark_high)
-      {
-          range->mark_range_cnt++;
-          if (packet->flags.ignored) {
-              range->ignored_mark_range_cnt++;
-          }
-      }
-
-      if (framenum >= displayed_mark_low &&
-          framenum <= displayed_mark_high)
-      {
-          if (packet->flags.passed_dfilter) {
-            range->displayed_mark_range_cnt++;
             if (packet->flags.ignored) {
-                range->displayed_ignored_mark_range_cnt++;
+                range->ignored_cnt++;
+                if (packet->flags.passed_dfilter) {
+                    range->displayed_ignored_cnt++;
+                }
             }
-          }
-      }
-  }
+        }
 
-  /* in case we marked just one packet, we add 1. */
-  /*if (cfile.marked_count != 0) {
-    range->mark_range = mark_high - mark_low + 1;
-  }*/
+        for(framenum = 1; framenum <= cfile.count; framenum++) {
+            packet = cap_file_find_fdata(&cfile, framenum);
 
-  /* in case we marked just one packet, we add 1. */
-  /*if (range->displayed_marked_cnt != 0) {
-    range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
-  }*/
+            if (framenum >= mark_low &&
+                framenum <= mark_high)
+            {
+                range->mark_range_cnt++;
+                if (packet->flags.ignored) {
+                    range->ignored_mark_range_cnt++;
+                }
+            }
+
+            if (framenum >= displayed_mark_low &&
+                framenum <= displayed_mark_high)
+            {
+                if (packet->flags.passed_dfilter) {
+                    range->displayed_mark_range_cnt++;
+                    if (packet->flags.ignored) {
+                        range->displayed_ignored_mark_range_cnt++;
+                    }
+                }
+            }
+        }
+
+#if 0
+        /* in case we marked just one packet, we add 1. */
+        if (cfile.marked_count != 0) {
+            range->mark_range = mark_high - mark_low + 1;
+        }
+
+        /* in case we marked just one packet, we add 1. */
+        if (range->displayed_marked_cnt != 0) {
+            range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
+        }
+#endif
+    }
 }
 
 
 /* (re-)calculate the user specified packet range counts */
 static void packet_range_calc_user(packet_range_t *range) {
-  guint32       framenum;
-  frame_data    *packet;
+    guint32       framenum;
+    frame_data    *packet;
 
-  range->user_range_cnt             = 0L;
-  range->ignored_user_range_cnt     = 0L;
-  range->displayed_user_range_cnt   = 0L;
-  range->displayed_ignored_user_range_cnt = 0L;
+    range->user_range_cnt             = 0L;
+    range->ignored_user_range_cnt     = 0L;
+    range->displayed_user_range_cnt   = 0L;
+    range->displayed_ignored_user_range_cnt = 0L;
 
-  for(framenum = 1; framenum <= cfile.count; framenum++) {
-      packet = cap_file_find_fdata(&cfile, framenum);
+    /* This doesn't work unless you have a full set of frame_data
+     * structures for all packets in the capture, which is not,
+     * for example, the case when TShark is doing a one-pass
+     * read of a file or a live capture.
+     */
+    if (cfile.ptree_root != NULL) {
+        for(framenum = 1; framenum <= cfile.count; framenum++) {
+            packet = cap_file_find_fdata(&cfile, framenum);
 
-      if (value_is_in_range(range->user_range, framenum)) {
-          range->user_range_cnt++;
-          if (packet->flags.ignored) {
-              range->ignored_user_range_cnt++;
-          }
-          if (packet->flags.passed_dfilter) {
-            range->displayed_user_range_cnt++;
-            if (packet->flags.ignored) {
-                range->displayed_ignored_user_range_cnt++;
+            if (value_is_in_range(range->user_range, framenum)) {
+                range->user_range_cnt++;
+                if (packet->flags.ignored) {
+                    range->ignored_user_range_cnt++;
+                }
+                if (packet->flags.passed_dfilter) {
+                    range->displayed_user_range_cnt++;
+                    if (packet->flags.ignored) {
+                        range->displayed_ignored_user_range_cnt++;
+                    }
+                }
             }
-          }
-      }
-  }
+        }
+    }
 }
 
 
 /* init the range struct */
 void packet_range_init(packet_range_t *range) {
 
-  range->process            = range_process_all;
-  range->process_filtered   = FALSE;
-  range->remove_ignored     = FALSE;
-  range->user_range         = range_empty();
+    range->process            = range_process_all;
+    range->process_filtered   = FALSE;
+    range->remove_ignored     = FALSE;
+    range->user_range         = range_empty();
 
-  /* calculate all packet range counters */
-  packet_range_calc(range);
-  packet_range_calc_user(range);
+    /* calculate all packet range counters */
+    packet_range_calc(range);
+    packet_range_calc_user(range);
 }
 
 /* check whether the packet range is OK */
 convert_ret_t packet_range_check(packet_range_t *range) {
-  if (range->process == range_process_user_range && range->user_range == NULL) {
-    /* Not valid - return the error. */
-    return range->user_range_status;
-  }
-  return CVT_NO_ERROR;
+    if (range->process == range_process_user_range && range->user_range == NULL) {
+        /* Not valid - return the error. */
+        return range->user_range_status;
+    }
+    return CVT_NO_ERROR;
 }
 
 /* init the processing run */
 void packet_range_process_init(packet_range_t *range) {
-  /* Check that, if an explicit range was selected, it's valid. */
-  /* "enumeration" values */
-  range->marked_range_active    = FALSE;
-  range->selected_done          = FALSE;
+    /* Check that, if an explicit range was selected, it's valid. */
+    /* "enumeration" values */
+    range->marked_range_active    = FALSE;
+    range->selected_done          = FALSE;
 
-  if (range->process_filtered == FALSE) {
-    range->marked_range_left = range->mark_range_cnt;
-  } else {
-    range->marked_range_left = range->displayed_mark_range_cnt;
-  }
+    if (range->process_filtered == FALSE) {
+        range->marked_range_left = range->mark_range_cnt;
+    } else {
+        range->marked_range_left = range->displayed_mark_range_cnt;
+    }
 }
 
 /* do we have to process all packets? */
