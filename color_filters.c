@@ -166,7 +166,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
                         continue;
 
                 name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
-                cfl = g_slist_find_custom(color_filter_list, (gpointer *) name, color_filters_find_by_name_cb);
+                cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
                 colorf = (color_filter_t *)cfl->data;
 
                 /* Only change the filter rule if this is the rule to change or if
