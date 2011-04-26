@@ -585,7 +585,6 @@ static void dissect_homeplug_cer(ptvcursor_t * cursor)
 /* Dissection of Vendor Specific MME */
 static void dissect_homeplug_vs(ptvcursor_t * cursor)
 {
-  int mid;
   proto_item * it = NULL;
 
   if (!ptvcursor_tree(cursor))
@@ -598,8 +597,6 @@ static void dissect_homeplug_vs(ptvcursor_t * cursor)
     ptvcursor_add(cursor, hf_homeplug_vs_oui, 3, FALSE);
 
     it = ptvcursor_add_no_advance(cursor, hf_homeplug_vs_mid, 1, FALSE);
-    mid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
-        ptvcursor_current_offset(cursor)) & HOMEPLUG_VS_MID;
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_vs_mid);
     {
