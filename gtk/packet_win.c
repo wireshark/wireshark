@@ -194,13 +194,23 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 
 	/* always update byteviews */
 	if (DataPtr->bv && (byte_view = get_notebook_bv_ptr(DataPtr->bv))) {
+		int pos_inside = DataPtr->pd_offset - DataPtr->start_offset - old_finfo->start;
+
+		if (pos_inside < 0 || pos_inside >= old_finfo->length)
+			pos_inside = -1;
+
 		data = DataPtr->pd + DataPtr->start_offset + old_finfo->start;
-		packet_hex_print(byte_view, data, DataPtr->frame, NULL, old_finfo->length);
+		packet_hex_editor_print(byte_view, data, DataPtr->frame, pos_inside, DataPtr->pd_bitoffset, old_finfo->length);
 	}
 
 	if (DataPtr->app_bv && (byte_view = get_notebook_bv_ptr(DataPtr->app_bv))) {
+		int pos_inside = DataPtr->pd_offset - DataPtr->start_offset - old_finfo->appendix_start;
+
+		if (pos_inside < 0 || pos_inside >= old_finfo->appendix_length)
+			pos_inside = -1;
+
 		data = DataPtr->pd + DataPtr->start_offset + old_finfo->appendix_start;
-		packet_hex_print(byte_view, data, DataPtr->frame, NULL, old_finfo->appendix_length);
+		packet_hex_editor_print(byte_view, data, DataPtr->frame, pos_inside, DataPtr->pd_bitoffset, old_finfo->appendix_length);
 	}
 
 	/* redisect */
@@ -315,7 +325,9 @@ static gboolean
 finfo_bv_key_pressed_cb(GtkWidget *bv _U_, GdkEventKey *event, gpointer user_data)
 {
 	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *)user_data;
+	const field_info *finfo = DataPtr->finfo;
 	struct CommonWinData data;
+	gboolean have_appendix;
 	gboolean ret;
 
 	/* save */
@@ -330,16 +342,36 @@ finfo_bv_key_pressed_cb(GtkWidget *bv _U_, GdkEventKey *event, gpointer user_dat
 	DataPtr->pd_offset = data.pd_offset;
 	DataPtr->pd_bitoffset = data.pd_bitoffset;
 
-	/* XXX, appendix code (if before start go to appendix, if before appendix go to start) */
-	if (DataPtr->pd_offset < DataPtr->start_offset + DataPtr->finfo->start) {
-		DataPtr->pd_offset = DataPtr->start_offset + DataPtr->finfo->start + DataPtr->finfo->length-1;
-		/* XXX, last bit/octect? */
-	}
+	/* XXX, assuming finfo->appendix_start >= finfo->start, and if appendix exists, main exists also.
+	 *      easy to fix if needed */
+	have_appendix = (finfo->appendix_start >= 0 && finfo->appendix_length > 0);
 
-	/* XXX, appendix code (if after appendix go to start, if after start go to appendix) */
-	if (DataPtr->pd_offset >= DataPtr->start_offset + DataPtr->finfo->start + DataPtr->finfo->length) {
-		DataPtr->pd_offset = DataPtr->start_offset + DataPtr->finfo->start;
+	if ((DataPtr->pd_offset >= DataPtr->start_offset + finfo->start && DataPtr->pd_offset < DataPtr->start_offset + finfo->start + finfo->length) ||
+		(have_appendix && DataPtr->pd_offset >= DataPtr->start_offset + finfo->appendix_start && DataPtr->pd_offset < DataPtr->start_offset + finfo->appendix_start + finfo->appendix_length))
+		{ /* pd_offset ok */ }
+	else
+	if (have_appendix && DataPtr->pd_offset >= DataPtr->start_offset + finfo->appendix_start + finfo->appendix_length) {
+		DataPtr->pd_offset = DataPtr->start_offset + finfo->start;
 		DataPtr->pd_bitoffset = 0; /* first bit */
+
+	} else if (DataPtr->pd_offset >= DataPtr->start_offset + finfo->start + finfo->length) {
+		if (have_appendix)
+			DataPtr->pd_offset = DataPtr->start_offset + finfo->appendix_start;
+		else
+			DataPtr->pd_offset = DataPtr->start_offset + finfo->start;
+		DataPtr->pd_bitoffset = 0; /* first bit */
+	}
+	else
+	if (DataPtr->pd_offset < DataPtr->start_offset + finfo->start) {
+		if (have_appendix)
+			DataPtr->pd_offset = DataPtr->start_offset + finfo->appendix_start + finfo->appendix_length-1;
+		else
+			DataPtr->pd_offset = DataPtr->start_offset + finfo->start + finfo->length-1;
+		/* XXX, last bit/octect? */
+
+	} else if (have_appendix && DataPtr->pd_offset < DataPtr->start_offset + finfo->appendix_start) {
+		DataPtr->pd_offset = DataPtr->start_offset + finfo->start + finfo->length-1;
+		/* XXX, last bit/octect? */
 	}
 
 	if (ret)
@@ -597,10 +629,9 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)user_data;
 	struct CommonWinData data;
-	header_field_info faked_hfinfo;
-	field_info faked_finfo;
 	GSList *src_le;
 	gboolean ret;
+	tvbuff_t *ds_tvb = NULL;
 
 	/* save */
 	data.frame = DataPtr->frame;
@@ -627,19 +658,6 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	if (!ret)
 		return FALSE;
 
-	switch (recent.gui_bytes_view) {
-	case BYTES_HEX:
-		faked_hfinfo.bitmask = 
-			(DataPtr->pd_bitoffset == 0) ? 0xf0 :
-			(DataPtr->pd_bitoffset == 4) ? 0x0f :
-			0xff;
-		break;
-
-	case BYTES_BITS:
-		faked_hfinfo.bitmask = (1 << (7-DataPtr->pd_bitoffset));
-		break;
-	}
-
 	/* redissect if changed */
 	if (data.val != -1) {
 		/* XXX, can be optimized? */
@@ -650,31 +668,23 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 	}
 
-	/* hack, fake finfo, point to DataPtr->pd_offset */
-	faked_finfo.appendix_length = 0;
-	faked_finfo.start = DataPtr->pd_offset;
-	faked_finfo.length = 1;
-	faked_finfo.hfinfo = &faked_hfinfo;
-	faked_finfo.flags = FI_BIG_ENDIAN;
-	faked_finfo.ds_tvb = NULL;
-
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
 		const data_source *src = src_le->data;
 		tvbuff_t *tvb = src->tvb;
 
 		if (tvb && tvb->real_data == DataPtr->pd) {
-			faked_finfo.ds_tvb = tvb;
+			ds_tvb = tvb;
 			break;
 		}
 	}
 
-	if (faked_finfo.ds_tvb != NULL) {
+	if (ds_tvb != NULL) {
 		GtkWidget    *byte_view;
 
-		set_notebook_page(DataPtr->bv_nb_ptr, faked_finfo.ds_tvb);
+		set_notebook_page(DataPtr->bv_nb_ptr, ds_tvb);
 		byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
 		if (byte_view)
-			packet_hex_print(byte_view, DataPtr->pd, DataPtr->frame, &faked_finfo, DataPtr->frame->cap_len);
+			packet_hex_editor_print(byte_view, DataPtr->pd, DataPtr->frame, DataPtr->pd_offset, DataPtr->pd_bitoffset, DataPtr->frame->cap_len);
 	}
 	return TRUE;
 }

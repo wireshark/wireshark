@@ -1171,8 +1171,7 @@ packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 m
 
     gtk_text_buffer_get_iter_at_line_index(buf, &iter, start_line, hex_fix(start_line_pos));
 
-    /* stig: it should be done only for bitview... */
-    if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
+    if (mask == 0x00) {
         while (start_line <= stop_line) {
             int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
             int first_block_adjust = (recent.gui_bytes_view == BYTES_HEX) ? (line_pos_end == per_line/2) : 0;
@@ -1656,6 +1655,47 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                       GUINT_TO_POINTER((guint)fd->flags.encoding));
 
+    /* stig: it should be done only for bitview... */
+    if (recent.gui_bytes_view != BYTES_BITS)
+        bmask = 0x00;
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
+}
+
+void
+packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int offset, int bitoffset, guint len)
+{
+    /* do the initial printing and save the information needed  */
+    /* to redraw the display if preferences change.             */
+
+    int bstart = offset, bend = (bstart != -1) ? offset+1 : -1;
+    guint32 bmask; int bmask_le = 0;
+    int astart = -1, aend = -1;
+
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        bmask = (bitoffset == 0) ? 0xf0 : (bitoffset == 4) ? 0x0f : 0xff;
+        break;
+
+    case BYTES_BITS:
+        bmask = (1 << (7-bitoffset));
+        break;
+
+	default:
+		bmask = 0x00;
+		g_assert_not_reached();
+		break;
+    }
+
+    /* save the information needed to redraw the text */
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
+                      GUINT_TO_POINTER((guint)fd->flags.encoding));
+
     packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
 }
 
@@ -1681,6 +1721,9 @@ packet_hex_reprint(GtkWidget *bv)
     g_assert(data != NULL);
     encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
+    /* stig: it should be done only for bitview... */
+    if (recent.gui_bytes_view != BYTES_BITS)
+        mask = 0x00;
     packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, encoding);
 }
 

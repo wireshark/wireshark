@@ -158,6 +158,9 @@ extern void copy_hex_cb(GtkWidget * w, gpointer data, copy_data_type data_type);
 extern void packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 		 field_info *finfo, guint len);
 
+extern void packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, 
+		int offset, int bitoffset, guint len);
+
 /**
  * Redraw the text using the saved information. Usually called if
  * the preferences have changed.
