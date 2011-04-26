@@ -6407,7 +6407,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         smb_tid_info_t  *tid_info=NULL;
         smb_fid_info_t  *fid_info=NULL;
         smb_fid_info_t  *suspect_fid_info=NULL;
-        guint32 tvblen,packet_number;
+        guint32 tvblen;
         tvbuff_t        *data_tvb;
         GSList          *GSL_iterator;
         int             found=0;
@@ -6522,7 +6522,6 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* feed the export object tap listener */
         tvblen = tvb_length_remaining(tvb, dataoffset);
         if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
-                packet_number=pinfo->fd->num;
                 /* Create a new tvb to point to the payload data */
                 data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
                 /* Create the eo_info to pass to the listener */
@@ -6593,7 +6592,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         smb_tid_info_t  *tid_info=NULL;
         smb_fid_info_t  *fid_info=NULL;
         smb_fid_info_t  *suspect_fid_info=NULL;
-        guint32 tvblen,packet_number;
+        guint32 tvblen;
         tvbuff_t        *data_tvb;
         GSList          *GSL_iterator;
         int             found=0;
@@ -6746,7 +6745,6 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* feed the export object tap listener */
         tvblen = tvb_length_remaining(tvb, dataoffset);
         if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
-                packet_number=pinfo->fd->num;
                 /* Create a new tvb to point to the payload data */
                 data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
                 /* Create the eo_info to pass to the listener */
@@ -7110,7 +7108,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			/* If we have found a uid->acct_name mapping, store it */
 			if(!pinfo->fd->flags.visited && si->sip){
 				int idx=0;
-				if((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
+				if((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx + 1 )) != NULL){
 					if(ntlmssph && ntlmssph->type==3){
 						smb_uid_t *smb_uid;
 
@@ -8572,7 +8570,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	guint32 fn_len, create_flags, access_mask, share_access, create_options, create_disposition;
+	guint32 fn_len, create_flags, access_mask, share_access, create_options;
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -8616,7 +8614,6 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* create disposition */
-		create_disposition=tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
 		COUNT_BYTES(4);
 
@@ -8728,7 +8725,6 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset = offset;
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti = NULL;
 	smb_saved_info_t *sip;
@@ -8751,6 +8747,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
+		offset += len;
 		break;
 	case NT_TRANS_IOCTL: {
 		guint16 fid;
@@ -8773,6 +8770,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		break;
 	}
 	case NT_TRANS_SSD:
+		offset += len;
 		break;
 	case NT_TRANS_NOTIFY: {
 		guint16 fid;
@@ -8797,18 +8795,21 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	}
 	case NT_TRANS_RENAME:
 		/* XXX not documented */
+		offset += len;
 		break;
 	case NT_TRANS_QSD:
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		/* not decoded yet */
+		offset += len;
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		/* not decoded yet */
+		offset += len;
 		break;
 	}
 
-	return old_offset+len;
+	return offset;
 }
 
 
@@ -8816,7 +8817,7 @@ static int
 dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
 	guint8 wc, sc;
-	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
+	guint32 pc=0, po=0, dc=0, od=0;
 	smb_info_t *si;
 	smb_saved_info_t *sip;
 	int subcmd;
@@ -8882,11 +8883,10 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	/* param displacement */
 	if(wc>=19){
 		/* primary request*/
-		pd = 0;
 	} else {
 		/* secondary request */
-		pd = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_param_disp32, tvb, offset, 4, pd);
+
+		proto_tree_add_item(tree, hf_smb_param_disp32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -8903,11 +8903,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	/* data displacement */
 	if(wc>=19){
 		/* primary request */
-		dd = 0;
 	} else {
 		/* secondary request */
-		dd = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_data_disp32, tvb, offset, 4, dd);
+		proto_tree_add_item(tree, hf_smb_data_disp32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -12354,7 +12352,7 @@ static int
 dissect_qpi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc)
 {
-	guint16 version, num_file_aces, num_def_aces;
+	guint16 num_file_aces;
 	static const int *perm_fields[] = {
 		&hf_smb_posix_ace_perm_read,
 		&hf_smb_posix_ace_perm_write,
@@ -12364,7 +12362,6 @@ dissect_qpi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* version */
 	CHECK_BYTE_COUNT_SUBR(2);
-	version = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_posix_acl_version, tvb, offset, 2, TRUE);
 	COUNT_BYTES_SUBR(2);
 
@@ -12376,7 +12373,6 @@ dissect_qpi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* num default acls */
 	CHECK_BYTE_COUNT_SUBR(2);
-	num_def_aces = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_posix_num_def_aces, tvb, offset, 2, TRUE);
 	COUNT_BYTES_SUBR(2);
 
@@ -13237,7 +13233,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int sl=0;
 	int spo=offset;
 	int spc=0;
-	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
+	guint16 od=0, po=0, pc=0, dc=0, pd, dd=0;
 	int subcmd = -1;
 	guint32 to;
 	int an_len;
@@ -13307,7 +13303,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* There are no setup words. */
 		so = offset;
-		sc = 0;
 		sl = 0;
 	} else {
 		/* it is not a secondary request */
@@ -13337,7 +13332,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 1;
 
 		/* transaction flags */
-		tf = dissect_transaction_flags(tvb, tree, offset);
+		dissect_transaction_flags(tvb, tree, offset);
 		offset += 2;
 
 		/* timeout */
@@ -13358,9 +13353,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		po = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
 		offset += 2;
-
-		/* param displacement is zero here */
-		pd = 0;
 
 		/* data count */
 		dc = tvb_get_letohs(tvb, offset);
@@ -15396,7 +15388,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void
+static int
 dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
@@ -15433,7 +15425,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	if (t2i == NULL) {
 		offset += pc;
-		return;
+		return offset;
 	}
 	switch(t2i->subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
@@ -15653,6 +15645,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-offset, TRUE);
 		offset += pc-offset;
 	}
+	return offset;
 }
 
 
