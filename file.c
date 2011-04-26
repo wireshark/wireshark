@@ -337,18 +337,6 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-  /* memory chunks have been deprecated in favor of the slice allocator,
-   * which has been added in 2.10
-   */
-  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
-    sizeof(frame_data),
-    FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
-    G_ALLOC_AND_FREE);
-  g_assert(cf->plist_chunk);
-#endif
-
   /* Adjust timestamp precision if auto is selected, col width will be adjusted */
   cf_timestamp_auto_precision(cf);
   /* XXX needed ? */
