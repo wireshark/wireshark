@@ -1,4 +1,4 @@
-/* packet-ip.c
+/* packet-hyperscsi.c
  * Routines for dissassembly of the Hyper SCSI protocol.
  *
  * $Id$
@@ -135,7 +135,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hs_ver = tvb_get_guint8(tvb, offset++);
 
-  hs_cmd = tvb_get_guint8(tvb, offset++);
+  hs_cmd = tvb_get_guint8(tvb, offset);
 
   hs_cmd &= OPCODE_MASK;
 
