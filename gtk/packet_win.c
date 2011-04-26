@@ -430,7 +430,8 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 		g_signal_connect(fvalue_edit, "value-changed", G_CALLBACK(finfo_integer_changed), DataPtr);
 
 	} else if (finfo_type == FT_STRING || finfo_type == FT_STRINGZ) {
-		fvalue_edit = gtk_entry_new_with_max_length(finfo->length);
+		fvalue_edit = gtk_entry_new();
+		gtk_entry_set_max_length(GTK_ENTRY(fvalue_edit), finfo->length);
 		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), fvalue_get(&finfo->value));
 		g_signal_connect(fvalue_edit, "changed", G_CALLBACK(finfo_string_changed), DataPtr);
 
