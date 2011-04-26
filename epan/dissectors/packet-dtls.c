@@ -74,6 +74,12 @@
 #include "wsutil/inet_v6defs.h"
 #endif
 #include "packet-ssl-utils.h"
+#include <wsutil/file_util.h>
+#include <epan/uat.h>
+
+/* DTLS User Access Table */
+static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
+static guint ndtlsdecrypt = 0;
 
 /* we need to remember the top tree so that subdissectors we call are created
  * at the root and not deep down inside the DTLS decode
@@ -174,6 +180,7 @@ static StringInfo dtls_compressed_data = {NULL, 0};
 static StringInfo dtls_decrypted_data  = {NULL, 0};
 static gint dtls_decrypted_data_avail  = 0;
 
+static uat_t *dtlsdecrypt_uat = NULL;
 static gchar* dtls_keys_list = NULL;
 #ifdef HAVE_LIBGNUTLS
 static gchar* dtls_debug_file_name = NULL;
@@ -204,8 +211,19 @@ static const fragment_items dtls_frag_items = {
 static void
 dtls_init(void)
 {
+  module_t *dtls_module = prefs_find_module("dtls");
+  pref_t *keys_list_pref;
+
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
   fragment_table_init (&dtls_fragment_table);
+
+  /* We should have loaded "keys_list" by now. Mark it obsolete */
+  if (dtls_module) {
+    keys_list_pref = prefs_find_preference(dtls_module, "keys_list");
+    if (! prefs_get_preference_obsolete(keys_list_pref)) {
+      prefs_set_preference_obsolete(keys_list_pref);
+    }
+  }
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -214,6 +232,9 @@ dtls_parse(void)
 {
   ep_stack_t tmp_stack;
   SslAssociation *tmp_assoc;
+  guint i;
+  gchar **old_keys, **parts, *err;
+  GString *uat_entry = g_string_new("");
 
   if (dtls_key_hash)
     {
@@ -228,13 +249,37 @@ dtls_parse(void)
     ssl_association_remove(dtls_associations, tmp_assoc);
   }
 
+  /* Import old-style keys */
+  if (dtlsdecrypt_uat && dtls_keys_list && dtls_keys_list[0]) {
+    old_keys = g_strsplit(dtls_keys_list, ";", 0);
+    for (i = 0; old_keys[i] != NULL; i++) {
+      parts = g_strsplit(old_keys[i], ",", 4);
+      if (parts[0] && parts[1] && parts[2] && parts[3]) {
+	g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+			parts[0], parts[1], parts[2], parts[3]);
+	if (!uat_load_str(dtlsdecrypt_uat, uat_entry->str, &err)) {
+	  ssl_debug_printf("dtls_parse: Can't load UAT string %s: %s\n",
+                           uat_entry->str, err);
+	}
+      }
+      g_strfreev(parts);
+    }
+    g_strfreev(old_keys);
+  }
+  g_string_free(uat_entry, TRUE);
+
+
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
 
-  if (dtls_keys_list && (dtls_keys_list[0] != 0))
-    {
-      ssl_parse_key_list(dtls_keys_list,dtls_key_hash,dtls_associations,dtls_handle,FALSE);
-    }
+  if (ndtlsdecrypt > 0)
+  {
+	  for (i = 0; i < ndtlsdecrypt; i++)
+	  {
+		  ssldecrypt_assoc_t *d = &(dtlskeylist_uats[i]);
+		  ssl_parse_key_list(d, dtls_key_hash, dtls_associations, dtls_handle, FALSE);
+	  }
+  }
 
   ssl_set_debug(dtls_debug_file_name);
 
@@ -1908,6 +1953,49 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
   return 1;
 }
 
+/* UAT */
+
+static void
+dtlsdecrypt_free_cb(void* r)
+{
+	ssldecrypt_assoc_t* h = r;
+
+	g_free(h->ipaddr);
+	g_free(h->port);
+	g_free(h->protocol);
+	g_free(h->keyfile);
+	g_free(h->password);
+}
+
+#if 0
+static void
+dtlsdecrypt_update_cb(void* r _U_, const char** err _U_)
+{
+	return;
+}
+#endif
+
+static void *
+dtlsdecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
+{
+	const ssldecrypt_assoc_t* o = orig;
+	ssldecrypt_assoc_t* d = dest;
+
+	d->ipaddr    = g_strdup(o->ipaddr);
+	d->port		 = g_strdup(o->port);
+	d->protocol  = g_strdup(o->protocol);
+	d->keyfile   = g_strdup(o->keyfile);
+	d->password  = g_strdup(o->password);
+
+	return d;
+}
+
+UAT_CSTRING_CB_DEF(sslkeylist_uats,ipaddr,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
+
 /*********************************************************************
  *
  * Standard Wireshark Protocol Registration and housekeeping
@@ -2236,15 +2324,45 @@ proto_register_dtls(void)
 #ifdef HAVE_LIBGNUTLS
   {
     module_t *dtls_module = prefs_register_protocol(proto_dtls, dtls_parse);
-    prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list",
-                                     "semicolon separated list of private RSA keys used for DTLS decryption; "
-                                     "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
-                                     "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
-                                     (const gchar **)&dtls_keys_list);
-    prefs_register_string_preference(dtls_module, "debug_file", "DTLS debug file",
+
+	static uat_field_t dtlskeylist_uats_flds[] = {
+		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
+		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Protocol"),
+		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Path to the keyfile."),
+		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, password," Password (p12 file)", ssldecrypt_uat_fld_password_chk_cb, "Password"),
+		UAT_END_FIELDS
+	};
+
+	dtlsdecrypt_uat = uat_new("DTLS RSA Keylist",
+		sizeof(ssldecrypt_assoc_t),
+		"dtlsdecrypttablefile",         /* filename */
+		TRUE,                     		/* from_profile */
+		(void*) &dtlskeylist_uats,      /* data_ptr */
+		&ndtlsdecrypt,                  /* numitems_ptr */
+		UAT_CAT_FFMT,             		/* category */
+		"ChK12ProtocolsSection",  		/* TODO, need revision - help */
+		dtlsdecrypt_copy_cb,
+		NULL, /* dtlsdecrypt_update_cb? */
+		dtlsdecrypt_free_cb,
+		NULL,
+		dtlskeylist_uats_flds);
+
+	prefs_register_uat_preference(dtls_module, "cfg",
+		"RSA keys list",
+		"A table of RSA keys for DTLS decryption",
+		dtlsdecrypt_uat);
+
+	prefs_register_string_preference(dtls_module, "debug_file", "DTLS debug file",
                                      "redirect dtls debug to file name; leave empty to disable debug, "
                                      "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
                                      (const gchar **)&dtls_debug_file_name);
+
+        prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
+             "Semicolon-separated list of private RSA keys used for DTLS decryption. "
+             "Used by versions of Wireshark prior to 1.6",
+             (const gchar **)&dtls_keys_list);
+
   }
 #endif
 

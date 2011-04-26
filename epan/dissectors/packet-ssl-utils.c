@@ -30,13 +30,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
+
 #include "packet-ssl-utils.h"
 
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/addr_resolv.h>
+#include <epan/ipv6-utils.h>
 #include <wsutil/file_util.h>
 
 /*
@@ -166,7 +170,7 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
     { 0x00006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
     { 0x00006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
-	/* 0x00,0x6E-83 Unassigned  */
+    /* 0x00,0x6E-83 Unassigned  */
     { 0x000084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x000085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x000086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA" },
@@ -238,9 +242,9 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x0000C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x0000C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x0000C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
-	/* 0x00,0xC6-FE Unassigned  */
-	{ 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
-	/* 0x01-BF,* Unassigned  */
+    /* 0x00,0xC6-FE Unassigned  */
+    { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
+    /* 0x01-BF,* Unassigned  */
     /* From RFC 4492 */
     { 0x00c001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0x00c002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -304,12 +308,12 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00C039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0x00C03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0x00C03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
-	/*	0xC0,0x3C-FF Unassigned
-		0xC1-FD,* Unassigned
-		0xFE,0x00-FD Unassigned
-		0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
-		0xFF,0x00-FF Reserved for Private Use [RFC5246]
-		*/
+    /* 0xC0,0x3C-FF Unassigned
+            0xC1-FD,* Unassigned
+            0xFE,0x00-FD Unassigned
+            0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
+            0xFF,0x00-FF Reserved for Private Use [RFC5246]
+            */
 
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
@@ -709,10 +713,10 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
-	/* 0x00,0xC6-FE Unassigned  */
+    /* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
     { 0x0000FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
-	/* 0x01-BF,* Unassigned */
+    /* 0x01-BF,* Unassigned */
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -2935,8 +2939,10 @@ ssl_private_key_hash  (gconstpointer v)
 void
 ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 {
-    g_free(id);
-    ssl_free_key((Ssl_private_key_t*) key);
+    if (id != NULL) {
+        g_free(id);
+        ssl_free_key((Ssl_private_key_t*) key);
+    }
 }
 
 /* handling of association between tls/dtls ports and clear text protocol */
@@ -3147,137 +3153,76 @@ ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInf
 
 /* parse ssl related preferences (private keys and ports association strings) */
 void
-ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp)
+ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp)
 {
-    gchar* end;
-    gchar* start;
-    gchar* tmp;
-    guchar* ip;
     SslService* service;
     Ssl_private_key_t * private_key, *tmp_private_key;
-    FILE* fp;
+    FILE* fp = NULL;
+    guint32 addr_data[4];
+    int addr_len, at;
+    address_type addr_type[2] = { AT_IPv4, AT_IPv6 };
 
-    start = g_strdup(keys_list);
-    tmp = start;
-    ssl_debug_printf("ssl_init keys string:\n%s\n", start);
-    do {
-        int read_index, write_index;
-        gchar* addr, *port, *protocol, *filename, *cert_passwd;
+    /* try to load keys file first */
+    fp = ws_fopen(uats->keyfile, "rb");
+    if (!fp) {
+        fprintf(stderr, "Can't open file %s\n",uats->keyfile);
+        return;
+    }
 
-        addr = start;
-        /* split ip/file couple with ';' separator*/
-        end = strpbrk(start, ";\n\r");
-        if (end) {
-            *end = 0;
-            start = end+1;
-        }
+    if ((gint)strlen(uats->password) == 0) {
+         private_key = ssl_load_key(fp);
+    } else {
+        private_key = ssl_load_pkcs12(fp, uats->password);
+    }
 
-        /* skip comments (in file) */
-        if (addr[0] == '#') continue;
+    if (!private_key) {
+        fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
+        return;
+    }
 
-        /* for each entry split ip, port, protocol, filename with ',' separator */
-        ssl_debug_printf("ssl_init found host entry %s\n", addr);
-        port = strchr(addr, ',');
-        if (!port)
-        {
-            ssl_debug_printf("ssl_init entry malformed can't find port in '%s'\n", addr);
-            continue;
-        }
-        *port = 0;
-        port++;
+    fclose(fp);
 
-        protocol = strchr(port,',');
-        if (!protocol)
-        {
-            ssl_debug_printf("ssl_init entry malformed can't find protocol in %s\n", port);
-            continue;
-        }
-        *protocol=0;
-        protocol++;
+    for (at = 0; at < 2; at++) {
+        memset(addr_data, 0, sizeof(addr_data));
+        addr_len = 0;
 
-        filename = strchr(protocol,',');
-        if (!filename)
-        {
-            ssl_debug_printf("ssl_init entry malformed can't find filename in %s\n", protocol);
-            continue;
-        }
-        *filename=0;
-        filename++;
+        /* any: IPv4 or IPv6 wildcard */
+        /* anyipv4: IPv4 wildcard */
+        /* anyipv6: IPv6 wildcard */
 
-        cert_passwd = strchr(filename,',');
-        if (cert_passwd)
-        {
-            *cert_passwd=0;
-            cert_passwd++;
-        }
-
-        /* convert ip and port string to network rappresentation*/
-        service = g_malloc(sizeof(SslService) + 4);
-        service->addr.type = AT_IPv4;
-        service->addr.len = 4;
-        service->addr.data = ip = ((guchar*)service) + sizeof(SslService);
-
-        /* remove all spaces in addr */
-        read_index = 0;
-        write_index = 0;
-
-        while(addr[read_index]) {
-            if (addr[read_index] != ' ') {
-                addr[write_index] = addr[read_index];
-                write_index++;
+        if(addr_type[at] == AT_IPv4) {
+            if (strcmp(uats->ipaddr, "any") == 0 || strcmp(uats->ipaddr, "anyipv4") == 0 ||
+                    get_host_ipaddr(uats->ipaddr, &addr_data[0])) {
+                addr_len = 4;
             }
-            read_index++;
-        }
-        addr[write_index] = 0;
-
-        if ( !strcmp("any", addr) || !strcmp("ANY", addr) ) {
-            ip[0] = 0;
-            ip[1] = 0;
-            ip[2] = 0;
-            ip[3] = 0;
-        } else {
-	    guint tmp0, tmp1, tmp2, tmp3;
-
-            sscanf(addr, "%u.%u.%u.%u", &tmp0, &tmp1, &tmp2, &tmp3);
-	    ip[0] = (guchar)tmp0;
-	    ip[1] = (guchar)tmp1;
-	    ip[2] = (guchar)tmp2;
-	    ip[3] = (guchar)tmp3;
+        } else { /* AT_IPv6 */
+            if(strcmp(uats->ipaddr, "any") == 0 || strcmp(uats->ipaddr, "anyipv6") == 0 ||
+                    get_host_ipaddr6(uats->ipaddr, (struct e_in6_addr *) addr_data)) {
+                addr_len = 16;
+            }
         }
 
-        if(!strcmp("start_tls", port)) {
+        if (! addr_len) {
+            continue;
+        }
+
+        service = g_malloc(sizeof(SslService) + addr_len);
+        service->addr.type = addr_type[at];
+        service->addr.len = addr_len;
+        service->addr.data = ((guchar*)service) + sizeof(SslService);
+        memcpy((void*)service->addr.data, addr_data, addr_len);
+
+        if(strcmp(uats->port,"start_tls")==0) {
             service->port = 0;
         } else {
-            service->port = atoi(port);
-        }
-        ssl_debug_printf("ssl_init addr '%u.%u.%u.%u' port '%d' filename '%s' password(only for p12 file) '%s'\n",
-                         ip[0], ip[1], ip[2], ip[3], service->port, filename, cert_passwd ? cert_passwd : "(null)");
-
-        /* try to load pen or p12 file*/
-        fp = ws_fopen(filename, "rb");
-        if (!fp) {
-            fprintf(stderr, "can't open file %s \n",filename);
-            continue;
+            service->port = atoi(uats->port);
         }
 
-        if (!cert_passwd) {
-            private_key = ssl_load_key(fp);
-        }
-        else
-        {
-            private_key = ssl_load_pkcs12(fp,cert_passwd);
-        }
-        /* !!! */
-        if (!private_key) {
-            fprintf(stderr,"can't load private key from %s\n",
-                    filename);
-            fclose(fp);
-            continue;
-        }
+        ssl_debug_printf("ssl_init %s addr '%s' (%s) port '%d' filename '%s' password(only for p12 file) '%s'\n",
+            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, ep_address_to_str(&service->addr),
+            service->port, uats->keyfile, uats->password);
 
-        fclose(fp);
-
-        ssl_debug_printf("ssl_init private key file %s successfully loaded\n",filename);
+        ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
 
         /* if item exists, remove first */
         tmp_private_key = g_hash_table_lookup(key_hash, service);
@@ -3285,12 +3230,11 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
             g_hash_table_remove(key_hash, service);
             ssl_free_key(tmp_private_key);
         }
+
         g_hash_table_insert(key_hash, service, private_key);
 
-        ssl_association_add(associations, handle, service->port, protocol, tcp, TRUE);
-
-    } while (end != NULL);
-    g_free(tmp);
+        ssl_association_add(associations, handle, service->port, uats->protocol, tcp, TRUE);
+    }
 }
 
 /* store master secret into session data cache */
@@ -3423,3 +3367,114 @@ ssl_print_string(const gchar* name, const StringInfo* data)
     ssl_print_data(name, data->data, data->data_len);
 }
 #endif /* SSL_DECRYPT_DEBUG */
+
+/* checks for SSL and DTLS UAT key list fields */
+
+gboolean
+ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+{
+
+    if ((gint)strlen(p) == 0) {
+        *err = ep_strdup_printf("No IP address given.");
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean
+ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+{
+    guint i;
+
+    if ((gint)strlen(p) == 0) {
+        *err = ep_strdup_printf("No Port given.");
+        return FALSE;
+    }
+
+    if (strcmp(p, "start_tls") != 0){
+        i = atoi(p);
+        if (i <= 0) {
+            *err = ep_strdup_printf("Invalid port given.");
+            return FALSE;
+        }
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean
+ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+{
+    if ((gint)strlen(p) == 0) {
+        *err = ep_strdup_printf("No protocol given.");
+        return FALSE;
+    }
+
+    if (!find_dissector(p)) {
+        *err = ep_strdup_printf("Could not find dissector for: '%s'", p);
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean
+ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+{
+    ws_statb64 st;
+
+    if ((gint)strlen(p) == 0) {
+        *err = ep_strdup_printf("No filename given.");
+        return FALSE;
+    } else {
+        if (ws_stat64(p, &st) != 0) {
+            *err = ep_strdup_printf("File '%s' does not exist or access is denied.", p);
+            return FALSE;
+        }
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean
+ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+{
+    ssldecrypt_assoc_t* f = r;
+    FILE *fp = NULL;
+
+    if ((gint)strlen(p) > 0) {
+        fp = ws_fopen(f->keyfile, "rb");
+        if (fp) {
+            if (!ssl_load_pkcs12(fp, p)) {
+                fclose(fp);
+                *err = ep_strdup_printf("Invalid. Password is necessary only if you use PKCS#12 key file.");
+                return FALSE;
+            }
+            fclose(fp);
+        } else {
+            *err = ep_strdup_printf("Leave this field blank if the keyfile is not PKCS#12.");
+            return FALSE;
+        }
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

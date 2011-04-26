@@ -346,6 +346,21 @@ typedef struct _Ssl_private_key {
   SSL_PRIVATE_KEY       *sexp_pkey;
 } Ssl_private_key_t;
 
+/* User Access Table */
+typedef struct _ssldecrypt_assoc_t {
+    char* ipaddr;
+    char* port;
+    char* protocol;
+    char* keyfile;
+    char* password;
+} ssldecrypt_assoc_t;
+
+gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean ssldecrypt_uat_fld_protocol_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
+
 /** Initialize decryption engine/ssl layer. To be called once per execution */
 extern void
 ssl_lib_init(void);
@@ -487,7 +502,7 @@ ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInf
 
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void
-ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp);
+ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp);
 
 /* store master secret into session data cache */
 extern void
@@ -525,6 +540,19 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 #define ssl_set_debug(name)
 #define ssl_debug_flush()
 
-#endif
+#endif /* SSL_DECRYPT_DEBUG */
 
-#endif
+#endif /* SSL_UTILS_H */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

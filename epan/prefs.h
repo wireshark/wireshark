@@ -373,6 +373,7 @@ extern void prefs_register_uat_preference(module_t *module,
 extern void prefs_register_obsolete_preference(module_t *module,
     const char *name);
 
+
 typedef guint (*pref_cb)(pref_t *pref, gpointer user_data);
 
 /*
@@ -442,6 +443,15 @@ typedef enum {
 } prefs_set_pref_e;
 
 extern prefs_set_pref_e prefs_set_pref(char *prefarg);
+
+/*
+ * Get or set a preference's obsolete status. These can be used to make a
+ * preference obsolete after startup so that we can fetch its value but
+ * keep it from showing up in the prefrences dialog.
+ */
+extern gboolean prefs_get_preference_obsolete(pref_t *pref);
+extern prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
+
 
 /*
  * Returns TRUE if the given device is hidden

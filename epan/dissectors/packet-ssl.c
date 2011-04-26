@@ -129,7 +129,10 @@
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
+#include <epan/uat.h>
 
+static ssldecrypt_assoc_t *sslkeylist_uats = NULL;
+static guint nssldecrypt = 0;
 
 static gboolean ssl_desegment = TRUE;
 static gboolean ssl_desegment_app_data = TRUE;
@@ -294,6 +297,7 @@ static StringInfo ssl_compressed_data = {NULL, 0};
 static StringInfo ssl_decrypted_data  = {NULL, 0};
 static gint ssl_decrypted_data_avail  = 0;
 
+static uat_t *ssldecrypt_uat = NULL;
 static gchar* ssl_keys_list = NULL;
 static gchar* ssl_psk = NULL;
 
@@ -318,9 +322,20 @@ ssl_fragment_init(void)
 static void
 ssl_init(void)
 {
+    module_t *ssl_module = prefs_find_module("ssl");
+    pref_t *keys_list_pref;
+
     ssl_common_init(&ssl_session_hash, &ssl_decrypted_data, &ssl_compressed_data);
     ssl_fragment_init();
     ssl_debug_flush();
+
+    /* We should have loaded "keys_list" by now. Mark it obsolete */
+    if (ssl_module) {
+        keys_list_pref = prefs_find_preference(ssl_module, "keys_list");
+        if (! prefs_get_preference_obsolete(keys_list_pref)) {
+            prefs_set_preference_obsolete(keys_list_pref);
+        }
+    }
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -329,12 +344,9 @@ ssl_parse(void)
 {
     ep_stack_t tmp_stack;
     SslAssociation *tmp_assoc;
-    FILE *ssl_keys_file;
-    struct stat statb;
-    size_t size;
-    gchar *tmp_buf;
-    size_t nbytes;
-    gboolean read_failed;
+    guint i;
+    gchar **old_keys, **parts, *err;
+    GString *uat_entry = g_string_new("");
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -354,30 +366,32 @@ ssl_parse(void)
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new(ssl_private_key_hash,ssl_private_key_equal);
 
-    if (ssl_keys_list && (ssl_keys_list[0] != 0))
-    {
-        if (file_exists(ssl_keys_list)) {
-            if ((ssl_keys_file = ws_fopen(ssl_keys_list, "r"))) {
-                read_failed = FALSE;
-                fstat(fileno(ssl_keys_file), &statb);
-                size = (size_t)statb.st_size;
-                tmp_buf = ep_alloc0(size + 1);
-                nbytes = fread(tmp_buf, 1, size, ssl_keys_file);
-                if (ferror(ssl_keys_file)) {
-                    report_read_failure(ssl_keys_list, errno);
-                    read_failed = TRUE;
+    /* Import old-style keys */
+    if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
+        old_keys = g_strsplit(ssl_keys_list, ";", 0);
+        for (i = 0; old_keys[i] != NULL; i++) {
+            parts = g_strsplit(old_keys[i], ",", 4);
+            if (parts[0] && parts[1] && parts[2] && parts[3]) {
+                g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+                                parts[0], parts[1], parts[2], parts[3]);
+                if (!uat_load_str(ssldecrypt_uat, uat_entry->str, &err)) {
+                    ssl_debug_printf("ssl_parse: Can't load UAT string %s: %s\n",
+                                     uat_entry->str, err);
                 }
-                fclose(ssl_keys_file);
-                tmp_buf[nbytes] = '\0';
-                if (!read_failed)
-                    ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
-            } else {
-                report_open_failure(ssl_keys_list, errno, FALSE);
             }
-        } else {
-            ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+            g_strfreev(parts);
+        }
+        g_strfreev(old_keys);
+    }
+    g_string_free(uat_entry, TRUE);
+
+    if (nssldecrypt > 0) {
+        for (i = 0; i < nssldecrypt; i++) {
+            ssldecrypt_assoc_t *ssl_uat = &(sslkeylist_uats[i]);
+            ssl_parse_key_list(ssl_uat, ssl_key_hash, ssl_associations, ssl_handle, TRUE);
         }
     }
+
     ssl_debug_flush();
 }
 
@@ -832,20 +846,20 @@ again:
      * the pdu).
      */
     if ((msp = se_tree_lookup32(flow->multisegment_pdus, seq))) {
-	const char* str;
+        const char* str;
 
-	if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
-	    str = "";
-	    col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
-	} else {
-	    str = "Retransmitted ";
-	}
+        if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
+            str = "";
+            col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
+        } else {
+            str = "Retransmitted ";
+        }
 
-	nbytes = tvb_reported_length_remaining(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, nbytes,
-			    "%sSSL segment data (%u byte%s)",
-			    str, nbytes, plurality(nbytes, "", "s"));
-	return;
+        nbytes = tvb_reported_length_remaining(tvb, offset);
+        proto_tree_add_text(tree, tvb, offset, nbytes,
+                            "%sSSL segment data (%u byte%s)",
+                            str, nbytes, plurality(nbytes, "", "s"));
+        return;
     }
 
     /* Else, find the most previous PDU starting before this sequence number */
@@ -946,7 +960,7 @@ again:
             /* create a new TVB structure for desegmented data */
             next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
                                                ipfd_head->datalen,
-					       ipfd_head->datalen);
+                                               ipfd_head->datalen);
 
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
@@ -1030,7 +1044,7 @@ again:
                  * a higher-level PDU, but the data at the
                  * end of this segment started a higher-level
                  * PDU but didn't complete it.
-		 *
+                 *
                  * If so, we have to create some structures
                  * in our table, but this is something we
                  * only do the first time we see this packet.
@@ -1042,12 +1056,12 @@ again:
                     /* The stuff we couldn't dissect
                      * must have come from this segment,
                      * so it's all in "tvb".
-		     *
+                     *
                      * "pinfo->desegment_offset" is
                      * relative to the beginning of
                      * "next_tvb"; we want an offset
                      * relative to the beginning of "tvb".
-		     *
+                     *
                      * First, compute the offset relative
                      * to the *end* of "next_tvb" - i.e.,
                      * the number of bytes before the end
@@ -1067,7 +1081,7 @@ again:
                      * is also the offset relative to
                      * the end of "tvb" of the byte at
                      * which we stopped.
-		     *
+                     *
                      * Convert that back into an offset
                      * relative to the beginninng of
                      * "tvb", by taking the length of
@@ -1104,19 +1118,19 @@ again:
 
         if (((nxtseq - deseg_seq) <= 1024*1024)
             &&  (!PINFO_FD_VISITED(pinfo))) {
-	    if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-		/* The subdissector asked to reassemble using the
+            if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                /* The subdissector asked to reassemble using the
                  * entire next segment.
                  * Just ask reassembly for one more byte
                  * but set this msp flag so we can pick it up
                  * above.
                  */
-		msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-		    deseg_seq, nxtseq+1, flow->multisegment_pdus);
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+1, flow->multisegment_pdus);
                 msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
             } else {
                 msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-		    deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
+                    deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
             }
 
             /* add this segment as the first one for this new pdu */
@@ -2828,7 +2842,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * that will break reassembly.
              */
             pinfo->desegment_offset = offset;
-            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; 
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             *need_desegmentation = TRUE;
             return offset;
         }
@@ -4191,6 +4205,48 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
     return ret;
 }
 
+/* UAT */
+
+static void
+ssldecrypt_free_cb(void* r)
+{
+    ssldecrypt_assoc_t* h = r;
+
+    g_free(h->ipaddr);
+    g_free(h->port);
+    g_free(h->protocol);
+    g_free(h->keyfile);
+    g_free(h->password);
+}
+
+static void
+ssldecrypt_update_cb(void* r _U_, const char** err)
+{
+    if (err)
+            *err = NULL;
+    return;
+}
+
+static void*
+ssldecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
+{
+    const ssldecrypt_assoc_t* o = orig;
+    ssldecrypt_assoc_t* d = dest;
+
+    d->ipaddr    = g_strdup(o->ipaddr);
+    d->port      = g_strdup(o->port);
+    d->protocol  = g_strdup(o->protocol);
+    d->keyfile   = g_strdup(o->keyfile);
+    d->password  = g_strdup(o->password);
+
+    return d;
+}
+
+UAT_CSTRING_CB_DEF(sslkeylist_uats,ipaddr,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
+UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
 
 /*********************************************************************
  *
@@ -4723,6 +4779,48 @@ proto_register_ssl(void)
 
     {
         module_t *ssl_module = prefs_register_protocol(proto_ssl, proto_reg_handoff_ssl);
+
+#ifdef HAVE_LIBGNUTLS
+
+        static uat_field_t sslkeylist_uats_flds[] = {
+            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
+            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Protocol"),
+            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Private keyfile."),
+            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, password,"Password", ssldecrypt_uat_fld_password_chk_cb, "Password (for PCKS#12 keyfile)"),
+            UAT_END_FIELDS
+        };
+
+        ssldecrypt_uat = uat_new("SSL Decrypt",
+            sizeof(ssldecrypt_assoc_t),
+            "ssl_keys",                     /* filename */
+            TRUE,                           /* from_profile */
+            (void*) &sslkeylist_uats,       /* data_ptr */
+            &nssldecrypt,                   /* numitems_ptr */
+            UAT_CAT_FFMT,                   /* category */
+            NULL,                           /* Help section (currently a wiki page) */
+            ssldecrypt_copy_cb,
+            ssldecrypt_update_cb,
+            ssldecrypt_free_cb,
+            NULL,
+            sslkeylist_uats_flds);
+
+        prefs_register_uat_preference(ssl_module, "key_table",
+            "RSA keys list",
+            "A table of RSA keys for SSL decryption",
+            ssldecrypt_uat);
+
+        prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
+            "Redirect SSL debug to file name; leave empty to disable debugging, "
+            "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
+            (const gchar **)&ssl_debug_file_name);
+
+        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list (deprecated)",
+             "Semicolon-separated list of private RSA keys used for SSL decryption. "
+             "Used by versions of Wireshark prior to 1.6",
+             (const gchar **)&ssl_keys_list);
+#endif
+
         prefs_register_bool_preference(ssl_module,
              "desegment_ssl_records",
              "Reassemble SSL records spanning multiple TCP segments",
@@ -4735,21 +4833,12 @@ proto_register_ssl(void)
              "Whether the SSL dissector should reassemble SSL Application Data spanning multiple SSL records. ",
              &ssl_desegment_app_data);
 #ifdef HAVE_LIBGNUTLS
-        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
-             "Semicolon-separated list of private RSA keys used for SSL decryption; "
-             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>. "
-             "<key_file_name> is the local file name of the RSA private key used by the specified server "
-             "(or name of the file containing such a list)",
-             (const gchar **)&ssl_keys_list);
-        prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
-             "Redirect SSL debug to file name; leave empty to disable debugging, "
-             "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-             (const gchar **)&ssl_debug_file_name);
         prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
              (const gchar **)&ssl_psk);
 #endif
     }
+
 
     register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");
@@ -4798,3 +4887,16 @@ ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp)
         ssl_association_remove(ssl_associations, assoc);
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

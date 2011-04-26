@@ -829,6 +829,31 @@ prefs_register_obsolete_preference(module_t *module, const char *name)
 }
 
 /*
+ * Check to see if a preference is obsolete.
+ */
+extern gboolean
+prefs_get_preference_obsolete(pref_t *pref)
+{
+	if (pref) {
+		return pref->type == PREF_OBSOLETE ? TRUE : FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Make a preference obsolete.
+ */
+extern prefs_set_pref_e
+prefs_set_preference_obsolete(pref_t *pref)
+{
+	if (pref) {
+		pref->type = PREF_OBSOLETE;
+		return PREFS_SET_OK;
+	}
+	return PREFS_SET_NO_SUCH_PREF;
+}
+
+/*
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
  *
