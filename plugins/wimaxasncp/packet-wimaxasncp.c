@@ -2535,9 +2535,9 @@ static void add_reg_info(
 static void add_tlv_reg_info(
     wimaxasncp_dict_tlv_t *tlv)
 {
-    const char *name;
-    const char *abbrev;
-    const char *blurb;
+    char *name;
+    char *abbrev;
+    char *blurb;
 
     /* ------------------------------------------------------------------------
      * add root reg info
