@@ -586,7 +586,6 @@ cba_acco_add(packet_info *pinfo, const char *acco)
         g_free(ip_str);
         return NULL;
     }
-    ip = g_ntohl(ip);
 
     pdev = cba_pdev_add(pinfo, (guint8 *) &ip);
     delim++;

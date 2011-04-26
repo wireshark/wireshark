@@ -2412,7 +2412,7 @@ host_name_lookup_init(void) {
     report_open_failure(hostspath, errno, FALSE);
   }
   g_free(hostspath);
-  
+
 #ifdef HAVE_C_ARES
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
   if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
@@ -2702,7 +2702,7 @@ add_ipv4_name(const guint addr, const gchar *name)
     ai = g_malloc0(sizeof(struct addrinfo));
     addrinfo_list = addrinfo_list_last = ai;
   }
- 
+
   sa4 = g_malloc0(sizeof(struct sockaddr_in));
   sa4->sin_family = AF_INET;
   sa4->sin_addr.s_addr = addr;
@@ -2712,7 +2712,7 @@ add_ipv4_name(const guint addr, const gchar *name)
   ai->ai_addrlen = sizeof(struct sockaddr_in);
   ai->ai_canonname = (char *) tp->name;
   ai->ai_addr = (struct sockaddr*) sa4;
-  
+
   addrinfo_list_last->ai_next = ai;
   addrinfo_list_last = ai;
 
@@ -3148,7 +3148,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
       return FALSE;
   }
 
-  *addrp = g_ntohl(ipaddr.s_addr);
+  *addrp = ipaddr.s_addr;
   return TRUE;
 }
 

@@ -1800,7 +1800,6 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* XXX - this conversion is ugly */
 		if (inet_aton(szStr, &ipaddr)) {
 			if(get_host_ipaddr(szStr, &curr_ip)) {
-				curr_ip = g_ntohl(curr_ip);
 
 				/*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s",
 				  ip_to_str( (guint8 *) &curr_ip));*/
@@ -2359,4 +2358,3 @@ proto_reg_handoff_dcom (void)
 
 	/* Currently, we have nothing to register for DCOM */
 }
-

@@ -1037,4 +1037,3 @@ int Pinfo_register(lua_State* L) {
     outstanding_Columns = g_ptr_array_new();
     return 1;
 }
-

@@ -81,7 +81,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		return FALSE;
 	}
 
-	ipv4_addr_set_host_order_addr(&(fv->value.ipv4), addr);
+	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), addr);
 
 	/* If CIDR, get netmask bits. */
 	if (has_slash) {
