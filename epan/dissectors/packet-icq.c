@@ -1165,7 +1165,7 @@ static void
 icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		    tvbuff_t *tvb,    /* Tvbuff with packet */
 		    int offset,       /* Offset from the start of the packet to the content */
-		    int size,         /* Number of chars left to do */
+		    int size _U_,         /* Number of chars left to do */
 		    packet_info *pinfo)
 {
 #if 0
@@ -1173,7 +1173,6 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 #endif
     proto_tree* sstree = NULL;
     proto_item* ti = NULL;
-    int left = size;
     guint16 subcmd;
     unsigned char result;
 
@@ -1199,7 +1198,6 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 #endif
 
 	/* Skip the META_USER header */
-	left -= 3;
 	offset += 3;
 
 	switch(subcmd) {
@@ -1215,7 +1213,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint16),
 				"Length: %u", pktLen);
 
-	    offset += sizeof(guint16); left -= sizeof(guint16);
+	    offset += sizeof(guint16);
 	}
 	/* FALLTHRU */
 	case META_USER_FOUND:
@@ -1239,27 +1237,26 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	     */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint32),
 				"UIN: %u", tvb_get_letohl(tvb, offset));
-	    offset+=sizeof(guint32);left-=sizeof(guint32);
+	    offset+=sizeof(guint32);
 
 	    for ( ; *d!=NULL; d++) {
 		len = proto_add_icq_attr(sstree, tvb, offset, *d);
 		if (len == -1)
 		    return;
-		offset += len; left -= len;
+		offset += len;
 	    }
 	    /* Get the authorize setting */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, 1,
 				"authorization: %s", (auth==0x01)?"Necessary":"Who needs it");
-	    offset++; left--;
+	    offset++;;
 	    /* Get x2 */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint16),
 				"x2: 0x%04x", tvb_get_letohs(tvb, offset));
-	    offset+=sizeof(guint16);left-=sizeof(guint16);
+	    offset+=sizeof(guint16);
 	    /* Get x3 */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint32),
 				"x3: 0x%08x", tvb_get_letohl(tvb, offset));
-	    offset+=sizeof(guint32);left-=sizeof(guint32);
 	    break;
 	}
 	case META_ABOUT:
@@ -1268,11 +1265,10 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 
 	    /* Get the about information */
 	    len = tvb_get_letohs(tvb, offset);
-	    offset+=sizeof(guint16);left-=sizeof(guint16);
+	    offset+=sizeof(guint16);
 	    proto_tree_add_text(sstree, tvb, offset - sizeof(guint16),
 				sizeof(guint16)+len, "About(%d): %.*s", len,
 				len, tvb_get_ephemeral_string(tvb, offset, len));
-	    offset+=len;left-=len;
 	    break;
 	}
 	case META_USER_INFO:
@@ -1307,7 +1303,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    uin = tvb_get_letohl(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint32),
 				"UIN: %u", uin);
-	    offset+=sizeof(guint32);left-=sizeof(guint32);
+	    offset+=sizeof(guint32);
 #endif
 
 	    /*
@@ -1315,13 +1311,13 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	     */
 	    while ((*d)!=NULL) {
 		len = tvb_get_letohs(tvb, offset);
-		offset+=sizeof(guint16);left-=sizeof(guint16);
+		offset+=sizeof(guint16);
 		if (len>0) {
 		    proto_tree_add_text(sstree, tvb, offset - sizeof(guint16),
 					sizeof(guint16)+len, "%s(%d): %.*s",
 					*d, len, len - 1,
 					tvb_get_ephemeral_string(tvb, offset, len - 1));
-		    offset+=len;left-=len;
+		    offset+=len;
 		}
 		d++;
 	    }
@@ -1329,29 +1325,28 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    country = tvb_get_letohs(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint16),
 				"Countrycode: %u", country);
-	    offset+=sizeof(guint16); left-=sizeof(guint16);
+	    offset+=sizeof(guint16);
 	    /* Get the timezone setting */
 	    user_timezone = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(unsigned char),
 				"Timezone: %u", user_timezone);
-	    offset++; left--;
+	    offset++; 
 	    /* Get the authorize setting */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(unsigned char),
 				"Authorization: (%u) %s", auth,
 				(auth==0)?"No":"Yes");
-	    offset++; left--;
+	    offset++;
 	    /* Get the webaware setting */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(unsigned char),
 				"Webaware: (%u) %s", auth,
 				(auth==0)?"No":"Yes");
-	    offset++; left--;
+	    offset++; 
 	    /* Get the authorize setting */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(unsigned char),
 				"HideIP: (%u) %s", auth, (auth==0)?"No":"Yes");
-	    offset++; left--;
 	    break;
 	}
 	default:
