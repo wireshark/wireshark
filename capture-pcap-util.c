@@ -82,7 +82,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 	switch (addr->sa_family) {
 
 	case AF_INET:
-		ai = (struct sockaddr_in *)addr;
+		ai = (struct sockaddr_in *)(void *)addr;
 		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
 		if_addr->ifat_type = IF_AT_IPv4;
 		if_addr->addr.ip4_addr =
@@ -92,7 +92,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 
 #ifdef INET6
 	case AF_INET6:
-		ai6 = (struct sockaddr_in6 *)addr;
+		ai6 = (struct sockaddr_in6 *)(void *)addr;
 		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
 		if_addr->ifat_type = IF_AT_IPv6;
 		memcpy((void *)&if_addr->addr.ip6_addr,
