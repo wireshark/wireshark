@@ -1552,7 +1552,6 @@ create_graph(guint16 dir, struct sctp_analyse* userdata)
 	struct sctp_udata *u_data;
 
 	u_data=g_malloc(sizeof(struct sctp_udata));
-	u_data->assoc=g_malloc(sizeof(sctp_assoc_info_t));
 	u_data->assoc=userdata->assoc;
 	u_data->io=NULL;
 	u_data->dir = dir;
