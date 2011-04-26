@@ -4210,6 +4210,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
 
 /* UAT */
 
+#ifdef HAVE_LIBGNUTLS
 static void
 ssldecrypt_free_cb(void* r)
 {
@@ -4250,6 +4251,7 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
+#endif
 
 /*********************************************************************
  *
