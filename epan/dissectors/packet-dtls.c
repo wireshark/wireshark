@@ -1955,6 +1955,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
 /* UAT */
 
+#ifdef HAVE_LIBGNUTLS
 static void
 dtlsdecrypt_free_cb(void* r)
 {
@@ -1966,6 +1967,7 @@ dtlsdecrypt_free_cb(void* r)
 	g_free(h->keyfile);
 	g_free(h->password);
 }
+#endif
 
 #if 0
 static void
@@ -1975,6 +1977,7 @@ dtlsdecrypt_update_cb(void* r _U_, const char** err _U_)
 }
 #endif
 
+#ifdef HAVE_LIBGNUTLS
 static void *
 dtlsdecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
@@ -1995,6 +1998,7 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
+#endif
 
 /*********************************************************************
  *
