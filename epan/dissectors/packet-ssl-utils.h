@@ -420,6 +420,17 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 extern void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 
+/** Try to find the pre-master secret for the given encrypted pre-master secret
+    from a log of secrets.
+ @param ssl_session the store for the decrypted pre_master_secret
+ @param ssl_keylog_filename a file that contains a log of pre-master secrets
+ @param encrypted_pre_master the rsa encrypted pre_master_secret
+ @return 0 on success */
+int
+ssl_keylog_lookup(SslDecryptSession* ssl_session,
+                  const gchar* ssl_keylog_filename,
+                  StringInfo* encrypted_pre_master);
+
 /** Try to decrypt in place the encrypted pre_master_secret
  @param ssl_session the store for the decrypted pre_master_secret
  @param encrypted_pre_master the rsa encrypted pre_master_secret

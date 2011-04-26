@@ -3287,6 +3287,107 @@ ssl_is_valid_content_type(guint8 type)
     return 0;
 }
 
+static guint8
+from_hex_char(gchar c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    return 16;
+}
+
+int
+ssl_keylog_lookup(SslDecryptSession* ssl_session,
+                  const gchar* ssl_keylog_filename,
+                  StringInfo* encrypted_pre_master) {
+    static const unsigned int kRSAPremasterLength = 48; /* RFC5246 7.4.7.1 */
+    FILE* ssl_keylog;
+    gsize bytes_read;
+    int ret = -1;
+
+    ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
+
+    ssl_keylog = ws_fopen(ssl_keylog_filename, "r");
+    if (!ssl_keylog) {
+        ssl_debug_printf("failed to open SSL keylog\n");
+        return -1;
+    }
+
+    /* The format of the file is a series of records:
+     *   "RSA "
+     *   First 8 bytes of encrypted pre-master secret, hex encoded
+     *   <space>
+     *   Raw pre-master secret, hex encoded
+     *   <\n> */
+    for (;;) {
+        char buf[512], *line;
+        unsigned int i;
+
+        line = fgets(buf, sizeof(buf), ssl_keylog);
+        if (!line)
+                break;
+
+        bytes_read = strlen(line);
+        /* fgets includes the \n at the end of the line. */
+        if (bytes_read > 0) {
+            line[bytes_read - 1] = 0;
+            bytes_read--;
+        }
+
+        ssl_debug_printf("  checking keylog line: %s\n", line);
+
+        if (bytes_read != 4 + 8*2 + 1 + kRSAPremasterLength*2 ||
+            line[20] != ' ' ||
+            memcmp(line, "RSA ", 4) != 0) {
+            ssl_debug_printf("    rejecting line due to bad format\n");
+            continue;
+        }
+
+        for (i = 0; i < 8; i++) {
+            if (from_hex_char(line[4 + i*2]) != (encrypted_pre_master->data[i] >> 4) ||
+                from_hex_char(line[4 + i*2 + 1]) != (encrypted_pre_master->data[i] & 15)) {
+                line = NULL;
+                break;
+            }
+        }
+
+        if (line == NULL) {
+            ssl_debug_printf("    line does not match encrypted pre-master secret\n");
+            continue;
+        }
+
+        /* This record seems to match. */
+        ssl_session->pre_master_secret.data = se_alloc(kRSAPremasterLength);
+        for (i = 0; i < kRSAPremasterLength; i++) {
+            guint8 a = from_hex_char(line[21 + i*2]);
+            guint8 b = from_hex_char(line[21 + i*2 + 1]);
+            if (a == 16 || b == 16) {
+                line = NULL;
+                break;
+            }
+
+            ssl_session->pre_master_secret.data[i] = a << 4 | b;
+        }
+
+        if (line == NULL) {
+            ssl_debug_printf("    line contains non-hex chars in pre-master secret\n");
+            continue;
+        }
+
+        ssl_session->pre_master_secret.data_len = kRSAPremasterLength;
+        ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+        ssl_session->state |= SSL_PRE_MASTER_SECRET;
+        ssl_debug_printf("found pre-master secret in key log\n");
+        ret = 0;
+        break;
+    }
+
+    fclose(ssl_keylog);
+    return ret;
+}
+
 #ifdef SSL_DECRYPT_DEBUG
 
 static FILE* ssl_debug_file=NULL;

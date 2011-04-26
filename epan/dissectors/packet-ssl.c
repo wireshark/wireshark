@@ -300,6 +300,7 @@ static gint ssl_decrypted_data_avail  = 0;
 static uat_t *ssldecrypt_uat = NULL;
 static gchar* ssl_keys_list = NULL;
 static gchar* ssl_psk = NULL;
+static gchar* ssl_keylog_filename = NULL;
 
 #if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
 static gchar* ssl_debug_file_name     = NULL;
@@ -1973,18 +1974,20 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         encrypted_pre_master.data_len = encrlen;
                         tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
-                        if (!ssl->private_key) {
-                            ssl_debug_printf("dissect_ssl3_handshake can't find private key\n");
-                            break;
-                        }
-
-                        /* go with ssl key processessing; encrypted_pre_master
-                         * will be used for master secret store
-                         */
-                        ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
-                        if (ret < 0) {
-                            ssl_debug_printf("dissect_ssl3_handshake can't decrypt pre master secret\n");
-                            break;
+                        if (ssl->private_key) {
+                            /* go with ssl key processessing; encrypted_pre_master
+                             * will be used for master secret store*/
+                            ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
+                            if (ret < 0) {
+                                ssl_debug_printf("dissect_ssl3_handshake can't decrypt pre master secret\n");
+                                break;
+                            }
+                        } else {
+                            /* try to find the key in the key log */
+                            if (!ssl_keylog_filename)
+                                break;
+                            if (ssl_keylog_lookup(ssl, ssl_keylog_filename, &encrypted_pre_master)<0)
+                                break;
                         }
                     }
                     if (ssl_generate_keyring_material(ssl)<0) {
@@ -4836,6 +4839,10 @@ proto_register_ssl(void)
         prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
              (const gchar **)&ssl_psk);
+
+        prefs_register_string_preference(ssl_module, "keylog_file", "SSL key log filename",
+             "The filename of a file which contains a log of pre-master secrets",
+             (const gchar **)&ssl_keylog_filename);
 #endif
     }
 
