@@ -1004,7 +1004,6 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
         case 3:
             /* XXX not implemented */
         default:
-            len=0;
             DISSECTOR_ASSERT_NOT_REACHED();
     }
 
