@@ -64,7 +64,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 8.6.0 Release 8)
+ *   (3GPP TS 24.008 version 9.6.0 Release 9)
  * 
  * $Id$
  *
@@ -247,6 +247,7 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00,	"LSA Identifier" },
 	{ 0x00,	"Daylight Saving Time" },
 	{ 0x00, "Emergency Number List" },
+	{ 0x00, "Additional update parameters" },
 	/* Call Control Information Elements 10.5.4 */
 	{ 0x00,	"Auxiliary States" },					/* 10.5.4.4 Auxiliary states */
 	{ 0x00,	"Bearer Capability" },					/* 10.5.4.4a Backup bearer capability */
@@ -422,6 +423,7 @@ static int hf_gsm_a_dtap_serv_cat_b4 = -1;
 static int hf_gsm_a_dtap_serv_cat_b3 = -1;
 static int hf_gsm_a_dtap_serv_cat_b2 = -1;
 static int hf_gsm_a_dtap_serv_cat_b1 = -1;
+static int hf_gsm_a_dtap_csmt = -1;
 static int hf_gsm_a_dtap_alerting_pattern = -1;
 static int hf_gsm_a_dtap_ccbs_activation = -1;
 static int hf_gsm_a_dtap_stream_identifier = -1;
@@ -976,6 +978,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 	return(curr_offset - offset);
 }
+
 /*
  * 10.5.3.13 Emergency Number List 
  */
@@ -1052,6 +1055,26 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 		count++;
 	}
 
+	return(len);
+}
+
+/*
+ * 10.5.3.14 Additional update parameters 
+ */
+static const true_false_string gsm_a_dtap_csmt_vals = {
+	"CS fallback mobile terminating call",
+	"No additional information"
+};
+
+static guint16
+de_add_upd_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_csmt, tvb, (curr_offset<<3)+7, 1, FALSE);
 
 	return(len);
 }
@@ -4072,6 +4095,7 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	de_lsa_id,	/* LSA Identifier */
 	de_day_saving_time,	/* Daylight Saving Time */
 	de_emerg_num_list, /* Emergency Number List */
+	de_add_upd_params, /* Additional update parameters */
 	/* Call Control Information Elements 10.5.4 */
 	de_aux_states,	/* Auxiliary States */
 	de_bearer_cap,	/* Bearer Capability */
@@ -4720,7 +4744,9 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
-	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, " - Mobile station classmark for UMTS");
+
+	ELEM_OPT_TV_SHORT(0xc0, GSM_A_PDU_TYPE_DTAP, DE_ADD_UPD_PARAMS, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6447,6 +6473,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_serv_cat_b1,
 		{ "Police", "gsm_a.dtap.serv_cat_b1",
 		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_csmt,
+		{ "CSMT", "gsm_a.dtap.csmt",
+		FT_BOOLEAN, 8, TFS(&gsm_a_dtap_csmt_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_alerting_pattern,

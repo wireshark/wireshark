@@ -33,7 +33,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 8.6.0 Release 8)
+ *   (3GPP TS 24.008 version 9.6.0 Release 9)
  *
  * $Id$
  *
@@ -132,6 +132,9 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
 	{ 0x58,	"Activate MBMS Context Reject" },
 	{ 0x59,	"Request MBMS Context Activation" },
 	{ 0x5a,	"Request MBMS Context Activation Reject" },
+	{ 0x5b,	"Request Secondary PDP Context Activation" },
+	{ 0x5c,	"Request Secondary PDP Context Activation Reject" },
+	{ 0x5d,	"Notification" },
 	{ 0, NULL }
 };
 
@@ -154,6 +157,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00,	"MS Radio Access Capability" },
 	{ 0x00,	"GMM Cause" },
 	{ 0x00,	"Routing Area Identification" },
+	{ 0x00,	"Routing Area Identification 2" },
 	{ 0x00,	"Update Result" },
 	{ 0x00, "Update Type" },
 	{ 0x00,	"A&C Reference Number" },
@@ -163,6 +167,10 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00, "PS LCS Capability" },
 	{ 0x00,	"Network Feature Support" },
 	{ 0x00, "Inter RAT information container" },
+	{ 0x00, "Requested MS information" },
+	{ 0x00, "UE network capability" },
+	{ 0x00, "E-UTRAN inter RAT information container" },
+	{ 0x00, "Voice domain preference and UE's usage setting" },
 	/* Session Management Information Elements 10.5.6 */
 	{ 0x00,	"Access Point Name" },
 	{ 0x00,	"Network Service Access Point Identifier" },
@@ -181,6 +189,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00, "MBMS protocol configuration options" },
 	{ 0x00, "Enhanced network service access point identifier" },
 	{ 0x00, "Request type" },
+	{ 0x00, "Notification indicator" },
 	/* GPRS Common Information Elements 10.5.7 */
 	{ 0x00,	"PDP Context Status" },
 	{ 0x00,	"Radio Priority" },
@@ -188,6 +197,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00,	"GPRS Timer 2" },
 	{ 0x00, "Radio Priority 2"},
 	{ 0x00,	"MBMS context status"},
+	{ 0x00,	"Uplink data status"},
 	{ 0x00, "Spare Nibble"},
 	{ 0, NULL }
 };
@@ -256,6 +266,17 @@ static int hf_gsm_a_gm_tmsi_flag = -1;
 static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
+static int hf_gsm_a_gm_nsapi_5_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_6_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_7_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_8_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_9_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_10_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_11_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_12_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_13_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_14_ul_stat = -1;
+static int hf_gsm_a_gm_nsapi_15_ul_stat = -1;
 static int hf_gsm_a_gm_pco_pid = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 static int hf_gsm_a_gm_rac = -1;
@@ -265,6 +286,10 @@ static int hf_gsm_a_gm_otd_b = -1;
 static int hf_gsm_a_gm_gps_a = -1;
 static int hf_gsm_a_gm_gps_b = -1;
 static int hf_gsm_a_gm_gps_c = -1;
+static int hf_gsm_a_gm_req_ms_info_irat = -1;
+static int hf_gsm_a_gm_req_ms_info_irat2 = -1;
+static int hf_gsm_a_gm_ue_usage_setting = -1;
+static int hf_gsm_a_gm_voice_domain_pref_for_eutran = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
 static int hf_gsm_a_qos_mean_thr = -1;
 static int hf_gsm_a_qos_peak_thr = -1;
@@ -289,6 +314,7 @@ static int hf_gsm_a_sm_packet_flow_id = -1;
 static int hf_gsm_a_sm_tmgi = -1;
 static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
+static int hf_gsm_a_sm_notif_ind = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
 static int hf_gsm_a_gm_rac_multislot_capability = -1;
 static int hf_gsm_a_gm_rac_single_slt_dtm = -1;
@@ -320,10 +346,11 @@ static int hf_gsm_a_gmm_net_cap_gea7 = -1;
 static int hf_gsm_a_gmm_net_cap_lcs = -1;
 static int hf_gsm_a_gmm_net_cap_ps_irat_iu = -1;
 static int hf_gsm_a_gmm_net_cap_ps_irat_s1 = -1;
-static int hf_gsm_a_gmm_net_cap_csfb = -1;
+static int hf_gsm_a_gmm_net_cap_comb_proc = -1;
 static int hf_gsm_a_gmm_net_cap_isr = -1;
 static int hf_gsm_a_gmm_net_cap_srvcc_to_geran = -1;
 static int hf_gsm_a_gmm_net_cap_epc = -1;
+static int hf_gsm_a_gmm_net_cap_nf = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -349,6 +376,7 @@ static gint ett_sm_tft = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t rrc_irat_ho_info_handle;
+static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
 
 static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
@@ -876,9 +904,9 @@ static const true_false_string gsm_a_gmm_net_cap_ps_irat_s1_vals = {
 	"PS inter-RAT HO to E-UTRAN S1 mode not supported"
 };
 
-static const true_false_string gsm_a_gmm_net_cap_csfb_vals = {
-	"Mobile station supports CS fallback",
-	"Mobile station does not support CS fallback"
+static const true_false_string gsm_a_gmm_net_cap_comb_proc_vals = {
+	"Mobile station supports EMM combined procedures",
+	"Mobile station does not support EMM combined procedures"
 };
 
 static const true_false_string gsm_a_gmm_net_cap_isr_vals = {
@@ -894,6 +922,11 @@ static const true_false_string gsm_a_gmm_net_cap_srvcc_to_geran_vals = {
 static const true_false_string gsm_a_gmm_net_cap_epc_vals = {
 	"EPC supported",
 	"EPC not supported"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_nf_vals = {
+	"Mobile station supports the notification procedure",
+	"Mobile station does not support the notification procedure"
 };
 
 guint16
@@ -954,8 +987,8 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	/* bit 7: PS inter-RAT HO to E-UTRAN S1 mode capability */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_s1, tvb, curr_offset, 1, FALSE);
 
-	/* bit 6: CSFB Capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_csfb, tvb, curr_offset, 1, FALSE);
+	/* bit 6: EMM Combined procedures capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_comb_proc, tvb, curr_offset, 1, FALSE);
 
 	/* bit 5: ISR support */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_isr, tvb, curr_offset, 1, FALSE);
@@ -966,8 +999,11 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	/* bit 3: EPC capability */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_epc, tvb, curr_offset, 1, FALSE);
 
-	/* bits 2 1: Spare bits */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
+	/* bit 3: NF capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_nf, tvb, curr_offset, 1, FALSE);
+
+	/* bits 1: Spare bit */
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
 
 	curr_offset++;
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
@@ -2472,6 +2508,16 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 }
 
 /*
+ * [7] 10.5.5.15a Routing area identification 2
+ */
+guint16
+de_gmm_rai2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	/* The routing area identification 2 value is coded as octet 2 to 7 of the Routing area identification information element. */
+	return de_gmm_rai(tvb, tree, pinfo, offset, len, add_string, string_len);
+}
+
+/*
  * [7] 10.5.5.17
  */
 static guint16
@@ -2709,6 +2755,93 @@ defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are d
 
 }
 
+/* [7] 10.5.5.25 Requested MS information */
+static const true_false_string gsm_a_gm_req_ms_info_irat_vals = {
+	"Inter RAT information container IE requested",
+	"Inter RAT information container IE not requested"
+};
+static const true_false_string gsm_a_gm_req_ms_info_irat2_vals = {
+	"E-UTRAN inter RAT information container IE requested",
+	"E-UTRAN inter RAT information container IE not requested"
+};
+
+static guint16
+de_gmm_req_ms_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+	
+	curr_offset = offset;
+	bit_offset = (curr_offset<<3)+4;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_req_ms_info_irat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_req_ms_info_irat2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+	bit_offset+=2;
+	curr_offset++;
+	
+	return len;
+}
+
+/* [7] 10.5.5.26 UE network capability
+ * See subclause 9.9.3.x in 3GPP TS 24.301 [120].
+ */ 
+
+/* [7] 10.5.5.27 E-UTRAN inter RAT information container */
+static guint16
+de_gmm_eutran_irat_info_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	tvbuff_t *lte_rrc_ue_eutra_cap_tvb;
+
+	curr_offset = offset;
+
+/* The value part of the E-UTRAN inter RAT information container information element
+   is formatted and coded according to the UE-EUTRA-Capability IE defined in 3GPP TS 36.331 [129]*/
+	lte_rrc_ue_eutra_cap_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	if (lte_rrc_ue_eutra_cap_handle)
+		call_dissector(lte_rrc_ue_eutra_cap_handle, lte_rrc_ue_eutra_cap_tvb, pinfo, tree);
+	else
+		proto_tree_add_text(tree, tvb, curr_offset, len,"E-UTRAN Inter RAT information container - Not decoded");
+
+	return len;
+}
+
+/* [7] 10.5.5.28 Voice domain preference and UE's usage setting */
+static const true_false_string gsm_a_gm_ue_usage_setting_vals = {
+	"Data centric",
+	"Voice centric"
+};
+static const value_string gsm_a_gm_voice_domain_pref_for_eutran_vals[] = {
+	{0x0,	"CS Voice only"},
+	{0x1,	"IMS PS Voice only"},
+	{0x2,	"CS voice preferred, IMS PS Voice as secondary"},
+	{0x3,	"IMS PS voice preferred, CS Voice as secondary"},
+	{  0,	NULL }
+};
+
+static guint16
+de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+	
+	curr_offset = offset;
+	bit_offset = curr_offset<<3;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+	bit_offset+=5;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ue_usage_setting, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_voice_domain_pref_for_eutran, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+	bit_offset+=2;
+	curr_offset++;
+
+	return len;
+}
+
 /*
  * [7] 10.5.7.1
  */
@@ -2924,7 +3057,7 @@ static guint16
 de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-        guint   i;
+	guint   i;
 	guint8	oct, j;
 	proto_item  *tf = NULL;
 	proto_tree  *tf_tree = NULL;
@@ -2957,6 +3090,54 @@ de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	return(len);
 }
+
+/*
+ * [8] 10.5.7.7 Uplink data status
+ */
+static const true_false_string gsm_a_gm_nsapi_ul_stat_vals = {
+	"uplink data are pending for the preserved PDP context",
+	"no uplink data are pending for the preserved PDP context or the PDP context is PDP-INACTIVE or is PDP-ACTIVE with a RAB already established"
+};
+ 
+static guint16
+de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+
+	curr_offset = offset;
+	bit_offset = curr_offset<<3;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_7_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_6_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_5_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+	bit_offset+=5;
+	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_15_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_14_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_13_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_12_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_11_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_10_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_9_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_8_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	bit_offset++;
+	curr_offset++;
+	
+	return(len);
+}
+
 /*
  * [7] 10.5.6.1
  */
@@ -4377,6 +4558,28 @@ de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	return(1);
 }
 
+/*
+ * [9] 10.5.6.18 Notification indicator
+ */
+static const value_string gsm_a_sm_notif_ind_vals[] = {
+	{ 0x0,	"Reserved"},
+	{ 0x1,	"SRVCC handover cancelled, IMS session re-establishment required"},
+	{ 0, NULL }
+};
+
+static guint16
+de_sm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_sm_notif_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	return(len);
+}
+
+
 guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	de_gmm_attach_res,	/* Attach Result */
@@ -4396,6 +4599,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_ms_radio_acc_cap,/* MS Radio Access Capability */
 	de_gmm_cause,		/* GMM Cause */
 	de_gmm_rai,		/* Routing Area Identification */
+	de_gmm_rai2,	/* Routing Area Identification 2 */
 	de_gmm_update_res,	/* Update Result */
 	de_gmm_update_type,	/* Update Type */
 	de_gmm_ac_ref_nr,	/* A&C Reference Number */
@@ -4405,6 +4609,10 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_ps_lcs_cap,	/* PS LCS Capability */
 	de_gmm_net_feat_supp,	/* Network Feature Support */
 	de_gmm_rat_info_container, /* Inter RAT information container */
+	de_gmm_req_ms_info, /* Requested MS information */
+    NULL, /* UE network capability */
+    de_gmm_eutran_irat_info_container, /* E-UTRAN inter RAT information container */
+    de_gmm_voice_domain_pref, /* Voice domain preference and UE's usage setting */
 	/* Session Management Information Elements 10.5.6 */
 	de_sm_apn,		/* Access Point Name */
 	de_sm_nsapi,		/* Network Service Access Point Identifier */
@@ -4423,6 +4631,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_sm_mbms_prot_conf_opt,	/* MBMS protocol configuration options */
 	de_sm_enh_nsapi,	/* Enhanced network service access point identifier */
 	de_sm_req_type,		/* Request type */
+	de_sm_notif_ind,	/* Notification indicator */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,	/* PDP Context Status */
 	de_gc_radio_prio,	/* Radio Priority */
@@ -4430,6 +4639,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gc_timer2,		/* GPRS Timer 2 */
 	de_gc_radio_prio2,	/* Radio Priority 2 */
 	de_gc_mbms_context_stat,/* 10.5.7.6 MBMS context status */
+	de_gc_uplink_data_stat, /* 10.5.7.7 Uplink data status */
 	NULL,	/* NONE */
 };
 
@@ -4476,6 +4686,20 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL);
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
+	
+	ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+
+	ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
+
+	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, NULL);
+
+	ELEM_OPT_TLV(0x58, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
+
+	ELEM_OPT_TLV(0x1A, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Additional mobile identity");
+
+	ELEM_OPT_TLV(0x1B, GSM_A_PDU_TYPE_GM, DE_RAI_2, " - Additional old routing area identification");
+
+	ELEM_OPT_TLV(0x5D, GSM_A_PDU_TYPE_GM, DE_VOICE_DOMAIN_PREF, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4530,6 +4754,12 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TV_SHORT( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , NULL);
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
+	
+	ELEM_OPT_TV_SHORT( 0xA0 , GSM_A_PDU_TYPE_GM , DE_REQ_MS_INFO , NULL);
+	
+	ELEM_OPT_TLV( 0x37 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3319" );
+	
+	ELEM_OPT_TLV( 0x38 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3323" );
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4542,13 +4772,17 @@ dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 {
 
 	guint32	curr_offset;
-/*    guint32	consumed; */
+	guint32	consumed;
 	guint	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
+
+	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER, " - Inter RAT handover information");
+
+	ELEM_OPT_TLV(0x2B, GSM_A_PDU_TYPE_GM, DE_EUTRAN_IRAT_INFO_CONTAINER, " - E-UTRAN inter RAT handover information");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4601,7 +4835,7 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI" );
 
-	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
+	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG_2 , NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4658,7 +4892,7 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
 
-	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI Signature" );
+	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , " - P-TMSI Signature" );
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4905,6 +5139,22 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
+	ELEM_OPT_TLV(0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS, NULL);
+
+	ELEM_OPT_TLV(0x58, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
+
+	ELEM_OPT_TLV(0x1A, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Additional mobile identity");
+
+	ELEM_OPT_TLV(0x1B, GSM_A_PDU_TYPE_GM, DE_RAI_2, " - Additional old routing area identification");
+
+	ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+
+	ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
+
+	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, NULL);
+
+	ELEM_OPT_TLV(0x5D, GSM_A_PDU_TYPE_GM, DE_VOICE_DOMAIN_PREF, NULL);
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
@@ -4937,7 +5187,7 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - Allocated P-TMSI");
 
-	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
+	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - MS identity");
 
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , NULL);
 
@@ -4956,6 +5206,14 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	ELEM_OPT_TV_SHORT ( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , NULL);
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
+
+	ELEM_OPT_TLV(0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
+
+	ELEM_OPT_TV_SHORT(0xA0 , GSM_A_PDU_TYPE_GM , DE_REQ_MS_INFO , NULL);
+
+	ELEM_OPT_TLV(0x37 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3319");
+
+	ELEM_OPT_TLV(0x38 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3323");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -4977,8 +5235,9 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	/* [7] 10.5.5.11 */
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , NULL);
 	/* Inter RAT information container 10.5.5.24 TS 24.008 version 6.8.0 Release 6 */
-	/*TO DO: Implement */
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , NULL);
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , " - Inter RAT handover information");
+
+	ELEM_OPT_TLV(0x2B, GSM_A_PDU_TYPE_GM, DE_EUTRAN_IRAT_INFO_CONTAINER, " - E-UTRAN inter RAT handover information");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -5092,6 +5351,8 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
+	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_GM, DE_UPLINK_DATA_STATUS, NULL);
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
@@ -5204,13 +5465,13 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
 
-	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , NULL);
+	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - PDP address");
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	ELEM_OPT_TLV( 0x39 , GSM_A_PDU_TYPE_GM, DE_SM_CAUSE_2, NULL );
+	ELEM_OPT_TLV( 0x39 , GSM_A_PDU_TYPE_GM, DE_SM_CAUSE_2, " - SM cause");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -5419,11 +5680,13 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - New QoS" );
 
-	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , NULL);
+	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - PDP address");
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
+
+	ELEM_OPT_TLV(0x36 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -5587,6 +5850,80 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+}
+
+/*
+ * [8] 9.5.15a Request Secondary PDP Context Activation
+ * Direction:			network to MS
+ */
+static void
+dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = P2P_DIR_DL;
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Required QoS");
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_LINKED_TI , NULL);
+
+	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
+
+	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+}
+
+/*
+ * [8] 9.5.15b Request Secondary PDP Context Activation Reject
+ * Direction:			MS to network
+ */
+static void
+dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = P2P_DIR_UL;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+
+	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+}
+
+/*
+ * [8] 9.5.16a Notification
+ * Direction:			network to MS
+ */
+static void
+dtap_sm_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+	pinfo->link_dir = P2P_DIR_DL;
+
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_SM_NOTIF_IND, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -5806,6 +6143,9 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	dtap_sm_act_mbms_rej,		/* Activate MBMS Context Reject */
 	dtap_sm_req_mbms_act,		/* Request MBMS Context Activation */
 	dtap_sm_req_mbms_rej,		/* Request MBMS Context Activation Reject */
+	dtap_sm_req_sec_pdp_act,	/* Request Secondary PDP Context Activation */
+	dtap_sm_req_sec_pdp_act_rej,/* Request Secondary PDP Context Activation Reject */
+	dtap_sm_notif,              /* Notification */
 	NULL,	/* NONE */
 };
 
@@ -6114,6 +6454,61 @@ proto_register_gsm_a_gm(void)
 		FT_UINT8, BASE_DEC, NULL, 0x1f,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_nsapi_5_ul_stat,
+		{ "NSAPI(5) uplink status", "gsm_a.gm.nsapi_5_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_6_ul_stat,
+		{ "NSAPI(6) uplink status", "gsm_a.gm.nsapi_6_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_7_ul_stat,
+		{ "NSAPI(7) uplink status", "gsm_a.gm.nsapi_7_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_8_ul_stat,
+		{ "NSAPI(8) uplink status", "gsm_a.gm.nsapi_8_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_9_ul_stat,
+		{ "NSAPI(9) uplink status", "gsm_a.gm.nsapi_9_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_10_ul_stat,
+		{ "NSAPI(10) uplink status", "gsm_a.gm.nsapi_10_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_11_ul_stat,
+		{ "NSAPI(11) uplink status", "gsm_a.gm.nsapi_11_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_12_ul_stat,
+		{ "NSAPI(12) uplink status", "gsm_a.gm.nsapi_12_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_13_ul_stat,
+		{ "NSAPI(13) uplink status", "gsm_a.gm.nsapi_13_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_14_ul_stat,
+		{ "NSAPI(14) uplink status", "gsm_a.gm.nsapi_14_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_nsapi_15_ul_stat,
+		{ "NSAPI(15) uplink status", "gsm_a.gm.nsapi_15_ul_stat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_pco_pid,
 		{ "Protocol or Container ID", "gsm_a.gm.pco_pid",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -6157,6 +6552,26 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_gps_c,
 		{ "GPS-C","gsm_a.gm.gps_c",
 		FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_c_vals), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_req_ms_info_irat,
+		{ "I-RAT","gsm_a.gm.req_ms_info_irat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_req_ms_info_irat_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_req_ms_info_irat2,
+		{ "I-RAT2","gsm_a.gm.req_ms_info_irat2",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_req_ms_info_irat2_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_ue_usage_setting,
+		{ "UE's usage setting","gsm_a.gm.ue_usage_setting",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_ue_usage_setting_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_voice_domain_pref_for_eutran,
+		{ "Voice domain preference for E-UTRAN","gsm_a.gm.voice_domain_pref_for_eutran",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_voice_domain_pref_for_eutran_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_sm_pdp_type_org,
@@ -6354,9 +6769,9 @@ proto_register_gsm_a_gm(void)
 		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_ps_irat_s1_vals), 0x40,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_gmm_net_cap_csfb,
-		{ "CSFB Capability", "gsm_a.gmm.net_cap.csfb",
-		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_csfb_vals), 0x20,
+	{ &hf_gsm_a_gmm_net_cap_comb_proc,
+		{ "EMM Combined procedures capability", "gsm_a.gmm.net_cap.comb_proc",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_comb_proc_vals), 0x20,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_net_cap_isr,
@@ -6374,6 +6789,11 @@ proto_register_gsm_a_gm(void)
 		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epc_vals), 0x04,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gmm_net_cap_nf,
+		{ "NF Capability", "gsm_a.gmm.net_cap.nf",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_nf_vals), 0x02,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_sm_tmgi,
 		{ "Temporary Mobile Group Identity (TMGI)", "gsm_a.sm.tmgi",
 		  FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -6387,6 +6807,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_sm_req_type,
 		{ "Request type", "gsm_a.sm.req_type",
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_sm_req_type_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_notif_ind,
+		{ "Notification indicator value", "gsm_a.sm.notif_ind",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_sm_notif_ind_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
@@ -6514,4 +6939,5 @@ proto_reg_handoff_gsm_a_gm(void)
 {
 	data_handle = find_dissector("data");
 	rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
+	lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
 }

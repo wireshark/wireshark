@@ -968,6 +968,7 @@ typedef enum
     DE_LSA_ID,                      /* LSA Identifier */
     DE_DAY_SAVING_TIME,             /* Daylight Saving Time */
     DE_EMERGENCY_NUM_LIST,          /* Emergency Number List */
+    DE_ADD_UPD_PARAMS,              /* Additional update parameters */
     /* Call Control Information Elements 10.5.4 */
     DE_AUX_STATES,                  /* Auxiliary States */
     DE_BEARER_CAP,                  /* Bearer Capability */
@@ -1033,33 +1034,37 @@ dtap_elem_idx_t;
 typedef enum
 {
     /* GPRS Mobility Management Information Elements [3] 10.5.5 */
-    DE_ATTACH_RES,                  /* [7] 10.5.1 Attach Result*/
-    DE_ATTACH_TYPE,                 /* [7] 10.5.2 Attach Type */
-    DE_CIPH_ALG,                    /* [7] 10.5.3 Cipher Algorithm */
-    DE_TMSI_STAT,                   /* [7] 10.5.4 TMSI Status */
-    DE_DETACH_TYPE,                 /* [7] 10.5.5 Detach Type */
-    DE_DRX_PARAM,                   /* [7] 10.5.6 DRX Parameter */
-    DE_FORCE_TO_STAND,              /* [7] 10.5.7 Force to Standby */
-    DE_FORCE_TO_STAND_H,            /* [7] 10.5.8 Force to Standby - Info is in the high nibble */
-    DE_P_TMSI_SIG,                  /* [7] 10.5.9 P-TMSI Signature */
-    DE_P_TMSI_SIG_2,                /* [7] 10.5.10 P-TMSI Signature 2 */
-    DE_ID_TYPE_2,                   /* [7] 10.5.11 Identity Type 2 */
-    DE_IMEISV_REQ,                  /* [7] 10.5.12 IMEISV Request */
-    DE_REC_N_PDU_NUM_LIST,          /* [7] 10.5.13 Receive N-PDU Numbers List */
-    DE_MS_NET_CAP,                  /* [7] 10.5.14 MS Network Capability */
-    DE_MS_RAD_ACC_CAP,              /* [7] 10.5.15 MS Radio Access Capability */
-    DE_GMM_CAUSE,                   /* [7] 10.5.16 GMM Cause */
-    DE_RAI,                         /* [7] 10.5.17 Routing Area Identification */
-    DE_UPD_RES,                     /* [7] 10.5.18 Update Result */
-    DE_UPD_TYPE,                    /* [7] 10.5.19 Update Type */
-    DE_AC_REF_NUM,                  /* [7] 10.5.20 A&C Reference Number */
+    DE_ATTACH_RES,                  /* [7] 10.5.5.1 Attach Result*/
+    DE_ATTACH_TYPE,                 /* [7] 10.5.5.2 Attach Type */
+    DE_CIPH_ALG,                    /* [7] 10.5.5.3 Cipher Algorithm */
+    DE_TMSI_STAT,                   /* [7] 10.5.5.4 TMSI Status */
+    DE_DETACH_TYPE,                 /* [7] 10.5.5.5 Detach Type */
+    DE_DRX_PARAM,                   /* [7] 10.5.5.6 DRX Parameter */
+    DE_FORCE_TO_STAND,              /* [7] 10.5.5.7 Force to Standby */
+    DE_FORCE_TO_STAND_H,            /* [7] 10.5.5.7 Force to Standby - Info is in the high nibble */
+    DE_P_TMSI_SIG,                  /* [7] 10.5.5.8 P-TMSI Signature */
+    DE_P_TMSI_SIG_2,                /* [7] 10.5.5.8a P-TMSI Signature 2 */
+    DE_ID_TYPE_2,                   /* [7] 10.5.5.9 Identity Type 2 */
+    DE_IMEISV_REQ,                  /* [7] 10.5.5.10 IMEISV Request */
+    DE_REC_N_PDU_NUM_LIST,          /* [7] 10.5.5.11 Receive N-PDU Numbers List */
+    DE_MS_NET_CAP,                  /* [7] 10.5.5.12 MS Network Capability */
+    DE_MS_RAD_ACC_CAP,              /* [7] 10.5.5.12a MS Radio Access Capability */
+    DE_GMM_CAUSE,                   /* [7] 10.5.5.14 GMM Cause */
+    DE_RAI,                         /* [7] 10.5.5.15 Routing Area Identification */
+    DE_RAI_2,                       /* [7] 10.5.5.15a Routing Area Identification 2 */
+    DE_UPD_RES,                     /* [7] 10.5.5.17 Update Result */
+    DE_UPD_TYPE,                    /* [7] 10.5.5.18 Update Type */
+    DE_AC_REF_NUM,                  /* [7] 10.5.5.19 A&C Reference Number */
     DE_AC_REF_NUM_H,                /* A&C Reference Number - Info is in the high nibble */
-    DE_SRVC_TYPE,                   /* [7] 10.5.20 Service Type */
-    DE_CELL_NOT,                    /* [7] 10.5.21 Cell Notification */
-    DE_PS_LCS_CAP,                  /* [7] 10.5.22 PS LCS Capability */
-    DE_NET_FEAT_SUP,                /* [7] 10.5.23 Network Feature Support */
-    DE_RAT_INFO_CONTAINER,          /* [7] 10.5.24 Inter RAT information container */
-    /* [7] 10.5.25 Requested MS information */
+    DE_SRVC_TYPE,                   /* [7] 10.5.5.20 Service Type */
+    DE_CELL_NOT,                    /* [7] 10.5.5.21 Cell Notification */
+    DE_PS_LCS_CAP,                  /* [7] 10.5.5.22 PS LCS Capability */
+    DE_NET_FEAT_SUP,                /* [7] 10.5.5.23 Network Feature Support */
+    DE_RAT_INFO_CONTAINER,          /* [7] 10.5.5.24 Inter RAT information container */
+    DE_REQ_MS_INFO,                 /* [7] 10.5.5.25 Requested MS information */
+    DE_UE_NETWORK_CAP,              /* [7] 10.5.5.26 UE network capability */
+    DE_EUTRAN_IRAT_INFO_CONTAINER,  /* [7] 10.5.5.27 E-UTRAN inter RAT information container */
+	DE_VOICE_DOMAIN_PREF,           /* [7] 10.5.5.28 Voice domain preference and UE's usage setting */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */
@@ -1078,6 +1083,7 @@ typedef enum
     DE_MBMS_PROT_CONF_OPT,          /* MBMS protocol configuration options */
     DE_ENH_NSAPI,                   /* Enhanced network service access point identifier */
     DE_REQ_TYPE,                    /* Request type */
+    DE_SM_NOTIF_IND,                /* Notification indicator */
     /* GPRS Common Information Elements [8] 10.5.7 */
     DE_PDP_CONTEXT_STAT,            /* [8] 10.5.7.1     PDP Context Status */
     DE_RAD_PRIO,                    /* [8] 10.5.7.2     Radio Priority */
@@ -1085,6 +1091,7 @@ typedef enum
     DE_GPRS_TIMER_2,                /* [8] 10.5.7.4     GPRS Timer 2 */
     DE_RAD_PRIO_2,                  /* [8] 10.5.7.5     Radio Priority 2 */
     DE_MBMS_CTX_STATUS,             /* [8] 10.5.7.6     MBMS context status */
+    DE_UPLINK_DATA_STATUS,          /* [8] 10.5.7.7     Uplink data status */
     DE_GM_NONE                          /* NONE */
 }
 gm_elem_idx_t;

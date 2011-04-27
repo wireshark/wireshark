@@ -81,16 +81,14 @@ static const value_string gsm_a_msc_rev_vals[] = {
 };
 
 /* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
-static const value_string ES_IND_vals[] = {
-	{ 0,	"Controlled Early Classmark Sending option is not implemented in the MS"},
-	{ 1,	"Controlled Early Classmark Sending option is implemented in the MS"},
-	{ 0,	NULL }
+static const true_false_string ES_IND_vals = {
+	"Controlled Early Classmark Sending option is implemented in the MS",
+	"Controlled Early Classmark Sending option is not implemented in the MS"
 };
-/* A5/1 algorithm supported (octet 3, bit 4 */
-static const value_string A5_1_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/1 available"},
-	{ 1,	"encryption algorithm A5/1 not available"},
-	{ 0,	NULL }
+/* A5/1 algorithm supported (octet 3, bit 4) */
+static const true_false_string A5_1_algorithm_sup_vals = {
+	"encryption algorithm A5/1 not available",
+	"encryption algorithm A5/1 available"
 };
 /* RF Power Capability (Octet 3) */
 static const value_string RF_power_capability_vals[] = {
@@ -103,10 +101,9 @@ static const value_string RF_power_capability_vals[] = {
 	{ 0,	NULL }
 };
 /* PS capability (pseudo-synchronization capability) (octet 4) */
-static const value_string ps_sup_cap_vals[] = {
-	{ 0,	"PS capability not present"},
-	{ 1,	"PS capability present"},
-	{ 0,	NULL }
+static const true_false_string ps_sup_cap_vals = {
+	"PS capability present",
+	"PS capability not present"
 };
 /* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
 static const value_string SS_screening_indicator_vals[] = {
@@ -117,96 +114,79 @@ static const value_string SS_screening_indicator_vals[] = {
 	{ 0,	NULL }
 };
 /* SM capability (MT SMS pt to pt capability) (octet 4)*/
-static const value_string SM_capability_vals[] = {
-	{ 0,	"Mobile station does not support mobile terminated point to point SMS"},
-	{ 1,	"Mobile station supports mobile terminated point to point SMS"},
-	{ 0,	NULL }
+static const true_false_string SM_capability_vals = {
+	"Mobile station supports mobile terminated point to point SMS",
+	"Mobile station does not support mobile terminated point to point SMS"
 };
 /* VBS notification reception (octet 4) */
-static const value_string VBS_notification_rec_vals[] = {
-	{ 0,	"no VBS capability or no notifications wanted"},
-	{ 1,	"VBS capability and notifications wanted"},
-	{ 0,	NULL }
+static const true_false_string VBS_notification_rec_vals = {
+	"VBS capability and notifications wanted",
+	"no VBS capability or no notifications wanted"
 };
 /* VGCS notification reception (octet 4) */
-static const value_string VGCS_notification_rec_vals[] = {
-	{ 0,	"no VGCS capability or no notifications wanted"},
-	{ 1,	"VGCS capability and notifications wanted"},
-	{ 0,	NULL }
+static const true_false_string VGCS_notification_rec_vals = {
+	"VGCS capability and notifications wanted",
+	"no VGCS capability or no notifications wanted"
 };
 /* FC Frequency Capability (octet 4 ) */
-static const value_string FC_frequency_cap_vals[] = {
-	{ 0,	"The MS does not support the E-GSM or R-GSM band"},
-	{ 1,	"The MS does support the E-GSM or R-GSM "},
-	{ 0,	NULL }
+static const true_false_string FC_frequency_cap_vals = {
+	"The MS does support the E-GSM or R-GSM",
+	"The MS does not support the E-GSM or R-GSM band"
 };
 /* CM3 (octet 5, bit 8) */
-static const value_string CM3_vals[] = {
-	{ 0,	"The MS does not support any options that are indicated in CM3"},
-	{ 1,	"The MS supports options that are indicated in classmark 3 IE"},
-	{ 0,	NULL }
+static const true_false_string CM3_vals = {
+	"The MS supports options that are indicated in classmark 3 IE",
+	"The MS does not support any options that are indicated in CM3"
 };
 /* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
-static const value_string LCS_VA_cap_vals[] = {
-	{ 0,	"LCS value added location request notification capability not supported"},
-	{ 1,	"LCS value added location request notification capability supported"},
-	{ 0,	NULL }
+static const true_false_string LCS_VA_cap_vals = {
+	"LCS value added location request notification capability supported",
+	"LCS value added location request notification capability not supported"
 };
 /* UCS2 treatment (octet 5, bit 5) */
-static const value_string UCS2_treatment_vals[] = {
-	{ 0,	"the ME has a preference for the default alphabet"},
-	{ 1,	"the ME has no preference between the use of the default alphabet and the use of UCS2"},
-	{ 0,	NULL }
+static const true_false_string UCS2_treatment_vals = {
+	"the ME has no preference between the use of the default alphabet and the use of UCS2",
+	"the ME has a preference for the default alphabet"
 };
 /* SoLSA (octet 5, bit 4) */
-static const value_string SoLSA_vals[] = {
-	{ 0,	"The ME does not support SoLSA"},
-	{ 1,	"The ME supports SoLSA"},
-	{ 0,	NULL }
+static const true_false_string SoLSA_vals = {
+	"The ME supports SoLSA",
+	"The ME does not support SoLSA"
 };
 /* CMSP: CM Service Prompt (octet 5, bit 3) */
-static const value_string CMSP_vals[] = {
-	{ 0,	"Network initiated MO CM connection request not supported"},
-	{ 1,	"Network initiated MO CM connection request supported for at least one CM protocol"},
-	{ 0,	NULL }
+static const true_false_string CMSP_vals = {
+	"Network initiated MO CM connection request supported for at least one CM protocol",
+	"Network initiated MO CM connection request not supported"
 };
-/* A5/4 algorithm supported */
-static const value_string A5_7_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/7 not available"},
-	{ 1,	"encryption algorithm A5/7 available"},
-	{ 0,	NULL }
+/* A5/7 algorithm supported */
+static const true_false_string A5_7_algorithm_sup_vals = {
+	"encryption algorithm A5/7 available",
+	"encryption algorithm A5/7 not available"
 };
-/* A5/4 algorithm supported */
-static const value_string A5_6_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/6 not available"},
-	{ 1,	"encryption algorithm A5/6 available"},
-	{ 0,	NULL }
+/* A5/6 algorithm supported */
+static const true_false_string A5_6_algorithm_sup_vals = {
+	"encryption algorithm A5/6 available",
+	"encryption algorithm A5/6 not available"
 };
 /* A5/5 algorithm supported */
-static const value_string A5_5_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/5 not available"},
-	{ 1,	"encryption algorithm A5/5 available"},
-	{ 0,	NULL }
+static const true_false_string A5_5_algorithm_sup_vals = {
+	"encryption algorithm A5/5 available",
+	"encryption algorithm A5/5 not available"
 };
 /* A5/4 algorithm supported */
-static const value_string A5_4_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/4 not available"},
-	{ 1,	"encryption algorithm A5/4 available"},
-	{ 0,	NULL }
+static const true_false_string A5_4_algorithm_sup_vals = {
+	"encryption algorithm A5/4 available",
+	"encryption algorithm A5/4 not available"
 };
-
 /* A5/3 algorithm supported (octet 5, bit 2) */
-static const value_string A5_3_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/3 not available"},
-	{ 1,	"encryption algorithm A5/3 available"},
-	{ 0,	NULL }
+static const true_false_string A5_3_algorithm_sup_vals = {
+	"encryption algorithm A5/3 available",
+	"encryption algorithm A5/3 not available"
 };
-
 /* A5/2 algorithm supported (octet 5, bit 1) */
-static const value_string A5_2_algorithm_sup_vals[] = {
-	{ 0,	"encryption algorithm A5/2 not available"},
-	{ 1,	"encryption algorithm A5/2 available"},
-	{ 0,	NULL }
+static const true_false_string A5_2_algorithm_sup_vals = {
+	"encryption algorithm A5/2 available",
+	"encryption algorithm A5/2 not available"
 };
 
 static const value_string mobile_identity_type_vals[] = {
@@ -219,16 +199,14 @@ static const value_string mobile_identity_type_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string oddevenind_vals[] = {
-	{ 0,	"Even number of identity digits"},
-	{ 1,	"Odd number of identity digits"},
-	{ 0,	NULL }
+static const true_false_string oddevenind_vals = {
+	"Odd number of identity digits",
+	"Even number of identity digits"
 };
 
-static const value_string true_false_vals[] = {
-    { 0, "false" },
-    { 1, "true" },
-    { 0, NULL}
+static const true_false_string true_false_vals = {
+	"true",
+	"false"
 };
 
 const value_string gsm_a_sms_vals[] = {
@@ -251,40 +229,34 @@ const value_string gsm_a_sms_vals[] = {
     { 0, NULL}
 };
 
-static const value_string ms_assisted_e_otd_vals[] = {
-	{ 0, "MS assisted E-OTD not supported" },
-	{ 1, "MS assisted E-OTD supported" },
-	{ 0, NULL}
+static const true_false_string ms_assisted_e_otd_vals = {
+	"MS assisted E-OTD supported",
+	"MS assisted E-OTD not supported"
 };
 
-static const value_string ms_based_e_otd_vals[] = {
-	{ 0, "MS based E-OTD not supported" },
-	{ 1, "MS based E-OTD supported" },
-	{ 0, NULL}
+static const true_false_string ms_based_e_otd_vals = {
+	"MS based E-OTD supported",
+	"MS based E-OTD not supported"
 };
 
-static const value_string ms_assisted_gps_vals[] = {
-	{ 0, "MS assisted GPS not supported" },
-	{ 1, "MS assisted GPS supported" },
-	{ 0, NULL}
+static const true_false_string ms_assisted_gps_vals = {
+	"MS assisted GPS supported",
+	"MS assisted GPS not supported"
 };
 
-static const value_string ms_based_gps_vals[] = {
-	{ 0, "MS based GPS not supported" },
-	{ 1, "MS based GPS supported" },
-	{ 0, NULL}
+static const true_false_string ms_based_gps_vals = {
+	"MS based GPS supported",
+	"MS based GPS not supported"
 };
 
-static const value_string ms_conventional_gps_vals[] = {
-	{ 0, "Conventional GPS not supported" },
-	{ 1, "Conventional GPS supported" },
-	{ 0, NULL}
+static const true_false_string ms_conventional_gps_vals = {
+	"Conventional GPS supported",
+	"Conventional GPS not supported"
 };
 
-static const value_string modulation_capability_vals[] = {
-	{ 0, "8-PSK supported for downlink reception only" },
-	{ 1, "8-PSK supported for uplink transmission and downlink reception" },
-	{ 0, NULL}
+static const true_false_string modulation_capability_vals = {
+	"8-PSK supported for uplink transmission and downlink reception",
+	"8-PSK supported for downlink reception only"
 };
 
 static const value_string eight_psk_rf_power_capability_vals[] = {
@@ -302,22 +274,19 @@ static const value_string gsm_400_bands_supported_vals[] = {
     { 0, NULL}
 };
 
-static const value_string umts_fdd_rat_cap_vals[] = {
-	{ 0, "UMTS FDD not supported" },
-	{ 1, "UMTS FDD supported" },
-	{ 0, NULL}
+static const true_false_string umts_fdd_rat_cap_vals = {
+	"UMTS FDD supported",
+	"UMTS FDD not supported"
 };
 
-static const value_string umts_384_mcps_tdd_rat_cap_vals[] = {
-	{ 0, "UMTS 3.84 Mcps TDD not supported" },
-	{ 1, "UMTS 3.84 Mcps TDD supported" },
-	{ 0, NULL}
+static const true_false_string umts_384_mcps_tdd_rat_cap_vals = {
+	"UMTS 3.84 Mcps TDD supported",
+	"UMTS 3.84 Mcps TDD not supported"
 };
 
-static const value_string cdma_2000_rat_cap_vals[] = {
-	{ 0, "CDMA 2000 not supported" },
-	{ 1, "CDMA 2000 supported" },
-	{ 0, NULL}
+static const true_false_string cdma_2000_rat_cap_vals = {
+	"CDMA 2000 supported",
+	"CDMA 2000 not supported"
 };
 
 static const value_string dtm_gprs_multi_slot_class_vals[] = {
@@ -328,10 +297,9 @@ static const value_string dtm_gprs_multi_slot_class_vals[] = {
 	{ 0, NULL}
 };
 
-static const value_string single_slot_dtm_vals[] = {
-	{ 0, "Single Slot DTM not supported" },
-	{ 1, "Single Slot DTM supported" },
-	{ 0, NULL}
+static const true_false_string single_slot_dtm_vals = {
+	"Single Slot DTM supported",
+	"Single Slot DTM not supported"
 };
 
 static const value_string gsm_band_vals[] = {
@@ -348,28 +316,24 @@ static const value_string gsm_band_vals[] = {
 	{ 0, NULL}
 };
 
-static const value_string umts_128_mcps_tdd_rat_cap_vals[] = {
-	{ 0, "UMTS 1.28 Mcps TDD not supported" },
-	{ 1, "UMTS 1.28 Mcps TDD supported" },
-	{ 0, NULL}
+static const true_false_string umts_128_mcps_tdd_rat_cap_vals = {
+	"UMTS 1.28 Mcps TDD supported",
+	"UMTS 1.28 Mcps TDD not supported"
 };
 
-static const value_string geran_feature_package_1_vals[] = {
-	{ 0, "GERAN feature package 1 not supported" },
-	{ 1, "GERAN feature package 1 supported" },
-	{ 0, NULL}
+static const true_false_string geran_feature_package_1_vals = {
+	"GERAN feature package 1 supported",
+	"GERAN feature package 1 not supported"
 };
 
-static const value_string flo_iu_cap_vals[] = {
-	{ 0, "FLO in GERAN Iu Mode not supported" },
-	{ 1, "FLO in GERAN Iu Mode supported" },
-	{ 0, NULL}
+static const true_false_string flo_iu_cap_vals = {
+	"FLO in GERAN Iu Mode supported",
+	"FLO in GERAN Iu Mode not supported"
 };
 
-static const value_string geran_feature_package_2_vals[] = {
-	{ 0, "GERAN feature package 2 not supported" },
-	{ 1, "GERAN feature package 2 supported" },
-	{ 0, NULL}
+static const true_false_string geran_feature_package_2_vals = {
+	"GERAN feature package 2 supported",
+	"GERAN feature package 2 not supported"
 };
 
 static const value_string gmsk_multislot_power_prof_vals[] = {
@@ -402,16 +366,14 @@ static const value_string downlink_adv_receiver_perf_vals[] = {
     { 0, NULL}
 };
 
-static const value_string dtm_enhancements_cap_vals[] = {
-	{ 0, "The mobile station does not support enhanced DTM CS establishment and release procedures" },
-	{ 1, "The mobile station supports enhanced DTM CS establishment and release procedures" },
-	{ 0, NULL}
+static const true_false_string dtm_enhancements_cap_vals = {
+	"The mobile station supports enhanced DTM CS establishment and release procedures",
+	"The mobile station does not support enhanced DTM CS establishment and release procedures"
 };
 
-static const value_string offset_required_vals[] = {
-	{ 0, "The mobile station does not require the offset" },
-	{ 1, "The mobile station requires the offset" },
-	{ 0, NULL}
+static const true_false_string offset_required_vals = {
+	"The mobile station requires the offset",
+	"The mobile station does not require the offset"
 };
 
 static const value_string dtm_gprs_high_multi_slot_class_vals[] = {
@@ -426,39 +388,51 @@ static const value_string dtm_gprs_high_multi_slot_class_vals[] = {
 	{ 0, NULL}
 };
 
-static const value_string repeated_acch_cap_vals[] = {
-	{ 0, "The mobile station does not support Repeated SACCH" },
-	{ 1, "The mobile station supports Repeated SACCH and Repeated Downlink FACCH" },
-	{ 0, NULL}
+static const true_false_string repeated_acch_cap_vals = {
+	"The mobile station supports Repeated SACCH and Repeated Downlink FACCH",
+	"The mobile station does not support Repeated SACCH"
 };
 
-static const value_string ciphering_mode_setting_cap_vals[] = {
-	{ 0, "The mobile station does not support the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message" },
-	{ 1, "The mobile station supports the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message" },
-	{ 0, NULL}
+static const true_false_string ciphering_mode_setting_cap_vals = {
+	"The mobile station supports the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message",
+	"The mobile station does not support the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message"
 };
 
-static const value_string additional_positioning_caps_vals[] = {
-	{ 0, "The mobile station does not support additional positioning capabilities which can be retrieved using RRLP" },
-	{ 1, "The mobile station supports additional positioning capabilities which can be retrieved using RRLP" },
-	{ 0, NULL}
+static const true_false_string additional_positioning_caps_vals = {
+	"The mobile station supports additional positioning capabilities which can be retrieved using RRLP",
+	"The mobile station does not support additional positioning capabilities which can be retrieved using RRLP"
 };
 
-static const value_string e_utra_fdd_support_vals[] = {
-	{ 0, "E-UTRA FDD not supported" },
-	{ 1, "E-UTRA FDD supported" },
-	{ 0, NULL}
+static const true_false_string e_utra_fdd_support_vals = {
+	"E-UTRA FDD supported",
+	"E-UTRA FDD not supported"
 };
 
-static const value_string e_utra_tdd_support_vals[] = {
-	{ 0, "E-UTRA TDD not supported" },
-	{ 1, "E-UTRA TDD supported" },
-	{ 0, NULL}
+static const true_false_string e_utra_tdd_support_vals = {
+	"E-UTRA TDD supported",
+	"E-UTRA TDD not supported"
 };
 
-static const value_string e_utra_meas_and_report_support_vals[] = {
-	{ 0, "E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection not supported" },
-	{ 1, "E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection supported" },
+static const true_false_string e_utra_meas_and_report_support_vals = {
+	"E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection supported",
+	"E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection not supported"
+};
+
+static const true_false_string prio_based_resel_support_vals = {
+	"Priority-based cell reselection supported",
+	"Priority-based cell reselection not supported"
+};
+
+static const true_false_string utra_csg_cells_reporting_vals = {
+	"Reporting of UTRAN CSG cells supported",
+	"Reporting of UTRAN CSG cells not supported"
+};
+
+static const value_string vamos_level_vals[] = {
+    { 0, "VAMOS not supported" },
+	{ 1, "VAMOS I supported" },
+	{ 2, "VAMOS II supported" },
+	{ 3, "Unused. If received, the network shall interpret this as VAMOS II supported" },
 	{ 0, NULL}
 };
 
@@ -668,6 +642,9 @@ static int hf_gsm_a_additional_positioning_caps	= -1;
 static int hf_gsm_a_e_utra_fdd_support			= -1;
 static int hf_gsm_a_e_utra_tdd_support			= -1;
 static int hf_gsm_a_e_utra_meas_and_report_support	= -1;
+static int hf_gsm_a_prio_based_resel_support = -1;
+static int hf_gsm_a_utra_csg_cells_reporting = -1;
+static int hg_gsm_a_vamos_level = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -2388,7 +2365,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 8.6.0 Release 8
+ * 3GPP TS 24.008 version 9.6.0 Release 9
  */
 #define AVAILABLE_BITS_CHECK(n) \
 	bits_left = ((len + offset) << 3) - bit_offset; \
@@ -2988,7 +2965,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	/*
 	 * Release 8 starts here
 	 *
-	 * { 0 | 1 <E-UTRA FDD support : bit > } -- Release 8 starts here.
+	 * <E-UTRA FDD support : bit > -- Release 8 starts here.
 	 * Extract E-UTRA FDD support
 	 */
 	AVAILABLE_BITS_CHECK(1);
@@ -2996,7 +2973,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	bit_offset = bit_offset + 1;
 
 	/*
-	 * { 0 | 1 <E-UTRA TDD support : bit > }
+	 * <E-UTRA TDD support : bit >
 	 * Extract E-UTRA TDD support
 	 */
 	AVAILABLE_BITS_CHECK(1);
@@ -3004,12 +2981,38 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	bit_offset = bit_offset + 1;
 
 	/*
-	 * { 0 | 1 <E-UTRA Measurement and Reporting support : bit > }
+	 * <E-UTRA Measurement and Reporting support : bit >
 	 * Extract E-UTRA Measurement and Reporting support
 	 */
 	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_meas_and_report_support, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
+
+	/*
+	 * <Priority-based reselection support : bit >
+	 * Extract Priority-based reselection support
+	 */
+	AVAILABLE_BITS_CHECK(1);
+	proto_tree_add_bits_item(tree, hf_gsm_a_prio_based_resel_support, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/*
+	 * Release 9 starts here
+	 *
+	 * <UTRA CSG Cells Reporting : bit > -- Release 9 starts here.
+	 * Extract UTRA CSG Cells Reporting
+	 */
+	AVAILABLE_BITS_CHECK(1);
+	proto_tree_add_bits_item(tree, hf_gsm_a_utra_csg_cells_reporting, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/*
+	 * <VAMOS Level : bit(2) >
+	 * Extract VAMOS Level
+	 */
+	AVAILABLE_BITS_CHECK(2);
+	proto_tree_add_bits_item(tree, hg_gsm_a_vamos_level, tvb, bit_offset, 2, FALSE);
+	bit_offset = bit_offset + 2;
 
 	/*
 	 * Add spare bits until we reach an octet boundary
@@ -3348,12 +3351,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ES_IND,
 		{ "ES IND","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC, VALS(ES_IND_vals), 0x10,
+		FT_BOOLEAN,8, TFS(&ES_IND_vals), 0x10,
 			NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_1_algorithm_sup,
 		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC, VALS(A5_1_algorithm_sup_vals), 0x08,
+		FT_BOOLEAN,8, TFS(&A5_1_algorithm_sup_vals), 0x08,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_RF_power_capability,
@@ -3363,7 +3366,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ps_sup_cap,
 		{ "PS capability (pseudo-synchronization capability)","gsm_a.ps_sup_cap",
-		FT_UINT8,BASE_DEC, VALS(ps_sup_cap_vals), 0x40,
+		FT_BOOLEAN,8, TFS(&ps_sup_cap_vals), 0x40,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_SS_screening_indicator,
@@ -3373,77 +3376,77 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_SM_capability,
 		{ "SM capability (MT SMS pt to pt capability)","gsm_a.SM_cap",
-		FT_UINT8,BASE_DEC, VALS(SM_capability_vals), 0x08,
+		FT_BOOLEAN,8, TFS(&SM_capability_vals), 0x08,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VBS_notification_rec,
 		{ "VBS notification reception","gsm_a.VBS_notification_rec",
-		FT_UINT8,BASE_DEC, VALS(VBS_notification_rec_vals), 0x04,
+		FT_BOOLEAN,8, TFS(&VBS_notification_rec_vals), 0x04,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VGCS_notification_rec,
 		{ "VGCS notification reception","gsm_a.VGCS_notification_rec",
-		FT_UINT8,BASE_DEC, VALS(VGCS_notification_rec_vals), 0x02,
+		FT_BOOLEAN,8, TFS(&VGCS_notification_rec_vals), 0x02,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_FC_frequency_cap,
 		{ "FC Frequency Capability","gsm_a.FC_frequency_cap",
-		FT_UINT8,BASE_DEC, VALS(FC_frequency_cap_vals), 0x01,
+		FT_BOOLEAN,8, TFS(&FC_frequency_cap_vals), 0x01,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_CM3,
 		{ "CM3","gsm_a.CM3",
-		FT_UINT8,BASE_DEC, VALS(CM3_vals), 0x80,
+		FT_BOOLEAN,8, TFS(&CM3_vals), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_LCS_VA_cap,
 		{ "LCS VA capability (LCS value added location request notification capability)","gsm_a.LCS_VA_cap",
-		FT_UINT8,BASE_DEC, VALS(LCS_VA_cap_vals), 0x20,
+		FT_BOOLEAN,8, TFS(&LCS_VA_cap_vals), 0x20,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_UCS2_treatment,
 		{ "UCS2 treatment","gsm_a.UCS2_treatment",
-		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x10,
+		FT_BOOLEAN,8, TFS(&UCS2_treatment_vals), 0x10,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_SoLSA,
 		{ "SoLSA","gsm_a.SoLSA",
-		FT_UINT8,BASE_DEC, VALS(SoLSA_vals), 0x08,
+		FT_BOOLEAN,8, TFS(&SoLSA_vals), 0x08,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_CMSP,
 		{ "CMSP: CM Service Prompt","gsm_a.CMSP",
-		FT_UINT8,BASE_DEC, VALS(CMSP_vals), 0x04,
+		FT_BOOLEAN,8, TFS(&CMSP_vals), 0x04,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_7_algorithm_sup,
 		{ "A5/7 algorithm supported","gsm_a.A5_7_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_7_algorithm_sup_vals), 0x0,
+		FT_BOOLEAN,8, TFS(&A5_7_algorithm_sup_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_6_algorithm_sup,
 		{ "A5/6 algorithm supported","gsm_a.A5_6_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_6_algorithm_sup_vals), 0x0,
+		FT_BOOLEAN,8, TFS(&A5_6_algorithm_sup_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_5_algorithm_sup,
 		{ "A5/5 algorithm supported","gsm_a.A5_5_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_5_algorithm_sup_vals), 0x0,
+		FT_BOOLEAN,8, TFS(&A5_5_algorithm_sup_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_4_algorithm_sup,
 		{ "A5/4 algorithm supported","gsm_a.A5_4_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_4_algorithm_sup_vals), 0x0,
+		FT_BOOLEAN,8, TFS(&A5_4_algorithm_sup_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_3_algorithm_sup,
 		{ "A5/3 algorithm supported","gsm_a.A5_3_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_3_algorithm_sup_vals), 0x02,
+		FT_BOOLEAN,8, TFS(&A5_3_algorithm_sup_vals), 0x02,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_2_algorithm_sup,
 		{ "A5/2 algorithm supported","gsm_a.A5_2_algorithm_sup",
-		FT_UINT8,BASE_DEC, VALS(A5_2_algorithm_sup_vals), 0x01,
+		FT_BOOLEAN,8, TFS(&A5_2_algorithm_sup_vals), 0x01,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_mobile_identity_type,
@@ -3453,7 +3456,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_odd_even_ind,
 		{ "Odd/even indication","gsm_a.oddevenind",
-		FT_UINT8, BASE_DEC, oddevenind_vals, 0x08,
+		FT_BOOLEAN, 8, TFS(&oddevenind_vals), 0x08,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tmgi_mcc_mnc_ind,
@@ -3528,17 +3531,17 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_pgsm_supported,
 		{ "P-GSM Supported", "gsm_a.classmark3.pgsmSupported",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_egsm_supported,
 		{ "E-GSM or R-GSM Supported", "gsm_a.classmark3.egsmSupported",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm1800_supported,
 		{ "GSM 1800 Supported", "gsm_a.classmark3.gsm1800Supported",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ass_radio_cap1,
@@ -3558,7 +3561,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_rsupport,
 		{ "R Support", "gsm_a.classmark3.rsupport",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_r_capabilities,
@@ -3568,7 +3571,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_multislot_capabilities,
 		{ "HSCSD Multi Slot Capability", "gsm_a.classmark3.multislot_capabilities",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_multislot_class,
@@ -3578,17 +3581,17 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ucs2_treatment,
 		{ "UCS2 treatment","gsm_a.UCS2_treatment",
-		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x0,
+		FT_BOOLEAN,8, TFS(&UCS2_treatment_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_extended_measurement_cap,
 		{ "Extended Measurement Capability", "gsm_a.classmark3.ext_meas_cap",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_measurement_capability,
 		{ "MS measurement capability", "gsm_a.classmark3.ms_measurement_capability",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_sms_value,
@@ -3603,7 +3606,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ms_pos_method_cap_present,
 		{ "MS Positioning Method Capability present", "gsm_a.classmark3.ms_pos_method_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_pos_method,
@@ -3613,32 +3616,32 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ms_assisted_e_otd,
 		{ "MS assisted E-OTD", "gsm_a.classmark3.ms_assisted_e_otd",
-		FT_UINT8, BASE_DEC, VALS(ms_assisted_e_otd_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&ms_assisted_e_otd_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_based_e_otd,
 		{ "MS based E-OTD", "gsm_a.classmark3.ms_based_e_otd",
-		FT_UINT8, BASE_DEC, VALS(ms_based_e_otd_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&ms_based_e_otd_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_assisted_gps,
 		{ "MS assisted GPS", "gsm_a.classmark3.ms_assisted_gps",
-		FT_UINT8, BASE_DEC, VALS(ms_assisted_gps_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&ms_assisted_gps_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_based_gps,
 		{ "MS based GPS", "gsm_a.classmark3.ms_based_gps",
-		FT_UINT8, BASE_DEC, VALS(ms_based_gps_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&ms_based_gps_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_conventional_gps,
 		{ "MS Conventional GPS", "gsm_a.classmark3.ms_conventional_gps",
-		FT_UINT8, BASE_DEC, VALS(ms_conventional_gps_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&ms_conventional_gps_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ecsd_multi_slot_capability,
 		{ "ECSD Multi Slot Capability present", "gsm_a.classmark3.ecsd_multi_slot_capability",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ecsd_multi_slot_class,
@@ -3648,7 +3651,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_8_psk_struct_present,
 		{ "8-PSK Struct present", "gsm_a.classmark3.8_psk_struct_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_8_psk_struct,
@@ -3658,7 +3661,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_modulation_capability,
 		{ "Modulation Capability", "gsm_a.classmark3.modulation_capability",
-		FT_UINT8, BASE_DEC, VALS(modulation_capability_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&modulation_capability_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_8_psk_rf_power_capability_1,
@@ -3673,7 +3676,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_gsm_400_band_info_present,
 		{ "GSM 400 Band Information present", "gsm_a.classmark3.gsm_400_band_info_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_400_bands_supported,
@@ -3688,7 +3691,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_gsm_850_assoc_radio_cap_present,
 		{ "GSM 850 Associated Radio Capability present", "gsm_a.classmark3.gsm_850_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_850_assoc_radio_cap,
@@ -3698,7 +3701,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_gsm_1900_assoc_radio_cap_present,
 		{ "GSM 1900 Associated Radio Capability present", "gsm_a.classmark3.gsm_1900_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_1900_assoc_radio_cap,
@@ -3708,22 +3711,22 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_umts_fdd_rat_cap,
 		{ "UMTS FDD Radio Access Technology Capability", "gsm_a.classmark3.umts_fdd_rat_cap",
-		FT_UINT8, BASE_DEC, VALS(umts_fdd_rat_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&umts_fdd_rat_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_umts_384_mcps_tdd_rat_cap,
 		{ "UMTS 3.84 Mcps TDD Radio Access Technology Capability", "gsm_a.classmark3.umts_384_mcps_tdd_rat_cap",
-		FT_UINT8, BASE_DEC, VALS(umts_384_mcps_tdd_rat_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&umts_384_mcps_tdd_rat_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_cdma_2000_rat_cap,
 		{ "CDMA 2000 Radio Access Technology Capability", "gsm_a.classmark3.cdma_2000_rat_cap",
-		FT_UINT8, BASE_DEC, VALS(cdma_2000_rat_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&cdma_2000_rat_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_e_gprs_multi_slot_info_present,
 		{ "DTM E/GPRS Multi Slot Information present", "gsm_a.classmark3.dtm_e_gprs_multi_slot_info_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_gprs_multi_slot_class,
@@ -3733,12 +3736,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_single_slot_dtm,
 		{ "Single Slot DTM", "gsm_a.classmark3.single_slot_dtm_supported",
-		FT_UINT8, BASE_DEC, VALS(single_slot_dtm_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&single_slot_dtm_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_egprs_multi_slot_class_present,
 		{ "DTM EGPRS Multi Slot Class present", "gsm_a.classmark3.dtm_egprs_multi_slot_class_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_egprs_multi_slot_class,
@@ -3748,7 +3751,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_single_band_support,
 		{ "Single Band Support", "gsm_a.classmark3.single_band_support",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_band,
@@ -3758,7 +3761,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_gsm_750_assoc_radio_cap_present,
 		{ "GSM 750 Associated Radio Capability present", "gsm_a.classmark3.gsm_750_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_750_assoc_radio_cap,
@@ -3768,17 +3771,17 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_umts_128_mcps_tdd_rat_cap,
 		{ "UMTS 1.28 Mcps TDD Radio Access Technology Capability", "gsm_a.classmark3.umts_128_mcps_tdd_rat_cap",
-		FT_UINT8, BASE_DEC, VALS(umts_128_mcps_tdd_rat_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&umts_128_mcps_tdd_rat_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geran_feature_package_1,
 		{ "GERAN Feature Package 1", "gsm_a.classmark3.geran_feature_package_1",
-		FT_UINT8, BASE_DEC, VALS(geran_feature_package_1_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&geran_feature_package_1_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ext_dtm_e_gprs_multi_slot_info_present,
 		{ "Extended DTM E/GPRS Multi Slot Information present", "gsm_a.classmark3.ext_dtm_e_gprs_info_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ext_dtm_gprs_multi_slot_class,
@@ -3793,7 +3796,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_high_multislot_cap_present,
 		{ "High Multislot Capability present", "gsm_a.classmark3.high_multislot_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_high_multislot_cap,
@@ -3803,7 +3806,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_geran_iu_mode_support,
 		{ "GERAN Iu Mode Support", "gsm_a.classmark3.geran_iu_mode_support",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geran_iu_mode_cap,
@@ -3818,12 +3821,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_flo_iu_cap,
 		{ "FLO Iu Capability", "gsm_a.classmark3.geran_iu_mode_cap.flo_iu_cap",
-		FT_UINT8, BASE_DEC, VALS(flo_iu_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&flo_iu_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geran_feature_package_2,
 		{ "GERAN Feature Package 2", "gsm_a.classmark3.geran_feature_package_2",
-		FT_UINT8, BASE_DEC, VALS(geran_feature_package_2_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&geran_feature_package_2_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gmsk_multislot_power_prof,
@@ -3838,7 +3841,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_t_gsm_400_band_info_present,
 		{ "T-GSM 400 Band Information present", "gsm_a.classmark3.gsm_400_band_info_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_t_gsm_400_bands_supported,
@@ -3853,7 +3856,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_t_gsm_900_assoc_radio_cap_present,
 		{ "T-GSM 900 Associated Radio Capability present", "gsm_a.classmark3.t_gsm_900_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_t_gsm_900_assoc_radio_cap,
@@ -3868,12 +3871,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_dtm_enhancements_cap,
 		{ "DTM Enhancements Capability", "gsm_a.classmark3.dtm_enhancements_capability",
-		FT_UINT8, BASE_DEC, VALS(dtm_enhancements_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&dtm_enhancements_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present,
 		{ "DTM E/GPRS High Multi Slot Information present", "gsm_a.classmark3.dtm_e_gprs_high_mutli_slot_info_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_gprs_high_multi_slot_class,
@@ -3883,12 +3886,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_offset_required,
 		{ "Offset required", "gsm_a.classmark3.offset_required",
-		FT_UINT8, BASE_DEC, VALS(offset_required_vals), 0x0,
+		FT_BOOLEAN, 8, TFS(&offset_required_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_egprs_high_multi_slot_class_present,
 		{ "DTM EGPRS High Multi Slot Class present", "gsm_a.classmark3.dtm_egprs_high_multi_slot_class_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_dtm_egprs_high_multi_slot_class,
@@ -3898,12 +3901,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_repeated_acch_cap,
 		{ "Repeated ACCH Capability", "gsm_a.classmark3.repeated_acch_cap",
-		FT_UINT8, BASE_DEC, VALS(repeated_acch_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&repeated_acch_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_710_assoc_radio_cap_present,
 		{ "GSM 710 Associated Radio Capability present", "gsm_a.classmark3.gsm_710_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm_710_assoc_radio_cap,
@@ -3913,7 +3916,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_t_gsm_810_assoc_radio_cap_present,
 		{ "T-GSM 810 Associated Radio Capability present", "gsm_a.classmark3.t_gsm_810_assoc_radio_cap_present",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&true_false_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_t_gsm_810_assoc_radio_cap,
@@ -3923,27 +3926,42 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_ciphering_mode_setting_cap,
 		{ "Ciphering Mode Setting Capability", "gsm_a.classmark3.ciphering_mode_setting_cap",
-		FT_UINT8, BASE_DEC, VALS(ciphering_mode_setting_cap_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&ciphering_mode_setting_cap_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_additional_positioning_caps,
 		{ "Additional Positioning Capabilities", "gsm_a.classmark3.additional_positioning_caps",
-		FT_UINT8, BASE_DEC, VALS(additional_positioning_caps_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&additional_positioning_caps_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_e_utra_fdd_support,
 		{ "E-UTRA FDD support", "gsm_a.classmark3.e_utra_fdd_support",
-		FT_UINT8, BASE_DEC, VALS(e_utra_fdd_support_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&e_utra_fdd_support_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_e_utra_tdd_support,
 		{ "E-UTRA TDD support", "gsm_a.classmark3.e_utra_tdd_support",
-		FT_UINT8, BASE_DEC, VALS(e_utra_tdd_support_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&e_utra_tdd_support_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_e_utra_meas_and_report_support,
 		{ "E-UTRA Measurement and Reporting support", "gsm_a.classmark3.e_utra_meas_and_report_support",
-		FT_UINT8, BASE_DEC, VALS(e_utra_meas_and_report_support_vals), 0x00,
+		FT_BOOLEAN, 8, TFS(&e_utra_meas_and_report_support_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_prio_based_resel_support,
+		{ "Priority-based reselection support", "gsm_a.classmark3.prio_based_resel_support",
+		FT_BOOLEAN, 8, TFS(&prio_based_resel_support_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_utra_csg_cells_reporting,
+		{ "UTRA CSG Cells Reporting", "gsm_a.classmark3.utra_csg_cells_reporting",
+		FT_BOOLEAN, 8, TFS(&utra_csg_cells_reporting_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hg_gsm_a_vamos_level,
+		{ "VAMOS Level", "gsm_a.classmark3.vamos_level",
+		FT_UINT8, BASE_DEC, VALS(vamos_level_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
