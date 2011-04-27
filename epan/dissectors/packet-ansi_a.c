@@ -39,7 +39,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -8074,7 +8073,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     guint8                              ext_len;
     const gchar                         *str;
     const gchar                         *mime_type;
-    int					sample_rate;
+    int                                 sample_rate;
     gboolean                            format_assigned;
     gboolean                            in_band_format_assigned;
     gboolean                            first_assigned_found;
@@ -8082,7 +8081,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     guint8                              rtp_payload_type;
     GHashTable                          *rtp_dyn_payload;
     gint                                *key;
-    encoding_name_and_rate_t	        *encoding_name_and_rate;
+    encoding_name_and_rate_t            *encoding_name_and_rate;
 
     rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
     rtp_dyn_payload_used = FALSE;
@@ -8171,10 +8170,10 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             a_bigbuf,
             str);
 
-	/*
-	 * assuming default sampling rate of 8000Hz
-	 */
-	sample_rate = 8000;
+        /*
+         * assuming default sampling rate of 8000Hz
+         */
+        sample_rate = 8000;
 
         switch (oct & 0x0f)
         {
@@ -8328,7 +8327,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             encoding_name_and_rate->sample_rate = sample_rate;
 
             g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
-	    rtp_dyn_payload_used = TRUE;
+            rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
             rtp_add_address(g_pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
@@ -8345,7 +8344,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             encoding_name_and_rate->sample_rate = sample_rate;
 
             g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
-	    rtp_dyn_payload_used = TRUE;
+            rtp_dyn_payload_used = TRUE;
         }
 
         num_bearers++;
@@ -8494,96 +8493,96 @@ elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  */
 typedef enum
 {
-    ANSI_A_E_ACC_NET_ID,        /* Access Network Identifiers */
-    ANSI_A_E_ADDS_USER_PART,    /* ADDS User Part */
-    ANSI_A_E_AMPS_HHO_PARAM,    /* AMPS Hard Handoff Parameters */
-    ANSI_A_E_ANCH_PDSN_ADDR,    /* Anchor PDSN Address */
-    ANSI_A_E_ANCH_PP_ADDR,      /* Anchor P-P Address */
-    ANSI_A_E_AUTH_CHLG_PARAM,   /* Authentication Challenge Parameter */
-    ANSI_A_E_AUTH_CNF_PARAM,    /* Authentication Confirmation Parameter (RANDC) */
-    ANSI_A_E_AUTH_DATA, /* Authentication Data */
-    ANSI_A_E_AUTH_EVENT,        /* Authentication Event */
-    ANSI_A_E_AUTH_PARAM_COUNT,  /* Authentication Parameter COUNT */
-    ANSI_A_E_AUTH_RESP_PARAM,   /* Authentication Response Parameter */
-    ANSI_A_E_BAND_CLASS,        /* Band Class */
-    ANSI_A_E_CLD_PARTY_ASCII_NUM,       /* Called Party ASCII Number */
-    ANSI_A_E_CLD_PARTY_BCD_NUM, /* Called Party BCD Number */
-    ANSI_A_E_CLG_PARTY_ASCII_NUM,       /* Calling Party ASCII Number */
-    ANSI_A_E_CAUSE,     /* Cause */
-    ANSI_A_E_CAUSE_L3,  /* Cause Layer 3 */
-    ANSI_A_E_CDMA_SOWD, /* CDMA Serving One Way Delay */
-    ANSI_A_E_CELL_ID,   /* Cell Identifier */
-    ANSI_A_E_CELL_ID_LIST,      /* Cell Identifier List */
-    ANSI_A_E_CHAN_NUM,  /* Channel Number */
-    ANSI_A_E_CHAN_TYPE, /* Channel Type */
-    ANSI_A_E_CCT_GROUP, /* Circuit Group */
-    ANSI_A_E_CIC,       /* Circuit Identity Code */
-    ANSI_A_E_CIC_EXT,   /* Circuit Identity Code Extension */
-    ANSI_A_E_CM_INFO_TYPE_2,    /* Classmark Information Type 2 */
-    ANSI_A_E_DOWNLINK_RE,       /* Downlink Radio Environment */
-    ANSI_A_E_DOWNLINK_RE_LIST,  /* Downlink Radio Environment List */
-    ANSI_A_E_ENC_INFO,  /* Encryption Information */
-    ANSI_A_E_EXT_HO_DIR_PARAMS, /* Extended Handoff Direction Parameters */
-    ANSI_A_E_GEO_LOC,   /* Geographic Location */
-    ANSI_A_E_SSCI,      /* Special Service Call Indicator */
-    ANSI_A_E_HO_POW_LEV,        /* Handoff Power Level */
-    ANSI_A_E_HHO_PARAMS,        /* Hard Handoff Parameters */
-    ANSI_A_E_IE_REQD,   /* Information Element Requested */
-    ANSI_A_E_IS2000_CHAN_ID,    /* IS-2000 Channel Identity */
-    ANSI_A_E_IS2000_CHAN_ID_3X, /* IS-2000 Channel Identity 3X */
-    ANSI_A_E_IS2000_MOB_CAP,    /* IS-2000 Mobile Capabilities */
-    ANSI_A_E_IS2000_NN_SCR,     /* IS-2000 Non-Negotiable Service Configuration Record */
-    ANSI_A_E_IS2000_SCR,        /* IS-2000 Service Configuration Record */
-    ANSI_A_E_IS2000_CAUSE,      /* IS-95/IS-2000 Cause Value */
-    ANSI_A_E_IS2000_RED_RECORD, /* IS-2000 Redirection Record */
-    ANSI_A_E_IS95_CHAN_ID,      /* IS-95 Channel Identity */
-    ANSI_A_E_IS95_MS_MEAS_CHAN_ID,      /* IS-95 MS Measured Channel Identity */
-    ANSI_A_E_L3_INFO,   /* Layer 3 Information */
-    ANSI_A_E_LAI,       /* Location Area Information */
-    ANSI_A_E_MWI,       /* Message Waiting Indication */
-    ANSI_A_E_MID,       /* Mobile Identity */
-    ANSI_A_E_FWD_MS_INFO_RECS,  /* (Forward) MS Information Records */
-    ANSI_A_E_ORIG_CI,   /* Origination Continuation Indicator */
-    ANSI_A_E_PACA_ORDER,        /* PACA Order */
-    ANSI_A_E_PACA_REOI, /* PACA Reorigination Indicator */
-    ANSI_A_E_PACA_TS,   /* PACA Timestamp */
-    ANSI_A_E_PSP,       /* Packet Session Parameters */
-    ANSI_A_E_PDSN_IP_ADDR,      /* PDSN IP Address */
-    ANSI_A_E_PDI,       /* Power Down Indicator */
-    ANSI_A_E_PRIO,      /* Priority */
-    ANSI_A_E_P_REV,     /* Protocol Revision */
-    ANSI_A_E_PTYPE,     /* Protocol Type */
-    ANSI_A_E_PSMM_COUNT,        /* PSMM Count */
-    ANSI_A_E_QOS_PARAMS,        /* Quality of Service Parameters */
-    ANSI_A_E_RE_RES,    /* Radio Environment and Resources */
-    ANSI_A_E_REG_TYPE,  /* Registration Type */
-    ANSI_A_E_REJ_CAUSE, /* Reject Cause */
-    ANSI_A_E_RESP_REQ,  /* Response Request */
-    ANSI_A_E_RETURN_CAUSE,      /* Return Cause */
-    ANSI_A_E_RF_CHAN_ID,        /* RF Channel Identity */
-    ANSI_A_E_SO,        /* Service Option */
-    ANSI_A_E_SOCI,      /* Service Option Connection Identifier (SOCI) */
-    ANSI_A_E_SO_LIST,   /* Service Option List */
-    ANSI_A_E_S_RED_INFO,        /* Service Redirection Info */
-    ANSI_A_E_SR_ID,     /* Service Reference Identifier (SR_ID) */
-    ANSI_A_E_SID,       /* SID */
-    ANSI_A_E_SIGNAL,    /* Signal */
-    ANSI_A_E_SCI,       /* Slot Cycle Index */
-    ANSI_A_E_SW_VER,    /* Software Version */
-    ANSI_A_E_SRNC_TRNC_TC,      /* Source RNC to Target RNC Transparent Container */
-    ANSI_A_E_S_PDSN_ADDR,       /* Source PDSN Address */
-    ANSI_A_E_TAG,       /* Tag */
-    ANSI_A_E_TRNC_SRNC_TC,      /* Target RNC to Source RNC Transparent Container */
-    ANSI_A_E_XMODE,     /* Transcoder Mode */
-    ANSI_A_E_UZ_ID,     /* User Zone ID */
-    ANSI_A_E_VP_REQ,    /* Voice Privacy Request */
-    ANSI_A_E_A2P_BEARER_SESSION,        /* A2p Bearer Session-Level Parameters */
-    ANSI_A_E_A2P_BEARER_FORMAT, /* A2p Bearer Format-Specific Parameters */
-    ANSI_A_E_MS_DES_FREQ,       /* MS Designated Frequency */
-    ANSI_A_E_MOB_SUB_INFO,      /* Mobile Subscription Information */
-    ANSI_A_E_PLCM_ID,   /* Public Long Code Mask Identifier */
-    ANSI_A_E_REV_MS_INFO_RECS,  /* (Reverse) MS Information Records */
-    ANSI_A_E_NONE       /* NONE */
+    ANSI_A_E_ACC_NET_ID,            /* Access Network Identifiers */
+    ANSI_A_E_ADDS_USER_PART,        /* ADDS User Part */
+    ANSI_A_E_AMPS_HHO_PARAM,        /* AMPS Hard Handoff Parameters */
+    ANSI_A_E_ANCH_PDSN_ADDR,        /* Anchor PDSN Address */
+    ANSI_A_E_ANCH_PP_ADDR,          /* Anchor P-P Address */
+    ANSI_A_E_AUTH_CHLG_PARAM,       /* Authentication Challenge Parameter */
+    ANSI_A_E_AUTH_CNF_PARAM,        /* Authentication Confirmation Parameter (RANDC) */
+    ANSI_A_E_AUTH_DATA,             /* Authentication Data */
+    ANSI_A_E_AUTH_EVENT,            /* Authentication Event */
+    ANSI_A_E_AUTH_PARAM_COUNT,      /* Authentication Parameter COUNT */
+    ANSI_A_E_AUTH_RESP_PARAM,       /* Authentication Response Parameter */
+    ANSI_A_E_BAND_CLASS,            /* Band Class */
+    ANSI_A_E_CLD_PARTY_ASCII_NUM,   /* Called Party ASCII Number */
+    ANSI_A_E_CLD_PARTY_BCD_NUM,     /* Called Party BCD Number */
+    ANSI_A_E_CLG_PARTY_ASCII_NUM,   /* Calling Party ASCII Number */
+    ANSI_A_E_CAUSE,                 /* Cause */
+    ANSI_A_E_CAUSE_L3,              /* Cause Layer 3 */
+    ANSI_A_E_CDMA_SOWD,             /* CDMA Serving One Way Delay */
+    ANSI_A_E_CELL_ID,               /* Cell Identifier */
+    ANSI_A_E_CELL_ID_LIST,          /* Cell Identifier List */
+    ANSI_A_E_CHAN_NUM,              /* Channel Number */
+    ANSI_A_E_CHAN_TYPE,             /* Channel Type */
+    ANSI_A_E_CCT_GROUP,             /* Circuit Group */
+    ANSI_A_E_CIC,                   /* Circuit Identity Code */
+    ANSI_A_E_CIC_EXT,               /* Circuit Identity Code Extension */
+    ANSI_A_E_CM_INFO_TYPE_2,        /* Classmark Information Type 2 */
+    ANSI_A_E_DOWNLINK_RE,           /* Downlink Radio Environment */
+    ANSI_A_E_DOWNLINK_RE_LIST,      /* Downlink Radio Environment List */
+    ANSI_A_E_ENC_INFO,              /* Encryption Information */
+    ANSI_A_E_EXT_HO_DIR_PARAMS,     /* Extended Handoff Direction Parameters */
+    ANSI_A_E_GEO_LOC,               /* Geographic Location */
+    ANSI_A_E_SSCI,                  /* Special Service Call Indicator */
+    ANSI_A_E_HO_POW_LEV,            /* Handoff Power Level */
+    ANSI_A_E_HHO_PARAMS,            /* Hard Handoff Parameters */
+    ANSI_A_E_IE_REQD,               /* Information Element Requested */
+    ANSI_A_E_IS2000_CHAN_ID,        /* IS-2000 Channel Identity */
+    ANSI_A_E_IS2000_CHAN_ID_3X,     /* IS-2000 Channel Identity 3X */
+    ANSI_A_E_IS2000_MOB_CAP,        /* IS-2000 Mobile Capabilities */
+    ANSI_A_E_IS2000_NN_SCR,         /* IS-2000 Non-Negotiable Service Configuration Record */
+    ANSI_A_E_IS2000_SCR,            /* IS-2000 Service Configuration Record */
+    ANSI_A_E_IS2000_CAUSE,          /* IS-95/IS-2000 Cause Value */
+    ANSI_A_E_IS2000_RED_RECORD,     /* IS-2000 Redirection Record */
+    ANSI_A_E_IS95_CHAN_ID,          /* IS-95 Channel Identity */
+    ANSI_A_E_IS95_MS_MEAS_CHAN_ID,  /* IS-95 MS Measured Channel Identity */
+    ANSI_A_E_L3_INFO,               /* Layer 3 Information */
+    ANSI_A_E_LAI,                   /* Location Area Information */
+    ANSI_A_E_MWI,                   /* Message Waiting Indication */
+    ANSI_A_E_MID,                   /* Mobile Identity */
+    ANSI_A_E_FWD_MS_INFO_RECS,      /* (Forward) MS Information Records */
+    ANSI_A_E_ORIG_CI,               /* Origination Continuation Indicator */
+    ANSI_A_E_PACA_ORDER,            /* PACA Order */
+    ANSI_A_E_PACA_REOI,             /* PACA Reorigination Indicator */
+    ANSI_A_E_PACA_TS,               /* PACA Timestamp */
+    ANSI_A_E_PSP,                   /* Packet Session Parameters */
+    ANSI_A_E_PDSN_IP_ADDR,          /* PDSN IP Address */
+    ANSI_A_E_PDI,                   /* Power Down Indicator */
+    ANSI_A_E_PRIO,                  /* Priority */
+    ANSI_A_E_P_REV,                 /* Protocol Revision */
+    ANSI_A_E_PTYPE,                 /* Protocol Type */
+    ANSI_A_E_PSMM_COUNT,            /* PSMM Count */
+    ANSI_A_E_QOS_PARAMS,            /* Quality of Service Parameters */
+    ANSI_A_E_RE_RES,                /* Radio Environment and Resources */
+    ANSI_A_E_REG_TYPE,              /* Registration Type */
+    ANSI_A_E_REJ_CAUSE,             /* Reject Cause */
+    ANSI_A_E_RESP_REQ,              /* Response Request */
+    ANSI_A_E_RETURN_CAUSE,          /* Return Cause */
+    ANSI_A_E_RF_CHAN_ID,            /* RF Channel Identity */
+    ANSI_A_E_SO,                    /* Service Option */
+    ANSI_A_E_SOCI,                  /* Service Option Connection Identifier (SOCI) */
+    ANSI_A_E_SO_LIST,               /* Service Option List */
+    ANSI_A_E_S_RED_INFO,            /* Service Redirection Info */
+    ANSI_A_E_SR_ID,                 /* Service Reference Identifier (SR_ID) */
+    ANSI_A_E_SID,                   /* SID */
+    ANSI_A_E_SIGNAL,                /* Signal */
+    ANSI_A_E_SCI,                   /* Slot Cycle Index */
+    ANSI_A_E_SW_VER,                /* Software Version */
+    ANSI_A_E_SRNC_TRNC_TC,          /* Source RNC to Target RNC Transparent Container */
+    ANSI_A_E_S_PDSN_ADDR,           /* Source PDSN Address */
+    ANSI_A_E_TAG,                   /* Tag */
+    ANSI_A_E_TRNC_SRNC_TC,          /* Target RNC to Source RNC Transparent Container */
+    ANSI_A_E_XMODE,                 /* Transcoder Mode */
+    ANSI_A_E_UZ_ID,                 /* User Zone ID */
+    ANSI_A_E_VP_REQ,                /* Voice Privacy Request */
+    ANSI_A_E_A2P_BEARER_SESSION,    /* A2p Bearer Session-Level Parameters */
+    ANSI_A_E_A2P_BEARER_FORMAT,     /* A2p Bearer Format-Specific Parameters */
+    ANSI_A_E_MS_DES_FREQ,           /* MS Designated Frequency */
+    ANSI_A_E_MOB_SUB_INFO,          /* Mobile Subscription Information */
+    ANSI_A_E_PLCM_ID,               /* Public Long Code Mask Identifier */
+    ANSI_A_E_REV_MS_INFO_RECS,      /* (Reverse) MS Information Records */
+    ANSI_A_E_NONE        /* NONE */
 }
 elem_idx_t;
 static elem_idx_t ansi_a_elem_1_max = 0;
@@ -8593,96 +8592,96 @@ static elem_idx_t ansi_a_elem_1_max = 0;
 static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
 static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
 {
-    elem_acc_net_id,    /* Access Network Identifiers */
-    elem_adds_user_part,        /* ADDS User Part */
-    elem_amps_hho_param,        /* AMPS Hard Handoff Parameters */
-    elem_anchor_pdsn_addr,      /* Anchor PDSN Address */
-    elem_anchor_pp_addr,        /* Anchor P-P Address */
-    elem_auth_chlg_param,       /* Authentication Challenge Parameter */
-    NULL /* no decode required */,      /* Authentication Confirmation Parameter (RANDC) */
-    NULL /* no decode required */,      /* Authentication Data */
-    elem_auth_event,    /* Authentication Event */
-    elem_auth_param_count,      /* Authentication Parameter COUNT */
-    elem_auth_resp_param,       /* Authentication Response Parameter */
-    elem_band_class,    /* Band Class */
-    elem_cld_party_ascii_num,   /* Called Party ASCII Number */
-    elem_cld_party_bcd_num,     /* Called Party BCD Number */
-    elem_clg_party_ascii_num,   /* Calling Party ASCII Number */
-    elem_cause, /* Cause */
-    elem_cause_l3,      /* Cause Layer 3 */
-    elem_cdma_sowd,     /* CDMA Serving One Way Delay */
-    elem_cell_id,       /* Cell Identifier */
-    elem_cell_id_list,  /* Cell Identifier List */
-    elem_chan_num,      /* Channel Number */
-    elem_chan_type,     /* Channel Type */
-    elem_cct_group,     /* Circuit Group */
-    elem_cic,   /* Circuit Identity Code */
-    elem_cic_ext,       /* Circuit Identity Code Extension */
-    elem_cm_info_type_2,        /* Classmark Information Type 2 */
-    elem_downlink_re,   /* Downlink Radio Environment */
-    elem_downlink_re_list,      /* Downlink Radio Environment List */
-    elem_enc_info,      /* Encryption Information */
-    elem_ext_ho_dir_params,     /* Extended Handoff Direction Parameters */
-    elem_geo_loc,       /* Geographic Location */
-    elem_ssci,  /* Special Service Call Indicator */
-    elem_ho_pow_lev,    /* Handoff Power Level */
-    elem_hho_params,    /* Hard Handoff Parameters */
-    elem_info_rec_req,  /* Information Element Requested */
-    elem_is2000_chan_id,        /* IS-2000 Channel Identity */
-    NULL,       /* IS-2000 Channel Identity 3X */
-    elem_is2000_mob_cap,        /* IS-2000 Mobile Capabilities */
-    elem_is2000_nn_scr, /* IS-2000 Non-Negotiable Service Configuration Record */
-    elem_is2000_scr,    /* IS-2000 Service Configuration Record */
-    elem_is2000_cause,  /* IS-95/IS-2000 Cause Value */
-    NULL,       /* IS-2000 Redirection Record */
-    elem_is95_chan_id,  /* IS-95 Channel Identity */
-    elem_is95_ms_meas_chan_id,  /* IS-95 MS Measured Channel Identity */
-    elem_l3_info,       /* Layer 3 Information */
-    elem_lai,   /* Location Area Information */
-    elem_mwi,   /* Message Waiting Indication */
-    elem_mid,   /* Mobile Identity */
-    elem_fwd_ms_info_recs,      /* (Forward) MS Information Records */
-    NULL /* no associated data */,      /* Origination Continuation Indicator */
-    elem_paca_order,    /* PACA Order */
-    elem_paca_reoi,     /* PACA Reorigination Indicator */
-    elem_paca_ts,       /* PACA Timestamp */
-    NULL,       /* Packet Session Parameters */
-    elem_pdsn_ip_addr,  /* PDSN IP Address */
-    NULL /* no associated data */,      /* Power Down Indicator */
-    elem_prio,  /* Priority */
-    elem_p_rev, /* Protocol Revision */
-    elem_ptype, /* Protocol Type */
-    elem_psmm_count,    /* PSMM Count */
-    elem_qos_params,    /* Quality of Service Parameters */
-    elem_re_res,        /* Radio Environment and Resources */
-    elem_reg_type,      /* Registration Type */
-    elem_rej_cause,     /* Reject Cause */
-    NULL /* no associated data */,      /* Response Request */
-    elem_return_cause,  /* Return Cause */
-    elem_rf_chan_id,    /* RF Channel Identity */
-    elem_so,    /* Service Option */
-    elem_soci,  /* Service Option Connection Identifier (SOCI) */
-    elem_so_list,       /* Service Option List */
-    NULL,       /* Service Redirection Info */
-    elem_sr_id, /* Service Reference Identifier (SR_ID) */
-    elem_sid,   /* SID */
-    elem_signal,        /* Signal */
-    elem_sci,   /* Slot Cycle Index */
-    elem_sw_ver,        /* Software Version */
-    NULL /* transparent */,     /* Source RNC to Target RNC Transparent Container */
-    elem_s_pdsn_ip_addr,        /* Source PDSN Address */
-    elem_tag,   /* Tag */
-    NULL /* transparent */,     /* Target RNC to Source RNC Transparent Container */
-    elem_xmode, /* Transcoder Mode */
-    elem_uz_id, /* User Zone ID */
-    NULL /* no associated data */,      /* Voice Privacy Request */
-    elem_a2p_bearer_session,    /* A2p Bearer Session-Level Parameters */
-    elem_a2p_bearer_format,     /* A2p Bearer Format-Specific Parameters */
-    elem_ms_des_freq,   /* MS Designated Frequency */
-    NULL,       /* Mobile Subscription Information */
-    elem_plcm_id,       /* Public Long Code Mask Identification */
-    elem_rev_ms_info_recs,      /* (Reverse) MS Information Records */
-    NULL,       /* NONE */
+    elem_acc_net_id,                /* Access Network Identifiers */
+    elem_adds_user_part,            /* ADDS User Part */
+    elem_amps_hho_param,            /* AMPS Hard Handoff Parameters */
+    elem_anchor_pdsn_addr,          /* Anchor PDSN Address */
+    elem_anchor_pp_addr,            /* Anchor P-P Address */
+    elem_auth_chlg_param,           /* Authentication Challenge Parameter */
+    NULL /* no decode required */,  /* Authentication Confirmation Parameter (RANDC) */
+    NULL /* no decode required */,  /* Authentication Data */
+    elem_auth_event,                /* Authentication Event */
+    elem_auth_param_count,          /* Authentication Parameter COUNT */
+    elem_auth_resp_param,           /* Authentication Response Parameter */
+    elem_band_class,                /* Band Class */
+    elem_cld_party_ascii_num,       /* Called Party ASCII Number */
+    elem_cld_party_bcd_num,         /* Called Party BCD Number */
+    elem_clg_party_ascii_num,       /* Calling Party ASCII Number */
+    elem_cause,                     /* Cause */
+    elem_cause_l3,                  /* Cause Layer 3 */
+    elem_cdma_sowd,                 /* CDMA Serving One Way Delay */
+    elem_cell_id,                   /* Cell Identifier */
+    elem_cell_id_list,              /* Cell Identifier List */
+    elem_chan_num,                  /* Channel Number */
+    elem_chan_type,                 /* Channel Type */
+    elem_cct_group,                 /* Circuit Group */
+    elem_cic,                       /* Circuit Identity Code */
+    elem_cic_ext,                   /* Circuit Identity Code Extension */
+    elem_cm_info_type_2,            /* Classmark Information Type 2 */
+    elem_downlink_re,               /* Downlink Radio Environment */
+    elem_downlink_re_list,          /* Downlink Radio Environment List */
+    elem_enc_info,                  /* Encryption Information */
+    elem_ext_ho_dir_params,         /* Extended Handoff Direction Parameters */
+    elem_geo_loc,                   /* Geographic Location */
+    elem_ssci,                      /* Special Service Call Indicator */
+    elem_ho_pow_lev,                /* Handoff Power Level */
+    elem_hho_params,                /* Hard Handoff Parameters */
+    elem_info_rec_req,              /* Information Element Requested */
+    elem_is2000_chan_id,            /* IS-2000 Channel Identity */
+    NULL,                           /* IS-2000 Channel Identity 3X */
+    elem_is2000_mob_cap,            /* IS-2000 Mobile Capabilities */
+    elem_is2000_nn_scr,             /* IS-2000 Non-Negotiable Service Configuration Record */
+    elem_is2000_scr,                /* IS-2000 Service Configuration Record */
+    elem_is2000_cause,              /* IS-95/IS-2000 Cause Value */
+    NULL,                           /* IS-2000 Redirection Record */
+    elem_is95_chan_id,              /* IS-95 Channel Identity */
+    elem_is95_ms_meas_chan_id,      /* IS-95 MS Measured Channel Identity */
+    elem_l3_info,                   /* Layer 3 Information */
+    elem_lai,                       /* Location Area Information */
+    elem_mwi,                       /* Message Waiting Indication */
+    elem_mid,                       /* Mobile Identity */
+    elem_fwd_ms_info_recs,          /* (Forward) MS Information Records */
+    NULL /* no associated data */,  /* Origination Continuation Indicator */
+    elem_paca_order,                /* PACA Order */
+    elem_paca_reoi,                 /* PACA Reorigination Indicator */
+    elem_paca_ts,                   /* PACA Timestamp */
+    NULL,                           /* Packet Session Parameters */
+    elem_pdsn_ip_addr,              /* PDSN IP Address */
+    NULL /* no associated data */,  /* Power Down Indicator */
+    elem_prio,                      /* Priority */
+    elem_p_rev,                     /* Protocol Revision */
+    elem_ptype,                     /* Protocol Type */
+    elem_psmm_count,                /* PSMM Count */
+    elem_qos_params,                /* Quality of Service Parameters */
+    elem_re_res,                    /* Radio Environment and Resources */
+    elem_reg_type,                  /* Registration Type */
+    elem_rej_cause,                 /* Reject Cause */
+    NULL /* no associated data */,  /* Response Request */
+    elem_return_cause,              /* Return Cause */
+    elem_rf_chan_id,                /* RF Channel Identity */
+    elem_so,                        /* Service Option */
+    elem_soci,                      /* Service Option Connection Identifier (SOCI) */
+    elem_so_list,                   /* Service Option List */
+    NULL,                           /* Service Redirection Info */
+    elem_sr_id,                     /* Service Reference Identifier (SR_ID) */
+    elem_sid,                       /* SID */
+    elem_signal,                    /* Signal */
+    elem_sci,                       /* Slot Cycle Index */
+    elem_sw_ver,                    /* Software Version */
+    NULL /* transparent */,         /* Source RNC to Target RNC Transparent Container */
+    elem_s_pdsn_ip_addr,            /* Source PDSN Address */
+    elem_tag,                       /* Tag */
+    NULL /* transparent */,         /* Target RNC to Source RNC Transparent Container */
+    elem_xmode,                     /* Transcoder Mode */
+    elem_uz_id,                     /* User Zone ID */
+    NULL /* no associated data */,  /* Voice Privacy Request */
+    elem_a2p_bearer_session,        /* A2p Bearer Session-Level Parameters */
+    elem_a2p_bearer_format,         /* A2p Bearer Format-Specific Parameters */
+    elem_ms_des_freq,               /* MS Designated Frequency */
+    NULL,                           /* Mobile Subscription Information */
+    elem_plcm_id,                   /* Public Long Code Mask Identification */
+    elem_rev_ms_info_recs,          /* (Reverse) MS Information Records */
+    NULL,        /* NONE */
 };
 
 /* MESSAGE FUNCTIONS */
@@ -11477,69 +11476,69 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
 static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
 {
-    bsmap_add_srvc_noti,        /* Additional Service Notification */
-    bsmap_adds_page,    /* ADDS Page */
-    bsmap_adds_page_ack,        /* ADDS Page Ack */
-    bsmap_adds_transfer,        /* ADDS Transfer */
-    bsmap_adds_transfer_ack,    /* ADDS Transfer Ack */
-    bsmap_ass_complete, /* Assignment Complete */
-    bsmap_ass_failure,  /* Assignment Failure */
-    bsmap_ass_req,      /* Assignment Request */
-    bsmap_auth_req,     /* Authentication Request */
-    bsmap_auth_resp,    /* Authentication Response */
-    NULL /* no BSMAP definition */,     /* Base Station Challenge */
-    NULL /* no BSMAP definition */,     /* Base Station Challenge Response */
-    bsmap_block,        /* Block */
-    bsmap_block_ack,    /* Block Acknowledge */
-    bsmap_bs_srvc_req,  /* BS Service Request */
-    bsmap_bs_srvc_resp, /* BS Service Response */
-    bsmap_clr_command,  /* Clear Command */
-    bsmap_clr_complete, /* Clear Complete */
-    bsmap_clr_req,      /* Clear Request */
-    bsmap_cl3_info,     /* Complete Layer 3 Information */
-    bsmap_feat_noti,    /* Feature Notification */
-    bsmap_feat_noti_ack,        /* Feature Notification Ack */
-    bsmap_ho_command,   /* Handoff Command */
-    NULL /* no associated data */,      /* Handoff Commenced */
-    bsmap_ho_complete,  /* Handoff Complete */
-    bsmap_ho_failure,   /* Handoff Failure */
-    bsmap_ho_performed, /* Handoff Performed */
-    bsmap_ho_req,       /* Handoff Request */
-    bsmap_ho_req_ack,   /* Handoff Request Acknowledge */
-    bsmap_ho_reqd,      /* Handoff Required */
-    bsmap_ho_reqd_rej,  /* Handoff Required Reject */
-    bsmap_paca_command, /* PACA Command */
-    bsmap_paca_command_ack,     /* PACA Command Ack */
-    bsmap_paca_update,  /* PACA Update */
-    bsmap_paca_update_ack,      /* PACA Update Ack */
-    bsmap_page_req,     /* Paging Request */
-    bsmap_priv_mode_command,    /* Privacy Mode Command */
-    bsmap_priv_mode_complete,   /* Privacy Mode Complete */
-    bsmap_rm_pos_req,   /* Radio Measurements for Position Request */
-    bsmap_rm_pos_resp,  /* Radio Measurements for Position Response */
-    bsmap_rejection,    /* Rejection */
-    bsmap_reg_req,      /* Registration Request */
-    bsmap_reset,        /* Reset */
-    bsmap_reset_ack,    /* Reset Acknowledge */
-    bsmap_reset_cct,    /* Reset Circuit */
-    bsmap_reset_cct_ack,        /* Reset Circuit Acknowledge */
-    NULL /* no BSMAP definition */,     /* SSD Update Request */
-    NULL /* no BSMAP definition */,     /* SSD Update Response */
-    bsmap_status_req,   /* Status Request */
-    bsmap_status_resp,  /* Status Response */
-    bsmap_xmode_ack,    /* Transcoder Control Acknowledge */
-    bsmap_xmode_req,    /* Transcoder Control Request */
-    bsmap_unblock,      /* Unblock */
-    bsmap_unblock_ack,  /* Unblock Acknowledge */
-    bsmap_user_zone_reject,     /* User Zone Reject */
-    bsmap_user_zone_update,     /* User Zone Update */
-    bsmap_bearer_upd_req,       /* Bearer Update Request *//* IOS 5.0.1 */
-    bsmap_bearer_upd_resp,      /* Bearer Update Response *//* IOS 5.0.1 */
-    bsmap_bearer_upd_reqd,      /* Bearer Update Required *//* IOS 5.0.1 */
-    bsmap_ms_reg_noti,  /* Mobile Station Registered Notification *//* IOS 5.0.1 */
-    bsmap_bs_auth_req,  /* BS Authentication Request *//* IOS 5.0.1 */
-    bsmap_bs_auth_req_ack,      /* BS Authentication Request Ack *//* IOS 5.0.1 */
-    NULL,       /* NONE */
+    bsmap_add_srvc_noti,            /* Additional Service Notification */
+    bsmap_adds_page,                /* ADDS Page */
+    bsmap_adds_page_ack,            /* ADDS Page Ack */
+    bsmap_adds_transfer,            /* ADDS Transfer */
+    bsmap_adds_transfer_ack,        /* ADDS Transfer Ack */
+    bsmap_ass_complete,             /* Assignment Complete */
+    bsmap_ass_failure,              /* Assignment Failure */
+    bsmap_ass_req,                  /* Assignment Request */
+    bsmap_auth_req,                 /* Authentication Request */
+    bsmap_auth_resp,                /* Authentication Response */
+    NULL /* no BSMAP definition */, /* Base Station Challenge */
+    NULL /* no BSMAP definition */, /* Base Station Challenge Response */
+    bsmap_block,                    /* Block */
+    bsmap_block_ack,                /* Block Acknowledge */
+    bsmap_bs_srvc_req,              /* BS Service Request */
+    bsmap_bs_srvc_resp,             /* BS Service Response */
+    bsmap_clr_command,              /* Clear Command */
+    bsmap_clr_complete,             /* Clear Complete */
+    bsmap_clr_req,                  /* Clear Request */
+    bsmap_cl3_info,                 /* Complete Layer 3 Information */
+    bsmap_feat_noti,                /* Feature Notification */
+    bsmap_feat_noti_ack,            /* Feature Notification Ack */
+    bsmap_ho_command,               /* Handoff Command */
+    NULL /* no associated data */,  /* Handoff Commenced */
+    bsmap_ho_complete,              /* Handoff Complete */
+    bsmap_ho_failure,               /* Handoff Failure */
+    bsmap_ho_performed,             /* Handoff Performed */
+    bsmap_ho_req,                   /* Handoff Request */
+    bsmap_ho_req_ack,               /* Handoff Request Acknowledge */
+    bsmap_ho_reqd,                  /* Handoff Required */
+    bsmap_ho_reqd_rej,              /* Handoff Required Reject */
+    bsmap_paca_command,             /* PACA Command */
+    bsmap_paca_command_ack,         /* PACA Command Ack */
+    bsmap_paca_update,              /* PACA Update */
+    bsmap_paca_update_ack,          /* PACA Update Ack */
+    bsmap_page_req,                 /* Paging Request */
+    bsmap_priv_mode_command,        /* Privacy Mode Command */
+    bsmap_priv_mode_complete,       /* Privacy Mode Complete */
+    bsmap_rm_pos_req,               /* Radio Measurements for Position Request */
+    bsmap_rm_pos_resp,              /* Radio Measurements for Position Response */
+    bsmap_rejection,                /* Rejection */
+    bsmap_reg_req,                  /* Registration Request */
+    bsmap_reset,                    /* Reset */
+    bsmap_reset_ack,                /* Reset Acknowledge */
+    bsmap_reset_cct,                /* Reset Circuit */
+    bsmap_reset_cct_ack,            /* Reset Circuit Acknowledge */
+    NULL /* no BSMAP definition */, /* SSD Update Request */
+    NULL /* no BSMAP definition */, /* SSD Update Response */
+    bsmap_status_req,               /* Status Request */
+    bsmap_status_resp,              /* Status Response */
+    bsmap_xmode_ack,                /* Transcoder Control Acknowledge */
+    bsmap_xmode_req,                /* Transcoder Control Request */
+    bsmap_unblock,                  /* Unblock */
+    bsmap_unblock_ack,              /* Unblock Acknowledge */
+    bsmap_user_zone_reject,         /* User Zone Reject */
+    bsmap_user_zone_update,         /* User Zone Update */
+    bsmap_bearer_upd_req,           /* Bearer Update Request *//* IOS 5.0.1 */
+    bsmap_bearer_upd_resp,          /* Bearer Update Response *//* IOS 5.0.1 */
+    bsmap_bearer_upd_reqd,          /* Bearer Update Required *//* IOS 5.0.1 */
+    bsmap_ms_reg_noti,              /* Mobile Station Registered Notification *//* IOS 5.0.1 */
+    bsmap_bs_auth_req,              /* BS Authentication Request *//* IOS 5.0.1 */
+    bsmap_bs_auth_req_ack,          /* BS Authentication Request Ack *//* IOS 5.0.1 */
+    NULL,        /* NONE */
 };
 
 #define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
@@ -11547,37 +11546,37 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
 static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
 {
-    dtap_add_srvc_req,  /* Additional Service Request */
-    dtap_adds_deliver,  /* ADDS Deliver */
-    dtap_adds_deliver_ack,      /* ADDS Deliver Ack */
-    dtap_alert_with_info,       /* Alert With Information */
-    dtap_auth_req,      /* Authentication Request */
-    dtap_auth_resp,     /* Authentication Response */
-    dtap_bs_challenge,  /* Base Station Challenge */
-    dtap_bs_challenge_resp,     /* Base Station Challenge Response */
-    dtap_cm_srvc_req,   /* CM Service Request */
-    dtap_cm_srvc_req_cont,      /* CM Service Request Continuation */
-    dtap_connect,       /* Connect */
-    dtap_flash_with_info,       /* Flash with Information */
-    dtap_flash_with_info_ack,   /* Flash with Information Ack */
-    dtap_lu_accept,     /* Location Updating Accept */
-    dtap_lu_reject,     /* Location Updating Reject */
-    dtap_lu_req,        /* Location Updating Request */
-    dtap_page_resp,     /* Paging Response */
-    NULL /* no associated data */,      /* Parameter Update Confirm */
-    NULL /* no associated data */,      /* Parameter Update Request */
-    dtap_rejection,     /* Rejection */
-    dtap_progress,      /* Progress */
-    dtap_srvc_redirection,      /* Service Redirection */
-    dtap_srvc_release,  /* Service Release */
-    dtap_srvc_release_complete, /* Service Release Complete */
-    dtap_ssd_update_req,        /* SSD Update Request */
-    dtap_ssd_update_resp,       /* SSD Update Response */
-    dtap_status_req,    /* Status Request */
-    dtap_status_resp,   /* Status Response */
-    dtap_user_zone_reject,      /* User Zone Reject */
-    dtap_user_zone_update,      /* User Zone Update */
-    dtap_user_zone_update_req,  /* User Zone Update Request */
+    dtap_add_srvc_req,              /* Additional Service Request */
+    dtap_adds_deliver,              /* ADDS Deliver */
+    dtap_adds_deliver_ack,          /* ADDS Deliver Ack */
+    dtap_alert_with_info,           /* Alert With Information */
+    dtap_auth_req,                  /* Authentication Request */
+    dtap_auth_resp,                 /* Authentication Response */
+    dtap_bs_challenge,              /* Base Station Challenge */
+    dtap_bs_challenge_resp,         /* Base Station Challenge Response */
+    dtap_cm_srvc_req,               /* CM Service Request */
+    dtap_cm_srvc_req_cont,          /* CM Service Request Continuation */
+    dtap_connect,                   /* Connect */
+    dtap_flash_with_info,           /* Flash with Information */
+    dtap_flash_with_info_ack,       /* Flash with Information Ack */
+    dtap_lu_accept,                 /* Location Updating Accept */
+    dtap_lu_reject,                 /* Location Updating Reject */
+    dtap_lu_req,                    /* Location Updating Request */
+    dtap_page_resp,                 /* Paging Response */
+    NULL /* no associated data */,  /* Parameter Update Confirm */
+    NULL /* no associated data */,  /* Parameter Update Request */
+    dtap_rejection,                 /* Rejection */
+    dtap_progress,                  /* Progress */
+    dtap_srvc_redirection,          /* Service Redirection */
+    dtap_srvc_release,              /* Service Release */
+    dtap_srvc_release_complete,     /* Service Release Complete */
+    dtap_ssd_update_req,            /* SSD Update Request */
+    dtap_ssd_update_resp,           /* SSD Update Response */
+    dtap_status_req,                /* Status Request */
+    dtap_status_resp,               /* Status Response */
+    dtap_user_zone_reject,          /* User Zone Reject */
+    dtap_user_zone_update,          /* User Zone Update */
+    dtap_user_zone_update_req,      /* User Zone Update Request */
     NULL,       /* NONE */
 };
 
@@ -11694,7 +11693,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
     /*
@@ -11813,7 +11812,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
     /*
