@@ -1493,9 +1493,9 @@ typedef struct mr_mult_req_info {
    service = tvb_get_guint8( tvb, offset );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+               val_to_str( ( service & 0x7F ),
                   cip_sc_vals, "Unknown Service (0x%02x)"),
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
+               val_to_str( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -1848,9 +1848,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    /* watch for service collisions */
    service = tvb_get_guint8( tvb, offset );
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+               val_to_str( ( service & 0x7F ),
                   cip_sc_vals_cm , "Unknown Service (0x%02x)"),
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
+               val_to_str( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -2556,9 +2556,9 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    /* watch for service collisions */
    service = tvb_get_guint8( tvb, offset );
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+               val_to_str( ( service & 0x7F ),
                   cip_sc_vals , "Unknown Service (0x%02x)"),
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
+               val_to_str( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -2573,7 +2573,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       /* Add general status */
       gen_status = tvb_get_guint8( tvb, offset+2 );
       proto_tree_add_item(status_tree, hf_cip_genstat, tvb, offset+2, 1, TRUE );
-      proto_item_append_text( status_item, "%s", val_to_str( ( tvb_get_guint8( tvb, offset+2 ) ),
+      proto_item_append_text( status_item, "%s", val_to_str( gen_status,
                      cip_gs_vals , "Unknown Response (%x)")   );
 
       /* Add reply status to info column */
