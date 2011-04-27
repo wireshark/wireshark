@@ -561,8 +561,9 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		break;
 	}/* end switch cc_length */
 
-	proto_tree_add_text(tree, tvb, cc_offset, length,"Country Code: %x %s length %u", cc,
+	proto_tree_add_text(tree, tvb, cc_offset, length,"Country Code: %x %s (length %u)", cc,
 			    val_to_str(cc,E164_country_code_value,"unknown (%x)"), cc_length);
+
 	switch ( cc ) {
 	case 0x882 :
 		id_code = tvb_get_ntohs(tvb, cc_offset + 1);
