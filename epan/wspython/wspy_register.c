@@ -161,8 +161,8 @@ void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_
   py_dissectors = PyObject_CallObject(register_fn, py_args);
 
   /* Check that the py_dissectors is really a sequence */
-  if (!PySequence_Check(py_dissectors)) {
-    printf("not registered ...\n");
+  if (!py_dissectors || !PySequence_Check(py_dissectors)) {
+    printf("Python dissectors not registered ...\n");
     return;
   }
 
