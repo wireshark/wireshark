@@ -58,7 +58,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include "wtap-int.h"
@@ -514,10 +513,10 @@ static int fix_pseudo_header(int encap, const guint8 *pd, int len,
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
-	unsigned char * outbuf, size_t outlen, int *err );
+    unsigned char * outbuf, size_t outlen, int *err );
 static gint64 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth,
     gboolean is_random, int *err, gchar **err_info);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
@@ -535,11 +534,13 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
 				  the last 2 are "reserved" and are thrown away */
-	guint16 type, length;
+	guint16 type;
 	struct vers_rec version;
 	guint16 maj_vers;
 	guint16	start_date;
+#if 0
 	guint16	start_time;
+#endif
 	static const int sniffer_encap[] = {
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_ETHERNET,
@@ -588,7 +589,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += 6;
 
 	type = pletohs(record_type);
-	length = pletohs(record_length);
 
 	if (type != REC_VERS) {
 		*err = WTAP_ERR_BAD_RECORD;
@@ -733,15 +733,17 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	ngsniffer->network = version.network;
 
 	/* Get capture start time */
-	start_time = pletohs(&version.time);
 	start_date = pletohs(&version.date);
 	tm.tm_year = ((start_date&0xfe00)>>9) + 1980 - 1900;
 	tm.tm_mon = ((start_date&0x1e0)>>5) - 1;
 	tm.tm_mday = (start_date&0x1f);
-	/* The time does not appear to act as an offset; only the date
+#if 0
+	/* The time does not appear to act as an offset; only the date */
+	start_time = pletohs(&version.time);
 	tm.tm_hour = (start_time&0xf800)>>11;
 	tm.tm_min = (start_time&0x7e0)>>5;
-	tm.tm_sec = (start_time&0x1f)<<1;*/
+	tm.tm_sec = (start_time&0x1f)<<1;
+#endif
 	tm.tm_hour = 0;
 	tm.tm_min = 0;
 	tm.tm_sec = 0;
@@ -2008,24 +2010,24 @@ typedef struct {
 } ngsniffer_dump_t;
 
 static const int wtap_encap[] = {
-    -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-    1,		/* WTAP_ENCAP_ETHERNET */
-    0,		/* WTAP_ENCAP_TOKEN_RING */
-    -1,		/* WTAP_ENCAP_SLIP -> unsupported */
-    7,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
-    9,		/* WTAP_ENCAP_FDDI */
-    9,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
-    -1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
-    2,		/* WTAP_ENCAP_ARCNET */
-    -1,		/* WTAP_ENCAP_ATM_RFC1483 */
-    -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
-    7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
-    -1,		/* WTAP_ENCAP_ATM_PDUS */
-    -1,		/* WTAP_ENCAP_NULL -> unsupported */
-    -1,		/* WTAP_ENCAP_ASCEND -> unsupported */
-    -1,		/* WTAP_ENCAP_ISDN -> unsupported */
-    -1,		/* WTAP_ENCAP_IP_OVER_FC -> unsupported */
-    7,		/* WTAP_ENCAP_PPP_WITH_PHDR -> Internetwork analyzer (synchronous) FIXME ! */
+	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+	1,		/* WTAP_ENCAP_ETHERNET */
+	0,		/* WTAP_ENCAP_TOKEN_RING */
+	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
+	7,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
+	9,		/* WTAP_ENCAP_FDDI */
+	9,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
+	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+	2,		/* WTAP_ENCAP_ARCNET */
+	-1,		/* WTAP_ENCAP_ATM_RFC1483 */
+	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+	7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
+	-1,		/* WTAP_ENCAP_ATM_PDUS */
+	-1,		/* WTAP_ENCAP_NULL -> unsupported */
+	-1,		/* WTAP_ENCAP_ASCEND -> unsupported */
+	-1,		/* WTAP_ENCAP_ISDN -> unsupported */
+	-1,		/* WTAP_ENCAP_IP_OVER_FC -> unsupported */
+	7,		/* WTAP_ENCAP_PPP_WITH_PHDR -> Internetwork analyzer (synchronous) FIXME ! */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 
@@ -2034,14 +2036,14 @@ static const int wtap_encap[] = {
 int
 ngsniffer_dump_can_write_encap(int encap)
 {
-    /* Per-packet encapsulations aren't supported. */
-    if (encap == WTAP_ENCAP_PER_PACKET)
-	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+	/* Per-packet encapsulations aren't supported. */
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    if (encap < 0 || (unsigned)encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
-	return WTAP_ERR_UNSUPPORTED_ENCAP;
+	if (encap < 0 || (unsigned)encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
-    return 0;
+	return 0;
 }
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
@@ -2049,150 +2051,150 @@ ngsniffer_dump_can_write_encap(int encap)
 gboolean
 ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 {
-    ngsniffer_dump_t *ngsniffer;
-    char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
+	ngsniffer_dump_t *ngsniffer;
+	char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
 
-    /* This is a sniffer file */
-    wdh->subtype_write = ngsniffer_dump;
-    wdh->subtype_close = ngsniffer_dump_close;
+	/* This is a sniffer file */
+	wdh->subtype_write = ngsniffer_dump;
+	wdh->subtype_close = ngsniffer_dump_close;
 
-    ngsniffer = (ngsniffer_dump_t *)g_malloc(sizeof(ngsniffer_dump_t));
-    wdh->priv = (void *)ngsniffer;
-    ngsniffer->first_frame = TRUE;
-    ngsniffer->start = 0;
+	ngsniffer = (ngsniffer_dump_t *)g_malloc(sizeof(ngsniffer_dump_t));
+	wdh->priv = (void *)ngsniffer;
+	ngsniffer->first_frame = TRUE;
+	ngsniffer->start = 0;
 
-    /* Write the file header. */
-    if (!wtap_dump_file_write(wdh, ngsniffer_magic, sizeof ngsniffer_magic,
-			      err))
-	return FALSE;
-    if (!wtap_dump_file_write(wdh, buf, 6, err))
-	return FALSE;
+	/* Write the file header. */
+	if (!wtap_dump_file_write(wdh, ngsniffer_magic, sizeof ngsniffer_magic,
+				  err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, buf, 6, err))
+		return FALSE;
 
-    return TRUE;
+	return TRUE;
 }
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
 ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
+	       const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
-    ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
-    struct frame2_rec rec_hdr;
-    char buf[6];
-    time_t tsecs;
-    guint64 t;
-    guint16 t_low, t_med;
-    guint8 t_high;
-    struct vers_rec version;
-    gint16 maj_vers, min_vers;
-    guint16 start_date;
-    struct tm *tm;
+	ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
+	struct frame2_rec rec_hdr;
+	char buf[6];
+	time_t tsecs;
+	guint64 t;
+	guint16 t_low, t_med;
+	guint8 t_high;
+	struct vers_rec version;
+	gint16 maj_vers, min_vers;
+	guint16 start_date;
+	struct tm *tm;
 
-    /* Sniffer files have a capture start date in the file header, and
-       have times relative to the beginning of that day in the packet
-       headers; pick the date of the first packet as the capture start
-       date. */
-    if (ngsniffer->first_frame) {
-	ngsniffer->first_frame=FALSE;
-	tm = localtime(&phdr->ts.secs);
-	if (tm != NULL) {
-	  start_date = (tm->tm_year - (1980 - 1900)) << 9;
-	  start_date |= (tm->tm_mon + 1) << 5;
-	  start_date |= tm->tm_mday;
-	  /* record the start date, not the start time */
-	  ngsniffer->start = phdr->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
-	} else {
-	  start_date = 0;
-	  ngsniffer->start = 0;
+	/* Sniffer files have a capture start date in the file header, and
+	   have times relative to the beginning of that day in the packet
+	   headers; pick the date of the first packet as the capture start
+	   date. */
+	if (ngsniffer->first_frame) {
+		ngsniffer->first_frame=FALSE;
+		tm = localtime(&phdr->ts.secs);
+		if (tm != NULL) {
+			start_date = (tm->tm_year - (1980 - 1900)) << 9;
+			start_date |= (tm->tm_mon + 1) << 5;
+			start_date |= tm->tm_mday;
+			/* record the start date, not the start time */
+			ngsniffer->start = phdr->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+		} else {
+			start_date = 0;
+			ngsniffer->start = 0;
+		}
+
+		/* "sniffer" version ? */
+		maj_vers = 4;
+		min_vers = 0;
+		version.maj_vers = htoles(maj_vers);
+		version.min_vers = htoles(min_vers);
+		version.time = 0;
+		version.date = htoles(start_date);
+		version.type = 4;
+		version.network = wtap_encap[wdh->encap];
+		version.format = 1;
+		version.timeunit = 1; /* 0.838096 */
+		version.cmprs_vers = 0;
+		version.cmprs_level = 0;
+		version.rsvd[0] = 0;
+		version.rsvd[1] = 0;
+		if (!wtap_dump_file_write(wdh, &version, sizeof version, err))
+			return FALSE;
 	}
 
-	/* "sniffer" version ? */
-	maj_vers = 4;
-	min_vers = 0;
-	version.maj_vers = htoles(maj_vers);
-	version.min_vers = htoles(min_vers);
-	version.time = 0;
-	version.date = htoles(start_date);
-	version.type = 4;
-	version.network = wtap_encap[wdh->encap];
-	version.format = 1;
-	version.timeunit = 1; /* 0.838096 */
-	version.cmprs_vers = 0;
-	version.cmprs_level = 0;
-	version.rsvd[0] = 0;
-	version.rsvd[1] = 0;
-	if (!wtap_dump_file_write(wdh, &version, sizeof version, err))
-	    return FALSE;
-    }
+	buf[0] = REC_FRAME2;
+	buf[1] = 0x00;
+	buf[2] = (char)((phdr->caplen + sizeof(struct frame2_rec))%256);
+	buf[3] = (char)((phdr->caplen + sizeof(struct frame2_rec))/256);
+	buf[4] = 0x00;
+	buf[5] = 0x00;
+	if (!wtap_dump_file_write(wdh, buf, 6, err))
+		return FALSE;
+	/* Seconds since the start of the capture */
+	tsecs = phdr->ts.secs - ngsniffer->start;
+	/* Extract the number of days since the start of the capture */
+	rec_hdr.time_day = (guint8)(tsecs / 86400);	/* # days of capture - 86400 secs/day */
+	tsecs -= rec_hdr.time_day * 86400;	/* time within day */
+	/* Convert to picoseconds */
+	t = tsecs*G_GINT64_CONSTANT(1000000000000U) +
+		phdr->ts.nsecs*G_GINT64_CONSTANT(1000U);
+	/* Convert to units of timeunit = 1 */
+	t /= Psec[1];
+	t_low = (guint16)((t >> 0) & 0xFFFF);
+	t_med = (guint16)((t >> 16) & 0xFFFF);
+	t_high = (guint8)((t >> 32) & 0xFF);
+	rec_hdr.time_low = htoles(t_low);
+	rec_hdr.time_med = htoles(t_med);
+	rec_hdr.time_high = t_high;
+	rec_hdr.size = htoles(phdr->caplen);
+	switch (wdh->encap) {
 
-    buf[0] = REC_FRAME2;
-    buf[1] = 0x00;
-    buf[2] = (char)((phdr->caplen + sizeof(struct frame2_rec))%256);
-    buf[3] = (char)((phdr->caplen + sizeof(struct frame2_rec))/256);
-    buf[4] = 0x00;
-    buf[5] = 0x00;
-    if (!wtap_dump_file_write(wdh, buf, 6, err))
-	return FALSE;
-    /* Seconds since the start of the capture */
-    tsecs = phdr->ts.secs - ngsniffer->start;
-    /* Extract the number of days since the start of the capture */
-    rec_hdr.time_day = (guint8)(tsecs / 86400);	/* # days of capture - 86400 secs/day */
-    tsecs -= rec_hdr.time_day * 86400;	/* time within day */
-    /* Convert to picoseconds */
-    t = tsecs*G_GINT64_CONSTANT(1000000000000U) +
-	phdr->ts.nsecs*G_GINT64_CONSTANT(1000U);
-    /* Convert to units of timeunit = 1 */
-    t /= Psec[1];
-    t_low = (guint16)((t >> 0) & 0xFFFF);
-    t_med = (guint16)((t >> 16) & 0xFFFF);
-    t_high = (guint8)((t >> 32) & 0xFF);
-    rec_hdr.time_low = htoles(t_low);
-    rec_hdr.time_med = htoles(t_med);
-    rec_hdr.time_high = t_high;
-    rec_hdr.size = htoles(phdr->caplen);
-    switch (wdh->encap) {
+	case WTAP_ENCAP_LAPB:
+	case WTAP_ENCAP_FRELAY_WITH_PHDR:
+		rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
+		break;
 
-    case WTAP_ENCAP_LAPB:
-    case WTAP_ENCAP_FRELAY_WITH_PHDR:
-	rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
-	break;
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+	case WTAP_ENCAP_SDLC:
+		rec_hdr.fs = pseudo_header->p2p.sent ? 0x00 : FS_WAN_DTE;
+		break;
 
-    case WTAP_ENCAP_PPP_WITH_PHDR:
-    case WTAP_ENCAP_SDLC:
-	rec_hdr.fs = pseudo_header->p2p.sent ? 0x00 : FS_WAN_DTE;
-	break;
+	case WTAP_ENCAP_ISDN:
+		rec_hdr.fs = pseudo_header->isdn.uton ? FS_WAN_DTE : 0x00;
+		switch (pseudo_header->isdn.channel) {
 
-    case WTAP_ENCAP_ISDN:
-	rec_hdr.fs = pseudo_header->isdn.uton ? FS_WAN_DTE : 0x00;
-	switch (pseudo_header->isdn.channel) {
+		case 0:		/* D-channel */
+			rec_hdr.fs |= FS_ISDN_CHAN_D;
+			break;
 
-	case 0:		/* D-channel */
-	    rec_hdr.fs |= FS_ISDN_CHAN_D;
-	    break;
+		case 1:		/* B1-channel */
+			rec_hdr.fs |= FS_ISDN_CHAN_B1;
+			break;
 
-	case 1:		/* B1-channel */
-	    rec_hdr.fs |= FS_ISDN_CHAN_B1;
-	    break;
+		case 2:		/* B2-channel */
+			rec_hdr.fs |= FS_ISDN_CHAN_B2;
+			break;
+		}
+		break;
 
-	case 2:		/* B2-channel */
-	    rec_hdr.fs |= FS_ISDN_CHAN_B2;
-	    break;
+	default:
+		rec_hdr.fs = 0;
+		break;
 	}
-	break;
-
-    default:
-	rec_hdr.fs = 0;
-	break;
-    }
-    rec_hdr.flags = 0;
-    rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
-    rec_hdr.rsvd = 0;
-    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
-	return FALSE;
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
-	return FALSE;
-    return TRUE;
+	rec_hdr.flags = 0;
+	rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
+	rec_hdr.rsvd = 0;
+	if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+		return FALSE;
+	return TRUE;
 }
 
 /* Finish writing to a dump file.
@@ -2200,12 +2202,12 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean
 ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 {
-    /* EOF record */
-    char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};
+	/* EOF record */
+	char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    if (!wtap_dump_file_write(wdh, buf, 6, err))
-	return FALSE;
-    return TRUE;
+	if (!wtap_dump_file_write(wdh, buf, 6, err))
+		return FALSE;
+	return TRUE;
 }
 
 /*
@@ -2226,184 +2228,184 @@ ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 */
 static int
 SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
-    size_t outlen, int *err)
+		  size_t outlen, int *err)
 {
-   unsigned char * pin = inbuf;
-   unsigned char * pout = outbuf;
-   unsigned char * pin_end = pin + inlen;
-   unsigned char * pout_end = pout + outlen;
-   unsigned int bit_mask;  /* one bit is set in this, to mask with bit_value */
-   unsigned int bit_value = 0; /* cache the last 16 coding bits we retrieved */
-   unsigned int code_type; /* encoding type, from high 4 bits of byte */
-   unsigned int code_low;  /* other 4 bits from encoding byte */
-   int length;		   /* length of RLE sequence or repeated string */
-   int offset;		   /* offset of string to repeat */
+	unsigned char * pin  = inbuf;
+	unsigned char * pout = outbuf;
+	unsigned char * pin_end  = pin + inlen;
+	unsigned char * pout_end = pout + outlen;
+	unsigned int bit_mask;      /* one bit is set in this, to mask with bit_value */
+	unsigned int bit_value = 0; /* cache the last 16 coding bits we retrieved */
+	unsigned int code_type;     /* encoding type, from high 4 bits of byte */
+	unsigned int code_low;      /* other 4 bits from encoding byte */
+	int length;		    /* length of RLE sequence or repeated string */
+	int offset;		    /* offset of string to repeat */
 
-   if (inlen > G_MAXUINT16) {
-      return ( -1 );
-   }
+	if (inlen > G_MAXUINT16) {
+		return ( -1 );
+	}
 
-   bit_mask  = 0;  /* don't have any bits yet */
-   while (1)
-   {
-      /* Shift down the bit mask we use to see whats encoded */
-      bit_mask = bit_mask >> 1;
+	bit_mask  = 0;  /* don't have any bits yet */
+	while (1)
+	{
+		/* Shift down the bit mask we use to see whats encoded */
+		bit_mask = bit_mask >> 1;
 
-      /* If there are no bits left, time to get another 16 bits */
-      if ( 0 == bit_mask )
-      {
-         bit_mask  = 0x8000;  /* start with the high bit */
-         bit_value = pletohs(pin);   /* get the next 16 bits */
-         pin += 2;          /* skip over what we just grabbed */
-         if ( pin >= pin_end )
-         {
-            *err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-            return ( -1 );
-         }
-      }
+		/* If there are no bits left, time to get another 16 bits */
+		if ( 0 == bit_mask )
+		{
+			bit_mask  = 0x8000;  /* start with the high bit */
+			bit_value = pletohs(pin);   /* get the next 16 bits */
+			pin += 2;          /* skip over what we just grabbed */
+			if ( pin >= pin_end )
+			{
+				*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
+				return ( -1 );
+			}
+		}
 
-      /* Use the bits in bit_value to see what's encoded and what is raw data */
-      if ( !(bit_mask & bit_value) )
-      {
-         /* bit not set - raw byte we just copy */
-         *(pout++) = *(pin++);
-      }
-      else
-      {
-         /* bit set - next item is encoded.  Peel off high nybble
-            of next byte to see the encoding type.  Set aside low
-            nybble while we are at it */
-         code_type = (unsigned int) ((*pin) >> 4 ) & 0xF;
-         code_low  = (unsigned int) ((*pin) & 0xF );
-         pin++;   /* increment over the code byte we just retrieved */
-         if ( pin >= pin_end )
-         {
-            *err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-            return ( -1 );
-         }
+		/* Use the bits in bit_value to see what's encoded and what is raw data */
+		if ( !(bit_mask & bit_value) )
+		{
+			/* bit not set - raw byte we just copy */
+			*(pout++) = *(pin++);
+		}
+		else
+		{
+			/* bit set - next item is encoded.  Peel off high nybble
+			   of next byte to see the encoding type.  Set aside low
+			   nybble while we are at it */
+			code_type = (unsigned int) ((*pin) >> 4 ) & 0xF;
+			code_low  = (unsigned int) ((*pin) & 0xF );
+			pin++;   /* increment over the code byte we just retrieved */
+			if ( pin >= pin_end )
+			{
+				*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
+				return ( -1 );
+			}
 
-         /* Based on the code type, decode the compressed string */
-         switch ( code_type )
-         {
-            case 0  :   /* RLE short runs */
-                /*
-                    Run length is the low nybble of the first code byte.
-                    Byte to repeat immediately follows.
-                    Total code size: 2 bytes.
-                */
-                length = code_low + 3;
-                /* If length would put us past end of output, avoid overflow */
-                if ( pout + length > pout_end )
-                {
-                    *err = WTAP_ERR_UNC_OVERFLOW;
-                    return ( -1 );
-                }
+			/* Based on the code type, decode the compressed string */
+			switch ( code_type )
+			{
+			case 0  :   /* RLE short runs */
+				/*
+				  Run length is the low nybble of the first code byte.
+				  Byte to repeat immediately follows.
+				  Total code size: 2 bytes.
+				*/
+				length = code_low + 3;
+				/* If length would put us past end of output, avoid overflow */
+				if ( pout + length > pout_end )
+				{
+					*err = WTAP_ERR_UNC_OVERFLOW;
+					return ( -1 );
+				}
 
-                /* generate the repeated series of bytes */
-                memset( pout, *pin++, length );
-                pout += length;
-                break;
-            case 1  :   /* RLE long runs */
-                /*
-                    Low 4 bits of run length is the low nybble of the
-                    first code byte, upper 8 bits of run length is in
-                    the next byte.
-                    Byte to repeat immediately follows.
-                    Total code size: 3 bytes.
-                */
-                length = code_low + ((unsigned int)(*pin++) << 4) + 19;
-                /* If we are already at end of input, there is no byte
-                   to repeat */
-                if ( pin >= pin_end )
-                {
-                    *err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-                    return ( -1 );
-                }
-                /* If length would put us past end of output, avoid overflow */
-                if ( pout + length > pout_end )
-                {
-                    *err = WTAP_ERR_UNC_OVERFLOW;
-                    return ( -1 );
-                }
+				/* generate the repeated series of bytes */
+				memset( pout, *pin++, length );
+				pout += length;
+				break;
+			case 1  :   /* RLE long runs */
+				/*
+				  Low 4 bits of run length is the low nybble of the
+				  first code byte, upper 8 bits of run length is in
+				  the next byte.
+				  Byte to repeat immediately follows.
+				  Total code size: 3 bytes.
+				*/
+				length = code_low + ((unsigned int)(*pin++) << 4) + 19;
+				/* If we are already at end of input, there is no byte
+				   to repeat */
+				if ( pin >= pin_end )
+				{
+					*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
+					return ( -1 );
+				}
+				/* If length would put us past end of output, avoid overflow */
+				if ( pout + length > pout_end )
+				{
+					*err = WTAP_ERR_UNC_OVERFLOW;
+					return ( -1 );
+				}
 
-                /* generate the repeated series of bytes */
-                memset( pout, *pin++, length );
-                pout += length;
-                break;
-            case 2  :   /* LZ77 long strings */
-                /*
-                    Low 4 bits of offset to string is the low nybble of the
-                    first code byte, upper 8 bits of offset is in
-                    the next byte.
-                    Length of string immediately follows.
-                    Total code size: 3 bytes.
-                */
-                offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
-                /* If we are already at end of input, there is no byte
-                   to repeat */
-                if ( pin >= pin_end )
-                {
-                    *err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
-                    return ( -1 );
-                }
-                /* Check if offset would put us back past begin of buffer */
-                if ( pout - offset < outbuf )
-                {
-                    *err = WTAP_ERR_UNC_BAD_OFFSET;
-                    return ( -1 );
-                }
+				/* generate the repeated series of bytes */
+				memset( pout, *pin++, length );
+				pout += length;
+				break;
+			case 2  :   /* LZ77 long strings */
+				/*
+				  Low 4 bits of offset to string is the low nybble of the
+				  first code byte, upper 8 bits of offset is in
+				  the next byte.
+				  Length of string immediately follows.
+				  Total code size: 3 bytes.
+				*/
+				offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
+				/* If we are already at end of input, there is no byte
+				   to repeat */
+				if ( pin >= pin_end )
+				{
+					*err = WTAP_ERR_UNC_TRUNCATED;	 /* data was oddly truncated */
+					return ( -1 );
+				}
+				/* Check if offset would put us back past begin of buffer */
+				if ( pout - offset < outbuf )
+				{
+					*err = WTAP_ERR_UNC_BAD_OFFSET;
+					return ( -1 );
+				}
 
-                /* get length from next byte, make sure it won't overrun buf */
-                length = (unsigned int)(*pin++) + 16;
-                if ( pout + length > pout_end )
-                {
-                    *err = WTAP_ERR_UNC_OVERFLOW;
-                    return ( -1 );
-                }
+				/* get length from next byte, make sure it won't overrun buf */
+				length = (unsigned int)(*pin++) + 16;
+				if ( pout + length > pout_end )
+				{
+					*err = WTAP_ERR_UNC_OVERFLOW;
+					return ( -1 );
+				}
 
-                /* Copy the string from previous text to output position,
-                   advance output pointer */
-                memcpy( pout, pout - offset, length );
-                pout += length;
-                break;
-            default :   /* (3 to 15): LZ77 short strings */
-                /*
-                    Low 4 bits of offset to string is the low nybble of the
-                    first code byte, upper 8 bits of offset is in
-                    the next byte.
-                    Length of string to repeat is overloaded into code_type.
-                    Total code size: 2 bytes.
-                */
-                offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
-                /* Check if offset would put us back past begin of buffer */
-                if ( pout - offset < outbuf )
-                {
-                    *err = WTAP_ERR_UNC_BAD_OFFSET;
-                    return ( -1 );
-                }
+				/* Copy the string from previous text to output position,
+				   advance output pointer */
+				memcpy( pout, pout - offset, length );
+				pout += length;
+				break;
+			default :   /* (3 to 15): LZ77 short strings */
+				/*
+				  Low 4 bits of offset to string is the low nybble of the
+				  first code byte, upper 8 bits of offset is in
+				  the next byte.
+				  Length of string to repeat is overloaded into code_type.
+				  Total code size: 2 bytes.
+				*/
+				offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
+				/* Check if offset would put us back past begin of buffer */
+				if ( pout - offset < outbuf )
+				{
+					*err = WTAP_ERR_UNC_BAD_OFFSET;
+					return ( -1 );
+				}
 
-                /* get length from code_type, make sure it won't overrun buf */
-                length = code_type;
-                if ( pout + length > pout_end )
-                {
-                    *err = WTAP_ERR_UNC_OVERFLOW;
-                    return ( -1 );
-                }
+				/* get length from code_type, make sure it won't overrun buf */
+				length = code_type;
+				if ( pout + length > pout_end )
+				{
+					*err = WTAP_ERR_UNC_OVERFLOW;
+					return ( -1 );
+				}
 
-                /* Copy the string from previous text to output position,
-                   advance output pointer */
-                memcpy( pout, pout - offset, length );
-                pout += length;
-                break;
-         }
-      }
+				/* Copy the string from previous text to output position,
+				   advance output pointer */
+				memcpy( pout, pout - offset, length );
+				pout += length;
+				break;
+			}
+		}
 
-      /* If we've consumed all the input, we are done */
-      if ( pin >= pin_end )
-         break;
-   }
+		/* If we've consumed all the input, we are done */
+		if ( pin >= pin_end )
+			break;
+	}
 
-   return (int) ( pout - outbuf );  /* return length of expanded text */
+	return (int) ( pout - outbuf );  /* return length of expanded text */
 }
 
 /*
@@ -2423,232 +2425,232 @@ typedef struct {
 
 static gint64
 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
-    int *err, gchar **err_info)
+	     int *err, gchar **err_info)
 {
-    ngsniffer_t *ngsniffer;
-    FILE_T infile;
-    ngsniffer_comp_stream_t *comp_stream;
-    unsigned int copybytes = nbytes; /* bytes left to be copied */
-    gint64 copied_bytes = 0; /* bytes already copied */
-    unsigned char *outbuffer = buffer; /* where to write next decompressed data */
-    blob_info_t *blob;
-    unsigned int bytes_to_copy;
-    unsigned int bytes_left;
+	ngsniffer_t *ngsniffer;
+	FILE_T infile;
+	ngsniffer_comp_stream_t *comp_stream;
+	unsigned int copybytes = nbytes; /* bytes left to be copied */
+	gint64 copied_bytes = 0; /* bytes already copied */
+	unsigned char *outbuffer = buffer; /* where to write next decompressed data */
+	blob_info_t *blob;
+	unsigned int bytes_to_copy;
+	unsigned int bytes_left;
 
-    ngsniffer = (ngsniffer_t *)wth->priv;
-    if (is_random) {
-	infile = wth->random_fh;
-	comp_stream = &ngsniffer->rand;
-    } else {
-	infile = wth->fh;
-	comp_stream = &ngsniffer->seq;
-    }
-
-    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
-	errno = WTAP_ERR_CANT_READ;
-	copied_bytes = file_read(buffer, copybytes, infile);
-	if ((unsigned int) copied_bytes != copybytes)
-	    *err = file_error(infile, err_info);
-	return copied_bytes;
-    }
-
-    /* Allocate the stream buffer if it hasn't already been allocated. */
-    if (comp_stream->buf == NULL) {
-	comp_stream->buf = g_malloc(OUTBUF_SIZE);
-
+	ngsniffer = (ngsniffer_t *)wth->priv;
 	if (is_random) {
-	    /* This is the first read of the random file, so we're at
-	       the beginning of the sequence of blobs in the file
-	       (as we've not done any random reads yet to move the
-	       current position in the random stream); set the
-	       current blob to be the first blob. */
-	    ngsniffer->current_blob = ngsniffer->first_blob;
+		infile = wth->random_fh;
+		comp_stream = &ngsniffer->rand;
 	} else {
-	    /* This is the first sequential read; if we also have a
-	       random stream open, allocate the first element for the
-	       list of blobs, and make it the last element as well. */
-	    if (wth->random_fh != NULL) {
-		g_assert(ngsniffer->first_blob == NULL);
-		blob = g_malloc(sizeof (blob_info_t));
-		blob->blob_comp_offset = comp_stream->comp_offset;
-		blob->blob_uncomp_offset = comp_stream->uncomp_offset;
-		ngsniffer->first_blob = g_list_append(ngsniffer->first_blob,
-		    blob);
-		ngsniffer->last_blob = ngsniffer->first_blob;
-	    }
+		infile = wth->fh;
+		comp_stream = &ngsniffer->seq;
 	}
 
-	/* Now read the first blob into the buffer. */
-	if (read_blob(infile, comp_stream, err, err_info) < 0)
-	    return -1;
-    }
-    while (copybytes > 0) {
-	bytes_left = comp_stream->nbytes - comp_stream->nextout;
-	if (bytes_left == 0) {
-	    /* There's no decompressed stuff left to copy from the current
-	       blob; get the next blob. */
+	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+		errno = WTAP_ERR_CANT_READ;
+		copied_bytes = file_read(buffer, copybytes, infile);
+		if ((unsigned int) copied_bytes != copybytes)
+			*err = file_error(infile, err_info);
+		return copied_bytes;
+	}
 
-	    if (is_random) {
-		/* Move to the next blob in the list. */
-		ngsniffer->current_blob = g_list_next(ngsniffer->current_blob);
-		if (!ngsniffer->current_blob) {
-			/*
-			 * XXX - this "can't happen"; we should have a
-			 * blob for every byte in the file.
-			 */
-			*err = WTAP_ERR_CANT_SEEK;
+	/* Allocate the stream buffer if it hasn't already been allocated. */
+	if (comp_stream->buf == NULL) {
+		comp_stream->buf = g_malloc(OUTBUF_SIZE);
+
+		if (is_random) {
+			/* This is the first read of the random file, so we're at
+			   the beginning of the sequence of blobs in the file
+			   (as we've not done any random reads yet to move the
+			   current position in the random stream); set the
+			   current blob to be the first blob. */
+			ngsniffer->current_blob = ngsniffer->first_blob;
+		} else {
+			/* This is the first sequential read; if we also have a
+			   random stream open, allocate the first element for the
+			   list of blobs, and make it the last element as well. */
+			if (wth->random_fh != NULL) {
+				g_assert(ngsniffer->first_blob == NULL);
+				blob = g_malloc(sizeof (blob_info_t));
+				blob->blob_comp_offset = comp_stream->comp_offset;
+				blob->blob_uncomp_offset = comp_stream->uncomp_offset;
+				ngsniffer->first_blob = g_list_append(ngsniffer->first_blob,
+								      blob);
+				ngsniffer->last_blob = ngsniffer->first_blob;
+			}
+		}
+
+		/* Now read the first blob into the buffer. */
+		if (read_blob(infile, comp_stream, err, err_info) < 0)
 			return -1;
-		}
-		blob = ngsniffer->current_blob->data;
-	    } else {
-		/* If we also have a random stream open, add a new element,
-		   for this blob, to the list of blobs; we know the list is
-		   non-empty, as we initialized it on the first sequential
-		   read, so we just add the new element at the end, and
-		   adjust the pointer to the last element to refer to it. */
-		if (wth->random_fh != NULL) {
-		    blob = g_malloc(sizeof (blob_info_t));
-		    blob->blob_comp_offset = comp_stream->comp_offset;
-		    blob->blob_uncomp_offset = comp_stream->uncomp_offset;
-		    ngsniffer->last_blob = g_list_append(ngsniffer->last_blob,
-							 blob);
-		}
-	    }
-
-	    if (read_blob(infile, comp_stream, err, err_info) < 0)
-		return -1;
-	    bytes_left = comp_stream->nbytes - comp_stream->nextout;
 	}
+	while (copybytes > 0) {
+		bytes_left = comp_stream->nbytes - comp_stream->nextout;
+		if (bytes_left == 0) {
+			/* There's no decompressed stuff left to copy from the current
+			   blob; get the next blob. */
 
-	bytes_to_copy = copybytes;
-	if (bytes_to_copy > bytes_left)
-	    bytes_to_copy = bytes_left;
-	memcpy(outbuffer, &comp_stream->buf[comp_stream->nextout],
-		bytes_to_copy);
-	copybytes -= bytes_to_copy;
-	copied_bytes += bytes_to_copy;
-	outbuffer += bytes_to_copy;
-	comp_stream->nextout += bytes_to_copy;
-	comp_stream->uncomp_offset += bytes_to_copy;
-    }
-    return copied_bytes;
+			if (is_random) {
+				/* Move to the next blob in the list. */
+				ngsniffer->current_blob = g_list_next(ngsniffer->current_blob);
+				if (!ngsniffer->current_blob) {
+					/*
+					 * XXX - this "can't happen"; we should have a
+					 * blob for every byte in the file.
+					 */
+					*err = WTAP_ERR_CANT_SEEK;
+					return -1;
+				}
+				blob = ngsniffer->current_blob->data;
+			} else {
+				/* If we also have a random stream open, add a new element,
+				   for this blob, to the list of blobs; we know the list is
+				   non-empty, as we initialized it on the first sequential
+				   read, so we just add the new element at the end, and
+				   adjust the pointer to the last element to refer to it. */
+				if (wth->random_fh != NULL) {
+					blob = g_malloc(sizeof (blob_info_t));
+					blob->blob_comp_offset = comp_stream->comp_offset;
+					blob->blob_uncomp_offset = comp_stream->uncomp_offset;
+					ngsniffer->last_blob = g_list_append(ngsniffer->last_blob,
+									     blob);
+				}
+			}
+
+			if (read_blob(infile, comp_stream, err, err_info) < 0)
+				return -1;
+			bytes_left = comp_stream->nbytes - comp_stream->nextout;
+		}
+
+		bytes_to_copy = copybytes;
+		if (bytes_to_copy > bytes_left)
+			bytes_to_copy = bytes_left;
+		memcpy(outbuffer, &comp_stream->buf[comp_stream->nextout],
+		       bytes_to_copy);
+		copybytes -= bytes_to_copy;
+		copied_bytes += bytes_to_copy;
+		outbuffer += bytes_to_copy;
+		comp_stream->nextout += bytes_to_copy;
+		comp_stream->uncomp_offset += bytes_to_copy;
+	}
+	return copied_bytes;
 }
 
 /* Read a blob from a compressed stream.
    Return -1 and set "*err" and "*err_info" on error, otherwise return 0. */
 static int
 read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
-    gchar **err_info)
+	  gchar **err_info)
 {
-    int in_len;
-    size_t read_len;
-    unsigned short blob_len;
-    gint16 blob_len_host;
-    gboolean uncompressed;
-    unsigned char *file_inbuf;
-    int out_len;
+	int in_len;
+	size_t read_len;
+	unsigned short blob_len;
+	gint16 blob_len_host;
+	gboolean uncompressed;
+	unsigned char *file_inbuf;
+	int out_len;
 
-    /* Read one 16-bit word which is length of next compressed blob */
-    errno = WTAP_ERR_CANT_READ;
-    read_len = file_read(&blob_len, 2, infile);
-    if (2 != read_len) {
-	*err = file_error(infile, err_info);
-	return -1;
-    }
-    comp_stream->comp_offset += 2;
-    blob_len_host = pletohs(&blob_len);
-
-    /* Compressed or uncompressed? */
-    if (blob_len_host < 0) {
-    	/* Uncompressed blob; blob length is absolute value of the number. */
-	in_len = -blob_len_host;
-	uncompressed = TRUE;
-    } else {
-    	in_len = blob_len_host;
-	uncompressed = FALSE;
-    }
-
-    file_inbuf = g_malloc(INBUF_SIZE);
-
-    /* Read the blob */
-    errno = WTAP_ERR_CANT_READ;
-    read_len = file_read(file_inbuf, in_len, infile);
-    if ((size_t) in_len != read_len) {
-	*err = file_error(infile, err_info);
-	g_free(file_inbuf);
-	return -1;
-    }
-    comp_stream->comp_offset += in_len;
-
-    if (uncompressed) {
-	memcpy(comp_stream->buf, file_inbuf, in_len);
-	out_len = in_len;
-    } else {
-	/* Decompress the blob */
-	out_len = SnifferDecompress(file_inbuf, in_len,
-				comp_stream->buf, OUTBUF_SIZE, err);
-	if (out_len < 0) {
-	    g_free(file_inbuf);
-	    return -1;
+	/* Read one 16-bit word which is length of next compressed blob */
+	errno = WTAP_ERR_CANT_READ;
+	read_len = file_read(&blob_len, 2, infile);
+	if (2 != read_len) {
+		*err = file_error(infile, err_info);
+		return -1;
 	}
-    }
+	comp_stream->comp_offset += 2;
+	blob_len_host = pletohs(&blob_len);
 
-    g_free(file_inbuf);
-    comp_stream->nextout = 0;
-    comp_stream->nbytes = out_len;
-    return 0;
+	/* Compressed or uncompressed? */
+	if (blob_len_host < 0) {
+		/* Uncompressed blob; blob length is absolute value of the number. */
+		in_len = -blob_len_host;
+		uncompressed = TRUE;
+	} else {
+		in_len = blob_len_host;
+		uncompressed = FALSE;
+	}
+
+	file_inbuf = g_malloc(INBUF_SIZE);
+
+	/* Read the blob */
+	errno = WTAP_ERR_CANT_READ;
+	read_len = file_read(file_inbuf, in_len, infile);
+	if ((size_t) in_len != read_len) {
+		*err = file_error(infile, err_info);
+		g_free(file_inbuf);
+		return -1;
+	}
+	comp_stream->comp_offset += in_len;
+
+	if (uncompressed) {
+		memcpy(comp_stream->buf, file_inbuf, in_len);
+		out_len = in_len;
+	} else {
+		/* Decompress the blob */
+		out_len = SnifferDecompress(file_inbuf, in_len,
+					    comp_stream->buf, OUTBUF_SIZE, err);
+		if (out_len < 0) {
+			g_free(file_inbuf);
+			return -1;
+		}
+	}
+
+	g_free(file_inbuf);
+	comp_stream->nextout = 0;
+	comp_stream->nbytes = out_len;
+	return 0;
 }
 
 /* Seek in the sequential data stream; we can only seek forward, and we
    do it on compressed files by skipping forward. */
 static gint64
 ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
-    gchar **err_info)
+		 gchar **err_info)
 {
-    gint64 delta;
-    char *buf;
-    unsigned int amount_to_read;
-    ngsniffer_t *ngsniffer;
+	gint64 delta;
+	char *buf;
+	unsigned int amount_to_read;
+	ngsniffer_t *ngsniffer;
 
-    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-	return file_seek(wth->fh, offset, whence, err);
+	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
+		return file_seek(wth->fh, offset, whence, err);
 
-    ngsniffer = (ngsniffer_t *)wth->priv;
-    switch (whence) {
+	ngsniffer = (ngsniffer_t *)wth->priv;
+	switch (whence) {
 
-    case SEEK_SET:
-    	break;		/* "offset" is the target offset */
+	case SEEK_SET:
+		break;		/* "offset" is the target offset */
 
-    case SEEK_CUR:
-	offset += ngsniffer->seq.uncomp_offset;
-	break;		/* "offset" is relative to the current offset */
+	case SEEK_CUR:
+		offset += ngsniffer->seq.uncomp_offset;
+		break;		/* "offset" is relative to the current offset */
 
-    case SEEK_END:
-	g_assert_not_reached();	/* "offset" is relative to the end of the file... */
-	break;		/* ...but we don't know where that is. */
-    }
-
-    delta = offset - ngsniffer->seq.uncomp_offset;
-    g_assert(delta >= 0);
-
-    /* Ok, now read and discard "delta" bytes. */
-    buf = g_malloc(INBUF_SIZE);
-    while (delta != 0) {
-	if (delta > INBUF_SIZE)
-	    amount_to_read = INBUF_SIZE;
-	else
-	    amount_to_read = (unsigned int) delta;
-
-	if (ng_file_read(buf, amount_to_read, wth, FALSE, err, err_info) < 0) {
-	    g_free(buf);
-	    return -1;	/* error */
+	case SEEK_END:
+		g_assert_not_reached();	/* "offset" is relative to the end of the file... */
+		break;		/* ...but we don't know where that is. */
 	}
 
-	delta -= amount_to_read;
-    }
+	delta = offset - ngsniffer->seq.uncomp_offset;
+	g_assert(delta >= 0);
 
-    g_free(buf);
-    return offset;
+	/* Ok, now read and discard "delta" bytes. */
+	buf = g_malloc(INBUF_SIZE);
+	while (delta != 0) {
+		if (delta > INBUF_SIZE)
+			amount_to_read = INBUF_SIZE;
+		else
+			amount_to_read = (unsigned int) delta;
+
+		if (ng_file_read(buf, amount_to_read, wth, FALSE, err, err_info) < 0) {
+			g_free(buf);
+			return -1;	/* error */
+		}
+
+		delta -= amount_to_read;
+	}
+
+	g_free(buf);
+	return offset;
 }
 
 /* Seek in the random data stream.
@@ -2661,118 +2663,118 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
    already had in memory or, if necessary, the one we read in). */
 static gint64
 ng_file_seek_rand(wtap *wth, gint64 offset, int whence, int *err,
-    gchar **err_info)
+		  gchar **err_info)
 {
-    ngsniffer_t *ngsniffer;
-    gint64 delta;
-    GList *new, *next;
-    blob_info_t *next_blob, *new_blob;
+	ngsniffer_t *ngsniffer;
+	gint64 delta;
+	GList *new, *next;
+	blob_info_t *next_blob, *new_blob;
 
-    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-	return file_seek(wth->random_fh, offset, whence, err);
+	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
+		return file_seek(wth->random_fh, offset, whence, err);
 
-    ngsniffer = (ngsniffer_t *)wth->priv;
+	ngsniffer = (ngsniffer_t *)wth->priv;
 
-    switch (whence) {
+	switch (whence) {
 
-    case SEEK_SET:
-    	break;		/* "offset" is the target offset */
+	case SEEK_SET:
+		break;		/* "offset" is the target offset */
 
-    case SEEK_CUR:
-	offset += ngsniffer->rand.uncomp_offset;
-	break;		/* "offset" is relative to the current offset */
+	case SEEK_CUR:
+		offset += ngsniffer->rand.uncomp_offset;
+		break;		/* "offset" is relative to the current offset */
 
-    case SEEK_END:
-	g_assert_not_reached();	/* "offset" is relative to the end of the file... */
-	break;		/* ...but we don't know where that is. */
-    }
-
-    delta = offset - ngsniffer->rand.uncomp_offset;
-
-    /* Is the place to which we're seeking within the current buffer, or
-       will we have to read a different blob into the buffer? */
-    new = NULL;
-    if (delta > 0) {
-	/* We're going forwards.
-	   Is the place to which we're seeking within the current buffer? */
-	if ((size_t)(ngsniffer->rand.nextout + delta) >= ngsniffer->rand.nbytes) {
-	    /* No.  Search for a blob that contains the target offset in
-	       the uncompressed byte stream, starting with the blob
-	       following the current blob. */
-	    new = g_list_next(ngsniffer->current_blob);
-	    while (new) {
-		next = g_list_next(new);
-		if (next == NULL) {
-		    /* No more blobs; the current one is it. */
-		    break;
-		}
-
-		next_blob = next->data;
-		/* Does the next blob start after the target offset?
-		   If so, the current blob is the one we want. */
-		if (next_blob->blob_uncomp_offset > offset)
-		    break;
-
-		new = next;
-	    }
+	case SEEK_END:
+		g_assert_not_reached();	/* "offset" is relative to the end of the file... */
+		break;		/* ...but we don't know where that is. */
 	}
-    } else if (delta < 0) {
-	/* We're going backwards.
-	   Is the place to which we're seeking within the current buffer? */
-	if (ngsniffer->rand.nextout + delta < 0) {
-	    /* No.  Search for a blob that contains the target offset in
-	       the uncompressed byte stream, starting with the blob
-	       preceding the current blob. */
-	    new = g_list_previous(ngsniffer->current_blob);
-	    while (new) {
-		/* Does this blob start at or before the target offset?
-		   If so, the current blob is the one we want. */
-		new_blob = new->data;
-		if (new_blob->blob_uncomp_offset <= offset)
-		    break;
 
-		/* It doesn't - skip to the previous blob. */
-		new = g_list_previous(new);
-	    }
-	}
-    }
-
-    if (new != NULL) {
-	/* The place to which we're seeking isn't in the current buffer;
-	   move to a new blob. */
-	new_blob = new->data;
-
-	/* Seek in the compressed file to the offset in the compressed file
-	   of the beginning of that blob. */
-	if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET, err) == -1)
-	    return -1;
-
-	/* Make the blob we found the current one. */
-	ngsniffer->current_blob = new;
-
-	/* Now set the current offsets to the offsets of the beginning
-	   of the blob. */
-	ngsniffer->rand.uncomp_offset = new_blob->blob_uncomp_offset;
-	ngsniffer->rand.comp_offset = new_blob->blob_comp_offset;
-
-	/* Now fill the buffer. */
-	if (read_blob(wth->random_fh, &ngsniffer->rand, err, err_info) < 0)
-	    return -1;
-
-	/* Set "delta" to the amount to move within this blob; it had
-	   better be >= 0, and < the amount of uncompressed data in
-	   the blob, as otherwise it'd mean we need to seek before
-	   the beginning or after the end of this blob. */
 	delta = offset - ngsniffer->rand.uncomp_offset;
-	g_assert(delta >= 0 && (unsigned long)delta < ngsniffer->rand.nbytes);
-    }
 
-    /* OK, the place to which we're seeking is in the buffer; adjust
-       "ngsniffer->rand.nextout" to point to the place to which
-       we're seeking, and adjust "ngsniffer->rand.uncomp_offset" to be
-       the destination offset. */
-    ngsniffer->rand.nextout += (int) delta;
-    ngsniffer->rand.uncomp_offset += delta;
+	/* Is the place to which we're seeking within the current buffer, or
+	   will we have to read a different blob into the buffer? */
+	new = NULL;
+	if (delta > 0) {
+		/* We're going forwards.
+		   Is the place to which we're seeking within the current buffer? */
+		if ((size_t)(ngsniffer->rand.nextout + delta) >= ngsniffer->rand.nbytes) {
+			/* No.  Search for a blob that contains the target offset in
+			   the uncompressed byte stream, starting with the blob
+			   following the current blob. */
+			new = g_list_next(ngsniffer->current_blob);
+			while (new) {
+				next = g_list_next(new);
+				if (next == NULL) {
+					/* No more blobs; the current one is it. */
+					break;
+				}
 
-    return offset;
+				next_blob = next->data;
+				/* Does the next blob start after the target offset?
+				   If so, the current blob is the one we want. */
+				if (next_blob->blob_uncomp_offset > offset)
+					break;
+
+				new = next;
+			}
+		}
+	} else if (delta < 0) {
+		/* We're going backwards.
+		   Is the place to which we're seeking within the current buffer? */
+		if (ngsniffer->rand.nextout + delta < 0) {
+			/* No.  Search for a blob that contains the target offset in
+			   the uncompressed byte stream, starting with the blob
+			   preceding the current blob. */
+			new = g_list_previous(ngsniffer->current_blob);
+			while (new) {
+				/* Does this blob start at or before the target offset?
+				   If so, the current blob is the one we want. */
+				new_blob = new->data;
+				if (new_blob->blob_uncomp_offset <= offset)
+					break;
+
+				/* It doesn't - skip to the previous blob. */
+				new = g_list_previous(new);
+			}
+		}
+	}
+
+	if (new != NULL) {
+		/* The place to which we're seeking isn't in the current buffer;
+		   move to a new blob. */
+		new_blob = new->data;
+
+		/* Seek in the compressed file to the offset in the compressed file
+		   of the beginning of that blob. */
+		if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET, err) == -1)
+			return -1;
+
+		/* Make the blob we found the current one. */
+		ngsniffer->current_blob = new;
+
+		/* Now set the current offsets to the offsets of the beginning
+		   of the blob. */
+		ngsniffer->rand.uncomp_offset = new_blob->blob_uncomp_offset;
+		ngsniffer->rand.comp_offset = new_blob->blob_comp_offset;
+
+		/* Now fill the buffer. */
+		if (read_blob(wth->random_fh, &ngsniffer->rand, err, err_info) < 0)
+			return -1;
+
+		/* Set "delta" to the amount to move within this blob; it had
+		   better be >= 0, and < the amount of uncompressed data in
+		   the blob, as otherwise it'd mean we need to seek before
+		   the beginning or after the end of this blob. */
+		delta = offset - ngsniffer->rand.uncomp_offset;
+		g_assert(delta >= 0 && (unsigned long)delta < ngsniffer->rand.nbytes);
+	}
+
+	/* OK, the place to which we're seeking is in the buffer; adjust
+	   "ngsniffer->rand.nextout" to point to the place to which
+	   we're seeking, and adjust "ngsniffer->rand.uncomp_offset" to be
+	   the destination offset. */
+	ngsniffer->rand.nextout += (int) delta;
+	ngsniffer->rand.uncomp_offset += delta;
+
+	return offset;
 }
