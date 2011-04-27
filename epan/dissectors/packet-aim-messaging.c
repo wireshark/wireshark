@@ -29,11 +29,10 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
+
+#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -52,14 +51,14 @@
 #define INCOMING_CH1_TYPING            0x000b
 
 static const aim_tlv aim_messaging_incoming_ch1_tlvs[] = {
-  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_messageblock },
-  { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH1_ICON_PRESENT, "Icon present", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH1_BUDDY_REQ, "Buddy Req", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH1_TYPING, "Non-direct connect typing notification", dissect_aim_tlv_value_bytes },
-  { 0, NULL, NULL },
+	{ INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_messageblock },
+	{ INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH1_ICON_PRESENT, "Icon present", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH1_BUDDY_REQ, "Buddy Req", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH1_TYPING, "Non-direct connect typing notification", dissect_aim_tlv_value_bytes },
+	{ 0, NULL, NULL },
 };
 
 static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo);
@@ -78,9 +77,9 @@ static const value_string icbm_channel_types[] = {
 #define INCOMING_CH2_RENDEZVOUS_DATA       0x0005
 
 static const aim_tlv aim_messaging_incoming_ch2_tlvs[] = {
-  { INCOMING_CH2_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
-  { INCOMING_CH2_RENDEZVOUS_DATA, "Rendez Vous Data", dissect_aim_tlv_value_rendezvous },
-  { 0, NULL, NULL },
+	{ INCOMING_CH2_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
+	{ INCOMING_CH2_RENDEZVOUS_DATA, "Rendez Vous Data", dissect_aim_tlv_value_rendezvous },
+	{ 0, NULL, NULL },
 };
 
 #define RENDEZVOUS_TLV_CHANNEL				0x0001
@@ -485,14 +484,15 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_p
 static int
 dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 {
-	guint8 message_type, message_flags;
+	guint8 /*message_type,*/message_flags;
 	int offset = 0;
 	proto_item *ti_flags;
 	proto_tree *flags_entry;
 	guint16 text_length;
 	guint8* text;
 
-	message_type = tvb_get_guint8(tvb, offset);
+	/* TODO: parse and present message_type */
+	/* message_type = tvb_get_guint8(tvb, offset); */
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, FALSE); offset+=1;
 	message_flags = tvb_get_guint8(tvb, offset);
 	ti_flags = proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags);
@@ -532,7 +532,7 @@ static int
 dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
-	guint16 length, protocol_version;
+	guint16 length/*, protocol_version*/;
 	int start_offset;
 	proto_tree *entry;
 	e_uuid_t plugin_uuid;
@@ -541,7 +541,8 @@ dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_
 	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
 	start_offset = offset;
-	protocol_version = tvb_get_ntohs(tvb, offset);
+	/* TODO: parse and present protocol version */
+	/* protocol_version = tvb_get_ntohs(tvb, offset); */
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, TRUE); offset+=2;
 
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
