@@ -29,7 +29,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -576,7 +575,6 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 {
    int offset = 0;
    int i;
-   int doffset = BITTORRENT_HEADER_LENGTH;
    int isamp = 0;
    proto_tree *mtree;
    guint16 type = 0;
@@ -615,7 +613,6 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
                   prio = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH + 4 + typelen);
                   if (prio==0 || prio==1 || prio==2) {
                      type = amp_messages[i].value;
-                     doffset = BITTORRENT_HEADER_LENGTH + 4 + typelen + 1;
                      isamp = 1;
                   }
                   break;
