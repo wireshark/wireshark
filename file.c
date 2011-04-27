@@ -392,8 +392,10 @@ cf_reset_state(capture_file *cf)
 
   dfilter_free(cf->rfcode);
   cf->rfcode = NULL;
-  free_frame_data_sequence(cf->frames);
-  cf->frames = NULL;
+  if (cf->frames != NULL) {
+    free_frame_data_sequence(cf->frames);
+    cf->frames = NULL;
+  }
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = 0;
   cf->last_displayed = 0;
