@@ -153,7 +153,7 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   tvbuff_t   *association_tvb;
   proto_item *association_item;
   proto_tree *association_tree;
-  gint        associations;
+  /* gint        associations; - variable set but not used, so commented out */
   int         i;
   gint        offset;
 
@@ -163,7 +163,7 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   proto_tree_add_item(message_tree, hf_componentstatusreport_workload,       message_tvb, COMPONENTSTATUSREPORT_WORKLOAD_OFFSET,       COMPONENTSTATUSREPORT_WORKLOAD_LENGTH,       FALSE);
   proto_tree_add_item(message_tree, hf_componentstatusreport_associations,   message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET,   COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH,   FALSE);
 
-  associations = tvb_get_ntohs(message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET);
+  /* associations = tvb_get_ntohs(message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET); */
   offset = COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET;
   i = 1;
   while(tvb_reported_length_remaining(message_tvb, offset) >= COMPONENTASSOCIATION_LENGTH) {

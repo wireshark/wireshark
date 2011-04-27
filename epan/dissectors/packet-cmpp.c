@@ -399,7 +399,7 @@ static void
 cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 {
 	int offset, i;
-	guint8 msg_format, destUsr, msgLen;
+	guint8 destUsr, msgLen;
 	offset = CMPP_FIX_HEADER_LENGTH;
 	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
@@ -423,7 +423,7 @@ cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	cmpp_uint1(tree, tvb, hf_cmpp_TP_udhi, offset);
 	offset++;
-	msg_format = cmpp_uint1(tree, tvb, hf_cmpp_Msg_Fmt, offset);
+	cmpp_uint1(tree, tvb, hf_cmpp_Msg_Fmt, offset);
 	offset++;
 	cmpp_octet_string(tree, tvb, hf_cmpp_submit_Msg_src, offset, 6);
 	offset += 6;

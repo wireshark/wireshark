@@ -1,6 +1,6 @@
 /* packet-cpha.c
  * Routines for the Check Point High-Availability Protocol (CPHAP)
- * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
+ * Copyright 2002, Yaniv Kaul <mykaul -at- gmail.com>
  *
  * $Id$
  *
@@ -293,7 +293,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct fwha_my_state_hdr hdr;
   struct fwhap_if_state_s  if_hdr;
-  int rep_mode, i;
+  int i;
   proto_item *	nti = NULL;
   proto_tree *  ntree = NULL;
 
@@ -315,7 +315,6 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_uint_format_value(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "%d milliseconds", hdr.ha_time_unit);
   offset += sizeof(hdr.ha_time_unit);
 
-  rep_mode = is_report_ifs(hdr.report_code);
   if (hdr.report_code & 1) {
 	/* states */
   	nti = proto_tree_add_text(tree, tvb, offset, hdr.id_num * sizeof(guint8), "Machine states");
