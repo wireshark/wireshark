@@ -254,7 +254,7 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset, packet_info 
 static int
 dissect_sdp_error_response(proto_tree *t, tvbuff_t *tvb, int offset) {
 
-        proto_tree_add_item(t, hf_error_code, tvb, offset, 2, FALSE);
+	proto_tree_add_item(t, hf_error_code, tvb, offset, 2, FALSE);
 	offset+=2;
 
 	return offset;
@@ -265,11 +265,11 @@ get_sdp_data_element(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, void *
 {
 	int size, start_offset, type_size;
 	guint8 byte0;
-	guint8 size_index;
+	/* guint8 size_index; */
 
 	byte0=tvb_get_guint8(tvb, offset);
 	*type = (byte0>>3) & 0x1f;
-	size_index = byte0 & 0x07;
+	/* size_index = byte0 & 0x07; set but not used, so commented out */
 
 	/* Initialize the rest of the outputs */
 	*val = NULL;
@@ -283,7 +283,7 @@ get_sdp_data_element(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, void *
 	switch (*type) {
 	case 0: { /* null */
 		*val = NULL;
-        break;
+		break;
 	}
 	case 1: /* unsigned integer */
 	case 2: /* signed integer */
@@ -859,7 +859,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *st;
 	guint8 pdu;
-	guint16 tid, plen, acl_handle;
+	guint16 acl_handle;
 	guint32 token;
 	const char *pdu_name;
 	int offset=0;
@@ -897,12 +897,10 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset++;
 
 	/* tid */
-	tid = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(st, hf_tid, tvb, offset, 2, FALSE);
 	offset+=2;
 
 	/* plen */
-	plen = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(st, hf_plen, tvb, offset, 2, FALSE);
 	offset+=2;
 
