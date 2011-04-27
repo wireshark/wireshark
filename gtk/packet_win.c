@@ -242,42 +242,42 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 }
 
 static void
-finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
+finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 {
-	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
 	const field_info *finfo = DataPtr->finfo;
-
+	const header_field_info *hfinfo = finfo->hfinfo;
 	/* XXX, appendix? */
 	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
 	int finfo_length = finfo->length;
-	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
-
-	gdouble val = gtk_spin_button_get_value(spinbutton);
 
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
-		guint64 u_val;
+		guint32 u_mask = hfinfo->bitmask;
 
-		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
-			u_val = (guint64) ((gint) val);
+		while (finfo_length--) {
+			guint8 *ptr = (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) ?
+					&(DataPtr->pd[finfo_offset++]) :
+					&(DataPtr->pd[finfo_offset + finfo_length]);
 
-		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
-			u_val = (guint64) val;
-		else {
-			g_assert_not_reached();
-			return;
-		}
+			if (u_mask) {
+				guint8 n_val = *ptr;
+				int i;
 
-		if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) {
-			while (finfo_length) {
-				/* XXX, bitmask */
-				DataPtr->pd[finfo_offset++] = u_val & 0xff;
-				u_val >>= 8;
-				finfo_length--;
-			}
-		} else {
-			while (finfo_length) {
-				/* XXX, bitmask */
-				DataPtr->pd[finfo_offset + (--finfo_length)] = u_val & 0xff;
+				for (i = 0; i < 8; i++) {
+					if (u_mask & 1) {
+						if (u_val & 1)
+							n_val |= (1 << i);
+						else
+							n_val &= ~(1 << i);
+					}
+					u_mask >>= 1;
+					u_val >>= 1;
+				}
+				*ptr = n_val;
+
+				if (!u_mask)
+					break;
+			} else {
+				*ptr = u_val & 0xff;
 				u_val >>= 8;
 			}
 		}
@@ -289,9 +289,9 @@ static void
 finfo_string_changed(GtkEditable *editable _U_, gpointer user_data)
 {
 	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
-	const field_info *finfo = DataPtr->finfo;
 
 	/* XXX, appendix? */
+	const field_info *finfo = DataPtr->finfo;
 	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
 	int finfo_length = finfo->length;
 	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
@@ -319,6 +319,44 @@ finfo_string_changed(GtkEditable *editable _U_, gpointer user_data)
 		}
 	}
 	finfo_window_refresh(DataPtr);
+}
+
+static void
+finfo_boolean_changed(GtkToggleButton *togglebutton, gpointer user_data)
+{
+	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
+
+	gboolean val = gtk_toggle_button_get_active(togglebutton);
+
+	finfo_integer_common(DataPtr, val ? G_MAXUINT64 : 0);
+}
+
+static void
+finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
+{
+	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
+
+	const field_info *finfo = DataPtr->finfo;
+	const header_field_info *hfinfo = finfo->hfinfo;
+	int finfo_type = (hfinfo) ? hfinfo->type : FT_NONE;
+
+	gdouble val = gtk_spin_button_get_value(spinbutton);
+	guint64 u_val;
+
+	if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
+		u_val = (guint64) ((gint) val);
+
+	else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
+		u_val = (guint64) val;
+	else {
+		g_assert_not_reached();
+		return;
+	}
+
+	if (hfinfo->bitmask && hfinfo->bitshift > 0)
+		u_val <<= hfinfo->bitshift;
+
+	finfo_integer_common(DataPtr, u_val);
 }
 
 static gboolean
@@ -383,6 +421,9 @@ static gint
 new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 {
 	field_info *finfo = DataPtr->finfo;
+	const header_field_info *hfinfo = finfo->hfinfo;
+	int finfo_type = (hfinfo) ? hfinfo->type : FT_NONE;
+
 	GtkWidget *dialog = gtk_dialog_new_with_buttons("Editing finfo: ....",
 			GTK_WINDOW(w),
 			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -395,7 +436,6 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 	GtkWidget *native_repr;
 	GtkWidget *bv_nb_ptr;
 
-	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
 	gint result;
 
 	if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 ||
@@ -412,8 +452,17 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 			bitcount = 24;
 		if (finfo_type == FT_INT32 || finfo_type == FT_UINT32)
 			bitcount = 32;
+		/* if (finfo_type == FT_INT64 || finfo_type == FT_UINT64)
+			bitcount = 64; */
 
-		/* XXX, limit to finfo->length */
+		if (finfo->length * 8 > bitcount)
+			bitcount = finfo->length / 8;
+
+		if (hfinfo->bitmask && hfinfo->bitshift > 0)
+			bitcount -= hfinfo->bitshift;
+
+		/* XXX, hfinfo->bitmask: Can we configure GTK_ADJUSTMENT to do custom step? (value-changed signal?) */
+
 		/* XXX, I'm little worried about these casts from (unsigned) integer to double... */
 
 		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
@@ -437,6 +486,8 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 
 	} else if (finfo_type == FT_BOOLEAN) {
 		fvalue_edit = gtk_check_button_new();
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fvalue_edit), (fvalue_get_uinteger(&finfo->value) != 0));
+		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
 	} else {
 not_supported:
