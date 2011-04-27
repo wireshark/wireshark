@@ -104,7 +104,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = tvb_length(tvb);
     reversing_buffer = se_alloc(len);
     memcpy(reversing_buffer, tvb_get_ptr(tvb, offset, -1), len);
-    
+
     p_rev = reversing_buffer;
     /* Entire message is bit reversed */
     for (i=0; i<len; i++, p_rev++)
@@ -136,55 +136,56 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
             break;
     }
-    
+
     return offset;
 }
 
-static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=1;
-    
+
     proto_tree_add_item(tree, hf_bmc_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    
+
     proto_tree_add_item(tree, hf_bmc_serial_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    
+
     proto_tree_add_item(tree, hf_bmc_data_coding_scheme, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    
+
     proto_tree_add_item(tree, hf_bmc_cb_data, tvb, offset, tvb_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
     offset = tvb_length(tvb);
-    
+
     return offset;
 }
 
-static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset=1, i, bitmap_offset, saved_offset;
+    gint offset=1, i, saved_offset;
     guint8 new_message_bitmap_len;
     guint8 length_of_cbs_schedule_period;
     guint8 message_description_type;
     guint8 future_extension_bitmap;
     guint8 length_of_serial_number_list;
     guint8 entry;
-    guint8 byte, mask, bit;
+    guint8 mask, bit;
     proto_tree *message_description_tree;
     proto_item *ti;
-    
+
     proto_tree_add_item(tree, hf_bmc_offset_to_begin_ctch_bs_index, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    
+
     length_of_cbs_schedule_period = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(tree, hf_bmc_length_of_cbs_schedule_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    
+
     new_message_bitmap_len = length_of_cbs_schedule_period>>3;
     if (length_of_cbs_schedule_period & 0x7)
         new_message_bitmap_len += 1;
-    
+
     proto_tree_add_item(tree, hf_bmc_new_message_bitmap, tvb, offset, new_message_bitmap_len, ENC_BIG_ENDIAN);
-    bitmap_offset = offset;
     offset += new_message_bitmap_len;
 
     ti = proto_tree_add_text(tree, tvb, offset, 0, "Message Description" );
@@ -193,12 +194,11 @@ static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
     bit=1;
     for (i=0; i<new_message_bitmap_len; i++) {
-        byte = tvb_get_guint8(tvb,bitmap_offset+i);
         for(mask=1; bit<=length_of_cbs_schedule_period; mask<<=1, bit++) {
             message_description_type = tvb_get_guint8(tvb,offset);
             proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type, tvb, offset, 1, message_description_type, "Message %d Message Description Type: %s (%d)", bit, val_to_str(message_description_type, message_description_type_vals,"Unknown"), message_description_type);
             offset += 1;
-    
+
             if ((message_description_type==1) || (message_description_type==5)) {
                 proto_tree_add_item(message_description_tree, hf_bmc_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -219,7 +219,7 @@ static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
             length_of_serial_number_list = tvb_get_guint8(tvb,offset);
             proto_tree_add_item(tree, hf_bmc_length_of_serial_number_list, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            
+
             for (entry=0; entry<length_of_serial_number_list; entry++) {
                 proto_tree_add_item(tree, hf_bmc_serial_number, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -229,20 +229,21 @@ static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
             }
         }
     }
-    
+
     return offset;
 }
 
-static int dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset=1;
-    
+
     proto_tree_add_item(tree, hf_bmc_broadcast_address, tvb, offset, 5, ENC_BIG_ENDIAN);
     offset += 5;
-    
+
     proto_tree_add_item(tree, hf_bmc_cb_data41, tvb, offset, tvb_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
     offset = tvb_length(tvb);
-    
+
     return offset;
 }
 
