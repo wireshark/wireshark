@@ -88,10 +88,10 @@ static gint ett_dcc_trace = -1;
 	offset += len;
 
 #define D_TEXT(label, endpad) { \
-	int next_offset,linelen,left; \
+	int next_offset,left; \
 	while (tvb_offset_exists(tvb, offset+endpad)) { \
 		left = tvb_length_remaining(tvb,offset) - endpad; \
-		linelen = tvb_find_line_end(tvb, offset, left, &next_offset, \
+		tvb_find_line_end(tvb, offset, left, &next_offset, \
 		    FALSE); \
 		proto_tree_add_text(dcc_optree, tvb, offset, \
 			next_offset - offset, "%s: %s", \
