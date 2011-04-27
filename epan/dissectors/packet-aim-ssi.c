@@ -28,9 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -50,14 +47,14 @@
 #define FAMILY_SSI_TYPE_ICONINFO      0x0014
 
 static const value_string aim_fnac_family_ssi_types[] = {
-  { FAMILY_SSI_TYPE_BUDDY, "Buddy" },
-  { FAMILY_SSI_TYPE_GROUP, "Group" },
-  { FAMILY_SSI_TYPE_PERMIT, "Permit" },
-  { FAMILY_SSI_TYPE_DENY, "Deny" },
-  { FAMILY_SSI_TYPE_PDINFO, "PDINFO" },
-  { FAMILY_SSI_TYPE_PRESENCEPREFS, "Presence Preferences" },
-  { FAMILY_SSI_TYPE_ICONINFO, "Icon Info" },
-  { 0, NULL }
+	{ FAMILY_SSI_TYPE_BUDDY, "Buddy" },
+	{ FAMILY_SSI_TYPE_GROUP, "Group" },
+	{ FAMILY_SSI_TYPE_PERMIT, "Permit" },
+	{ FAMILY_SSI_TYPE_DENY, "Deny" },
+	{ FAMILY_SSI_TYPE_PDINFO, "PDINFO" },
+	{ FAMILY_SSI_TYPE_PRESENCEPREFS, "Presence Preferences" },
+	{ FAMILY_SSI_TYPE_ICONINFO, "Icon Info" },
+	{ 0, NULL }
 };
 
 #define SSI_RIGHTSINFO_TLV_MAX_ITEMS	0x0004
@@ -236,7 +233,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 {
 	int offset = 0;
 	guint16 reason_length;
-	guint16 unknown;
+	/*guint16 unknown;*/
 
 	/* get buddy length (1 byte) */
 	guint8 buddyname_length = tvb_get_guint8(tvb, offset);
@@ -260,7 +257,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 	}
 
 	/* unknown (always 0x0000 ???) */
-	unknown = tvb_get_ntohs(tvb, offset);
+	/*unknown = tvb_get_ntohs(tvb, offset);*/
 	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_grant_auth_unkn, tvb, offset, 2, FALSE);
 	offset += 2;
 
