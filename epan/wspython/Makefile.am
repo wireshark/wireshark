@@ -57,5 +57,6 @@ EXTRA_DIST = \
 	register-dissector.py	\
 	wspy_dissector.py	\
 	wspy_libws.py		\
+	wspy_dissectors/homeplug.py.sample \
 	CMakeLists.txt
 
