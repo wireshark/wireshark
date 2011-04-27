@@ -6,5 +6,51 @@
 			<enum name="Audio Conference" code="0"/>
 			<enum name="Video Conference" code="1"/>
 		</avp>
+		<avp name="Rule-Space-Suggestion" code="290" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Rule-Space-Decision" code="291" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Bearer-Control-Options" code="292" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Charging-Rule-Authorization" code="1055" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<grouped>
+				<gavp name="Authorization-State"/>
+				<gavp name="Authorization-State-Change-Time"/>
+				<gavp name="Next-Authorization-State"/>
+			</grouped>
+		</avp>
+		<avp name="Authorization-State" code="1056" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="Authorized" code="0"/>
+			<enum name="Unauthorized due to calendar time" code="1"/>
+			<enum name="Unauthorized due to roaming" code="2"/>
+			<enum name="Unauthorized due to QoS" code="3"/>
+			<enum name="Unauthorized due to blacklisting" code="4"/>
+			<enum name="Unauthorized due to terminal limitations" code="5"/>
+			<enum name="Unauthorized due to user defined reason 1" code="6"/>
+			<enum name="Unauthorized due to user defined reason 2" code="7"/>
+			<enum name="Unauthorized due to user defined reason 3" code="8"/>
+			<enum name="Unauthorized due to user defined reason 4" code="9"/>
+			<enum name="Unauthorized due to user defined reason 5" code="10"/>
+			<enum name="Unauthorized due to unknown reason" code="11"/>
+			<enum name="Unauthorized due to Usage Reporting over Gx" code="12"/>
+		</avp>
+		<avp name="Authorization-State-Change-Time" code="1057" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Next-Authorization-State" code="1059" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="Authorized" code="0"/>
+			<enum name="Unauthorized due to calendar time" code="0"/>
+		</avp>
+		<avp name="Gx-Capability-List" code="1060" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
 	</application>
 
