@@ -230,14 +230,12 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 	is_response = pinfo->srcport == DCC_PORT;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-			"%s: %s",
-			is_response ? "Response" : "Request",
-			val_to_str(tvb_get_guint8(tvb, offset+3),
-				 dcc_op_vals, "Unknown Op: %u")
-		);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+		"%s: %s",
+		is_response ? "Response" : "Request",
+		val_to_str(tvb_get_guint8(tvb, offset+3),
+			 dcc_op_vals, "Unknown Op: %u")
+	);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_dcc, tvb, offset, -1,
@@ -351,11 +349,9 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					aop = tvb_get_guint8(tvb, offset+4);
 					proto_tree_add_item(dcc_optree, hf_dcc_adminop, tvb, offset+4,
 						1, FALSE);
-					if (check_col(pinfo->cinfo, COL_INFO)) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-							val_to_str(tvb_get_guint8(tvb,offset+4),
-							dcc_adminop_vals, "Unknown (%u)"));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+						val_to_str(tvb_get_guint8(tvb,offset+4),
+						dcc_adminop_vals, "Unknown (%u)"));
 
 					if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )
 					{
@@ -374,11 +370,9 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					{
 						proto_tree_add_item(dcc_optree, hf_dcc_floodop,
 							tvb, offset, 4, FALSE);
-						if (check_col(pinfo->cinfo, COL_INFO)) {
-							col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-								val_to_str(tvb_get_ntohl(tvb,offset),
-								dcc_floodop_vals, "Unknown (%u)"));
-						}
+						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+							val_to_str(tvb_get_ntohl(tvb,offset),
+							dcc_floodop_vals, "Unknown (%u)"));
 					}
 					else
 					{
