@@ -2494,8 +2494,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x012F: /* ServiceURLStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_serviceURLIndex, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_serviceURL, tvb, offset+12, StationMaxServiceURLSize, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLDisplayName, tvb, offset+12, StationMaxNameSize, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURL, tvb, offset+16, StationMaxServiceURLSize, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLDisplayName, tvb, offset+16+StationMaxServiceURLSize, StationMaxNameSize, TRUE);
       break;
 
     case 0x0130: /* CallSelectStatMessage */
@@ -2855,7 +2855,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ((hdr_version != BASIC_MSG_TYPE) &&
        (hdr_version != CM7_MSG_TYPE_A) &&
        (hdr_version != CM7_MSG_TYPE_B))
-     ) 
+     )
   {
       /* Not an SKINNY packet, just happened to use the same port */
     return FALSE;
@@ -4584,7 +4584,7 @@ proto_reg_handoff_skinny(void)
 {
   static gboolean skinny_prefs_initialized = FALSE;
   dissector_handle_t skinny_handle;
-  
+
   if (!skinny_prefs_initialized) {
     rtp_handle = find_dissector("rtp");
     /* Skinny content type and internet media type used by other dissectors are the same */
