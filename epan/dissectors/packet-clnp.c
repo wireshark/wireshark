@@ -62,29 +62,29 @@ static int hf_clnp_src_length  = -1;
 static int hf_clnp_src         = -1;
 static int hf_clnp_segments    = -1;
 static int hf_clnp_segment     = -1;
-static int hf_clnp_segment_overlap = -1;
+static int hf_clnp_segment_overlap          = -1;
 static int hf_clnp_segment_overlap_conflict = -1;
-static int hf_clnp_segment_multiple_tails = -1;
+static int hf_clnp_segment_multiple_tails   = -1;
 static int hf_clnp_segment_too_long_segment = -1;
-static int hf_clnp_segment_error = -1;
-static int hf_clnp_segment_count = -1;
-static int hf_clnp_reassembled_in = -1;
-static int hf_clnp_reassembled_length = -1;
+static int hf_clnp_segment_error            = -1;
+static int hf_clnp_segment_count            = -1;
+static int hf_clnp_reassembled_in           = -1;
+static int hf_clnp_reassembled_length       = -1;
 
 static const fragment_items clnp_frag_items = {
-	&ett_clnp_segment,
-	&ett_clnp_segments,
-	&hf_clnp_segments,
-	&hf_clnp_segment,
-	&hf_clnp_segment_overlap,
-	&hf_clnp_segment_overlap_conflict,
-	&hf_clnp_segment_multiple_tails,
-	&hf_clnp_segment_too_long_segment,
-	&hf_clnp_segment_error,
-	&hf_clnp_segment_count,
-	&hf_clnp_reassembled_in,
-	&hf_clnp_reassembled_length,
-	"segments"
+  &ett_clnp_segment,
+  &ett_clnp_segments,
+  &hf_clnp_segments,
+  &hf_clnp_segment,
+  &hf_clnp_segment_overlap,
+  &hf_clnp_segment_overlap_conflict,
+  &hf_clnp_segment_multiple_tails,
+  &hf_clnp_segment_too_long_segment,
+  &hf_clnp_segment_error,
+  &hf_clnp_segment_count,
+  &hf_clnp_reassembled_in,
+  &hf_clnp_reassembled_length,
+  "segments"
 };
 
 static dissector_handle_t clnp_handle;
@@ -108,63 +108,63 @@ static dissector_handle_t data_handle;
  *           |_________________________________|
  */
 
-#define	ISO8473_V1  0x01    /* CLNP version 1 */
+#define ISO8473_V1  0x01    /* CLNP version 1 */
 
 /* Fixed part */
 
-#define CNF_TYPE		0x1f
-#define CNF_ERR_OK		0x20
-#define CNF_MORE_SEGS		0x40
-#define CNF_SEG_OK		0x80
+#define CNF_TYPE                0x1f
+#define CNF_ERR_OK              0x20
+#define CNF_MORE_SEGS           0x40
+#define CNF_SEG_OK              0x80
 
-#define DT_NPDU			0x1C
-#define MD_NPDU			0x1D
-#define ER_NPDU			0x01
-#define ERQ_NPDU		0x1E
-#define ERP_NPDU		0x1F
+#define DT_NPDU                 0x1C
+#define MD_NPDU                 0x1D
+#define ER_NPDU                 0x01
+#define ERQ_NPDU                0x1E
+#define ERP_NPDU                0x1F
 
 static const value_string npdu_type_abbrev_vals[] = {
-  { DT_NPDU,	"DT" },
-  { MD_NPDU,	"MD" },
-  { ER_NPDU,	"ER" },
-  { ERQ_NPDU,	"ERQ" },
-  { ERP_NPDU,	"ERP" },
-  { 0,		NULL }
+  { DT_NPDU,    "DT" },
+  { MD_NPDU,    "MD" },
+  { ER_NPDU,    "ER" },
+  { ERQ_NPDU,   "ERQ" },
+  { ERP_NPDU,   "ERP" },
+  { 0,          NULL }
 };
 
 static const value_string npdu_type_vals[] = {
-  { DT_NPDU,	"Data" },
-  { MD_NPDU,	"Multicast Data" },
-  { ER_NPDU,	"Error Report" },
-  { ERQ_NPDU,	"Echo Request" },
-  { ERP_NPDU,	"Echo Response" },
-  { 0,		NULL }
+  { DT_NPDU,    "Data" },
+  { MD_NPDU,    "Multicast Data" },
+  { ER_NPDU,    "Error Report" },
+  { ERQ_NPDU,   "Echo Request" },
+  { ERP_NPDU,   "Echo Response" },
+  { 0,          NULL }
 };
 
 /* field position */
 
-#define P_CLNP_PROTO_ID		0
-#define P_CLNP_HDR_LEN		1
-#define P_CLNP_VERS		2
-#define P_CLNP_TTL		3
-#define P_CLNP_TYPE		4
-#define P_CLNP_SEGLEN		5
-#define P_CLNP_CKSUM		7
-#define P_CLNP_ADDRESS_PART	9
+#define P_CLNP_PROTO_ID         0
+#define P_CLNP_HDR_LEN          1
+#define P_CLNP_VERS             2
+#define P_CLNP_TTL              3
+#define P_CLNP_TYPE             4
+#define P_CLNP_SEGLEN           5
+#define P_CLNP_CKSUM            7
+#define P_CLNP_ADDRESS_PART     9
 
 /* Segmentation part */
 
 struct clnp_segment {
-  gushort	cng_id;		/* data unit identifier */
-  gushort	cng_off;	/* segment offset */
-  gushort	cng_tot_len;	/* total length */
+  gushort       cng_id;         /* data unit identifier */
+  gushort       cng_off;        /* segment offset */
+  gushort       cng_tot_len;    /* total length */
 };
 
 /* NSAP selector */
 
-#define NSEL_NET 		0x00
-#define NSEL_NP  		0x20
-#define NSEL_TP  		0x21
+#define NSEL_NET                0x00
+#define NSEL_NP                 0x20
+#define NSEL_TP                 0x21
 
 /* global variables */
 
@@ -226,8 +226,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
       proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
-				 cnf_proto_id,
-				 "Inactive subset");
+                                 cnf_proto_id,
+                                 "Inactive subset");
     }
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     if (call_dissector(ositp_inactive_handle, next_tvb, pinfo, tree) == 0)
@@ -250,21 +250,21 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, FALSE);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
     proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
-			       cnf_proto_id);
+                        cnf_proto_id);
     proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
-			cnf_hdr_len);
+                        cnf_hdr_len);
     proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
-			cnf_vers);
+                        cnf_vers);
     cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1,
-			       cnf_ttl,
-			       "Holding Time : %u (%u.%u secs)",
-			       cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
+                               cnf_ttl,
+                               "Holding Time : %u (%u.%u secs)",
+                               cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
   }
 
   cnf_type = tvb_get_guint8(tvb, P_CLNP_TYPE);
   pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
-				"Unknown (0x%02x)");
+                               "Unknown (0x%02x)");
   flag_string[0] = '\0';
   if (cnf_type & CNF_SEG_OK)
     g_strlcat(flag_string, "S ", 7);
@@ -274,27 +274,27 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     g_strlcat(flag_string, "E ", 7);
   if (tree) {
     ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
-			       cnf_type,
-			       "PDU Type     : 0x%02x (%s%s)",
-			       cnf_type,
-			       flag_string,
-			       pdu_type_string);
+                                    cnf_type,
+                                    "PDU Type     : 0x%02x (%s%s)",
+                                    cnf_type,
+                                    flag_string,
+                                    pdu_type_string);
     type_tree = proto_item_add_subtree(ti, ett_clnp_type);
     proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-			decode_boolean_bitfield(cnf_type, CNF_SEG_OK, 8,
-				      "Segmentation permitted",
-				      "Segmentation not permitted"));
+                        decode_boolean_bitfield(cnf_type, CNF_SEG_OK, 8,
+                                                "Segmentation permitted",
+                                                "Segmentation not permitted"));
     proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-			decode_boolean_bitfield(cnf_type, CNF_MORE_SEGS, 8,
-				      "More segments",
-				      "Last segment"));
+                        decode_boolean_bitfield(cnf_type, CNF_MORE_SEGS, 8,
+                                                "More segments",
+                                                "Last segment"));
     proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-			decode_boolean_bitfield(cnf_type, CNF_ERR_OK, 8,
-				      "Report error if PDU discarded",
-				      "Don't report error if PDU discarded"));
+                        decode_boolean_bitfield(cnf_type, CNF_ERR_OK, 8,
+                                                "Report error if PDU discarded",
+                                                "Don't report error if PDU discarded"));
     proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-			decode_enumerated_bitfield(cnf_type, CNF_TYPE, 8,
-				      npdu_type_vals, "%s"));
+                        decode_enumerated_bitfield(cnf_type, CNF_TYPE, 8,
+                                                   npdu_type_vals, "%s"));
   }
 
   /* If we don't have the full header - i.e., not enough to see the
@@ -312,42 +312,42 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
-			segment_length);
+                        segment_length);
     switch (cksum_status) {
 
     default:
-	/*
-	 * No checksum present, or not enough of the header present to
-	 * checksum it.
-	 */
-	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-			       P_CLNP_CKSUM, 2,
-			       cnf_cksum,
-			       "Checksum     : 0x%04x",
-			       cnf_cksum);
-	break;
+      /*
+       * No checksum present, or not enough of the header present to
+       * checksum it.
+       */
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                                 P_CLNP_CKSUM, 2,
+                                 cnf_cksum,
+                                 "Checksum     : 0x%04x",
+                                 cnf_cksum);
+      break;
 
     case CKSUM_OK:
-	/*
-	 * Checksum is correct.
-	 */
-	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-			       P_CLNP_CKSUM, 2,
-			       cnf_cksum,
-			       "Checksum     : 0x%04x (correct)",
-			       cnf_cksum);
-	break;
+      /*
+       * Checksum is correct.
+       */
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                                 P_CLNP_CKSUM, 2,
+                                 cnf_cksum,
+                                 "Checksum     : 0x%04x (correct)",
+                                 cnf_cksum);
+      break;
 
     case CKSUM_NOT_OK:
-	/*
-	 * Checksum is not correct.
-	 */
-	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-			       P_CLNP_CKSUM, 2,
-			       cnf_cksum,
-			       "Checksum     : 0x%04x (incorrect)",
-			       cnf_cksum);
-	break;
+      /*
+       * Checksum is not correct.
+       */
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                                 P_CLNP_CKSUM, 2,
+                                 cnf_cksum,
+                                 "Checksum     : 0x%04x (incorrect)",
+                                 cnf_cksum);
+      break;
     }
     opt_len -= 9; /* Fixed part of Hesder */
   } /* tree */
@@ -363,18 +363,18 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
-			dst_len);
+                        dst_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len,
-			       dst_addr,
-			       " DA : %s",
-			       print_nsap_net(dst_addr, dst_len));
+                                dst_addr,
+                                " DA : %s",
+                                print_nsap_net(dst_addr, dst_len));
     proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb,
-			offset + 1 + dst_len, 1, src_len);
+                        offset + 1 + dst_len, 1, src_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
-			       offset + dst_len + 2, src_len,
-			       src_addr,
-			       " SA : %s",
-			       print_nsap_net(src_addr, src_len));
+                                offset + dst_len + 2, src_len,
+                                src_addr,
+                                " SA : %s",
+                                print_nsap_net(src_addr, src_len));
 
     opt_len -= dst_len + src_len +2;
   }
@@ -389,21 +389,23 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += dst_len + src_len + 2;
 
   if (cnf_type & CNF_SEG_OK) {
-    struct clnp_segment seg;			/* XXX - not used */
-    tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));	/* XXX - not used */
+#if 0
+    struct clnp_segment seg;                                /* XXX - not used */
+    tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));   /* XXX - not used */
+#endif
 
     segment_offset = tvb_get_ntohs(tvb, offset + 2);
     du_id = tvb_get_ntohs(tvb, offset);
     if (tree) {
       proto_tree_add_text(clnp_tree, tvb, offset, 2,
-			"Data unit identifier: %06u",
-			du_id);
+                          "Data unit identifier: %06u",
+                          du_id);
       proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
-			"Segment offset      : %6u",
-			segment_offset);
+                          "Segment offset      : %6u",
+                          segment_offset);
       proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
-			"Total length        : %6u",
-			tvb_get_ntohs(tvb, offset + 4));
+                          "Total length        : %6u",
+                          tvb_get_ntohs(tvb, offset + 4));
     }
 
     offset  += 6;
@@ -412,11 +414,11 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     /* To do : decode options  */
-/*
+#if 0
     proto_tree_add_text(clnp_tree, tvb, offset,
-			cnf_hdr_len - offset,
-			"Options/Data: <not shown>");
-*/
+                        cnf_hdr_len - offset,
+                        "Options/Data: <not shown>");
+#endif
 /* QUICK HACK Option Len:= PDU_Hd_length-( FixedPart+AddresPart+SegmentPart )*/
 
     dissect_osi_options( opt_len,
@@ -431,17 +433,17 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   save_fragmented = pinfo->fragmented;
   if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
-	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
-	tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
-	segment_length > cnf_hdr_len &&
-	cksum_status != CKSUM_NOT_OK) {
+      ((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
+      tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
+      segment_length > cnf_hdr_len &&
+      cksum_status != CKSUM_NOT_OK) {
     fd_head = fragment_add_check(tvb, offset, pinfo, du_id, clnp_segment_table,
-			   clnp_reassembled_table, segment_offset,
-			   segment_length - cnf_hdr_len,
-			   cnf_type & CNF_MORE_SEGS);
+                                 clnp_reassembled_table, segment_offset,
+                                 segment_length - cnf_hdr_len,
+                                 cnf_type & CNF_MORE_SEGS);
 
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CLNP",
-        fd_head, &clnp_frag_items, &update_col_info, clnp_tree);
+                                        fd_head, &clnp_frag_items, &update_col_info, clnp_tree);
   } else {
     /* If this is the first segment, dissect its contents, otherwise
        just show it as a segment.
@@ -472,7 +474,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Just show this as a segment. */
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
-		pdu_type_string, flag_string, segment_offset);
+                   pdu_type_string, flag_string, segment_offset);
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
@@ -494,13 +496,13 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (nsel == (guchar)tp_nsap_selector || always_decode_transport) {
         if (call_dissector(ositp_handle, next_tvb, pinfo, tree) != 0) {
           pinfo->fragmented = save_fragmented;
-          return;	/* yes, it appears to be COTP or CLTP */
+          return;       /* yes, it appears to be COTP or CLTP */
         }
       }
       if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
-				  pinfo, tree))	{
+                                  pinfo, tree)) {
           pinfo->fragmented = save_fragmented;
-          return;	/* yes, it appears to be one of the protocols in the heuristic list */
+          return;       /* yes, it appears to be one of the protocols in the heuristic list */
       }
 
       break;
@@ -508,7 +510,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ER_NPDU:
       /* The payload is the header and "none, some, or all of the data
          part of the discarded PDU", i.e. it's like an ICMP error;
-	 dissect it as a CLNP PDU. */
+         dissect it as a CLNP PDU. */
       if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
       next_length = tvb_length_remaining(tvb, offset);
@@ -531,7 +533,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->in_error_pkt = save_in_error_pkt;
       }
       pinfo->fragmented = save_fragmented;
-      return;	/* we're done with this PDU */
+      return;   /* we're done with this PDU */
 
     case ERQ_NPDU:
     case ERP_NPDU:
@@ -560,13 +562,13 @@ void proto_register_clnp(void)
         VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_clnp_length,
-      { "HDR Length", "clnp.len",	   FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "HDR Length", "clnp.len",          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_version,
       { "Version", "clnp.version",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_ttl,
-      { "Holding Time", "clnp.ttl",	   FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Holding Time", "clnp.ttl",        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_type,
       { "PDU Type", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -591,43 +593,43 @@ void proto_register_clnp(void)
 
     { &hf_clnp_segment_overlap,
       { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Segment overlaps with other segments", HFILL }},
+        "Segment overlaps with other segments", HFILL }},
 
     { &hf_clnp_segment_overlap_conflict,
       { "Conflicting data in segment overlap", "clnp.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Overlapping segments contained conflicting data", HFILL }},
+        "Overlapping segments contained conflicting data", HFILL }},
 
     { &hf_clnp_segment_multiple_tails,
       { "Multiple tail segments found", "clnp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Several tails were found when reassembling the packet", HFILL }},
+        "Several tails were found when reassembling the packet", HFILL }},
 
     { &hf_clnp_segment_too_long_segment,
       { "Segment too long", "clnp.segment.toolongsegment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Segment contained data past end of packet", HFILL }},
+        "Segment contained data past end of packet", HFILL }},
 
     { &hf_clnp_segment_error,
       { "Reassembly error", "clnp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	"Reassembly error due to illegal segments", HFILL }},
+        "Reassembly error due to illegal segments", HFILL }},
 
     { &hf_clnp_segment_count,
       { "Segment count", "clnp.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
-	NULL, HFILL }},
+        NULL, HFILL }},
 
     { &hf_clnp_segment,
       { "CLNP Segment", "clnp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }},
+        NULL, HFILL }},
 
     { &hf_clnp_segments,
       { "CLNP Segments", "clnp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }},
+        NULL, HFILL }},
 
     { &hf_clnp_reassembled_in,
       { "Reassembled CLNP in frame", "clnp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	"This CLNP packet is reassembled in this frame", HFILL }},
+        "This CLNP packet is reassembled in this frame", HFILL }},
 
     { &hf_clnp_reassembled_length,
       { "Reassembled CLNP length", "clnp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The total length of the reassembled payload", HFILL }}
+        "The total length of the reassembled payload", HFILL }}
   };
   static gint *ett[] = {
     &ett_clnp,
@@ -648,17 +650,17 @@ void proto_register_clnp(void)
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
-	"NSAP selector for Transport Protocol (last byte in hex)",
-	"NSAP selector for Transport Protocol (last byte in hex)",
-       	16, &tp_nsap_selector);
+        "NSAP selector for Transport Protocol (last byte in hex)",
+        "NSAP selector for Transport Protocol (last byte in hex)",
+        16, &tp_nsap_selector);
   prefs_register_bool_preference(clnp_module, "always_decode_transport",
-	"Always try to decode NSDU as transport PDUs",
-	"Always try to decode NSDU as transport PDUs",
-       	&always_decode_transport);
+        "Always try to decode NSDU as transport PDUs",
+        "Always try to decode NSDU as transport PDUs",
+        &always_decode_transport);
   prefs_register_bool_preference(clnp_module, "reassemble",
-	"Reassemble segmented CLNP datagrams",
-	"Whether segmented CLNP datagrams should be reassembled",
-	&clnp_reassemble);
+        "Reassemble segmented CLNP datagrams",
+        "Whether segmented CLNP datagrams should be reassembled",
+        &clnp_reassemble);
 }
 
 void
