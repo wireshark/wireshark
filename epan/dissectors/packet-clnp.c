@@ -208,7 +208,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         offset;
   guchar      src_len, dst_len, nsel, opt_len = 0;
   const guint8     *dst_addr, *src_addr;
-  gint        len;
   guint       next_length;
   proto_tree *discpdu_tree;
   gboolean    save_in_error_pkt;
@@ -423,9 +422,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_osi_options( opt_len,
                          tvb, offset, clnp_tree );
   }
-
-  /* Length of CLNP datagram plus headers above it. */
-  len = segment_length;
 
   offset = cnf_hdr_len;
 
