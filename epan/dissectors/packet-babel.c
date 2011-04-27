@@ -151,7 +151,7 @@ network_prefix(int ae, int plen, unsigned int omitted,
             if (dp == NULL) return -1;
             memcpy(prefix, dp, 12 + omitted);
         }
-        if(pb > omitted) memcpy(prefix + 12 + omitted, p, pb);
+        if(pb > omitted) memcpy(prefix + 12 + omitted, p, pb - omitted);
         break;
     case 2:
         if(omitted > 16 || (pb > omitted && len < pb - omitted))
