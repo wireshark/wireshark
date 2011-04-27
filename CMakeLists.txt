@@ -522,6 +522,7 @@ set(WIRESHARK_COMMON_SRC
 	cfile.c
 	clopts_common.c
 	disabled_protos.c
+	frame_data_sequence.c
 	packet-range.c
 	print.c
 	ps.c
