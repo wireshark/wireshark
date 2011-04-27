@@ -153,7 +153,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item  *ti;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
+  gchar       *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -173,7 +173,10 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   /* Extract the addresses.  */
   sha_str = tvb_aarphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd);
   spa_str = tvb_aarpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
+#if 0
+  /* TODO: tha_str is currently not shown nor parsed */
   tha_str = tvb_aarphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd);
+#endif
   tpa_str = tvb_aarpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
 
   switch (ar_op) {

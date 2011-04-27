@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -29,7 +29,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
@@ -74,13 +73,13 @@ enum {
 	RWSTAT
 };
 /* File open modes */
-#define P9_OREAD 	   0x0 
-#define P9_OWRITE 	   0x1 
-#define P9_ORDWR  	   0x2 
+#define P9_OREAD 	   0x0
+#define P9_OWRITE 	   0x1
+#define P9_ORDWR  	   0x2
 #define P9_OEXEC	   0x3
-#define P9_MODEMASK	   0x3 
-#define P9_OTRUNC	  0x10 
-#define P9_ORCLOSE	  0x40 
+#define P9_MODEMASK	   0x3
+#define P9_OTRUNC	  0x10
+#define P9_ORCLOSE	  0x40
 
 /* stat mode flags */
 #define DMDIR		0x80000000 /* Directory */
@@ -160,7 +159,7 @@ static gint ett_9P_qid = -1;
 static gint ett_9P_qidtype = -1;
 
 /*9P Msg types to name mapping */
-static const value_string ninep_msg_type[] = 
+static const value_string ninep_msg_type[] =
 {	{TVERSION,	"Tversion"},
 	{RVERSION,	"Rversion"},
 	{TAUTH,		"Tauth"},
@@ -191,7 +190,7 @@ static const value_string ninep_msg_type[] =
 	{0,		NULL},
 };
 /* Open/Create modes */
-static const value_string ninep_mode_vals[] = 
+static const value_string ninep_mode_vals[] =
 {
 	{P9_OREAD,	"Read Access"},
 	{P9_OWRITE,	"Write Access"},
@@ -207,7 +206,7 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset);
 /* Dissect 9P messages*/
 static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	guint32 ninesz,tmp,i;
+	guint32 /*ninesz,*/tmp,i;
 	guint16 tmp16;
 	guint8 ninemsg;
 	guint offset = 0;
@@ -221,11 +220,11 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "9P");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ninesz = tvb_get_letohl(tvb, offset);
+	/*ninesz = tvb_get_letohl(tvb, offset);*/
 	ninemsg = tvb_get_guint8(tvb, offset + 4);
 
-	mname = val_to_str(ninemsg, ninep_msg_type,"Unknown");
-	
+	mname = val_to_str(ninemsg, ninep_msg_type, "Unknown");
+
 	if(strcmp(mname,"Unknown") == 0) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
 
@@ -255,7 +254,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		tmp16 = tvb_get_letohs(tvb,offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, tmp16, TRUE);
-		tmp_tree = proto_item_add_subtree(ti,ett_9P_version);	
+		tmp_tree = proto_item_add_subtree(ti,ett_9P_version);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
 		offset += 2;
 		break;
@@ -321,7 +320,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, TRUE);
 		offset +=4;
-		
+
 		tmp16 = tvb_get_letohs(tvb,offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, TRUE);
 		offset +=2;
@@ -330,14 +329,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if(tmp16 > 250) {
 			tmp16 = 250;
 			tmp_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
-    			PROTO_ITEM_SET_GENERATED(tmp_tree);
+			PROTO_ITEM_SET_GENERATED(tmp_tree);
 		}
 
 		for(i = 0 ; i < tmp16; i++) {
 			guint16 tmplen;
 			proto_item *wname;
 			proto_tree *wname_tree;
-			
+
 			tmplen = tvb_get_letohs(tvb,offset);
 			wname = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, tmplen, TRUE);
 			wname_tree = proto_item_add_subtree(wname,ett_9P_wname);
@@ -356,14 +355,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if(tmp16 > 250) {
 			tmp16 = 250;
 			tmp_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
-    			PROTO_ITEM_SET_GENERATED(tmp_tree);
+			PROTO_ITEM_SET_GENERATED(tmp_tree);
 		}
 
 		for(i = 0; i < tmp16; i++) {
 			dissect_9P_qid(tvb,ninep_tree,offset);
 			offset += 13;
-		}	
-		break;	
+		}
+		break;
 	case TOPEN:
 		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
 		offset +=4;
@@ -406,7 +405,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=8;
 
 		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
-		break;	
+		break;
 	case RREAD:
 		tmp = tvb_get_letohl(tvb,offset);
 		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
@@ -595,7 +594,7 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 
 	if(!tree)
 		return;
-	
+
 	type = tvb_get_guint8(tvb,offset);
 	vers = tvb_get_letohs(tvb,offset+1);
 	path = tvb_get_letoh64(tvb,offset+1+4);

@@ -737,7 +737,6 @@ static guint32
 acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
   guint8 D, A;
-  guint32 start_offset;
   guint32 data_size;
   guint32 data_value;
   guint32 data_address;
@@ -746,7 +745,6 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
   proto_item *ti;
   guint32 ok_to_process = FALSE;
 
-  start_offset = offset;
   buffer[0] = 0;
 
   /* We would like to rip through Property Address-Data pairs                 */
@@ -974,7 +972,6 @@ static guint32
 acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
   guint8 D, A;
-  guint32 start_offset;
   guint32 data_value;
   guint32 data_address;
   guint32 x;
@@ -982,7 +979,6 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   gchar buffer[BUFFER_SIZE];
   const gchar *name;
 
-  start_offset = offset;
   buffer[0] = 0;
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
@@ -1084,7 +1080,6 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
-  acn_pdu_offsets pdu_offsets = {0,0,0,0,0};
   guint8 D;
   guint8 octet;
   guint32 length1;
@@ -1110,7 +1105,6 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
   /* save start of pdu block */
   pdu_start = offset;
-  pdu_offsets.start = pdu_start;
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++);
@@ -1398,14 +1392,12 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
-  acn_pdu_offsets pdu_offsets = {0,0,0,0,0};
   guint8 octet;
   guint32 length1;
   guint32 length2;
   guint32 length3;
   guint32 vector_offset;
   guint32 data_offset;
-  guint32 end_offset;
   guint32 data_length;
 
   proto_item *ti, *pi;
@@ -1418,7 +1410,6 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 
   /* save start of pdu block */
   pdu_start = offset;
-  pdu_offsets.start = pdu_start;
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++);
@@ -1490,7 +1481,6 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
     data_offset = last_pdu_offsets->data;
     data_length = last_pdu_offsets->data_length;
   }
-  end_offset = data_offset + data_length;
 
   switch (vector) {
     case ACN_SDT_VECTOR_ACK:
@@ -1754,7 +1744,6 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   guint32 pdu_start;
   guint32 pdu_length;
   guint32 pdu_flvh_length; /* flags, length, vector, header */
-  acn_pdu_offsets pdu_offsets = {0,0,0,0,0};
   guint8 octet;
   guint32 length1;
   guint32 length2;
@@ -1793,7 +1782,6 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
 
   /* save start of pdu block */
   pdu_start = offset;
-  pdu_offsets.start = pdu_start;
 
   /* get PDU flags and length flag first */
   octet = tvb_get_guint8(tvb, offset++);
@@ -2027,7 +2015,6 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
   guint32 length3;
   guint32 vector_offset;
   guint32 data_offset;
-  guint32 end_offset;
   guint32 data_length;
 
   proto_item *ti, *pi;
@@ -2118,7 +2105,6 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
     data_offset = last_pdu_offsets->data;
     data_length = last_pdu_offsets->data_length;
   }
-  end_offset = data_offset + data_length;
 
   /* process based on vector */
   switch (vector) {
