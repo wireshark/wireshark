@@ -334,7 +334,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       int orig_pos = pos;
       const gchar* hname = NULL;
       int dp = 0;
-      int cl = 0;
+      /* int cl = 0; TODO: Content-Length header (encoded by 0x08) is special */
 
       /* HEADER CODE/NAME
        */
@@ -346,9 +346,11 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         pos+=1;
 
         hname = val_to_str(hid, rsp_header_codes, "UNKNOWN");
-        /* Content-Length header (encoded by 0x08) is special */
+#if 0
+        /* TODO: Content-Length header (encoded by 0x08) is special */
         if (hid == 0x08)
           cl = 1;
+#endif
       } else {
         hname = ajp13_get_nstring(tvb, pos, &hname_len);
 
@@ -628,7 +630,7 @@ static void
 dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 mag;
-  guint16 len;
+  /* guint16 len; */
   conversation_t *conv = NULL;
   ajp13_conv_data *cd = NULL;
   proto_tree *ajp13_tree = NULL;
@@ -674,7 +676,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   mag = tvb_get_ntohs(tvb, 0);
-  len = tvb_get_ntohs(tvb, 2);
+  /*  len = tvb_get_ntohs(tvb, 2); */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -716,9 +718,9 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_ajp13_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint16 magic;
+  /*guint16 magic;*/
   guint16 plen;
-  magic = tvb_get_ntohs(tvb, offset);
+  /*magic = tvb_get_ntohs(tvb, offset); */
   plen = tvb_get_ntohs(tvb, offset+2);
   plen += 4;
   return plen;
