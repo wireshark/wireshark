@@ -1783,12 +1783,10 @@ int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *pa
 	proto_item *item = NULL;
 	proto_item *cause;
 	int end_offset = 0;
-	int s_offset;
 	int hoffset;
 	gint length_remaining;
 	tvbuff_t *next_tvb;
 
-	s_offset = offset;
 #ifdef DEBUG_BER
 {
 const char *name;
@@ -2107,12 +2105,10 @@ int dissect_ber_old_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree
 	proto_item *item = NULL;
 	proto_item *cause;
 	int end_offset = 0;
-	int s_offset;
 	int hoffset;
 	gint length_remaining;
 	tvbuff_t *next_tvb;
 
-	s_offset = offset;
 #ifdef DEBUG_BER
 {
 const char *name;
@@ -3771,7 +3767,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		gint32 tag;
 		guint32 len;
 		int eoffset;
-		int hoffset, count;
+		int hoffset;
 		proto_item *cause;
 		gboolean imp_tag;
 
@@ -3840,7 +3836,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		if(seq->flags == BER_FLAGS_IMPLTAG)
 			imp_tag = TRUE;
 		/* call the dissector for this field */
-		count=seq->func(imp_tag, next_tvb, 0, actx, tree, *seq->p_id)-hoffset;
+		seq->func(imp_tag, next_tvb, 0, actx, tree, *seq->p_id);
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
@@ -3871,7 +3867,6 @@ static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t 
 	int cnt, hoffsetx, end_offset;
 	header_field_info *hfi;
 	gint length_remaining;
-	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER_SQ_OF
 {
@@ -3983,7 +3978,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 		gint32 tag;
 		guint32 len;
 		int eoffset;
-		int hoffset, count;
+		int hoffset;
 		proto_item *cause;
 
 		hoffset = offset;
@@ -4043,11 +4038,10 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 		length_remaining=tvb_length_remaining(tvb, hoffset);
 		if (length_remaining>eoffset-hoffset)
 			length_remaining=eoffset-hoffset;
-		next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
 
 
 		/* call the dissector for this field */
-		count=seq->func(tree, tvb, hoffset, actx)-hoffset;
+		seq->func(tree, tvb, hoffset, actx);
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
