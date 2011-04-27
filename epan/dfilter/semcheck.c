@@ -337,8 +337,8 @@ check_exists(stnode_t *st_arg1)
 			break;
 
 		case STTYPE_FUNCTION:
-            /* XXX - Maybe we should change functions so they can return fields,
-             * in which case the 'exist' should be fine. */
+			/* XXX - Maybe we should change functions so they can return fields,
+			 * in which case the 'exist' should be fine. */
 			dfilter_fail("You cannot test whether a function is present.");
 			THROW(TypeError);
 			break;
@@ -483,7 +483,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
-	sttype_id_t		type1, type2;
+	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
@@ -491,7 +491,6 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	char			*s;
 	drange_node		*rn;
 
-	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
 	hfinfo1 = stnode_data(st_arg1);
@@ -596,7 +595,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
 	}
-        else if (type2 == STTYPE_FUNCTION) {
+	else if (type2 == STTYPE_FUNCTION) {
 		funcdef = sttype_function_funcdef(st_arg2);
 		ftype2 = funcdef->retval_ftype;
 
@@ -614,7 +613,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		}
 
 		check_function(st_arg2);
-        }
+	}
 	else {
 		g_assert_not_reached();
 	}
@@ -627,14 +626,13 @@ check_relation_LHS_STRING(const char* relation_string,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
-	sttype_id_t		type1, type2;
+	sttype_id_t		type2;
 	header_field_info	*hfinfo2;
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
 
-	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
 	DebugLog(("    5 check_relation_LHS_STRING()\n"));
@@ -717,14 +715,13 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
-	sttype_id_t		type1, type2;
+	sttype_id_t		type2;
 	header_field_info	*hfinfo2;
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
 
-	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
 	DebugLog(("    5 check_relation_LHS_UNPARSED()\n"));
@@ -807,7 +804,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
-	sttype_id_t		type1, type2;
+	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
@@ -815,7 +812,6 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	char			*s;
 	drange_node		*rn;
 
-	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 	hfinfo1 = sttype_range_hfinfo(st_arg1);
 	ftype1 = hfinfo1->type;
@@ -921,23 +917,22 @@ check_param_entity(stnode_t *st_node)
 	sttype_id_t		e_type;
 	stnode_t		*new_st;
 	fvalue_t		*fvalue;
-    char *s;
+	char *s;
 
 	e_type = stnode_type_id(st_node);
-    /* If there's an unparsed string, change it to an FT_STRING */
-    if (e_type == STTYPE_UNPARSED) {
+	/* If there's an unparsed string, change it to an FT_STRING */
+	if (e_type == STTYPE_UNPARSED) {
 		s = stnode_data(st_node);
-        fvalue = fvalue_from_unparsed(FT_STRING, s, FALSE, dfilter_fail);
+		fvalue = fvalue_from_unparsed(FT_STRING, s, FALSE, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
 		}
 
 		new_st = stnode_new(STTYPE_FVALUE, fvalue);
 		stnode_free(st_node);
-        return new_st;
-    }
-
-    return st_node;
+		return new_st;
+	}
+	return st_node;
 }
 
 
@@ -1125,7 +1120,7 @@ header_field_info   *hfinfo;
 		case STTYPE_TEST:
 		case STTYPE_INTEGER:
 		case STTYPE_FVALUE:
-        default:
+		default:
 			g_assert_not_reached();
 	}
 }
