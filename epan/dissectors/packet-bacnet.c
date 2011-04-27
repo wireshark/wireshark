@@ -30,8 +30,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -185,7 +183,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 bacnet_rportnum;
 	guint8 bacnet_pinfolen;
 	guint8 i;
-	guint8 j;
 	tvbuff_t *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
@@ -202,7 +199,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bacnet_rportnum = 0;
 	bacnet_pinfolen =0;
 	i = 0;
-	j = 0;
 
 	/* I don't know the length of the NPDU yet; Setting the length after dissection */
 	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
