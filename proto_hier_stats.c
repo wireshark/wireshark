@@ -214,7 +214,7 @@ ph_stats_new(void)
 	tot_bytes = 0;
 
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		frame = cap_file_find_fdata(&cfile, framenum);
+		frame = frame_data_sequence_find(cfile.frames, framenum);
 
 		/* Create the progress bar if necessary.
 		   We check on every iteration of the loop, so that

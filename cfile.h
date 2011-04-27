@@ -25,6 +25,8 @@
 #ifndef __CFILE_H__
 #define __CFILE_H__
 
+#include "frame_data_sequence.h"
+
 /* Current state of file. */
 typedef enum {
   FILE_CLOSED,	                /* No file open */
@@ -98,7 +100,7 @@ typedef struct _capture_file {
   union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   /* frames */
-  void        *ptree_root;      /* Pointer to the root node */
+  frame_data_sequence *frames;  /* Sequence of frames, if we're keeping that information */
   guint32      first_displayed; /* Frame number of first frame displayed */
   guint32      last_displayed;  /* Frame number of last frame displayed */
   column_info  cinfo;           /* Column formatting information */
@@ -109,19 +111,5 @@ typedef struct _capture_file {
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);
-
-extern frame_data *cap_file_add_fdata(capture_file *cf, frame_data *fdata);
-
-/*
- * Find the frame_data for the specified frame number.
- * Do some caching to make this work reasonably fast for
- * forward and backward sequential passes through the packets.
- */
-extern frame_data *cap_file_find_fdata(capture_file *cf, guint32 num);
-
-/*
- * Free up all the frame information for a capture file.
- */
-extern void cap_file_free_frames(capture_file *cf);
 
 #endif /* cfile.h */

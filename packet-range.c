@@ -76,7 +76,7 @@ static void packet_range_calc(packet_range_t *range) {
      * for example, the case when TShark is doing a one-pass
      * read of a file or a live capture.
      */
-    if (cfile.ptree_root != NULL) {
+    if (cfile.frames != NULL) {
         /* The next for-loop is used to obtain the amount of packets
          * to be processed and is used to present the information in
          * the Save/Print As widget.
@@ -87,7 +87,7 @@ static void packet_range_calc(packet_range_t *range) {
          */
 
         for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = cap_file_find_fdata(&cfile, framenum);
+            packet = frame_data_sequence_find(cfile.frames, framenum);
 
             if (cfile.current_frame == packet) {
                 range->selected_packet = framenum;
@@ -128,7 +128,7 @@ static void packet_range_calc(packet_range_t *range) {
         }
 
         for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = cap_file_find_fdata(&cfile, framenum);
+            packet = frame_data_sequence_find(cfile.frames, framenum);
 
             if (framenum >= mark_low &&
                 framenum <= mark_high)
@@ -181,9 +181,9 @@ static void packet_range_calc_user(packet_range_t *range) {
      * for example, the case when TShark is doing a one-pass
      * read of a file or a live capture.
      */
-    if (cfile.ptree_root != NULL) {
+    if (cfile.frames != NULL) {
         for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = cap_file_find_fdata(&cfile, framenum);
+            packet = frame_data_sequence_find(cfile.frames, framenum);
 
             if (value_is_in_range(range->user_range, framenum)) {
                 range->user_range_cnt++;

@@ -331,6 +331,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   } else
     cf->has_snap = TRUE;
 
+  /* Allocate a frame_data_sequence for the frames in this file */
+  cf->frames = new_frame_data_sequence();
+
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
@@ -389,7 +392,8 @@ cf_reset_state(capture_file *cf)
 
   dfilter_free(cf->rfcode);
   cf->rfcode = NULL;
-  cap_file_free_frames(cf);
+  free_frame_data_sequence(cf->frames);
+  cf->frames = NULL;
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = 0;
   cf->last_displayed = 0;
@@ -642,7 +646,7 @@ cf_read(capture_file *cf, gboolean from_save)
      WTAP_ENCAP_PER_PACKET). */
   cf->lnk_t = wtap_file_encap(cf->wth);
 
-  cf->current_frame = cap_file_find_fdata(cf, cf->first_displayed);
+  cf->current_frame = frame_data_sequence_find(cf->frames, cf->first_displayed);
   cf->current_row = 0;
 
   new_packet_list_thaw();
@@ -1182,8 +1186,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   if (passed) {
     /* This does a shallow copy of fdlocal, which is good enough. */
-    fdata = cap_file_add_fdata(cf, &fdlocal);
+    fdata = frame_data_sequence_add(cf->frames, &fdlocal);
 
+    cf->count++;
     cf->f_datalen = offset + fdlocal.cap_len;
 
     if (!cf->redissecting) {
@@ -1683,7 +1688,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   selected_frame_seen = FALSE;
 
   for (framenum = 1; framenum <= cf->count; framenum++) {
-    fdata = cap_file_find_fdata(cf, framenum);
+    fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
@@ -1798,7 +1803,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        would leave the user stuck with an Wireshark grinding on
        until it finishes.  Should we just stick them with that? */
     for (; framenum <= cf->count; framenum++) {
-      fdata = cap_file_find_fdata(cf, framenum);
+      fdata = frame_data_sequence_find(cf->frames, framenum);
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
     }
@@ -1899,7 +1904,7 @@ ref_time_packets(capture_file *cf)
   cum_bytes = 0;
 
   for (framenum = 1; framenum <= cf->count; framenum++) {
-    fdata = cap_file_find_fdata(cf, framenum);
+    fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* just add some value here until we know if it is being displayed or not */
     fdata->cum_bytes = cum_bytes + fdata->pkt_len;
@@ -2011,7 +2016,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   /* Iterate through all the packets, printing the packets that
      were selected by the current display filter.  */
   for (framenum = 1; framenum <= cf->count; framenum++) {
-    fdata = cap_file_find_fdata(cf, framenum);
+    fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
@@ -3280,7 +3285,7 @@ find_packet(capture_file *cf,
         } else
           framenum++;
       }
-      fdata = cap_file_find_fdata(cf, framenum);
+      fdata = frame_data_sequence_find(cf->frames, framenum);
 
       count++;
 
@@ -3339,7 +3344,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
 
-  fdata = cap_file_find_fdata(cf, fnumber);
+  fdata = frame_data_sequence_find(cf->frames, fnumber);
 
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */
@@ -3441,7 +3446,7 @@ cf_select_packet(capture_file *cf, int row)
        GtkCList; see the comment in "add_packet_to_packet_list()". */
 
        if (row == 0 && cf->first_displayed == cf->last_displayed)
-         fdata = cap_file_find_fdata(cf, cf->first_displayed);
+         fdata = frame_data_sequence_find(cf->frames, cf->first_displayed);
   }
 
   /* If fdata _still_ isn't set simply give up. */

@@ -1816,14 +1816,10 @@ main(int argc, char *argv[])
 
   g_free(cf_name);
 
-  /* XXX - hack to avoid a crash in one-pass mode, where we update
-     cfile.count but don't allocate any frame_data structures.
-     We may want to more cleanly separate the "capture file" and
-     "collection of frames" stuff, to handle cases such as TShark
-     one-pass mode where we care about the former but don't care
-     about the latter. */
-  if (cfile.ptree_root != NULL)
-    cap_file_free_frames(&cfile);
+  if (cfile.frames != NULL) {
+    free_frame_data_sequence(cfile.frames);
+    cfile.frames = NULL;
+  }
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
@@ -2441,7 +2437,8 @@ process_packet_first_pass(capture_file *cf,
 
   if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes, &prev_dis_ts);
-    cap_file_add_fdata(cf, &fdlocal);
+    frame_data_sequence_add(cf->frames, &fdlocal);
+    cf->count++;
   }
 
   if (do_dissection)
@@ -2650,6 +2647,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     frame_data *fdata;
     int old_max_packet_count = max_packet_count;
 
+    /* Allocate a frame_data_sequence for all the frames. */
+    cf->frames = new_frame_data_sequence();
+
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
       if (process_packet_first_pass(cf, data_offset, wtap_phdr(cf->wth),
                          wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth))) {
@@ -2675,7 +2675,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     max_packet_count = old_max_packet_count;
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
-      fdata = cap_file_find_fdata(cf, framenum);
+      fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
           cf->pd, fdata->cap_len, &err, &err_info)) {
         if (process_packet_second_pass(cf, fdata,

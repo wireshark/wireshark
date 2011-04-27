@@ -32,7 +32,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/timestamp.h>
-#include "cfile.h"
 
 #include <glib.h>
 

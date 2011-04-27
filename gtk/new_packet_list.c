@@ -1495,7 +1495,7 @@ mark_all_displayed_frames(gboolean set)
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = cap_file_find_fdata(&cfile, framenum);
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(set, fdata);
 	}
@@ -1522,7 +1522,7 @@ toggle_mark_all_displayed_frames()
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = cap_file_find_fdata(&cfile, framenum);
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_mark(!fdata->flags.marked, fdata);
 	}
@@ -1571,7 +1571,7 @@ ignore_all_displayed_frames(gboolean set)
 
 	/* XXX: we might need a progressbar here */
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = cap_file_find_fdata(&cfile, framenum);
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
 		if( fdata->flags.passed_dfilter )
 			set_frame_ignore(set, fdata);
 	}
@@ -1586,7 +1586,7 @@ new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 		/* Due to performance impact with large captures, don't check the filtered list for
 		an ignored frame; just check the first. If a ignored frame exists but isn't first and
 		the user wants to unignore all the displayed frames, they will just re-exec the shortcut. */
-		fdata = cap_file_find_fdata(&cfile, cfile.first_displayed);
+		fdata = frame_data_sequence_find(cfile.frames, cfile.first_displayed);
 		if (fdata->flags.ignored==TRUE) {
 			ignore_all_displayed_frames(FALSE);
 		} else {
@@ -1603,7 +1603,7 @@ unignore_all_frames(void)
 
 	/* XXX: we might need a progressbar here */
 	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		fdata = cap_file_find_fdata(&cfile, framenum);
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
 		set_frame_ignore(FALSE, fdata);
 	}
 	redissect_packets();
@@ -1623,7 +1623,7 @@ untime_reference_all_frames()
 	guint32 framenum;
 	frame_data *fdata;
 	for (framenum = 1; framenum <= cfile.count && cfile.ref_time_count > 0; framenum++) {
-		fdata = cap_file_find_fdata(&cfile, framenum);
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
 		if (fdata->flags.ref_time == 1) {
 			set_frame_reftime(FALSE, fdata, cfile.current_row);
 		}

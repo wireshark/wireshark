@@ -109,12 +109,12 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   /* initialize the tally */
   if (cf->count != 0) {
-    first_frame = cap_file_find_fdata(cf, 1);
+    first_frame = frame_data_sequence_find(cf->frames, 1);
     st->start_time = nstime_to_sec(&first_frame->abs_ts);
     st->stop_time = nstime_to_sec(&first_frame->abs_ts);
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
-      cur_frame = cap_file_find_fdata(cf, framenum);
+      cur_frame = frame_data_sequence_find(cf->frames, framenum);
       tally_frame_data(cur_frame, st);
     }
   }
