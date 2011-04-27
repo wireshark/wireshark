@@ -79,24 +79,402 @@
 #define	IEEE80211_CHAN_108PUREG \
 	(IEEE80211_CHAN_PUREG | IEEE80211_CHAN_TURBO)
 
-/* XXX need max array size */
-static const int ieee80211_htrates[16] = {
-	13,			/* IFM_IEEE80211_MCS0 */
-	26,			/* IFM_IEEE80211_MCS1 */
-	39,			/* IFM_IEEE80211_MCS2 */
-	52,			/* IFM_IEEE80211_MCS3 */
-	78,			/* IFM_IEEE80211_MCS4 */
-	104,			/* IFM_IEEE80211_MCS5 */
-	117,			/* IFM_IEEE80211_MCS6 */
-	130,			/* IFM_IEEE80211_MCS7 */
-	26,			/* IFM_IEEE80211_MCS8 */
-	52,			/* IFM_IEEE80211_MCS9 */
-	78,			/* IFM_IEEE80211_MCS10 */
-	104,			/* IFM_IEEE80211_MCS11 */
-	156,			/* IFM_IEEE80211_MCS12 */
-	208,			/* IFM_IEEE80211_MCS13 */
-	234,			/* IFM_IEEE80211_MCS14 */
-	260,			/* IFM_IEEE80211_MCS15 */
+#define MAX_MCS_INDEX	76
+
+/*
+ * Indices are:
+ *
+ *	the MCS index (0-76);
+ *
+ *	0 for 20 MHz, 1 for 40 MHz;
+ *
+ *	0 for a long guard interval, 1 for a short guard interval.
+ */
+static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
+	/* MCS  0  */
+	{	/* 20 Mhz */ {    6.5,		/* SGI */    7.2, },
+		/* 40 Mhz */ {   13.5,		/* SGI */   15.0, },
+	},
+
+	/* MCS  1  */
+	{	/* 20 Mhz */ {   13.0,		/* SGI */   14.4, },
+		/* 40 Mhz */ {   27.0,		/* SGI */   30.0, },
+	},
+
+	/* MCS  2  */
+	{	/* 20 Mhz */ {   19.5,		/* SGI */   21.7, },
+		/* 40 Mhz */ {   40.5,		/* SGI */   45.0, },
+	},
+
+	/* MCS  3  */
+	{	/* 20 Mhz */ {   26.0,		/* SGI */   28.9, },
+		/* 40 Mhz */ {   54.0,		/* SGI */   60.0, },
+	},
+
+	/* MCS  4  */
+	{	/* 20 Mhz */ {   39.0,		/* SGI */   43.3, },
+		/* 40 Mhz */ {   81.0,		/* SGI */   90.0, },
+	},
+
+	/* MCS  5  */
+	{	/* 20 Mhz */ {   52.0,		/* SGI */   57.8, },
+		/* 40 Mhz */ {  108.0,		/* SGI */  120.0, },
+	},
+
+	/* MCS  6  */
+	{	/* 20 Mhz */ {   58.5,		/* SGI */   65.0, },
+		/* 40 Mhz */ {  121.5,		/* SGI */  135.0, },
+	},
+
+	/* MCS  7  */
+	{	/* 20 Mhz */ {   65.0,		/* SGI */   72.2, },
+		/* 40 Mhz */ {   135.0,		/* SGI */  150.0, },
+	},
+
+	/* MCS  8  */
+	{	/* 20 Mhz */ {   13.0,		/* SGI */   14.4, },
+		/* 40 Mhz */ {   27.0,		/* SGI */   30.0, },
+	},
+
+	/* MCS  9  */
+	{	/* 20 Mhz */ {   26.0,		/* SGI */   28.9, },
+		/* 40 Mhz */ {   54.0,		/* SGI */   60.0, },
+	},
+
+	/* MCS 10  */
+	{	/* 20 Mhz */ {   39.0,		/* SGI */   43.3, },
+		/* 40 Mhz */ {   81.0,		/* SGI */   90.0, },
+	},
+
+	/* MCS 11  */
+	{	/* 20 Mhz */ {   52.0,		/* SGI */   57.8, },
+		/* 40 Mhz */ {  108.0,		/* SGI */  120.0, },
+	},
+
+	/* MCS 12  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 13  */
+	{	/* 20 Mhz */ {  104.0,		/* SGI */  115.6, },
+		/* 40 Mhz */ {  216.0,		/* SGI */  240.0, },
+	},
+
+	/* MCS 14  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 15  */
+	{	/* 20 Mhz */ {  130.0,		/* SGI */  144.4, },
+		/* 40 Mhz */ {  270.0,		/* SGI */  300.0, },
+	},
+
+	/* MCS 16  */
+	{	/* 20 Mhz */ {   19.5,		/* SGI */   21.7, },
+		/* 40 Mhz */ {   40.5,		/* SGI */   45.0, },
+	},
+
+	/* MCS 17  */
+	{	/* 20 Mhz */ {   39.0,		/* SGI */   43.3, },
+		/* 40 Mhz */ {   81.0,		/* SGI */   90.0, },
+	},
+
+	/* MCS 18  */
+	{	/* 20 Mhz */ {   58.5,		/* SGI */   65.0, },
+		/* 40 Mhz */ {  121.5,		/* SGI */  135.0, },
+	},
+
+	/* MCS 19  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 20  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 21  */
+	{	/* 20 Mhz */ {  156.0,		/* SGI */  173.3, },
+		/* 40 Mhz */ {  324.0,		/* SGI */  360.0, },
+	},
+
+	/* MCS 22  */
+	{	/* 20 Mhz */ {  175.5,		/* SGI */  195.0, },
+		/* 40 Mhz */ {  364.5,		/* SGI */  405.0, },
+	},
+
+	/* MCS 23  */
+	{	/* 20 Mhz */ {  195.0,		/* SGI */  216.7, },
+		/* 40 Mhz */ {  405.0,		/* SGI */  450.0, },
+	},
+
+	/* MCS 24  */
+	{	/* 20 Mhz */ {   26.0,		/* SGI */   28.9, },
+		/* 40 Mhz */ {   54.0,		/* SGI */   60.0, },
+	},
+
+	/* MCS 25  */
+	{	/* 20 Mhz */ {   52.0,		/* SGI */   57.8, },
+		/* 40 Mhz */ {  108.0,		/* SGI */  120.0, },
+	},
+
+	/* MCS 26  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 27  */
+	{	/* 20 Mhz */ {  104.0,		/* SGI */  115.6, },
+		/* 40 Mhz */ {  216.0,		/* SGI */  240.0, },
+	},
+
+	/* MCS 28  */
+	{	/* 20 Mhz */ {  156.0,		/* SGI */  173.3, },
+		/* 40 Mhz */ {  324.0,		/* SGI */  360.0, },
+	},
+
+	/* MCS 29  */
+	{	/* 20 Mhz */ {  208.0,		/* SGI */  231.1, },
+		/* 40 Mhz */ {  432.0,		/* SGI */  480.0, },
+	},
+
+	/* MCS 30  */
+	{	/* 20 Mhz */ {  234.0,		/* SGI */  260.0, },
+		/* 40 Mhz */ {  486.0,		/* SGI */  540.0, },
+	},
+
+	/* MCS 31  */
+	{	/* 20 Mhz */ {  260.0,		/* SGI */  288.9, },
+		/* 40 Mhz */ {  540.0,		/* SGI */  600.0, },
+	},
+
+	/* MCS 32  */
+	{	/* 20 Mhz */ {    0.0,		/* SGI */    0.0, }, /* not valid */
+		/* 40 Mhz */ {    6.0,		/* SGI */    6.7, },
+	},
+
+	/* MCS 33  */
+	{	/* 20 Mhz */ {   39.0,		/* SGI */   43.3, },
+		/* 40 Mhz */ {   81.0,		/* SGI */   90.0, },
+	},
+
+	/* MCS 34  */
+	{	/* 20 Mhz */ {   52.0,		/* SGI */   57.8, },
+		/* 40 Mhz */ {  108.0,		/* SGI */  120.0, },
+	},
+
+	/* MCS 35  */
+	{	/* 20 Mhz */ {   65.0,		/* SGI */   72.2, },
+		/* 40 Mhz */ {  135.0,		/* SGI */  150.0, },
+	},
+
+	/* MCS 36  */
+	{	/* 20 Mhz */ {   58.5,		/* SGI */   65.0, },
+		/* 40 Mhz */ {  121.5,		/* SGI */  135.0, },
+	},
+
+	/* MCS 37  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 38  */
+	{	/* 20 Mhz */ {   97.5,		/* SGI */  108.3, },
+		/* 40 Mhz */ {  202.5,		/* SGI */  225.0, },
+	},
+
+	/* MCS 39  */
+	{	/* 20 Mhz */ {   52.0,		/* SGI */   57.8, },
+		/* 40 Mhz */ {  108.0,		/* SGI */  120.0, },
+	},
+
+	/* MCS 40  */
+	{	/* 20 Mhz */ {   65.0,		/* SGI */   72.2, },
+		/* 40 Mhz */ {  135.0,		/* SGI */  150.0, },
+	},
+
+	/* MCS 41  */
+	{	/* 20 Mhz */ {   65.0,		/* SGI */   72.2, },
+		/* 40 Mhz */ {  135.0,		/* SGI */  150.0, },
+	},
+
+	/* MCS 42  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 43  */
+	{	/* 20 Mhz */ {   91.0,		/* SGI */  101.1, },
+		/* 40 Mhz */ {  189.0,		/* SGI */  210.0, },
+	},
+
+	/* MCS 44  */
+	{	/* 20 Mhz */ {   91.0,		/* SGI */  101.1, },
+		/* 40 Mhz */ {  189.0,		/* SGI */  210.0, },
+	},
+
+	/* MCS 45  */
+	{	/* 20 Mhz */ {  104.0,		/* SGI */  115.6, },
+		/* 40 Mhz */ {  216.0,		/* SGI */  240.0, },
+	},
+
+	/* MCS 46  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 47  */
+	{	/* 20 Mhz */ {   97.5,		/* SGI */  108.3, },
+		/* 40 Mhz */ {  202.5,		/* SGI */  225.0, },
+	},
+
+	/* MCS 48  */
+	{	/* 20 Mhz */ {   97.5,		/* SGI */  108.3, },
+		/* 40 Mhz */ {  202.5,		/* SGI */  225.0, },
+	},
+
+	/* MCS 49  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 50  */
+	{	/* 20 Mhz */ {  136.5,		/* SGI */  151.7, },
+		/* 40 Mhz */ {  283.5,		/* SGI */  315.0, },
+	},
+
+	/* MCS 51  */
+	{	/* 20 Mhz */ {  136.5,		/* SGI */  151.7, },
+		/* 40 Mhz */ {  283.5,		/* SGI */  315.0, },
+	},
+
+	/* MCS 52  */
+	{	/* 20 Mhz */ {  156.0,		/* SGI */  173.3, },
+		/* 40 Mhz */ {  324.0,		/* SGI */  360.0, },
+	},
+
+	/* MCS 53  */
+	{	/* 20 Mhz */ {   65.0,		/* SGI */   72.2, },
+		/* 40 Mhz */ {  135.0,		/* SGI */  150.0, },
+	},
+
+	/* MCS 54  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 55  */
+	{	/* 20 Mhz */ {   91.0,		/* SGI */  101.1, },
+		/* 40 Mhz */ {  189.0,		/* SGI */  210.0, },
+	},
+
+	/* MCS 56  */
+	{	/* 20 Mhz */ {   78.0,		/* SGI */   86.7, },
+		/* 40 Mhz */ {  162.0,		/* SGI */  180.0, },
+	},
+
+	/* MCS 57  */
+	{	/* 20 Mhz */ {   91.0,		/* SGI */  101.1, },
+		/* 40 Mhz */ {  189.0,		/* SGI */  210.0, },
+	},
+
+	/* MCS 58  */
+	{	/* 20 Mhz */ {  104.0,		/* SGI */  115.6, },
+		/* 40 Mhz */ {  216.0,		/* SGI */  240.0, },
+	},
+
+	/* MCS 59  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 60  */
+	{	/* 20 Mhz */ {  104.0,		/* SGI */  115.6, },
+		/* 40 Mhz */ {  216.0,		/* SGI */  240.0, },
+	},
+
+	/* MCS 61  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 62  */
+	{	/* 20 Mhz */ {  130.0,		/* SGI */  144.4, },
+		/* 40 Mhz */ {  270.0,		/* SGI */  300.0, },
+	},
+
+	/* MCS 63  */
+	{	/* 20 Mhz */ {  130.0,		/* SGI */  144.4, },
+		/* 40 Mhz */ {  270.0,		/* SGI */  300.0, },
+	},
+
+	/* MCS 64  */
+	{	/* 20 Mhz */ {  143.0,		/* SGI */  158.9, },
+		/* 40 Mhz */ {  297.0,		/* SGI */  330.0, },
+	},
+
+	/* MCS 65  */
+	{	/* 20 Mhz */ {   97.5,		/* SGI */  108.3, },
+		/* 40 Mhz */ {  202.5,		/* SGI */  225.0, },
+	},
+
+	/* MCS 66  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 67  */
+	{	/* 20 Mhz */ {  136.5,		/* SGI */  151.7, },
+		/* 40 Mhz */ {  283.5,		/* SGI */  315.0, },
+	},
+
+	/* MCS 68  */
+	{	/* 20 Mhz */ {  117.0,		/* SGI */  130.0, },
+		/* 40 Mhz */ {  243.0,		/* SGI */  270.0, },
+	},
+
+	/* MCS 69  */
+	{	/* 20 Mhz */ {  136.5,		/* SGI */  151.7, },
+		/* 40 Mhz */ {  283.5,		/* SGI */  315.0, },
+	},
+
+	/* MCS 70  */
+	{	/* 20 Mhz */ {  156.0,		/* SGI */  173.3, },
+		/* 40 Mhz */ {  324.0,		/* SGI */  360.0, },
+	},
+
+	/* MCS 71  */
+	{	/* 20 Mhz */ {  175.5,		/* SGI */  195.0, },
+		/* 40 Mhz */ {  364.5,		/* SGI */  405.0, },
+	},
+
+	/* MCS 72  */
+	{	/* 20 Mhz */ {  156.0,		/* SGI */  173.3, },
+		/* 40 Mhz */ {  324.0,		/* SGI */  360.0, },
+	},
+
+	/* MCS 73  */
+	{	/* 20 Mhz */ {  175.5,		/* SGI */  195.0, },
+		/* 40 Mhz */ {  364.5,		/* SGI */  405.0, },
+	},
+
+	/* MCS 74  */
+	{	/* 20 Mhz */ {  195.0,		/* SGI */  216.7, },
+		/* 40 Mhz */ {  405.0,		/* SGI */  450.0, },
+	},
+
+	/* MCS 75  */
+	{	/* 20 Mhz */ {  195.0,		/* SGI */  216.7, },
+		/* 40 Mhz */ {  405.0,		/* SGI */  450.0, },
+	},
+
+	/* MCS 76  */
+	{	/* 20 Mhz */ {  214.5,		/* SGI */  238.3, },
+		/* 40 Mhz */ {  445.5,		/* SGI */  495.0, },
+	},
 };
 
 /* protocol */
@@ -1226,25 +1604,61 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			rate = tvb_get_guint8(tvb, offset);
 			/*
 			 * XXX On FreeBSD rate & 0x80 means we have an MCS. On
-			 * Linux and AirPcap it does not. If the check below
-			 * doesn't work we may have to add a rate interpretation
-			 * preference.
+			 * Linux and AirPcap it does not.  (What about
+			 * Mac OS X, NetBSD, OpenBSD, and DragonFly BSD?)
+			 *
+			 * This is an issue either for proprietary extensions
+			 * to 11a or 11g, which do exist, or for 11n
+			 * implementations that stuff a rate value into
+			 * this field, which also appear to exist.
+			 *
+			 * We currently handle that by assuming that
+			 * if the 0x80 bit is set *and* the remaining
+			 * bits have a value between 0 and 15 it's
+			 * an MCS value, otherwise it's a rate.  If
+			 * there are cases where systems that use
+			 * "0x80 + MCS index" for MCS indices > 15,
+			 * or stuff a rate value here between 64 and
+			 * 71.5 Mb/s in here, we'll need a preference
+			 * setting.  Such rates do exist, e.g. 11n
+			 * MCS 7 at 20 MHz with a long guard interval.
 			 */
 			if (rate >= 0x80 && rate <= 0x8f) {
-				/* XXX adjust by CW and short GI like other sniffers? */
-				rate = ieee80211_htrates[rate & 0xf];
-			}
-			col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
-				     rate / 2, rate & 1 ? 5 : 0);
-			if (tree) {
-				proto_tree_add_float_format(radiotap_tree,
-							    hf_radiotap_datarate,
+				/*
+				 * XXX - we don't know the channel width
+				 * or guard interval length, so we can't
+				 * convert this to a data rate.
+				 *
+				 * If you want us to show a data rate,
+				 * use the MCS field, not the Rate field;
+				 * the MCS field includes not only the
+				 * MCS index, it also includes bandwidth
+				 * and guard interval information.
+				 *
+				 * XXX - can we get the channel width
+				 * from XChannel and the guard interval
+				 * information from Flags, at least on
+				 * FreeBSD?
+				 */
+				if (tree) {
+					proto_tree_add_uint(radiotap_tree,
+							    hf_radiotap_mcs_index,
 							    tvb, offset, 1,
-							    (float)rate / 2,
-							    "Data Rate: %.1f Mb/s",
-							    (float)rate / 2);
+							    rate & 0x7f);
+				}
+			} else {
+				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+					     rate / 2, rate & 1 ? 5 : 0);
+				if (tree) {
+					proto_tree_add_float_format(radiotap_tree,
+								    hf_radiotap_datarate,
+								    tvb, offset, 1,
+								    (float)rate / 2,
+								    "Data Rate: %.1f Mb/s",
+								    (float)rate / 2);
+				}
+				radiotap_info->rate = rate;
 			}
-			radiotap_info->rate = rate;
 			break;
 
 		case IEEE80211_RADIOTAP_CHANNEL: {
@@ -1520,48 +1934,95 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		case IEEE80211_RADIOTAP_MCS: {
 			proto_item *it;
-			proto_tree *mcs_tree, *mcs_known_tree;
+			proto_tree *mcs_tree = NULL, *mcs_known_tree;
 			guint8 mcs_known, mcs_flags;
 			guint8 mcs;
+			gboolean ht;
+			gboolean short_gi;
+			gboolean can_calculate_rate;
 
-			if (!tree)
-				break;
+			/*
+			 * Start out assuming that we can calculate the rate;
+			 * if we are missing any of the MCS index, channel
+			 * width, or guard interval length, we can't.
+			 */
+			can_calculate_rate = TRUE;
 
 			mcs_known = tvb_get_guint8(tvb, offset);
 			mcs_flags = tvb_get_guint8(tvb, offset + 1);
 			mcs = tvb_get_guint8(tvb, offset + 2);
 
-			it = proto_tree_add_item(radiotap_tree, hf_radiotap_mcs,
-						 tvb, offset, 3, FALSE);
-			mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
-			it = proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_known,
-						 tvb, offset, 1, mcs_known);
-			mcs_known_tree = proto_item_add_subtree(it, ett_radiotap_mcs_known);
-			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_bw,
+			if (tree) {
+				it = proto_tree_add_item(radiotap_tree, hf_radiotap_mcs,
+							 tvb, offset, 3, FALSE);
+				mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
+				it = proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_known,
+							 tvb, offset, 1, mcs_known);
+				mcs_known_tree = proto_item_add_subtree(it, ett_radiotap_mcs_known);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_bw,
 					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_index,
-					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_gi,
-					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_format,
-					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_fec,
-					    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW)
-				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_bw,
-						    tvb, offset + 1, 1, mcs_flags);
-			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI)
-				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_gi,
-						    tvb, offset + 1, 1, mcs_flags);
-			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT)
-				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_format,
-						    tvb, offset + 1, 1, mcs_flags);
-			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC)
-				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_fec,
-						    tvb, offset + 1, 1, mcs_flags);
-			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS)
-				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_index,
-						    tvb, offset + 2, 1, mcs);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_index,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_gi,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_format,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_fec,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
+				ht = ((mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK) == IEEE80211_RADIOTAP_MCS_BW_40) ?
+				    TRUE : FALSE;
+				if (mcs_tree)
+					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_bw,
+							    tvb, offset + 1, 1, mcs_flags);
+			} else {
+				ht = FALSE;
+				can_calculate_rate = FALSE;	/* no bandwidth */
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
+				short_gi = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ? TRUE : FALSE;
+				if (mcs_tree)
+					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_gi,
+							    tvb, offset + 1, 1, mcs_flags);
+			} else {
+				short_gi = FALSE;
+				can_calculate_rate = FALSE;	/* no GI width */
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
+				if (mcs_tree)
+					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_format,
+							    tvb, offset + 1, 1, mcs_flags);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
+				if (mcs_tree)
+					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_fec,
+							    tvb, offset + 1, 1, mcs_flags);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
+				if (mcs_tree)
+					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_index,
+							    tvb, offset + 2, 1, mcs);
+			} else
+				can_calculate_rate = FALSE;	/* no MCS index */
+
+			/*
+			 * If we have the MCS index, channel width, and
+			 * guard interval length, and the MCS index is
+			 * valid, we can compute the rate.
+			 */
+			if (can_calculate_rate && mcs <= MAX_MCS_INDEX) {
+				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f",
+					     ieee80211_float_htrates[mcs][ht][short_gi]);
+				if (tree) {
+					proto_tree_add_float_format(radiotap_tree,
+								    hf_radiotap_datarate,
+								    tvb, offset, 1,
+								    ieee80211_float_htrates[mcs][ht][short_gi],
+								    "Data Rate: %.1f Mb/s",
+								    ieee80211_float_htrates[mcs][ht][short_gi]);
+				}
+			}
 			break;
 		}
 		}
