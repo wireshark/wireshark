@@ -3358,7 +3358,7 @@ elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     guint8      num_recs;
     guint32     curr_offset;
     const gchar *str;
-    gint        ett_elem_idx, idx;
+    gint        idx;
 
     curr_offset = offset;
 
@@ -3375,11 +3375,6 @@ elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
         if (str == NULL)
         {
             str = "Reserved";
-            ett_elem_idx = ett_ansi_ms_info_rec_reserved;
-        }
-        else
-        {
-            ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
         }
 
         proto_tree_add_text(tree,
