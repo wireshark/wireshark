@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -311,7 +311,6 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         const char* time_string;
 	gint ccsds_length = 0;
 	gint length;
-	gint captured_length;
 	gint reported_length;
 	guint8 checkword_flag = 0;
 	gint counter = 0;
@@ -328,7 +327,6 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		reported_length = tvb_reported_length_remaining(tvb, 0);
-		captured_length = tvb_length_remaining(tvb, 0);
 		ccsds_length = tvb_get_ntohs(tvb, 4) + CCSDS_PRIMARY_HEADER_LENGTH + 1;
 		/* Min length is size of headers, whereas max length is reported length.
 		 * If the length field in the CCSDS header is outside of these bounds,
