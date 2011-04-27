@@ -1816,7 +1816,14 @@ main(int argc, char *argv[])
 
   g_free(cf_name);
 
-  cap_file_free_frames(&cfile);
+  /* XXX - hack to avoid a crash in one-pass mode, where we update
+     cfile.count but don't allocate any frame_data structures.
+     We may want to more cleanly separate the "capture file" and
+     "collection of frames" stuff, to handle cases such as TShark
+     one-pass mode where we care about the former but don't care
+     about the latter. */
+  if (cfile.ptree_root != NULL)
+    cap_file_free_frames(&cfile);
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
