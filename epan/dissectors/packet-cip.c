@@ -35,27 +35,25 @@
  */
 
 /*
-      &ett_cip,         dissect_cip
-      &ett_path,        dissect_epath
-      &ett_ekey_path,   dissect_epath
-      &ett_mcsc,        dissect_epath,
-      &ett_cia_path,    dissect_epath
-      &ett_data_seg,    dissect_epath
-      &ett_port_path,   dissect_epath
-      &ett_rrsc,        dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
-      &ett_status_item  dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
+   &ett_cip,         dissect_cip
+   &ett_path,        dissect_epath
+   &ett_ekey_path,   dissect_epath
+   &ett_mcsc,        dissect_epath,
+   &ett_cia_path,    dissect_epath
+   &ett_data_seg,    dissect_epath
+   &ett_port_path,   dissect_epath
+   &ett_rrsc,        dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
+   &ett_status_item  dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
 
-      &ett_cmd_data,    dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
-      &ett_ncp,         dissect_cip_cm_data
-      &ett_mes_req,     dissect_cip_cm_data
-      &ett_mult_ser,    dissect_cip_mr_data
+   &ett_cmd_data,    dissect_cip_generic_data, dissect_cip_mr_data, dissect_cip_cm_data, dissect_cip_cco_data, dissect_cip_pccc_data
+   &ett_ncp,         dissect_cip_cm_data
+   &ett_mes_req,     dissect_cip_cm_data
+   &ett_mult_ser,    dissect_cip_mr_data
 */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdlib.h>
 
 #include <glib.h>
 
@@ -451,18 +449,18 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 static proto_item*
 add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
 {
-  const guint8 *tmp;
-  char         *tmp2, *tmp2start;
-  proto_item   *pi;
-  int           i,tmp_length,tmp2_length;
-  guint32       octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const char my_hex_digits[16] =
+   const guint8 *tmp;
+   char         *tmp2, *tmp2start;
+   proto_item   *pi;
+   int           i,tmp_length,tmp2_length;
+   guint32       octet;
+   /* At least one version of Apple's C compiler/linker is buggy, causing
+      a complaint from the linker about the "literal C string section"
+      not ending with '\0' if we initialize a 16-element "char" array with
+      a 16-character string, the fact that initializing such an array with
+      such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+      '\0' byte in the string nonwithstanding. */
+   static const char my_hex_digits[16] =
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -528,7 +526,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
    if ( !generate )
    {
       hidden_item = proto_tree_add_item(path_tree, hf_cip_epath,
-                         tvb, offset, path_length, TRUE );
+                                        tvb, offset, path_length, TRUE );
       PROTO_ITEM_SET_HIDDEN(hidden_item);
    }
 
@@ -543,789 +541,789 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
 
       switch( segment_type & CI_SEGMENT_TYPE_MASK )
       {
-      case CI_PORT_SEGMENT:
+         case CI_PORT_SEGMENT:
 
-         port_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 0, "Port Segment" );
-         if ( generate )
-         {
-            port_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Port Segment" );
-            PROTO_ITEM_SET_GENERATED(port_item);
-         }
-         else
             port_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 0, "Port Segment" );
-         port_tree = proto_item_add_subtree( port_item, ett_port_path );
-
-         /* Add port number */
-         if ( generate )
-         {
-            it = proto_tree_add_uint(port_tree, hf_cip_port, NULL, 0, 0, ( segment_type & 0x0F ) );
-            PROTO_ITEM_SET_GENERATED(it);
-         }
-         else
-            proto_tree_add_item( port_tree, hf_cip_port, tvb, offset + pathpos, 1, TRUE );
-         proto_item_append_text( epath_item, "Port: %d", ( segment_type & 0x0F ) );
-         proto_item_append_text( port_item, ": Port: %d", ( segment_type & 0x0F ) );
-
-         if( segment_type & 0x10 )
-         {
-            /* Add Extended Link Address flag */
             if ( generate )
             {
-               it = proto_tree_add_text( port_tree, NULL, 0, 0, "Extended Link Address: TRUE" );
+               port_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Port Segment" );
+               PROTO_ITEM_SET_GENERATED(port_item);
+            }
+            else
+               port_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 0, "Port Segment" );
+            port_tree = proto_item_add_subtree( port_item, ett_port_path );
+
+            /* Add port number */
+            if ( generate )
+            {
+               it = proto_tree_add_uint(port_tree, hf_cip_port, NULL, 0, 0, ( segment_type & 0x0F ) );
                PROTO_ITEM_SET_GENERATED(it);
             }
             else
-               it = proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Extended Link Address: TRUE" );
+               proto_tree_add_item( port_tree, hf_cip_port, tvb, offset + pathpos, 1, TRUE );
+            proto_item_append_text( epath_item, "Port: %d", ( segment_type & 0x0F ) );
+            proto_item_append_text( port_item, ": Port: %d", ( segment_type & 0x0F ) );
 
-            /* Add size of extended link address */
-            opt_link_size = tvb_get_guint8( tvb, offset + pathpos + 1 );
-            if ( generate )
+            if( segment_type & 0x10 )
             {
-               it = proto_tree_add_text( port_tree, NULL, 0, 0, "Link Address Size: %d", opt_link_size  );
-               PROTO_ITEM_SET_GENERATED(it);
-            }
-            else
-               it = proto_tree_add_text( port_tree, tvb, offset+pathpos+1, 1, "Link Address Size: %d", opt_link_size  );
-
-            /* Add extended link address */
-            if ( generate )
-            {
-               it = proto_tree_add_string(port_tree, hf_cip_link_address_string, NULL, 0, 0, tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
-               PROTO_ITEM_SET_GENERATED(it);
-            }
-            else
-               proto_tree_add_item( port_tree, hf_cip_link_address_string, tvb, offset+pathpos+2, opt_link_size, FALSE );
-            proto_item_append_text( epath_item, ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
-            proto_item_append_text( port_item,  ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
-
-            /* Pad byte */
-            if( opt_link_size % 2 )
-            {
-              proto_item_set_len( port_item, 3 + opt_link_size );
-              pathpos = pathpos + 3 + opt_link_size;
-            }
-            else
-            {
-              proto_item_set_len( port_item, 2 + opt_link_size );
-              pathpos = pathpos + 2 + opt_link_size;
-            }
-         }
-         else
-         {
-            /* Add Extended Link Address flag */
-            if ( generate )
-            {
-               it = proto_tree_add_text( port_tree, NULL, 0, 0, "Extended Link Address: FALSE" );
-               PROTO_ITEM_SET_GENERATED(it);
-            }
-            else
-               it = proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Extended Link Address: FALSE" );
-
-            /* Add Link Address */
-            if ( generate )
-            {
-               it = proto_tree_add_uint(port_tree, hf_cip_link_address_byte, NULL, 0, 0, tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-               PROTO_ITEM_SET_GENERATED(it);
-            }
-            else
-               proto_tree_add_item( port_tree, hf_cip_link_address_byte, tvb, offset+pathpos+1, 1, FALSE );
-            proto_item_append_text( epath_item, ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-            proto_item_append_text( port_item,  ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-
-            proto_item_set_len( port_item, 2 );
-            pathpos += 2;
-         }
-
-         break;
-
-      case CI_LOGICAL_SEGMENT:
-
-         /* Logical segment, determin the logical type */
-
-         switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK )
-         {
-         case CI_LOGICAL_SEG_CLASS_ID:
-
-            /* Logical Class ID, do a format check */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
-            {
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+               /* Add Extended Link Address flag */
                if ( generate )
                {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Class Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Class Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the class */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 8-bit class number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_class8, NULL, 0, 0, temp_data );
+                  it = proto_tree_add_text( port_tree, NULL, 0, 0, "Extended Link Address: TRUE" );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
-                  proto_tree_add_item( cia_tree, hf_cip_class8, tvb, offset + pathpos + 1, 1, TRUE );
-               proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%02X" ) );
+                  it = proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Extended Link Address: TRUE" );
 
-               /* 2 bytes of path used */
+               /* Add size of extended link address */
+               opt_link_size = tvb_get_guint8( tvb, offset + pathpos + 1 );
+               if ( generate )
+               {
+                  it = proto_tree_add_text( port_tree, NULL, 0, 0, "Link Address Size: %d", opt_link_size  );
+                  PROTO_ITEM_SET_GENERATED(it);
+               }
+               else
+                  it = proto_tree_add_text( port_tree, tvb, offset+pathpos+1, 1, "Link Address Size: %d", opt_link_size  );
+
+               /* Add extended link address */
+               if ( generate )
+               {
+                  it = proto_tree_add_string(port_tree, hf_cip_link_address_string, NULL, 0, 0, tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
+                  PROTO_ITEM_SET_GENERATED(it);
+               }
+               else
+                  proto_tree_add_item( port_tree, hf_cip_link_address_string, tvb, offset+pathpos+2, opt_link_size, FALSE );
+               proto_item_append_text( epath_item, ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
+               proto_item_append_text( port_item,  ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
+
+               /* Pad byte */
+               if( opt_link_size % 2 )
+               {
+                  proto_item_set_len( port_item, 3 + opt_link_size );
+                  pathpos = pathpos + 3 + opt_link_size;
+               }
+               else
+               {
+                  proto_item_set_len( port_item, 2 + opt_link_size );
+                  pathpos = pathpos + 2 + opt_link_size;
+               }
+            }
+            else
+            {
+               /* Add Extended Link Address flag */
+               if ( generate )
+               {
+                  it = proto_tree_add_text( port_tree, NULL, 0, 0, "Extended Link Address: FALSE" );
+                  PROTO_ITEM_SET_GENERATED(it);
+               }
+               else
+                  it = proto_tree_add_text( port_tree, tvb, offset+pathpos, 1, "Extended Link Address: FALSE" );
+
+               /* Add Link Address */
+               if ( generate )
+               {
+                  it = proto_tree_add_uint(port_tree, hf_cip_link_address_byte, NULL, 0, 0, tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+                  PROTO_ITEM_SET_GENERATED(it);
+               }
+               else
+                  proto_tree_add_item( port_tree, hf_cip_link_address_byte, tvb, offset+pathpos+1, 1, FALSE );
+               proto_item_append_text( epath_item, ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+               proto_item_append_text( port_item,  ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+               proto_item_set_len( port_item, 2 );
                pathpos += 2;
             }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
-            {
-               temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Class Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Class Segment (0x%02X)", segment_type );
 
-               /* Create a sub tree for the class */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 16-bit class number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_class16, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_class16, tvb, offset + pathpos + 2, 2, TRUE );
-               proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%04X" ) );
-
-               /* 4 bytes of path used */
-               pathpos += 4;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
-            {
-               temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the class */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 32-bit class number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_class32, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_class32, tvb, offset + pathpos + 2, 4, TRUE );
-               proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%08X" ) );
-
-               /* 6 bytes of path used */
-               pathpos += 6;
-            }
-            else
-            {
-               /* Unsupported logical segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
-               return;
-            }
             break;
 
+         case CI_LOGICAL_SEGMENT:
 
-         case CI_LOGICAL_SEG_INST_ID:
+            /* Logical segment, determin the logical type */
 
-            /* Logical Instance ID, do a format check */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+            switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK )
             {
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Instance Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Instance Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the instance */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 8-bit instance number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_instance8, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_instance8, tvb, offset + pathpos + 1, 1, TRUE );
-               proto_item_append_text( epath_item, "Instance: 0x%02X", temp_data );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
-            {
-               temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Instance Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Instance Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the instance */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 16-bit instance number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_instance16, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_instance16, tvb, offset + pathpos + 2, 2, TRUE );
-               proto_item_append_text( epath_item, "Instance: 0x%04X", temp_data );
-
-               /* 4 bytes of path used */
-               pathpos += 4;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
-            {
-               temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the instance */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 32-bit instance number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint(cia_tree, hf_cip_instance32, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_instance32, tvb, offset + pathpos + 2, 4, TRUE );
-               proto_item_append_text( epath_item, "Instance: 0x%08X", temp_data );
-
-
-               /* 6 bytes of path used */
-               pathpos += 6;
-            }
-            else
-            {
-               /* Unsupported logical segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
-               return;
-            }
-            break;
-
-
-         case CI_LOGICAL_SEG_MBR_ID:
-
-            /* Logical Member ID, do a format check */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
-            {
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Member Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Member Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 8-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_member8, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_member8, tvb, offset + pathpos + 1, 1, TRUE );
-               proto_item_append_text( epath_item, "Member: 0x%02X", temp_data );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
-            {
-               temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Member Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Member Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 16-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_member16, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_member16, tvb, offset + pathpos + 2, 2, TRUE );
-               proto_item_append_text( epath_item, "Member: 0x%04X", temp_data );
-
-               /* 4 bytes of path used */
-               pathpos += 4;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
-            {
-               temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Member Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Member Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 32-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_member32, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_member32, tvb, offset + pathpos + 2, 4, TRUE );
-               proto_item_append_text( epath_item, "Member: 0x%08X", temp_data );
-
-               /* 6 bytes of path used */
-               pathpos += 6;
-            }
-            else
-            {
-               /* Unsupported logical segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
-               return;
-            }
-            break;
-
-         case CI_LOGICAL_SEG_ATTR_ID:
-
-            /* Logical Attribute ID, do a format check */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
-            {
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Attribute Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Attribute Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 8-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute8, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_attribute8, tvb, offset + pathpos + 1, 1, TRUE );
-               proto_item_append_text( epath_item, "Attribute: 0x%02X", temp_data );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
-            {
-               temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Attribute Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Attribute Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 16-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute16, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_attribute16, tvb, offset + pathpos + 2, 2, TRUE );
-               proto_item_append_text( epath_item, "Attribute: 0x%04X", temp_data );
-
-               /* 4 bytes of path used */
-               pathpos += 4;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
-            {
-               temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               if ( generate )
-               {
-                  cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Attribute Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(cia_item);
-               }
-               else
-                  cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Attribute Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the attribute */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 32-bit attribute number */
-               if ( generate )
-               {
-                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute32, NULL, 0, 0, temp_data );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_item( cia_tree, hf_cip_attribute32, tvb, offset + pathpos + 2, 4, TRUE );
-               proto_item_append_text( epath_item, "Attribute: 0x%08X", temp_data );
-
-               /* 6 bytes of path used */
-               pathpos += 6;
-            }
-            else
-            {
-               /* Unsupported logical segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
-               return;
-            }
-            break;
-
-
-         case CI_LOGICAL_SEG_CON_POINT:
-
-            /* Logical Connection point , do a format check */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
-            {
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Connection Point Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the connection point */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 8-bit connection point number */
-               proto_tree_add_item( cia_tree, hf_cip_conpoint8, tvb, offset + pathpos + 1, 1, TRUE );
-               proto_item_append_text( epath_item, "Connection Point: 0x%02X", temp_data );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
-            {
-               temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Connection Point Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the connection point */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 16-bit connection point number */
-               proto_tree_add_item( cia_tree, hf_cip_conpoint16, tvb, offset + pathpos + 2, 2, TRUE );
-               proto_item_append_text( epath_item, "Connection Point: 0x%04X", temp_data );
-
-               /* 4 bytes of path used */
-               pathpos += 4;
-            }
-            else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
-            {
-               temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
-               cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Connection Point Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree for the connection point */
-               cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
-
-               /* Display the 32-bit connection point number */
-               proto_tree_add_item( cia_tree, hf_cip_conpoint32, tvb, offset + pathpos + 2, 4, TRUE );
-               proto_item_append_text( epath_item, "Connection Point: 0x%08X", temp_data );
-
-               /* 6 bytes of path used */
-               pathpos += 6;
-            }
-            else
-            {
-               /* Unsupported logical segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
-               return;
-            }
-            break;
-
-
-         case CI_LOGICAL_SEG_SPECIAL:
-
-            /* Logical Special ID, the only logical format sepcifyed is electronic key */
-
-            if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_E_KEY )
-            {
-               /* Get the Key Format */
-               temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
-
-               if( temp_data == CI_E_KEY_FORMAT_VAL )
-               {
-                  qi = proto_tree_add_text( path_tree, tvb, offset + pathpos, 10, "Electronic Key Segment (0x%02X): ",segment_type );
-
-                  /* Create a sub tree for the IOI */
-                  e_key_tree = proto_item_add_subtree( qi, ett_ekey_path );
-
-                  /* Print the key type */
-                  proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 1, 1, "Key Format: 0x%02X", temp_data );
-
-                  /* Get the Vendor ID */
-                  temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
-                  proto_tree_add_item( e_key_tree, hf_cip_vendor, tvb, offset + pathpos + 2, 2, TRUE);
-                  proto_item_append_text( qi, "VendorID: 0x%04X", temp_data );
-
-                  /* Get Device Type */
-                  temp_data = tvb_get_letohs( tvb, offset + pathpos + 4 );
-                  proto_tree_add_item( e_key_tree, hf_cip_devtype, tvb, offset + pathpos + 4, 2, TRUE);
-                  proto_item_append_text( qi, ", DevTyp: 0x%04X", temp_data );
-
-                  /* Product Code */
-                  temp_data = tvb_get_letohs( tvb, offset + pathpos + 6 );
-                  proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 6, 2, "Product Code: 0x%04X", temp_data );
-
-                  /* Major revision/Compatibility */
-                  temp_data = tvb_get_guint8( tvb, offset + pathpos + 8 );
-
-                  /* Add Major revision/Compatibility tree */
-                  mcpi = proto_tree_add_text(e_key_tree, tvb, offset + pathpos + 8, 1, "Compatibility ");
-                  mc_tree = proto_item_add_subtree(mcpi, ett_mcsc);
-
-                  /* Add Compatibility bit info */
-                  proto_tree_add_item(mc_tree, hf_cip_fwo_comp,
-                        tvb, offset + pathpos + 8, 1, TRUE );
-
-                  proto_item_append_text( mcpi, "%s, Major Revision: %d",
-                              val_to_str( ( temp_data & 0x80 )>>7, cip_com_bit_vals , "" ),
-                              temp_data & 0x7F );
-
-                  /* Major revision */
-                  proto_tree_add_item(mc_tree, hf_cip_fwo_mrev,
-                        tvb, offset + pathpos + 8, 1, TRUE );
-
-                  /* Minor revision */
-                  temp_data2 = tvb_get_guint8( tvb, offset + pathpos + 9 );
-                  proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 9, 1, "Minor Revision: %d", temp_data2 );
-
-                  proto_item_append_text( qi, ", %d.%d", ( temp_data & 0x7F ), temp_data2 );
-
-                  proto_item_append_text(epath_item, "[Key]" );
-
-                  /* Increment the path pointer */
-                  pathpos += 10;
-               }
-               else
-               {
-                  /* Unsupported electronic key format */
-                  proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Electronic Key Format" );
+               case CI_LOGICAL_SEG_CLASS_ID:
+
+                  /* Logical Class ID, do a format check */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+                  {
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Class Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Class Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the class */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 8-bit class number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_class8, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_class8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%02X" ) );
+
+                     /* 2 bytes of path used */
+                     pathpos += 2;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
+                  {
+                     temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Class Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Class Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the class */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 16-bit class number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_class16, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_class16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%04X" ) );
+
+                     /* 4 bytes of path used */
+                     pathpos += 4;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
+                  {
+                     temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the class */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 32-bit class number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_class32, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_class32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%08X" ) );
+
+                     /* 6 bytes of path used */
+                     pathpos += 6;
+                  }
+                  else
+                  {
+                     /* Unsupported logical segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
+                     return;
+                  }
+                  break;
+
+
+               case CI_LOGICAL_SEG_INST_ID:
+
+                  /* Logical Instance ID, do a format check */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+                  {
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Instance Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Instance Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the instance */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 8-bit instance number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_instance8, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_instance8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_item_append_text( epath_item, "Instance: 0x%02X", temp_data );
+
+                     /* 2 bytes of path used */
+                     pathpos += 2;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
+                  {
+                     temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Instance Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Instance Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the instance */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 16-bit instance number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_instance16, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_instance16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_item_append_text( epath_item, "Instance: 0x%04X", temp_data );
+
+                     /* 4 bytes of path used */
+                     pathpos += 4;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
+                  {
+                     temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Instance Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the instance */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 32-bit instance number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint(cia_tree, hf_cip_instance32, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_instance32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_item_append_text( epath_item, "Instance: 0x%08X", temp_data );
+
+
+                     /* 6 bytes of path used */
+                     pathpos += 6;
+                  }
+                  else
+                  {
+                     /* Unsupported logical segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
+                     return;
+                  }
+                  break;
+
+
+               case CI_LOGICAL_SEG_MBR_ID:
+
+                  /* Logical Member ID, do a format check */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+                  {
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Member Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Member Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 8-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_member8, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_member8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_item_append_text( epath_item, "Member: 0x%02X", temp_data );
+
+                     /* 2 bytes of path used */
+                     pathpos += 2;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
+                  {
+                     temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Member Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Member Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 16-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_member16, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_member16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_item_append_text( epath_item, "Member: 0x%04X", temp_data );
+
+                     /* 4 bytes of path used */
+                     pathpos += 4;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
+                  {
+                     temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Member Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Member Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 32-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_member32, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_member32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_item_append_text( epath_item, "Member: 0x%08X", temp_data );
+
+                     /* 6 bytes of path used */
+                     pathpos += 6;
+                  }
+                  else
+                  {
+                     /* Unsupported logical segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
+                     return;
+                  }
+                  break;
+
+               case CI_LOGICAL_SEG_ATTR_ID:
+
+                  /* Logical Attribute ID, do a format check */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+                  {
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "8-Bit Logical Attribute Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Attribute Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 8-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_attribute8, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_attribute8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_item_append_text( epath_item, "Attribute: 0x%02X", temp_data );
+
+                     /* 2 bytes of path used */
+                     pathpos += 2;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
+                  {
+                     temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "16-Bit Logical Attribute Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Attribute Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 16-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_attribute16, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_attribute16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_item_append_text( epath_item, "Attribute: 0x%04X", temp_data );
+
+                     /* 4 bytes of path used */
+                     pathpos += 4;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
+                  {
+                     temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
+                     if ( generate )
+                     {
+                        cia_item = proto_tree_add_text( path_tree, NULL, 0, 0, "32-Bit Logical Attribute Segment (0x%02X)", segment_type );
+                        PROTO_ITEM_SET_GENERATED(cia_item);
+                     }
+                     else
+                        cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Attribute Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the attribute */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 32-bit attribute number */
+                     if ( generate )
+                     {
+                        it = proto_tree_add_uint( cia_tree, hf_cip_attribute32, NULL, 0, 0, temp_data );
+                        PROTO_ITEM_SET_GENERATED(it);
+                     }
+                     else
+                        proto_tree_add_item( cia_tree, hf_cip_attribute32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_item_append_text( epath_item, "Attribute: 0x%08X", temp_data );
+
+                     /* 6 bytes of path used */
+                     pathpos += 6;
+                  }
+                  else
+                  {
+                     /* Unsupported logical segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
+                     return;
+                  }
+                  break;
+
+
+               case CI_LOGICAL_SEG_CON_POINT:
+
+                  /* Logical Connection point , do a format check */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_8_BIT )
+                  {
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+                     cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "8-Bit Logical Connection Point Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the connection point */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 8-bit connection point number */
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_item_append_text( epath_item, "Connection Point: 0x%02X", temp_data );
+
+                     /* 2 bytes of path used */
+                     pathpos += 2;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_16_BIT )
+                  {
+                     temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                     cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 4, "16-Bit Logical Connection Point Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the connection point */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 16-bit connection point number */
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_item_append_text( epath_item, "Connection Point: 0x%04X", temp_data );
+
+                     /* 4 bytes of path used */
+                     pathpos += 4;
+                  }
+                  else if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_32_BIT )
+                  {
+                     temp_data = tvb_get_letohl( tvb, offset + pathpos + 2 );
+                     cia_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 6, "32-Bit Logical Connection Point Segment (0x%02X)", segment_type );
+
+                     /* Create a sub tree for the connection point */
+                     cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
+
+                     /* Display the 32-bit connection point number */
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_item_append_text( epath_item, "Connection Point: 0x%08X", temp_data );
+
+                     /* 6 bytes of path used */
+                     pathpos += 6;
+                  }
+                  else
+                  {
+                     /* Unsupported logical segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Format" );
+                     return;
+                  }
+                  break;
+
+
+               case CI_LOGICAL_SEG_SPECIAL:
+
+                  /* Logical Special ID, the only logical format sepcifyed is electronic key */
+
+                  if( ( segment_type & CI_LOGICAL_SEG_FORMAT_MASK ) == CI_LOGICAL_SEG_E_KEY )
+                  {
+                     /* Get the Key Format */
+                     temp_data = tvb_get_guint8( tvb, offset + pathpos + 1 );
+
+                     if( temp_data == CI_E_KEY_FORMAT_VAL )
+                     {
+                        qi = proto_tree_add_text( path_tree, tvb, offset + pathpos, 10, "Electronic Key Segment (0x%02X): ",segment_type );
+
+                        /* Create a sub tree for the IOI */
+                        e_key_tree = proto_item_add_subtree( qi, ett_ekey_path );
+
+                        /* Print the key type */
+                        proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 1, 1, "Key Format: 0x%02X", temp_data );
+
+                        /* Get the Vendor ID */
+                        temp_data = tvb_get_letohs( tvb, offset + pathpos + 2 );
+                        proto_tree_add_item( e_key_tree, hf_cip_vendor, tvb, offset + pathpos + 2, 2, TRUE);
+                        proto_item_append_text( qi, "VendorID: 0x%04X", temp_data );
+
+                        /* Get Device Type */
+                        temp_data = tvb_get_letohs( tvb, offset + pathpos + 4 );
+                        proto_tree_add_item( e_key_tree, hf_cip_devtype, tvb, offset + pathpos + 4, 2, TRUE);
+                        proto_item_append_text( qi, ", DevTyp: 0x%04X", temp_data );
+
+                        /* Product Code */
+                        temp_data = tvb_get_letohs( tvb, offset + pathpos + 6 );
+                        proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 6, 2, "Product Code: 0x%04X", temp_data );
+
+                        /* Major revision/Compatibility */
+                        temp_data = tvb_get_guint8( tvb, offset + pathpos + 8 );
+
+                        /* Add Major revision/Compatibility tree */
+                        mcpi = proto_tree_add_text(e_key_tree, tvb, offset + pathpos + 8, 1, "Compatibility ");
+                        mc_tree = proto_item_add_subtree(mcpi, ett_mcsc);
+
+                        /* Add Compatibility bit info */
+                        proto_tree_add_item(mc_tree, hf_cip_fwo_comp,
+                                            tvb, offset + pathpos + 8, 1, TRUE );
+
+                        proto_item_append_text( mcpi, "%s, Major Revision: %d",
+                                                val_to_str( ( temp_data & 0x80 )>>7, cip_com_bit_vals , "" ),
+                                                temp_data & 0x7F );
+
+                        /* Major revision */
+                        proto_tree_add_item(mc_tree, hf_cip_fwo_mrev,
+                                            tvb, offset + pathpos + 8, 1, TRUE );
+
+                        /* Minor revision */
+                        temp_data2 = tvb_get_guint8( tvb, offset + pathpos + 9 );
+                        proto_tree_add_text( e_key_tree, tvb, offset + pathpos + 9, 1, "Minor Revision: %d", temp_data2 );
+
+                        proto_item_append_text( qi, ", %d.%d", ( temp_data & 0x7F ), temp_data2 );
+
+                        proto_item_append_text(epath_item, "[Key]" );
+
+                        /* Increment the path pointer */
+                        pathpos += 10;
+                     }
+                     else
+                     {
+                        /* Unsupported electronic key format */
+                        proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Electronic Key Format" );
+                        return;
+                     }
+                  }
+                  else
+                  {
+                     /* Unsupported special segment format */
+                     proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Special Segment Format" );
+                     return;
+                  }
+                  break;
+
+               default:
+
+                  /* Unsupported logical segment type */
+                  proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Type" );
                   return;
-               }
-            }
-            else
+
+            } /* end of switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK ) */
+            break;
+
+
+         case CI_DATA_SEGMENT:
+
+            /* Data segment, determin the logical type */
+
+            switch( segment_type )
             {
-               /* Unsupported special segment format */
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Special Segment Format" );
-               return;
-            }
+               case CI_DATA_SEG_SIMPLE:
+
+                  /* Simple data segment */
+                  if ( generate )
+                  {
+                     ds_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Simple Data Segment (0x%02X)", segment_type );
+                     PROTO_ITEM_SET_GENERATED(ds_item);
+                  }
+                  else
+                     ds_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 1, "Simple Data Segment (0x%02X)", segment_type );
+
+                  /* Create a sub tree */
+                  ds_tree = proto_item_add_subtree( ds_item, ett_data_seg );
+
+                  /* Segment size */
+                  seg_size = tvb_get_guint8( tvb, offset + pathpos+1 )*2;
+                  proto_tree_add_text( ds_tree, tvb, offset + pathpos+1, 1, "Data Size: %d (words)", seg_size/2 );
+
+                  /* Segment data  */
+                  if( seg_size != 0 )
+                  {
+                     qi = proto_tree_add_text( ds_tree, tvb, offset + pathpos+2, 0, "Data: " );
+
+                     for( i=0; i < seg_size/2; i ++ )
+                     {
+                        temp_word = tvb_get_letohs( tvb, offset + pathpos+2+(i*2) );
+                        proto_item_append_text(qi, " 0x%04X", temp_word );
+                     }
+
+                     proto_item_set_len(qi, seg_size);
+                  }
+
+                  proto_item_set_len( ds_item, 2 + seg_size );
+                  pathpos = pathpos + 2 + seg_size;
+
+                  proto_item_append_text(epath_item, "[Data]" );
+
+                  break;
+
+               case CI_DATA_SEG_SYMBOL:
+
+                  /* ANSI extended symbol segment */
+                  if ( generate )
+                  {
+                     ds_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Extended Symbol Segment (0x%02X)", segment_type );
+                     PROTO_ITEM_SET_GENERATED(ds_item);
+                  }
+                  else
+                     ds_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 1, "Extended Symbol Segment (0x%02X)", segment_type );
+
+                  /* Create a sub tree */
+                  ds_tree = proto_item_add_subtree( ds_item, ett_data_seg );
+
+                  /* Segment size */
+                  seg_size = tvb_get_guint8( tvb, offset + pathpos+1 );
+                  if ( generate )
+                  {
+                     it = proto_tree_add_text( ds_tree, NULL, 0, 0, "Data Size: %d", seg_size );
+                     PROTO_ITEM_SET_GENERATED(it);
+                  }
+                  else
+                     proto_tree_add_text( ds_tree, tvb, offset + pathpos+1, 1, "Data Size: %d", seg_size );
+
+                  /* Segment data  */
+                  if( seg_size != 0 )
+                  {
+                     if ( generate )
+                     {
+                        qi = proto_tree_add_text( ds_tree, NULL, 0, 0, "Data: %s",
+                                                  tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
+                        PROTO_ITEM_SET_GENERATED(qi);
+                     }
+                     else
+                        qi = proto_tree_add_text( ds_tree, tvb, offset + pathpos + 2, seg_size, "Data: %s",
+                                                  tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
+
+                     proto_item_append_text(epath_item, "%s", tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
+
+                     hidden_item = proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, FALSE );
+                     PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+                     if( seg_size %2 )
+                     {
+                        /* We have a PAD BYTE */
+                        if ( !generate )
+                           proto_tree_add_text( ds_tree, tvb, offset + pathpos + 2 + seg_size, 1, "Pad Byte (0x%02X)",
+                                                tvb_get_guint8( tvb, offset + pathpos + 2 + seg_size ) );
+                        seg_size++;
+                     }
+                  }
+
+                  if ( !generate )
+                     proto_item_set_len( ds_item, 2 + seg_size );
+                  pathpos = pathpos + 2 + seg_size;
+
+                  break;
+
+               default:
+                  proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Sub-Segment Type" );
+                  return;
+
+            } /* End of switch sub-type */
+
+            break;
+
+         case CI_NETWORK_SEGMENT:
+
+            /* Network segment -Determine the segment sub-type */
+
+            switch( segment_type & CI_NETWORK_SEG_TYPE_MASK )
+            {
+               case CI_NETWORK_SEG_SCHEDULE:
+                  net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Schedule" );
+                  net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+                  proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Multiplier/Phase: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+                  /* 2 bytes of path used */
+                  pathpos += 2;
+                  break;
+
+               case CI_NETWORK_SEG_FIXED_TAG:
+                  net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Fixed Tag" );
+                  net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+                  proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Fixed Tag: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+                  /* 2 bytes of path used */
+                  pathpos += 2;
+                  break;
+
+               case CI_NETWORK_SEG_PROD_INHI:
+                  net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Production Inhibit" );
+                  net_tree = proto_item_add_subtree( net_item, ett_port_path );
+
+                  proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Production Inhibit Time: %dms", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
+
+                  /* 2 bytes of path used */
+                  pathpos += 2;
+                  break;
+
+               default:
+                  proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Sub-Segment Type" );
+                  return;
+
+            } /* End of switch sub-type */
+
             break;
 
          default:
 
-            /* Unsupported logical segment type */
-            proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Logical Segment Type" );
+            /* Unsupported segment type */
+            proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Segment Type" );
             return;
-
-         } /* end of switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK ) */
-         break;
-
-
-      case CI_DATA_SEGMENT:
-
-         /* Data segment, determin the logical type */
-
-         switch( segment_type )
-         {
-            case CI_DATA_SEG_SIMPLE:
-
-               /* Simple data segment */
-               if ( generate )
-               {
-                  ds_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Simple Data Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(ds_item);
-               }
-               else
-                  ds_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 1, "Simple Data Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree */
-               ds_tree = proto_item_add_subtree( ds_item, ett_data_seg );
-
-               /* Segment size */
-               seg_size = tvb_get_guint8( tvb, offset + pathpos+1 )*2;
-               proto_tree_add_text( ds_tree, tvb, offset + pathpos+1, 1, "Data Size: %d (words)", seg_size/2 );
-
-               /* Segment data  */
-               if( seg_size != 0 )
-               {
-                  qi = proto_tree_add_text( ds_tree, tvb, offset + pathpos+2, 0, "Data: " );
-
-                  for( i=0; i < seg_size/2; i ++ )
-                  {
-                    temp_word = tvb_get_letohs( tvb, offset + pathpos+2+(i*2) );
-                    proto_item_append_text(qi, " 0x%04X", temp_word );
-                  }
-
-                  proto_item_set_len(qi, seg_size);
-               }
-
-               proto_item_set_len( ds_item, 2 + seg_size );
-               pathpos = pathpos + 2 + seg_size;
-
-               proto_item_append_text(epath_item, "[Data]" );
-
-               break;
-
-            case CI_DATA_SEG_SYMBOL:
-
-               /* ANSI extended symbol segment */
-               if ( generate )
-               {
-                  ds_item = proto_tree_add_text( path_tree, NULL, 0, 0, "Extended Symbol Segment (0x%02X)", segment_type );
-                  PROTO_ITEM_SET_GENERATED(ds_item);
-               }
-               else
-                  ds_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 1, "Extended Symbol Segment (0x%02X)", segment_type );
-
-               /* Create a sub tree */
-               ds_tree = proto_item_add_subtree( ds_item, ett_data_seg );
-
-               /* Segment size */
-               seg_size = tvb_get_guint8( tvb, offset + pathpos+1 );
-               if ( generate )
-               {
-                  it = proto_tree_add_text( ds_tree, NULL, 0, 0, "Data Size: %d", seg_size );
-                  PROTO_ITEM_SET_GENERATED(it);
-               }
-               else
-                  proto_tree_add_text( ds_tree, tvb, offset + pathpos+1, 1, "Data Size: %d", seg_size );
-
-               /* Segment data  */
-               if( seg_size != 0 )
-               {
-                  if ( generate )
-                  {
-                     qi = proto_tree_add_text( ds_tree, NULL, 0, 0, "Data: %s",
-                           tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
-                     PROTO_ITEM_SET_GENERATED(qi);
-                  }
-                  else
-                     qi = proto_tree_add_text( ds_tree, tvb, offset + pathpos + 2, seg_size, "Data: %s",
-                           tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
-
-                  proto_item_append_text(epath_item, "%s", tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
-
-                  hidden_item = proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, FALSE );
-                  PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-                  if( seg_size %2 )
-                  {
-                     /* We have a PAD BYTE */
-                     if ( !generate )
-                        proto_tree_add_text( ds_tree, tvb, offset + pathpos + 2 + seg_size, 1, "Pad Byte (0x%02X)",
-                            tvb_get_guint8( tvb, offset + pathpos + 2 + seg_size ) );
-                     seg_size++;
-                  }
-               }
-
-               if ( !generate )
-                  proto_item_set_len( ds_item, 2 + seg_size );
-               pathpos = pathpos + 2 + seg_size;
-
-               break;
-
-            default:
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Sub-Segment Type" );
-               return;
-
-            } /* End of switch sub-type */
-
-            break;
-
-      case CI_NETWORK_SEGMENT:
-
-         /* Network segment -Determine the segment sub-type */
-
-         switch( segment_type & CI_NETWORK_SEG_TYPE_MASK )
-         {
-           case CI_NETWORK_SEG_SCHEDULE:
-               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Schedule" );
-               net_tree = proto_item_add_subtree( net_item, ett_port_path );
-
-               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Multiplier/Phase: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-               break;
-
-            case CI_NETWORK_SEG_FIXED_TAG:
-               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Fixed Tag" );
-               net_tree = proto_item_add_subtree( net_item, ett_port_path );
-
-               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Fixed Tag: %02X", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-               break;
-
-            case CI_NETWORK_SEG_PROD_INHI:
-               net_item = proto_tree_add_text( path_tree, tvb, offset + pathpos, 2, "Network Segment - Production Inhibit" );
-               net_tree = proto_item_add_subtree( net_item, ett_port_path );
-
-               proto_tree_add_text( net_tree, tvb, offset + pathpos + 1, 1, "Production Inhibit Time: %dms", tvb_get_guint8( tvb, offset + pathpos + 1 ) );
-
-               /* 2 bytes of path used */
-               pathpos += 2;
-               break;
-
-            default:
-               proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Sub-Segment Type" );
-               return;
-
-            } /* End of switch sub-type */
-
-      break;
-
-     default:
-
-         /* Unsupported segment type */
-         proto_tree_add_text( path_tree, tvb, 0, 0, "Unsupported Segment Type" );
-         return;
 
       } /* end of switch( segment_type & CI_SEGMENT_TYPE_MASK ) */
 
@@ -1874,117 +1872,117 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
            if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_CM_FWD_OPEN )
            {
-               /* Forward open Response (Success) */
-               guint32 O2TConnID;
-               guint32 T2OConnID;
-               guint16 ConnSerialNumber;
-               guint32 DeviceSerialNumber;
-               guint16 VendorID;
+              /* Forward open Response (Success) */
+              guint32 O2TConnID;
+              guint32 T2OConnID;
+              guint16 ConnSerialNumber;
+              guint32 DeviceSerialNumber;
+              guint16 VendorID;
 
-               /* Display originator to target connection ID */
-               O2TConnID = tvb_get_letohl( tvb, offset+4+add_stat_size );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 4, "O->T Network Connection ID: 0x%08X", O2TConnID );
+              /* Display originator to target connection ID */
+              O2TConnID = tvb_get_letohl( tvb, offset+4+add_stat_size );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 4, "O->T Network Connection ID: 0x%08X", O2TConnID );
 
-               /* Display target to originator connection ID */
-               T2OConnID = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "T->O Network Connection ID: 0x%08X", T2OConnID );
+              /* Display target to originator connection ID */
+              T2OConnID = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "T->O Network Connection ID: 0x%08X", T2OConnID );
 
-               /* Display connection serial number */
-               ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size+8 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 2, "Connection Serial Number: 0x%04X", ConnSerialNumber );
+              /* Display connection serial number */
+              ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size+8 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 2, "Connection Serial Number: 0x%04X", ConnSerialNumber );
 
-               /* Display the originator vendor id */
-               VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+10 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_vendor, tvb, offset+4+add_stat_size+10, 2, TRUE);
+              /* Display the originator vendor id */
+              VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+10 );
+              proto_tree_add_item( cmd_data_tree, hf_cip_vendor, tvb, offset+4+add_stat_size+10, 2, TRUE);
 
-               /* Display the originator serial number */
-               DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+12 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+12, 4, "Originator Serial Number: 0x%08X", DeviceSerialNumber );
+              /* Display the originator serial number */
+              DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+12 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+12, 4, "Originator Serial Number: 0x%08X", DeviceSerialNumber );
 
-               /* Display originator to target actual packet interval */
-               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+16 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+16, 4, "O->T API: %dms (0x%08X)", temp_data / 1000, temp_data );
+              /* Display originator to target actual packet interval */
+              temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+16 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+16, 4, "O->T API: %dms (0x%08X)", temp_data / 1000, temp_data );
 
-               /* Display originator to target actual packet interval */
-               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+20 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+20, 4, "T->O API: %dms (0x%08X)", temp_data / 1000, temp_data );
+              /* Display originator to target actual packet interval */
+              temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+20 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+20, 4, "T->O API: %dms (0x%08X)", temp_data / 1000, temp_data );
 
-               /* Display the application reply size */
-               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+24 ) * 2;
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+24, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
+              /* Display the application reply size */
+              app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+24 ) * 2;
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+24, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
 
-               /* Display the Reserved byte */
-               temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+25 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+25, 1, "Reserved: 0x%02X", temp_byte );
+              /* Display the Reserved byte */
+              temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+25 );
+              proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+25, 1, "Reserved: 0x%02X", temp_byte );
 
-               if( app_rep_size != 0 )
-               {
-                  /* Display application Reply data */
-                  ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+26, app_rep_size, "Application Reply:" );
+              if( app_rep_size != 0 )
+              {
+                 /* Display application Reply data */
+                 ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+26, app_rep_size, "Application Reply:" );
 
-                  for( i=0; i < app_rep_size; i++ )
-                  {
+                 for( i=0; i < app_rep_size; i++ )
+                 {
                     temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+26+i );
                     proto_item_append_text(ar_item, " 0x%02X", temp_byte );
-                  }
+                 }
 
-                } /* End of if reply data */
+              } /* End of if reply data */
 
-                enip_open_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber, O2TConnID, T2OConnID );
+              enip_open_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber, O2TConnID, T2OConnID );
 
-            } /* End of if forward open response */
+           } /* End of if forward open response */
        else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_CM_FWD_CLOSE )
-            {
-               /* Forward close response (Success) */
-               guint16 ConnSerialNumber;
-               guint32 DeviceSerialNumber;
-               guint16 VendorID;
+       {
+          /* Forward close response (Success) */
+          guint16 ConnSerialNumber;
+          guint32 DeviceSerialNumber;
+          guint16 VendorID;
 
-               /* Display connection serial number */
-               ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Connection Serial Number: 0x%04X", ConnSerialNumber );
+          /* Display connection serial number */
+          ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size );
+          proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Connection Serial Number: 0x%04X", ConnSerialNumber );
 
-               /* Display the originator vendor id */
-               VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+2 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_vendor, tvb, offset+4+add_stat_size+2, 2, TRUE);
+          /* Display the originator vendor id */
+          VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+2 );
+          proto_tree_add_item( cmd_data_tree, hf_cip_vendor, tvb, offset+4+add_stat_size+2, 2, TRUE);
 
-               /* Display the originator serial number */
-               DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "Originator Serial Number: 0x%08X", DeviceSerialNumber );
+          /* Display the originator serial number */
+          DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
+          proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+4, 4, "Originator Serial Number: 0x%08X", DeviceSerialNumber );
 
-               /* Display the application reply size */
-               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+8 ) * 2;
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
+          /* Display the application reply size */
+          app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+8 ) * 2;
+          proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
 
-               /* Display the Reserved byte */
-               temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+9 );
-               proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+9, 1, "Reserved: 0x%02X", temp_byte );
+          /* Display the Reserved byte */
+          temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+9 );
+          proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+9, 1, "Reserved: 0x%02X", temp_byte );
 
-               if( app_rep_size != 0 )
-               {
-                  /* Display application Reply data */
-                  ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+10, app_rep_size, "Application Reply:" );
+          if( app_rep_size != 0 )
+          {
+             /* Display application Reply data */
+             ar_item = proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+10, app_rep_size, "Application Reply:" );
 
-                  for( i=0; i < app_rep_size; i ++ )
-                  {
-                    temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+10+i );
-                    proto_item_append_text(ar_item, " 0x%02X", temp_byte );
-                  }
+             for( i=0; i < app_rep_size; i ++ )
+             {
+                temp_byte = tvb_get_guint8( tvb, offset+4+add_stat_size+10+i );
+                proto_item_append_text(ar_item, " 0x%02X", temp_byte );
+             }
 
-                } /* End of if reply data */
+          } /* End of if reply data */
 
-                enip_close_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber );
+          enip_close_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber );
 
-            } /* End of if forward close response */
-            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_CM_UNCON_SEND )
-            {
-               /* Unconnected send response (Success) */
+       } /* End of if forward close response */
+       else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_CM_UNCON_SEND )
+       {
+          /* Unconnected send response (Success) */
 
-               /* Display service response data */
-               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
-            }
-            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_GET_ATT_LIST )
-            {
+          /* Display service response data */
+          add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+       }
+       else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_GET_ATT_LIST )
+       {
                /* Get Attribute List Reply (Success)*/
 
                int att_count;
@@ -2472,17 +2470,17 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
          } /* End of Get attribute list request */
          else if ( tvb_get_guint8( tvb, offset ) == SC_CCO_CHANGE_COMPLETE )
          {
-           /* Change complete request */
+            /* Change complete request */
 
-           temp_data = tvb_get_letohs( tvb, offset+2+req_path_size );
-           temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Change Type: ");
+            temp_data = tvb_get_letohs( tvb, offset+2+req_path_size );
+            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Change Type: ");
 
-           if (temp_data == 0)
-             proto_item_append_text(temp_item, "Full" );
-           else if (temp_data == 1)
-             proto_item_append_text(temp_item, "Incremental" );
-           else
-             proto_item_append_text(temp_item, "Reserved" );
+            if (temp_data == 0)
+               proto_item_append_text(temp_item, "Full" );
+            else if (temp_data == 1)
+               proto_item_append_text(temp_item, "Incremental" );
+            else
+               proto_item_append_text(temp_item, "Reserved" );
          }
          else
          {
@@ -2599,8 +2597,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
          for( i=0; i < add_stat_size/2; i ++ )
          {
-           proto_item_append_text( pi, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
-           proto_item_append_text( status_item, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
+            proto_item_append_text( pi, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
+            proto_item_append_text( status_item, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
          }
       }
 
@@ -2623,8 +2621,10 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
             tvbIOI = tvb_new_real_data( preq_info->pIOI, preq_info->IOILen * 2, preq_info->IOILen * 2);
             if ( tvbIOI )
             {
-               /* pi = add_byte_array_text_to_proto_tree( cip_tree, tvbIOI, 0, req_path_size+1, "IOI: " );
-               PROTO_ITEM_SET_GENERATED(pi); */
+#if 0
+               /pi = add_byte_array_text_to_proto_tree( cip_tree, tvbIOI, 0, req_path_size+1, "IOI: " );
+               PROTO_ITEM_SET_GENERATED(pi);
+#endif
 
                pi = proto_tree_add_text( cip_tree, NULL, 0, 0, "Request Path Size: %d (words)", preq_info->IOILen );
                PROTO_ITEM_SET_GENERATED(pi);
@@ -3062,3 +3062,17 @@ proto_reg_handoff_cip(void)
    dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
 
 } /* end of proto_reg_handoff_cip() */
+
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 3
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=3 expandtab
+ * :indentSize=3:tabSize=3:noTabs=true:
+ */
