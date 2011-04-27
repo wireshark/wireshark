@@ -1174,7 +1174,6 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     proto_tree *        iphc_tree = NULL;
     proto_item *        ti = NULL;
     proto_item *        ti_dam = NULL;
-    gboolean            addr_err;
     /* IPHC header fields. */
     guint16             iphc_flags;
     guint8              iphc_traffic;
@@ -1420,7 +1419,6 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
             /* TODO: Recover the stuff derived from context. */
-            addr_err = TRUE;
             ipv6.ip6_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
