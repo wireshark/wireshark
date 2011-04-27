@@ -509,6 +509,9 @@ cf_read(capture_file *cf, gboolean from_save)
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
   volatile int count = 0;
+#ifdef HAVE_LIBPCAP
+  volatile int displayed_once = 0;
+#endif
   gboolean compiled;
 
   /* Compile the current display filter.
@@ -579,6 +582,15 @@ cf_read(capture_file *cf, gboolean from_save)
       if (data_offset >= progbar_nextstep) {
         if (progbar != NULL) {
           progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
+          /* update the packet bar content on the first run or frequently on very large files */
+#ifdef HAVE_LIBPCAP
+          if (progbar_quantum > 500000 || displayed_once == 0) {
+            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
+              displayed_once = 1;
+              packets_bar_update();
+            }
+          }
+#endif /* HAVE_LIBPCAP */
           update_progress_dlg(progbar, progbar_val, status_str);
         }
         progbar_nextstep += progbar_quantum;
