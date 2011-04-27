@@ -32,16 +32,23 @@
 
 #include "frame_data_sequence.h"
 
-frame_data_sequence *
-new_frame_data_sequence(void)
-{
-	frame_data_sequence *fds;
+/*
+ * We store the frame_data structures in a radix tree, with 1024
+ * elements per level.  The leaf nodes are arrays of 1024 frame_data
+ * structures; the nodes above them are arrays of 1024 pointers to
+ * the nodes below them.  The capture_file structure has a pointer
+ * to the root node.
+ *
+ * As frame numbers are 32 bits, and as 1024 is 2^10, that gives us
+ * up to 4 levels of tree.
+ */
+#define LOG2_NODES_PER_LEVEL	10
+#define NODES_PER_LEVEL		(1<<LOG2_NODES_PER_LEVEL)
 
-	fds = g_malloc(sizeof *fds);
-	fds->count = 0;
-	fds->ptree_root = NULL;
-	return fds;
-}
+struct _frame_data_sequence {
+  guint32      count;           /* Total number of frames */
+  void        *ptree_root;      /* Pointer to the root node */
+};
 
 /*
  * For a given frame number, calculate the indices into a level 3
@@ -55,6 +62,17 @@ new_frame_data_sequence(void)
 	(((framenum) >> (1*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
 #define LEAF_INDEX(framenum) \
 	(((framenum) >> (0*LOG2_NODES_PER_LEVEL)) & (NODES_PER_LEVEL - 1))
+
+frame_data_sequence *
+new_frame_data_sequence(void)
+{
+	frame_data_sequence *fds;
+
+	fds = g_malloc(sizeof *fds);
+	fds->count = 0;
+	fds->ptree_root = NULL;
+	return fds;
+}
 
 /*
  * Add a new frame_data structure to a frame_data_sequence.
