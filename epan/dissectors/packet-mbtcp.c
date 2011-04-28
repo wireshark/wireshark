@@ -35,10 +35,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #define PORT_MBTCP		502	/* Modbus/TCP and Modbus/UDP located on port 502 */
@@ -127,11 +123,14 @@ static int hf_modbus_bitcnt = -1;
 static int hf_modbus_exceptioncode = -1;
 static int hf_modbus_andmask = -1;
 static int hf_modbus_ormask = -1;
+static int hf_modbus_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mbtcp = -1;
 static gint ett_modbus_hdr = -1;
 static gint ett_group_hdr = -1;
+
+static dissector_table_t mbtcp_dissector_table;
 
 static int
 classify_packet(packet_info *pinfo)
@@ -195,6 +194,29 @@ static const value_string exception_code_vals[] = {
 	{ GATEWAY_TRGT_FAIL,	"Gateway target device failed to respond" },
 	{ 0,			NULL }
 };
+
+/* Code to allow special handling of mbtcp data */
+static void
+dissect_mbtcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 function_code, gint payload_start, gint payload_len)
+{
+	gint reported_len;
+	tvbuff_t *next_tvb;
+
+	reported_len = tvb_reported_length_remaining(tvb, payload_start);
+
+	if ( ( payload_start + payload_len ) > reported_len ) {
+		proto_tree_add_bytes_format(tree, hf_modbus_data, tvb, payload_start, payload_len, NULL, "Data");
+		return;
+	}
+
+	next_tvb = tvb_new_subset(tvb, payload_start, payload_len, reported_len);
+
+	switch ( function_code ) {
+		default:
+			if ( ! dissector_try_string(mbtcp_dissector_table, "data", next_tvb, pinfo, tree) )
+				proto_tree_add_bytes_format(tree, hf_modbus_data, tvb, payload_start, payload_len, NULL, "Data");
+	}
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -302,7 +324,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					mh.protocol_id);
 			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, offset + 4, 2,
 					mh.len);
-					
+
 			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_unitid, tvb, offset + 6, 1,
 					mh.mdbs_hdr.unit_id);
 
@@ -313,7 +335,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  		modbus_tree = proto_item_add_subtree(mf, ett_modbus_hdr);
 			mi = proto_tree_add_uint(modbus_tree, hf_mbtcp_functioncode, tvb, offset + 7, 1,
 					mh.mdbs_hdr.function_code);
-					
+
 			/** detail payload as a function of exception/function code */
 			func_string = val_to_str(mh.mdbs_hdr.function_code,
 			    function_code_vals, "Unknown function");
@@ -333,9 +355,9 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_text(mi, "function %u:  %s", mh.mdbs_hdr.function_code,
 						func_string);
 				switch (mh.mdbs_hdr.function_code) {
-					
-					case READ_COILS:			
-					case READ_INPUT_DISCRETES:	
+
+					case READ_COILS:
+					case READ_INPUT_DISCRETES:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_bitcnt, tvb, payload_start + 2, 2, FALSE);
@@ -343,12 +365,12 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						else if (packet_type == RESPONSE_PACKET) {
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 1, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 1, byte_cnt);
 						}
 						break;
-						
-					case READ_MULT_REGS:		
-					case READ_INPUT_REGS:		
+
+					case READ_MULT_REGS:
+					case READ_INPUT_REGS:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, FALSE);
@@ -356,75 +378,75 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						else if (packet_type == RESPONSE_PACKET) {
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 1, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 1, byte_cnt);
 						}
 						break;
-						
-					case WRITE_COIL:			
+
+					case WRITE_COIL:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 2, 1, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 2, 1);
 							proto_tree_add_text(modbus_tree, tvb, payload_start + 3, 1, "Padding");
 						}
 						else if (packet_type == RESPONSE_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 2, 1, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 2, 1);
 							proto_tree_add_text(modbus_tree, tvb, payload_start + 3, 1, "Padding");
 						}
 						break;
-						
-					case WRITE_SINGLE_REG:		
+
+					case WRITE_SINGLE_REG:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 2, 2, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 2, 2);
 						}
 						else if (packet_type == RESPONSE_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 2, 2, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 2, 2);
 						}
 						break;
-						
-					case READ_EXCEPT_STAT:		
+
+					case READ_EXCEPT_STAT:
 						if (packet_type == RESPONSE_PACKET)
-							proto_tree_add_text(modbus_tree, tvb, payload_start, 1, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start, 1);
 						break;
-						
-					case FORCE_MULT_COILS:		
+
+					case FORCE_MULT_COILS:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_bitcnt, tvb, payload_start + 2, 2, FALSE);
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 4);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 4, 1,
 									byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 5, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 5, byte_cnt);
 						}
 						else if (packet_type == RESPONSE_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_bitcnt, tvb, payload_start + 2, 2, FALSE);
 						}
 						break;
-						
-					case WRITE_MULT_REGS:		
+
+					case WRITE_MULT_REGS:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, FALSE);
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 4);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 4, 1,
 									byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 5, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 5, byte_cnt);
 						}
 						else if (packet_type == RESPONSE_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, FALSE);
 						}
 						break;
-						
-					case READ_GENL_REF:			
+
+					case READ_GENL_REF:
 						if (packet_type == QUERY_PACKET) {
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
 									byte_cnt);
-									
+
 							/* add subtrees to describe each group of packet */
 							group_offset = payload_start + 1;
 							for (i = 0; i < byte_cnt / 7; i++) {
@@ -441,7 +463,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
 									byte_cnt);
-									
+
 							/* add subtrees to describe each group of packet */
 							group_offset = payload_start + 1;
 							i = 0;
@@ -453,50 +475,50 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								proto_tree_add_uint(group_tree, hf_modbus_bytecnt, tvb, group_offset, 1,
 										group_byte_cnt);
 								proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset + 1, 1, FALSE);
-								proto_tree_add_text(group_tree, tvb, group_offset + 2, group_byte_cnt - 1, "Data");
+								dissect_mbtcp_data(tvb, pinfo, group_tree, mh.mdbs_hdr.function_code, group_offset + 2, group_byte_cnt - 1);
 								group_offset += (group_byte_cnt + 1);
 								byte_cnt -= (group_byte_cnt + 1);
 								i++;
 							}
 						}
 						break;
-						
-					case WRITE_GENL_REF:		
+
+					case WRITE_GENL_REF:
 						if ((packet_type == QUERY_PACKET) || (packet_type == RESPONSE_PACKET)) {
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
 									byte_cnt);
-									
+
 							/* add subtrees to describe each group of packet */
 							group_offset = payload_start + 1;
 							i = 0;
 							while (byte_cnt > 0) {
 								group_word_cnt = tvb_get_ntohs(tvb, group_offset + 5);
 								group_byte_cnt = (2 * group_word_cnt) + 7;
-								mi = proto_tree_add_text( modbus_tree, tvb, group_offset, 
+								mi = proto_tree_add_text( modbus_tree, tvb, group_offset,
 										group_byte_cnt, "Group %u", i);
 						  		group_tree = proto_item_add_subtree(mi, ett_group_hdr);
 								proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset, 1, FALSE);
 								proto_tree_add_item(group_tree, hf_modbus_lreference, tvb, group_offset + 1, 4, FALSE);
-								proto_tree_add_uint(group_tree, hf_modbus_wordcnt, tvb, group_offset + 5, 2, 
+								proto_tree_add_uint(group_tree, hf_modbus_wordcnt, tvb, group_offset + 5, 2,
 										group_word_cnt);
-								proto_tree_add_text(group_tree, tvb, group_offset + 7, group_byte_cnt - 7, "Data");
+								dissect_mbtcp_data(tvb, pinfo, group_tree, mh.mdbs_hdr.function_code, group_offset + 7, group_byte_cnt - 7);
 								group_offset += group_byte_cnt;
 								byte_cnt -= group_byte_cnt;
 								i++;
 							}
 						}
 						break;
-						
-					case MASK_WRITE_REG:		
+
+					case MASK_WRITE_REG:
 						if ((packet_type == QUERY_PACKET) || (packet_type == RESPONSE_PACKET)) {
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_andmask, tvb, payload_start + 2, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_ormask, tvb, payload_start + 4, 2, FALSE);
 						}
 						break;
-						
-					case READ_WRITE_REG:		
+
+					case READ_WRITE_REG:
 						if (packet_type == QUERY_PACKET) {
 							proto_tree_add_item(modbus_tree, hf_modbus_readref, tvb, payload_start, 2, FALSE);
 							proto_tree_add_item(modbus_tree, hf_modbus_readwordcnt, tvb, payload_start + 2, 2, FALSE);
@@ -505,17 +527,17 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 8);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 8, 1,
 									byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 9, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 9, byte_cnt);
 						}
 						else if (packet_type == RESPONSE_PACKET) {
 							byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
 							proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
 									byte_cnt);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 1, byte_cnt, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 1, byte_cnt);
 						}
 						break;
-						
-					case READ_FIFO_QUEUE:		
+
+					case READ_FIFO_QUEUE:
 						if (packet_type == QUERY_PACKET)
 							proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, FALSE);
 						else if (packet_type == RESPONSE_PACKET) {
@@ -523,38 +545,38 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							proto_tree_add_uint(modbus_tree, hf_modbus_lbytecnt, tvb, payload_start, 2,
 									byte_cnt);
 							proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, FALSE);
-							proto_tree_add_text(modbus_tree, tvb, payload_start + 4, byte_cnt - 2, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start + 4, byte_cnt - 2);
 						}
 						break;
-						
-					case DIAGNOSTICS:			
-					case PROGRAM_484:			
-					case POLL_484:				
-					case GET_COMM_EVENT_CTRS:	
-					case GET_COMM_EVENT_LOG:	
-					case PROGRAM_584_984:		
-					case POLL_584_984:			
-					case REPORT_SLAVE_ID:		
-					case PROGRAM_884_U84:		
-					case RESET_COMM_LINK:		
-					case PROGRAM_CONCEPT:		
-					case FIRMWARE_REPLACE:		
-					case PROGRAM_584_984_2:		
-					case REPORT_LOCAL_ADDR_MB:	
+
+					case DIAGNOSTICS:
+					case PROGRAM_484:
+					case POLL_484:
+					case GET_COMM_EVENT_CTRS:
+					case GET_COMM_EVENT_LOG:
+					case PROGRAM_584_984:
+					case POLL_584_984:
+					case REPORT_SLAVE_ID:
+					case PROGRAM_884_U84:
+					case RESET_COMM_LINK:
+					case PROGRAM_CONCEPT:
+					case FIRMWARE_REPLACE:
+					case PROGRAM_584_984_2:
+					case REPORT_LOCAL_ADDR_MB:
 						/* these function codes are not part of the Modbus/TCP specification */
-					default:					
+					default:
 						if (payload_len > 0)
-							proto_tree_add_text(modbus_tree, tvb, payload_start, payload_len, "Data");
+							dissect_mbtcp_data(tvb, pinfo, modbus_tree, mh.mdbs_hdr.function_code, payload_start, payload_len);
 						break;
 				}
 			}
 		}
-		
+
 		/* move onto next packet (if there) */
 		offset += packet_len;
 		packet_num++;
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			
+
 			/* load header structure for next packet */
 			mh.transaction_id = tvb_get_ntohs(tvb, offset+0);
 			mh.protocol_id = tvb_get_ntohs(tvb, offset+2);
@@ -562,7 +584,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			mh.mdbs_hdr.unit_id = tvb_get_guint8(tvb, offset+6);
 			mh.mdbs_hdr.function_code = tvb_get_guint8(tvb, offset+7);
 
-	
+
 			if ( mh.mdbs_hdr.function_code & 0x80 ) {
 				exception_code = tvb_get_guint8(tvb, offset + sizeof(mbtcp_hdr));
 				mh.mdbs_hdr.function_code ^= 0x80;
@@ -598,90 +620,94 @@ proto_register_modbus(void)
 			NULL, HFILL }
 		},
 		{ &hf_mbtcp_len,
-			{ "length",							"modbus_tcp.len",
+			{ "length",					"modbus_tcp.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		/* Modbus header fields */
 		{ &hf_mbtcp_unitid,
-			{ "unit identifier",           		"modbus_tcp.unit_id",
+			{ "unit identifier",				"modbus_tcp.unit_id",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_mbtcp_functioncode,
-			{ "function code",            		"modbus_tcp.func_code",
+			{ "function code",				"modbus_tcp.func_code",
 			FT_UINT8, BASE_DEC, VALS(function_code_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_reference,
-			{ "reference number",            	"modbus_tcp.reference_num",
+			{ "reference number",				"modbus_tcp.reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_lreference,
-			{ "reference number (32 bit)",   	"modbus_tcp.reference_num_32",
+			{ "reference number (32 bit)",			"modbus_tcp.reference_num_32",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_reftype,
-			{ "reference type",   				"modbus_tcp.reference_type",
+			{ "reference type",				"modbus_tcp.reference_type",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_readref,
-			{ "read reference number",   		"modbus_tcp.read_reference_num",
+			{ "read reference number",			"modbus_tcp.read_reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_writeref,
-			{ "write reference number",   		"modbus_tcp.write_reference_num",
+			{ "write reference number",			"modbus_tcp.write_reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_wordcnt,
-			{ "word count",            			"modbus_tcp.word_cnt",
+			{ "word count",					"modbus_tcp.word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_readwordcnt,
-			{ "read word count",       			"modbus_tcp.read_word_cnt",
+			{ "read word count",				"modbus_tcp.read_word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_writewordcnt,
-			{ "write word count",       		"modbus_tcp.write_word_cnt",
+			{ "write word count",				"modbus_tcp.write_word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_bitcnt,
-			{ "bit count",            			"modbus_tcp.bit_cnt",
+			{ "bit count",					"modbus_tcp.bit_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_bytecnt,
-			{ "byte count",            			"modbus_tcp.byte_cnt",
+			{ "byte count",					"modbus_tcp.byte_cnt",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_lbytecnt,
-			{ "byte count (16-bit)",   			"modbus_tcp.byte_cnt_16",
+			{ "byte count (16-bit)",			"modbus_tcp.byte_cnt_16",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_exceptioncode,
-			{ "exception code",            		"modbus_tcp.exception_code",
+			{ "exception code",				"modbus_tcp.exception_code",
 			FT_UINT8, BASE_DEC, VALS(exception_code_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_andmask,
-			{ "AND mask",            			"modbus_tcp.and_mask",
+			{ "AND mask",					"modbus_tcp.and_mask",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_modbus_ormask,
-			{ "OR mask",            			"modbus_tcp.or_mask",
+			{ "OR mask",					"modbus_tcp.or_mask",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
+		},
+		{ &hf_modbus_data,
+			{ "Data",					"modbus_tcp.data",
+		    FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL }
 		}
 	};
 
@@ -694,6 +720,12 @@ proto_register_modbus(void)
 
 	/* Register the protocol name and description */
 	proto_mbtcp = proto_register_protocol("Modbus/TCP", "Modbus/TCP", "mbtcp");
+
+       /* Registering protocol to be called by another dissector */
+	new_register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
+
+	/* Registering subdissector table */
+	mbtcp_dissector_table = register_dissector_table("mbtcp.data", "Modbus/TCP Data", FT_STRING, BASE_NONE);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mbtcp, hf, array_length(hf));
