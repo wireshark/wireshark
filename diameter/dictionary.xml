@@ -1956,6 +1956,7 @@
 			<enum name="DIAMETER_ERROR_POSITIONING_DENIED" code="4224"/>
 			<enum name="DIAMETER_ERROR_POSITIONING_FAILED" code="4225"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_UNREACHABLE LCS_CLIENT" code="4226"/>
+      
 			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
 			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
 			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
@@ -1967,11 +1968,13 @@
 			<enum name="DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA" code="5009"/>
 			<enum name="DIAMETER_MISSING_USER_ID" code="5010"/>
 			<enum name="DIAMETER_ERROR_FEATURE_UNSUPPORTED" code="5011"/>
+      
 			<enum name="DIAMETER_ERROR_USER_NO_WLAN_SUBSCRIPTION" code="5041"/>
 			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
 			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
 			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
 			<enum name="DIAMETER_ERROR_UNSUITABLE_NETWORK" code="5045"/>
+      
 			<enum name="INVALID_SERVICE_INFORMATION" code="5061"/>
 			<enum name="FILTER_RESTRICTIONS" code="5062"/>
 			<enum name="REQUESTED_SERVICE_NOT_AUTHORIZED" code="5063"/>
@@ -1987,6 +1990,7 @@
 			<enum name="DIAMETER_ERROR_SUBS_DATA_ABSENT" code="5106"/>
 			<enum name="DIAMETER_ERROR_NO_SUBSCRIPTION_TO_DATA" code="5107"/>
 			<enum name="DIAMETER_ERROR_DSAI_NOT_AVAILABLE" code="5108"/>
+      
 			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
 			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
@@ -2006,6 +2010,7 @@
 			<enum name="DIAMETER_ERROR_RAT_NOT_ALLOWED" code="5421"/>
 			<enum name="DIAMETER_ERROR_EQUIPMENT_UNKNOWN" code="5422"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_SERVING_NODE" code="5423"/>
+      
 			<enum name="DIAMETER_ERROR_USER_NO_NON_3GPP_SUBSCRIPTION" code="5450"/>
 			<enum name="DIAMETER_ERROR_USER_NO_APN_SUBSCRIPTION" code="5451"/>
 			<enum name="DIAMETER_ERROR_RAT_TYPE_NOT_ALLOWED" code="5452"/>
@@ -2648,8 +2653,8 @@ Note: The AVP codes from 651 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************	  700 - 713         **************************
-Note: The AVP codes from 714 to799 are reserved for TS 29.329.
+ **************************	  700 - 716         **************************
+Note: The AVP codes from 717 to799 are reserved for TS 29.329.
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
@@ -2942,8 +2947,8 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="CHANGEINLOCATION_RAC" code="32"/>
 			<enum name="CHANGEINLOCATION_LAC" code="33"/>
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
-      <enum name="Undefined" code="35"/>
-      <enum name="Undefined" code="36"/>
+      <enum name="CHANGEINLOCATION_TAC" code="35"/>
+      <enum name="CHANGEINLOCATION_ECGI" code="36"/>
       <enum name="Undefined" code="37"/>
       <enum name="Undefined" code="38"/>
       <enum name="Undefined" code="39"/>
@@ -2973,7 +2978,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
       <enum name="Undefined" code="59"/>
 
       <enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
-      <enum name="Undefined" code="61"/>
+      <enum name="CHANGE_IN_SERVING_NODE" code="61"/>
       <enum name="Undefined" code="62"/>
       <enum name="Undefined" code="63"/>
       <enum name="Undefined" code="64"/>
@@ -2984,6 +2989,8 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
       <enum name="Undefined" code="69"/>
 
       <enum name="CHANGE_IN_USER_CSG_INFORMATION" code="70"/>
+      <enum name="CHANGE_IN_HYBRID_SUBSCRIBED_USER_CSG_INFORMATION" code="71"/>
+      <enum name="CHANGE_IN_HYBRID_UNSUBSCRIBED_USER_CSG_INFORMATION" code="72"/>
 
     </avp>
 		<avp name="Quota-Holding-Time" code="871" mandatory="must" vendor-bit="must" vendor-id="TGPP">
@@ -4275,6 +4282,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="Service-Generic-Information" code="1256" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
+        <!-- The AVP is defined in OMA-DDS-Charging_Data -->
 			</grouped>
 	</avp>
 		<avp name="Service-Specific-Type" code="1257" vendor-bit="must" vendor-id="TGPP">
@@ -5018,7 +5026,29 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 1610 Current-Location-Retrieved Enumerated
 1611 Age-Of-Location-Information Unsigned32
 1612 Active-APN Grouped
-Note: The AVP codes from 1621 to 1699 are reserved for TS 29.272.
+1613	SIPTO-Permission	Enumerated
+1614	Error-Diagnostic	Enumerated
+1615	UE-SRVCC-Capability	Enumerated
+1616	MPS-Priority	Unsigned32
+1617	VPLMN-LIPA-Allowed	Enumerated
+1618	LIPA-Permission	Enumerated
+1619	Subscribed-Periodic-RAU-TAU-Timer	Unsigned32
+1620	Ext-PDP-Type	OctetString
+1621	Ext-PDP-Address	Address
+1622	MDT-Configuration	Grouped
+1623	Job-Type	Enumerated
+1624	Area-Scope	Grouped
+1625	List-Of-Measurements	Unsigned32
+1626	Reporting-Trigger	Unsigned32
+1627	Report-Interval	Enumerated
+1628	Report-Amount	Enumerated
+1629	Event-ThresholdRSRP	Unsigned32
+1630	Event-ThresholdRSRQ	Unsigned32
+1631	Logging-Interval	Enumerated
+1632	Logging-Duration	Enumerated
+1633	Relay-Node-Indicator	Enumerated
+
+Note: The AVP codes from 1634 to 1699 are reserved for TS 29.272.
 -->
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
