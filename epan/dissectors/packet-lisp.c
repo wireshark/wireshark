@@ -858,8 +858,6 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Sub-dissectors are indirectly called by the following and thus
        this code should be executed whether or not tree==NULL.
-       XXX: Is it acceptable to use 'if (tree)' in the cases where
-            only the data dissector is indirectly called ?
     */
     switch (type) {
     case LISP_MAP_REQUEST:
