@@ -825,8 +825,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 type;
 
-    proto_item *ti;
-    proto_tree *lisp_tree;
+    proto_tree *lisp_tree = NULL;
 
     /* Clear Info column before fetching data in case an exception is thrown */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -845,6 +844,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
+        proto_item *ti;
 
         /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_lisp, tvb, 0,
@@ -854,28 +854,33 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(lisp_tree,
             hf_lisp_type, tvb, 0, 3, FALSE);
+    }
 
-        switch (type) {
-            case LISP_MAP_REQUEST:
-                dissect_lisp_map_request(tvb, pinfo, lisp_tree);
-                break;
-            case LISP_MAP_REPLY:
-                dissect_lisp_map_reply(tvb, pinfo, lisp_tree);
-                break;
-            case LISP_MAP_REGISTER:
-                dissect_lisp_map_register(tvb, pinfo, lisp_tree);
-                break;
-            case LISP_MAP_NOTIFY:
-                dissect_lisp_map_notify(tvb, pinfo, lisp_tree);
-                break;
-            case LISP_ECM:
-                encapsulated = TRUE;
-                dissect_lisp_ecm(tvb, pinfo, tree, lisp_tree);
-                break;
-            default:
-                call_dissector(data_handle, tvb, pinfo, tree);
-                break;
-        }
+    /* Sub-dissectors are indirectly called by the following and thus
+       this code should be executed whether or not tree==NULL.
+       XXX: Is it acceptable to use 'if (tree)' in the cases where
+            only the data dissector is indirectly called ?
+    */
+    switch (type) {
+    case LISP_MAP_REQUEST:
+        dissect_lisp_map_request(tvb, pinfo, lisp_tree);
+        break;
+    case LISP_MAP_REPLY:
+        dissect_lisp_map_reply(tvb, pinfo, lisp_tree);
+        break;
+    case LISP_MAP_REGISTER:
+        dissect_lisp_map_register(tvb, pinfo, lisp_tree);
+        break;
+    case LISP_MAP_NOTIFY:
+        dissect_lisp_map_notify(tvb, pinfo, lisp_tree);
+        break;
+    case LISP_ECM:
+        encapsulated = TRUE;
+        dissect_lisp_ecm(tvb, pinfo, tree, lisp_tree);
+        break;
+    default:
+        call_dissector(data_handle, tvb, pinfo, tree);
+        break;
     }
 
     /* Return the amount of data this dissector was able to dissect */
