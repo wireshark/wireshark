@@ -1722,7 +1722,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   guint32       value;
   gchar         *cap_title;
-  gchar         *if_device="";
+  gchar         *if_device = NULL;
   if_info_t     *if_info;
   int           if_index = 0;
 
@@ -1861,6 +1861,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       }
     }
     g_free(if_device);
+    if_device = NULL;
   }
 
   /* If we have a prefered interface, get the string to compare with to select the active text*/
