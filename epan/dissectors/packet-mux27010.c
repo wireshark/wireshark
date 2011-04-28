@@ -91,17 +91,10 @@
 #define MUX27010_COMMAND_PARAMETER_NEGOTIATION	0x83				/*10000011*/
 
 
-static guint16 tmpOffsetBegin = 1;
-
-
 /* Wireshark ID of the MUX27010 protocol */
 static int proto_mux27010 = -1;
 
-/*List of Subdissectors for heuristic*/
-static heur_dissector_list_t heur_subdissector_list;
-
 /* Handles of subdissectors */
-static dissector_handle_t data_handle=NULL;
 static dissector_handle_t ppp_handle=NULL;
 
 static dissector_handle_t mux27010_handle;
@@ -153,7 +146,6 @@ static int hf_mux27010_extended_header_end_pos_III = -1;
 static int hf_mux27010_extended_header_end_byte_III = -1;
 static int hf_mux27010_extended_header_flag_ended_III = -1;
 
-static int hf_mux27010_flags = -1;
 /*Address*/
 static int hf_mux27010_dlciaddressflag = -1;
 static int hf_mux27010_eaaddressflag = -1;
@@ -212,9 +204,6 @@ static gint ett_mux27010_controlchannellength = -1;
 static gint ett_mux27010_controlchannelvalue = -1;
 static gint ett_mux27010_information = -1;
 static gint ett_mux27010_checksum = -1;
-
-/* Ids of the subtree for Flags*/
-static gint ett_mux27010_flags = -1;
 
 /*private MUX frame header (PPP)*/
 static guint8 sizeMuxPPPHeader = 0;
@@ -301,50 +290,6 @@ static gint ett_msg_fragments = -1;
 
 static GHashTable *msg_fragment_table = NULL;
 static GHashTable *msg_reassembled_table = NULL;
-
-
-static tvbuff_t*
-remove_escape_chars(tvbuff_t *tvb, int offset, int length)
-{
-  guint8	*buff;
-  int		i;
-  int		scanned_len = 0;
-  guint8	octet;
-  tvbuff_t  *next_tvb;
-
-  buff = g_malloc(length);
-  i = 0;
-  while ( scanned_len < length ){
-	  octet = tvb_get_guint8(tvb,offset);
-	  if (octet == 0x7d){
-		  offset++;
-		  scanned_len++;
-		  if (scanned_len >= length)
-			  break;
-		  octet = tvb_get_guint8(tvb,offset);
-		  buff[i] = octet ^ 0x20;
-	  }else{
-		  buff[i]= octet;
-	  }
-	  offset++;
-	  scanned_len++;
-	  i++;
-  }
-  if (i == 0) {
-	  g_free(buff);
-	  return NULL;
-  }
-  next_tvb = tvb_new_real_data(buff,i,i);
-
-  /* Arrange that the allocated packet data copy be freed when the
-   * tvbuff is freed.
-   */
-  tvb_set_free_cb( next_tvb, g_free );
-
-  tvb_set_child_real_data_tvbuff(tvb,next_tvb);
-  return next_tvb;
-
-}
 
 
 /*Initialize dissector*/
@@ -462,7 +407,7 @@ void getFrameDirection(tvbuff_t *tvb, proto_tree *field_tree){
 
 	/*Direction is coded in the first byte of the frame*/
 	direction_in_out = tvb_get_guint8(tvb, offset);
-	g_snprintf(colInfoText,sizeof(colInfoText),"");
+	colInfoText[0] = 0;
 
 	/*If first byte is 0 => Frame source is Application*/
 	/*If first byte is 1 => Frame source is Module*/
@@ -1137,7 +1082,7 @@ void proto_register_mux27010 (void)
 	
 
 
-static void
+void
 dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti = NULL;
@@ -1158,10 +1103,10 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 
 	/*Strings for info column*/
-	g_snprintf(colInfoText,sizeof(colInfoText),"");
-	g_snprintf(colDestText,sizeof(colDestText),"");
-	g_snprintf(colSourceText,sizeof(colSourceText),"");
-	g_snprintf(frameTypeText,sizeof(frameTypeText),"");
+	colInfoText[0] = 0;
+	colDestText[0] = 0;
+	colSourceText[0] = 0;
+	frameTypeText[0] = 0;
 
 	
 	/*Add a subtree/item to wireshark => in this subtree the details will of the protocol will be displayed*/
