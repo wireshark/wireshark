@@ -115,10 +115,10 @@ extern const gchar* str_to_str(const gchar *val, const string_string *vs, const 
  */
 /* --------------------------------------------------------------------*/
 struct _value_string_ext;
-typedef const char *(*_value_string_match_t)(const guint32, const struct _value_string_ext *, gint *idx);
+typedef const value_string *(*_value_string_match2_t)(const guint32, const struct _value_string_ext *);
 
 typedef struct _value_string_ext {
-  _value_string_match_t _vs_match;
+  _value_string_match2_t _vs_match2;
   guint32 _vs_first_value;    /* first value of the value_string array       */
   guint   _vs_num_entries;    /* number of entries in the value_string array */
                               /*  (excluding final {0, NULL})                */
@@ -132,12 +132,12 @@ typedef struct _value_string_ext {
 #define VALUE_STRING_EXT_VS_NAME(x) (x)->_vs_name
 
 /* (Fcns for use by proto_registrar_dump_values() [See proto.c]) */
-gboolean value_string_ext_validate(value_string_ext *vse);
-gchar *value_string_ext_match_type_str(value_string_ext *vse);
+gboolean value_string_ext_validate(const value_string_ext *vse);
+const gchar *value_string_ext_match_type_str(const value_string_ext *vse);
 /* --- --- */
 
-extern const gchar *_match_strval_ext_init(const guint32 val, const value_string_ext *vse, gint *idx);
-#define VALUE_STRING_EXT_INIT(x) { (_value_string_match_t) _match_strval_ext_init, 0, array_length(x)-1, x, #x }
+extern const value_string *_match_strval_ext_init(const guint32 val, const value_string_ext *vse);
+#define VALUE_STRING_EXT_INIT(x) { _match_strval_ext_init, 0, array_length(x)-1, x, #x }
 
 /* Create a value_string_ext given a ptr to a value_string array and the total number of entries. */
 /* Note: vs_tot_num_entries should include the required {0, NULL} terminating entry of the array. */
