@@ -363,7 +363,7 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    #
 	    CFLAGS="$CFLAGS `\"$PCAP_CONFIG\" --cflags`"
 	    CPPFLAGS="$CPPFLAGS `\"$PCAP_CONFIG\" --cflags`"
-	  else  
+	  else
 	    #
 	    # Didn't find it; we have to look for libpcap ourselves.
 	    # We assume that the current library search path will work,
@@ -1839,9 +1839,17 @@ AC_DEFUN([AC_WIRESHARK_PYTHON_CHECK],
     #
 #  AC_CACHE_CHECK([checking python devel package], ac_cv_wireshark_python_devel,
 #    [
-    AC_CHECK_PROG([ac_ws_python_config], [python-config], "yes", "no")
-    if test ac_ws_python_config = "no"; then
-      ac_cv_wireshark_python_devel = "no"
+    AC_CHECK_PROG([ac_ws_python_config], python-config, "yes", "no")
+    if test "x$ac_ws_python_config" = "xno"; then
+      ac_cv_wireshark_python_devel=no
+	if test "x$want_python" = "xyes"
+	then
+	    #
+	    # The user tried to force us to use Python, but we
+	    # couldn't find the python-config tool; report an error.
+	    #
+	    AC_MSG_ERROR("python-config not found")
+	fi
     else
       AC_MSG_CHECKING([python devel])
       ac_save_ws_cflags=$CFLAGS
@@ -1876,6 +1884,14 @@ AC_DEFUN([AC_WIRESHARK_PYTHON_CHECK],
           ac_cv_wireshark_python_devel=no
           CFLAGS=$ac_save_ws_cflags
           LIBS=$ac_save_ws_libs
+	  if test "x$want_python" = "xyes"
+	  then
+	    #
+	    # The user tried to force us to use Python, but we
+	    # couldn't compile the test program; report an error.
+	    #
+	    AC_MSG_ERROR("Python test program failed compilation")
+	  fi
           AC_MSG_RESULT([no])
         ])
     fi
