@@ -237,7 +237,7 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 
 	/* MCS 29  */
-	{	/* 20 Mhz */ {  208.0f,		/* SGI */  231.1, },
+	{	/* 20 Mhz */ {  208.0f,		/* SGI */  231.1f, },
 		/* 40 Mhz */ {  432.0f,		/* SGI */  480.0f, },
 	},
 
@@ -307,12 +307,12 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 
 	/* MCS 43  */
-	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1, },
+	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1f, },
 		/* 40 Mhz */ {  189.0f,		/* SGI */  210.0f, },
 	},
 
 	/* MCS 44  */
-	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1, },
+	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1f, },
 		/* 40 Mhz */ {  189.0f,		/* SGI */  210.0f, },
 	},
 
@@ -367,7 +367,7 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 
 	/* MCS 55  */
-	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1, },
+	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1f, },
 		/* 40 Mhz */ {  189.0f,		/* SGI */  210.0f, },
 	},
 
@@ -377,7 +377,7 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 
 	/* MCS 57  */
-	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1, },
+	{	/* 20 Mhz */ {   91.0f,		/* SGI */  101.1f, },
 		/* 40 Mhz */ {  189.0f,		/* SGI */  210.0f, },
 	},
 
