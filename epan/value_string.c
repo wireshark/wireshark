@@ -172,7 +172,7 @@ match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx) {
     if (vse) {
       const value_string *vs = vse->_vs_match2(val, vse);
       if (vs) {
-        *idx = (vs - vse->_vs_p);
+        *idx = (gint) (vs - vse->_vs_p);
         return vs->strptr;
       }
     }
