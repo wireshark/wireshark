@@ -143,7 +143,7 @@ void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_
   /* load the python register module */
   py_reg = fopen(get_py_register_file(), "r");
   if (py_reg == NULL) {
-    printf("no register file %s\n", get_py_register_file());
+    printf("Can't open Python registration file: %s\n", get_py_register_file());
     return;
   }
   PyRun_SimpleFile(py_reg, get_py_register_file());
@@ -154,6 +154,10 @@ void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_
 
   /* Get the python register function */
   register_fn = PyDict_GetItemString(global_dict, "register_dissectors");
+  if (register_fn == NULL) {
+    printf("Error in Python registration file: %s\n", get_py_register_file());
+    return;
+  }
 
   /* Execute the python register function */
   /* This function returns a sequence of python dissectors objects */
