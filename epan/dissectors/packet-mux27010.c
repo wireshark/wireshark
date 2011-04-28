@@ -102,9 +102,6 @@ static int proto_mux27010 = -1;
 /* Handles of subdissectors */
 static dissector_handle_t ppp_handle;
 
-static dissector_handle_t mux27010_handle;
-void dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static const value_string packettypenames[] = {
     { 0, "TEXT" },
     { 1, "SOMETHING_ELSE" },
@@ -1371,6 +1368,8 @@ proto_register_mux27010 (void)
 void
 proto_reg_handoff_mux27010(void)
 {
+    dissector_handle_t mux27010_handle;
+
     /*Initialization of dissector*/
     mux27010_handle = create_dissector_handle(dissect_mux27010, proto_mux27010);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MUX27010, mux27010_handle);
