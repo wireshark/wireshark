@@ -96,6 +96,9 @@ VarMeasReport
 %(DEFAULT_BODY)s
 
 if(ue_eutra_cap_tvb){
+	guint32 length;
+	proto_item *item;
+	proto_tree *subtree;
 	switch(lte_rrc_rat_type_value){
 	case 0:
 		/* eutra */
@@ -107,12 +110,23 @@ if(ue_eutra_cap_tvb){
 		break;
 	case 2:
 		/* geran-cs */
-		de_ms_cm_2(ue_eutra_cap_tvb, tree, actx->pinfo, 0, 5, NULL, 0);
-		de_ms_cm_3(ue_eutra_cap_tvb, tree, actx->pinfo, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
+		/* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, 5, "Mobile Station Classmark 2");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_ms_cm_2(ue_eutra_cap_tvb, subtree, actx->pinfo, 2, 3, NULL, 0);
+		/* Mobile Station Classmark 3 is formatted as V */
+		length = tvb_length(ue_eutra_cap_tvb)-5;
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 5, length, "Mobile Station Classmark 3");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_ms_cm_3(ue_eutra_cap_tvb, subtree, actx->pinfo, 5, length, NULL, 0);
 		break;
 	case 3:
 		/* geran-ps */
-		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, actx->pinfo, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
+		/* MS Radio Access Capability is formatted as V */
+		length = tvb_length(ue_eutra_cap_tvb);
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, length, "MS Radio Access Capability");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 		break;
 	case 4:
 		/* cdma2000-1XRTT */

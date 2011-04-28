@@ -5,7 +5,7 @@
 
 /* Input file: packet-lte-rrc-template.c */
 
-#line 1 "packet-lte-rrc-template.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
@@ -58,7 +58,7 @@ static guint32 lte_rrc_rat_type_value = -1;
 /* Include constants */
 
 /*--- Included file: packet-lte-rrc-val.h ---*/
-#line 1 "packet-lte-rrc-val.h"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-val.h"
 #define maxBands                       64
 #define maxCDMA_BandClass              32
 #define maxCellBlack                   16
@@ -93,14 +93,14 @@ static guint32 lte_rrc_rat_type_value = -1;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 52 "packet-lte-rrc-template.c"
+#line 52 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
 
 
 /*--- Included file: packet-lte-rrc-hf.c ---*/
-#line 1 "packet-lte-rrc-hf.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-hf.c"
 static int hf_lte_rrc_BCCH_BCH_Message_PDU = -1;  /* BCCH_BCH_Message */
 static int hf_lte_rrc_BCCH_DL_SCH_Message_PDU = -1;  /* BCCH_DL_SCH_Message */
 static int hf_lte_rrc_MCCH_Message_PDU = -1;      /* MCCH_Message */
@@ -1368,7 +1368,7 @@ static int hf_lte_rrc_key_eNodeB_Star = -1;       /* Key_eNodeB_Star */
 static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 57 "packet-lte-rrc-template.c"
+#line 57 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -1408,7 +1408,7 @@ static int ett_lte_rrc = -1;
 
 
 /*--- Included file: packet-lte-rrc-ett.c ---*/
-#line 1 "packet-lte-rrc-ett.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-ett.c"
 static gint ett_lte_rrc_BCCH_BCH_Message = -1;
 static gint ett_lte_rrc_BCCH_DL_SCH_Message = -1;
 static gint ett_lte_rrc_BCCH_DL_SCH_MessageType = -1;
@@ -2079,7 +2079,7 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 95 "packet-lte-rrc-template.c"
+#line 95 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 
@@ -2218,7 +2218,7 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_32_val = {
 };
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
-#line 1 "packet-lte-rrc-fn.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-fn.c"
 /*--- PDUs declarations ---*/
 static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
@@ -16171,6 +16171,9 @@ dissect_lte_rrc_T_ueCapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 if(ue_eutra_cap_tvb){
+	guint32 length;
+	proto_item *item;
+	proto_tree *subtree;
 	switch(lte_rrc_rat_type_value){
 	case 0:
 		/* eutra */
@@ -16182,12 +16185,23 @@ if(ue_eutra_cap_tvb){
 		break;
 	case 2:
 		/* geran-cs */
-		de_ms_cm_2(ue_eutra_cap_tvb, tree, actx->pinfo, 0, 5, NULL, 0);
-		de_ms_cm_3(ue_eutra_cap_tvb, tree, actx->pinfo, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
+		/* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, 5, "Mobile Station Classmark 2");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_ms_cm_2(ue_eutra_cap_tvb, subtree, actx->pinfo, 2, 3, NULL, 0);
+		/* Mobile Station Classmark 3 is formatted as V */
+		length = tvb_length(ue_eutra_cap_tvb)-5;
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 5, length, "Mobile Station Classmark 3");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_ms_cm_3(ue_eutra_cap_tvb, subtree, actx->pinfo, 5, length, NULL, 0);
 		break;
 	case 3:
 		/* geran-ps */
-		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, actx->pinfo, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
+		/* MS Radio Access Capability is formatted as V */
+		length = tvb_length(ue_eutra_cap_tvb);
+		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, length, "MS Radio Access Capability");
+		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 		break;
 	case 4:
 		/* cdma2000-1XRTT */
@@ -19289,7 +19303,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 232 "packet-lte-rrc-template.c"
+#line 232 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -19366,7 +19380,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- Included file: packet-lte-rrc-hfarr.c ---*/
-#line 1 "packet-lte-rrc-hfarr.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-hfarr.c"
     { &hf_lte_rrc_BCCH_BCH_Message_PDU,
       { "BCCH-BCH-Message", "lte-rrc.BCCH_BCH_Message",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -24429,7 +24443,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 307 "packet-lte-rrc-template.c"
+#line 307 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -24566,7 +24580,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc,
 
 /*--- Included file: packet-lte-rrc-ettarr.c ---*/
-#line 1 "packet-lte-rrc-ettarr.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-ettarr.c"
     &ett_lte_rrc_BCCH_BCH_Message,
     &ett_lte_rrc_BCCH_DL_SCH_Message,
     &ett_lte_rrc_BCCH_DL_SCH_MessageType,
@@ -25237,7 +25251,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 442 "packet-lte-rrc-template.c"
+#line 442 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
   };
@@ -25259,7 +25273,7 @@ void proto_register_lte_rrc(void) {
   /* Register the dissectors defined in lte-rrc.conf */
 
 /*--- Included file: packet-lte-rrc-dis-reg.c ---*/
-#line 1 "packet-lte-rrc-dis-reg.c"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-dis-reg.c"
   new_register_dissector("lte-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.bcch.dl.sch", dissect_BCCH_DL_SCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.mcch", dissect_MCCH_Message_PDU, proto_lte_rrc);
@@ -25273,7 +25287,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 462 "packet-lte-rrc-template.c"
+#line 462 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 

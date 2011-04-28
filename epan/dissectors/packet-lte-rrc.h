@@ -5,7 +5,7 @@
 
 /* Input file: packet-lte-rrc-template.h */
 
-#line 1 "packet-lte-rrc-template.h"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
 /* packet-llc-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
@@ -35,7 +35,7 @@
 
 
 /*--- Included file: packet-lte-rrc-exp.h ---*/
-#line 1 "packet-lte-rrc-exp.h"
+#line 1 "../../asn1/lte-rrc/packet-lte-rrc-exp.h"
 int dissect_lte_rrc_UE_EUTRA_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lte_rrc_HandoverCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lte_rrc_HandoverPreparationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -46,6 +46,6 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
 int dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-lte-rrc-exp.h ---*/
-#line 29 "packet-lte-rrc-template.h"
+#line 29 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
 
 #endif  /* PACKET_LTE_RRC_H */
