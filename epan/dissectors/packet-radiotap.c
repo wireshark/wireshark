@@ -1937,8 +1937,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree *mcs_tree = NULL, *mcs_known_tree;
 			guint8 mcs_known, mcs_flags;
 			guint8 mcs;
-			gboolean ht;
-			gboolean short_gi;
+			guint bandwidth;
+			guint gi_length;
 			gboolean can_calculate_rate;
 
 			/*
@@ -1971,22 +1971,23 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
-				ht = ((mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK) == IEEE80211_RADIOTAP_MCS_BW_40) ?
-				    TRUE : FALSE;
+				bandwidth = ((mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK) == IEEE80211_RADIOTAP_MCS_BW_40) ?
+				    1 : 0;
 				if (mcs_tree)
 					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_bw,
 							    tvb, offset + 1, 1, mcs_flags);
 			} else {
-				ht = FALSE;
+				bandwidth = 0;
 				can_calculate_rate = FALSE;	/* no bandwidth */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
-				short_gi = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ? TRUE : FALSE;
+				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
+				    1 : 0;
 				if (mcs_tree)
 					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_gi,
 							    tvb, offset + 1, 1, mcs_flags);
 			} else {
-				short_gi = FALSE;
+				gi_length = 0;
 				can_calculate_rate = FALSE;	/* no GI width */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
@@ -2015,16 +2016,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			 * 802.11n doesn't support.)
 			 */
 			if (can_calculate_rate && mcs <= MAX_MCS_INDEX
-			    && ieee80211_float_htrates[mcs][ht][short_gi] != 0.0) {
+			    && ieee80211_float_htrates[mcs][bandwidth][gi_length] != 0.0) {
 				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f",
-					     ieee80211_float_htrates[mcs][ht][short_gi]);
+					     ieee80211_float_htrates[mcs][bandwidth][gi_length]);
 				if (tree) {
 					proto_tree_add_float_format(radiotap_tree,
 								    hf_radiotap_datarate,
 								    tvb, offset, 1,
-								    ieee80211_float_htrates[mcs][ht][short_gi],
+								    ieee80211_float_htrates[mcs][bandwidth][gi_length],
 								    "Data Rate: %.1f Mb/s",
-								    ieee80211_float_htrates[mcs][ht][short_gi]);
+								    ieee80211_float_htrates[mcs][bandwidth][gi_length]);
 				}
 			}
 			break;
