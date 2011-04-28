@@ -18,7 +18,7 @@
 	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
 	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
 	<!ENTITY Ericsson SYSTEM "Ericsson.xml">
-	<!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
+  <!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -152,8 +152,9 @@
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
-		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
-		<!-- *********************** End Vendors ************************** -->
+    <vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
+    <vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
+    <!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
 		<!--
@@ -3013,28 +3014,47 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		</avp>
 		<avp name="PS-Information" code="874" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="3GPP-Charging-Id"/>
-				<gavp name="3GPP-PDP Type"/>
-				<gavp name="PDP-Address"/>
-				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/>
-				<gavp name="SGSN-Address"/>
-				<gavp name="GGSN-Address"/>
-				<gavp name="CG-Address"/>
-				<gavp name="3GPP-IMSI-MCC-MNC"/>
-				<gavp name="3GPP-GGSN-MCC-MNC"/>
+        <gavp name="3GPP-Charging-Id"/>
+        <gavp name="PDN-Connection-ID"/>
+        <gavp name="Node-Id"/>
+        <gavp name="3GPP-PDP Type"/>
+        <gavp name="PDP-Address"/>
+        <gavp name="Dynamic-Address-Flag"/>
+        <gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
+        <gavp name="QoS-Information"/>
+        <gavp name="SGSN-Address"/>
+        <gavp name="GGSN-Address"/>
+        <gavp name="CG-Address"/>
+        <gavp name="Serving-Node-Type"/>
+        <gavp name="SGW-Change"/>
+        <gavp name="3GPP-IMSI-MCC-MNC"/>
+        <gavp name="IMSI-Unauthenticated-Flag"/>
+        <gavp name="3GPP-GGSN-MCC-MNC"/>
 				<gavp name="3GPP-NSAPI"/>
 				<gavp name="Called-Station-Id"/>
 				<gavp name="3GPP-Session-Stop-Indicator"/>
 				<gavp name="3GPP-Selection-Mode"/>
-				<gavp name="3GPP-Charging-Characteristics"/>
-				<gavp name="3GPP-SGSN-MCC-MNC"/>
+        <gavp name="3GPP-Charging-Characteristics"/>
+        <gavp name="Charging-Characteristics-Selection-Mode"/>
+        <gavp name="3GPP-SGSN-MCC-MNC"/>
 				<gavp name="3GPP-MS-TimeZone"/>
-				<gavp name="3GPP-CAMEL-Charging-Info"/>
+				<gavp name="3GPP-CAMEL-Charging-Info"/>         <!-- ??-->
 				<gavp name="Charging-Rule-Base-Name"/>
 				<gavp name="3GPP-User-Location-Info"/>
 				<gavp name="3GPP-RAT-Type"/>
 				<gavp name="PS-Furnish-Charging-Information"/>
-			</grouped>
+        <gavp name="PDP-Context-Type"/>
+        <gavp name="Offline-Charging"/>
+        <gavp name="Traffic-Data-Volumes"/>
+        <gavp name="Service-Data-Container"/>
+        <gavp name="User-Equipment-Info"/>
+        <gavp name="Terminal-Information"/>
+        <gavp name="Start-Time"/>
+        <gavp name="Stop-Time"/>
+        <gavp name="Change-Condition"/>
+        <gavp name="Diagnostics"/>
+        <gavp name="Low-Priority-Indicator"/>
+      </grouped>
 		</avp>
 		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
