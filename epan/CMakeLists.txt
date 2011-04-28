@@ -782,6 +782,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mtp3.c
 	dissectors/packet-mtp3mg.c
 	dissectors/packet-multipart.c
+	dissectors/packet-mux27010.c
 	dissectors/packet-mysql.c
 	dissectors/packet-nas_eps.c
 	dissectors/packet-nasdaq-itch.c
@@ -1199,6 +1200,7 @@ set(LIBWIRESHARK_FILES
 	crc16.c
 	crc32.c
 	crc6.c
+	crc8.c
 	crcdrm.c
 	dissector_filters.c
 	emem.c

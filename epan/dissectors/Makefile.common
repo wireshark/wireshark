@@ -695,6 +695,7 @@ DISSECTOR_SRC = \
 	packet-mtp3.c		\
 	packet-mtp3mg.c		\
 	packet-multipart.c	\
+	packet-mux27010.c	\
 	packet-mysql.c		\
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\

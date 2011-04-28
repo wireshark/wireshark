@@ -369,6 +369,8 @@ static const struct {
 	{ 230,          WTAP_ENCAP_IEEE802_15_4_NOFCS },
 	/* DVB-CI (Common Interface) */
 	{ 235,		WTAP_ENCAP_DVBCI },
+	/* MUX27010 */
+	{ 236,		WTAP_ENCAP_MUX27010 },
 
 	/*
 	 * To repeat:
