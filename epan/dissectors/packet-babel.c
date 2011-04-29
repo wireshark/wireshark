@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 static int proto_babel = -1;
 
