@@ -170,6 +170,9 @@
 
 /* Define if you have the z library (-lz).  */
 @HAVE_LIBZ@
+#ifdef HAVE_LIBZ
+#define HAVE_INFLATEPRIME 1
+#endif
 
 /* Define to use GNU ADNS library */
 @HAVE_C_ARES@
