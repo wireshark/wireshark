@@ -157,7 +157,9 @@ struct fast_seek_point {
 	int compression;
 	union {
 		struct {
+#ifdef HAVE_INFLATEPRIME
 			int bits;		/* number of bits (1-7) from byte at in - 1, or 0 */
+#endif
 			unsigned char window[ZLIB_WINSIZE];	/* preceding 32K of uncompressed data */
 
 			/* be gentle with Z_STREAM_END, 8 bytes more... Another solution would be to comment checks out */
@@ -365,6 +367,11 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gin
 	/* it's for sure after gzip header, so file->fast_seek->len != 0 */
 	struct fast_seek_point *item = file->fast_seek->pdata[file->fast_seek->len - 1];;
 
+#ifndef HAVE_INFLATEPRIME
+	if (bits)
+		return;
+#endif
+
 	/* Glib has got Balanced Binary Trees (GTree) but I couldn't find a way to do quick search for nearest (and smaller) value to seek (It's what fast_seek_find() do)
 	 *      Inserting value in middle of sorted array is expensive, so we want to add only in the end.
 	 *      It's not big deal, cause first-read don't usually invoke seeking
@@ -374,8 +381,9 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gin
 		val->in = in_pos;
 		val->out = out_pos;
 		val->compression = ZLIB;
-
+#ifdef HAVE_INFLATEPRIME
 		val->data.zlib.bits = bits;
+#endif
 		if (point->pos != 0) {
 			unsigned int left = ZLIB_WINSIZE - point->pos;
 
@@ -844,7 +852,11 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 #ifdef HAVE_LIBZ
 		if (here->compression == ZLIB) {
+#ifdef HAVE_INFLATEPRIME
 			off = here->in - (here->data.zlib.bits ? 1 : 0);
+#else
+			off = here->in;
+#endif
 			off2 = here->out;
 		} else if (here->compression == GZIP_AFTER_HEADER) {
 			off = here->in;
@@ -873,12 +885,13 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 #ifdef HAVE_LIBZ
 		if (here->compression == ZLIB) {
 			z_stream *strm = &file->strm;
-			FILE_T state = file;
 
 			inflateReset(strm);
 			strm->adler = here->data.zlib.adler;
 			strm->total_out = here->data.zlib.total_out;
+#ifdef HAVE_INFLATEPRIME
 			if (here->data.zlib.bits) {
+				FILE_T state = file;
 				int ret = GZ_GETC();
 
 				if (ret == -1) {
@@ -889,9 +902,9 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 						*err = state->err;
 					return -1;
 				}
-
 				(void)inflatePrime(strm, here->data.zlib.bits, ret >> (8 - here->data.zlib.bits));
 			}
+#endif
 			(void)inflateSetDictionary(strm, here->data.zlib.window, ZLIB_WINSIZE);
 			file->compression = ZLIB;
 		} else if (here->compression == GZIP_AFTER_HEADER) {

@@ -1269,9 +1269,9 @@ else
 fi
 
 if test "x$want_zlib" != "xno" ; then
-	AC_CHECK_LIB(z, gzclearerr,
+	AC_CHECK_LIB(z, inflatePrime,
 	[
-		AC_DEFINE(HAVE_GZCLEARERR, 1, [Define if we have gzclearerr])
+		AC_DEFINE(HAVE_INFLATEPRIME, 1, [Define if we have inflatePrime])
 	])
 fi
 
