@@ -111,8 +111,8 @@
 /* Define to use libz library */
 #cmakedefine HAVE_LIBZ 1
 
-/* Define to 1 if you have the `gzclearerr' function */
-#cmakedefine HAVE_GZCLEARERR 1
+/* Define to 1 if you have the `inflatePrime' function */
+#cmakedefine HAVE_INFLATEPRIME 1
 
 /* Define to 1 if you have the <lua5.1/lauxlib.h> header file. */
 #cmakedefine HAVE_LUA5_1_LAUXLIB_H 1
@@ -353,7 +353,7 @@
 
 /* Define WS_MSVC_NORETURN appropriately for declarations of routines that
    never return (just like Charlie on the MTA).
-  
+
    Note that MSVC++ expects __declspec(noreturn) to precede the function
    name and GCC, as far as I know, expects __attribute__((noreturn)) to
    follow the function name, so we need two different flavors of
