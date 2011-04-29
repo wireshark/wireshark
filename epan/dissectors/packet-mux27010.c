@@ -1036,10 +1036,10 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tmpOffset = (i * tmpOffset)+1;
 
                 msg_seqid = tvb_get_ntohs(tvb, tmpOffset); tmpOffset += 2;
-                msg_num = tvb_get_ntohs(tvb, tmpOffset); tmpOffset += 2;
+                msg_num   = tvb_get_ntohs(tvb, tmpOffset); tmpOffset += 2;
                 msg_start = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
-                msg_end = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
-                msg_flag = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
+                msg_end   = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
+                msg_flag  = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
 
                 tmpOffsetBegin = sizeMuxPPPHeader + 1 + msg_start; /*+ Header_Size, + Direction*/
                 tmpOffsetEnd = sizeMuxPPPHeader + 1 + msg_end;
@@ -1049,10 +1049,10 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 memcpy(&pinfo_tmp, pinfo,sizeof(*pinfo));
 
                 frag_msg = fragment_add_seq_check(tvb, tmpOffsetBegin, pinfo,
-                    msg_seqid, /* ID for fragments belonging together */
-                    msg_fragment_table,    /* list of message fragments */
-                    msg_reassembled_table, /* list of reassembled messages */
-                    msg_num, /* fragment sequence number */
+                    msg_seqid,                       /* ID for fragments belonging together */
+                    msg_fragment_table,              /* list of message fragments */
+                    msg_reassembled_table,           /* list of reassembled messages */
+                    msg_num,                         /* fragment sequence number */
                     (tmpOffsetEnd-tmpOffsetBegin)+1, /* fragment length */
                     msg_flag); /* More fragments? */
 
@@ -1138,201 +1138,352 @@ proto_register_mux27010 (void)
     * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
     */
 
-
     static hf_register_info hf[] = {
+
         /*Extended MUX header (for PPP)*/
+
         {&hf_mux27010_extended_header,
-            { "Extended Header", "mux27010.ext_header",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header", HFILL }},
+         { "Extended Header", "mux27010.ext_header",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_size,
-            { "Header Size", "mux27010.ext_header.size",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Size", HFILL }},
+         { "Header Size", "mux27010.ext_header.size",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_msg_number_I,
-            { "Message Number I", "mux27010.ext_header.msg_number_I",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Message Number I", HFILL }},
+         { "Message Number I", "mux27010.ext_header.msg_number_I",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_freq_number_I,
-            { "Frequenz Number I", "mux27010.ext_header.frequenz_number_I",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Frequenz Numnber I", HFILL }},
+         { "Frequenz Number I", "mux27010.ext_header.frequenz_number_I",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_start_pos_I,
-            { "Start Position I", "mux27010.ext_header.start_pos_I",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Start Position I", HFILL }},
+         { "Start Position I", "mux27010.ext_header.start_pos_I",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_start_byte_I,
-            { " = Start Byte I", "mux27010.ext_header.start_byte_I",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header Start Byte I", HFILL }},
+         { "Start Byte I", "mux27010.ext_header.start_byte_I",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_end_pos_I,
-            { "End Position I", "mux27010.ext_header.end_byte_I",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header End Position I", HFILL }},
+         { "End Position I", "mux27010.ext_header.end_byte_I",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_end_byte_I,
-            { " = End Byte I", "mux27010.ext_header.end_byte_I",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header End Byte I", HFILL }},
+         { "End Byte I", "mux27010.ext_header.end_byte_I",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_flag_ended_I,
-            { "Flag Ended I", "mux27010.ext_header.flag_ended_I",FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, "MUX27010 Extended Header Flag Ended", HFILL }},
+         { "Flag Ended I", "mux27010.ext_header.flag_ended_I",
+           FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_msg_number_II,
-            { "Message Number II", "mux27010.ext_header.msg_number_II",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Message Number I", HFILL }},
+         { "Message Number II", "mux27010.ext_header.msg_number_II",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_freq_number_II,
-            { "Frequenz Number II", "mux27010.ext_header.frequenz_number_II",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Frequenz Numnber I", HFILL }},
+         { "Frequenz Number II", "mux27010.ext_header.frequenz_number_II",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_start_pos_II,
-            { "Start Position II", "mux27010.ext_header.start_pos_II",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Start Position I", HFILL }},
+         { "Start Position II", "mux27010.ext_header.start_pos_II",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_start_byte_II,
-            { " = Start Byte II", "mux27010.ext_header.start_byte_II",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header Start Byte I", HFILL }},
+         { "Start Byte II", "mux27010.ext_header.start_byte_II",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_end_pos_II,
-            { "End Position II", "mux27010.ext_header.end_byte_II",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header End Position I", HFILL }},
+         { "End Position II", "mux27010.ext_header.end_byte_II",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_end_byte_II,
-            { " = End Byte II", "mux27010.ext_header.end_byte_II",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header End Byte I", HFILL }},
+         { "End Byte II", "mux27010.ext_header.end_byte_II",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         {&hf_mux27010_extended_header_flag_ended_II,
-            { "Flag Ended II", "mux27010.ext_header.flag_ended_II",FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, "MUX27010 Extended Header Flag Ended", HFILL }},
+         { "Flag Ended II", "mux27010.ext_header.flag_ended_II",
+           FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_msg_number_III,
-            { "Message Number III", "mux27010.ext_header.msg_number_III",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Message Number I", HFILL }},
-        {&hf_mux27010_extended_header_freq_number_III,
-            { "Frequenz Number III", "mux27010.ext_header.frequenz_number_III",FT_UINT16, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Frequenz Numnber I", HFILL }},
-        {&hf_mux27010_extended_header_start_pos_III,
-            { "Start Position III", "mux27010.ext_header.start_pos_III",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header Start Position I", HFILL }},
-        {&hf_mux27010_extended_header_start_byte_III,
-            { " = Start Byte III", "mux27010.ext_header.start_byte_III",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header Start Byte I", HFILL }},
-        {&hf_mux27010_extended_header_end_pos_III,
-            { "End Position III", "mux27010.ext_header.end_byte_III",FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Extended Header End Position I", HFILL }},
-        {&hf_mux27010_extended_header_end_byte_III,
-            { " = End Byte III", "mux27010.ext_header.end_byte_III",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Extended Header End Byte I", HFILL }},
-        {&hf_mux27010_extended_header_flag_ended_III,
-            { "Flag Ended III", "mux27010.ext_header.flag_ended_III",FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, "MUX27010 Extended Header Flag Ended", HFILL }},
+         { "Message Number III", "mux27010.ext_header.msg_number_III",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+        {&hf_mux27010_extended_header_freq_number_III,
+         { "Frequenz Number III", "mux27010.ext_header.frequenz_number_III",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_mux27010_extended_header_start_pos_III,
+         { "Start Position III", "mux27010.ext_header.start_pos_III",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_mux27010_extended_header_start_byte_III,
+         { "Start Byte III", "mux27010.ext_header.start_byte_III",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_mux27010_extended_header_end_pos_III,
+         { "End Position III", "mux27010.ext_header.end_byte_III",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_mux27010_extended_header_end_byte_III,
+         { "End Byte III", "mux27010.ext_header.end_byte_III",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_mux27010_extended_header_flag_ended_III,
+         { "Flag Ended III", "mux27010.ext_header.flag_ended_III",
+           FT_UINT8, BASE_HEX, NULL, MUX27010_EXTENDED_HEADER_NOT_ENDED, NULL, HFILL }},
 
         /*Direction*/
+
         {&hf_mux27010_direction,
-            { "Direction", "mux27010.direction",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Frame Direction", HFILL }},
+         { "Direction", "mux27010.direction",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /*Flag*/
+
         {&hf_mux27010,
-            { "Flag", "mux27010.flag",FT_UINT8, BASE_HEX, NULL, 0x0, "MUX PDU", HFILL }},
+         { "Flag", "mux27010.flag",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /*Address frame*/
+
         { &hf_mux27010_address,
-            { "Address field", "mux27010.address", FT_UINT8, BASE_HEX, NULL, 0x0,"MUX27010 Address", HFILL }},
+          { "Address field", "mux27010.address",
+            FT_UINT8, BASE_HEX, NULL, 0x0,NULL, HFILL }},
+
         { &hf_mux27010_dlciaddressflag,
-            { "DLCI number (decimal)", "mux27010.address.dlciaddress", FT_UINT8, BASE_DEC, NULL, MUX27010_DLCI_ADDRESS_FLAG, NULL, HFILL }},
+          { "DLCI number (decimal)", "mux27010.address.dlciaddress",
+              FT_UINT8, BASE_DEC, NULL, MUX27010_DLCI_ADDRESS_FLAG, NULL, HFILL }},
+
         { &hf_mux27010_eaaddressflag,
-            { "EA Address Flag", "mux27010.address.eaaddress", FT_BOOLEAN, 8, NULL, MUX27010_EA_ADDRESS_FLAG, NULL, HFILL }},
+          { "EA Address Flag", "mux27010.address.eaaddress",
+            FT_BOOLEAN, 8, NULL, MUX27010_EA_ADDRESS_FLAG, NULL, HFILL }},
+
         { &hf_mux27010_craddressflag,
-            { "C/R Address Flag", "mux27010.address.craddress", FT_BOOLEAN, 8, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
+          { "C/R Address Flag", "mux27010.address.craddress",
+            FT_BOOLEAN, 8, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
+
         { &hf_mux27010_addressdirection,
-            { "Direction", "mux27010.address.direction", FT_UINT8, BASE_HEX, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
+          { "Direction", "mux27010.address.direction",
+            FT_UINT8, BASE_HEX, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
 
         /*Control frame*/
+
         { &hf_mux27010_control,
-            { "Control field", "mux27010.control", FT_UINT8, BASE_HEX, NULL, 0x0,"MUX27010 Control", HFILL }},
+          { "Control field", "mux27010.control",
+            FT_UINT8, BASE_HEX, NULL, 0x0,NULL, HFILL }},
+
         { &hf_mux27010_controlframetype,
-            { "Frame Type", "mux27010.control.frametype", FT_UINT8, BASE_HEX, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG, NULL, HFILL }},
+          { "Frame Type", "mux27010.control.frametype",
+            FT_UINT8, BASE_HEX, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG, NULL, HFILL }},
+
         { &hf_mux27010_controlframetypens,
-            { "N(S) Sequence Number", "mux27010.control.frametype.ns", FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG_NS, NULL, HFILL }},
+          { "N(S) Sequence Number", "mux27010.control.frametype.ns",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG_NS, NULL, HFILL }},
+
         { &hf_mux27010_controlframetypenr,
-            { "N(R) Receive Number", "mux27010.control.frametype.nr", FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG_NR, NULL, HFILL }},
+          { "N(R) Receive Number", "mux27010.control.frametype.nr",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG_NR, NULL, HFILL }},
+
         { &hf_mux27010_pfcontrolflag,
-            { "Poll/Final bit", "mux27010.control.pfcontrol", FT_UINT8, BASE_DEC, NULL, MUX27010_PF_CONTROL_FLAG, NULL, HFILL }},
+          { "Poll/Final bit", "mux27010.control.pfcontrol",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_PF_CONTROL_FLAG, NULL, HFILL }},
 
         /*Length frame*/
+
         { &hf_mux27010_length,
-            { "Length field", "mux27010.length", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Length", HFILL }},
+          { "Length field", "mux27010.length",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         { &hf_mux27010_ealengthflag,
-            { "E/A Flag", "mux27010.length.ealength", FT_BOOLEAN, 8, NULL, MUX27010_EA_LENGTH_FLAG, NULL, HFILL }},
+          { "E/A Flag", "mux27010.length.ealength",
+            FT_BOOLEAN, 8, NULL, MUX27010_EA_LENGTH_FLAG, NULL, HFILL }},
+
         { &hf_mux27010_lengthframesize_ea,
-            { "Frame Size", "mux27010.length.framesize_ea", FT_UINT16, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG_EA, NULL, HFILL }},
+          { "Frame Size", "mux27010.length.framesize_ea",
+            FT_UINT16, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG_EA, NULL, HFILL }},
+
+
         { &hf_mux27010_lengthframesize,
-            { "Frame Size", "mux27010.length.framesize", FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG, NULL, HFILL }},
+          { "Frame Size", "mux27010.length.framesize",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG, NULL, HFILL }},
 
         /*Control Channel DLCI = 0*/
-        { &hf_mux27010_controlchannel,
-            { "Control Channel", "mux27010.controlchannel", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Control Channel", HFILL }},
-            /*Frame Type*/
-            { &hf_mux27010_controlchannelframetype,
-                { "Frame Type", "mux27010.controlchannel.frametype", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Control Channel Frametype", HFILL }},
-                { &hf_mux27010_controlchanneleaframetype,
-                    { "EA Flag", "mux27010.controlchannel.frametype.eatype", FT_BOOLEAN, 8, NULL, MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
-                { &hf_mux27010_controlchannelcrframetype,
-                    { "C/R Flag", "mux27010.controlchannel.frametype.crtype", FT_BOOLEAN, 8, NULL, MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
-                { &hf_mux27010_controlchannelframetypecommand,
-                    { "Command Type", "mux27010.controlchannel.frametype.command", FT_UINT8, BASE_HEX, NULL, MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
-            /*Length*/
-            { &hf_mux27010_controlchannellength,
-                { "Length", "mux27010.controlchannel.length", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Control Channel Length", HFILL }},
-                { &hf_mux27010_controlchannelealength,
-                    { "EA Flag", "mux27010.controlchannel.length.ealength", FT_BOOLEAN, 8, NULL, MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG, NULL, HFILL }},
-                { &hf_mux27010_controlchannellengthfield,
-                    { "Length field", "mux27010.controlchannel.length.length", FT_UINT8, BASE_DEC, NULL, MUX27010_LENGTHFIELD_CONTROLCHANNEL_LENGTH_FLAG, NULL, HFILL }},
-            /*Value*/
-            { &hf_mux27010_controlchannelvalue,
-                { "Value", "mux27010.controlchannel.value", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Control Channel Value", HFILL }},
-                { &hf_mux27010_controlchanneldetailedvalue,
-                    { "Detailed Values", "mux27010.controlchannel.value.detailedvalues", FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
-                /*Test Coammand*/
-                { &hf_mux27010_controlchanneldetailedvaluetestcommandversion,
-                    { "Version", "mux27010.controlchannel.value.detailedvaluetestcommandversion", FT_UINT8, BASE_HEX, NULL, MUX27010_VALUE_CONTROLCHANNEL_TEST_VERSION, NULL, HFILL }},
-                /*Modem Status Command*/
-                { &hf_mux27010_controlchanneldetailedvaluemscdlci,
-                    { "DLCI number (decimal)", "mux27010.controlchannel.value.detailedvaluemscdlci", FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_DCLI, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluemscv24,
-                    { "V.24 Signal", "mux27010.controlchannel.value.detailedvaluemscv24", FT_UINT8, BASE_DEC, NULL, 0x0, "MUX27010 Control Channel MSC V.24 Signals", HFILL }},
-                    { &hf_mux27010_controlchanneldetailedvaluemscv24fc,
-                        { "FC", "mux27010.controlchannel.value.detailedvaluemscv24.fc", FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_FC, NULL, HFILL }},
-                    { &hf_mux27010_controlchanneldetailedvaluemscv24rtc,
-                        { "RTC", "mux27010.controlchannel.value.detailedvaluemscv24.rtc", FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RTC, NULL, HFILL }},
-                    { &hf_mux27010_controlchanneldetailedvaluemscv24rtr,
-                        { "RTR", "mux27010.controlchannel.value.detailedvaluemscv24.rtr", FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RTR, NULL, HFILL }},
-                    { &hf_mux27010_controlchanneldetailedvaluemscv24ring,
-                        { "RING", "mux27010.controlchannel.value.detailedvaluemscv24.ring", FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RING, NULL, HFILL }},
-                    { &hf_mux27010_controlchanneldetailedvaluemscv24dcd,
-                        { "DCD", "mux27010.controlchannel.value.detailedvaluemscv24.dcd", FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_DCD, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluemscbreak,
-                    { "Break Signal", "mux27010.controlchannel.value.detailedvaluemscbreak", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-                /*Parameter Negotation*/
-                { &hf_mux27010_controlchanneldetailedvaluepndlci,
-                    { "DLCI", "mux27010.controlchannel.value.detailedvaluepndlci", FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_DLCI, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepnframetype,
-                    { "Frame Type", "mux27010.controlchannel.value.detailedvaluepnframetype", FT_UINT8, BASE_HEX, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_FRAMETYPE, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepncl,
-                    { "Convergence Layer", "mux27010.controlchannel.value.detailedvaluepncl", FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_CL, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepnprio,
-                    { "Priority", "mux27010.controlchannel.value.detailedvaluepnprio", FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_PRIO, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepntimer,
-                    { "Acknowledgment Timer (ms)", "mux27010.controlchannel.value.detailedvaluepntimer", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepnframesize,
-                    { "Max. Frame Size", "mux27010.controlchannel.value.detailedvaluepnframesize", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepnna,
-                    { "Max. Number of Retransmissions", "mux27010.controlchannel.value.detailedvaluepnna", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-                { &hf_mux27010_controlchanneldetailedvaluepnwinsize,
-                    { "Window Size for Error Recovery Mode", "mux27010.controlchannel.value.detailedvaluepnwinsize", FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_WINSIZE, NULL, HFILL }},
-        /*Information frame*/
-        { &hf_mux27010_information,
-            { "Information field", "mux27010.information", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Information", HFILL }},
-        /*Checksum frame*/
-        { &hf_mux27010_checksum,
-            { "Checksum", "mux27010.checksum", FT_UINT8, BASE_HEX, NULL, 0x0, "MUX27010 Checksum", HFILL }},
 
-            {&hf_msg_fragments,
-                {"Message fragments", "mux27010.fragments",
-                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment,
-                {"Message fragment", "mux27010.fragment",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_overlap,
-                {"Message fragment overlap", "mux27010.fragment.overlap",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_overlap_conflicts,
-                {"Message fragment overlapping with conflicting data",
-                "mux27010.fragment.overlap.conflicts",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_multiple_tails,
-                {"Message has multiple tail fragments",
-                "mux27010.fragment.multiple_tails",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_too_long_fragment,
-                {"Message fragment too long", "mux27010.fragment.too_long_fragment",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_error,
-                {"Message defragmentation error", "mux27010.fragment.error",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_fragment_count,
-                {"Message fragment count", "mux27010.fragment.count",
-                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_reassembled_in,
-                {"Reassembled in", "mux27010.reassembled.in",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-            {&hf_msg_reassembled_length,
-                {"Reassembled length", "mux27010.reassembled.length",
-                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_mux27010_controlchannel,
+          { "Control Channel", "mux27010.controlchannel",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        /*Frame Type*/
+
+        { &hf_mux27010_controlchannelframetype,
+          { "Frame Type", "mux27010.controlchannel.frametype",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneleaframetype,
+          { "EA Flag", "mux27010.controlchannel.frametype.eatype",
+            FT_BOOLEAN, 8, NULL, MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannelcrframetype,
+          { "C/R Flag", "mux27010.controlchannel.frametype.crtype",
+            FT_BOOLEAN, 8, NULL, MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannelframetypecommand,
+          { "Command Type", "mux27010.controlchannel.frametype.command",
+            FT_UINT8, BASE_HEX, NULL, MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
+
+        /*Length*/
+
+        { &hf_mux27010_controlchannellength,
+          { "Length", "mux27010.controlchannel.length",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannelealength,
+          { "EA Flag", "mux27010.controlchannel.length.ealength",
+            FT_BOOLEAN, 8, NULL, MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannellengthfield,
+          { "Length field", "mux27010.controlchannel.length.length",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_LENGTHFIELD_CONTROLCHANNEL_LENGTH_FLAG, NULL, HFILL }},
+
+        /*Value*/
+
+        { &hf_mux27010_controlchannelvalue,
+          { "Value", "mux27010.controlchannel.value",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvalue,
+          { "Detailed Values", "mux27010.controlchannel.value.detailedvalues",
+            FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
+
+        /*Test Command*/
+
+        { &hf_mux27010_controlchanneldetailedvaluetestcommandversion,
+          { "Version", "mux27010.controlchannel.value.detailedvaluetestcommandversion",
+            FT_UINT8, BASE_HEX, NULL, MUX27010_VALUE_CONTROLCHANNEL_TEST_VERSION, NULL, HFILL }},
+
+        /*Modem Status Command*/
+
+        { &hf_mux27010_controlchanneldetailedvaluemscdlci,
+          { "DLCI number (decimal)", "mux27010.controlchannel.value.detailedvaluemscdlci",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_DCLI, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24,
+          { "V.24 Signal", "mux27010.controlchannel.value.detailedvaluemscv24",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24fc,
+          { "FC", "mux27010.controlchannel.value.detailedvaluemscv24.fc",
+            FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_FC, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24rtc,
+          { "RTC", "mux27010.controlchannel.value.detailedvaluemscv24.rtc",
+            FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RTC, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24rtr,
+          { "RTR", "mux27010.controlchannel.value.detailedvaluemscv24.rtr",
+            FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RTR, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24ring,
+          { "RING", "mux27010.controlchannel.value.detailedvaluemscv24.ring",
+            FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_RING, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscv24dcd,
+          { "DCD", "mux27010.controlchannel.value.detailedvaluemscv24.dcd",
+            FT_BOOLEAN, 8, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_V24_DCD, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluemscbreak,
+          { "Break Signal", "mux27010.controlchannel.value.detailedvaluemscbreak",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        /*Parameter Negotation*/
+
+        { &hf_mux27010_controlchanneldetailedvaluepndlci,
+          { "DLCI", "mux27010.controlchannel.value.detailedvaluepndlci",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_DLCI, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepnframetype,
+          { "Frame Type", "mux27010.controlchannel.value.detailedvaluepnframetype",
+            FT_UINT8, BASE_HEX, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_FRAMETYPE, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepncl,
+          { "Convergence Layer", "mux27010.controlchannel.value.detailedvaluepncl",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_CL, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepnprio,
+          { "Priority", "mux27010.controlchannel.value.detailedvaluepnprio",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_PRIO, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepntimer,
+          { "Acknowledgment Timer (ms)", "mux27010.controlchannel.value.detailedvaluepntimer",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepnframesize,
+          { "Max. Frame Size", "mux27010.controlchannel.value.detailedvaluepnframesize",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepnna,
+          { "Max. Number of Retransmissions", "mux27010.controlchannel.value.detailedvaluepnna",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchanneldetailedvaluepnwinsize,
+          { "Window Size for Error Recovery Mode", "mux27010.controlchannel.value.detailedvaluepnwinsize",
+            FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_PN_WINSIZE, NULL, HFILL }},
+
+        /*Information frame*/
+
+        { &hf_mux27010_information,
+          { "Information field", "mux27010.information",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        /*Checksum frame*/
+
+        { &hf_mux27010_checksum,
+          { "Checksum", "mux27010.checksum",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        {&hf_msg_fragments,
+         {"Message fragments", "mux27010.fragments",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment,
+         {"Message fragment", "mux27010.fragment",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_overlap,
+         {"Message fragment overlap", "mux27010.fragment.overlap",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_overlap_conflicts,
+         {"Message fragment overlapping with conflicting data",
+          "mux27010.fragment.overlap.conflicts",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_multiple_tails,
+         {"Message has multiple tail fragments",
+          "mux27010.fragment.multiple_tails",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_too_long_fragment,
+         {"Message fragment too long", "mux27010.fragment.too_long_fragment",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_error,
+         {"Message defragmentation error", "mux27010.fragment.error",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_fragment_count,
+         {"Message fragment count", "mux27010.fragment.count",
+          FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_reassembled_in,
+         {"Reassembled in", "mux27010.reassembled.in",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
+        {&hf_msg_reassembled_length,
+         {"Reassembled length", "mux27010.reassembled.length",
+          FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
     };
 
 
