@@ -33,11 +33,9 @@
 #include <epan/bitswap.h>
 #include <epan/packet.h>
 
-static int dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void proto_reg_handoff_bmc(void);
 
 static int proto_bmc = -1;
 static int hf_bmc_message_type = -1;
