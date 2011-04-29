@@ -670,6 +670,8 @@ static int hf_sccp_ansi_isni_iri = -1;
 static int hf_sccp_ansi_isni_ti = -1;
 static int hf_sccp_ansi_isni_netspec = -1;
 static int hf_sccp_ansi_isni_counter = -1;
+static int hf_sccp_ansi_isni_network = -1;
+static int hf_sccp_ansi_isni_cluster = -1;
 static int hf_sccp_xudt_msg_fragments = -1;
 static int hf_sccp_xudt_msg_fragment = -1;
 static int hf_sccp_xudt_msg_fragment_overlap = -1;
@@ -1129,7 +1131,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   proto_tree *digits_tree = 0;
   tvbuff_t *signals_tvb;
   guint offset = 0;
-  guint8 odd_even, nai = 0, tt, np = 0, es;
+  guint8 odd_even, nai = 0, np = 0, es;
   gboolean even = TRUE;
 
   /* Shift GTI to where we can work with it */
@@ -1147,10 +1149,9 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	  (gti == ITU_AI_GTI_TT_NP_ES || gti == ITU_AI_GTI_TT_NP_ES_NAI)) ||
       (decode_mtp3_standard == ANSI_STANDARD && gti == ANSI_AI_GTI_TT_NP_ES)) {
 
-    tt = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_tt
+    proto_tree_add_item(gt_tree, called ? hf_sccp_called_gt_tt
 					: hf_sccp_calling_gt_tt,
-			tvb, offset, GT_TT_LENGTH, tt);
+			tvb, offset, GT_TT_LENGTH, ENC_NA);
     offset += GT_TT_LENGTH;
   }
 
@@ -1520,7 +1521,7 @@ dissect_sccp_calling_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 class, handling;
+  guint8 class;
 
   if (length != 1) {
     proto_item *expert_item;
@@ -1531,12 +1532,11 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   }
 
   class = tvb_get_guint8(tvb, 0) & CLASS_CLASS_MASK;
-  handling = tvb_get_guint8(tvb, 0) & CLASS_SPARE_HANDLING_MASK;
 
   proto_tree_add_uint(tree, hf_sccp_class, tvb, 0, length, class);
 
   if (class == 0 || class == 1)
-    proto_tree_add_uint(tree, hf_sccp_handling, tvb, 0, length, handling);
+    proto_tree_add_item(tree, hf_sccp_handling, tvb, 0, length, ENC_NA);
 }
 
 static void
@@ -1573,13 +1573,12 @@ dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, packet_info *pinfo, pr
 static void
 dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
-  guint8 rsn, ssn, more;
+  guint8 rsn, ssn;
   proto_item *param_item;
   proto_tree *param_tree;
 
   ssn = tvb_get_guint8(tvb, 0) >> 1;
   rsn = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) >> 1;
-  more = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) & SEQUENCING_SEGMENTING_MORE_MASK;
 
   param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEQUENCING_SEGMENTING,
@@ -1592,16 +1591,14 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint 
   proto_tree_add_uint(param_tree, hf_sccp_sequencing_segmenting_rsn, tvb,
 		      SEQUENCING_SEGMENTING_SSN_LENGTH,
 		      SEQUENCING_SEGMENTING_RSN_LENGTH, rsn);
-  proto_tree_add_uint(param_tree, hf_sccp_sequencing_segmenting_more, tvb,
+  proto_tree_add_item(param_tree, hf_sccp_sequencing_segmenting_more, tvb,
 		      SEQUENCING_SEGMENTING_SSN_LENGTH,
-		      SEQUENCING_SEGMENTING_RSN_LENGTH, more);
+		      SEQUENCING_SEGMENTING_RSN_LENGTH, ENC_NA);
 }
 
 static void
 dissect_sccp_credit_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 credit;
-
   if (length != 1) {
     proto_item *expert_item;
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
@@ -1610,8 +1607,7 @@ dissect_sccp_credit_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     return;
   }
 
-  credit = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_credit, tvb, 0, length, credit);
+  proto_tree_add_item(tree, hf_sccp_credit, tvb, 0, length, ENC_NA);
 }
 
 static void
@@ -1813,26 +1809,17 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 first, class, remaining;
-  guint32 slrx;
   proto_item *param_item;
   proto_tree *param_tree;
-
-  first = tvb_get_guint8(tvb, 0) & SEGMENTATION_FIRST_SEGMENT_MASK;
-  class = tvb_get_guint8(tvb, 0) & SEGMENTATION_CLASS_MASK;
-  remaining = tvb_get_guint8(tvb, 0) & SEGMENTATION_REMAINING_MASK;
-
-  slrx = tvb_get_letoh24(tvb, 1);
 
   param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEGMENTATION,
 					      sccp_parameter_values, "Unknown"));
   param_tree = proto_item_add_subtree(param_item, ett_sccp_segmentation);
 
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, first);
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_class, tvb, 0, 1, class);
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_remaining, tvb, 0, 1,
-		      remaining);
+  proto_tree_add_item(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, ENC_NA);
+  proto_tree_add_item(param_tree, hf_sccp_segmentation_class, tvb, 0, 1, ENC_NA);
+  proto_tree_add_item(param_tree, hf_sccp_segmentation_remaining, tvb, 0, 1, ENC_NA);
 
   if (length-1 != 3) {
     proto_item *expert_item;
@@ -1842,8 +1829,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return;
   }
 
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_slr, tvb, 1, length-1,
-		      slrx);
+  proto_tree_add_item(param_tree, hf_sccp_segmentation_slr, tvb, 1, length-1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1858,8 +1844,6 @@ dissect_sccp_hop_counter_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 static void
 dissect_sccp_importance_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 importance;
-
   if (length != 1) {
     proto_item *expert_item;
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
@@ -1868,14 +1852,13 @@ dissect_sccp_importance_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return;
   }
 
-  importance = tvb_get_guint8(tvb, 0) & IMPORTANCE_IMPORTANCE_MASK;
-  proto_tree_add_uint(tree, hf_sccp_importance, tvb, 0, length, importance);
+  proto_tree_add_item(tree, hf_sccp_importance, tvb, 0, length, ENC_NA);
 }
 
 static void
 dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
-  guint8 mi, iri, ti, network;
+  guint8 ti;
   guint offset = 0;
   proto_item *param_item;
   proto_tree *param_tree;
@@ -1886,20 +1869,18 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   param_tree = proto_item_add_subtree(param_item,
 				      ett_sccp_ansi_isni_routing_control);
 
-  mi = tvb_get_guint8(tvb, offset) & ANSI_ISNI_MI_MASK;
-  proto_tree_add_uint(param_tree, hf_sccp_ansi_isni_mi, tvb, offset,
-		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, mi);
+  proto_tree_add_item(param_tree, hf_sccp_ansi_isni_mi, tvb, offset,
+		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, ENC_NA);
 
-  iri = tvb_get_guint8(tvb, offset) & ANSI_ISNI_IRI_MASK;
-  proto_tree_add_uint(param_tree, hf_sccp_ansi_isni_iri, tvb, offset,
-		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, iri);
+  proto_tree_add_item(param_tree, hf_sccp_ansi_isni_iri, tvb, offset,
+		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, ENC_NA);
 
   ti = tvb_get_guint8(tvb, offset) & ANSI_ISNI_TI_MASK;
   proto_tree_add_uint(param_tree, hf_sccp_ansi_isni_ti, tvb, offset,
 		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, ti);
 
   proto_tree_add_item(param_tree, hf_sccp_ansi_isni_counter, tvb, offset,
-		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, TRUE);
+		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, ENC_NA);
 
   offset += ANSI_ISNI_ROUTING_CONTROL_LENGTH;
 
@@ -1911,14 +1892,12 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 
   while (offset < length) {
 
-    network = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, ANSI_NCM_LENGTH,
-			"Network ID network: %d", network);
+    proto_tree_add_item(tree, hf_sccp_ansi_isni_network, tvb, offset,
+			ANSI_NCM_LENGTH, ENC_NA);
     offset++;
 
-    network = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, ANSI_NCM_LENGTH,
-			"Network ID cluster: %d", network);
+    proto_tree_add_item(tree, hf_sccp_ansi_isni_cluster, tvb, offset,
+			ANSI_NCM_LENGTH, ENC_NA);
     offset++;
   }
 
@@ -2764,13 +2743,13 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     optional_pointer);
 
   if (trace_sccp && assoc && assoc != &no_assoc) {
-	  proto_item* pi = proto_tree_add_uint(sccp_tree,hf_sccp_assoc_id,tvb,0,0,assoc->id);
-	  proto_tree* pt = proto_item_add_subtree(pi,ett_sccp_assoc);
+	  proto_item *pi = proto_tree_add_uint(sccp_tree, hf_sccp_assoc_id, tvb, 0, 0, assoc->id);
+	  proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
 	  PROTO_ITEM_SET_GENERATED(pi);
 	  if (assoc->msgs) {
 		sccp_msg_info_t* m;
 		  for(m = assoc->msgs; m ; m = m->data.co.next) {
-			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
+			pi = proto_tree_add_uint(pt, hf_sccp_assoc_msg, tvb, 0, 0, m->framenum);
 
 			if (assoc->payload != SCCP_PLOAD_NONE)
 				proto_item_append_text(pi," %s", val_to_str(assoc->payload, assoc_protos, "Unknown"));
@@ -3283,6 +3262,12 @@ proto_register_sccp(void)
       { "ISNI Counter", "sccp.isni.counter",
 	FT_UINT8, BASE_DEC, NULL, ANSI_ISNI_COUNTER_MASK,
 	NULL, HFILL}},
+    { &hf_sccp_ansi_isni_network,
+      { "Network ID network", "sccp.isni.network",
+	FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_sccp_ansi_isni_cluster,
+      { "Network ID cluster", "sccp.isni.cluster",
+	FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_sccp_xudt_msg_fragments,
 	{"Message fragments", "sccp.msg.fragments",
 	FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
