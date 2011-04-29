@@ -119,6 +119,12 @@ extern void output_fields_add(output_fields_t* info, const gchar* field);
 extern gsize output_fields_num_fields(output_fields_t* info);
 extern gboolean output_fields_set_option(output_fields_t* info, gchar* option);
 extern void output_fields_list_options(FILE *fh);
+
+/*
+ * Output only these protocols
+ */
+extern GHashTable *output_only_tables;
+
 /*
  * Higher-level packet-printing code.
  */

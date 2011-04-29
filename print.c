@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <glib.h>
+
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/tvbuff.h>
@@ -82,6 +84,8 @@ struct _output_fields {
     emem_strbuf_t** field_values;
     gchar quote;
 };
+
+GHashTable *output_only_tables = NULL;
 
 static gboolean write_headers = FALSE;
 
@@ -186,6 +190,16 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	if (!print_line(pdata->stream, pdata->level, label_ptr)) {
 		pdata->success = FALSE;
 		return;
+	}
+
+	/*
+	 * If -O is specified, only display the protocols which are in the
+	 * lookup table.
+	 */
+	if (output_only_tables != NULL
+	 && g_hash_table_lookup(output_only_tables, fi->hfinfo->abbrev) == NULL) {
+	  pdata->success = TRUE;
+	  return;
 	}
 
 	if (PROTO_ITEM_IS_GENERATED(node)) {

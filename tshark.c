@@ -297,6 +297,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
+  fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma separated\n");
   fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
@@ -830,6 +831,7 @@ main(int argc, char *argv[])
   char                 badopt;
   GLogLevelFlags       log_flags;
   int                  optind_initial;
+  gchar               *output_only = NULL;
 
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -847,7 +849,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:pPqr:R:s:St:T:u:vVw:W:xX:y:z:"
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:St:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1237,6 +1239,9 @@ main(int argc, char *argv[])
         break;
       }
       break;
+    case 'O':        /* Only output these protocols */
+      output_only = g_strdup(optarg);
+      break;
     case 'q':        /* Quiet */
       quiet = TRUE;
       break;
@@ -1453,6 +1458,20 @@ main(int argc, char *argv[])
     if (output_action != WRITE_TEXT) {
       cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
       return 1;
+    }
+  }
+
+  if (output_only != NULL) {
+    char *ps;
+
+    if (!verbose) {
+      cmdarg_err("-O requires -V");
+      return 1;
+    }
+
+    output_only_tables = g_hash_table_new (g_str_hash, g_str_equal);
+    for (ps = strtok (output_only, ","); ps; ps = strtok (NULL, ",")) {
+      g_hash_table_insert(output_only_tables, (gpointer)ps, (gpointer)ps);
     }
   }
 
