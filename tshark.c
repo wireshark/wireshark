@@ -2341,9 +2341,9 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 
   if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
     wtap_close(((capture_file *) capture_opts->cf)->wth);
-	if(((capture_file *) capture_opts->cf)->user_saved == FALSE){
-		ws_unlink(((capture_file *) capture_opts->cf)->filename);
-	}
+    if(((capture_file *) capture_opts->cf)->user_saved == FALSE) {
+      ws_unlink(((capture_file *) capture_opts->cf)->filename);
+    }
   }
 #ifdef USE_BROKEN_G_MAIN_LOOP
   /*g_main_loop_quit(loop);*/
