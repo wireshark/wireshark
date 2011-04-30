@@ -6519,6 +6519,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
      /* Process all PDUs in the buffer */
     while (pdu_start < tlen) {
+	guint32 old_pdu_start;
 
 	if ((pdu_len+6) > (tlen-offset)) {
 
@@ -6539,7 +6540,13 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	offset=dissect_dcm_pdu(tvb, pinfo, tree, pdu_start);
 
 	/* Next PDU */
+	old_pdu_start = pdu_start;
 	pdu_start =  pdu_start + pdu_len + 6;
+	if (pdu_start <= old_pdu_start) {
+	    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+		"Invalid PDU length (%u)", pdu_len);
+	    THROW(ReportedBoundsError);
+	}
 
 	if (pdu_start < tlen - 6) {
 	    /* we got at least 6 bytes of the next PDU still in the buffer */
