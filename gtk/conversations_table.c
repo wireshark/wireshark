@@ -629,885 +629,885 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 
 /* As Selected */
 static void
-conv_apply_as_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_as_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_as_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_as_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_as_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_as_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_as_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 
 static void
-conv_apply_as_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_as_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* As Not Selected */
 static void
-conv_apply_as_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_as_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_as_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_as_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_as_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_as_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_as_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_apply_as_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_as_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* And Selected */
 static void
-conv_apply_and_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_and_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_and_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_and_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_and_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_and_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_and_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_apply_and_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_and_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Or Selected */
 static void
-conv_apply_or_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_or_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_or_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_or_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_or_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_or_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_or_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_apply_or_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_or_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
 }
 
 /* And Not Selected */
 static void
-conv_apply_and_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_and_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_and_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_and_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_and_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_and_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_and_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_apply_and_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_and_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Or Not Selected */
 static void
-conv_apply_or_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_apply_or_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_apply_or_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_apply_or_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_apply_or_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_apply_or_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_apply_or_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_apply_or_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_apply_or_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_apply_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 
 /* Prepare As Selected*/
 static void
-conv_prepare_as_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_as_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_as_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_as_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_as_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_as_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_as_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_as_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_as_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare As Not Selected */
 static void
-conv_prepare_as_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_as_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_as_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_as_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_as_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_as_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_as_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_as_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_as_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare And Selected */
 static void
-conv_prepare_and_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_and_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_and_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_and_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_and_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_and_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_and_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_and_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_and_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare Or Selected */
 static void
-conv_prepare_or_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_or_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_or_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_or_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_or_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_or_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_or_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_or_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_or_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare And Not Selected */
 static void
-conv_prepare_and_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_and_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_and_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_and_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_and_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_and_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_and_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_and_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_and_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare Or Not Selected */
 static void
-conv_prepare_or_not_selected_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_prepare_or_not_selected_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_prepare_or_not_selected_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_prepare_or_not_selected_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_prepare_or_not_selected_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_prepare_or_not_selected_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_prepare_or_not_selected_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_prepare_or_not_selected_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_prepare_or_not_selected_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_prepare_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find packet */
 static void
-conv_find_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_find_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_find_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_find_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_find_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_find_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_find_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_find_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_find_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find next */
 static void
-conv_find_next_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_find_next_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_find_next_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_find_next_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_find_next_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_find_next_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_find_next_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_find_next_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_find_next_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_next_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find Previous */
 static void
-conv_find_previous_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_find_previous_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_find_previous_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_find_previous_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_find_previous_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_find_previous_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_find_previous_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_find_previous_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_find_previous_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_find_previous_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Colorize Conversation */
 
 static void
-conv_color_AtofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
-conv_color_AtoB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
-conv_color_AfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
-conv_color_AtofromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
-conv_color_AtoAny_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
-conv_color_AfromAny_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
-conv_color_AnytofromB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
-conv_color_AnyfromB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
-conv_color_AnytoB_cb(GtkWidget *widget, gpointer user_data)
+conv_color_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 static const char *ui_desc_conv_filter_popup =
 "<ui>\n"
