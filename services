@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-04-14)
+(last updated 2011-04-29)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -6184,7 +6184,8 @@ rnrp		2423/udp   RNRP
 #			   Per Sahlqvist <psahlqvi&sw.seisy.abb.se>
 kofax-svr	2424/tcp   KOFAX-SVR
 kofax-svr	2424/udp   KOFAX-SVR
-#			   Terry Reagan <treagan&kofax.com>
+#                          Previous contact: Terry Reagan <treagan&kofax.com>
+#                          Current contact: Steven Kilby <steven.kilby&kofax.com> 25 April 2011
 fjitsuappmgr	2425/tcp   Fujitsu App Manager
 fjitsuappmgr	2425/udp   Fujitsu App Manager
 #			   Hiroyuki Kawabuchi <buchi&ael.fujitsu.co.jp>
@@ -13919,7 +13920,10 @@ microtalon-com  7014/udp    Microtalon Communications
 talon-webserver 7015/tcp    Talon Webserver
 talon-webserver 7015/udp    Talon Webserver
 #                           Jim Thompson <jim.thompson&powerware.com>
-#               7016-7019   Unassigned
+#               7016-7018   Unassigned
+doceri-ctl      7019/tcp    doceri drawing service control
+doceri-view     7019/udp    doceri drawing service screen view
+#                           Paul Brown <pbrown&spcontrols.com> 27 April 2011
 dpserve         7020/tcp    DP Serve
 dpserve         7020/udp    DP Serve
 dpserveadmin    7021/tcp    DP Serve Admin
@@ -14761,7 +14765,10 @@ noteshare       8474/udp    AquaMinds NoteShare
 fmtp            8500/tcp    Flight Message Transfer Protocol
 fmtp            8500/udp    Flight Message Transfer Protocol
 #                           Eivan Cerasi <eivan.cerasi&eurocontrol.int> December 2003
-#               8501-8553   Unassigned
+cmtp-mgt        8501/tcp    CYTEL Message Transfer Management
+cmtp-av         8501/udp    CYTEL Message Transfer Audio and Video
+#                           Frank JŠkel <Frank.Jaekel&cytel.de> 29 April 2011
+#               8502-8553   Unassigned
 rtsp-alt        8554/tcp    RTSP Alternate (see port 554)
 rtsp-alt        8554/udp    RTSP Alternate (see port 554)
 #                           Stephen Casner <casner&precept.com>
