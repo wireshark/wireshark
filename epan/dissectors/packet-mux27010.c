@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/crc8.h>
+#include <expert.h>
 
 #include <string.h>
 
@@ -1025,8 +1026,8 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint8 msg_flag;
 
             fragment_data *frag_msg = NULL;
-            tvbuff_t* new_tvb = NULL;
-            tvbuff_t* next_tvb2 = NULL;
+            tvbuff_t *new_tvb = NULL;
+            tvbuff_t *next_tvb2 = NULL;
 
             packet_info pinfo_tmp;
 
@@ -1041,12 +1042,21 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 msg_end   = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
                 msg_flag  = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
 
+                if (msg_end <= msg_start) {
+		    proto_item *pi;
+                    pi = proto_tree_add_text(field_tree, tvb, tmpOffset-3, 2,
+                        "Message start and end are illogical, aborting dissection");
+                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+		        "Message start and end are illogical");
+                    continue;
+                }
+
                 tmpOffsetBegin = sizeMuxPPPHeader + 1 + msg_start; /*+ Header_Size, + Direction*/
                 tmpOffsetEnd = sizeMuxPPPHeader + 1 + msg_end;
 
                 pinfo->fragmented = TRUE;
 
-                memcpy(&pinfo_tmp, pinfo,sizeof(*pinfo));
+                memcpy(&pinfo_tmp, pinfo, sizeof(*pinfo));
 
                 frag_msg = fragment_add_seq_check(tvb, tmpOffsetBegin, pinfo,
                     msg_seqid,                       /* ID for fragments belonging together */
@@ -1063,12 +1073,12 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     NULL, mux27010_tree);
 
                 if (!frag_msg) { /* Not last packet of reassembled Message */
-                    g_snprintf(colInfoText,sizeof(colInfoText),"%s [Splitted Msg]", colInfoText);
+                    g_snprintf(colInfoText, sizeof(colInfoText), "%s [Splitted Msg]", colInfoText);
                 }
 
                 if (new_tvb) { /* take it all */
                     next_tvb2 = tvb_new_subset(new_tvb, 1, -1, -1);
-                    call_dissector( ppp_handle, next_tvb2, pinfo, tree );
+                    call_dissector(ppp_handle, next_tvb2, pinfo, tree);
                 }
 
                 pinfo = &pinfo_tmp;
