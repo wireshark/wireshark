@@ -196,6 +196,8 @@ typedef struct _capture_info {
   double        packet_size;
   double        data_rate;              /* in bytes */
   gboolean      in_order;
+
+  int          *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
 } capture_info;
 
 static void
@@ -324,6 +326,13 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
   if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
+  if (cap_file_encap && (cf_info->file_encap = WTAP_ENCAP_PER_PACKET)) {
+    int i;
+    for (i=0; i<WTAP_NUM_ENCAP_TYPES; i++) {
+      if (cf_info->encap_counts[i] > 0)
+        printf("                       %s\n", wtap_encap_string(i));
+    }
+  }
   if (cap_snaplen && cf_info->snap_set)
                           printf     ("Packet size limit:   file hdr: %u bytes\n", cf_info->snaplen);
   else if(cap_snaplen && !cf_info->snap_set)
@@ -436,6 +445,11 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
+  /* ToDo: If WTAP_ENCAP_PER_PACKET, show the list of encapsulations encountered;
+   *       Output a line for each different encap with all fields repeated except
+   *        the encapsulation field which has "Per Packet: ..." for each
+   *        encapsulation type seen ?
+   */
   if (cap_file_encap) {
     putsep();
     putquote();
@@ -592,6 +606,8 @@ process_cap_file(wtap *wth, const char *filename)
   double		prev_time = 0;
   gboolean		in_order = TRUE;
 
+  cf_info.encap_counts = g_malloc0(WTAP_NUM_ENCAP_TYPES * sizeof(int));
+
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
@@ -626,7 +642,16 @@ process_cap_file(wtap *wth, const char *filename)
         snaplen_max_inferred = phdr->caplen;
     }
 
-  }
+    /* Per-packet encapsulation */
+    if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
+        if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
+            cf_info.encap_counts[phdr->pkt_encap] += 1;
+        } else {
+            fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
+        }
+    }
+
+  } /* while */
 
   if (err != 0) {
     fprintf(stderr,
@@ -642,6 +667,7 @@ process_cap_file(wtap *wth, const char *filename)
       g_free(err_info);
       break;
     }
+    g_free(cf_info.encap_counts);
     return 1;
   }
 
@@ -651,6 +677,7 @@ process_cap_file(wtap *wth, const char *filename)
     fprintf(stderr,
             "capinfos: Can't get size of \"%s\": %s.\n",
             filename, strerror(err));
+    g_free(cf_info.encap_counts);
     return 1;
   }
 
@@ -701,6 +728,8 @@ process_cap_file(wtap *wth, const char *filename)
   } else {
     print_stats_table(filename, &cf_info);
   }
+
+  g_free(cf_info.encap_counts);
 
   return 0;
 }
