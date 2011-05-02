@@ -1122,9 +1122,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			if (http_decompress_body &&
 			    (g_ascii_strcasecmp(headers.content_encoding, "gzip") == 0 ||
-			    g_ascii_strcasecmp(headers.content_encoding, "deflate")
-			    == 0)) {
-
+			     g_ascii_strcasecmp(headers.content_encoding, "deflate") == 0 ||
+			     g_ascii_strcasecmp(headers.content_encoding, "x-gzip") == 0 ||
+			     g_ascii_strcasecmp(headers.content_encoding, "x-deflate") == 0))
+			{
 				uncomp_tvb = tvb_child_uncompress(tvb, next_tvb, 0,
 				    tvb_length(next_tvb));
 			}
