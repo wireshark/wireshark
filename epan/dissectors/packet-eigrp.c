@@ -76,6 +76,8 @@
 
 #define EIGRP_FLAGS_INIT 	0x00000001
 #define EIGRP_FLAGS_CONDRECV 	0x00000002
+#define EIGRP_FLAGS_RESTART	0x00000004
+#define EIGRP_FLAGS_ENDOFTABLE	0x00000008
 
 #define EIGRP_STUB_FLAGS_CONNECTED 	0x0001
 #define EIGRP_STUB_FLAGS_STATIC 	0x0002
@@ -98,6 +100,8 @@ static gint hf_eigrp_checksum = -1;
 static gint hf_eigrp_flags = -1; /* Flags Tree */
 static gint hf_eigrp_flags_init = -1;
 static gint hf_eigrp_flags_condrecv = -1;
+static gint hf_eigrp_flags_restart = -1;
+static gint hf_eigrp_flags_eot = -1;
 
 static gint hf_eigrp_sequence = -1;
 static gint hf_eigrp_acknowledge = -1;
@@ -391,7 +395,9 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		eigrp_flags_tree = proto_item_add_subtree(ti, ett_eigrp_flags);
 
 		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_init, tvb, 4, 4, FALSE);
-		proto_tree_add_item (eigrp_flags_tree, hf_eigrp_flags_condrecv, tvb, 4, 4, FALSE);
+		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_condrecv, tvb, 4, 4, FALSE);
+		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_restart, tvb, 4, 4, FALSE);
+		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_eot, tvb, 4, 4, FALSE);
 
 /* End Decode the EIGRP Flags Field */
 
@@ -1057,6 +1063,16 @@ void proto_register_eigrp(void) {
 		{ &hf_eigrp_flags_condrecv,
 		  { "Conditional Receive", "eigrp.flags.condrecv",
 		    FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_CONDRECV,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_flags_restart,
+		  { "Restart", "eigrp.flags.restart",
+		    FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_RESTART,
+		    NULL, HFILL },
+		},
+		{ &hf_eigrp_flags_eot,
+		  { "End Of Table", "eigrp.flags.eot",
+		    FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_ENDOFTABLE,
 		    NULL, HFILL }
 		},
 		{ &hf_eigrp_sequence,
