@@ -44,6 +44,7 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
+#include "gtk/stock_icons.h"
 
 
 static int
@@ -86,8 +87,24 @@ register_tap_listener_fc_conversation(void)
 {
 	register_stat_cmd_arg("conv,fc", fc_conversation_init, NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
+		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
+		"Fibre Channel",                    /* Name */
+		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
+		"Fibre Channel",                    /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(fc_endpoints_cb),        /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+
+#else
 	register_stat_menu_item("Fibre Channel", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    fc_endpoints_cb, NULL, NULL, NULL);
-
+#endif
 	register_conversation_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, fc_conversation_packet);
 }

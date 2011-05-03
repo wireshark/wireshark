@@ -42,7 +42,7 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-
+#include "gtk/stock_icons.h"
 
 static int
 ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -91,8 +91,25 @@ register_tap_listener_ipv6_conversation(void)
 {
     register_stat_cmd_arg("conv,ipv6", ipv6_conversation_init, NULL);
 
-    register_stat_menu_item("IPv6", REGISTER_STAT_GROUP_CONVERSATION_LIST,
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
+		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
+		"IPv6",                             /* Name */
+		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
+		"IPv6",                             /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(ipv6_endpoints_cb),      /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+
+#else    
+	register_stat_menu_item("IPv6", REGISTER_STAT_GROUP_CONVERSATION_LIST,
         ipv6_endpoints_cb, NULL, NULL, NULL);
+#endif
 
     register_conversation_table(TRUE, "IPv6", "ipv6", NULL /*filter*/, ipv6_conversation_packet);
 }

@@ -43,7 +43,7 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-
+#include "gtk/stock_icons.h"
 
 static int
 jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
@@ -93,8 +93,24 @@ register_tap_listener_jxta_conversation(void)
 {
 	register_stat_cmd_arg("conv,jxta", jxta_conversation_init,NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
+		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
+		"JXTA",                             /* Name */
+		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
+		"JXTA",                             /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(jxta_conversation_cb),   /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+
+#else    
 	register_stat_menu_item("JXTA", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    jxta_conversation_cb, NULL, NULL, NULL);
-
+#endif
 	register_conversation_table(TRUE, "JXTA", "jxta", NULL /*filter*/, jxta_conversation_packet);
 }
