@@ -297,7 +297,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
-  fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma separated\n");
+  fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
+  fprintf(output, "                           separated\n");
   fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
