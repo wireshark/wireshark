@@ -70,6 +70,7 @@
 #include "gtk/recent.h"
 
 #define BV_SIZE 75
+#define TV_SIZE 95
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
@@ -236,7 +237,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), label_str);
 	} else
 		gtk_entry_set_text(GTK_ENTRY(DataPtr->repr), finfo->rep->representation);
-		
+
 	epan_dissect_cleanup(&edt);
 	return TRUE;
 }
@@ -286,7 +287,7 @@ finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 }
 
 static void
-finfo_string_changed(GtkEditable *editable _U_, gpointer user_data)
+finfo_string_changed(GtkEditable *editable, gpointer user_data)
 {
 	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
 
@@ -296,12 +297,12 @@ finfo_string_changed(GtkEditable *editable _U_, gpointer user_data)
 	int finfo_length = finfo->length;
 	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
 
-	const gchar *val = gtk_entry_get_text(GTK_ENTRY(DataPtr->edit));
+	const gchar *val = gtk_entry_get_text(GTK_ENTRY(editable));
 
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
 		/* strncpy */
 		while (finfo_length && *val) {
-			DataPtr->pd[finfo_offset++] = *val;
+			DataPtr->pd[finfo_offset++] = /* (finfo_type == FT_EBCDIC) ? ASCII_to_EBCDIC1(*val) : */ *val;
 			finfo_length--;
 			val++;
 		}
@@ -344,7 +345,7 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 	guint64 u_val;
 
 	if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
-		u_val = (guint64) ((gint) val);
+		u_val = (guint64) ((gint64) val);
 
 	else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
 		u_val = (guint64) val;
@@ -357,6 +358,16 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 		u_val <<= hfinfo->bitshift;
 
 	finfo_integer_common(DataPtr, u_val);
+}
+
+static void
+finfo_ipv4_changed(GtkSpinButton *spinbutton, gpointer user_data)
+{
+	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
+
+	gdouble val = gtk_spin_button_get_value(spinbutton);
+
+	finfo_integer_common(DataPtr, (guint32) val);
 }
 
 static gboolean
@@ -418,7 +429,47 @@ finfo_bv_key_pressed_cb(GtkWidget *bv _U_, GdkEventKey *event, gpointer user_dat
 }
 
 static gint
-new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
+finfo_ipv4_input(GtkSpinButton *spinbutton, gpointer arg1, gpointer user_data _U_)
+{
+	const gchar *addr_str = gtk_entry_get_text(GTK_ENTRY(spinbutton));
+	gdouble *out_val = (gdouble *) arg1;
+	guint32 addr;
+#if 0
+	/* XXX, get_host_ipaddr() support hostname resolution */
+	if (!get_host_ipaddr(addr_str, &addr))
+		return GTK_INPUT_ERROR;
+	addr = GUINT32_FROM_BE(addr);
+#else
+	unsigned int a0, a1, a2, a3;
+
+	if (sscanf(addr_str, "%u.%u.%u.%u", &a0, &a1, &a2, &a3) != 4)
+		return GTK_INPUT_ERROR;
+
+	if (a0 > 255 || a1 > 255 || a2 > 255 || a3 > 255)
+		return GTK_INPUT_ERROR;
+
+	addr = a0 << 24 | a1 << 16 | a2 << 8 | a3;
+#endif
+	*out_val = (gdouble) addr;
+	return TRUE;
+}
+
+static gboolean
+finfo_ipv4_output(GtkSpinButton *spinbutton, gpointer user_data _U_)
+{
+	GtkAdjustment *adj;
+	guint32 value;
+
+	adj = gtk_spin_button_get_adjustment(spinbutton);
+	value = (guint32) gtk_adjustment_get_value(adj);
+	value = GUINT32_TO_BE(value);
+	/* ip_to_str_buf((guint8*)&value, buf, MAX_IP_STR_LEN); */	/* not exported */
+	gtk_entry_set_text(GTK_ENTRY(spinbutton), ip_to_str((guint8*)&value));	/* XXX, can we ep_alloc() inside gui? */
+	return TRUE;
+}
+
+static gint
+new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 {
 	field_info *finfo = DataPtr->finfo;
 	const header_field_info *hfinfo = finfo->hfinfo;
@@ -435,10 +486,23 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 	GtkWidget *fvalue_edit;
 	GtkWidget *native_repr;
 	GtkWidget *bv_nb_ptr;
+	GtkWidget *frame, *frame_vbox;
 
 	gint result;
 
-	if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 ||
+	if (!FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN) && !FI_GET_FLAG(finfo, FI_BIG_ENDIAN)) {
+		fvalue_edit = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<not added by proto_tree_add_item()>");
+		gtk_editable_set_editable(GTK_EDITABLE(fvalue_edit), FALSE);
+		gtk_widget_set_sensitive(fvalue_edit, FALSE);
+
+	} /* else if (XXX) {
+		fvalue_edit = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<ERROR: Value stored in finfo doesn't match value from tvb>");
+		gtk_editable_set_editable(GTK_EDITABLE(fvalue_edit), FALSE);
+		gtk_widget_set_sensitive(fvalue_edit, FALSE);
+
+	} */ else if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 ||
 			finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32)
 	{
 		GtkObject *adj;
@@ -455,7 +519,7 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 		/* if (finfo_type == FT_INT64 || finfo_type == FT_UINT64)
 			bitcount = 64; */
 
-		if (finfo->length * 8 > bitcount)
+		if (finfo->length * 8 < bitcount)
 			bitcount = finfo->length / 8;
 
 		if (hfinfo->bitmask && hfinfo->bitshift > 0)
@@ -489,8 +553,30 @@ new_finfo_window(GtkWidget *w _U_, struct FieldinfoWinData *DataPtr)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fvalue_edit), (fvalue_get_uinteger(&finfo->value) != 0));
 		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
+	} else if (finfo_type == FT_IPv4) {
+		guint32 net_addr = ipv4_get_net_order_addr(fvalue_get(&finfo->value));
+		GtkObject *adj = gtk_adjustment_new((double) (GUINT32_FROM_BE(net_addr)), 0.0, 4294967295.0 /* (2^32)-1 */, 1.0, 256.0, 0);
+
+		/* XXX, create four gtk_spin_button_new which takes 0..255 */
+		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
+		gtk_spin_button_set_update_policy(GTK_SPIN_BUTTON(fvalue_edit), GTK_UPDATE_IF_VALID);
+		g_signal_connect(fvalue_edit, "value-changed", G_CALLBACK(finfo_ipv4_changed), DataPtr);
+		g_signal_connect(fvalue_edit, "input", G_CALLBACK(finfo_ipv4_input), NULL);
+		g_signal_connect(fvalue_edit, "output", G_CALLBACK(finfo_ipv4_output), NULL);
+
 	} else {
 not_supported:
+		/* List of unsupported FT_*:
+			FT_NONE, FT_PROTOCOL,
+			FT_BYTES, FT_UINT_BYTES,
+			FT_INT64, FT_UINT64,			; should work with FT_INT[8,16,24,32] code
+			FT_FLOAT, FT_DOUBLE,
+			FT_IPXNET, FT_IPv6, FT_ETHER,
+			FT_GUID, FT_OID,
+			FT_EBCDIC,						; like FT_STRING, but it needs ASCII_to_EBCDIC1 uncommented
+			FT_UINT_STRING,
+			FT_ABSOLUTE_TIME, FT_RELATIVE_TIME
+		*/
 		fvalue_edit = gtk_entry_new();
 		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<not supported>");
 		gtk_editable_set_editable(GTK_EDITABLE(fvalue_edit), FALSE);
@@ -509,12 +595,15 @@ not_supported:
 
 	DataPtr->repr = native_repr;
 
+	frame = gtk_frame_new("Hex edit");
+	frame_vbox = gtk_vbox_new(TRUE, 1);
+
 	/* raw hex edit */
 	if (finfo->start >= 0 && finfo->length > 0) {
 		GtkWidget *byte_view;
 		/* Byte view */
 		bv_nb_ptr = byte_view_new();
-		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
+		gtk_container_add(GTK_CONTAINER(frame_vbox), bv_nb_ptr);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
 		gtk_widget_show(bv_nb_ptr);
 
@@ -527,7 +616,7 @@ not_supported:
 		GtkWidget *byte_view;
 		/* Appendix byte view */
 		bv_nb_ptr = byte_view_new();
-		gtk_container_add(GTK_CONTAINER(dialog_vbox), bv_nb_ptr);
+		gtk_container_add(GTK_CONTAINER(frame_vbox), bv_nb_ptr);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
 		gtk_widget_show(bv_nb_ptr);
 
@@ -535,6 +624,9 @@ not_supported:
 			g_signal_connect(byte_view, "key-press-event", G_CALLBACK(finfo_bv_key_pressed_cb), DataPtr);
 		DataPtr->app_bv = bv_nb_ptr;
 	}
+	gtk_container_add(GTK_CONTAINER(frame), frame_vbox);
+	gtk_widget_show(frame_vbox); gtk_widget_show(frame); 
+	gtk_container_add(GTK_CONTAINER(dialog_vbox), frame);
 
 	gtk_window_set_default_size(GTK_WINDOW(dialog), DEF_WIDTH, -1);
 	finfo_window_refresh(DataPtr);
@@ -559,23 +651,10 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 	if (!finfo) 
 		return;
 
-	/* XXX, simple_dialog() is shown on top of main_window, instead of edit_window. */
-
 	if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
 			finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
 	{
 		struct FieldinfoWinData data;
-
-		if (!FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN) && !FI_GET_FLAG(finfo, FI_BIG_ENDIAN)) {
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Item can't be edited. Not added by proto_tree_add_item()");
-			return;
-		}
-		/* XXX, verify if value stored in finfo is the same as in backed tvb
-		if (0) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Item can't be edited. Value stored in finfo doesn't match value from tvb.");
-			return;
-		}
-		 */
 
 		data.frame = DataPtr->frame;
 		data.pseudo_header = DataPtr->pseudo_header;
@@ -601,8 +680,10 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 		}
 		g_free(data.pd);
 
-	} else
+	} else {
+		/* XXX, simple_dialog() is shown on top of main_window, instead of edit_window. */
 		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Item can't be edited. FI_GENERATED or tvb not subset of packet data (uncompressed?)");
+	}
 }
 
 static gboolean
@@ -746,7 +827,6 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
 #define NewWinTitleLen 1000
   char Title[NewWinTitleLen] = "";
   const char *TextPtr;
-  gint tv_size = 95;
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *tv_scrollw,
                       *bv_nb_ptr;
@@ -806,7 +886,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
   /* Tree view */
   tv_scrollw = main_tree_view_new(&prefs, &tree_view);
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
-  gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
+  gtk_widget_set_size_request(tv_scrollw, -1, TV_SIZE);
   gtk_widget_show(tv_scrollw);
   gtk_widget_show(tree_view);
 
