@@ -701,92 +701,66 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 	then
 		#
 		# Well, we at least have the zlib header file.
+		# We link with zlib to support uncompression of
+		# gzipped network traffic, e.g. in an HTTP request
+		# or response body.
 		#
-		# Check for "gzgets()" in zlib, because we need it, but
-		# some older versions of zlib don't have it.  It appears
-		# from the zlib ChangeLog that any released version of zlib
-		# with "gzgets()" should have the other routines we
-		# depend on, such as "gzseek()", "gztell()", and "zError()".
-		#
-		# Another reason why we require "gzgets()" is that
-		# some versions of zlib that didn't have it, such
-		# as 1.0.8, had a bug in "gzseek()" that meant that it
-		# doesn't work correctly on uncompressed files; this
-		# means we cannot use version 1.0.8.  (Unfortunately,
-		# that's the version that comes with recent X11 source,
-		# and many people who install XFree86 on their Slackware
-		# boxes don't realize that they should configure it to
-		# use the native zlib rather than building and installing
-		# the crappy old version that comes with XFree86.)
-		#
-		# I.e., we can't just avoid using "gzgets()", as
-		# versions of zlib without "gzgets()" are likely to have
-		# a broken "gzseek()".
-		#
-		AC_CHECK_LIB(z, gzgets,
-		[
-			if test "x$zlib_dir" != "x"
-			then
-				#
-				# Put the "-I" and "-L" flags for zlib at
-				# the beginning of CFLAGS, CPPFLAGS, and
-				# LIBS.
-				#
-				LIBS=""
-				AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
-				LIBS="$LIBS -lz $wireshark_save_LIBS"
-			else
-				LIBS="-lz $LIBS"
-			fi
-			AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
-		],[
-			if test "x$zlib_dir" != "x"
-			then
-				#
-				# Restore the versions of CFLAGS, CPPFLAGS,
-				# and LIBS before we added the "-with-zlib="
-				# directory, as we didn't actually find
-				# zlib there, or didn't find a zlib that
-				# contains gzgets there.
-				#
-				CFLAGS="$wireshark_save_CFLAGS"
-				CPPFLAGS="$wireshark_save_CPPFLAGS"
-				LIBS="$wireshark_save_LIBS"
-			fi
-			want_zlib=no
-		])
-	fi
+		if test "x$zlib_dir" != "x"
+		then
+			#
+			# Put the "-I" and "-L" flags for zlib at
+			# the beginning of CFLAGS, CPPFLAGS, and
+			# LIBS.
+			#
+			LIBS=""
+			AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
+			LIBS="$LIBS -lz $wireshark_save_LIBS"
+		else
+			LIBS="-lz $LIBS"
+		fi
+		AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
 
-	if test "x$want_zlib" != "xno"
-	then
 		#
-		# Well, we at least have the zlib header file and a zlib
-		# with "gzgets()".
+		# Check for "inflatePrime()" in zlib, which we need
+		# in order to read compressed capture files.
 		#
-		# Now check for "gzgets()" in zlib when linking with the
-		# linker flags for GTK+ applications; people often grab
-		# XFree86 source and build and install it on their systems,
-		# and they appear sometimes to misconfigure XFree86 so that,
-		# even on systems with zlib, it assumes there is no zlib,
-		# so the XFree86 build process builds and installs its
-		# own zlib in the X11 library directory.
+		AC_CHECK_FUNCS(inflatePrime)
+
+		if test "x$ac_cv_func_inflatePrime" = "xyes" ; then
+			#
+			# Now check for "inflatePrime()" in zlib when
+			# linking with the linker flags for GTK+
+			# applications; people often grab XFree86 source
+			# and build and install it on their systems,
+			# and they appear sometimes to misconfigure
+			# XFree86 so that, even on systems with zlib,
+			# it assumes there is no zlib, so the XFree86
+			# build process builds and installs its
+			# own zlib in the X11 library directory.
+			#
+			# The zlib in at least some versions of XFree86
+			# is an older version that may lack "inflatePrime()",
+			# and that's the zlib with which Wireshark gets
+			# linked, so the build of Wireshark fails.
+			#
+			AC_MSG_CHECKING([for inflatePrime missing when linking with X11])
+			AC_TRY_LINK_FUNC(inflatePrime, AC_MSG_RESULT(no),
+			  [
+			    AC_MSG_RESULT(yes)
+			    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
+			  ])
+		fi
+	else
 		#
-		# The XFree86 zlib is an older version that lacks
-		# "gzgets()", and that's the zlib with which Wireshark
-		# gets linked, so the build of Wireshark fails.
+		# Restore the versions of CFLAGS, CPPFLAGS,
+		# and LIBS before we added the "-with-zlib="
+		# directory, as we didn't actually find
+		# zlib there.
 		#
-		ac_save_CFLAGS="$CFLAGS"
-		ac_save_LIBS="$LIBS"
-		CFLAGS="$CFLAGS $GTK_CFLAGS"
-		LIBS="$GTK_LIBS -lz $LIBS"
-		AC_MSG_CHECKING([for gzgets missing when linking with X11])
-		AC_TRY_LINK_FUNC(gzgets, AC_MSG_RESULT(no),
-		  [
-		    AC_MSG_RESULT(yes)
-		    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
-		  ])
-		CFLAGS="$ac_save_CFLAGS"
-		LIBS="$ac_save_LIBS"
+		CFLAGS="$wireshark_save_CFLAGS"
+		CPPFLAGS="$wireshark_save_CPPFLAGS"
+		LIBS="$wireshark_save_LIBS"
+		want_zlib=no
 	fi
 ])
 

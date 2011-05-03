@@ -1235,11 +1235,11 @@ else
 fi
 
 dnl zlib check
-AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
+AC_MSG_CHECKING(whether to use zlib for gzip compression and decompression)
 
 AC_ARG_WITH(zlib,
   AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],
-                 [use zlib (located in directory DIR, if supplied) to read compressed data.  @<:@default=yes, if available@:>@]),
+                 [use zlib (located in directory DIR, if supplied) for gzip compression and decompression .  @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -1264,15 +1264,12 @@ else
         AC_MSG_RESULT(yes)
         AC_WIRESHARK_ZLIB_CHECK
 	if test "x$want_zlib" = "xno" ; then
-		AC_MSG_RESULT(zlib not found - disabling compressed capture file support)
+		AC_MSG_RESULT(zlib not found - disabling gzip compression and decompression)
+	else
+		if test "x$ac_cv_func_inflatePrime" = "xno" ; then
+			AC_MSG_RESULT(inflatePrime not found in zlib - disabling gzipped capture file support)
+		fi			
 	fi
-fi
-
-if test "x$want_zlib" != "xno" ; then
-	AC_CHECK_LIB(z, inflatePrime,
-	[
-		AC_DEFINE(HAVE_INFLATEPRIME, 1, [Define if we have inflatePrime])
-	])
 fi
 
 dnl pcre check
