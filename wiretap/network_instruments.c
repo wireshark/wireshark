@@ -3,7 +3,7 @@
  */
 
 /***************************************************************************
-                          NetworkInstruments.c  -  description
+                          network_instruments.c  -  description
                              -------------------
     begin                : Wed Oct 29 2003
     copyright            : (C) 2003 by root
@@ -31,61 +31,73 @@
 #include "buffer.h"
 #include "network_instruments.h"
 
-static const char network_instruments_magic[] = {"ObserverPktBufferVersion=09.00"};
+static const char network_instruments_magic[] = {"ObserverPktBufferVersion=15.00"};
 static const int true_magic_length = 17;
 
 static const guint32 observer_packet_magic = 0x88888888;
 
-static const int observer_encap[] = {
-	WTAP_ENCAP_ETHERNET,
-	WTAP_ENCAP_TOKEN_RING
-};
-#define NUM_OBSERVER_ENCAPS (sizeof observer_encap / sizeof observer_encap[0])
-
-static const int from_wtap_encap[] = {
-	OBSERVER_UNDEFINED,
-	OBSERVER_ETHERNET,
-	OBSERVER_TOKENRING,
-};
-#define NUM_FROM_WTAP_ENCAPS (sizeof from_wtap_encap / sizeof observer_encap[0])
-
-#define CAPTUREFILE_HEADER_SIZE sizeof(capture_file_header)
+/*
+ * This structure is used to keep state when writing files. An instance is
+ * allocated for each file, and its address is stored in the wtap_dumper.priv
+ * pointer field.
+ */
+typedef struct {
+    guint64 packet_count;
+    guint8  network_type;
+	guint32 time_format;
+} observer_dump_private_state;
 
 /*
- * The time in Observer files is in nanoseconds since midnight, January 1,
- * 2000, 00:00:00 local time.
+ * Some time offsets are calculated in advance here, when the first Observer
+ * file is opened for reading or writing, and are then used to adjust frame
+ * timestamps as they are read or written.
  *
- * We want the seconds portion to be seconds since midnight, January 1,
- * 1970, 00:00:00 GMT.
+ * The Wiretap API expects timestamps in nanoseconds relative to
+ * January 1, 1970, 00:00:00 GMT (the Wiretap epoch).
  *
- * To do that, we add the number of seconds between midnight, January 1,
- * 2000, 00:00:00 local time and midnight, January 1, 1970, 00:00:00 GMT.
- * (That gets the wrong answer if the time zone is being read in a different
- * time zone, but there's not much we can do about that.)
+ * Observer versions before 13.10 encode frame timestamps in nanoseconds
+ * relative to January 1, 2000, 00:00:00 local time (the Observer epoch).
+ * Versions 13.10 and later switch over to GMT encoding. Which encoding was used
+ * when saving the file is identified via the time format TLV following
+ * the file header.
+ *
+ * Unfortunately, even though Observer versions before 13.10 saved in local
+ * time, they didn't include the timezone from which the frames were captured,
+ * so converting to GMT correctly from all timezones is impossible. So an
+ * assumption is made that the file is being read from within the same timezone
+ * that it was written.
+ *
+ * All code herein is normalized to versions 13.10 and later, special casing for
+ * versions earlier. In other words, timestamps are worked with as if
+ * they are GMT-encoded, and adjustments from local time are made only if
+ * the source file warrants it.
+ * 
+ * All destination files are saved in GMT format.
  */
-static gboolean have_time_offset;
-static time_t seconds1970to2000;
-
-static void init_time_offset(void)
+static const time_t ansi_to_observer_epoch_offset = 946684800;
+static time_t gmt_to_localtime_offset = (time_t) -1;
+ 
+static void init_gmt_to_localtime_offset(void)
 {
-	if (!have_time_offset) {
-		struct tm midnight_2000_01_01;
-
-		/*
-		 * Get the number of seconds between midnight, January 1,
-		 * 2000, 00:00:00 local time - that's just the UNIX
-		 * time stamp for 2000-01-01 00:00:00 local time.
-		 */
-		midnight_2000_01_01.tm_year = 2000 - 1900;
-		midnight_2000_01_01.tm_mon = 0;
-		midnight_2000_01_01.tm_mday = 1;
-		midnight_2000_01_01.tm_hour = 0;
-		midnight_2000_01_01.tm_min = 0;
-		midnight_2000_01_01.tm_sec = 0;
-		midnight_2000_01_01.tm_isdst = -1;
-		seconds1970to2000 = mktime(&midnight_2000_01_01);
-		have_time_offset = TRUE;
-	}
+	if (gmt_to_localtime_offset == (time_t) -1) {
+        time_t ansi_epoch_plus_one_day = 86400;
+        struct tm gmt_tm;
+        struct tm local_tm;
+ 
+        /*
+         * Compute the local time zone offset as the number of seconds west
+         * of GMT. There's no obvious cross-platform API for querying this
+         * directly. As a workaround, GMT and local tm structures are populated
+         * relative to the ANSI time_t epoch (plus one day to ensure that
+         * local time stays after 1970/1/1 00:00:00). They are then converted
+         * back to time_t as if they were both local times, resulting in the
+         * time zone offset being the difference between them.
+         */
+        gmt_tm = *gmtime(&ansi_epoch_plus_one_day);
+        local_tm = *localtime(&ansi_epoch_plus_one_day);
+        local_tm.tm_isdst = 0;
+        gmt_to_localtime_offset = mktime(&gmt_tm) - mktime(&local_tm);
+    }
 }
 
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
@@ -95,12 +107,14 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, packet_entry_header *packet_header,
     int *err, gchar **err_info);
-static gboolean read_packet_data(FILE_T fh, int offset_to_frame, int offset,
+static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     guint8 *pd, int length, int *err, char **err_info);
-static gboolean skip_to_next_packet(wtap *wth, int offset,
-    int offset_to_next_packet, int *err, char **err_info);
+static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet, 
+	int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+static gint observer_to_wtap_encap(int observer_encap);
+static gint wtap_to_observer_encap(int wtap_encap);
 
 int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -110,7 +124,9 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	guint i;
 	tlv_header tlvh;
 	int seek_increment;
+	int header_offset;
 	packet_entry_header packet_header;
+	observer_dump_private_state * private_state = NULL;
 
 	errno = WTAP_ERR_CANT_READ;
 	offset = 0;
@@ -124,21 +140,28 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 	offset += bytes_read;
+	CAPTURE_FILE_HEADER_FROM_LE_IN_PLACE(file_header);
 
-	/* check the magic number */
+	/* check if version info is present */
 	if (memcmp(file_header.observer_version, network_instruments_magic, true_magic_length)!=0) {
 		return 0;
 	}
 
-	/* check the version */
-	if (strncmp(network_instruments_magic, file_header.observer_version, 30)!=0) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		*err_info = g_strdup_printf("Observer: unsupported file version %s", file_header.observer_version);
-		return -1;
-	}
+    /* initialize the private state */
+    private_state = (observer_dump_private_state *) g_malloc(sizeof(observer_dump_private_state));
+	private_state->time_format = TIME_INFO_LOCAL;
+	wth->priv = (void *) private_state;
+
+	/* get the location of the first packet */
+	/* v15 and newer uses high byte offset, in previous versions it will be 0 */
+	header_offset = file_header.offset_to_first_packet + ((int)(file_header.offset_to_first_packet_high_byte)<<16);
 
 	/* process extra information */
 	for (i = 0; i < file_header.number_of_information_elements; i++) {
+		/* for safety break if we've reached the first packet */
+		if (offset >= header_offset)
+			break;
+
 		/* read the TLV header */
 		bytes_read = file_read(&tlvh, sizeof tlvh, wth->fh);
 		if (bytes_read != sizeof tlvh) {
@@ -148,8 +171,8 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 		offset += bytes_read;
+		TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
-		tlvh.length = GUINT16_FROM_LE(tlvh.length);
 		if (tlvh.length < sizeof tlvh) {
 			*err = WTAP_ERR_BAD_RECORD;
 			*err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
@@ -157,25 +180,37 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 
-		/* skip the TLV data */
-		seek_increment = tlvh.length - (int)sizeof tlvh;
-		if (seek_increment > 0) {
-			if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+		 /* process (or skip over) the current TLV */
+		switch (tlvh.type) {
+		case INFORMATION_TYPE_TIME_INFO:
+			bytes_read = file_read(&private_state->time_format, sizeof private_state->time_format, wth->fh);
+			if (bytes_read != sizeof private_state->time_format) {
+				*err = file_error(wth->fh, err_info);
+				if(*err == 0)
+					*err = WTAP_ERR_SHORT_READ;
 				return -1;
+			}
+			private_state->time_format = GUINT32_FROM_LE(private_state->time_format);
+			offset += bytes_read;
+			break;
+		default:
+			seek_increment = tlvh.length - (int)sizeof tlvh;
+			if (seek_increment > 0) {
+				if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
+					return -1;
+			}
+			offset += seek_increment;
 		}
-		offset += seek_increment;
 	}
 
 	/* get to the first packet */
-	file_header.offset_to_first_packet =
-	    GUINT16_FROM_LE(file_header.offset_to_first_packet);
-	if (file_header.offset_to_first_packet < offset) {
+	if (header_offset < offset) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("Observer: bad record (offset to first packet %d < %d)",
-		    file_header.offset_to_first_packet, offset);
+		    header_offset, offset);
 		return FALSE;
 	}
-	seek_increment = file_header.offset_to_first_packet - offset;
+	seek_increment = header_offset - offset;
 	if (seek_increment > 0) {
 		if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 			return -1;
@@ -189,9 +224,9 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
+	PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(packet_header);
 
-	/* check the packet's magic number; the magic number is all 8's,
-	   so the byte order doesn't matter */
+	/* check the packet's magic number */
 	if (packet_header.packet_magic != observer_packet_magic) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
@@ -199,30 +234,31 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* check the data link type */
-	if (packet_header.network_type >= NUM_OBSERVER_ENCAPS) {
+	if (observer_to_wtap_encap(packet_header.network_type) == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
 		return -1;
 	}
-	wth->file_encap = observer_encap[packet_header.network_type];
-
-	wth->file_type = WTAP_FILE_NETWORK_INSTRUMENTS_V9;
+	wth->file_encap = observer_to_wtap_encap(packet_header.network_type);
 
 	/* set up the rest of the capture parameters */
+    private_state->packet_count = 0;
+    private_state->network_type = wtap_to_observer_encap(wth->file_encap);
 	wth->subtype_read = observer_read;
 	wth->subtype_seek_read = observer_seek_read;
 	wth->subtype_close = NULL;
 	wth->subtype_sequential_close = NULL;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->file_type = WTAP_FILE_NETWORK_INSTRUMENTS;
 
 	/* reset the pointer to the first packet */
-	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,
+	if (file_seek(wth->fh, header_offset, SEEK_SET,
 	    err) == -1)
 		return -1;
-	wth->data_offset = file_header.offset_to_first_packet;
+	wth->data_offset = header_offset;
 
-	init_time_offset();
+	init_gmt_to_localtime_offset();
 
 	return 1;
 }
@@ -231,7 +267,8 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	int offset;
+    int bytes_consumed;
+    int offset_from_packet_header = 0;
 	packet_entry_header packet_header;
 
 	/* skip records other than data records */
@@ -239,20 +276,22 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 		*data_offset = wth->data_offset;
 
 		/* process the packet header, including TLVs */
-		offset = read_packet_header(wth->fh, &packet_header, err,
+		bytes_consumed = read_packet_header(wth->fh, &packet_header, err,
 		    err_info);
-		if (offset <= 0)
+		if (bytes_consumed <= 0)
 			return FALSE;	/* EOF or error */
 
-		wth->data_offset += offset;
+		wth->data_offset += bytes_consumed;
 
 		if (packet_header.packet_type == PACKET_TYPE_DATA_PACKET)
 			break;
 
-		/* skip to next packet */
-		if (!skip_to_next_packet(wth, offset,
-		    packet_header.offset_to_next_packet, err, err_info))
-			return FALSE;	/* EOF or error */
+        /* skip to next packet */
+        offset_from_packet_header = (int) (wth->data_offset - *data_offset);
+        if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
+                offset_from_packet_header, err, err_info)) {
+            return FALSE;	/* EOF or error */
+        }
 	}
 
 	/* neglect frame markers for wiretap */
@@ -264,16 +303,43 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 	}
 
 	/* set the wiretap packet header fields */
-	wth->phdr.pkt_encap = observer_encap[packet_header.network_type];
-	wth->phdr.len = packet_header.network_size - 4;
-	wth->phdr.caplen = MIN(packet_header.captured_size, wth->phdr.len);
-	wth->phdr.ts.secs =
-	    (time_t) (packet_header.nano_seconds_since_2000/1000000000 + seconds1970to2000);
-	wth->phdr.ts.nsecs = (int) (packet_header.nano_seconds_since_2000%1000000000);
+	wth->phdr.pkt_encap = observer_to_wtap_encap(packet_header.network_type);
+	if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
+		wth->phdr.len = packet_header.network_size;
+		wth->phdr.caplen = packet_header.captured_size;
+	} else {
+		wth->phdr.len = packet_header.network_size - 4;
+		wth->phdr.caplen = MIN(packet_header.captured_size, wth->phdr.len);
+	}
+
+	/* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
+    wth->phdr.ts.secs = (time_t) ((packet_header.nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
+    wth->phdr.ts.nsecs = (int) (packet_header.nano_seconds_since_2000 % 1000000000);
+
+    /* adjust to local time, if necessary, also accounting for DST if the frame
+       was captured while it was in effect */
+	if (((observer_dump_private_state*)wth->priv)->time_format == TIME_INFO_LOCAL)
+    {
+        struct tm daylight_tm;
+        struct tm standard_tm;
+        time_t    dst_offset;
+
+        /* the Observer timestamp was encoded as local time, so add a
+           correction from local time to GMT */
+        wth->phdr.ts.secs += gmt_to_localtime_offset;
+
+        /* perform a DST adjustment if necessary */
+        standard_tm = *localtime(&wth->phdr.ts.secs);
+        if (standard_tm.tm_isdst > 0) {
+            daylight_tm = standard_tm;
+            standard_tm.tm_isdst = 0;
+            dst_offset = mktime(&standard_tm) - mktime(&daylight_tm);
+            wth->phdr.ts.secs -= dst_offset;
+        }
+    }
 
 	/* update the pseudo header */
 	switch (wth->file_encap) {
-
 	case WTAP_ENCAP_ETHERNET:
 		/* There is no FCS in the frame */
 		wth->pseudo_header.eth.fcs_len = 0;
@@ -283,20 +349,24 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 	/* set-up the packet buffer */
 	buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
 
-	/* read the frame data */
-	if (!read_packet_data(wth->fh, packet_header.offset_to_frame, offset,
-	    buffer_start_ptr(wth->frame_buffer), packet_header.captured_size,
-	    err, err_info))
-		return FALSE;
-	wth->data_offset += packet_header.captured_size;
-	offset += packet_header.captured_size;
+    /* read the frame data */
+    offset_from_packet_header = (int) (wth->data_offset - *data_offset);
+    bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
+            offset_from_packet_header, buffer_start_ptr(wth->frame_buffer),
+            packet_header.captured_size, err, err_info);
+    if (bytes_consumed < 0) {
+        return FALSE;
+    }
+    wth->data_offset += bytes_consumed;
 
-	/* skip over any extra bytes following the frame data */
-	if (!skip_to_next_packet(wth, offset, packet_header.offset_to_next_packet,
-		err, err_info))
-		return FALSE;
+    /* skip over any extra bytes following the frame data */
+    offset_from_packet_header = (int) (wth->data_offset - *data_offset);
+    if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
+            offset_from_packet_header, err, err_info)) {
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 /* Reads a packet at an offset. */
@@ -354,19 +424,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 		return 0;	/* EOF */
 	}
 	offset += bytes_read;
-
-	/* swap all multi-byte fields immediately */
-	packet_header->packet_magic = GUINT32_FROM_LE(packet_header->packet_magic);
-	packet_header->network_speed = GUINT32_FROM_LE(packet_header->network_speed);
-	packet_header->captured_size = GUINT16_FROM_LE(packet_header->captured_size);
-	packet_header->network_size = GUINT16_FROM_LE(packet_header->network_size);
-	packet_header->offset_to_frame = GUINT16_FROM_LE(packet_header->offset_to_frame);
-	packet_header->offset_to_next_packet = GUINT16_FROM_LE(packet_header->offset_to_next_packet);
-	packet_header->errors = GUINT16_FROM_LE(packet_header->errors);
-	packet_header->reserved = GUINT16_FROM_LE(packet_header->reserved);
-	packet_header->packet_number = GUINT64_FROM_LE(packet_header->packet_number);
-	packet_header->original_packet_number = GUINT64_FROM_LE(packet_header->original_packet_number);
-	packet_header->nano_seconds_since_2000 = GUINT64_FROM_LE(packet_header->nano_seconds_since_2000);
+    PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(*packet_header);
 
 	/* check the packet's magic number */
 	if (packet_header->packet_magic != observer_packet_magic) {
@@ -404,8 +462,8 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 			return -1;
 		}
 		offset += bytes_read;
+        TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
-		tlvh.length = GUINT16_FROM_LE(tlvh.length);
 		if (tlvh.length < sizeof tlvh) {
 			*err = WTAP_ERR_BAD_RECORD;
 			*err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
@@ -425,55 +483,61 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 	return offset;
 }
 
-static gboolean
-read_packet_data(FILE_T fh, int offset_to_frame, int offset, guint8 *pd,
+static int
+read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, guint8 *pd, 
     int length, int *err, char **err_info)
 {
 	int seek_increment;
-
-	/* get to the packet data */
-	if (offset_to_frame < offset) {
+	int bytes_consumed = 0;
+ 
+	/* validate offsets */
+	if (offset_to_frame < current_offset_from_packet_header) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("Observer: bad record (offset to packet data %d < %d)",
-		    offset_to_frame, offset);
-		return FALSE;
-	}
-	seek_increment = offset_to_frame - offset;
-	if (seek_increment > 0) {
-		if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
-			return FALSE;
+		    offset_to_frame, current_offset_from_packet_header);
+		return -1;
 	}
 
-	/* read in the packet */
+    /* skip to the packet data */
+	seek_increment = offset_to_frame - current_offset_from_packet_header;
+	if (seek_increment > 0) {
+		if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1) {
+			return -1;
+        }
+        bytes_consumed += seek_increment;
+	}
+
+	/* read in the packet data */
 	wtap_file_read_expected_bytes(pd, length, fh, err, err_info);
-	return TRUE;
+    bytes_consumed += length;
+
+	return bytes_consumed;
 }
 
 static gboolean
-skip_to_next_packet(wtap *wth, int offset, int offset_to_next_packet, int *err,
+skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_from_packet_header, int *err,
     char **err_info)
 {
 	int seek_increment;
-
-	if (offset_to_next_packet < offset) {
+ 
+    /* validate offsets */
+	if (offset_to_next_packet < current_offset_from_packet_header) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("Observer: bad record (offset to next packet %d < %d)",
-		    offset_to_next_packet, offset);
+		    offset_to_next_packet, current_offset_from_packet_header);
 		return FALSE;
 	}
-	seek_increment = offset_to_next_packet - offset;
+
+    /* skip to the next packet header */
+	seek_increment = offset_to_next_packet - current_offset_from_packet_header;
 	if (seek_increment > 0) {
 		if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 			return FALSE;
+		wth->data_offset += seek_increment;
 	}
-	wth->data_offset += seek_increment;
+
 	return TRUE;
 }
-
-typedef struct {
-	guint64 packet_count;
-	guint8  network_type;
-} niobserver_dump_t;
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
@@ -483,7 +547,7 @@ int network_instruments_dump_can_write_encap(int encap)
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 	
-	if (encap < 0 || (unsigned) encap >= NUM_FROM_WTAP_ENCAPS || from_wtap_encap[encap] == OBSERVER_UNDEFINED)
+	if (encap < 0 || (wtap_to_observer_encap(encap) == OBSERVER_UNDEFINED))
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
@@ -493,47 +557,92 @@ int network_instruments_dump_can_write_encap(int encap)
    failure. */
 gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
 {
-	capture_file_header file_header;
-	tlv_header comment_header;
-	char comment[64];
-	struct tm *current_time;
-	time_t system_time;
-	niobserver_dump_t *niobserver;
+    observer_dump_private_state * private_state = NULL;
+    capture_file_header file_header;
 
-	wdh->subtype_write = observer_dump;
+    tlv_header comment_header;
+	tlv_time_info time_header;
+    char comment[64];
+    size_t comment_length;
+    struct tm * current_time;
+    time_t system_time;
 
-	niobserver = (niobserver_dump_t *)g_malloc(sizeof(niobserver_dump_t));
-	wdh->priv = (void *)niobserver;
-	niobserver->packet_count = 0;
-	niobserver->network_type = from_wtap_encap[wdh->encap];
+    /* initialize the private state */
+    private_state = (observer_dump_private_state *) g_malloc(sizeof(observer_dump_private_state));
+    private_state->packet_count = 0;
+    private_state->network_type = wtap_to_observer_encap(wdh->encap);
+	private_state->time_format = TIME_INFO_GMT;
+ 
+    /* populate the fields of wdh */
+    wdh->priv = (void *) private_state;
+    wdh->subtype_write = observer_dump;
 
-	/* create the file comment */
-	time(&system_time);
-	current_time = localtime(&system_time);
-	memset(&comment, 0x00, sizeof(comment));
-	g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
+    /* initialize the file header */
+    memset(&file_header, 0x00, sizeof(file_header));
+	g_strlcpy(file_header.observer_version, network_instruments_magic, 31);
+    file_header.offset_to_first_packet = (guint16)sizeof(file_header);
+	file_header.offset_to_first_packet_high_byte = 0;
 
-	/* create the file header */
-	memset(&file_header, 0x00, sizeof(capture_file_header));
-	g_strlcpy(file_header.observer_version, network_instruments_magic, 32);
-	file_header.offset_to_first_packet = (guint16) (sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment));
-	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
-	file_header.number_of_information_elements = 1;
-	if(!wtap_dump_file_write(wdh, &file_header, sizeof(capture_file_header), err))
-		return FALSE;
+    /* create the file comment TLV */
+    {
+        time(&system_time);
+        current_time = localtime(&system_time);
+        memset(&comment, 0x00, sizeof(comment));
+        g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
+        comment_length = strlen(comment);
 
-	/* create the comment entry */
-	comment_header.type = GUINT16_TO_LE(INFORMATION_TYPE_COMMENT);
-	comment_header.length = (guint16) (sizeof(tlv_header) + strlen(comment));
-	comment_header.length = GUINT16_TO_LE(comment_header.length);
-	if(!wtap_dump_file_write(wdh, &comment_header, sizeof(tlv_header), err))
-		return FALSE;
-	if(!wtap_dump_file_write(wdh, &comment, strlen(comment), err))
-		return FALSE;
+        comment_header.type = INFORMATION_TYPE_COMMENT;
+        comment_header.length = (guint16) (sizeof(comment_header) + comment_length);
 
-	init_time_offset();
+        /* update the file header to account for the comment TLV */
+        file_header.number_of_information_elements++;
+        file_header.offset_to_first_packet += comment_header.length;
+    }
 
-	return TRUE;
+    /* create the timestamp encoding TLV */
+    {
+		time_header.type = INFORMATION_TYPE_TIME_INFO;
+		time_header.length = (guint16) (sizeof(time_header));
+		time_header.time_format = TIME_INFO_GMT;
+
+        /* update the file header to account for the timestamp encoding TLV */
+        file_header.number_of_information_elements++;
+        file_header.offset_to_first_packet += time_header.length;
+    }
+
+    /* write the file header, swapping any multibyte fields first */
+    CAPTURE_FILE_HEADER_TO_LE_IN_PLACE(file_header);
+    if (!wtap_dump_file_write(wdh, &file_header, sizeof(file_header), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(file_header);
+
+    /* write the comment TLV */
+    {
+        TLV_HEADER_TO_LE_IN_PLACE(comment_header);
+        if (!wtap_dump_file_write(wdh, &comment_header, sizeof(comment_header), err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += sizeof(comment_header);
+
+        if (!wtap_dump_file_write(wdh, &comment, comment_length, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += comment_length;
+    }
+
+    /* write the time info TLV */
+    {
+		TLV_TIME_INFO_TO_LE_IN_PLACE(time_header);
+        if (!wtap_dump_file_write(wdh, &time_header, sizeof(time_header), err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += sizeof(time_header);
+    }
+
+    init_gmt_to_localtime_offset();
+
+    return TRUE;
 }
 
 /* Write a record for a packet to a dump file.
@@ -542,41 +651,84 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header _U_, const guchar *pd,
     int *err)
 {
-	niobserver_dump_t *niobserver = (niobserver_dump_t *)wdh->priv;
-	packet_entry_header packet_header;
-	guint64 capture_nanoseconds;
+    observer_dump_private_state * private_state = NULL;
+    packet_entry_header           packet_header;
+    guint64                       seconds_since_2000;
 
-	if (phdr->ts.secs < seconds1970to2000) {
-		if (phdr->ts.secs < 0)
-			capture_nanoseconds = 0;
-		else
-			capture_nanoseconds = phdr->ts.secs;
-	} else
-		capture_nanoseconds = phdr->ts.secs - seconds1970to2000;
-	capture_nanoseconds = capture_nanoseconds*1000000000 + phdr->ts.nsecs;
+    /* convert the number of seconds since epoch from ANSI-relative to
+       Observer-relative */
+    if (phdr->ts.secs < ansi_to_observer_epoch_offset) {
+		if(phdr->ts.secs > (time_t) 0) {
+			seconds_since_2000 = phdr->ts.secs;
+		} else {
+			seconds_since_2000 = (time_t) 0;
+		}
+    } else {
+        seconds_since_2000 = phdr->ts.secs - ansi_to_observer_epoch_offset;
+    }
 
-	memset(&packet_header, 0x00, sizeof(packet_entry_header));
-	packet_header.packet_magic = GUINT32_TO_LE(observer_packet_magic);
-	packet_header.network_speed = GUINT32_TO_LE(1000000);
-	packet_header.captured_size = GUINT16_TO_LE((guint16)phdr->caplen);
-	packet_header.network_size = GUINT16_TO_LE((guint16)(phdr->len+4));
-	packet_header.offset_to_frame = GUINT16_TO_LE(sizeof(packet_entry_header));
-	packet_header.offset_to_next_packet = GUINT16_TO_LE(sizeof(packet_entry_header) + phdr->caplen);
-	packet_header.network_type = niobserver->network_type;
-	packet_header.flags = 0x00;
-	packet_header.number_of_information_elements = 0;
-	packet_header.packet_type = PACKET_TYPE_DATA_PACKET;
-	packet_header.packet_number = GUINT64_TO_LE(niobserver->packet_count);
-	packet_header.original_packet_number = GUINT64_TO_LE(niobserver->packet_count);
-	niobserver->packet_count++;
-	packet_header.nano_seconds_since_2000 = GUINT64_TO_LE(capture_nanoseconds);
+    /* populate the fields of the packet header */
+    private_state = (observer_dump_private_state *) wdh->priv;
 
-	if (!wtap_dump_file_write(wdh, &packet_header, sizeof(packet_header),
-	    err))
-		return FALSE;
+    memset(&packet_header, 0x00, sizeof(packet_header));
+    packet_header.packet_magic = observer_packet_magic;
+    packet_header.network_speed = 1000000;
+    packet_header.captured_size = (guint16) phdr->caplen;
+    packet_header.network_size = (guint16) (phdr->len + 4);
+    packet_header.offset_to_frame = sizeof(packet_header);
+    packet_header.offset_to_next_packet = sizeof(packet_header) + phdr->caplen;
+    packet_header.network_type = private_state->network_type;
+    packet_header.flags = 0x00;
+    packet_header.number_of_information_elements = 0;
+    packet_header.packet_type = PACKET_TYPE_DATA_PACKET;
+    packet_header.packet_number = private_state->packet_count;
+    packet_header.original_packet_number = packet_header.packet_number;
+    packet_header.nano_seconds_since_2000 = seconds_since_2000 * 1000000000 + phdr->ts.nsecs;
 
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
-		return FALSE;
+    private_state->packet_count++;
 
-	return TRUE;
+    /* write the packet header */
+    PACKET_ENTRY_HEADER_TO_LE_IN_PLACE(packet_header);
+    if (!wtap_dump_file_write(wdh, &packet_header, sizeof(packet_header), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(packet_header);
+
+    /* write the packet data */
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += phdr->caplen;
+
+    return TRUE;
+}
+
+static gint observer_to_wtap_encap(int observer_encap)
+{
+	switch(observer_encap) {
+	case OBSERVER_ETHERNET:
+		return WTAP_ENCAP_ETHERNET;
+	case OBSERVER_TOKENRING:
+		return WTAP_ENCAP_TOKEN_RING;
+	case OBSERVER_FIBRE_CHANNEL:
+		return WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS;
+	case OBSERVER_UNDEFINED:
+		return WTAP_ENCAP_UNKNOWN;
+	}
+	return WTAP_ENCAP_UNKNOWN;
+}
+
+static gint wtap_to_observer_encap(int wtap_encap)
+{
+	switch(wtap_encap) {
+	case WTAP_ENCAP_ETHERNET:
+		return OBSERVER_ETHERNET;
+	case WTAP_ENCAP_TOKEN_RING:
+		return OBSERVER_TOKENRING;
+	case WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS:
+		return OBSERVER_FIBRE_CHANNEL;
+	case WTAP_ENCAP_UNKNOWN:
+		return OBSERVER_UNDEFINED;
+	}
+	return OBSERVER_UNDEFINED;
 }

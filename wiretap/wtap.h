@@ -262,7 +262,7 @@ extern "C" {
 #define WTAP_FILE_NGSNIFFER_COMPRESSED          30
 #define WTAP_FILE_NETXRAY_1_1                   31
 #define WTAP_FILE_NETXRAY_2_00x                 32
-#define WTAP_FILE_NETWORK_INSTRUMENTS_V9        33
+#define WTAP_FILE_NETWORK_INSTRUMENTS           33
 #define WTAP_FILE_LANALYZER                     34
 #define WTAP_FILE_PPPDUMP                       35
 #define WTAP_FILE_RADCOM                        36

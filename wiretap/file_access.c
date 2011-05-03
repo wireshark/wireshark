@@ -535,8 +535,8 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "*.cap", ".cap", TRUE, FALSE,
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
-	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", FALSE, FALSE,
+	/* WTAP_FILE_NETWORK_INSTRUMENTS */
+	{ "Network Instruments Observer", "niobserverv", "*.bfr", ".bfr", FALSE, FALSE,
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
