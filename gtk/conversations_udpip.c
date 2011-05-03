@@ -42,7 +42,7 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-
+#include "gtk/stock_icons.h"
 
 static int
 udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -84,8 +84,24 @@ register_tap_listener_udpip_conversation(void)
 {
 	register_stat_cmd_arg("conv,udp", udpip_conversation_init, NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
+		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
+		"UDP (IPv4 & IPv6)",                /* Name */
+		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
+		"UDP (IPv4 & IPv6)",                /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(udpip_conversation_cb),  /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+
+#else  
 	register_stat_menu_item("UDP (IPv4 & IPv6)", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    udpip_conversation_cb, NULL, NULL, NULL);
-
+#endif
     register_conversation_table(FALSE, "UDP", "udp", NULL /*filter*/, udpip_conversation_packet);
 }
