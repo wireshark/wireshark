@@ -182,6 +182,9 @@ static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err, gchar **err_info);
+static int netmon_read_rec_trailer(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int trlr_size, int *err,
+    gchar **err_info);
 static void netmon_sequential_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
@@ -366,6 +369,33 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
+static size_t
+netmon_trailer_size(netmon_t *netmon)
+{
+	if ((netmon->version_major == 2 && netmon->version_minor >= 1) ||
+	    netmon->version_major > 2) {
+	    	if (netmon->version_major > 2) {
+	    		/*
+	    		 * Asssume 2.3 format, for now.
+	    		 */
+			return sizeof (struct netmonrec_2_3_trlr);
+	    	} else {
+			switch (netmon->version_minor) {
+
+			case 1:
+				return sizeof (struct netmonrec_2_1_trlr);
+
+			case 2:
+				return sizeof (struct netmonrec_2_2_trlr);
+
+			default:
+				return sizeof (struct netmonrec_2_3_trlr);
+			}
+		}
+	}
+	return 0;	/* no trailer */
+}
+
 /* Read the next packet */
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
@@ -378,20 +408,14 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 		struct netmonrec_1_x_hdr hdr_1_x;
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
-	union {
-		struct netmonrec_2_1_trlr trlr_2_1;
-		struct netmonrec_2_2_trlr trlr_2_2;
-		struct netmonrec_2_3_trlr trlr_2_3;
-	}	trlr;
 	int	hdr_size = 0;
-	int	trlr_size = 0;
+	int	trlr_size;
 	int	rec_offset;
 	guint8	*data_ptr;
 	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
 	time_t	secs;
 	guint32	usecs;
 	double	t;
-	guint16 network;
 
 again:
 	/* Have we reached the end of the packet data? */
@@ -502,11 +526,7 @@ again:
 		wth->data_offset += sizeof (struct netmon_atm_hdr);
 		break;
 
-	case WTAP_ENCAP_ETHERNET:
-		/*
-		 * We assume there's no FCS in this frame.
-		 */
-		wth->pseudo_header.eth.fcs_len = 0;
+	default:
 		break;
 	}
 
@@ -560,92 +580,18 @@ again:
 	 * For version 2.1 and later, there's additional information
 	 * after the frame data.
 	 */
-	if ((netmon->version_major == 2 && netmon->version_minor >= 1) ||
-	    netmon->version_major > 2) {
-	    	if (netmon->version_major > 2) {
-	    		/*
-	    		 * Asssume 2.3 format, for now.
-	    		 */
-			trlr_size = sizeof (struct netmonrec_2_3_trlr);
-	    	} else {
-			switch (netmon->version_minor) {
-
-			case 1:
-				trlr_size = sizeof (struct netmonrec_2_1_trlr);
-				break;
-
-			case 2:
-				trlr_size = sizeof (struct netmonrec_2_2_trlr);
-				break;
-
-			default:
-				trlr_size = sizeof (struct netmonrec_2_3_trlr);
-				break;
-			}
-		}
-		errno = WTAP_ERR_CANT_READ;
-
-		bytes_read = file_read(&trlr, trlr_size, wth->fh);
-		if (bytes_read != trlr_size) {
-			*err = file_error(wth->fh, err_info);
-			if (*err == 0 && bytes_read != 0) {
-				*err = WTAP_ERR_SHORT_READ;
-			}
-			return FALSE;
-		}
+	trlr_size = (int)netmon_trailer_size(netmon);
+	if (trlr_size != 0) {
+		/*
+		 * I haz a trailer.
+		 */
+		wth->phdr.pkt_encap = netmon_read_rec_trailer(wth->fh,
+		    &wth->pseudo_header, trlr_size, err, err_info);
+		if (wth->phdr.pkt_encap == -1)
+			return FALSE;	/* error */
 		wth->data_offset += trlr_size;
-
-		network = pletohs(trlr.trlr_2_1.network);
-		if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
-			/*
-			 * Converted pcap file - the LINKTYPE_ value
-			 * is the network value with 0xF000 masked off.
-			 */
-			network &= 0x0FFF;
-			wth->phdr.pkt_encap =
-			    wtap_pcap_encap_to_wtap_encap(network);
-			if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-				*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
-				    network);
-				return FALSE;
-			}
-		} else if (network < NUM_NETMON_ENCAPS) {
-			/*
-			 * Regular NetMon encapsulation.
-			 */
-			wth->phdr.pkt_encap = netmon_encap[network];
-			if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
-				    network);
-				return FALSE;
-			}
-		} else {
-			/*
-			 * Special packet type for metadata.
-			 */
-			switch (network) {
-
-			case NETMON_NET_NETEVENT:
-			case NETMON_NET_NETWORK_INFO_EX:
-			case NETMON_NET_PAYLOAD_HEADER:
-			case NETMON_NET_NETWORK_INFO:
-			case NETMON_NET_DNS_CACHE:
-			case NETMON_NET_NETMON_FILTER:
-				/*
-				 * Just ignore those record types, for
-				 * now.  Read the next record.
-				 */
-				goto again;
-
-			default:
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
-				    network);
-				return FALSE;
-			}
-		}
+		if (wth->phdr.pkt_encap == 0)
+			goto again;
 	}
 
 	return TRUE;
@@ -656,6 +602,10 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {
+	netmon_t *netmon = (netmon_t *)wth->priv;
+	int	trlr_size;
+	int	pkt_encap;
+
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -668,13 +618,6 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 			return FALSE;
 		}
 		break;
-
-	case WTAP_ENCAP_ETHERNET:
-		/*
-		 * We assume there's no FCS in this frame.
-		 */
-		pseudo_header->eth.fcs_len = 0;
-		break;
 	}
 
 	/*
@@ -682,6 +625,29 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	 */
 	if (!netmon_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;
+
+	/*
+	 * For version 2.1 and later, there's additional information
+	 * after the frame data.
+	 */
+	trlr_size = (int)netmon_trailer_size(netmon);
+	if (trlr_size != 0) {
+		/*
+		 * I haz a trailer.
+		 */
+		pkt_encap = netmon_read_rec_trailer(wth->random_fh,
+		    pseudo_header, trlr_size, err, err_info);
+		if (pkt_encap == -1)
+			return FALSE;	/* error */
+		if (pkt_encap == 0) {
+			/*
+			 * This should not happen.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
+			return FALSE;
+		}
+	}
 
 	/*
 	 * Attempt to guess from the packet data, the VPI, and the VCI
@@ -743,6 +709,112 @@ netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
 		return FALSE;
 	}
 	return TRUE;
+}
+
+/*
+ * Read a record trailer.
+ * On success, returns the packet encapsulation type.
+ * On error, returns -1 (which is WTAP_ENCAP_PER_PACKET, but we'd
+ * never return that on success).
+ * For metadata packets, returns 0 (which is WTAP_ENCAP_UNKNOWN, but
+ * we'd never return that on success).
+ */
+static int
+netmon_read_rec_trailer(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int trlr_size, int *err, gchar **err_info)
+{
+	int	bytes_read;
+	union {
+		struct netmonrec_2_1_trlr trlr_2_1;
+		struct netmonrec_2_2_trlr trlr_2_2;
+		struct netmonrec_2_3_trlr trlr_2_3;
+	}	trlr;
+	guint16 network;
+	int	pkt_encap;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&trlr, trlr_size, fh);
+	if (bytes_read != trlr_size) {
+		*err = file_error(fh, err_info);
+		if (*err == 0 && bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;	/* error */
+	}
+
+	network = pletohs(trlr.trlr_2_1.network);
+	if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
+		/*
+		 * Converted pcap file - the LINKTYPE_ value
+		 * is the network value with 0xF000 masked off.
+		 */
+		network &= 0x0FFF;
+		pkt_encap = wtap_pcap_encap_to_wtap_encap(network);
+		if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
+			    network);
+			return -1;	/* error */
+		}
+	} else if (network < NUM_NETMON_ENCAPS) {
+		/*
+		 * Regular NetMon encapsulation.
+		 */
+		pkt_encap = netmon_encap[network];
+		if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+			    network);
+			return -1;	/* error */
+		}
+	} else {
+		/*
+		 * Special packet type for metadata.
+		 */
+		switch (network) {
+
+		case NETMON_NET_NETEVENT:
+		case NETMON_NET_NETWORK_INFO_EX:
+		case NETMON_NET_PAYLOAD_HEADER:
+		case NETMON_NET_NETWORK_INFO:
+		case NETMON_NET_DNS_CACHE:
+		case NETMON_NET_NETMON_FILTER:
+			/*
+			 * Just ignore those record types, for
+			 * now.  Tell our caller to read the next
+			 * record.
+			 */
+			return 0;
+
+		default:
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+			    network);
+			return -1;	/* error */
+		}
+	}
+
+	switch (pkt_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We assume there's no FCS in this frame.
+		 */
+		pseudo_header->eth.fcs_len = 0;
+		break;
+
+	case WTAP_ENCAP_IEEE802_11_NETMON_RADIO:
+		/*
+		 * It appears to be the case that management
+		 * frames have an FCS and data frames don't;
+		 * I'm not sure about control frames.  An
+		 * "FCS length" of -2 means "NetMon weirdness".
+		 */
+		pseudo_header->ieee_802_11.fcs_len = -2;
+		break;
+	}
+
+	return pkt_encap;	/* success */
 }
 
 /* Throw away the frame table used by the sequential I/O stream. */

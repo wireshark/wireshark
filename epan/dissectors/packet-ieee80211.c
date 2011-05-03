@@ -8889,6 +8889,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         has_fcs = TRUE;
         break;
 
+      case -2: /* Data frames have no FCS, other frames have an FCS */
+        if (FCF_FRAME_TYPE (fcf) == DATA_FRAME)
+          has_fcs = FALSE;
+        else
+          has_fcs = TRUE;
+        break;
+
       default: /* Don't know - use "wlan_check_fcs" */
         has_fcs = wlan_check_fcs;
         break;
