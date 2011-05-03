@@ -64,6 +64,8 @@ enum {
 	EO_NUM_COLUMNS /* must be last */
 };
 
+static eo_protocoldata_reset_cb eo_protocoldata_reset = NULL;
+
 
 static void
 eo_remember_this_row(GtkTreeModel *model _U_, GtkTreePath *path,
@@ -121,6 +123,9 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	/* Free the GSList elements */
 	g_slist_free(object_list->entries);
 	g_free(object_list);
+
+	/* Free the private export_object_xxx data */
+	if (eo_protocoldata_reset != NULL) eo_protocoldata_reset();
 }
 
 static gboolean
@@ -350,6 +355,8 @@ eo_reset(void *tapdata)
 	object_list->entries = NULL;
 	object_list->iter = NULL;
 	object_list->row_selected = -1;
+
+	if (eo_protocoldata_reset != NULL) eo_protocoldata_reset();
 }
 
 static void
@@ -386,7 +393,7 @@ eo_draw(void *tapdata)
 }
 
 void
-export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet)
+export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet, eo_protocoldata_reset_cb eo_protocoldata_resetfn)
 {
 	GtkWidget *sw;
 	GtkCellRenderer *renderer;
@@ -397,6 +404,9 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	GString *error_msg;
 	export_object_list_t *object_list;
 	gchar *window_title;
+
+	/* Initialize the pointer to the private data clearing function */
+	eo_protocoldata_reset = eo_protocoldata_resetfn;
 
 	/* Initialize our object list structure */
 	object_list = g_malloc0(sizeof(export_object_list_t));

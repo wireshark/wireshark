@@ -79,10 +79,6 @@ typedef struct _active_file {
 /* This is the GSList that will contain all the files that we are tracking */
 static GSList	*GSL_active_files = NULL;
 
-/* This is the hash table that will contain the frame numbers of the packets already processed.
-   We want to process each smb packet only once */
-static GHashTable	*visited_packet_hash_table = NULL;
-
 /* We define a free chunk in a file as an start offset and end offset
    Consider a free chunk as a "hole" in a file that we are capturing */
 typedef struct _free_chunk {
@@ -310,25 +306,6 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 	gchar			**aux_string_v;
 
-
-	if (eo_info == NULL) { /* XXX: Can this happen ? */
-		return FALSE; /* State unchanged - no window updates needed */
-	}
-
-	/* Obtain the packet number that originates the analysis */
-	#ifdef SMB_DEBUG
-	printf("\tbtree_visited_packet: Looking for packet %u\n",pinfo->fd-num);
-	#endif
-
-	if (g_hash_table_lookup(visited_packet_hash_table, GUINT_TO_POINTER(pinfo->fd->num)) != NULL) {
-		return FALSE; /* already seen: State unchanged - no window updates needed */
-	}
-
-	/* remember that we've seen this packet */
-	/* XXX: TBD: Is this needed ?                                              */
-        /*           Under what circumstances will a packet be encountered twice ? */
-	g_hash_table_insert(visited_packet_hash_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(1));
-
 	/* Is this an eo_smb supported file_type? (right now we only support FILE */
 	is_supported_filetype = (eo_info->fid_type==SMB_FID_TYPE_FILE);
 
@@ -352,7 +329,6 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	active_row=find_incoming_file(GSL_active_files, &incoming_file);
 
 	if (active_row==-1) { /* This is a new-tracked file */
-
 		/* Construct the entry in the list of active files */
 		entry = g_malloc(sizeof(export_object_entry_t));
 		entry->payload_data=NULL;
@@ -439,9 +415,11 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 	return TRUE; /* State changed - window should be redrawn */
 }
-
+/* This is the eo_protocoldata_reset function that is used in the export_object module
+   to cleanup any previous private data of the export object functionality before perform
+   the eo_reset function or when the window closes */
 void
-eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
+eo_smb_cleanup()
 {
 	int 	         i,last;
 	active_file	*in_list_file;
@@ -461,14 +439,11 @@ eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
 		g_slist_free(GSL_active_files);
 		GSL_active_files=NULL;
 	}
+}
 
-	/* Initialize the tree */
-	if (visited_packet_hash_table) {
-		g_hash_table_destroy(visited_packet_hash_table);
-		visited_packet_hash_table=NULL;
-	}
-	visited_packet_hash_table=g_hash_table_new(NULL,NULL);
-
-	/* Then call the export_object window */
-	export_object_window("smb_eo", "SMB", eo_smb_packet);
+void
+eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+	/* Call the export_object window */
+	export_object_window("smb_eo", "SMB", eo_smb_packet, eo_smb_cleanup);
 }

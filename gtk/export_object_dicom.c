@@ -74,5 +74,5 @@ eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 void
 eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-	export_object_window("dicom_eo", "DICOM", eo_dicom_packet);
+	export_object_window("dicom_eo", "DICOM", eo_dicom_packet, NULL);
 }
