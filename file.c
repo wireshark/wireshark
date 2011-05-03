@@ -1151,16 +1151,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   return row;
 }
 
-/*
- * Initialize the col_text and col_text_len arrays.
- */
-static void
-init_col_text(frame_data *fdata, gint num_cols)
-{
-  fdata->col_text_len = se_alloc0(sizeof(*fdata->col_text_len) * num_cols);
-  fdata->col_text = se_alloc0(sizeof(*fdata->col_text) * num_cols);
-}
-
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
@@ -1181,12 +1171,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   framenum = cf->count + 1;
 
   frame_data_init(&fdlocal, framenum, phdr, offset, cum_bytes);
-  /* Note - if the packet doesn't pass the read filter, and is thus
-     not added to the capture_file's collection of packets, the
-     column text arrays aren't free; they're alocated with
-     se_alloc0(), so they eventually get freed when we close the
-     file. */
-  init_col_text(&fdlocal, cf->cinfo.num_cols);
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1760,12 +1744,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * "init_dissection()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
-
-      /* cleanup_dissection() calls se_free_all();
-       * And after that fdata->col_text (which is allocated using se_alloc0())
-       * no longer points to valid memory.
-       */
-      init_col_text(fdata, cf->cinfo.num_cols);
     }
 
     if (!cf_read_frame(cf, fdata))

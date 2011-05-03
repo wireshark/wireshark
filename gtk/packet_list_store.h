@@ -61,6 +61,12 @@ struct _PacketListRecord
 	gboolean columnized;
 	/** Has this record been colorized? */
 	gboolean colorized;
+
+	/** The column text for some columns */
+	gchar **col_text;
+	/**< The length of the column text strings in 'col_text' */
+	guint *col_text_len;
+
 	frame_data *fdata;
 
 	/* admin stuff used by the custom list model */

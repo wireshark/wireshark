@@ -1332,13 +1332,13 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 									  !record->colorized);
 	}
 
-	g_assert(fdata->col_text);
+	g_assert(record->col_text);
 
 	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
 		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num, FALSE);
 		cell_text = cfile.cinfo.col_data[col_num];
 	}else
-		cell_text = fdata->col_text[col_num];
+		cell_text = record->col_text[col_num];
 
 	g_assert(cell_text);
 
@@ -1655,7 +1655,7 @@ get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_t
 		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_id, FALSE);
 		*cell_text = g_strdup(cfile.cinfo.col_data[col_id]);
 	}else
-		*cell_text = g_strdup(record->fdata->col_text[col_id]);
+		*cell_text = g_strdup(record->col_text[col_id]);
 
 	return TRUE;
 }
