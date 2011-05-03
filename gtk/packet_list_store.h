@@ -57,17 +57,17 @@ typedef struct _PacketListClass PacketListClass;
 /** PacketListRecord: represents a row */
 struct _PacketListRecord
 {
-	/** Has this record been columnized? */
-	gboolean columnized;
-	/** Has this record been colorized? */
-	gboolean colorized;
-
 	/** The column text for some columns */
 	gchar **col_text;
 	/**< The length of the column text strings in 'col_text' */
 	guint *col_text_len;
 
 	frame_data *fdata;
+
+	/** Has this record been columnized? */
+	gboolean columnized:1;
+	/** Has this record been colorized? */
+	gboolean colorized:1;
 
 	/* admin stuff used by the custom list model */
 	/** position within the physical array */
