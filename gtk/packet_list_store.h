@@ -70,7 +70,7 @@ struct _PacketListRecord
 	gint visible_pos;
 };
 
-/** PacketListRecord: Everything for our model implementation. */
+/** PacketList: Everything for our model implementation. */
 struct _PacketList
 {
 	GObject parent; /** MUST be first */
