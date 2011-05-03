@@ -182,8 +182,7 @@ static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err, gchar **err_info);
-static int netmon_read_rec_trailer(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int trlr_size, int *err,
+static int netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err,
     gchar **err_info);
 static void netmon_sequential_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -396,6 +395,39 @@ netmon_trailer_size(netmon_t *netmon)
 	return 0;	/* no trailer */
 }
 
+static void
+netmon_set_pseudo_header_info(int pkt_encap,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length)
+{
+	switch (pkt_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		/*
+		 * Attempt to guess from the packet data, the VPI, and
+		 * the VCIinformation about the type of traffic.
+		 */
+		atm_guess_traffic_type(pd, length, pseudo_header);
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We assume there's no FCS in this frame.
+		 */
+		pseudo_header->eth.fcs_len = 0;
+		break;
+
+	case WTAP_ENCAP_IEEE802_11_NETMON_RADIO:
+		/*
+		 * It appears to be the case that management
+		 * frames have an FCS and data frames don't;
+		 * I'm not sure about control frames.  An
+		 * "FCS length" of -2 means "NetMon weirdness".
+		 */
+		pseudo_header->ieee_802_11.fcs_len = -2;
+		break;
+	}
+}
+
 /* Read the next packet */
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
@@ -568,15 +600,6 @@ again:
 	wth->phdr.len = orig_size;
 
 	/*
-	 * Attempt to guess from the packet data, the VPI, and the VCI
-	 * information about the type of traffic.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
-		atm_guess_traffic_type(data_ptr, packet_size,
-		    &wth->pseudo_header);
-	}
-
-	/*
 	 * For version 2.1 and later, there's additional information
 	 * after the frame data.
 	 */
@@ -586,12 +609,17 @@ again:
 		 * I haz a trailer.
 		 */
 		wth->phdr.pkt_encap = netmon_read_rec_trailer(wth->fh,
-		    &wth->pseudo_header, trlr_size, err, err_info);
+		    trlr_size, err, err_info);
 		if (wth->phdr.pkt_encap == -1)
 			return FALSE;	/* error */
 		wth->data_offset += trlr_size;
 		if (wth->phdr.pkt_encap == 0)
 			goto again;
+		netmon_set_pseudo_header_info(wth->phdr.pkt_encap,
+		    &wth->pseudo_header, data_ptr, packet_size);
+	} else {
+		netmon_set_pseudo_header_info(wth->file_encap,
+		    &wth->pseudo_header, data_ptr, packet_size);
 	}
 
 	return TRUE;
@@ -636,7 +664,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 		 * I haz a trailer.
 		 */
 		pkt_encap = netmon_read_rec_trailer(wth->random_fh,
-		    pseudo_header, trlr_size, err, err_info);
+		    trlr_size, err, err_info);
 		if (pkt_encap == -1)
 			return FALSE;	/* error */
 		if (pkt_encap == 0) {
@@ -647,14 +675,12 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 			*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
 			return FALSE;
 		}
+		netmon_set_pseudo_header_info(pkt_encap, pseudo_header,
+		    pd, length);
+	} else {
+		netmon_set_pseudo_header_info(wth->file_encap, pseudo_header,
+		    pd, length);
 	}
-
-	/*
-	 * Attempt to guess from the packet data, the VPI, and the VCI
-	 * information about the type of traffic.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS)
-		atm_guess_traffic_type(pd, length, pseudo_header);
 
 	return TRUE;
 }
@@ -720,8 +746,7 @@ netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
  * we'd never return that on success).
  */
 static int
-netmon_read_rec_trailer(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int trlr_size, int *err, gchar **err_info)
+netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err, gchar **err_info)
 {
 	int	bytes_read;
 	union {
@@ -792,26 +817,6 @@ netmon_read_rec_trailer(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 			    network);
 			return -1;	/* error */
 		}
-	}
-
-	switch (pkt_encap) {
-
-	case WTAP_ENCAP_ETHERNET:
-		/*
-		 * We assume there's no FCS in this frame.
-		 */
-		pseudo_header->eth.fcs_len = 0;
-		break;
-
-	case WTAP_ENCAP_IEEE802_11_NETMON_RADIO:
-		/*
-		 * It appears to be the case that management
-		 * frames have an FCS and data frames don't;
-		 * I'm not sure about control frames.  An
-		 * "FCS length" of -2 means "NetMon weirdness".
-		 */
-		pseudo_header->ieee_802_11.fcs_len = -2;
-		break;
 	}
 
 	return pkt_encap;	/* success */
