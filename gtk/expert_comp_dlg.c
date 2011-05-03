@@ -794,7 +794,23 @@ void
 register_tap_listener_expert_comp(void)
 {
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_ANALYZE_GROUP_UNSORTED,    /* Group */
+		"/Menubar/AnalyzeMenu/ExpertInfoComposite",   /* GUI path */
+		"Expert-Info-Composite",            /* Name */
+		WIRESHARK_STOCK_EXPERT_INFO,        /* stock_id */
+		"Expert Info _Composite",           /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(expert_comp_dlg_launch), /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+#else
     register_stat_menu_item_stock("Expert Info _Composite",
         REGISTER_ANALYZE_GROUP_UNSORTED, WIRESHARK_STOCK_EXPERT_INFO,
         expert_comp_dlg_launch, NULL, NULL, NULL);
+#endif
 }

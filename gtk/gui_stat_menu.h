@@ -96,6 +96,22 @@ extern void register_stat_menu_item(
  *
  * @param callback_data data for callback function
  */
+//#define MAIN_MENU_USE_UIMANAGER 1
+#ifdef MAIN_MENU_USE_UIMANAGER
+extern void register_stat_menu_item_stock(
+    register_stat_group_t group,
+    const char   *gui_path,
+    const char   *name,
+    const gchar  *stock_id,
+    const char   *label,
+    const char   *accelerator,
+    const gchar  *tooltip,
+    GCallback    callback,
+    gboolean     enabled,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
+    gpointer callback_data);
+#else
 extern void register_stat_menu_item_stock(
     const char *name, 
     register_stat_group_t group,
@@ -104,6 +120,7 @@ extern void register_stat_menu_item_stock(
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
+#endif
 
 #ifdef __cplusplus
 }

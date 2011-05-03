@@ -871,18 +871,42 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
+#ifdef MAIN_MENU_USE_UIMANAGER
+static void
+voip_calls_launch(GtkAction *action _U_, gpointer user_data _U_)
+{
+	voip_calls_init_tap("", NULL);
+}
+#else
 static void
 voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	voip_calls_init_tap("", NULL);
 }
+#endif
 
 /****************************************************************************/
 void
 register_tap_listener_voip_calls_dlg(void)
 {
 	register_stat_cmd_arg("voip,calls", voip_calls_init_tap, NULL);
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_TELEPHONY,      /* Group */
+		"/Menubar/TelephonyMenu/VoIPCalls", /* GUI path */
+		"VoIP-Calls",                       /* Name */
+		WIRESHARK_STOCK_TELEPHONE,          /* stock_id */
+		"_VoIP Calls",                      /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(voip_calls_launch),      /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+#else
 	register_stat_menu_item_stock("_VoIP Calls",
 		REGISTER_STAT_GROUP_TELEPHONY, WIRESHARK_STOCK_TELEPHONE,
 		voip_calls_launch, NULL, NULL, NULL);
+#endif
 }
