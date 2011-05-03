@@ -676,7 +676,8 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     packet_header.captured_size = (guint16) phdr->caplen;
     packet_header.network_size = (guint16) (phdr->len + 4);
     packet_header.offset_to_frame = sizeof(packet_header);
-    packet_header.offset_to_next_packet = sizeof(packet_header) + phdr->caplen;
+    /* XXX - what if this doesn't fit in 16 bits?  It's not guaranteed to... */
+    packet_header.offset_to_next_packet = (guint16)sizeof(packet_header) + phdr->caplen;
     packet_header.network_type = private_state->network_type;
     packet_header.flags = 0x00;
     packet_header.number_of_information_elements = 0;
