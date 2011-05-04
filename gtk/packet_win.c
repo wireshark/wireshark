@@ -129,31 +129,31 @@ static void destroy_new_window(GtkObject *object, gpointer user_data);
 static gboolean
 button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
 {
-  if (widget == NULL || event == NULL) {
-    return FALSE;
-  }
+	if (widget == NULL || event == NULL) {
+		return FALSE;
+	}
 
-  tree_view_select(widget, (GdkEventButton *) event);
+	tree_view_select(widget, (GdkEventButton *) event);
 
-  /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
-  if (event->type == GDK_2BUTTON_PRESS) {
-    GtkTreePath      *path;
+	/* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
+	if (event->type == GDK_2BUTTON_PRESS) {
+		GtkTreePath      *path;
 
-    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
-				      (gint) (((GdkEventButton *)event)->x),
-				      (gint) (((GdkEventButton *)event)->y),
-				      &path, NULL, NULL, NULL))
-    {
-      if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(widget), path)) {
-	gtk_tree_view_collapse_row(GTK_TREE_VIEW(widget), path);
-      }	else {
-	gtk_tree_view_expand_row(GTK_TREE_VIEW(widget), path, FALSE);
-      }
-      gtk_tree_path_free(path);
-    }
-  }
+		if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+						  (gint) (((GdkEventButton *)event)->x),
+						  (gint) (((GdkEventButton *)event)->y),
+						  &path, NULL, NULL, NULL))
+		{
+			if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(widget), path)) {
+				gtk_tree_view_collapse_row(GTK_TREE_VIEW(widget), path);
+			}	else {
+				gtk_tree_view_expand_row(GTK_TREE_VIEW(widget), path, FALSE);
+			}
+			gtk_tree_path_free(path);
+		}
+	}
 
-  return FALSE;
+	return FALSE;
 }
 
 static field_info *
@@ -168,7 +168,7 @@ proto_finfo_find(proto_tree *tree, field_info *old_finfo)
 			continue;
 
 		/* check everything, if it doesn't work report to me */
-		if (cur->hfinfo == old_finfo->hfinfo && 
+		if (cur->hfinfo == old_finfo->hfinfo &&
 			cur->start == old_finfo->start && cur->length == old_finfo->length &&
 			cur->appendix_start == old_finfo->appendix_start && cur->appendix_length == old_finfo->appendix_length &&
 			cur->tree_type == old_finfo->tree_type && cur->flags == old_finfo->flags)
@@ -248,7 +248,7 @@ finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 	const field_info *finfo = DataPtr->finfo;
 	const header_field_info *hfinfo = finfo->hfinfo;
 	/* XXX, appendix? */
-	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
+	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;
 	int finfo_length = finfo->length;
 
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
@@ -293,7 +293,7 @@ finfo_string_changed(GtkEditable *editable, gpointer user_data)
 
 	/* XXX, appendix? */
 	const field_info *finfo = DataPtr->finfo;
-	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;	
+	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;
 	int finfo_length = finfo->length;
 	int finfo_type = (finfo->hfinfo) ? finfo->hfinfo->type : FT_NONE;
 
@@ -529,9 +529,9 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 
 		/* XXX, I'm little worried about these casts from (unsigned) integer to double... */
 
-		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 || finfo_type == FT_INT64)
+		if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 /* || finfo_type == FT_INT64 */)
 			adj = gtk_adjustment_new((double) fvalue_get_sinteger(&finfo->value), (double) -(G_GINT64_CONSTANT(1) << (bitcount-1)), (double) ((G_GINT64_CONSTANT(1) << (bitcount-1))-1), 1.0, 10.0, 0);
-		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 || finfo_type == FT_UINT64)
+		else if (finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32 /* || finfo_type == FT_UINT64 */ )
 			adj = gtk_adjustment_new((double) fvalue_get_uinteger(&finfo->value), 0.0, (double) ((G_GINT64_CONSTANT(1U) << bitcount)-1), 1.0, 10.0, 0);
 		else {
 			g_assert_not_reached();
@@ -625,7 +625,7 @@ not_supported:
 		DataPtr->app_bv = bv_nb_ptr;
 	}
 	gtk_container_add(GTK_CONTAINER(frame), frame_vbox);
-	gtk_widget_show(frame_vbox); gtk_widget_show(frame); 
+	gtk_widget_show(frame_vbox); gtk_widget_show(frame);
 	gtk_container_add(GTK_CONTAINER(dialog_vbox), frame);
 
 	gtk_window_set_default_size(GTK_WINDOW(dialog), DEF_WIDTH, -1);
@@ -648,7 +648,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 		return;
 
 	gtk_tree_model_get(model, &iter, 1, &finfo, -1);
-	if (!finfo) 
+	if (!finfo)
 		return;
 
 	if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
@@ -707,7 +707,7 @@ edit_pkt_common_key_pressed_cb(GdkEventKey *event, struct CommonWinData *DataPtr
 			return FALSE;
 
 		if (val != -1) {
-			/* Lazy... 
+			/* Lazy...
 			 * XXX Allow (DataPtr->pd_bitoffset % 4) != 0 ? */
 			if (DataPtr->pd_bitoffset < 4) {
 				DataPtr->pd[DataPtr->pd_offset] = (DataPtr->pd[DataPtr->pd_offset] & 0x0f) | (val << 4);
@@ -825,191 +825,191 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 void new_packet_window(GtkWidget *w _U_, gboolean editable)
 {
 #define NewWinTitleLen 1000
-  char Title[NewWinTitleLen] = "";
-  const char *TextPtr;
-  GtkWidget *main_w, *main_vbox, *pane,
-                      *tree_view, *tv_scrollw,
-                      *bv_nb_ptr;
-  struct PacketWinData *DataPtr;
-  int i;
+	char Title[NewWinTitleLen] = "";
+	const char *TextPtr;
+	GtkWidget *main_w, *main_vbox, *pane,
+		*tree_view, *tv_scrollw,
+		*bv_nb_ptr;
+	struct PacketWinData *DataPtr;
+	int i;
 
-  if (!cfile.current_frame) {
-    /* nothing has been captured so far */
-    return;
-  }
+	if (!cfile.current_frame) {
+		/* nothing has been captured so far */
+		return;
+	}
 
-  /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
-  if (!cf_read_frame(&cfile, cfile.current_frame)) {
-    /* error reading the frame */
-    return;
-  }
+	/* With the new packetlists "lazy columns" it's neccesary to reread the frame */
+	if (!cf_read_frame(&cfile, cfile.current_frame)) {
+		/* error reading the frame */
+		return;
+	}
 
-  /* Allocate data structure to represent this window. */
-  DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
+	/* Allocate data structure to represent this window. */
+	DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
-  DataPtr->frame = cfile.current_frame;
-  memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
-  DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
-  memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
+	DataPtr->frame = cfile.current_frame;
+	memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
+	DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
+	memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
 
-  epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-  epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
-          DataPtr->frame, &cfile.cinfo);
-  epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
+	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
+			 DataPtr->frame, &cfile.cinfo);
+	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 
-  /*
-   * Build title of window by getting column data constructed when the
-   * frame was dissected.
-   */
-  for (i = 0; i < cfile.cinfo.num_cols; ++i) {
-    TextPtr = cfile.cinfo.col_data[i];
-    if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
-      g_strlcat(Title, TextPtr, NewWinTitleLen);
-      g_strlcat(Title, " ", NewWinTitleLen);
-    }
-  }
+	/*
+	 * Build title of window by getting column data constructed when the
+	 * frame was dissected.
+	 */
+	for (i = 0; i < cfile.cinfo.num_cols; ++i) {
+		TextPtr = cfile.cinfo.col_data[i];
+		if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
+			g_strlcat(Title, TextPtr, NewWinTitleLen);
+			g_strlcat(Title, " ", NewWinTitleLen);
+		}
+	}
 
-  main_w = window_new(GTK_WINDOW_TOPLEVEL, Title);
-  gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
+	main_w = window_new(GTK_WINDOW_TOPLEVEL, Title);
+	gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
 
-  /* Container for paned windows  */
-  main_vbox = gtk_vbox_new(FALSE, 1);
-  gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);
-  gtk_container_add(GTK_CONTAINER(main_w), main_vbox);
-  gtk_widget_show(main_vbox);
+	/* Container for paned windows  */
+	main_vbox = gtk_vbox_new(FALSE, 1);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);
+	gtk_container_add(GTK_CONTAINER(main_w), main_vbox);
+	gtk_widget_show(main_vbox);
 
-  /* Panes for the tree and byte view */
-  pane = gtk_vpaned_new();
-  gtk_container_add(GTK_CONTAINER(main_vbox), pane);
-  gtk_widget_show(pane);
+	/* Panes for the tree and byte view */
+	pane = gtk_vpaned_new();
+	gtk_container_add(GTK_CONTAINER(main_vbox), pane);
+	gtk_widget_show(pane);
 
-  /* Tree view */
-  tv_scrollw = main_tree_view_new(&prefs, &tree_view);
-  gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
-  gtk_widget_set_size_request(tv_scrollw, -1, TV_SIZE);
-  gtk_widget_show(tv_scrollw);
-  gtk_widget_show(tree_view);
+	/* Tree view */
+	tv_scrollw = main_tree_view_new(&prefs, &tree_view);
+	gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
+	gtk_widget_set_size_request(tv_scrollw, -1, TV_SIZE);
+	gtk_widget_show(tv_scrollw);
+	gtk_widget_show(tree_view);
 
-  /* Byte view */
-  bv_nb_ptr = byte_view_new();
-  gtk_paned_pack2(GTK_PANED(pane), bv_nb_ptr, FALSE, FALSE);
-  gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
-  gtk_widget_show(bv_nb_ptr);
+	/* Byte view */
+	bv_nb_ptr = byte_view_new();
+	gtk_paned_pack2(GTK_PANED(pane), bv_nb_ptr, FALSE, FALSE);
+	gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
+	gtk_widget_show(bv_nb_ptr);
 
-  DataPtr->main = main_w;
-  DataPtr->tv_scrollw = tv_scrollw;
-  DataPtr->tree_view = tree_view;
-  DataPtr->bv_nb_ptr = bv_nb_ptr;
-  detail_windows = g_list_append(detail_windows, DataPtr);
+	DataPtr->main = main_w;
+	DataPtr->tv_scrollw = tv_scrollw;
+	DataPtr->tree_view = tree_view;
+	DataPtr->bv_nb_ptr = bv_nb_ptr;
+	detail_windows = g_list_append(detail_windows, DataPtr);
 
-  /* load callback handlers */
-  g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
-                 "changed", G_CALLBACK(new_tree_view_selection_changed_cb), DataPtr);
-  g_signal_connect(tree_view, "button_press_event", G_CALLBACK(button_press_handler), NULL);
-  if (editable && DataPtr->frame->cap_len != 0) {
-    g_signal_connect(main_w, "key-press-event", G_CALLBACK(edit_pkt_win_key_pressed_cb), DataPtr);
-    /* XXX, popup-menu instead of row-activated? */
-    g_signal_connect(tree_view, "row-activated", G_CALLBACK(edit_pkt_tree_row_activated_cb), DataPtr);
-  }
-  g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
+	/* load callback handlers */
+	g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+			 "changed", G_CALLBACK(new_tree_view_selection_changed_cb), DataPtr);
+	g_signal_connect(tree_view, "button_press_event", G_CALLBACK(button_press_handler), NULL);
+	if (editable && DataPtr->frame->cap_len != 0) {
+		g_signal_connect(main_w, "key-press-event", G_CALLBACK(edit_pkt_win_key_pressed_cb), DataPtr);
+		/* XXX, popup-menu instead of row-activated? */
+		g_signal_connect(tree_view, "row-activated", G_CALLBACK(edit_pkt_tree_row_activated_cb), DataPtr);
+	}
+	g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
-  /* draw the protocol tree & print hex data */
-  add_byte_views(&(DataPtr->edt), tree_view, DataPtr->bv_nb_ptr);
-  proto_tree_draw(DataPtr->edt.tree, tree_view);
+	/* draw the protocol tree & print hex data */
+	add_byte_views(&(DataPtr->edt), tree_view, DataPtr->bv_nb_ptr);
+	proto_tree_draw(DataPtr->edt.tree, tree_view);
 
-  DataPtr->finfo_selected = NULL;
-  DataPtr->pd_offset = 0;
-  DataPtr->pd_bitoffset = 0;
-  gtk_widget_show(main_w);
+	DataPtr->finfo_selected = NULL;
+	DataPtr->pd_offset = 0;
+	DataPtr->pd_bitoffset = 0;
+	gtk_widget_show(main_w);
 }
 
 static void
 destroy_new_window(GtkObject *object _U_, gpointer user_data)
 {
-  struct PacketWinData *DataPtr = user_data;
+	struct PacketWinData *DataPtr = user_data;
 
-  detail_windows = g_list_remove(detail_windows, DataPtr);
-  epan_dissect_cleanup(&(DataPtr->edt));
-  g_free(DataPtr->pd);
-  g_free(DataPtr);
+	detail_windows = g_list_remove(detail_windows, DataPtr);
+	epan_dissect_cleanup(&(DataPtr->edt));
+	g_free(DataPtr->pd);
+	g_free(DataPtr);
 }
 
 /* called when a tree row is (un)selected in the popup packet window */
 static void
 new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 {
-    field_info   *finfo;
-    GtkWidget    *byte_view;
-    const guint8 *data;
-    guint         len;
-    GtkTreeModel *model;
-    GtkTreeIter   iter;
+	field_info   *finfo;
+	GtkWidget    *byte_view;
+	const guint8 *data;
+	guint         len;
+	GtkTreeModel *model;
+	GtkTreeIter   iter;
 
-    struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
+	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
-    /* if something is selected */
-    if (gtk_tree_selection_get_selected(sel, &model, &iter))
-    {
-        gtk_tree_model_get(model, &iter, 1, &finfo, -1);
-        if (!finfo) return;
+	/* if something is selected */
+	if (gtk_tree_selection_get_selected(sel, &model, &iter))
+	{
+		gtk_tree_model_get(model, &iter, 1, &finfo, -1);
+		if (!finfo) return;
 
-        set_notebook_page(DataPtr->bv_nb_ptr, finfo->ds_tvb);
-        byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
-        if (!byte_view)	/* exit if no hex window to write in */
-            return;
+		set_notebook_page(DataPtr->bv_nb_ptr, finfo->ds_tvb);
+		byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
+		if (!byte_view)	/* exit if no hex window to write in */
+			return;
 
-        data = get_byte_view_data_and_length(byte_view, &len);
-        if (data == NULL) {
-            data = DataPtr->pd;
-            len =  DataPtr->frame->cap_len;
-        }
+		data = get_byte_view_data_and_length(byte_view, &len);
+		if (data == NULL) {
+			data = DataPtr->pd;
+			len =  DataPtr->frame->cap_len;
+		}
 
-        DataPtr->finfo_selected = finfo;
+		DataPtr->finfo_selected = finfo;
 
-        DataPtr->pd_offset = 0;
-        DataPtr->pd_bitoffset = 0;
+		DataPtr->pd_offset = 0;
+		DataPtr->pd_bitoffset = 0;
 
-        if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
-            finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
-        {
-            /* I haven't really test if TVB subsets works, but why not? :> */
-            int pd_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
+		if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
+		    finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
+		{
+			/* I haven't really test if TVB subsets works, but why not? :> */
+			int pd_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
-            /* some code from packet_hex_print */
-            int finfo_offset = finfo->start;
-            int finfo_len = finfo->length;
+			/* some code from packet_hex_print */
+			int finfo_offset = finfo->start;
+			int finfo_len = finfo->length;
 
-            if (!(finfo_offset >= 0 && finfo_len > 0)) {
-                finfo_offset = finfo->appendix_start;
-                finfo_len = finfo->appendix_length;
-            }
+			if (!(finfo_offset >= 0 && finfo_len > 0)) {
+				finfo_offset = finfo->appendix_start;
+				finfo_len = finfo->appendix_length;
+			}
 
-            /* Don't care about things like bitmask or LE/BE, just point DataPtr->tvb_[bit]offset to proper offsets. */
-            if (finfo_offset >= 0 && finfo_len > 0) {
-                DataPtr->pd_offset = pd_offset + finfo_offset;
-                DataPtr->pd_bitoffset = 0; /* XXX */
-            }
+			/* Don't care about things like bitmask or LE/BE, just point DataPtr->tvb_[bit]offset to proper offsets. */
+			if (finfo_offset >= 0 && finfo_len > 0) {
+				DataPtr->pd_offset = pd_offset + finfo_offset;
+				DataPtr->pd_bitoffset = 0; /* XXX */
+			}
 
-            if (DataPtr->pd_offset < 0)
-                DataPtr->pd_offset = 0;
-            if ((guint)DataPtr->pd_offset >= DataPtr->frame->cap_len)
-                DataPtr->pd_offset = 0;
-        }
+			if (DataPtr->pd_offset < 0)
+				DataPtr->pd_offset = 0;
+			if ((guint)DataPtr->pd_offset >= DataPtr->frame->cap_len)
+				DataPtr->pd_offset = 0;
+		}
 
-        packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
-    }
-    else
-    {
-        DataPtr->finfo_selected = NULL;
+		packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
+	}
+	else
+	{
+		DataPtr->finfo_selected = NULL;
 
-        byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
-        if (!byte_view)	/* exit if no hex window to write in */
-            return;
+		byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
+		if (!byte_view)	/* exit if no hex window to write in */
+			return;
 
-        data = get_byte_view_data_and_length(byte_view, &len);
-        g_assert(data != NULL);
-        packet_hex_reprint(byte_view);
-    }
+		data = get_byte_view_data_and_length(byte_view, &len);
+		g_assert(data != NULL);
+		packet_hex_reprint(byte_view);
+	}
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */
