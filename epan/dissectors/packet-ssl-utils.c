@@ -1764,10 +1764,6 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     key_block.data_len = needed;
     key_block.data = g_malloc(needed);
-    if (!key_block.data) {
-        ssl_debug_printf("ssl_generate_keyring_material can't allocate key_block (len %d)\n", needed);
-        return -1;
-    }
     ssl_debug_printf("ssl_generate_keyring_material sess key generation\n");
     if (PRF(ssl_session,&ssl_session->master_secret,"key expansion",
             &ssl_session->server_random,&ssl_session->client_random,

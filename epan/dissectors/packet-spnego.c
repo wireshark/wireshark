@@ -1141,8 +1141,6 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 		tmp = buf;
 	} else {
 		tmp = g_malloc(rrc);
-		if (tmp == NULL)
-			return -1;
 	}
 
 	if (unrotate) {

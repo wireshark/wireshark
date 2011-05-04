@@ -559,10 +559,6 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				exit(10);
 			}
 			field=g_malloc(parenp-p+1);
-			if(!field){
-				fprintf(stderr, "tshark: Out of memory.\n");
-				exit(10);
-			}
 			memcpy(field, p, parenp-p);
 			field[parenp-p] = '\0';
 			flt=parenp + 1;

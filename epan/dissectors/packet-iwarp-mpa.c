@@ -310,9 +310,6 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 	mfree_buff_length = orig_length - (MPA_MARKER_LEN * num_markers);
 	mfree_buff = g_malloc(mfree_buff_length);
 
-	if (!mfree_buff)
-		THROW(OutOfMemoryError);
-
 	tot_copy = 0;
 	source_offset = 0;
 	cur_copy = marker_offset;
