@@ -194,9 +194,12 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 
 	/*
 	 * If -O is specified, only display the protocols which are in the
-	 * lookup table.
+	 * lookup table.  Only check on the first level: once we start printing
+	 * a tree, print the rest of the subtree.  Otherwise we won't print
+	 * subitems whose abbreviation doesn't match the protocol--for example
+	 * text items (whose abbreviation is simply "text").
 	 */
-	if (output_only_tables != NULL
+	if (output_only_tables != NULL && pdata->level == 0
 	 && g_hash_table_lookup(output_only_tables, fi->hfinfo->abbrev) == NULL) {
 	  pdata->success = TRUE;
 	  return;
@@ -648,7 +651,7 @@ static void csv_write_str(const char *str, char sep, FILE *fh)
     csv_str = csv_massage_str(str, NULL);
     fprintf(fh, "\"%s\"%c", csv_str, sep);
     g_free(csv_str);
-}    
+}
 
 void
 proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
