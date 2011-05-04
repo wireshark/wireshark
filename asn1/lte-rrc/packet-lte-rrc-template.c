@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"

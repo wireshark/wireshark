@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -93,7 +94,7 @@ static guint32 lte_rrc_rat_type_value = -1;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 52 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 53 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1368,7 +1369,7 @@ static int hf_lte_rrc_key_eNodeB_Star = -1;       /* Key_eNodeB_Star */
 static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 57 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 58 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2079,7 +2080,7 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 95 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 96 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 
@@ -14344,6 +14345,9 @@ static const per_sequence_t CounterCheck_sequence[] = {
 
 static int
 dissect_lte_rrc_CounterCheck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck ");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CounterCheck, CounterCheck_sequence);
 
@@ -14464,6 +14468,9 @@ static const per_sequence_t UEInformationRequest_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_UEInformationRequest_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationRequest-r9 ");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UEInformationRequest_r9, UEInformationRequest_r9_sequence);
 
@@ -16170,14 +16177,16 @@ dissect_lte_rrc_T_ueCapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, a
                                        NO_BOUND, NO_BOUND, FALSE, &ue_eutra_cap_tvb);
 
 
+
 if(ue_eutra_cap_tvb){
 	guint32 length;
 	proto_item *item;
 	proto_tree *subtree;
+	guint8 byte;
 	switch(lte_rrc_rat_type_value){
 	case 0:
 		/* eutra */
-		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,actx->pinfo, tree);
+		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
 		break;
 	case 1:
 		/* utra */
@@ -16188,6 +16197,16 @@ if(ue_eutra_cap_tvb){
 		/* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
 		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, 5, "Mobile Station Classmark 2");
 		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+		byte = tvb_get_guint8(ue_eutra_cap_tvb, 0);
+		if (byte != 0x33) {
+			expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+				"Unexpected type value (found 0x%02X)", byte);
+		}
+		byte = tvb_get_guint8(ue_eutra_cap_tvb, 1);
+		if (byte != 0x03) {
+			expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+				"Unexpected length value (found %d)", byte);
+		}
 		de_ms_cm_2(ue_eutra_cap_tvb, subtree, actx->pinfo, 2, 3, NULL, 0);
 		/* Mobile Station Classmark 3 is formatted as V */
 		length = tvb_length(ue_eutra_cap_tvb)-5;
@@ -16210,7 +16229,6 @@ if(ue_eutra_cap_tvb){
 	default:
 		break;
 	}
-
 }
 
   return offset;
@@ -16785,6 +16803,7 @@ static int
 dissect_lte_rrc_CounterCheckResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse ");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CounterCheckResponse, CounterCheckResponse_sequence);
 
@@ -17064,6 +17083,9 @@ static const per_sequence_t UEInformationResponse_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_UEInformationResponse_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationResponse-r9 ");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UEInformationResponse_r9, UEInformationResponse_r9_sequence);
 
@@ -17221,6 +17243,9 @@ static const per_sequence_t ProximityIndication_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_ProximityIndication_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "ProximityIndication-r9 ");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_ProximityIndication_r9, ProximityIndication_r9_sequence);
 
@@ -19303,7 +19328,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 232 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 233 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -24443,7 +24468,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 307 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 308 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -25251,7 +25276,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 442 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 443 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
   };
@@ -25287,7 +25312,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 462 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 463 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 
