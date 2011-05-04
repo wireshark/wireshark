@@ -423,6 +423,7 @@ proto_register_png(void)
 	proto_png = proto_register_protocol("Portable Network Graphics","PNG","png");
 	proto_register_field_array(proto_png, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	new_register_dissector("png", dissect_png, proto_png);
 }
 
 static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

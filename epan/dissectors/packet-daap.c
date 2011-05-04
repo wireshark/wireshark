@@ -36,6 +36,10 @@
 /* DAAP tags */
 /* Some information taken from http://tapjam.net/daap/ */
 /* and http://www.deleet.de/projekte/daap/?ContentCodes */
+/* DACP tags */
+/* Information from http://dacp.jsharkey.org/ */
+/* and http://code.google.com/p/tunesremote-plus/ */
+
 /* Container tags */
 #define daap_mcon       0x6d636f6e
 #define daap_msrv       0x6d737276
@@ -60,6 +64,9 @@
 #define daap_prsv       0x70727376
 #define daap_arif       0x61726966
 #define daap_mctc       0x6d637463
+#define dacp_casp       0x63617370
+#define dacp_cmst       0x636d7374
+#define dacp_cmgt       0x636d6774
 /* String tags */
 #define daap_minm       0x6d696e6d
 #define daap_msts       0x6d737473
@@ -89,12 +96,18 @@
 #define daap_asaa       0x61736161
 #define daap_aspu       0x61737075
 #define daap_aeCR       0x61654352
+#define dacp_cana       0x63616e61
+#define dacp_cang       0x63616e67
+#define dacp_canl       0x63616e6c
+#define dacp_cann       0x63616e6e
+
 /* uint64 tags */
 #define daap_mper       0x6d706572
 #define daap_aeGU       0x61654755
 #define daap_aeGR       0x61654752
 #define daap_asai       0x61736169
 #define daap_asls       0x61736c73
+
 /* uint32 tags */
 #define daap_mstt       0x6d737474
 #define daap_musr       0x6d757372
@@ -131,6 +144,10 @@
 #define daap_aeGD       0x61654744
 #define daap_aeGE       0x61654745
 #define daap_meds       0x6d656473
+#define dacp_cmsr       0x636d7372
+#define dacp_cant       0x63616e74
+#define dacp_cast       0x63617374
+#define dacp_cmvo       0x636d766f
 /*TODO:
 #define daap_msto               0x6d7374OO utcoffset
 */
@@ -164,6 +181,11 @@
 #define daap_asgp       0x61736770
 #define daap_aePS       0x61655053
 #define daap_asbk       0x6173626b
+#define dacp_cafs       0x63616673
+#define dacp_caps       0x63617073
+#define dacp_carp       0x63617270
+#define dacp_cash       0x63617368
+#define dacp_cavs       0x63617673
 /* boolean  tags */
 #define daap_mslr       0x6d736c72
 #define daap_msal       0x6d73616c
@@ -182,12 +204,18 @@
 /* version (32-bit)*/
 #define daap_mpro       0x6d70726f
 #define daap_apro       0x6170726f
+/* now playing */
+#define dacp_canp       0x63616e70
+
+#define daap_png        0x89504e47
 /* date/time */
 /* TODO:
 #define daap_mstc 0xMMSSTTCC utctime
 #define daap_asdr ("daap.songdatereleased")
 #define daap_asdp ("daap.songdatepurchased")
 */
+
+static dissector_handle_t png_handle;
 
 /*XXX: Sorted by value definition since it appears that the "value" is just */
 /*     the ascii representation of the last 4 letters of the definition.    */
@@ -281,6 +309,23 @@ static const value_string vals_tag_code[] = {
    { daap_asur, "song user rating" },
    { daap_asyr, "song year" },
    { daap_avdb, "server databases" },
+   { dacp_cafs, "fullscreen" },
+   { dacp_cana, "song artist" },
+   { dacp_cang, "song genre" },
+   { dacp_canl, "song album" },
+   { dacp_cann, "song name" },
+   { dacp_canp, "now playing" },
+   { dacp_cant, "song time remaining (milliseconds)" },
+   { dacp_caps, "play status" },
+   { dacp_carp, "repeat" },
+   { dacp_cash, "shuffle" },
+   { dacp_casp, "speakers container" },
+   { dacp_cast, "song time total (milliseconds)" },
+   { dacp_cavs, "visualizer" },
+   { dacp_cmgt, "container (cmgt)" },
+   { dacp_cmsr, "status revision" },
+   { dacp_cmst, "control container" },
+   { dacp_cmvo, "volume" },
    { daap_mbcl, "bag (mbcl)" },
    { daap_mccr, "content codes response" },
    { daap_mcna, "content codes name" },
@@ -347,9 +392,17 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti;
    proto_tree *daap_tree;
+   guint first_tag = 0;
    gboolean is_request = (pinfo->destport == TCP_PORT_DAAP);
 
+   first_tag = tvb_get_ntohl(tvb, 0);
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
+
+   /* This catches album art coming back from iTunes */
+   if (first_tag == daap_png) {
+      call_dissector(png_handle, tvb, pinfo, tree);
+      return;
+   }
 
    /*
     * XXX - what if the body is gzipped?  This isn't the only protocol
@@ -439,6 +492,9 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case daap_abgn:
       case daap_prsv:
       case daap_arif:
+      case dacp_casp:
+      case dacp_cmgt:
+      case dacp_cmst:
          /* Container tags */
          new_tree = proto_item_add_subtree(ti, ett_daap_sub);
          new_tvb  = tvb_new_subset(tvb, offset, len, len);    /* Use a new tvb so bounds checking        */
@@ -477,6 +533,10 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case daap_asaa:
       case daap_aspu:
       case daap_aeCR:
+      case dacp_cana:
+      case dacp_cang:
+      case dacp_canl:
+      case dacp_cann:
          /* Tags contain strings */
          proto_item_append_text(ti, "; Data: %s",
                                 tvb_format_text(tvb, offset, tagsize));
@@ -539,6 +599,10 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case daap_aeGH:
       case daap_aeGD:
       case daap_aeGE:
+      case dacp_cant:
+      case dacp_cast:
+      case dacp_cmsr:
+      case dacp_cmvo:
       case daap_meds:
          /* Tags conain uint32 */
          proto_item_append_text(ti, "; Data: %d",
@@ -577,6 +641,11 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       case daap_aprm:
       case daap_asgp:
       case daap_aePS:
+      case dacp_cafs:
+      case dacp_caps:
+      case dacp_carp:
+      case dacp_cash:
+      case dacp_cavs:
          /* Tags conain uint8 */
          proto_item_append_text(ti, "; Data: %d",
                                 tvb_get_guint8(tvb, offset));
@@ -613,6 +682,17 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
                                 tvb_get_guint8(tvb, offset+2),
                                 tvb_get_guint8(tvb, offset+3));
          break;
+
+      case dacp_canp:
+         /* now playing */
+         /* bytes  4-7  contain uint32 playlist id */
+         /* bytes 12-15 contain uint32 track id */
+         proto_item_append_text(ti, 
+                                "; unknown: %d, playlist id: %d, unknown: %d, track id: %d",
+                                tvb_get_ntohl(tvb, offset),
+                                tvb_get_ntohl(tvb, offset+4),
+                                tvb_get_ntohl(tvb, offset+8),
+                                tvb_get_ntohl(tvb, offset+12));
 
       default:
          break;
@@ -663,4 +743,6 @@ proto_reg_handoff_daap(void)
 
    daap_handle = create_dissector_handle(dissect_daap, proto_daap);
    http_dissector_add(TCP_PORT_DAAP, daap_handle);
+   
+   png_handle = find_dissector("png");
 }
