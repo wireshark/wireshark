@@ -593,7 +593,7 @@ dns_type_description (guint type)
   if (short_name == NULL) {
     return ep_strdup_printf("Unknown (%u)", type);
   }
-  if (type < sizeof(type_names)/sizeof(type_names[0]))
+  if (type < array_length(type_names))
     long_name = type_names[type];
   else {
     /* special cases */

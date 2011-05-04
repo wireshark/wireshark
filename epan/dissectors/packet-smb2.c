@@ -4379,7 +4379,7 @@ static struct create_context_data_dissectors*
 get_create_context_data_dissectors(const char *tag)
 {
 	size_t i;
-	for (i=0; i<sizeof(create_context_dissectors_array)/sizeof(create_context_dissectors_array[0]); i++) {
+	for (i=0; i<array_length(create_context_dissectors_array); i++) {
 		if (!strcmp(tag, create_context_dissectors_array[i].tag))
 			return &create_context_dissectors_array[i].dissectors;
 	}

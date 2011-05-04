@@ -3733,7 +3733,7 @@ dcm_init(void)
     /* Add UID objects to hash table */
     if (dcm_uid_table == NULL) {
 	dcm_uid_table = g_hash_table_new(g_str_hash, g_str_equal);
-	for (i = 0; i < sizeof(dcm_uid_data) / sizeof(dcm_uid_t); i++) {
+	for (i = 0; i < array_length(dcm_uid_data); i++) {
 	    g_hash_table_insert(dcm_uid_table, (gpointer) dcm_uid_data[i].value,
 	    (gpointer) &dcm_uid_data[i]);
 	}
@@ -3742,7 +3742,7 @@ dcm_init(void)
     /* Add Tag objects to hash table */
     if (dcm_tag_table == NULL) {
 	dcm_tag_table = g_hash_table_new(NULL, NULL);
-	for (i = 0; i < sizeof(dcm_tag_data) / sizeof(dcm_tag_t); i++) {
+	for (i = 0; i < array_length(dcm_tag_data); i++) {
 	    g_hash_table_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
 	    (gpointer) &dcm_tag_data[i]);
 	}
@@ -3751,7 +3751,7 @@ dcm_init(void)
    /* Add Status Values to hash table */
     if (dcm_status_table == NULL) {
 	dcm_status_table = g_hash_table_new(NULL, NULL);
-	for (i = 0; i < sizeof(dcm_status_data) / sizeof(dcm_status_t); i++) {
+	for (i = 0; i < array_length(dcm_status_data); i++) {
 	    g_hash_table_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
 	    (gpointer)&dcm_status_data[i]);
 	}

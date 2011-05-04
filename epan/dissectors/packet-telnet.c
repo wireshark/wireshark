@@ -1516,7 +1516,7 @@ static tn_opt options[] = {
 
 };
 
-#define	NOPTIONS	(sizeof options / sizeof options[0])
+#define	NOPTIONS	array_length(options)
 
 static int
 telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)

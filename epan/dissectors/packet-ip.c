@@ -1114,7 +1114,7 @@ static const ip_tcp_opt ipopts[] = {
   }
 };
 
-#define N_IP_OPTS	(sizeof ipopts / sizeof ipopts[0])
+#define N_IP_OPTS	array_length(ipopts)
 
 /* Dissect the IP or TCP options in a packet. */
 void

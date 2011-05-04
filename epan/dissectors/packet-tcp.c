@@ -3377,7 +3377,7 @@ static const ip_tcp_opt tcpopts[] = {
         }
 };
 
-#define N_TCP_OPTS  (sizeof tcpopts / sizeof tcpopts[0])
+#define N_TCP_OPTS  array_length(tcpopts)
 
 /* Determine if there is a sub-dissector and call it; return TRUE
    if there was a sub-dissector, FALSE otherwise.

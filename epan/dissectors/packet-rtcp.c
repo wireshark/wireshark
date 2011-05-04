@@ -1452,9 +1452,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				packet_len -= 4;
 
 				/* One SDES item for every set flag in contents array */
-				for ( i = 0;
-				      i < sizeof(contents) / sizeof(contents[0]);
-				      ++i ) {
+				for ( i = 0; i < array_length(contents); ++i ) {
 					if ( contents[i] ) {
 						guint sdes_type2, sdes_len2;
 						/* (sdes_type2 not currently used...).  Could complain if type

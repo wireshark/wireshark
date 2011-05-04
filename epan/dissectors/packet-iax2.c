@@ -286,7 +286,7 @@ static const voip_call_state tap_cmd_voip_state[] = {
   VOIP_UNKNOWN,   /*TKOFFHK*/
   VOIP_UNKNOWN    /*OFFHOOK*/
 };
-#define NUM_TAP_CMD_VOIP_STATES (sizeof tap_cmd_voip_state / sizeof tap_cmd_voip_state[0])
+#define NUM_TAP_CMD_VOIP_STATES array_length(tap_cmd_voip_state)
 
 /* Subclassess for Modem packets */
 static const value_string iax_modem_subclasses[] = {

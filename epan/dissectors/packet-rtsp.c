@@ -290,7 +290,7 @@ static const char *rtsp_methods[] = {
 	"TEARDOWN"
 };
 
-#define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
+#define RTSP_NMETHODS	array_length(rtsp_methods)
 
 static gboolean
 is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
