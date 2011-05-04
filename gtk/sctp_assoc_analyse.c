@@ -25,7 +25,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -122,7 +121,6 @@ static void on_chunk_stat_bt(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 	sctp_assoc_info_t* assinfo = NULL;
 	int i;
 
-	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
 	for (i=0; i<NUM_CHUNKS; i++)
@@ -149,7 +147,6 @@ static void on_chunk1_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
 sctp_assoc_info_t* assinfo = NULL;
 
-	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
 	u_data->assoc = assinfo;
@@ -160,7 +157,6 @@ static void on_chunk2_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
 sctp_assoc_info_t* assinfo=NULL;
 
-	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
 	u_data->assoc = assinfo;
