@@ -3011,16 +3011,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         /* Only update once every 500ms so as not to overload slow displays.
          * This also prevents too much context-switching between the dumpcap
          * and wireshark processes.
-	 */
+         */
 #define DUMPCAP_UPD_TIME 500
 
 #ifdef WIN32
-	cur_time = GetTickCount();
-	if ( (cur_time - upd_time) > DUMPCAP_UPD_TIME) {
+        cur_time = GetTickCount();
+        if ( (cur_time - upd_time) > DUMPCAP_UPD_TIME) {
 #else
-	gettimeofday(&cur_time, NULL);
-	if ((cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
-	    (upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000)) {
+        gettimeofday(&cur_time, NULL);
+        if ((cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
+            (upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000)) {
 #endif
 
             upd_time = cur_time;
