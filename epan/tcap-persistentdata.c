@@ -30,7 +30,6 @@
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/emem.h>
@@ -131,7 +130,7 @@ static GHashTable *tcaphash_ansi = NULL;
 guint32 tcapsrt_global_SessionId=1;
 
 /*
- * DEBUG fonctions
+ * DEBUG functions
  */
 #undef MEM_TCAPSRT
 /* #define MEM_TCAPSRT */
@@ -1231,7 +1230,6 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   struct tcaphash_begin_info_key_t tcaphash_begin_key;
   struct tcaphash_begincall_t *p_tcaphash_begincall;
   struct tcaphash_end_info_key_t tcaphash_end_key;
-  struct tcaphash_endcall_t *p_tcaphash_endcall;
   proto_item *pi;
   proto_item *stat_item=NULL;
   proto_tree *stat_tree=NULL;
@@ -1302,8 +1300,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dbg(10,"New Ckey %lx ",tcaphash_cont_key.hashKey);
       dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
-      p_tcaphash_contcall = create_tcaphash_cont(&tcaphash_cont_key,
-						 p_tcaphash_begincall->context);
+      create_tcaphash_cont(&tcaphash_cont_key,
+                           p_tcaphash_begincall->context);
 
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
       if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
@@ -1322,8 +1320,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dbg(10,"New Ekey %lx ",tcaphash_end_key.hashKey);
       dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
-      p_tcaphash_endcall = create_tcaphash_end(&tcaphash_end_key,
-					       p_tcaphash_begincall->context);
+      create_tcaphash_end(&tcaphash_end_key,
+                          p_tcaphash_begincall->context);
 
     } else { /* Begin not found */
 #ifdef DEBUG_TCAPSRT
