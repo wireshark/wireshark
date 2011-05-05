@@ -1137,11 +1137,10 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 
 	left = len - rrc;
 
-	if (rrc <= sizeof(buf)) {
+	if (rrc <= sizeof(buf))
 		tmp = buf;
-	} else {
+	else
 		tmp = g_malloc(rrc);
-	}
 
 	if (unrotate) {
 		memcpy(tmp, data, rrc);

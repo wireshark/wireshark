@@ -2328,8 +2328,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (p_conv_data)
 			{
 				/* Save this conversation info into packet info */
-				p_conv_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
-				memcpy(p_conv_packet_data, p_conv_data,
+				p_conv_packet_data = se_memdup(p_conv_data,
 				       sizeof(struct _rtcp_conversation_info));
 
 				p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);

@@ -528,12 +528,9 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     if (p_channel_status == NULL) {
         createdChannel = TRUE;
 
-        /* Allocate a new key and value */
-        p_channel_key = se_alloc(sizeof(pdcp_channel_hash_key));
+        /* Allocate a new value and duplicate key contents */
         p_channel_status = se_alloc0(sizeof(pdcp_channel_status));
-
-        /* Copy key contents */
-        memcpy(p_channel_key, &channel_key, sizeof(pdcp_channel_hash_key));
+        p_channel_key = se_memdup(&channel_key, sizeof(pdcp_channel_hash_key));
 
         /* Add entry */
         g_hash_table_insert(pdcp_sequence_analysis_channel_hash, p_channel_key, p_channel_status);
