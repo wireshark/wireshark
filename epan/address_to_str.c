@@ -172,13 +172,14 @@ ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
 		words[i / 2] = (src[i+1] << 0);
 		words[i / 2] |= (src[i] << 8);
 	}
-	best.base = -1;
-	cur.base = -1;
+	best.base = -1; best.len = 0;
+	cur.base = -1;  cur.len = 0;
 	for (i = 0; i < 8; i++) {
 		if (words[i] == 0) {
-			if (cur.base == -1)
-				cur.base = i, cur.len = 1;
-			else
+			if (cur.base == -1) {
+				cur.base = i;
+				cur.len = 1;
+			} else
 				cur.len++;
 		} else {
 			if (cur.base != -1) {
