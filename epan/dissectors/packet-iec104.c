@@ -499,8 +499,8 @@ static void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 *offset, pro
   guint16 ms;
   ms = tvb_get_letohs( tvb , *offset );
   (*offset) += 2;
-  cp56t->cp56t_s = (int)floor(ms/1000);
-  cp56t->cp56t_ms = (int)(ms-(cp56t->cp56t_s*1000));
+  cp56t->cp56t_s = ms / 1000;
+  cp56t->cp56t_ms = ms % 1000;
 
   cp56t->cp56t_min = tvb_get_guint8(tvb, *offset);
   /* "Invalid" -- Todo: test */
