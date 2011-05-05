@@ -260,8 +260,8 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   const gchar *filter_text;
 #if GTK_CHECK_VERSION(2,6,0)
 #else
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
+  GtkTreeIter   iter;
+  GtkTreeModel *model;
 #endif
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
@@ -340,9 +340,9 @@ set_if_capabilities(gboolean monitor_mode_changed)
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
   gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
 #endif
-  
+
   if(!entry_text)
-	  entry_text = '\0';
+    entry_text = '\0';
 
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
@@ -954,19 +954,19 @@ update_interface_list()
       return;
     }
 
-	/* Empty the interface combo box */
-	model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
-	n_interfaces = gtk_tree_model_iter_n_children(model,NULL);
-	while(i < n_interfaces){
-		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), i);
-	}
+    /* Empty the interface combo box */
+    model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
+    n_interfaces = gtk_tree_model_iter_n_children(model,NULL);
+    while(i < n_interfaces){
+      gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), i);
+    }
 
   } else if (iftype == CAPTURE_IFREMOTE) {
     /* New remote interface */
     iftype_combo_box_add (iftype_cbx);
   }
   combo_list = build_capture_combo_list(if_list, TRUE);
-  for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {  
+  for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {
       gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
   }
 
@@ -1148,7 +1148,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   port_te = gtk_entry_new();
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(port_te, "Enter the TCP port number used by RPCAP server at remote host "
-			      "(leave it empty for default port number).");
+                              "(leave it empty for default port number).");
 #else
   gtk_tooltips_set_tip(tooltips, port_te,
                        "Enter the TCP port number used by RPCAP server at remote host "
@@ -1575,8 +1575,8 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   const gchar *filter_text;
 #if GTK_CHECK_VERSION(2,6,0)
 #else
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
+  GtkTreeIter   iter;
+  GtkTreeModel *model;
 #endif
 
   pd = pcap_open_dead(global_capture_opts.linktype, DUMMY_SNAPLENGTH);
@@ -1851,7 +1851,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     if_device = g_strdup(prefs.capture_device);
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
       if_info = (if_info_t*)if_entry->data;
-      if (strcmp(if_info->name, get_if_name(if_device)) == 0) { 
+      if (strcmp(if_info->name, get_if_name(if_device)) == 0) {
         global_capture_opts.iface = g_strdup(get_if_name(if_device));
         /* Warning: see capture_prep_cb() */
         /* XXX: Could the following code be changed to use the if_list obtained above instead  */
@@ -1872,20 +1872,20 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if_cb = gtk_combo_box_entry_new_text();
   combo_list = build_capture_combo_list(if_list, TRUE);
   if (combo_list != NULL){
-	for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {  
-		gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
-		/* Do we have a prefered if(if_device != NULL), 
-		 * if we do compare to the entry we are making 
-		 * and make that entry active if they are equal.
-		 */
-		if((if_device)&&(strcmp(if_device, combo_list_entry->data) == 0)) {
-			gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),if_index);
-		}
-		if_index++;
-	}
-	if(!if_device)
-		/* If we did not have an prefered interface make the first one active */
-		gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
+    for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
+      /* Do we have a prefered if(if_device != NULL),
+       * if we do compare to the entry we are making
+       * and make that entry active if they are equal.
+       */
+      if((if_device)&&(strcmp(if_device, combo_list_entry->data) == 0)) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),if_index);
+      }
+      if_index++;
+    }
+    if(!if_device)
+      /* If we did not have an prefered interface make the first one active */
+      gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
   }
   /* If we allocated the string free it */
   g_free(if_device);
@@ -1906,7 +1906,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   free_interface_list(if_list);
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(if_cb,
-"Choose which interface (network adapter) will be used to capture packets from. Be sure to select the correct one, as it's a common mistake to select the wrong interface.");			      
+"Choose which interface (network adapter) will be used to capture packets from. Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
 #else
   gtk_tooltips_set_tip(tooltips, if_cb,
     "Choose which interface (network adapter) will be used to capture packets from. "
@@ -1925,7 +1925,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                        "assigned to the selected interface.  If there are "
                        "more addresses than will fit in the window, the "
                        "first few and the last few will be shown with \"...\" "
-		       "between them.");
+                       "between them.");
 #else
   gtk_tooltips_set_tip(tooltips, if_ip_eb, "Lists the IP address(es) "
                        "assigned to the selected interface.  If there are "
@@ -2006,7 +2006,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
-    "See the FAQ for some more details of capturing packets from a switched network.");			      
+    "See the FAQ for some more details of capturing packets from a switched network.");
 #else
   gtk_tooltips_set_tip(tooltips, promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
@@ -2060,7 +2060,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format. "
-			      "This is still experimental.");
+                              "This is still experimental.");
 #else
   gtk_tooltips_set_tip(tooltips, pcap_ng_cb, "Capture packets in the next-generation capture file format. "
                        "This is still experimental.", NULL);
@@ -2078,7 +2078,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
-    "link-layer header and all subsequent headers. ");			      
+    "link-layer header and all subsequent headers. ");
 #else
   gtk_tooltips_set_tip(tooltips, snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
@@ -2108,7 +2108,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(filter_bt,
     "Select a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it."
-			      );			      
+    );
 #else
   gtk_tooltips_set_tip(tooltips, filter_bt,
     "Select a capture filter to reduce the amount of packets to be captured. "
@@ -2128,18 +2128,18 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
 
   if (cfilter_list != NULL){
-	for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {  
-		gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), cf_entry->data);
-	}
+    for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), cf_entry->data);
+    }
   }
   if (global_capture_opts.cfilter)
-	gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), global_capture_opts.cfilter);
+    gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), global_capture_opts.cfilter);
 
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it."
-			      );
+    );
 #else
   gtk_tooltips_set_tip(tooltips, filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
@@ -2156,7 +2156,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(compile_bt, "clicked", G_CALLBACK(capture_filter_compile_cb), NULL);
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(compile_bt,
-   "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");	      
+   "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");
 #else /* GTK_CHECK_VERSION(2,12,0) */
   gtk_tooltips_set_tip(tooltips, compile_bt,
     "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.",
@@ -3062,8 +3062,8 @@ capture_dlg_prep(gpointer parent_w) {
   gint32 tmp;
 #if GTK_CHECK_VERSION(2,6,0)
 #else
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
+  GtkTreeIter   iter;
+  GtkTreeModel *model;
 #endif
 
   if_cb      = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
@@ -3116,9 +3116,9 @@ capture_dlg_prep(gpointer parent_w) {
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
   gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
 #endif
-  
+
   if(!entry_text)
-	  entry_text = '\0';
+    entry_text = '\0';
 
   if_text = g_strstrip(entry_text);
   if_name = get_if_name(if_text);
@@ -3390,18 +3390,16 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor _U_, gpointer argp _U_)
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
-  GtkWidget *if_cb,
-            *snap_cb, *snap_sb,
+  GtkWidget *snap_cb, *snap_sb,
             *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
             *file_duration_cb, *file_duration_sb, *file_duration_cbx,
-            *sync_cb, *auto_scroll_cb, *hide_info_cb,
+            *sync_cb, *auto_scroll_cb, /* *hide_info_cb, */
             *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_cbx,
             *stop_duration_cb, *stop_duration_sb, *stop_duration_cbx,
             *stop_files_cb, *stop_files_sb, *stop_files_lb;
 
-  if_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
   snap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
   multi_files_on_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
@@ -3416,7 +3414,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   file_duration_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CBX_KEY);
   sync_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
-  hide_info_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_HIDE_INFO_KEY);
+  /*hide_info_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_HIDE_INFO_KEY);*/
   stop_packets_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_CB_KEY);
   stop_packets_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_SB_KEY);
   stop_packets_lb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_LB_KEY);
