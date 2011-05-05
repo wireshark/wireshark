@@ -2636,8 +2636,8 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 
 #ifdef _WIN32
 /* Isolate the Universally Unique Identifier from the interface.  Basically, we
- * want to grab only the characters between the '{' and '}' delimiters. 
- * 
+ * want to grab only the characters between the '{' and '}' delimiters.
+ *
  * Returns a GString that must be freed with g_string_free(). */
 static GString *
 isolate_uuid(const char *iface)
@@ -2765,12 +2765,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 }
 
 
-#ifdef _WIN32
-#define TIME_GET() GetTickCount()
-#else
-#define TIME_GET() time(NULL)
-#endif
-
 /* Do the work of handling either the file size or file duration capture
    conditions being reached, and switching files or stopping. */
 static gboolean
@@ -2837,7 +2831,11 @@ do_file_switch_or_stop(capture_options *capture_opts,
 static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-    time_t      upd_time, cur_time;
+#ifdef WIN32
+    time_t upd_time, cur_time;
+#else
+    struct timeval upd_time, cur_time;
+#endif
     int         err_close;
     int         inpkts;
     condition  *cnd_file_duration = NULL;
@@ -2963,7 +2961,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     }
 
     /* init the time values */
-    upd_time = TIME_GET();
+#ifdef WIN32
+    upd_time = GetTickCount();
+#else
+    gettimeofday(&upd_time, NULL);
+#endif
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running!");
 
@@ -3006,16 +3008,21 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
         } /* inpkts */
 
-        /* Only update once a second (Win32: 500ms) so as not to overload slow
-         * displays. This also prevents too much context-switching between the
-         * dumpcap and wireshark processes */
-#ifdef _WIN32
+        /* Only update once every 500ms so as not to overload slow displays.
+         * This also prevents too much context-switching between the dumpcap
+         * and wireshark processes.
+	 */
 #define DUMPCAP_UPD_TIME 500
+
+#ifdef WIN32
+	cur_time = GetTickCount();
+	if ( (cur_time - upd_time) > DUMPCAP_UPD_TIME) {
 #else
-#define DUMPCAP_UPD_TIME 0
+	gettimeofday(&cur_time, NULL);
+	if ((cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
+	    (upd_time.tv_sec * 1000000 + upd_time.tv_usec + DUMPCAP_UPD_TIME*1000)) {
 #endif
-        cur_time = TIME_GET();
-        if ( (cur_time - upd_time) > DUMPCAP_UPD_TIME) {
+
             upd_time = cur_time;
 
 #if 0
