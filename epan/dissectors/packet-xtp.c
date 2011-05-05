@@ -609,7 +609,7 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
 	guint32 len = tvb_length_remaining(tvb, offset);
 	guint32 start = offset;
-	proto_item *top_ti, *ti;
+	proto_item *top_ti;
 	proto_tree *xtp_subtree;
 	struct xtp_ecntl ecntl[1];
 	guint64	*spans, *p;
@@ -688,7 +688,7 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb, offset, 4, ecntl->echo);
 	offset += 4;
 	/* nspan(4) */
-	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_nspan,
+	proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_nspan,
 				tvb, offset, 4, ecntl->nspan);
 	offset += 4;
 	/* spans(16n) */
