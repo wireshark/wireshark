@@ -42,7 +42,7 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
-
+#include "gtk/stock_icons.h"
 
 static int
 ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -89,8 +89,24 @@ register_tap_listener_ipx_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,ipx", gtk_ipx_hostlist_init,NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	register_stat_menu_item_stock(
+		REGISTER_STAT_GROUP_ENDPOINT_LIST,		/* Group */
+		"/Menubar/StatisticsMenu/EndpointListMenu/Endpoint-List-item", /* GUI path */
+		"IPX",                              /* Name */
+		WIRESHARK_STOCK_ENDPOINTS,          /* stock_id */
+		"IPX",                              /* label */
+		NULL,                               /* accelerator */
+		NULL,                               /* tooltip */
+		G_CALLBACK(gtk_ipx_hostlist_cb),    /* callback */
+		TRUE,                               /* enabled */
+		NULL,                               /* selected_packet_enabled */
+		NULL,                               /* selected_tree_row_enabled */
+		NULL);                              /* callback_data */
+
+#else
 	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);
-
+#endif
 	register_hostlist_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_hostlist_packet);
 }
