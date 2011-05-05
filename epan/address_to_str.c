@@ -66,6 +66,7 @@
 
 /* private to_str.c API, don't export to .h! */
 char *word_to_hex(char *out, guint16 word);
+char *word_to_hex_npad(char *out, guint16 word);
 char *dword_to_hex_punct(char *out, guint32 dword, char punct);
 char *dword_to_hex(char *out, guint32 dword);
 char *bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
@@ -126,13 +127,9 @@ remove this one later when every call has been converted to ep_address_to_str()
 */
 gchar *
 ip6_to_str(const struct e_in6_addr *ad) {
-#ifndef INET6_ADDRSTRLEN
-#define INET6_ADDRSTRLEN 46
-#endif
   gchar *str;
 
-  str=ep_alloc(INET6_ADDRSTRLEN+1);
-
+  str=ep_alloc(MAX_IP6_STR_LEN);
   ip6_to_str_buf(ad, str);
   return str;
 }
@@ -143,15 +140,102 @@ tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
 {
   gchar *buf;
 
-  buf=ep_alloc(INET6_ADDRSTRLEN+1);
+  buf=ep_alloc(MAX_IP6_STR_LEN);
   ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPV6_LENGTH), buf);
   return buf;
+}
+
+/* const char *
+ * inet_ntop6(src, dst, size)
+ *	convert IPv6 binary address into presentation (printable) format
+ * author:
+ *	Paul Vixie, 1996.
+ */
+static void
+ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
+{
+	struct { int base, len; } best, cur;
+	guint words[8];
+	int i;
+
+	if (buf_len < MAX_IP6_STR_LEN) {	/* buf_len < 40 */
+		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		return;
+	}
+
+	/*
+	 * Preprocess:
+	 *	Copy the input (bytewise) array into a wordwise array.
+	 *	Find the longest run of 0x00's in src[] for :: shorthanding.
+	 */
+	for (i = 0; i < 16; i += 2) {
+		words[i / 2] = (src[i+1] << 0);
+		words[i / 2] |= (src[i] << 8);
+	}
+	best.base = -1;
+	cur.base = -1;
+	for (i = 0; i < 8; i++) {
+		if (words[i] == 0) {
+			if (cur.base == -1)
+				cur.base = i, cur.len = 1;
+			else
+				cur.len++;
+		} else {
+			if (cur.base != -1) {
+				if (best.base == -1 || cur.len > best.len)
+					best = cur;
+				cur.base = -1;
+			}
+		}
+	}
+	if (cur.base != -1) {
+		if (best.base == -1 || cur.len > best.len)
+			best = cur;
+	}
+	if (best.base != -1 && best.len < 2)
+		best.base = -1;
+
+	/* Is this address an encapsulated IPv4? */
+	if (best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
+	{
+		/* best.len == 6 -> ::IPv4; 5 -> ::ffff:IPv4 */
+		buf = g_stpcpy(buf, "::");
+		if (best.len == 5)
+	    	buf = g_stpcpy(buf, "ffff:");
+		ip_to_str_buf(src + 12, buf, MAX_IP_STR_LEN);
+		/* max: 2 + 5 + 16 == 23 bytes */
+		return;
+	}
+
+	/*
+	 * Format the result.
+	 */
+	for (i = 0; i < 8; i++) {
+		/* Are we inside the best run of 0x00's? */
+		if (i == best.base) {
+			*buf++ = ':';
+			i += best.len;
+
+			/* Was it a trailing run of 0x00's? */
+			if (i == 8) {
+				*buf++ = ':';
+				break;
+			}
+		}
+		/* Are we following an initial run of 0x00s or any real hex? */
+		if (i != 0)
+			*buf++ = ':';
+
+		buf = word_to_hex_npad(buf, words[i]); /* max: 4B */
+		/* max: 8 * 4 + 7 == 39 bytes */
+	}
+	*buf = '\0';	/* 40 byte */
 }
 
 void
 ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
 {
-  inet_ntop(AF_INET6, (const guchar*)ad, buf, INET6_ADDRSTRLEN);
+  ip6_to_str_buf_len((const guchar*)ad, buf, MAX_IP6_STR_LEN);
 }
 
 gchar*
@@ -393,8 +477,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     ip_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_IPv6:
-    if ( inet_ntop(AF_INET6, addr->data, buf, buf_len) == NULL ) /* Returns NULL if no space and does not touch buf */
-    	g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
+    ip6_to_str_buf_len(addr->data, buf, buf_len);
     break;
   case AT_IPX:						/* 22 bytes */
     addrdata = addr->data;

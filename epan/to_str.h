@@ -33,6 +33,7 @@
 
 #define GUID_STR_LEN 37
 #define MAX_IP_STR_LEN 16
+#define MAX_IP6_STR_LEN 40
 #define MAX_ADDR_STR_LEN 256
 #define VINES_ADDR_LEN	6
 

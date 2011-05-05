@@ -173,7 +173,7 @@ typedef struct hashipv6 {
   gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
   gboolean          resolve;        /* */
   struct hashipv6   *next;
-  gchar             ip6[47];        /* XX */
+  gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
   gchar             name[MAXNAMELEN];
 } hashipv6_t;
 
