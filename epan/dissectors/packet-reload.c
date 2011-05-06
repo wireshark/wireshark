@@ -208,10 +208,10 @@ typedef struct _reload_conv_info_t {
 
 
 /* RELOAD Message classes = (message_code & 0x1) (response = request +1) */
-#define REQUEST         0x0001
-#define RESPONSE        0x0000
+#define RELOAD_REQUEST         0x0001
+#define RELOAD_RESPONSE        0x0000
 
-#define ERROR           0xffff
+#define RELOAD_ERROR           0xffff
 
 /* RELOAD Message Methods = (message_code +1) & 0xfffe*/
 #define METHOD_INVALID           0
@@ -376,8 +376,8 @@ static const fragment_items reload_frag_items = {
 
 
 static const value_string classes[] = {
-  {REQUEST,                                     "Request"},
-  {RESPONSE,                                    "Answer"},
+  {RELOAD_REQUEST,                              "Request"},
+  {RELOAD_RESPONSE,                             "Answer"},
   {0x00, NULL}
 };
 
@@ -1263,7 +1263,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* check whether the message is a request or a response */
 
-    if (IS_REQUEST(message_code) && (message_code != ERROR)) {
+    if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
       /* This is a request */
       if (reload_trans->req_frame == 0) {
         reload_trans->req_frame = pinfo->fd->num;
@@ -1290,7 +1290,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ti = proto_tree_add_item(tree, proto_reload, tvb, 0, -1, FALSE);
 
-  if (message_code == ERROR) {
+  if (message_code == RELOAD_ERROR) {
     error_code = tvb_get_ntohs(tvb, forwarding_length + 2);
     msg_class_str = "ERROR Response";
     col_add_fstr(pinfo->cinfo, COL_INFO, " %s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
@@ -1311,7 +1311,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   reload_tree = proto_item_add_subtree(ti, ett_reload);
 
   /* Retransmission control */
-  if (IS_REQUEST(message_code) && (message_code != ERROR)) {
+  if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
     if (reload_trans->req_frame != pinfo->fd->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
@@ -1561,7 +1561,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, 2 + 4 + message_body_length + 4 + extensions_length, FALSE);
     message_contents_tree = proto_item_add_subtree(ti_message_contents, ett_reload_message_contents);
 
-    if (message_code != ERROR) {
+    if (message_code != RELOAD_ERROR) {
       proto_item *ti_message_body;
       proto_tree *message_body_tree;
 
