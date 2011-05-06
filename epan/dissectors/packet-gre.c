@@ -642,7 +642,7 @@ proto_register_gre(void)
 	NULL, HFILL }},
     { &hf_gre_wccp_service_id,
       { "Service ID", "gre.wccp.service_id", 
-	FT_UINT8, BASE_DEC, VALS(&service_id_vals), 0x00,
+	FT_UINT8, BASE_DEC, VALS(service_id_vals), 0x00,
 	"Service Group identifier", HFILL }},
     { &hf_gre_wccp_alternative_bucket,
       { "Alternative Bucket", "gre.wccp.alternative_bucket", 

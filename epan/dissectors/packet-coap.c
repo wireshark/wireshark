@@ -455,13 +455,13 @@ proto_register_coap(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_coap_version, { "Version", "coap.version", FT_UINT8, BASE_DEC, NULL, 0xc0, "COAP Version", HFILL }},
-		{ &hf_coap_ttype, { "Type", "coap.type", FT_UINT8, BASE_DEC, VALS(&vals_ttype), 0x30, "COAP Transaction Type", HFILL }},
+		{ &hf_coap_ttype, { "Type", "coap.type", FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30, "COAP Transaction Type", HFILL }},
 		{ &hf_coap_opt_count, { "Option Count", "coap.optcount", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Count", HFILL }},
-		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
+		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(vals_code), 0x0, "COAP Method or Response Code", HFILL }},
 		{ &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
 		{ &hf_coap_opt_delta, { "Delta", "coap.opt.delta", FT_UINT8, BASE_DEC, NULL, 0xf0, "COAP Option Delta", HFILL }},
 		{ &hf_coap_opt_length, { "Length", "coap.opt.length", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Option Length", HFILL }},
-		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Content Type", HFILL }},
+		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(vals_ctype), 0x0, "COAP Content Type", HFILL }},
 		{ &hf_coap_opt_max_age, { "Max-age", "coap.opt.max_age", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Max-age", HFILL }},
 		{ &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
 		{ &hf_coap_opt_uri_authority, { "Uri-Authority", "coap.opt.uri_auth", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Authority", HFILL }},

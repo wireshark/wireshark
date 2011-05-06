@@ -1330,11 +1330,11 @@ void proto_register_synphasor(void)
 
 		{ &hf_data_statb05to04,
 		{ "Unlocked time", PROTOCOL_ABBREV  ".data.t_unlock", FT_UINT16, BASE_HEX,
-		  VALS(&data_statb05to04names), 0x0030, NULL, HFILL }},
+		  VALS(data_statb05to04names), 0x0030, NULL, HFILL }},
 
 		{ &hf_data_statb03to00,
 		{ "Trigger reason", PROTOCOL_ABBREV  ".data.trigger_reason", FT_UINT16, BASE_HEX,
-		  VALS(&data_statb03to00names), 0x000F, NULL, HFILL }},
+		  VALS(data_statb03to00names), 0x000F, NULL, HFILL }},
 
 	/* Data type for command frame */
 		{ &hf_command,

@@ -9501,7 +9501,7 @@ proto_register_bacapp(void)
 		{ &hf_BACnetApplicationTagNumber,
 			{ "Application Tag Number",
 			"bacapp.application_tag_number",
-			FT_UINT8, BASE_DEC, VALS(&BACnetApplicationTagNumber), 0xF0,
+			FT_UINT8, BASE_DEC, VALS(BACnetApplicationTagNumber), 0xF0,
 			NULL, HFILL }
 		},
 		{ &hf_BACnetContextTagNumber,
@@ -9519,13 +9519,13 @@ proto_register_bacapp(void)
 		{ &hf_BACnetNamedTag,
 			{ "Named Tag",
 			"bacapp.named_tag",
-			FT_UINT8, BASE_DEC, VALS(&BACnetTagNames), 0x07,
+			FT_UINT8, BASE_DEC, VALS(BACnetTagNames), 0x07,
 			NULL, HFILL }
 		},
 		{ &hf_BACnetCharacterSet,
 			{ "String Character Set",
 			"bacapp.string_character_set",
-			FT_UINT8, BASE_DEC, VALS(&BACnetCharacterSet),0,
+			FT_UINT8, BASE_DEC, VALS(BACnetCharacterSet),0,
 			NULL, HFILL }
 		},
 		{ &hf_BACnetTagClass,

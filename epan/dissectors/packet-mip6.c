@@ -2238,7 +2238,7 @@ proto_register_mip6(void)
 
     { &hf_mip6_ba_status,       { "Status", "mip6.ba.status",
                                   FT_UINT8, BASE_DEC,
-                                  VALS(&mip6_ba_status_value), 0,
+                                  VALS(mip6_ba_status_value), 0,
                                   "Binding Acknowledgement status", HFILL }},
     { &hf_mip6_ba_k_flag,       { "Key Management Compatibility (K) flag",
                                   "mip6.ba.k_flag",
@@ -2270,7 +2270,7 @@ proto_register_mip6(void)
 
     { &hf_mip6_be_status,       { "Status", "mip6.be.status",
                                   FT_UINT8, BASE_DEC,
-                                  VALS(&mip6_be_status_value), 0,
+                                  VALS(mip6_be_status_value), 0,
                                   "Binding Error status", HFILL }},
     { &hf_mip6_be_haddr,        { "Home Address", "mip6.be.haddr",
                                   FT_IPv6, BASE_NONE, NULL, 0,
@@ -2301,7 +2301,7 @@ proto_register_mip6(void)
 
     { &hf_fmip6_fback_status,   { "Status", "fmip6.fback.status",
                                   FT_UINT8, BASE_DEC,
-                                  VALS(&fmip6_fback_status_value), 0,
+                                  VALS(fmip6_fback_status_value), 0,
                                   "Fast Binding Acknowledgement status", HFILL }},
     { &hf_fmip6_fback_k_flag,   { "Key Management Compatibility (K) flag",
                                   "fmip6.fback.k_flag",

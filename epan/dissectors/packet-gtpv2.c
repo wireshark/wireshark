@@ -4365,22 +4365,22 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_CauseRadioNetwork,
         {"Radio Network Layer Cause","gtpv2.CauseRadioNetwork",
-        FT_UINT8, BASE_DEC, VALS(&s1ap_CauseRadioNetwork_vals),0x0,
+        FT_UINT8, BASE_DEC, VALS(s1ap_CauseRadioNetwork_vals),0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_CauseTransport,
         {"Transport Layer Cause","gtpv2.CauseTransport",
-        FT_UINT8, BASE_DEC, VALS(&s1ap_CauseTransport_vals),0x0,
+        FT_UINT8, BASE_DEC, VALS(s1ap_CauseTransport_vals),0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_CauseNas,
         {"NAS Cause","gtpv2.CauseNas",
-        FT_UINT8, BASE_DEC, VALS(&s1ap_CauseNas_vals),0x0,
+        FT_UINT8, BASE_DEC, VALS(s1ap_CauseNas_vals),0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_CauseMisc,
         {"Miscellaneous Cause","gtpv2.CauseMisc",
-        FT_UINT8, BASE_DEC, VALS(&s1ap_CauseMisc_vals),0x0,
+        FT_UINT8, BASE_DEC, VALS(s1ap_CauseMisc_vals),0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_target_type,
@@ -4395,7 +4395,7 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_CauseProtocol,
         {"Protocol Cause","gtpv2.CauseProtocol",
-        FT_UINT8, BASE_DEC, VALS(&s1ap_CauseProtocol_vals),0x0,
+        FT_UINT8, BASE_DEC, VALS(s1ap_CauseProtocol_vals),0x0,
         NULL, HFILL}
         },
         {&hf_gtpv2_apn_rest,

@@ -11720,7 +11720,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_tdls_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT8, BASE_DEC, VALS(&tdls_action_codes), 0,
+      FT_UINT8, BASE_DEC, VALS(tdls_action_codes), 0,
       "Management action code", HFILL }},
 
     {&hf_ieee80211_ff_target_channel,
@@ -11781,11 +11781,11 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     { &hf_ieee80211_prism_did_type,
-     {"DID", "prism.did.type", FT_UINT32, BASE_HEX, VALS(&prism_did_vals), 0x0,
+     {"DID", "prism.did.type", FT_UINT32, BASE_HEX, VALS(prism_did_vals), 0x0,
       "Different ID for each parameter", HFILL }},
 
     { &hf_ieee80211_prism_did_status,
-     {"Status", "prism.did.status", FT_UINT16, BASE_DEC, VALS(&prism_status_vals), 0x0,
+     {"Status", "prism.did.status", FT_UINT16, BASE_DEC, VALS(prism_status_vals), 0x0,
       "Supplied by the driver or not", HFILL }},
 
     { &hf_ieee80211_prism_did_length,
@@ -11825,7 +11825,7 @@ proto_register_ieee80211 (void)
       "In Mb/s", HFILL }},
 
     { &hf_ieee80211_prism_did_istx,
-     {"IsTX", "prism.did.istx", FT_UINT32, BASE_HEX, VALS(&prism_istx_vals), 0x0,
+     {"IsTX", "prism.did.istx", FT_UINT32, BASE_HEX, VALS(prism_istx_vals), 0x0,
       "Type of packet (RX or TX ?)", HFILL }},
 
     { &hf_ieee80211_prism_did_frmlen,
@@ -12492,11 +12492,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_mimo_cntrl_nc_index,
      {"Nc Index", "wlan_mgt.fixed.mimo.control.ncindex",
-      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
+      FT_UINT16, BASE_HEX, VALS(ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_nr_index,
      {"Nr Index", "wlan_mgt.fixed.mimo.control.nrindex",
-      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
+      FT_UINT16, BASE_HEX, VALS(ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_channel_width,
      {"Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
@@ -12504,15 +12504,15 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_mimo_cntrl_grouping,
      {"Grouping (Ng)", "wlan_mgt.fixed.mimo.control.grouping",
-      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_coefficient_size,
      {"Coefficient Size (Nb)", "wlan_mgt.fixed.mimo.control.cosize",
-      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_codebook_info,
      {"Codebook Information", "wlan_mgt.fixed.mimo.control.codebookinfo",
-      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment,
      {"Remaining Matrix Segment", "wlan_mgt.fixed.mimo.control.matrixseg",
@@ -12532,7 +12532,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_psmp_sta_info_type,
      {"Sta Info Type", "wlan_mgt.fixed.psmp.stainfo.type",
-      FT_UINT32, BASE_HEX, VALS(&ff_psmp_sta_info_flags), PSMP_STA_INFO_FLAG_TYPE, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, VALS(ff_psmp_sta_info_flags), PSMP_STA_INFO_FLAG_TYPE, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_dtt_start_offset,
      {"DTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.dttstart",
@@ -12608,7 +12608,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
      {"Channel Switch Mode", "wlan_mgt.fixed.extchansw.switchmode",
-      FT_UINT32, BASE_HEX, VALS(&ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0x000000FF, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, VALS(ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0x000000FF, NULL, HFILL }},
 
     {&hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class,
      {"New Regulatory Class", "wlan_mgt.fixed.extchansw.new.regclass",
@@ -12940,7 +12940,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_ft_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT8, BASE_DEC, VALS(&ft_action_codes), 0,
+      FT_UINT8, BASE_DEC, VALS(ft_action_codes), 0,
       "Management action code", HFILL }},
 
     {&hf_ieee80211_ff_sta_address,
@@ -12982,7 +12982,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_anqp_info_id,
      {"Info ID", "wlan_mgt.fixed.anqp.info_id",
-      FT_UINT16, BASE_DEC, VALS(&anqp_info_id_vals), 0,
+      FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
       "Access Network Query Protocol Info ID", HFILL }},
 
     {&hf_ieee80211_ff_anqp_info_length,
@@ -13001,7 +13001,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_sa_query_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT8, BASE_DEC, VALS(&sa_query_action_codes), 0,
+      FT_UINT8, BASE_DEC, VALS(sa_query_action_codes), 0,
       "Management action code", HFILL }},
 
     {&hf_ieee80211_ff_transaction_id,
@@ -13358,13 +13358,13 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_rsn_cap_ptksa_replay_counter,
      {"RSN PTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.ptksa_replay_counter",
-      FT_UINT16, BASE_HEX, VALS(&rsn_cap_replay_counter), 0x000C,
+      FT_UINT16, BASE_HEX, VALS(rsn_cap_replay_counter), 0x000C,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_gtksa_replay_counter,
      {"RSN GTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
-      FT_UINT16, BASE_HEX, VALS(&rsn_cap_replay_counter), 0x0030,
+      FT_UINT16, BASE_HEX, VALS(rsn_cap_replay_counter), 0x0030,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_mfpr,
