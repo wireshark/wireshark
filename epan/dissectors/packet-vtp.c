@@ -62,11 +62,13 @@ static int hf_vtp_802_10_index = -1;
 static int hf_vtp_vlan_name = -1;
 static int hf_vtp_vlan_tlvtype = -1;
 static int hf_vtp_vlan_tlvlength = -1;
+static gint hf_vtp_pruning_vid = -1;
 
 static gint ett_vtp = -1;
 static gint ett_vtp_vlan_info = -1;
 static gint ett_vtp_vlan_status = -1;
 static gint ett_vtp_tlv = -1;
+static gint ett_vtp_pruning = -1;
 
 static int
 dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree);
@@ -77,11 +79,13 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 #define SUMMARY_ADVERT		0x01
 #define SUBSET_ADVERT		0x02
 #define ADVERT_REQUEST		0x03
+#define JOIN_MSG		0x04
 
 static const value_string type_vals[] = {
-	{ SUMMARY_ADVERT, "Summary-Advert" },
-	{ SUBSET_ADVERT,  "Subset-Advert" },
-	{ ADVERT_REQUEST, "Advert-Request" },
+	{ SUMMARY_ADVERT, "Summary Advertisement" },
+	{ SUBSET_ADVERT,  "Subset Advertisement" },
+	{ ADVERT_REQUEST, "Advertisement Request" },
+	{ JOIN_MSG,       "Join/Prune Message" },
 	{ 0,              NULL },
 };
 
@@ -89,12 +93,13 @@ static void
 dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *vtp_tree = NULL;
+	proto_tree *vtp_tree = NULL, *vtp_pruning_tree = NULL;
 	int offset = 0;
 	guint8 code;
 	guint8 md_len;
 	const guint8 *upd_timestamp;
 	int vlan_info_len;
+	int pruning_vlan_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
 	col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
@@ -188,12 +193,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset, 2, FALSE);
 			break;
 
-		case 0x04:
-			/*
-			 * Mysterious type, seen a lot.
-			 * Is this some mutant variant of Advert-Request?
-			 */
-			offset += 1;	/* skip unknown field */
+		case JOIN_MSG:
+			offset += 1;	/* skip reserved/unused field */
 
 			md_len = tvb_get_guint8(tvb, offset);
 			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
@@ -204,12 +205,38 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    32, FALSE);
 			offset += 32;
 
-			offset += 2;	/* skip unknown field */
-
-			proto_tree_add_text(vtp_tree, tvb, offset, 2,
-			    "VLAN ID of some sort: 0x%04x",
-			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_item(vtp_tree, hf_vtp_pruning_vid, tvb, offset,
+			    2, FALSE);
+			pruning_vlan_id = tvb_get_ntohs(tvb, offset);
 			offset += 2;
+
+			proto_tree_add_item(vtp_tree, hf_vtp_pruning_vid, tvb, offset,
+			    2, FALSE);
+			offset += 2;
+
+			ti = proto_tree_add_text (vtp_tree, tvb, offset, -1,
+			    "Advertised active (i.e. not pruned) VLANs");
+			vtp_pruning_tree = proto_item_add_subtree(ti, ett_vtp_pruning);
+
+			while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			    guint8 vlan_usage_bitmap;
+			    int shift;
+
+			    vlan_usage_bitmap = tvb_get_guint8(tvb, offset);
+
+			    for (shift = 0; shift < 8; shift++) {
+				if (vlan_usage_bitmap & (1<<7)) {
+				    proto_tree_add_uint(vtp_pruning_tree, hf_vtp_pruning_vid,
+					tvb, offset, 1, pruning_vlan_id);
+				}
+
+				pruning_vlan_id += 1;
+				vlan_usage_bitmap <<= 1;
+			    }
+
+			    offset += 1;
+			}
+
 			break;
 		}
 	}
@@ -671,12 +698,17 @@ proto_register_vtp(void)
 		{ &hf_vtp_vlan_tlvlength,
 		{ "Length",	"vtp.vlan_info.tlv_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
+
+		{ &hf_vtp_pruning_vid,
+		{ "VLAN",	"vtp.pruning.vid", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Active (i.e. not pruned) VLAN ID", HFILL }}
         };
 	static gint *ett[] = {
 		&ett_vtp,
 		&ett_vtp_vlan_info,
 		&ett_vtp_vlan_status,
 		&ett_vtp_tlv,
+		&ett_vtp_pruning,
 	};
 
         proto_vtp = proto_register_protocol("Virtual Trunking Protocol",
