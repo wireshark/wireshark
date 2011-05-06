@@ -197,6 +197,29 @@ ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
 		best.base = -1;
 
 	/* Is this address an encapsulated IPv4? */
+	/* XXX, 
+	 * Orginal code dated 1996 uses ::/96 as a valid IPv4-compatible addresses
+	 * but since Feb 2006 ::/96 is deprecated one.
+	 * Quoting wikipedia [0]:
+	 * > The 96-bit zero-value prefix ::/96, originally known as IPv4-compatible 
+	 * > addresses, was mentioned in 1995[35] but first described in 1998.[41] 
+	 * > This class of addresses was used to represent IPv4 addresses within 
+	 * > an IPv6 transition technology. Such an IPv6 address has its first 
+	 * > (most significant) 96 bits set to zero, while its last 32 bits are the 
+	 * > IPv4 address that is represented. 
+	 * > In February 2006 the Internet Engineering Task Force (IETF) has deprecated 
+	 * > the use of IPv4-compatible addresses.[1] The only remaining use of this address 
+	 * > format is to represent an IPv4 address in a table or database with fixed size 
+	 * > members that must also be able to store an IPv6 address.
+	 *
+	 * If needed it can be fixed by changing next line:
+	 *   if (best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
+	 * to:
+	 *   if (best.base == 0 && best.len == 5 && words[5] == 0xffff)
+	 *
+	 * [0] http://en.wikipedia.org/wiki/IPv6_address#Historical_notes
+	 */
+
 	if (best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
 	{
 		/* best.len == 6 -> ::IPv4; 5 -> ::ffff:IPv4 */
