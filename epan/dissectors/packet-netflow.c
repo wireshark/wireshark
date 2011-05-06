@@ -329,7 +329,6 @@ static int      hf_cflow_direction = -1;
 static int      hf_cflow_if_name = -1;
 static int      hf_cflow_if_descr = -1;
 static int      hf_cflow_sampler_name = -1;
-static int      hf_cflow_forwarding_status_code = -1;
 static int      hf_cflow_forwarding_status = -1;
 static int      hf_cflow_forwarding_code = -1;
 static int      hf_cflow_nbar_appl_desc = -1;
@@ -1479,7 +1478,7 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 	int             cmd_len;
 	gchar *         cmd_str = NULL;
 	guint16         got_flags = 0;
-	
+
 	gboolean        vstr_long;
 	int             vstr_len;
 
@@ -1487,8 +1486,8 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 	const guint8 *reftime;
 	guint16 count = ipfix_scope_flag ? tplt->count_scopes : tplt->count;
 	struct v9_template_entry *entries = ipfix_scope_flag ? tplt->scopes : tplt->entries;
-	proto_tree *    fwdstattree = 0;	
-	
+	proto_tree *    fwdstattree = 0;
+
 	if (entries == NULL) {
 		/* I don't think we can actually hit this condition.
 		   If we can, what would cause it?  Does this need a
@@ -2137,8 +2136,7 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			/* Forwarding status is encoded on 1 byte with
 			 * the 2 left bits giving the status and the 6
 			 * remaining bits giving the reason code. */
-			ti = proto_tree_add_item(pdutree, hf_cflow_forwarding_status_code,
-			    tvb, offset, length, FALSE);
+			ti = proto_tree_add_text(pdutree, tvb, offset, length, "Forwarding Status");
 			fwdstattree = proto_item_add_subtree(ti, ett_fwdstat);
 			proto_tree_add_item(fwdstattree, hf_cflow_forwarding_status,
  			    tvb, offset, length, FALSE);
@@ -3263,7 +3261,7 @@ dissect_v9_pdu_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, i
 			proto_tree_add_item(pdutree, hf_cflow_aaa_username,
 				tvb, offset, length, FALSE);
 			break;
-			
+
                 /* CACE Technologies */
 		case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
 			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
@@ -3494,7 +3492,7 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 		tplt.scopes = se_alloc0(option_scope_len * sizeof(struct v9_template_entry));
 		tplt.entries = se_alloc0(option_len * sizeof(struct v9_template_entry));
 	}
-	
+
 	for(i=0, len = 0;
 	    flowset_id == 1 ? len < option_scope_len : i < tplt.count_scopes;
 	    i++) {
@@ -3969,9 +3967,9 @@ static const value_string v9_template_types[] = {
 	/* Cisco ASA5500 Series NetFlow */
 	{ 33000, "INGRESS_ACL_ID" },
 	{ 33001, "EGRESS_ACL_ID" },
-	{ 33002, "FW_EXT_EVENT" },	
+	{ 33002, "FW_EXT_EVENT" },
 	{ 40000, "AAA_USERNAME" },
-	{ 40001, "XLATE_SRC_ADDR_IPV4" },	
+	{ 40001, "XLATE_SRC_ADDR_IPV4" },
 	{ 40002, "XLATE_DST_ADDR_IPV4" },
 	{ 40003, "XLATE_SRC_PORT" },
 	{ 40004, "XLATE_DST_PORT" },
@@ -4012,7 +4010,7 @@ static const value_string v9_forwarding_status[] = {
 	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
 	{ 0, NULL }
 };
-static const value_string v9_forwarding_status_code[] = {	
+static const value_string v9_forwarding_status_code[] = {
 	{ 64, "Forwarded (Unknown)" },
 	{ 65, "Forwarded Fragmented" },
 	{ 66, "Forwarded not Fragmented" },
@@ -4052,7 +4050,7 @@ static const value_string v9_extended_firewall_event[] = {
 	{ 1001, "Flow denied by an ingress ACL"},
 	{ 1002, "Flow denied by an egress ACL"},
 	{ 1003, "Flow denied by security appliance"},
-	{ 1004, "Flow denied (TCP flow beginning with not TCP SYN)"},	
+	{ 1004, "Flow denied (TCP flow beginning with not TCP SYN)"},
 	{ 0, NULL }
 };
 static const value_string engine_type[] = {
@@ -4067,7 +4065,7 @@ static const value_string v9_flow_end_reason[] = {
 	{ 2, "Active timeout" },
 	{ 3, "End of Flow detected" },
 	{ 4, "Forced end" },
-	{ 5, "Lack of resources" },	
+	{ 5, "Lack of resources" },
 	{ 0, NULL }
 };
 static const value_string v9_biflow_direction[] = {
@@ -4086,7 +4084,7 @@ static const value_string selector_algorithm[] = {
 	{ 5, "Property match Filtering"},
 	{ 6, "Hash based Filtering using BOB"},
 	{ 7, " Hash based Filtering using IPSX"},
-	{ 8, "Hash based Filtering using CRC"},	
+	{ 8, "Hash based Filtering using CRC"},
 	{ 0, NULL }
 };
 

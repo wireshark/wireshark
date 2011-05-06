@@ -44,6 +44,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Netflow dissection stops prematurely.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5898">Bug
+          5898</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -71,7 +77,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-TCP
+Netflow,
 
     </para>
     </section>
