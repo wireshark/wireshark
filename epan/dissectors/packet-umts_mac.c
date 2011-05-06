@@ -420,12 +420,12 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-	pos = fpinf->cur_tb;
 	if (!macinf || !fpinf) {
 		proto_tree_add_text(dch_tree, tvb, 0, -1,
 			"Cannot dissect MAC frame because per-frame info is missing");
 		return;
 	}
+	pos = fpinf->cur_tb;
 	if (macinf->ctmux[pos]) {
 		proto_tree_add_bits_item(dch_tree, hf_mac_ct, tvb, 0, 4, FALSE);
 		bitoffs = 4;
