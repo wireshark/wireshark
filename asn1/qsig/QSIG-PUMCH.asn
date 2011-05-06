@@ -7,131 +7,131 @@
 -- $Id$
 --
 
-Private-User-Mobility-Call-Handling-Operations-asn1-97 
-  { iso (1) standard (0) pss1-pum-call-handling (17878) pum-call-handling-operations-asn1-97 (1)} 
- 
-DEFINITIONS EXPLICIT TAGS ::= 
- 
-BEGIN 
-IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
-    { joint-iso-itu-t remote-operations (4) informationObjects (5) version1 (0) } 
-  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
-    { iso (1) standard (0) 
-    pss1-generic-procedures (11582) msi-class-asn1-97(11) } 
-  PSS1InformationElement FROM PSS1-generic-parameters-definition-asn1-97 
-    { iso (1) standard (0) 
-    pss1-generic-procedures (11582) pss1-generic-parameters-asn1-97 (17) } 
-  Name FROM Name-Operations-asn1-97 
-    { iso (1) standard (0) 
-    pss1-name (13868) name-operations-asn1-97 (1) } 
- basicServiceNotProvided, invalidServedUserNr, notAvailable FROM  
-   General-Error-List 
-    { ccitt recommendation q 950 general-error-list (1) } 
-  Address, PartyNumber, PartySubaddress, PresentedNumberScreened FROM  
-   Addressing-Data-Elements-asn1-97 
-    { iso (1) standard (0) pss1-generic-procedures (11582)  
-    addressing-data-elements-asn1-97 (20) }; 
- 
-Private-User-Mobility-Call-Handling-Operations OPERATION ::= { pumiEnquiry | pumiDivert | pumiInform | 
-pumoCall } 
- 
--- Operations for ANF-PUMI: -- 
-pumiEnquiry     OPERATION ::= { 
-  -- Sent from the PUMI-detect PINX to the Home PINX. 
-   ARGUMENT  EnquiryArg 
-   RESULT  EnquiryRes 
-    ERRORS  { invalidServedUserNr | locationNotKnown |  
-      notAvailable | basicServiceNotProvided | unspecified } 
-   CODE  local: 93} 
-pumiDivert     OPERATION ::= { 
-  -- Sent from the PUMI-detect PINX to the Rerouteing PINX. 
-   ARGUMENT  DivertArg 
-   RESULT  DummyRes 
-    ERRORS  { notAvailable | unspecified } 
-   CODE  local: 94} 
+Private-User-Mobility-Call-Handling-Operations-asn1-97
+  { iso (1) standard (0) pss1-pum-call-handling (17878) pum-call-handling-operations-asn1-97 (1)}
 
-pumiInform     OPERATION ::= { 
-  -- Sent from the Rerouteing PINX to the Visitor PINX. 
-   ARGUMENT      InformArg 
-    RETURN RESULT     FALSE 
-    ALWAYS RESPONDS   FALSE 
-   CODE      local: 95} 
-EnquiryArg ::=    SEQUENCE   { pisnNumber    PartyNumber, 
-     -- The PISN number of the PUM user 
-     qSIGInfoElement  PSS1InformationElement, 
-  -- The basic call information elements Bearer capability, High layer compatibility, 
-  -- Low layer compatibility can be embedded in the qSIGInfoElement 
-  -- in accordance with clause 6.5.2.1. 
-      argExtension    PumiExtension OPTIONAL } 
-DivertArg ::=  SEQUENCE   { hostingAddr    PartyNumber, 
-     -- The PISN number of the hosting user, 
-      -- always a Complete Number.  
-     callingNumber    PresentedNumberScreened, 
-     pumIdentity    PumIdentity, 
-     -- The PISN number (always a Complete Number) 
-      -- and/or an alternative identifier of the PUM user. 
-     qSIGInfoElement  PSS1InformationElement, 
-  -- The basic call information elements Bearer capability, High layer compatibility, 
-  -- Low layer compatibility, and Progress indicator  
-  -- can be embedded in the qSIGInfoElement in accordance with clause 6.5.2.1. 
-      callingUserSub   [ 1 ] PartySubaddress OPTIONAL, 
-      callingUserName  [ 2 ] Name OPTIONAL, 
-      pumUserSub    [ 3 ] PartySubaddress OPTIONAL, 
-      argExtension    PumiExtension OPTIONAL } 
-InformArg ::=  SEQUENCE  { pumIdentity  PumIdentity, 
-     -- The PISN number (always a Complete Number) 
-      -- and/or an alternative identifier of the PUM user. 
-      argExtension    PumiExtension OPTIONAL } 
-EnquiryRes ::=  CHOICE  { currLocation    [ 1 ] IMPLICIT CurrLocation, 
-      cfuActivated    [ 2 ] IMPLICIT CfuActivated } 
-CurrLocation  ::=  SEQUENCE  { hostingAddr    PartyNumber, 
-     -- The PISN number of the hosting user, 
-      -- always a Complete Number.  
-     pumIdentity    PumIdentity, 
-     -- The PISN number (always a Complete Number) 
-      -- and/or an alternative identifier of the PUM user.  
-      argExtension    PumiExtension OPTIONAL } 
-CfuActivated  ::=  SEQUENCE  { divToAddress   Address, 
-     divOptions    SubscriptionOption, 
-      pumName    [ 1 ] Name OPTIONAL,  
-      argExtension     PumiExtension OPTIONAL } 
-SubscriptionOption ::=ENUMERATED  { noNotification (0), 
-     notificationWithoutDivertedToNr (1), 
-      notificationWithDivertedToNr (2) } 
+DEFINITIONS EXPLICIT TAGS ::=
 
-DummyRes ::=  CHOICE  { null    NULL, 
-      extension  [ 1 ] IMPLICIT Extension{{PUMCHExtSet}}, 
-      sequOfExtn  [ 2 ] IMPLICIT SEQUENCE OF  
-             Extension{{PUMCHExtSet}} } 
-PumiExtension ::= CHOICE  { extension  [ 4 ] IMPLICIT Extension{{PUMCHExtSet}}, 
-      sequOfExtn  [ 5 ] IMPLICIT SEQUENCE OF  
-             Extension{{PUMCHExtSet}} } 
-PumIdentity  ::=  CHOICE  { pisnNumber  PartyNumber, 
-      alternativeId  [ 10 ] IMPLICIT AlternativeId, 
-      both    [ 11 ] IMPLICIT SEQUENCE 
-         { pisnNumber  PartyNumber, 
-            alternativeId  AlternativeId } } 
-AlternativeId ::=  OCTET STRING(SIZE(1..20)) 
--- Operation for ANF-PUMO -- 
-pumoCall   OPERATION ::= { 
- ARGUMENT  PumoArg 
- ALWAYS RESPONDS  FALSE 
- RETURN RESULT  FALSE 
- CODE   local: 96} 
-PumoArg ::=   SEQUENCE   { destinationNumber  [0]  PartyNumber  OPTIONAL, 
-      pumIdentity    [1]  PumIdentity    OPTIONAL, 
-     -- The PISN number (always a Complete Number) 
-      -- and/or an alternative identifier of the PUM user.  
-      sendingComplete  [2]  IMPLICIT NULL  OPTIONAL, 
-      extension    CHOICE     
-      {single    [3] IMPLICIT Extension{{PUMCHExtSet}}, 
-      multiple    [4] IMPLICIT SEQUENCE OF  
-             Extension{{PUMCHExtSet}} } 
-              OPTIONAL    } 
-PUMCHExtSet EXTENSION ::= {...} 
- 
-locationNotKnown   ERROR  ::=  {  CODE    local: 1015} 
-unspecified    ERROR  ::=   {  PARAMETER  Extension{{PUMCHExtSet}} 
-         CODE   local: 1008} 
- 
+BEGIN
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
+    { joint-iso-itu-t remote-operations (4) informationObjects (5) version1 (0) }
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97
+    { iso (1) standard (0)
+    pss1-generic-procedures (11582) msi-class-asn1-97(11) }
+  PSS1InformationElement FROM PSS1-generic-parameters-definition-asn1-97
+    { iso (1) standard (0)
+    pss1-generic-procedures (11582) pss1-generic-parameters-asn1-97 (17) }
+  Name FROM Name-Operations-asn1-97
+    { iso (1) standard (0)
+    pss1-name (13868) name-operations-asn1-97 (1) }
+ basicServiceNotProvided, invalidServedUserNr, notAvailable FROM
+   General-Error-List
+    { ccitt recommendation q 950 general-error-list (1) }
+  Address, PartyNumber, PartySubaddress, PresentedNumberScreened FROM
+   Addressing-Data-Elements-asn1-97
+    { iso (1) standard (0) pss1-generic-procedures (11582)
+    addressing-data-elements-asn1-97 (20) };
+
+Private-User-Mobility-Call-Handling-Operations OPERATION ::= { pumiEnquiry | pumiDivert | pumiInform |
+pumoCall }
+
+-- Operations for ANF-PUMI: --
+pumiEnquiry     OPERATION ::= {
+  -- Sent from the PUMI-detect PINX to the Home PINX.
+   ARGUMENT  EnquiryArg
+   RESULT  EnquiryRes
+    ERRORS  { invalidServedUserNr | locationNotKnown |
+      notAvailable | basicServiceNotProvided | unspecified }
+   CODE  local: 93}
+pumiDivert     OPERATION ::= {
+  -- Sent from the PUMI-detect PINX to the Rerouteing PINX.
+   ARGUMENT  DivertArg
+   RESULT  DummyRes
+    ERRORS  { notAvailable | unspecified }
+   CODE  local: 94}
+
+pumiInform     OPERATION ::= {
+  -- Sent from the Rerouteing PINX to the Visitor PINX.
+   ARGUMENT      InformArg
+    RETURN RESULT     FALSE
+    ALWAYS RESPONDS   FALSE
+   CODE      local: 95}
+EnquiryArg ::=    SEQUENCE   { pisnNumber    PartyNumber,
+     -- The PISN number of the PUM user
+     qSIGInfoElement  PSS1InformationElement,
+  -- The basic call information elements Bearer capability, High layer compatibility,
+  -- Low layer compatibility can be embedded in the qSIGInfoElement
+  -- in accordance with clause 6.5.2.1.
+      argExtension    PumiExtension OPTIONAL }
+DivertArg ::=  SEQUENCE   { hostingAddr    PartyNumber,
+     -- The PISN number of the hosting user,
+      -- always a Complete Number.
+     callingNumber    PresentedNumberScreened,
+     pumIdentity    PumIdentity,
+     -- The PISN number (always a Complete Number)
+      -- and/or an alternative identifier of the PUM user.
+     qSIGInfoElement  PSS1InformationElement,
+  -- The basic call information elements Bearer capability, High layer compatibility,
+  -- Low layer compatibility, and Progress indicator
+  -- can be embedded in the qSIGInfoElement in accordance with clause 6.5.2.1.
+      callingUserSub   [ 1 ] PartySubaddress OPTIONAL,
+      callingUserName  [ 2 ] Name OPTIONAL,
+      pumUserSub    [ 3 ] PartySubaddress OPTIONAL,
+      argExtension    PumiExtension OPTIONAL }
+InformArg ::=  SEQUENCE  { pumIdentity  PumIdentity,
+     -- The PISN number (always a Complete Number)
+      -- and/or an alternative identifier of the PUM user.
+      argExtension    PumiExtension OPTIONAL }
+EnquiryRes ::=  CHOICE  { currLocation    [ 1 ] IMPLICIT CurrLocation,
+      cfuActivated    [ 2 ] IMPLICIT CfuActivated }
+CurrLocation  ::=  SEQUENCE  { hostingAddr    PartyNumber,
+     -- The PISN number of the hosting user,
+      -- always a Complete Number.
+     pumIdentity    PumIdentity,
+     -- The PISN number (always a Complete Number)
+      -- and/or an alternative identifier of the PUM user.
+      argExtension    PumiExtension OPTIONAL }
+CfuActivated  ::=  SEQUENCE  { divToAddress   Address,
+     divOptions    SubscriptionOption,
+      pumName    [ 1 ] Name OPTIONAL,
+      argExtension     PumiExtension OPTIONAL }
+SubscriptionOption ::=ENUMERATED  { noNotification (0),
+     notificationWithoutDivertedToNr (1),
+      notificationWithDivertedToNr (2) }
+
+DummyRes ::=  CHOICE  { null    NULL,
+      extension  [ 1 ] IMPLICIT Extension{{PUMCHExtSet}},
+      sequOfExtn  [ 2 ] IMPLICIT SEQUENCE OF
+             Extension{{PUMCHExtSet}} }
+PumiExtension ::= CHOICE  { extension  [ 4 ] IMPLICIT Extension{{PUMCHExtSet}},
+      sequOfExtn  [ 5 ] IMPLICIT SEQUENCE OF
+             Extension{{PUMCHExtSet}} }
+PumIdentity  ::=  CHOICE  { pisnNumber  PartyNumber,
+      alternativeId  [ 10 ] IMPLICIT AlternativeId,
+      both    [ 11 ] IMPLICIT SEQUENCE
+         { pisnNumber  PartyNumber,
+            alternativeId  AlternativeId } }
+AlternativeId ::=  OCTET STRING(SIZE(1..20))
+-- Operation for ANF-PUMO --
+pumoCall   OPERATION ::= {
+ ARGUMENT  PumoArg
+ RETURN RESULT  FALSE
+ ALWAYS RESPONDS  FALSE
+ CODE   local: 96}
+PumoArg ::=   SEQUENCE   { destinationNumber  [0]  PartyNumber  OPTIONAL,
+      pumIdentity    [1]  PumIdentity    OPTIONAL,
+     -- The PISN number (always a Complete Number)
+      -- and/or an alternative identifier of the PUM user.
+      sendingComplete  [2]  IMPLICIT NULL  OPTIONAL,
+      extension    CHOICE
+      {single    [3] IMPLICIT Extension{{PUMCHExtSet}},
+      multiple    [4] IMPLICIT SEQUENCE OF
+             Extension{{PUMCHExtSet}} }
+              OPTIONAL    }
+PUMCHExtSet EXTENSION ::= {...}
+
+locationNotKnown   ERROR  ::=  {  CODE    local: 1015}
+unspecified    ERROR  ::=   {  PARAMETER  Extension{{PUMCHExtSet}}
+         CODE   local: 1008}
+
 END  -- of Private-User-Mobility-Call-Handling-Operations-asn1-97

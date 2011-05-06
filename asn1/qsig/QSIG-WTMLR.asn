@@ -7,118 +7,118 @@
 -- $Id$
 --
 
-WTM-Location-Registration-Operations-asn1-97 
-  {iso standard pss1-location-registration (15429) wtlr-operations-asn1-97 (1)} 
- 
-DEFINITIONS EXPLICIT TAGS ::= 
- 
-BEGIN 
-IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
-   {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)} 
-  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
-   {iso standard 
-    pss1-generic-procedures (11582) msi-class-asn1-97(11)} 
-  notAvailable, invalidServedUserNr  
-   FROM General-Errors-List 
-    {ccitt recommendation q 950 general-error-list (1)} 
-  PartyNumber FROM Addressing-Data-Elements-asn1-97 
-    {iso(1) standard(0) pss1-generic-procedures(11582) 
-   addressing-data-elements-asn1-97(20)} 
-  BasicService FROM Call-Diversion-Operations-asn1-97 
-    { iso (1) standard (0) pss1-call-diversion (13873)  
-    call-diversion-operations-asn1-97 (1) };  
-WTMLR-Operations OPERATION ::= {locUpdate | locDelete | locDeReg | pisnEnquiry | getRRCInf | locInfoCheck} 
- 
-locUpdate   OPERATION ::={ 
-  -- Sent from the Visitor PINX to the Home PINX. 
-   ARGUMENT  LocUpdArg 
-   RESULT    DummyRes 
-    ERRORS    { invalidServedUserNr | notAuthorized | unspecified } 
-   CODE    local: 50} 
+WTM-Location-Registration-Operations-asn1-97
+  {iso standard pss1-location-registration (15429) wtlr-operations-asn1-97 (1)}
 
-locDelete   OPERATION ::= { 
-  -- Sent from the Home PINX to the previous Visitor PINX. 
-   ARGUMENT  LocDelArg 
-   RESULT    DummyRes 
-    ERRORS    { temporarilyUnavailable | unspecified } 
-   CODE    local: 51} 
-locDeReg   OPERATION ::= { 
-  -- Sent from the Visitor PINX to the Home PINX. 
-   ARGUMENT  LocDeRegArg 
-   RESULT    DummyRes 
-    ERRORS    { notAvailable | unspecified } 
-   CODE    local: 52} 
-pisnEnquiry   OPERATION ::= { 
-  -- Sent from the Visitor PINX to the previous Visitor PINX or a Directory PINX. 
-   ARGUMENT  PisnEnqArg 
-   RESULT    PisnEnqRes 
-    ERRORS    { invalidServedUserNr | unspecified} 
-   CODE    local: 53} 
-getRRCInf   OPERATION ::= { 
-  -- Sent from the Visitor PINX to the Home PINX. 
-   ARGUMENT  GetRRCInfArg 
-   RESULT    GetRRCInfRes 
-    ERRORS    { notAvailable | unspecified } 
-   CODE    local: 97} 
-locInfoCheck   OPERATION ::= { 
-  -- Sent from the Visitor PINX to the Home PINX or vice versa. 
-   ARGUMENT  LocInfoCheckArg 
-   RESULT    LocInfoCheckRes 
-    ERRORS    { notAvailable | unspecified } 
-   CODE    local: 98} 
-LocUpdArg ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      basicService  BasicService DEFAULT allServices, 
-      visitPINX    PartyNumber,  
-        -- The pisnNumber of the Visitor PINX,  
-        -- always a Complete Number.  
-      argExtension  LrExtension OPTIONAL } 
-DummyRes ::=  CHOICE     { null    NULL, 
-        extension  [ 1 ] IMPLICIT Extension{{WTMLRExtSet}}, 
-        sequOfExtn [ 2 ] IMPLICIT SEQUENCE OF  
-           Extension{{WTMLRExtSet}} } 
-LocDelArg ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      basicService  BasicService DEFAULT allServices, 
-      argExtension  LrExtension OPTIONAL } 
-LocDeRegArg ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      basicService  BasicService DEFAULT allServices, 
-      argExtension  LrExtension OPTIONAL } 
+DEFINITIONS EXPLICIT TAGS ::=
 
-PisnEnqArg ::=  SEQUENCE   { alternativeId AlternativeId, 
-        -- Can be a temporary identifier, e.g. Network Assigned 
-      -- Identity structure, or a fixed handset identifier. 
-      argExtension  LrExtension OPTIONAL } 
-PisnEnqRes ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      resExtension  LrExtension OPTIONAL } 
-GetRRCInfArg ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      basicService  BasicService DEFAULT allServices, 
-      argExtension  LrExtension OPTIONAL } 
-GetRRCInfRes ::=  SEQUENCE   { alternativeId AlternativeId OPTIONAL, 
-      rrClass    RRClass OPTIONAL,  
-      argExtension  LrExtension OPTIONAL } 
-LocInfoCheckArg ::=  SEQUENCE   { wtmUserId   WtmUserId, 
-      basicService  BasicService DEFAULT allServices, 
-      visitPINX    PartyNumber,  
-        -- The PISN number of the Visitor PINX, 
-        -- always a Complete Number.  
-      argExtension  LrExtension OPTIONAL } 
-LocInfoCheckRes ::=  SEQUENCE  { checkResult  CheckResult, 
-      argExtension  LrExtension OPTIONAL } 
-WtmUserId ::=  CHOICE    { pisnNumber  PartyNumber, 
-        -- The PISN number of the WTM user, 
-        -- always a Complete Number.  
-      alternativeId   AlternativeId } 
-AlternativeId ::=  OCTET STRING(SIZE(1..20)) 
-LrExtension ::=  CHOICE  { extension  [ 1 ] IMPLICIT Extension{{WTMLRExtSet}}, 
-      sequOfExtn [ 2 ] IMPLICIT SEQUENCE OF  
-         Extension{{WTMLRExtSet}} } 
-RRClass ::=  INTEGER (0..99)  
-CheckResult ::=  ENUMERATED  { locInfChk-correct (0), 
-      locInfChk-incorrect (1) } 
-WTMLRExtSet EXTENSION ::= {...} 
-notAuthorized    ERROR  ::=  {CODE local: 1007} 
-temporarilyUnavailable    ERROR  ::=  {CODE local: 1000} 
- 
-unspecified     ERROR ::=  { 
-     PARAMETER   Extension{{WTMLRExtSet}} 
-     CODE   local: 1008} 
-END  -- of WTM-Location-Registration-Operations-asn1-97 
+BEGIN
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
+   {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)}
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97
+   {iso standard
+    pss1-generic-procedures (11582) msi-class-asn1-97(11)}
+  notAvailable, invalidServedUserNr
+   FROM General-Error-List
+    {ccitt recommendation q 950 general-error-list (1)}
+  PartyNumber FROM Addressing-Data-Elements-asn1-97
+    {iso(1) standard(0) pss1-generic-procedures(11582)
+   addressing-data-elements-asn1-97(20)}
+  BasicService FROM Call-Diversion-Operations-asn1-97
+    { iso (1) standard (0) pss1-call-diversion (13873)
+    call-diversion-operations-asn1-97 (1) };
+WTMLR-Operations OPERATION ::= {locUpdate | locDelete | locDeReg | pisnEnquiry | getRRCInf | locInfoCheck}
+
+locUpdate   OPERATION ::={
+  -- Sent from the Visitor PINX to the Home PINX.
+   ARGUMENT  LocUpdArg
+   RESULT    DummyRes
+    ERRORS    { invalidServedUserNr | notAuthorized | unspecified }
+   CODE    local: 50}
+
+locDelete   OPERATION ::= {
+  -- Sent from the Home PINX to the previous Visitor PINX.
+   ARGUMENT  LocDelArg
+   RESULT    DummyRes
+    ERRORS    { temporarilyUnavailable | unspecified }
+   CODE    local: 51}
+locDeReg   OPERATION ::= {
+  -- Sent from the Visitor PINX to the Home PINX.
+   ARGUMENT  LocDeRegArg
+   RESULT    DummyRes
+    ERRORS    { notAvailable | unspecified }
+   CODE    local: 52}
+pisnEnquiry   OPERATION ::= {
+  -- Sent from the Visitor PINX to the previous Visitor PINX or a Directory PINX.
+   ARGUMENT  PisnEnqArg
+   RESULT    PisnEnqRes
+    ERRORS    { invalidServedUserNr | unspecified}
+   CODE    local: 53}
+getRRCInf   OPERATION ::= {
+  -- Sent from the Visitor PINX to the Home PINX.
+   ARGUMENT  GetRRCInfArg
+   RESULT    GetRRCInfRes
+    ERRORS    { notAvailable | unspecified }
+   CODE    local: 97}
+locInfoCheck   OPERATION ::= {
+  -- Sent from the Visitor PINX to the Home PINX or vice versa.
+   ARGUMENT  LocInfoCheckArg
+   RESULT    LocInfoCheckRes
+    ERRORS    { notAvailable | unspecified }
+   CODE    local: 98}
+LocUpdArg ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      basicService  BasicService DEFAULT allServices,
+      visitPINX    PartyNumber,
+        -- The pisnNumber of the Visitor PINX,
+        -- always a Complete Number.
+      argExtension  LrExtension OPTIONAL }
+DummyRes ::=  CHOICE     { null    NULL,
+        extension  [ 1 ] IMPLICIT Extension{{WTMLRExtSet}},
+        sequOfExtn [ 2 ] IMPLICIT SEQUENCE OF
+           Extension{{WTMLRExtSet}} }
+LocDelArg ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      basicService  BasicService DEFAULT allServices,
+      argExtension  LrExtension OPTIONAL }
+LocDeRegArg ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      basicService  BasicService DEFAULT allServices,
+      argExtension  LrExtension OPTIONAL }
+
+PisnEnqArg ::=  SEQUENCE   { alternativeId AlternativeId,
+        -- Can be a temporary identifier, e.g. Network Assigned
+      -- Identity structure, or a fixed handset identifier.
+      argExtension  LrExtension OPTIONAL }
+PisnEnqRes ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      resExtension  LrExtension OPTIONAL }
+GetRRCInfArg ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      basicService  BasicService DEFAULT allServices,
+      argExtension  LrExtension OPTIONAL }
+GetRRCInfRes ::=  SEQUENCE   { alternativeId AlternativeId OPTIONAL,
+      rrClass    RRClass OPTIONAL,
+      argExtension  LrExtension OPTIONAL }
+LocInfoCheckArg ::=  SEQUENCE   { wtmUserId   WtmUserId,
+      basicService  BasicService DEFAULT allServices,
+      visitPINX    PartyNumber,
+        -- The PISN number of the Visitor PINX,
+        -- always a Complete Number.
+      argExtension  LrExtension OPTIONAL }
+LocInfoCheckRes ::=  SEQUENCE  { checkResult  CheckResult,
+      argExtension  LrExtension OPTIONAL }
+WtmUserId ::=  CHOICE    { pisnNumber  PartyNumber,
+        -- The PISN number of the WTM user,
+        -- always a Complete Number.
+      alternativeId   AlternativeId }
+AlternativeId ::=  OCTET STRING(SIZE(1..20))
+LrExtension ::=  CHOICE  { extension  [ 1 ] IMPLICIT Extension{{WTMLRExtSet}},
+      sequOfExtn [ 2 ] IMPLICIT SEQUENCE OF
+         Extension{{WTMLRExtSet}} }
+RRClass ::=  INTEGER (0..99)
+CheckResult ::=  ENUMERATED  { locInfChk-correct (0),
+      locInfChk-incorrect (1) }
+WTMLRExtSet EXTENSION ::= {...}
+notAuthorized    ERROR  ::=  {CODE local: 1007}
+temporarilyUnavailable    ERROR  ::=  {CODE local: 1000}
+
+unspecified     ERROR ::=  {
+     PARAMETER   Extension{{WTMLRExtSet}}
+     CODE   local: 1008}
+END  -- of WTM-Location-Registration-Operations-asn1-97

@@ -16,19 +16,19 @@ DEFINITIONS EXPLICIT TAGS::=
 
 BEGIN
 
-IMPORTS           OPERATION, ERROR FROM 
-                       Remote-Operations-Information-Objects 
-                       {joint-iso-itu-t remote-operations (4) informationObjects (5) 
-                       version1 (0)} 
- 
-                  EXTENSION, Extension{} FROM  
-                       Manufacturer-specific-service-extension-class-asn1-97 
-                       {iso standard pss1-generic-procedures (11582)   
+IMPORTS           OPERATION, ERROR FROM
+                       Remote-Operations-Information-Objects
+                       {joint-iso-itu-t remote-operations (4) informationObjects (5)
+                       version1 (0)}
+
+                  EXTENSION, Extension{} FROM
+                       Manufacturer-specific-service-extension-class-asn1-97
+                       {iso standard pss1-generic-procedures (11582)
                        msi-class-asn1-97 (11)} ;
 
 -- The following two operations shall apply to SYNC-SIG
 
-Synchronization-Operations OPERATION ::= { synchronizationRequest | synchronizationInfo } 
+Synchronization-Operations OPERATION ::= { synchronizationRequest | synchronizationInfo }
 
 synchronizationRequest OPERATION ::= {
   ARGUMENT  SynchronizationReqArg
@@ -40,7 +40,7 @@ synchronizationRequest OPERATION ::= {
 synchronizationInfo OPERATION ::= {
   ARGUMENT  SynchronizationInfoArg
   CODE      local:79
-} 
+}
 
 SynchronizationReqArg ::= SEQUENCE {
   action        Action,
@@ -61,14 +61,14 @@ SynchronizationInfoArg ::= SEQUENCE {
 Action ::= INTEGER { enslavement(0), holdon (1)}
 
 ArgExtension::= CHOICE{
-  extension  [1] IMPLICIT Extension,
-  sequOfExtn [2] IMPLICIT SEQUENCE OF Extension 
+  extension  [1] IMPLICIT Extension{{SYNCExtSet}},
+  sequOfExtn [2] IMPLICIT SEQUENCE OF Extension{{SYNCExtSet}}
 }
 
-unspecified            ERROR ::= { 
-                       PARAMETER    Extension{{SYNCExtSet}} 
-                       CODE        local:1008} 
+unspecified            ERROR ::= {
+                       PARAMETER    Extension{{SYNCExtSet}}
+                       CODE        local:1008}
 
-SYNCExtSet     EXTENSION ::= {...} 
+SYNCExtSet     EXTENSION ::= {...}
 
 END -- of Synchronization-Operations-asn1-97

@@ -29,9 +29,10 @@ DISSECTOR_FILES = \
 
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
-EXT_ASN_FILE_LIST = 
+EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
+	General-Error-List.asn \
 	qsig-gf-ext.asn	\
 	qsig-gf-gp.asn	\
 	qsig-gf-ade.asn	\
@@ -74,8 +75,8 @@ SRC_FILES = \
 	$(EXT_ASN_FILE_LIST)
 
 # need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
-PROTO_OPT = 
+PROTO_OPT =
 A2W_FLAGS = -e
 
-EXTRA_CNF = 
+EXTRA_CNF =
 

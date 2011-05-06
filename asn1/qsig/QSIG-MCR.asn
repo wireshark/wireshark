@@ -7,165 +7,165 @@
 -- $Id$
 --
 
-SS-MCR-Operations-asn97 
-{iso (1) identified-organization (3) icd-ecma (12) standard (0)  
- qsig-make-call-request (344) make-call-request-operations (0)}  
- 
-DEFINITIONS EXPLICIT TAGS ::= 
- 
-BEGIN 
- 
-IMPORTS 
- 
-OPERATION,  
-ERROR 
-FROM Remote-Operations-Information-Objects 
-{ joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1 (0) } 
- 
-EXTENSION,  
-Extension {} 
-FROM Manufacturer-specific-service-extension-class-asn1-97 
-{ iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) } 
- 
-Name 
-FROM Name-Operations-asn1-97 
-{ iso (1) standard (0) pss1-name (13868) name-operations-asn1-97 (1) }  
- 
-BasicService  
-FROM Call-Diversion-Operations-asn1-97 
-{ iso (1) standard (0) pss1-call-diversion (13873)  
-  call-diversion-operations-asn1-97 (1) } 
- 
-basicServiceNotProvided,  
-supplementaryServiceInteractionNotAllowed,  
-userNotSubscribed  
-FROM General-Error-List  
-{itu-t (0) recommendation (0) q (17) 950 general-error-list (1)} 
- 
-PresentedAddressUnscreened 
-FROM Addressing-Data-Elements-asn1-97 
-{ iso (1) standard (0) pss1-generic-procedures (11582)  
-  addressing-data-elements-asn1-97 (20) } 
- 
-CallIdentity, establishmentFailure  
-FROM Path-Replacement-Operations-asn1-97  
-{iso (1) standard (0) pss1-path-replacement (13874) pr-operations-asn1-97(1)} 
-; 
- 
-Make-Call-Request-Operations OPERATION::= { 
- mCRequest | mCAlerting | mCInform } 
+SS-MCR-Operations-asn97
+{iso (1) identified-organization (3) icd-ecma (12) standard (0)
+ qsig-make-call-request (344) make-call-request-operations (0)}
 
-mCRequest   OPERATION ::= { 
-            ARGUMENT        MCRequestArg 
-            RESULT          MCRequestResult  
-            ERRORS         {userNotSubscribed| 
-                            basicServiceNotProvided| 
-                            supplementaryServiceInteractionNotAllowed| 
-                            invalidDestinationNumber| 
-                            invalidCooperationNumber| 
-                            mCRequestNotAllowed| 
-                            mCExecutionNotAllowed| 
-                            mCDestUserBusy| 
-                            mCCoopUserBusy| 
-                            mCCoopUserRejected| 
-                            establishmentFailure| 
-                            unspecified} 
-            CODE            local: 112 
-                         } 
- 
-mCInform    OPERATION ::= { 
-            ARGUMENT        MCInformArg 
-            RETURN RESULT   FALSE 
-            ALWAYS RESPONDS FALSE 
-            ERRORS         {userNotSubscribed| 
-                            basicServiceNotProvided| 
-                            supplementaryServiceInteractionNotAllowed| 
-                            invalidDestinationNumber| 
-                            mCExecutionNotAllowed| 
-                            mCDestUserBusy| 
-                            unspecified} 
-            CODE            local: 113 
-                           } 
- 
-mCAlerting  OPERATION ::= { 
-            ARGUMENT        MCAlertingArg 
-            RETURN RESULT   FALSE 
-            ALWAYS RESPONDS FALSE 
-            CODE            local: 114 
-                          } 
- 
-MCRequestArg    ::=     SEQUENCE 
-            { 
-            callType              CallType, 
-            retainOrigCall        BOOLEAN DEFAULT TRUE, 
-            destinationAddress    PresentedAddressUnscreened, 
-            requestingAddress     [0] PresentedAddressUnscreened OPTIONAL, 
-            cooperatingAddress    [1] PresentedAddressUnscreened OPTIONAL, 
-            correlation           Correlation, 
-            extensions            MCRExtensions     OPTIONAL, 
-            ... 
-            } 
- 
-MCRequestResult  ::=    SEQUENCE 
-            { 
-            extensions            MCRExtensions     OPTIONAL, 
-            ... 
-            } 
+DEFINITIONS EXPLICIT TAGS ::=
 
-MCInformArg        ::=    SEQUENCE 
-            { 
-            requestingAddress        [0] PresentedAddressUnscreened OPTIONAL, 
-            cooperatingAddress       [1] PresentedAddressUnscreened OPTIONAL, 
-            correlation              Correlation, 
-            extensions               MCRExtensions     OPTIONAL, 
-            ... 
-            } 
- 
-MCAlertingArg        ::=    SEQUENCE 
-            { 
-            correlation              Correlation, 
-            extensions               MCRExtensions     OPTIONAL, 
-            ... 
-            } 
-CallType        ::=    CHOICE  
-            { 
-            basicService             BasicService, 
-            cisc                     NULL 
-            } 
- 
-Correlation    ::=    SEQUENCE  
-            { 
-            correlationData          CallIdentity, 
-            correlationReason        CorrelationReason    OPTIONAL 
-            } 
-CorrelationReason    ::=    INTEGER 
-            { 
-            unknown             (0), 
-            mCACommunication    (1), 
-            cTIApplication      (2) 
-            } (0..255) 
- 
-MCRExtensions    ::= CHOICE  
-            { 
-            none        NULL, 
-            single      [0] IMPLICIT Extension   
-                            { { MakeCallRequestExtension } } ,  
-            multiple    [1] IMPLICIT SEQUENCE OF Extension  
-                            { { MakeCallRequestExtension } }  
-            }  
- 
-MakeCallRequestExtension EXTENSION::= {...} 
- 
-invalidDestinationNumber   ERROR ::= {CODE local : 1030}  
-invalidCooperationNumber   ERROR ::= {CODE local : 1031}  
-mCRequestNotAllowed        ERROR ::= {CODE local : 1032}  
-mCExecutionNotAllowed      ERROR ::= {CODE local : 1033}  
-mCDestUserBusy             ERROR ::= {CODE local : 1034}  
-mCCoopUserBusy             ERROR ::= {CODE local : 1035}  
-mCCoopUserRejected         ERROR ::= {CODE local : 1036}  
-unspecified                ERROR ::= {PARAMETER Extension  
-                               { { MakeCallRequestExtension } }  
-                           CODE local : 1008 
-                                      } 
- 
-END        -- of SS-MCR-Operations 
+BEGIN
+
+IMPORTS
+
+OPERATION,
+ERROR
+FROM Remote-Operations-Information-Objects
+{ joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1 (0) }
+
+EXTENSION,
+Extension {}
+FROM Manufacturer-specific-service-extension-class-asn1-97
+{ iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) }
+
+Name
+FROM Name-Operations-asn1-97
+{ iso (1) standard (0) pss1-name (13868) name-operations-asn1-97 (1) }
+
+BasicService
+FROM Call-Diversion-Operations-asn1-97
+{ iso (1) standard (0) pss1-call-diversion (13873)
+  call-diversion-operations-asn1-97 (1) }
+
+basicServiceNotProvided,
+supplementaryServiceInteractionNotAllowed,
+userNotSubscribed
+FROM General-Error-List
+{itu-t (0) recommendation (0) q (17) 950 general-error-list (1)}
+
+PresentedAddressUnscreened
+FROM Addressing-Data-Elements-asn1-97
+{ iso (1) standard (0) pss1-generic-procedures (11582)
+  addressing-data-elements-asn1-97 (20) }
+
+CallIdentity, establishmentFailure
+FROM Path-Replacement-Operations-asn1-97
+{iso (1) standard (0) pss1-path-replacement (13874) pr-operations-asn1-97(1)}
+;
+
+Make-Call-Request-Operations OPERATION::= {
+ mCRequest | mCAlerting | mCInform }
+
+mCRequest   OPERATION ::= {
+            ARGUMENT        MCRequestArg
+            RESULT          MCRequestResult
+            ERRORS         {userNotSubscribed|
+                            basicServiceNotProvided|
+                            supplementaryServiceInteractionNotAllowed|
+                            invalidDestinationNumber|
+                            invalidCooperationNumber|
+                            mCRequestNotAllowed|
+                            mCExecutionNotAllowed|
+                            mCDestUserBusy|
+                            mCCoopUserBusy|
+                            mCCoopUserRejected|
+                            establishmentFailure|
+                            unspecified}
+            CODE            local: 112
+                         }
+
+mCInform    OPERATION ::= {
+            ARGUMENT        MCInformArg
+            RETURN RESULT   FALSE
+            ERRORS         {userNotSubscribed|
+                            basicServiceNotProvided|
+                            supplementaryServiceInteractionNotAllowed|
+                            invalidDestinationNumber|
+                            mCExecutionNotAllowed|
+                            mCDestUserBusy|
+                            unspecified}
+            ALWAYS RESPONDS FALSE
+            CODE            local: 113
+                           }
+
+mCAlerting  OPERATION ::= {
+            ARGUMENT        MCAlertingArg
+            RETURN RESULT   FALSE
+            ALWAYS RESPONDS FALSE
+            CODE            local: 114
+                          }
+
+MCRequestArg    ::=     SEQUENCE
+            {
+            callType              CallType,
+            retainOrigCall        BOOLEAN DEFAULT TRUE,
+            destinationAddress    PresentedAddressUnscreened,
+            requestingAddress     [0] PresentedAddressUnscreened OPTIONAL,
+            cooperatingAddress    [1] PresentedAddressUnscreened OPTIONAL,
+            correlation           Correlation,
+            extensions            MCRExtensions     OPTIONAL,
+            ...
+            }
+
+MCRequestResult  ::=    SEQUENCE
+            {
+            extensions            MCRExtensions     OPTIONAL,
+            ...
+            }
+
+MCInformArg        ::=    SEQUENCE
+            {
+            requestingAddress        [0] PresentedAddressUnscreened OPTIONAL,
+            cooperatingAddress       [1] PresentedAddressUnscreened OPTIONAL,
+            correlation              Correlation,
+            extensions               MCRExtensions     OPTIONAL,
+            ...
+            }
+
+MCAlertingArg        ::=    SEQUENCE
+            {
+            correlation              Correlation,
+            extensions               MCRExtensions     OPTIONAL,
+            ...
+            }
+CallType        ::=    CHOICE
+            {
+            basicService             BasicService,
+            cisc                     NULL
+            }
+
+Correlation    ::=    SEQUENCE
+            {
+            correlationData          CallIdentity,
+            correlationReason        CorrelationReason    OPTIONAL
+            }
+CorrelationReason    ::=    INTEGER
+            {
+            unknown             (0),
+            mCACommunication    (1),
+            cTIApplication      (2)
+            } (0..255)
+
+MCRExtensions    ::= CHOICE
+            {
+            none        NULL,
+            single      [0] IMPLICIT Extension
+                            { { MakeCallRequestExtension } } ,
+            multiple    [1] IMPLICIT SEQUENCE OF Extension
+                            { { MakeCallRequestExtension } }
+            }
+
+MakeCallRequestExtension EXTENSION::= {...}
+
+invalidDestinationNumber   ERROR ::= {CODE local : 1030}
+invalidCooperationNumber   ERROR ::= {CODE local : 1031}
+mCRequestNotAllowed        ERROR ::= {CODE local : 1032}
+mCExecutionNotAllowed      ERROR ::= {CODE local : 1033}
+mCDestUserBusy             ERROR ::= {CODE local : 1034}
+mCCoopUserBusy             ERROR ::= {CODE local : 1035}
+mCCoopUserRejected         ERROR ::= {CODE local : 1036}
+unspecified                ERROR ::= {PARAMETER Extension
+                               { { MakeCallRequestExtension } }
+                           CODE local : 1008
+                                      }
+
+END        -- of SS-MCR-Operations

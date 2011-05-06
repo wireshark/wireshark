@@ -1,0 +1,86 @@
+-- Module General-Error-List (Q.950:06/2000)
+-- See also ITU-T Q.950 (06/2000)
+-- See also the index of all ASN.1 assignments needed in this document
+--
+-- $Id$
+--
+
+General-Error-List {itu-t recommendation q 950 general-error-list(1)}
+DEFINITIONS ::=
+BEGIN
+
+EXPORTS
+  userNotSubscribed, rejectedByNetwork, rejectedByUser, notAvailable,
+    insufficientInformation, invalidServedUserNr, invalidCallState,
+    basicServiceNotProvided, notIncomingCall,
+    supplementaryServiceInteractionNotAllowed, resourceUnavailable,
+    callFailure, proceduralError;
+
+IMPORTS
+  ERROR
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)};
+
+userNotSubscribed ERROR ::= {CODE  local:0
+}
+
+--	is an indication that the user has not subscribed to this service.
+rejectedByNetwork ERROR ::= {CODE  local:1
+}
+
+--	is an indication that the requested service is rejected by the network.
+rejectedByUser ERROR ::= {CODE  local:2
+}
+
+--	is an indication that the requested service is provided by the network but that the remote user has rejected this
+--	service request.
+notAvailable ERROR ::= {CODE  local:3
+}
+
+--	is an indication that the user has subscribed to this service but the requested service is not available combined
+--	with the basic service or the other services (e.g. operation).
+insufficientInformation ERROR ::= {CODE  local:5
+}
+
+--	is an indication that the content of operation argument is incomplete, or absent entirely.
+invalidServedUserNr ERROR ::= {CODE  local:6
+}
+
+--	is an indication that the requested service cannot be performed because of the usage of an invalid served user
+--	number.
+invalidCallState ERROR ::= {CODE  local:7
+}
+
+--	is an indication that no match exists between the service request and the valid Basic, Call Control State; this
+--	applies also to invalid auxiliary states or an invalid combination of Basic call states and auxiliary states.
+basicServiceNotProvided ERROR ::= {CODE  local:8
+}
+
+--	is an indication that the service request is directed to a Basic Service which is not provided (e.g. this return
+--	error value is used when a supplementary service is invoked with a SETUP message).
+notIncomingCall ERROR ::= {CODE  local:9
+}
+
+--	is an indication that the service request has been invoked for an outgoing call, which is not permitted for that
+--	service.
+supplementaryServiceInteractionNotAllowed ERROR ::= {CODE  local:10
+}
+
+--	is an indication that the service request is not permitted in combination with either a further requested or active
+--	supplementary service.
+resourceUnavailable ERROR ::= {CODE  local:11
+}
+
+--	is an indication that the service provider has temporarily no resource available for the provision of the
+--	requested service.
+callFailure ERROR ::= {CODE  local:25
+}
+
+--	is an indication that the requested supplementary service was not executable by virtue of a Basic Call Failure.
+proceduralError ERROR ::= {CODE  local:43
+}
+
+--	is an indication that a transport message (e.g. SETUP, REGISTER etc.) is received which has one or more
+--	operation PDUs which have a valid content but which are not specified as valid information content of the
+--	transport message used.
+END
