@@ -18,7 +18,8 @@
 	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
 	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
 	<!ENTITY Ericsson SYSTEM "Ericsson.xml">
-  <!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
+	<!ENTITY Tango SYSTEM "Tango.xml">
+	<!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -57,53 +58,53 @@
 		<!--256 Unassigned -->
 		<command name="Capabilities-Exchange"         code="257" vendor-id="None"/>
 		<command name="Re-Auth"                       code="258" vendor-id="None"/>
-    <!-- 259 Unassigned
-         260 AMR / AMA [RFC4004]     mobileipv4.xml
-         261 Unassigned
-         262 HAR / HAA [RFC4004]     mobileipv4.xml
-         263-264 Unassigned
-         265 AAR / AAA [RFC4005]     nasreq.xml
-         266-267 Unassigned
-         268 DER / DEA [RFC4072]     eap.xml
-         269-270 Unassigned
+		<!-- 259 Unassigned
+		     260 AMR / AMA [RFC4004]     mobileipv4.xml
+		     261 Unassigned
+		     262 HAR / HAA [RFC4004]     mobileipv4.xml
+		     263-264 Unassigned
+		     265 AAR / AAA [RFC4005]     nasreq.xml
+		     266-267 Unassigned
+		     268 DER / DEA [RFC4072]     eap.xml
+		     269-270 Unassigned
 		-->
 		<command name="Accounting"                    code="271" vendor-id="None"/>
-    <!-- 272 CCR / CCA [RFC4006]     chargecontrol.xml
-         273 Unassigned
+		<!-- 272 CCR / CCA [RFC4006]     chargecontrol.xml
+		     273 Unassigned
 		-->
 		<command name="Abort-Session"                 code="274" vendor-id="None"/>
 		<command name="Session-Termination"           code="275" vendor-id="None"/>
 		<!--276-279 Unassigned -->
 		<command name="Device-Watchdog"               code="280" vendor-id="None"/>
 		<command name="Disconnect-Peer"               code="282" vendor-id="None"/>
-    <!--283 UAR / UAA [RFC4740]      sip.xml
-        284 SAR / SAA [RFC4740]      sip.xml
-        285 LIR / LIA [RFC4740]      sip.xml
-        286 MAR / MAA [RFC4740]      sip.xml
-        287 RTR / RTA [RFC4740]      sip.xml
-        288 PPR / PPA [RFC4740]      sip.xml
-        289-299 Unassigned
-        300-313 Allocated for 3GPP [RFC3589]
-           imscxdx.xml ( 300 - 305 )
-           300	User-Authorization-Request/-Answer	UAR/UAA	29.229 [2]
-           301	Server-Assignment-Request/-Answer	SAR/SAA
-           302	Location-Info-Request/-Answer	LIR/LIA
-           303	Multimedia-Auth-Request/-Answer	MAR/MAA
-           304	Registration-Termination-Request/-Answer	RTR/RTA
-           305	Push-Profile-Request/-Answer	PPR/PPA
-           TGPPSh.xml  ( 306 - 309 )
-           306	User-Data-Request/-Answer	UDR/UDA
-           307	Profile-Update-Request/-Answer	PUR/PUA
-           308	Subscribe-Notifications-Request/-Answer	SNR/SNA
-           309	Push-Notification-Request/-Answer	PNR/PNA
-          -->
+		<!--283 UAR / UAA [RFC4740]      sip.xml
+		    284 SAR / SAA [RFC4740]      sip.xml
+		    285 LIR / LIA [RFC4740]      sip.xml
+		    286 MAR / MAA [RFC4740]      sip.xml
+		    287 RTR / RTA [RFC4740]      sip.xml
+		    288 PPR / PPA [RFC4740]      sip.xml
+		    289-299 Unassigned
+		    300-313 Allocated for 3GPP [RFC3589]
+		      imscxdx.xml ( 300 - 305 )
+		      300	User-Authorization-Request/-Answer	UAR/UAA	29.229 [2]
+		      301	Server-Assignment-Request/-Answer	SAR/SAA
+		      302	Location-Info-Request/-Answer		LIR/LIA
+		      303	Multimedia-Auth-Request/-Answer		MAR/MAA
+		      304	Registration-Termination-Request/-Answer RTR/RTA
+		      305	Push-Profile-Request/-Answer		PPR/PPA
+		      TGPPSh.xml  ( 306 - 309 )
+		      306	User-Data-Request/-Answer		UDR/UDA
+		      307	Profile-Update-Request/-Answer		PUR/PUA
+		      308	Subscribe-Notifications-Request/-Answer	SNR/SNA
+		      309	Push-Notification-Request/-Answer	PNR/PNA
+		-->
 
 		<command name="Boostrapping-Info"             code="310" vendor-id="None"/>        <!-- BIR/BIA	29.109 [7] -->
 		<command name="Message-Process"               code="311" vendor-id="None"/>        <!-- MPR/MPA	29.140 [16] -->
 		<command name="GBAPush-Info"                  code="312" vendor-id="None"/>        <!-- GPR/GPI	29.109 [7] -->
 		<!-- 313 (Not used yet) -->
-		<command name="Policy-Data"                    code="314" vendor-id="None"/>         <!-- PDR / PDA [RFC5224] -->
-		<command name="Policy-Install"                 code="315" vendor-id="None"/>         <!--  (PIA) [ITU-T Rec. Q.3303.3][RFC5431] -->
+		<command name="Policy-Data"                   code="314" vendor-id="None"/>        <!-- PDR / PDA [RFC5224] -->
+		<command name="Policy-Install"                code="315" vendor-id="None"/>        <!-- (PIA) [ITU-T Rec. Q.3303.3][RFC5431] -->
 
 		<!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
 		<command name="3GPP-Update-Location"            code="316" vendor-id="None"/>
@@ -119,25 +120,25 @@
 		<command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC-ietf-dime-diameter-qos-15] -->
 		<command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC-ietf-dime-diameter-qos-15] -->
 		<!--
-        328-8388607 Unassigned
-        8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
-        8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388611 WiMAX-Reauthentication-Request/Answer (WRAR/WRAA) WRA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388612 WiMAX-Session-Termination-Request/Answer (WSTR/WSTA) WST [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388613 WiMAX-Abort-Session-Request/Answer (WASR/WASA) WAS [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388614 WiMAX-Home-Agent-IPv4-Request/Answer (WHA4R/WHA4A) WHA4 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388615 WiMAX-Home-Agent-IPv6-Request/Answer (WHA6R/WHA6A) WHA6 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388616 WiMAX-DHCP-Request/Answer (WDHCPR/WDHCPA) WDHCP [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388617 WiMAX-LAA-Request/Answer (WLAAR/WLAA) WLAA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388618 WiMAX-Location-Accounting-Request/Answer (WLACR/WLACA) WLAC [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388619 WiMAX-Location-Measurement-Query-Request/Answer (WLMQR/WLMQA) WLMQ [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-        8388620 3GPP-Provide-Location-Request/Answer (PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
-        8388621 3GPP-Location-Report-Request/Answer (LRR/LRA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
-        8388622 3GPP-LCS-Routing-Info-Request/Answer (RIR/RIA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.173][Kimmo_Kymalainen]
-        8388623-16777213 Unassigned
-        16777214 Experimental code [RFC3588]
-        16777215 Experimental code [RFC3588]
+		328-8388607 Unassigned
+		8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
+		8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388611 WiMAX-Reauthentication-Request/Answer (WRAR/WRAA) WRA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388612 WiMAX-Session-Termination-Request/Answer (WSTR/WSTA) WST [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388613 WiMAX-Abort-Session-Request/Answer (WASR/WASA) WAS [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388614 WiMAX-Home-Agent-IPv4-Request/Answer (WHA4R/WHA4A) WHA4 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388615 WiMAX-Home-Agent-IPv6-Request/Answer (WHA6R/WHA6A) WHA6 [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388616 WiMAX-DHCP-Request/Answer (WDHCPR/WDHCPA) WDHCP [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388617 WiMAX-LAA-Request/Answer (WLAAR/WLAA) WLAA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388618 WiMAX-Location-Accounting-Request/Answer (WLACR/WLACA) WLAC [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388619 WiMAX-Location-Measurement-Query-Request/Answer (WLMQR/WLMQA) WLMQ [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
+		8388620 3GPP-Provide-Location-Request/Answer (PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
+		8388621 3GPP-Location-Report-Request/Answer (LRR/LRA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
+		8388622 3GPP-LCS-Routing-Info-Request/Answer (RIR/RIA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.173][Kimmo_Kymalainen]
+		8388623-16777213 Unassigned
+		16777214 Experimental code [RFC3588]
+		16777215 Experimental code [RFC3588]
 		-->
 		<!-- ********************** End Commands ************************** -->
 		<!-- ************************* Vendors **************************** -->
@@ -152,428 +153,427 @@
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
-    <vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
-    <vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
-    <!-- *********************** End Vendors ************************** -->
+		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
+		<vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
+		<!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
 		<!--
-         The data contains arbitrary data of variable length. Unless
-         otherwise noted, the AVP Length field MUST be set to at least 9
-         (13 if the 'V' bit is enabled).  Data used to transmit (human
-         readable) character string data uses the UTF-8 [24] character
-         set and is NOT NULL-terminated. The minimum Length field MUST
-         be 9, but can be set to any value up to 65504 bytes. AVP Values
-         of this type that do not align on a 32-bit boundary MUST have
-         the necessary padding.
+			The data contains arbitrary data of variable length. Unless
+			otherwise noted, the AVP Length field MUST be set to at least 9
+			(13 if the 'V' bit is enabled).  Data used to transmit (human
+			readable) character string data uses the UTF-8 [24] character
+			set and is NOT NULL-terminated. The minimum Length field MUST
+			be 9, but can be set to any value up to 65504 bytes. AVP Values
+			of this type that do not align on a 32-bit boundary MUST have
+			the necessary padding.
 		-->
 		<typedefn type-name="UTF8String" type-parent="OctetString"/>
 		<!--
-         The UTF8String format is derived from the OctetString AVP Base
-         Format. This is a human readable string represented using the
-         ISO/IEC IS 10646-1 character set, encoded as an OctetString
-         using the UTF-8 [29] transformation format described in RFC
-         2279.
+			The UTF8String format is derived from the OctetString AVP Base
+			Format. This is a human readable string represented using the
+			ISO/IEC IS 10646-1 character set, encoded as an OctetString
+			using the UTF-8 [29] transformation format described in RFC
+			2279.
 
-         Since additional code points are added by amendments to the
-         10646 standard from time to time, implementations MUST be
-         prepared to encounter any code point from 0x00000001 to
-         0x7fffffff. Byte sequences that do not correspond to the valid
-         UTF-8 encoding of a code point or are outside this range are
-         prohibited. Note that since a code point of 0x00000000 is
-         prohibited, no octet will contain a value of 0x00.
+			Since additional code points are added by amendments to the
+			10646 standard from time to time, implementations MUST be
+			prepared to encounter any code point from 0x00000001 to
+			0x7fffffff. Byte sequences that do not correspond to the valid
+			UTF-8 encoding of a code point or are outside this range are
+			prohibited. Note that since a code point of 0x00000000 is
+			prohibited, no octet will contain a value of 0x00.
 
-         The use of control codes SHOULD be avoided. When it is
-         necessary to represent a newline, the control code sequence CR
-         LF SHOULD be used.
+			The use of control codes SHOULD be avoided. When it is
+			necessary to represent a newline, the control code sequence CR
+			LF SHOULD be used.
 
-         The use of leading or trailing white space SHOULD be avoided.
+			The use of leading or trailing white space SHOULD be avoided.
 
-         For code points not directly supported by user interface
-         hardware or software, an alternative means of entry and
-         display, such as hexadecimal, MAY be provided.
+			For code points not directly supported by user interface
+			hardware or software, an alternative means of entry and
+			display, such as hexadecimal, MAY be provided.
 
-         For information encoded in 7-bit US-ASCII, the UTF-8 encoding
-         is identical to the US-ASCII encoding.
+			For information encoded in 7-bit US-ASCII, the UTF-8 encoding
+			is identical to the US-ASCII encoding.
 
-         UTF-8 may require multiple bytes to represent a single
-         character / code point; thus the length of a UTF8String in
-         octets may be different from the number of characters encoded.
+			UTF-8 may require multiple bytes to represent a single
+			character / code point; thus the length of a UTF8String in
+			octets may be different from the number of characters encoded.
 
-         Note that the size of an UTF8String is measured in octets, not
-         characters.
+			Note that the size of an UTF8String is measured in octets, not
+			characters.
 
-         The UTF8String MUST not contain any octets with a value of
-         zero.
+			The UTF8String MUST not contain any octets with a value of
+			zero.
 		-->
 		<typedefn type-name="IPAddress" type-parent="OctetString"/>
 		<!--
-         The IPAddress format is derived from the OctetString AVP Base
-         Format. It represents 32 bit (IPv4) [17] or 128 bit (IPv6) [16]
-         address, most significant octet first. The format of the
-         address (IPv4 or IPv6) is determined by the length. If the
-         attribute value is an IPv4 address, the AVP Length field MUST
-         be 12 (16 if 'V' bit is enabled), otherwise the AVP Length
-         field MUST be set to 24 (28 if the 'V' bit is enabled) for IPv6
-         addresses.
+			The IPAddress format is derived from the OctetString AVP Base
+			Format. It represents 32 bit (IPv4) [17] or 128 bit (IPv6) [16]
+			address, most significant octet first. The format of the
+			address (IPv4 or IPv6) is determined by the length. If the
+			attribute value is an IPv4 address, the AVP Length field MUST
+			be 12 (16 if 'V' bit is enabled), otherwise the AVP Length
+			field MUST be set to 24 (28 if the 'V' bit is enabled) for IPv6
+			addresses.
 		-->
 		<typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
 		<!--
-         The DiameterIdentity format is derived from the OctetString AVP
-         Base Format.  It uses the UTF-8 encoding and has the same
-         requirements as the UTF8String.  In addition, it must follow
-         the Uniform Resource Identifiers (URI) syntax [29] rules
-         specified below:
+			The DiameterIdentity format is derived from the OctetString AVP
+			Base Format.  It uses the UTF-8 encoding and has the same
+			requirements as the UTF8String.  In addition, it must follow
+			the Uniform Resource Identifiers (URI) syntax [29] rules
+			specified below:
 
-            Diameter-Identity  = fqdn [ port ] [ transport ]
-                                 [ protocol ]
+			   Diameter-Identity  = fqdn [ port ] [ transport ]
+			                        [ protocol ]
 
-            aaa-protocol       = ( "diameter" | "radius" | "tacacs+" )
+			   aaa-protocol       = ( "diameter" | "radius" | "tacacs+" )
 
-            protocol           = ";protocol=" aaa-protocol
-                                 ; If absent, the default AAA protocol
-                                 ; is diameter.
+			   protocol           = ";protocol=" aaa-protocol
+			                        ; If absent, the default AAA protocol
+			                        ; is diameter.
 
-            fqdn               = Fully Qualified Host Name
+			   fqdn               = Fully Qualified Host Name
 
-            port               = ":" 1*DIGIT
-                                 ; One of the ports used to listen for
-                                 ; incoming connections. ; If absent,
-                                 ; the default Diameter port (TBD) is
-                                 ; assumed.
+			   port               = ":" 1*DIGIT
+			                        ; One of the ports used to listen for
+			                        ; incoming connections. ; If absent,
+			                        ; the default Diameter port (TBD) is
+			                        ; assumed.
 
-            transport-protocol = ( "tcp" | "sctp" | "udp" )
+			   transport-protocol = ( "tcp" | "sctp" | "udp" )
 
-            transport          = ";transport=" transport-protocol
+			   transport          = ";transport=" transport-protocol
 
-                                 ; One of the transports used to listen
-                                 ; for incoming connections. If absent,
-                                 ; the default SCTP [26] protocol is
-                                 ; assumed. UDP MUST NOT be used when
-                                 ; the aaa-protocol field is set to
-                                 ; diameter.
+			                        ; One of the transports used to listen
+			                        ; for incoming connections. If absent,
+			                        ; the default SCTP [26] protocol is
+			                        ; assumed. UDP MUST NOT be used when
+			                        ; the aaa-protocol field is set to
+			                        ; diameter.
 
-            The following are examples of valid Diameter host
-            identities:
+			   The following are examples of valid Diameter host
+			   identities:
 
-               host.abc.com;transport=tcp
-               host.abc.com:6666;transport=tcp
-               aaa://host.abc.com;protocol=diameter
-               aaa://host.abc.com:6666;protocol=diameter
-               aaa://host.abc.com:6666;transport=tcp;protocol=diameter
-               aaa://host.abc.com:1813;transport=udp;protocol=radius
+			      host.abc.com;transport=tcp
+			      host.abc.com:6666;transport=tcp
+			      aaa://host.abc.com;protocol=diameter
+			      aaa://host.abc.com:6666;protocol=diameter
+			      aaa://host.abc.com:6666;transport=tcp;protocol=diameter
+			      aaa://host.abc.com:1813;transport=udp;protocol=radius
 
-         Since multiple Diameter processes on a single host cannot
-         listen for incoming connections on the same port on a given
-         protocol, the DiameterIdentity is guaranteed to be unique per
-         host.
+			Since multiple Diameter processes on a single host cannot
+			listen for incoming connections on the same port on a given
+			protocol, the DiameterIdentity is guaranteed to be unique per
+			host.
 
-         A Diameter node MAY advertise different identities on each
-         connection, via the CER and CEA's Origin-Host AVP, but the same
-         identity MUST be used throughout the duration of a connection.
+			A Diameter node MAY advertise different identities on each
+			connection, via the CER and CEA's Origin-Host AVP, but the same
+			identity MUST be used throughout the duration of a connection.
 
-         When comparing AVPs of this format, it is necessary to add any
-         absent fields with the default values prior to the comparison.
-         For example, diameter-host.abc.com would be expanded to
-         aaa://diameter/diameter-host.abc.com:TBD;protocol=sctp.
-        -->
+			When comparing AVPs of this format, it is necessary to add any
+			absent fields with the default values prior to the comparison.
+			For example, diameter-host.abc.com would be expanded to
+			aaa://diameter/diameter-host.abc.com:TBD;protocol=sctp.
+		-->
 		<typedefn type-name="IPFilterRule" type-parent="OctetString"/>
 		<!--
-         The IPFilterRule format is derived from the OctetString AVP
-         Base Format.  It uses the UTF-8 encoding and has the same
-         requirements as the UTF8String. Packets may be filtered based
-         on the following information that is associated with it:
+			The IPFilterRule format is derived from the OctetString AVP
+			Base Format.  It uses the UTF-8 encoding and has the same
+			requirements as the UTF8String. Packets may be filtered based
+			on the following information that is associated with it:
 
-            Direction                          (in or out)
-            Source and destination IP address  (possibly masked)
-            Protocol
-            Source and destination port        (lists or ranges)
-            TCP flags
-            IP fragment flag
-            IP options
-            ICMP types
+			   Direction                          (in or out)
+			   Source and destination IP address  (possibly masked)
+			   Protocol
+			   Source and destination port        (lists or ranges)
+			   TCP flags
+			   IP fragment flag
+			   IP options
+			   ICMP types
 
-         Rules for the appropriate direction are evaluated in order,
-         with the first matched rule terminating the evaluation.  Each
-         packet is evaluated once. If no rule matches, the packet is
-         dropped if the last rule evaluated was a permit, and passed if
-         the last rule was a deny.
+			Rules for the appropriate direction are evaluated in order,
+			with the first matched rule terminating the evaluation.  Each
+			packet is evaluated once. If no rule matches, the packet is
+			dropped if the last rule evaluated was a permit, and passed if
+			the last rule was a deny.
 
-         IPFilterRule filters MUST follow the format:
+			IPFilterRule filters MUST follow the format:
 
-            action dir proto from src to dst [options]
+			   action dir proto from src to dst [options]
 
-            action       permit - Allow packets that match the rule.
-                         deny   - Drop packets that match the rule.
+			   action       permit - Allow packets that match the rule.
+			                deny   - Drop packets that match the rule.
 
-            dir          "in" is from the terminal, "out" is to the
-                         terminal.
+			   dir          "in" is from the terminal, "out" is to the
+			                terminal.
 
-            proto        An IP protocol specified by number.  The "ip"
-                         keyword means any protocol will match.
+			   proto        An IP protocol specified by number.  The "ip"
+			                keyword means any protocol will match.
 
-            src and dst  <address/mask> [ports]
+			   src and dst  <address/mask> [ports]
 
-                         The <address/mask> may be specified as:
-                         ipno       An IPv4 or IPv6 number in dotted-
-                                    quad or canonical IPv6 form. Only
-                                    this exact IP number will match the
-                                    rule.
-                         ipno/bits  An IP number as above with a mask
-                                    width of the form 1.2.3.4/24.  In
-                                    this case all IP numbers from
-                                    1.2.3.0 to 1.2.3.255 will match.
-                                    The bit width MUST be valid for the
-                                    IP version and the IP number MUST
-                                    NOT have bits set beyond the mask.
+			                The <address/mask> may be specified as:
+			                ipno       An IPv4 or IPv6 number in dotted-
+			                           quad or canonical IPv6 form. Only
+			                           this exact IP number will match the
+			                           rule.
+			                ipno/bits  An IP number as above with a mask
+			                           width of the form 1.2.3.4/24.  In
+			                           this case all IP numbers from
+			                           1.2.3.0 to 1.2.3.255 will match.
+			                           The bit width MUST be valid for the
+			                           IP version and the IP number MUST
+			                           NOT have bits set beyond the mask.
 
-                         The sense of the match can be inverted by
-                         preceding an address with the not modifier,
-                         causing all other addresses to be matched
-                         instead.  This does not affect the selection of
-                         port numbers.
+			                The sense of the match can be inverted by
+			                preceding an address with the not modifier,
+			                causing all other addresses to be matched
+			                instead.  This does not affect the selection of
+			                port numbers.
 
-                            The keyword "any" is 0.0.0.0/0 or the IPv6
-                            equivalent.  The keyword "assigned" is the
-                            address or set of addresses assigned to the
-                            terminal.  The first rule SHOULD be "deny in
-                            ip !assigned".
+			                   The keyword "any" is 0.0.0.0/0 or the IPv6
+			                   equivalent.  The keyword "assigned" is the
+			                   address or set of addresses assigned to the
+			                   terminal.  The first rule SHOULD be "deny in
+			                   ip !assigned".
 
-                         With the TCP, UDP and SCTP protocols, optional
-                         ports may be specified as:
+			                With the TCP, UDP and SCTP protocols, optional
+			                ports may be specified as:
 
-                            {port|port-port}[,port[,...]]
+			                   {port|port-port}[,port[,...]]
 
-                         The `-' notation specifies a range of ports
-                         (including boundaries).
+			                The `-' notation specifies a range of ports
+			                (including boundaries).
 
-                         Fragmented packets which have a non-zero offset
-                         (i.e. not the first fragment) will never match
-                         a rule which has one or more port
-                         specifications.  See the frag option for
-                         details on matching fragmented packets.
+			                Fragmented packets which have a non-zero offset
+			                (i.e. not the first fragment) will never match
+			                a rule which has one or more port
+			                specifications.  See the frag option for
+			                details on matching fragmented packets.
 
-            options:
-               frag    Match if the packet is a fragment and this is not
-                       the first fragment of the datagram.  frag may not
-                       be used in conjunction with either tcpflags or
-                       TCP/UDP port specifications.
+			   options:
+			      frag    Match if the packet is a fragment and this is not
+			              the first fragment of the datagram.  frag may not
+			              be used in conjunction with either tcpflags or
+			              TCP/UDP port specifications.
 
-               ipoptions spec
-                       Match if the IP header contains the comma
-                       separated list of options specified in spec. The
-                       supported IP options are:
+			      ipoptions spec
+			              Match if the IP header contains the comma
+			              separated list of options specified in spec. The
+			              supported IP options are:
 
-                       ssrr (strict source route), lsrr (loose source
-                       route), rr (record packet route) and ts
-                       (timestamp). The absence of a particular option
-                       may be denoted with a `!'.
+			              ssrr (strict source route), lsrr (loose source
+			              route), rr (record packet route) and ts
+			              (timestamp). The absence of a particular option
+			              may be denoted with a `!'.
 
-               tcpoptions spec
-                       Match if the TCP header contains the comma
-                       separated list of options specified in spec. The
-                       supported TCP options are:
+			      tcpoptions spec
+			              Match if the TCP header contains the comma
+			              separated list of options specified in spec. The
+			              supported TCP options are:
 
-                       mss (maximum segment size), window (tcp window
-                       advertisement), sack (selective ack), ts (rfc1323
-                       timestamp) and cc (rfc1644 t/tcp connection
-                       count).  The absence of a particular option may
-                       be denoted with a `!'.
+			              mss (maximum segment size), window (tcp window
+			              advertisement), sack (selective ack), ts (rfc1323
+			              timestamp) and cc (rfc1644 t/tcp connection
+			              count).  The absence of a particular option may
+			              be denoted with a `!'.
 
-               established
-                       TCP packets only. Match packets that have the RST
-                       or ACK bits set.
+			      established
+			              TCP packets only. Match packets that have the RST
+			              or ACK bits set.
 
-               setup   TCP packets only. Match packets that have the SYN
-                       bit set but no ACK bit.
+			      setup   TCP packets only. Match packets that have the SYN
+			              bit set but no ACK bit.
 
-               tcpflags spec
-                       TCP packets only. Match if the TCP header
-                       contains the comma separated list of flags
-                       specified in spec. The supported TCP flags are:
+			      tcpflags spec
+			              TCP packets only. Match if the TCP header
+			              contains the comma separated list of flags
+			              specified in spec. The supported TCP flags are:
 
-                       fin, syn, rst, psh, ack and urg. The absence of a
-                       particular flag may be denoted with a `!'. A rule
-                       which contains a tcpflags specification can never
-                       match a fragmented packet which has a non-zero
-                       offset.  See the frag option for details on
-                       matching fragmented packets.
+			              fin, syn, rst, psh, ack and urg. The absence of a
+			              particular flag may be denoted with a `!'. A rule
+			              which contains a tcpflags specification can never
+			              match a fragmented packet which has a non-zero
+			              offset.  See the frag option for details on
+			              matching fragmented packets.
 
-               icmptypes types
-                       ICMP packets only.  Match if the ICMP type is in
-                       the list types. The list may be specified as any
-                       combination of ranges or individual types
-                       separated by commas.  The supported ICMP types
-                       are:
+			      icmptypes types
+			              ICMP packets only.  Match if the ICMP type is in
+			              the list types. The list may be specified as any
+			              combination of ranges or individual types
+			              separated by commas.  The supported ICMP types
+			              are:
 
-                       echo reply (0), destination unreachable (3),
-                       source quench (4), redirect (5), echo request
-                       (8), router advertisement (9), router
-                       solicitation (10), time-to-live exceeded (11), IP
-                       header bad (12), timestamp request (13),
-                       timestamp reply (14), information request (15),
-                       information reply (16), address mask request (17)
-                       and address mask reply (18).
+			              echo reply (0), destination unreachable (3),
+			              source quench (4), redirect (5), echo request
+			              (8), router advertisement (9), router
+			              solicitation (10), time-to-live exceeded (11), IP
+			              header bad (12), timestamp request (13),
+			              timestamp reply (14), information request (15),
+			              information reply (16), address mask request (17)
+			              and address mask reply (18).
 
-         There is one kind of packet that the access device MUST always
-         discard, that is an IP fragment with a fragment offset of one.
-         This is a valid packet, but it only has one use, to try to
-         circumvent firewalls.
+			There is one kind of packet that the access device MUST always
+			discard, that is an IP fragment with a fragment offset of one.
+			This is a valid packet, but it only has one use, to try to
+			circumvent firewalls.
 
-            An access device that is unable to interpret or apply a deny
-            rule MUST terminate the session.  An access device that is
-            unable to interpret or apply a permit rule MAY apply a more
-            restrictive rule.  An access device MAY apply deny rules of
-            its own before the supplied rules, for example to protect
-            the access device owner's infrastructure.
+			   An access device that is unable to interpret or apply a deny
+			   rule MUST terminate the session.  An access device that is
+			   unable to interpret or apply a permit rule MAY apply a more
+			   restrictive rule.  An access device MAY apply deny rules of
+			   its own before the supplied rules, for example to protect
+			   the access device owner's infrastructure.
 
-         The rule syntax is a modified subset of ipfw(8) from FreeBSD,
-         and the ipfw.c code may provide a useful base for
-         implementations.
+			The rule syntax is a modified subset of ipfw(8) from FreeBSD,
+			and the ipfw.c code may provide a useful base for
+			implementations.
 		-->
 		<typedefn type-name="QOSFilterRule" type-parent="OctetString"/>
 		<!--
-         The QosFilterRule format is derived from the OctetString AVP
-         Base Format.  It uses the UTF-8 encoding and has the same
-         requirements as the UTF8String. Packets may be marked or
-         metered based on the following information that is associated
-         with it:
+			The QosFilterRule format is derived from the OctetString AVP
+			Base Format.  It uses the UTF-8 encoding and has the same
+			requirements as the UTF8String. Packets may be marked or
+			metered based on the following information that is associated
+			with it:
 
-            Direction                          (in or out)
-            Source and destination IP address  (possibly masked)
-            Protocol
-            Source and destination port        (lists or ranges)
-            DSCP values                        (no mask or range)
+			   Direction                          (in or out)
+			   Source and destination IP address  (possibly masked)
+			   Protocol
+			   Source and destination port        (lists or ranges)
+			   DSCP values                        (no mask or range)
 
-         Rules for the appropriate direction are evaluated in order,
-         with the first matched rule terminating the evaluation.  Each
-         packet is evaluated once. If no rule matches, the packet is
-         treated as best effort.
+			Rules for the appropriate direction are evaluated in order,
+			with the first matched rule terminating the evaluation.  Each
+			packet is evaluated once. If no rule matches, the packet is
+			treated as best effort.
 
-         QoSFilterRule filters MUST follow the format:
+			QoSFilterRule filters MUST follow the format:
 
-            action dir proto from src to dst [options]
+			   action dir proto from src to dst [options]
 
-                         tag    - Mark packet with a specific DSCP [49].
-                                  The DSCP option MUST be included.
+			                tag    - Mark packet with a specific DSCP [49].
+			                         The DSCP option MUST be included.
 
-                         meter  - Meter traffic. The metering options
-                                  MUST be included.
+			                meter  - Meter traffic. The metering options
+			                         MUST be included.
 
-            dir          "in" is from the terminal, "out" is to the
-                         terminal.
+			   dir          "in" is from the terminal, "out" is to the
+			                terminal.
 
-            proto        An IP protocol specified by number.  The "ip"
-                         keyword means any protocol will match.
+			   proto        An IP protocol specified by number.  The "ip"
+			                keyword means any protocol will match.
 
-            src and dst  <address/mask> [ports]
+			   src and dst  <address/mask> [ports]
+			
+			                The <address/mask> may be specified as:
+			                ipno       An IPv4 or IPv6 number in dotted-
+			                           quad or canonical IPv6 form. Only
+			                           this exact IP number will match the
+			                           rule.
+			                ipno/bits  An IP number as above with a mask
+			                           width of the form 1.2.3.4/24.  In
+			                           this case all IP numbers from
+			                           1.2.3.0 to 1.2.3.255 will match.
+			                           The bit width MUST be valid for the
+			                           IP version and the IP number MUST
+			                           NOT have bits set beyond the mask.
 
-                         The <address/mask> may be specified as:
-                         ipno       An IPv4 or IPv6 number in dotted-
-                                    quad or canonical IPv6 form. Only
-                                    this exact IP number will match the
-                                    rule.
-                         ipno/bits  An IP number as above with a mask
-                                    width of the form 1.2.3.4/24.  In
-                                    this case all IP numbers from
-                                    1.2.3.0 to 1.2.3.255 will match.
-                                    The bit width MUST be valid for the
-                                    IP version and the IP number MUST
-                                    NOT have bits set beyond the mask.
+			                The sense of the match can be inverted by
+			                preceding an address with the not modifier,
+			                causing all other addresses to be matched
+			                instead.  This does not affect the selection of
+			                port numbers.
 
-                         The sense of the match can be inverted by
-                         preceding an address with the not modifier,
-                         causing all other addresses to be matched
-                         instead.  This does not affect the selection of
-                         port numbers.
+			                   The keyword "any" is 0.0.0.0/0 or the IPv6
+			                   equivalent.  The keyword "assigned" is the
+			                   address or set of addresses assigned to the
+			                   terminal.  The first rule SHOULD be "deny in
+			                   ip !assigned".
 
-                            The keyword "any" is 0.0.0.0/0 or the IPv6
-                            equivalent.  The keyword "assigned" is the
-                            address or set of addresses assigned to the
-                            terminal.  The first rule SHOULD be "deny in
-                            ip !assigned".
+			                With the TCP, UDP and SCTP protocols, optional
+			                ports may be specified as:
 
-                         With the TCP, UDP and SCTP protocols, optional
-                         ports may be specified as:
+			                   {port|port-port}[,port[,...]]
 
-                            {port|port-port}[,port[,...]]
+			                The `-' notation specifies a range of ports
+			                (including boundaries).
 
-                         The `-' notation specifies a range of ports
-                         (including boundaries).
+			   options:
 
-            options:
+			      DSCP <color>
+			              color values as defined in [49]. Exact matching
+			              of DSCP values is required (no masks or ranges).
+			              the "deny" can replace the color_under or
+			              color_over values in the meter action for rate-
+			              dependent packet drop.
 
-               DSCP <color>
-                       color values as defined in [49]. Exact matching
-                       of DSCP values is required (no masks or ranges).
-                       the "deny" can replace the color_under or
-                       color_over values in the meter action for rate-
-                       dependent packet drop.
+			      metering <rate> <color_under> <color_over>
+			              The metering option provides Assured Forwarding,
+			              as defined in [50], and MUST be present if the
+			              action is set to meter. The rate option is the
+			              throughput, in bits per second, which is used by
+			              the access device to mark packets. Traffic above
+			              the rate is marked with the color_over codepoint,
+			              while traffic under the rate is marked with the
+			              color_under codepoint. The color_under and
+			              color_over options contain the drop preferences,
+			              and MUST conform to the recommended codepoint
+			              keywords described in [50] (e.g. AF13).
 
-               metering <rate> <color_under> <color_over>
-                       The metering option provides Assured Forwarding,
-                       as defined in [50], and MUST be present if the
-                       action is set to meter. The rate option is the
-                       throughput, in bits per second, which is used by
-                       the access device to mark packets. Traffic above
-                       the rate is marked with the color_over codepoint,
-                       while traffic under the rate is marked with the
-                       color_under codepoint. The color_under and
-                       color_over options contain the drop preferences,
-                       and MUST conform to the recommended codepoint
-                       keywords described in [50] (e.g. AF13).
+			              The metering option also supports the strict
+			              limit on traffic required by Expedited
+			              Forwarding, as defined in [51]. The color_over
+			              option may contain the keyword "drop" to prevent
+			              forwarding of traffic that exceeds the rate
+			              parameter.
 
-                       The metering option also supports the strict
-                       limit on traffic required by Expedited
-                       Forwarding, as defined in [51]. The color_over
-                       option may contain the keyword "drop" to prevent
-                       forwarding of traffic that exceeds the rate
-                       parameter.
-
-         The rule syntax is a modified subset of ipfw(8) from FreeBSD,
-         and the ipfw.c code may provide a useful base for
-         implementations.
-
+			The rule syntax is a modified subset of ipfw(8) from FreeBSD,
+			and the ipfw.c code may provide a useful base for
+			implementations.
 		-->
 		<typedefn type-name="MIPRegistrationRequest" type-parent="OctetString"/>
 		<typedefn type-name="Integer32"/>
 		<!--
-         32 bit signed value, in network byte order. The AVP Length
-         field MUST be set to 12 (16 if the 'V' bit is enabled).
+			32 bit signed value, in network byte order. The AVP Length
+			field MUST be set to 12 (16 if the 'V' bit is enabled).
 		-->
 		<typedefn type-name="VendorId" type-parent="Unsigned32"/>
 		<typedefn type-name="AppId" type-parent="Integer32"/>
 		<typedefn type-name="Integer64"/>
 		<!--
-         64 bit signed value, in network byte order. The AVP Length
-         field MUST be set to 16 (20 if the 'V' bit is enabled).
+			64 bit signed value, in network byte order. The AVP Length
+			field MUST be set to 16 (20 if the 'V' bit is enabled).
 		-->
 		<typedefn type-name="Unsigned32"/>
 		<!--
-         32 bit unsigned value, in network byte order. The AVP Length
-         field MUST be set to 12 (16 if the 'V' bit is enabled).
-         Unsigned32 values used to transmit time data contains the four
-         most significant octets returned from NTP [18], in network byte
-         order.
+			32 bit unsigned value, in network byte order. The AVP Length
+			field MUST be set to 12 (16 if the 'V' bit is enabled).
+			Unsigned32 values used to transmit time data contains the four
+			most significant octets returned from NTP [18], in network byte
+			order.
 		-->
 		<typedefn type-name="Time"/>
 		<!--
-         The Time format is derived from the Unsigned32 AVP Base Format.
-         This is 32 bit unsigned value containing the four most
-         significant octets returned from NTP [18], in network byte
-         order.
+			The Time format is derived from the Unsigned32 AVP Base Format.
+			This is 32 bit unsigned value containing the four most
+			significant octets returned from NTP [18], in network byte
+			order.
 
-         This represent the number of seconds since 0h on 1 January 1900
-         with respect to the Coordinated Universal Time (UTC).
+			This represent the number of seconds since 0h on 1 January 1900
+			with respect to the Coordinated Universal Time (UTC).
 
-         On 6h 28m 16s UTC, 7 February 2036 the time value will
-         overflow.  NTP [18] describes a procedure to extend the time to
-         2104.
+			On 6h 28m 16s UTC, 7 February 2036 the time value will
+			overflow.  NTP [18] describes a procedure to extend the time to
+			2104.
 		-->
 		<typedefn type-name="Unsigned64"/>
 		<!--
-         64 bit unsigned value, in network byte order. The AVP Length
-         field MUST be set to 16 (20 if the 'V' bit is enabled).
+			64 bit unsigned value, in network byte order. The AVP Length
+			field MUST be set to 16 (20 if the 'V' bit is enabled).
 		-->
 		<typedefn type-name="Enumerated" type-parent="Integer32"/>
 		<typedefn type-name="DiameterURI" type-parent="UTF8String"/>
@@ -673,18 +673,18 @@
 			<enum name="PortMaster" code="3"/>
 			<enum name="LAT" code="4"/>
 			<enum name="X25-PAD" code="5"/>
-      <enum name="X25-T3POS" code="6"/>
-      <enum name="Unassigned" code="7"/>
-      <enum name="TCP Clear Quiet (suppresses any NAS-generated connect string)" code="8"/>
+			<enum name="X25-T3POS" code="6"/>
+			<enum name="Unassigned" code="7"/>
+			<enum name="TCP Clear Quiet (suppresses any NAS-generated connect string)" code="8"/>
 		</avp>
-    <avp name="Login-TCP-Port" code="16" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Login-TCP-Port" code="16" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
-    <!-- 17        Unassigned -->
-    <avp name="Unassigned" code="17" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reply-Message" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<!-- 17        Unassigned -->
+		<avp name="Unassigned" code="17" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reply-Message" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Callback-Number" code="19" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -693,11 +693,11 @@
 		<avp name="Callback-Id" code="20" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-    <!-- 21        Unassigned -->
-    <avp name="Unassigned" code="21" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Framed-Route" code="22" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<!-- 21        Unassigned -->
+		<avp name="Unassigned" code="21" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-Route" code="22" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Framed-IPX-Network" code="23" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -765,15 +765,15 @@
 			<enum name="Accounting-On" code="7"/>
 			<enum name="Accounting-Off" code="8"/>
 			<!-- 9-14 Reserved for Tunnel Accounting -->
-      <enum name="Tunnel-Start" code="9"/>
-      <enum name="Tunnel-Stop" code="10"/>
-      <enum name="Tunnel-Reject" code="11"/>
-      <enum name="Tunnel-Link-Start" code="12"/>
-      <enum name="Tunnel-Link-Stop" code="13"/>
-      <enum name="Tunnel-Link-Rejectf" code="14"/>
-      <!-- 15 Reserved for Tunnel Failed -->
-      <enum name="Failed" code="15"/>
-    </avp>
+			<enum name="Tunnel-Start" code="9"/>
+			<enum name="Tunnel-Stop" code="10"/>
+			<enum name="Tunnel-Reject" code="11"/>
+			<enum name="Tunnel-Link-Start" code="12"/>
+			<enum name="Tunnel-Link-Stop" code="13"/>
+			<enum name="Tunnel-Link-Rejectf" code="14"/>
+			<!-- 15 Reserved for Tunnel Failed -->
+			<enum name="Failed" code="15"/>
+		</avp>
 		<avp name="Acct-Delay-Time" code="41" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -785,7 +785,7 @@
 		</avp>
 		<avp name="Acct-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
-      <!-- See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5411 -->
+			<!-- See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5411 -->
 		</avp>
 		<avp name="Acct-Authentic" code="45" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
@@ -842,27 +842,27 @@
 			<type type-name="Integer32"/>
 		</avp>
 <!-- 54        Unassigned -->
-    <avp name="Unassigned" code="54" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+		<avp name="Unassigned" code="54" mandatory="may">
+		 	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Time"/>
 		</avp>
-    <avp name="Egress-VLANID" code="56" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Ingress-Filters" code="57" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-      <type type-name="Enumerated"/>
-      <enum name="Enabled" code="1"/>
-      <enum name="Disabled" code="2"/>
-    </avp>
-    <avp name="Egress-VLAN-Name" code="58" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="User-Priority-Table" code="59" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="CHAP-Challenge" code="60" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<avp name="Egress-VLANID" code="56" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Ingress-Filters" code="57" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="Enabled" code="1"/>
+			<enum name="Disabled" code="2"/>
+		</avp>
+		<avp name="Egress-VLAN-Name" code="58" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="User-Priority-Table" code="59" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="CHAP-Challenge" code="60" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-Port-Type" code="61" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -1019,23 +1019,23 @@
 		<avp name="Framed-Pool" code="88" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="CUI" code="89" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Tunnel-Client-Auth-Id" code="90" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<avp name="CUI" code="89" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Tunnel-Client-Auth-Id" code="90" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Tunnel-Server-Auth-Id" code="91" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-    <avp name="NAS-Filter-Rule" code="92" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-      <type type-name="UTF8String"/>
-    </avp>
+		<avp name="NAS-Filter-Rule" code="92" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
 <!--  93	(unassigned) -->
-    <avp name="Unassigned" code="93" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+		<avp name="Unassigned" code="93" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-IPv6-Address" code="95" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -1140,10 +1140,10 @@
 		<avp name="SIP-AOR" code="122" mandatory="may">
 			<type type-name="UTF8String"/>
 		</avp>
-    <avp name="Delegated-IPv6-Prefix" code="123" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="MIP6-Feature-Vector" code="124" mandatory="may">
+		<avp name="Delegated-IPv6-Prefix" code="123" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MIP6-Feature-Vector" code="124" mandatory="may">
 			<type type-name="Unsigned64"/>
 		</avp>
 		<avp name="MIP6-Home-Link-Prefix" code="125" mandatory="may">
@@ -1168,399 +1168,399 @@
 		<avp name="Location-Capable" code="131" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="Requested-Location-Info" code="132" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Framed-Management-Protocol" code="133" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
-      <type type-name="Enumerated"/>
-      <enum name="SNMP" code="1"/>
-      <enum name="Web-based" code="2"/>
-      <enum name="NETCONF" code="3"/>
-      <enum name="FTP" code="4"/>
-      <enum name="TFTP" code="5"/>
-      <enum name="SFTP" code="6"/>
-      <enum name="RCP" code="7"/>
-      <enum name="SCP" code="8"/>
-    </avp>
-    <avp name="Management-Transport-Protection" code="134" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
-      <type type-name="Enumerated"/>
-      <enum name="No-Protection" code="1"/>
-      <enum name="Integrity-Protection" code="2"/>
-      <enum name="Integrity-Confidentiality-Protection" code="3"/>
-    </avp>
-    <avp name="Management-Policy-Id" code="135" mandatory="may">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Management-Privilege-Level" code="136" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-      <type type-name="Integer32"/>
-    </avp>
-    <avp name="PKM-SS-Cert" code="137" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PKM-CA-Cert" code="138" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PKM-Config-Settings" code="139" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PKM-Cryptosuite-List" code="140" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PPKM-SAID" code="141" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PKM-SA-Descriptor" code="142" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PKM-Auth-Key" code="143" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <!-- 144-191   Unassigned -->
-    <avp name="Unassigned" code="144" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="145" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="146" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="147" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="148" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="149" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="150" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="151" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="152" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="153" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="154" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="155" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="156" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="157" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="158" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="159" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="160" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="161" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="162" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="163" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="164" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="165" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="166" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="167" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="168" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="169" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="170" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="171" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="172" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="173" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="174" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="175" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="176" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="177" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="178" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="179" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="180" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="181" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="182" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="183" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="184" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="185" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="186" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="187" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="188" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="189" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="190" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="191" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Requested-Location-Info" code="132" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Framed-Management-Protocol" code="133" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="SNMP" code="1"/>
+			<enum name="Web-based" code="2"/>
+			<enum name="NETCONF" code="3"/>
+			<enum name="FTP" code="4"/>
+			<enum name="TFTP" code="5"/>
+			<enum name="SFTP" code="6"/>
+			<enum name="RCP" code="7"/>
+			<enum name="SCP" code="8"/>
+		</avp>
+		<avp name="Management-Transport-Protection" code="134" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="No-Protection" code="1"/>
+			<enum name="Integrity-Protection" code="2"/>
+			<enum name="Integrity-Confidentiality-Protection" code="3"/>
+		</avp>
+		<avp name="Management-Policy-Id" code="135" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Management-Privilege-Level" code="136" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="PKM-SS-Cert" code="137" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PKM-CA-Cert" code="138" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PKM-Config-Settings" code="139" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PKM-Cryptosuite-List" code="140" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PPKM-SAID" code="141" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PKM-SA-Descriptor" code="142" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="PKM-Auth-Key" code="143" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- 144-191   Unassigned -->
+		<avp name="Unassigned" code="144" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="145" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="146" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="147" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="148" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="149" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="150" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="151" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="152" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="153" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="154" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="155" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="156" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="157" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="158" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="159" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="160" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="161" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="162" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="163" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="164" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="165" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="166" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="167" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="168" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="169" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="170" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="171" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="172" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="173" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="174" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="175" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="176" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="177" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="178" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="179" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="180" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="181" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="182" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="183" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="184" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="185" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="186" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="187" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="188" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="189" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="190" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="191" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
 
-    <!-- 192-223   Experimental Use                         [RFC3575] -->
-    <avp name="Experimental-Use" code="192" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="193" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="194" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="195" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="196" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="197" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="198" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="199" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="200" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="201" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="202" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="203" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="204" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="205" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="206" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="207" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="208" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="209" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="210" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="211" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="212" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="213" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="214" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="215" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="216" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="217" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="218" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="219" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="220" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="221" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="222" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Experimental-Use" code="223" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <!-- 224-240   Implementation Specific                  [RFC3575] -->
-    <avp name="Implementation-Specific" code="224" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="225" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="226" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="227" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="228" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="229" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="230" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="231" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="232" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="233" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="234" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="235" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="236" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="237" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="238" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="239" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Implementation-Specific" code="240" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <!--241-255   Reserved                                 [RFC3575] -->
-    <avp name="Reserved" code="241" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="242" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="243" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="244" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="245" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="246" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="247" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="248" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="249" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="250" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="251" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="252" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="253" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="254" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="255" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
-    <avp name="Unassigned" code="256" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Host-IP-Address" code="257" mandatory="must" protected="may" may-encrypt="no" vendor-bit="mustnot">
+		<!-- 192-223   Experimental Use                         [RFC3575] -->
+		<avp name="Experimental-Use" code="192" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="193" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="194" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="195" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="196" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="197" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="198" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="199" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="200" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="201" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="202" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="203" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="204" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="205" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="206" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="207" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="208" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="209" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="210" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="211" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="212" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="213" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="214" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="215" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="216" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="217" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="218" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="219" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="220" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="221" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="222" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Experimental-Use" code="223" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- 224-240   Implementation Specific                  [RFC3575] -->
+		<avp name="Implementation-Specific" code="224" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="225" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="226" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="227" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="228" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="229" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="230" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="231" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="232" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="233" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="234" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="235" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="236" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="237" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="238" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="239" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Implementation-Specific" code="240" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<!--241-255   Reserved                                 [RFC3575] -->
+		<avp name="Reserved" code="241" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="242" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="243" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="244" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="245" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="246" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="247" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="248" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="249" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="250" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="251" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="252" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="253" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="254" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="255" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
+		<avp name="Unassigned" code="256" mandatory="may">
+		  <type type-name="OctetString"/>
+		</avp>
+		<avp name="Host-IP-Address" code="257" mandatory="must" protected="may" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1887,23 +1887,23 @@
 			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
 		</avp>
 <!-- 286 Unassigned -->
-    <avp name="Unassigned" code="286" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Accounting-Sub-Session-Id" code="287" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Unassigned" code="286" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Accounting-Sub-Session-Id" code="287" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
 <!-- 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters  -->
-    <avp name="Unallocated" code="288" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="289" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="290" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+		<avp name="Unallocated" code="288" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="289" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="290" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Integer32"/>
 		</avp>
 		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
@@ -1956,7 +1956,7 @@
 			<enum name="DIAMETER_ERROR_POSITIONING_DENIED" code="4224"/>
 			<enum name="DIAMETER_ERROR_POSITIONING_FAILED" code="4225"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_UNREACHABLE LCS_CLIENT" code="4226"/>
-      
+			<!-- 4227-5000 Unassigned -->
 			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
 			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
 			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
@@ -1968,13 +1968,13 @@
 			<enum name="DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA" code="5009"/>
 			<enum name="DIAMETER_MISSING_USER_ID" code="5010"/>
 			<enum name="DIAMETER_ERROR_FEATURE_UNSUPPORTED" code="5011"/>
-      
+			<!-- 5012 - 5040 -->
 			<enum name="DIAMETER_ERROR_USER_NO_WLAN_SUBSCRIPTION" code="5041"/>
 			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
 			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
 			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
 			<enum name="DIAMETER_ERROR_UNSUITABLE_NETWORK" code="5045"/>
-      
+			<!-- 5046-5060 Unassigned -->
 			<enum name="INVALID_SERVICE_INFORMATION" code="5061"/>
 			<enum name="FILTER_RESTRICTIONS" code="5062"/>
 			<enum name="REQUESTED_SERVICE_NOT_AUTHORIZED" code="5063"/>
@@ -1990,7 +1990,7 @@
 			<enum name="DIAMETER_ERROR_SUBS_DATA_ABSENT" code="5106"/>
 			<enum name="DIAMETER_ERROR_NO_SUBSCRIPTION_TO_DATA" code="5107"/>
 			<enum name="DIAMETER_ERROR_DSAI_NOT_AVAILABLE" code="5108"/>
-      
+			<!-- 5109-5119 Unassigned -->
 			<enum name="DIAMETER_ERROR_START_INDICATION" code="5120"/>
 			<enum name="DIAMETER_ERROR_STOP_INDICATION" code="5121"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_MBMS_BEARER_SERVICE" code="5122"/>
@@ -2010,7 +2010,7 @@
 			<enum name="DIAMETER_ERROR_RAT_NOT_ALLOWED" code="5421"/>
 			<enum name="DIAMETER_ERROR_EQUIPMENT_UNKNOWN" code="5422"/>
 			<enum name="DIAMETER_ERROR_UNKNOWN_SERVING_NODE" code="5423"/>
-      
+			<!-- 5424-5449 Unassigned -->
 			<enum name="DIAMETER_ERROR_USER_NO_NON_3GPP_SUBSCRIPTION" code="5450"/>
 			<enum name="DIAMETER_ERROR_USER_NO_APN_SUBSCRIPTION" code="5451"/>
 			<enum name="DIAMETER_ERROR_RAT_TYPE_NOT_ALLOWED" code="5452"/>
@@ -2029,58 +2029,59 @@
 			</grouped>
 		</avp>
 		<!-- 301-317    Unallocated -->
-    <avp name="Unallocated" code="301" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="302" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="303" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="304" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="305" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="306" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="307" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="308" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="309" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="310" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="311" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="312" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="313" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="314" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="315" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="316" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unallocated" code="317" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml
+		<avp name="Unallocated" code="301" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="302" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="303" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="304" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="305" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="306" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="307" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="308" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="309" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="310" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="311" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="312" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="313" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="314" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="315" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="316" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unallocated" code="317" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+
+<!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml
 318 MIP-FA-to-HA-SPI [RFC4004]
 319 MIP-FA-to-MN-SPI [RFC4004]
 320 MIP-Reg-Request [RFC4004]
@@ -2113,50 +2114,50 @@
 348 MIP-Home-Agent-Host [RFC4004]
 -->
 <!-- AVP:s 349-362        Unassigned -->
-    <avp name="Unassigned" code="349" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="350" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="351" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="352" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="353" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="354" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="355" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="356" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="357" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="358" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="359" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="360" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="361" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="362" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Unassigned" code="349" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="350" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="351" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="352" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="353" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="354" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="355" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="356" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="357" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="358" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="359" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="360" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="361" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="362" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
 
-    <!-- AVP:s 368 - 393 is in sip.xml
+<!-- AVP:s 368 - 393 is in sip.xml
 363 Accounting-Input-Octets [RFC4005][RFC4004]
 364 Accounting-Output-Octets [RFC4005][RFC4004]
 365 Accounting-Input-Packets [RFC4005][RFC4004]
@@ -2190,26 +2191,26 @@
 393 SIP-Method [RFC4740]
 -->
 <!-- 394-399 Unassigned  -->
-    <avp name="Unassigned" code="394" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="395" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="396" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="397" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="398" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="399" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Unassigned" code="394" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="395" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="396" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="397" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="398" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="399" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
 
-    <!-- 400 408 is defined in nasreq.xml
+<!-- 400 408 is defined in nasreq.xml
 400 NAS-Filter-Rule [RFC4005]
 401 Tunneling [RFC4005]
 402 CHAP-Auth [RFC4005]
@@ -2219,16 +2220,16 @@
 406 Acounting-Auth-Method [RFC4005]
 407 QoS-Filter-Rule [RFC4005]
 408 Origin-AAA-Protocol [RFC4005]
- -->
+-->
 <!-- 409-410 Unassigned -->
-    <avp name="Unassigned" code="409" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="410" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Unassigned" code="409" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="410" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
 
-    <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml
+<!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml
 411 CC-Correlation-Id [RFC4006]
 412 CC-Input-Octets [RFC4006]
 413 CC-Money [RFC4006]
@@ -2280,58 +2281,57 @@
 459 User-Equipment-Info-Type [RFC4006]
 460 User-Equipment-Info-Value [RFC4006]
 461 Service-Context-Id [RFC4006]
-
 -->
 <!-- epa.xml
-     462 EAP-Payload [RFC4072]
-     463 EAP-Reissued-Payload [RFC4072]
-     464 EAP-Master-Session-Key [RFC4072]
-     465 Accounting-EAP-Auth-Method [RFC4072]
+462 EAP-Payload [RFC4072]
+463 EAP-Reissued-Payload [RFC4072]
+464 EAP-Master-Session-Key [RFC4072]
+465 Accounting-EAP-Auth-Method [RFC4072]
 -->
 <!-- 466-479    Unallocated -->
-    <avp name="Unassigned" code="466" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="467" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="468" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="469" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="470" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="471" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="472" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="473" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="474" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="475" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="476" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="477" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="478" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="479" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Unassigned" code="466" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="467" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="468" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="469" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="470" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="471" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="472" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="473" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="474" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="475" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="476" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="477" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="478" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="479" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
 			<enum name="Event Record" code="1"/>
 			<enum name="Start Record" code="2"/>
@@ -2339,13 +2339,13 @@
 			<enum name="Stop Record" code="4"/>
 		</avp>
 <!-- 481-482    Unallocated http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xhtml -->
-    <avp name="Unassigned" code="481" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Unassigned" code="482" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Unassigned" code="481" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Unassigned" code="482" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="Reserved" code="0"/>
 			<enum name="DELIVER_AND_GRANT" code="1"/>
@@ -2353,57 +2353,53 @@
 			<enum name="GRANT_AND_LOSE" code="3"/>
 		</avp>
 <!-- 484    unallocated  -->
-    <avp name="Unassigned" code="484" mandatory="may">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+		<avp name="Unassigned" code="484" mandatory="may">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
-<!--
-486 - 494 in mobileipv6.xml
--->
-    <avp name="TMOD-1" code="495" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-      <grouped>
-        <gavp name="Token-Rate"/>
-        <gavp name="Bucket-Depth"/>
-        <gavp name="Peak-Traffic-Rate"/>
-        <gavp name="Minimum-Policed-Unit"/>
-        <gavp name="Maximum-Packet-Size"/>
-      </grouped>
-    </avp>
-    <avp name="Token-Rate" code="496" mandatory="may">
-      <type type-name="Float32"/>
-    </avp>
-    <avp name="Bucket-Depth" code="497" mandatory="may">
-      <type type-name="Float32"/>
-    </avp>
-    <avp name="Peak-Traffic-Rate" code="498" mandatory="may">
-      <type type-name="Float32"/>
-    </avp>
-    <avp name="Minimum-Policed-Unit" code="499" mandatory="may">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="Maximum-Packet-Size" code="500" mandatory="may">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="TMOD-2" code="501" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-      <grouped>
-        <gavp name="Token-Rate"/>
-        <gavp name="Bucket-Depth"/>
-        <gavp name="Peak-Traffic-Rate"/>
-        <gavp name="Minimum-Policed-Unit"/>
-        <gavp name="Maximum-Packet-Size"/>
-      </grouped>
-    </avp>
-    <avp name="Bandwidth" code="502" mandatory="may">
-      <type type-name="Float32"/>
-    </avp>
-    <avp name="PHB-Class" code="503" mandatory="may">
-      <type type-name="Unsigned32"/>
-    </avp>
-<!--
-504 - 507 in mobileipv6.xml
--->
+<!-- 486 - 494 in mobileipv6.xml -->
+		<avp name="TMOD-1" code="495" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Token-Rate"/>
+				<gavp name="Bucket-Depth"/>
+				<gavp name="Peak-Traffic-Rate"/>
+				<gavp name="Minimum-Policed-Unit"/>
+				<gavp name="Maximum-Packet-Size"/>
+			</grouped>
+		</avp>
+		<avp name="Token-Rate" code="496" mandatory="may">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="Bucket-Depth" code="497" mandatory="may">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="Peak-Traffic-Rate" code="498" mandatory="may">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="Minimum-Policed-Unit" code="499" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Packet-Size" code="500" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="TMOD-2" code="501" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Token-Rate"/>
+				<gavp name="Bucket-Depth"/>
+				<gavp name="Peak-Traffic-Rate"/>
+				<gavp name="Minimum-Policed-Unit"/>
+				<gavp name="Maximum-Packet-Size"/>
+			</grouped>
+		</avp>
+		<avp name="Bandwidth" code="502" mandatory="may">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="PHB-Class" code="503" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+<!-- 504 - 507 in mobileipv6.xml -->
 <!--
 508 QoS-Resources [RFC5777]
 509 Filter-Rule [RFC5777]
@@ -2478,8 +2474,10 @@
 578 QoS-Capability [RFC5777]
 579 QoS-Authorization-Data [RFC-ietf-dime-diameter-qos-15]
 580 Bound-Auth-Session-Id [RFC-ietf-dime-diameter-qos-15]
-581-0xffffff Unassigned
-		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
+581-0xffffff Unassigned -->
+
+<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
+
 <!--
 3GPP TS 29.230 version 8.7.0 Release 8  Table 7.1: 3GPP specific AVP codes
 100 3GPP-WLAN-APN-Id OctetString 29.234 [6]
@@ -2545,101 +2543,101 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 			<enum name="3G GBA" code="0"/>
 			<enum name="2G GBA" code="1"/>
 		</avp>
-    <avp name="UE-Id" code="411" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="UE-Id-Type" code="412" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="Private user identity" code="0"/>
-      <enum name="Public user identity" code="1"/>
-    </avp>
-    <avp name="UICC-App-Label" code="413" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="UICC-ME" code="414" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="GBA_ME" code="0"/>
-      <enum name="GBA_U" code="1"/>
-    </avp>
-    <avp name="Requested-Key-Lifetime" code="415" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="Time"/>
-    </avp>
-    <avp name="Private-Identity-Request" code="416" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="Private identity requested" code="0"/>
-      <enum name="Private identity not requested" code="1"/>
-    </avp>
-    <avp name="GBA-Push-Info" code="417" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="NAF-SA-Identifier" code="418" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Security-Feature-Request" code="419" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Security-Feature-Response" code="420" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <!-- Note: The AVP codes from 421 to 499 are reserved for TS 29.109
+		<avp name="UE-Id" code="411" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="UE-Id-Type" code="412" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Private user identity" code="0"/>
+			<enum name="Public user identity" code="1"/>
+		</avp>
+		<avp name="UICC-App-Label" code="413" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="UICC-ME" code="414" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="GBA_ME" code="0"/>
+			<enum name="GBA_U" code="1"/>
+		</avp>
+		<avp name="Requested-Key-Lifetime" code="415" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Private-Identity-Request" code="416" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Private identity requested" code="0"/>
+			<enum name="Private identity not requested" code="1"/>
+		</avp>
+		<avp name="GBA-Push-Info" code="417" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="NAF-SA-Identifier" code="418" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Security-Feature-Request" code="419" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Security-Feature-Response" code="420" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+<!-- Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 
-    <avp name="Reserved for TS 29.109" code="421" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="422" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="423" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="424" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="425" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="426" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="427" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="428" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="429" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="430" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="431" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="432" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="433" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="434" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="435" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="436" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="437" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="438" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Reserved for TS 29.109" code="439" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
+		<avp name="Reserved for TS 29.109" code="421" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="422" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="423" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="424" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="425" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="426" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="427" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="428" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="429" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="430" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="431" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="432" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="433" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="434" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="435" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="436" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="437" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="438" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Reserved for TS 29.109" code="439" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
 29.109 [7]
 Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 -->
@@ -2653,12 +2651,12 @@ Note: The AVP codes from 651 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************	  700 - 716         **************************
+ **************************   700 - 716         **************************
 Note: The AVP codes from 717 to799 are reserved for TS 29.329.
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
-		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
-		<!-- Note: The AVP codes from 800 to 822 are reserved for TS 32.299. -->
+<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
+<!-- Note: The AVP codes from 800 to 822 are reserved for TS 32.299. -->
 		<avp name="Event-Type" code="823" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SIP-Method"/>
@@ -2677,10 +2675,11 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		<avp name="Content-Type" code="826" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<!-- In 3GPP TS 32.299 version 6.5.0 Release 6 (2005-12)					-->
-		<!-- type type-name="UTF8String"											-->
-		<!-- but according to 3GPP TS 32.299 version 7.4.0 Release 7(2006-12) it	-->
-		<!-- should be:																-->
+		<!--
+		     In 3GPP TS 32.299 version 6.5.0 Release 6 (2005-12)
+		     type type-name="UTF8String"
+		     but according to 3GPP TS 32.299 version 7.4.0 Release 7(2006-12) it should be:
+		-->
 		<avp name="Content-Length" code="827" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -2914,13 +2913,13 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="CHANGE_IN_LOCATION" code="3"/>
 			<enum name="CHANGE_IN_RAT" code="4"/>
 
-      <enum name="Undefined" code="5"/>
-      <enum name="Undefined" code="6"/>
-      <enum name="Undefined" code="7"/>
-      <enum name="Undefined" code="8"/>
-      <enum name="Undefined" code="9"/>
+			<enum name="Undefined" code="5"/>
+			<enum name="Undefined" code="6"/>
+			<enum name="Undefined" code="7"/>
+			<enum name="Undefined" code="8"/>
+			<enum name="Undefined" code="9"/>
 
-      <enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
+			<enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
 			<enum name="CHANGEINQOS_RELIABILITY_CLASS" code="11"/>
 			<enum name="CHANGEINQOS_DELAY_CLASS" code="12"/>
 			<enum name="CHANGEINQOS_PEAK_THROUGHPUT" code="13"/>
@@ -2935,64 +2934,64 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
 
-      <enum name="Undefined" code="24"/>
-      <enum name="Undefined" code="25"/>
-      <enum name="Undefined" code="26"/>
-      <enum name="Undefined" code="27"/>
-      <enum name="Undefined" code="28"/>
-      <enum name="Undefined" code="29"/>
+			<enum name="Undefined" code="24"/>
+			<enum name="Undefined" code="25"/>
+			<enum name="Undefined" code="26"/>
+			<enum name="Undefined" code="27"/>
+			<enum name="Undefined" code="28"/>
+			<enum name="Undefined" code="29"/>
 
-      <enum name="CHANGEINLOCATION_MCC" code="30"/>
+			<enum name="CHANGEINLOCATION_MCC" code="30"/>
 			<enum name="CHANGEINLOCATION_MNC" code="31"/>
 			<enum name="CHANGEINLOCATION_RAC" code="32"/>
 			<enum name="CHANGEINLOCATION_LAC" code="33"/>
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
-      <enum name="CHANGEINLOCATION_TAC" code="35"/>
-      <enum name="CHANGEINLOCATION_ECGI" code="36"/>
-      <enum name="Undefined" code="37"/>
-      <enum name="Undefined" code="38"/>
-      <enum name="Undefined" code="39"/>
+			<enum name="CHANGEINLOCATION_TAC" code="35"/>
+			<enum name="CHANGEINLOCATION_ECGI" code="36"/>
+			<enum name="Undefined" code="37"/>
+			<enum name="Undefined" code="38"/>
+			<enum name="Undefined" code="39"/>
 
-      <enum name="CHANGE_IN_MEDIA_COMPOSITION" code="40"/>
+			<enum name="CHANGE_IN_MEDIA_COMPOSITION" code="40"/>
 
-      <enum name="Undefined" code="41"/>
-      <enum name="Undefined" code="42"/>
-      <enum name="Undefined" code="43"/>
-      <enum name="Undefined" code="44"/>
-      <enum name="Undefined" code="45"/>
-      <enum name="Undefined" code="46"/>
-      <enum name="Undefined" code="47"/>
-      <enum name="Undefined" code="48"/>
-      <enum name="Undefined" code="49"/>
+			<enum name="Undefined" code="41"/>
+			<enum name="Undefined" code="42"/>
+			<enum name="Undefined" code="43"/>
+			<enum name="Undefined" code="44"/>
+			<enum name="Undefined" code="45"/>
+			<enum name="Undefined" code="46"/>
+			<enum name="Undefined" code="47"/>
+			<enum name="Undefined" code="48"/>
+			<enum name="Undefined" code="49"/>
 
-      <enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
-      <enum name="CHANGE_IN_THRSHLD_OF_PARTICIPANTS_NMB" code="51"/>
+			<enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
+			<enum name="CHANGE_IN_THRSHLD_OF_PARTICIPANTS_NMB" code="51"/>
 			<enum name="CHANGE_IN_USER_PARTICIPATING_TYPE" code="52"/>
 
-      <enum name="Undefined" code="53"/>
-      <enum name="Undefined" code="54"/>
-      <enum name="Undefined" code="55"/>
-      <enum name="Undefined" code="56"/>
-      <enum name="Undefined" code="57"/>
-      <enum name="Undefined" code="58"/>
-      <enum name="Undefined" code="59"/>
+			<enum name="Undefined" code="53"/>
+			<enum name="Undefined" code="54"/>
+			<enum name="Undefined" code="55"/>
+			<enum name="Undefined" code="56"/>
+			<enum name="Undefined" code="57"/>
+			<enum name="Undefined" code="58"/>
+			<enum name="Undefined" code="59"/>
 
-      <enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
-      <enum name="CHANGE_IN_SERVING_NODE" code="61"/>
-      <enum name="Undefined" code="62"/>
-      <enum name="Undefined" code="63"/>
-      <enum name="Undefined" code="64"/>
-      <enum name="Undefined" code="65"/>
-      <enum name="Undefined" code="66"/>
-      <enum name="Undefined" code="67"/>
-      <enum name="Undefined" code="68"/>
-      <enum name="Undefined" code="69"/>
+			<enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
+			<enum name="CHANGE_IN_SERVING_NODE" code="61"/>
+			<enum name="Undefined" code="62"/>
+			<enum name="Undefined" code="63"/>
+			<enum name="Undefined" code="64"/>
+			<enum name="Undefined" code="65"/>
+			<enum name="Undefined" code="66"/>
+			<enum name="Undefined" code="67"/>
+			<enum name="Undefined" code="68"/>
+			<enum name="Undefined" code="69"/>
 
-      <enum name="CHANGE_IN_USER_CSG_INFORMATION" code="70"/>
-      <enum name="CHANGE_IN_HYBRID_SUBSCRIBED_USER_CSG_INFORMATION" code="71"/>
-      <enum name="CHANGE_IN_HYBRID_UNSUBSCRIBED_USER_CSG_INFORMATION" code="72"/>
+			<enum name="CHANGE_IN_USER_CSG_INFORMATION" code="70"/>
+			<enum name="CHANGE_IN_HYBRID_SUBSCRIBED_USER_CSG_INFORMATION" code="71"/>
+			<enum name="CHANGE_IN_HYBRID_UNSUBSCRIBED_USER_CSG_INFORMATION" code="72"/>
 
-    </avp>
+		</avp>
 		<avp name="Quota-Holding-Time" code="871" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -3021,47 +3020,47 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		</avp>
 		<avp name="PS-Information" code="874" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-        <gavp name="3GPP-Charging-Id"/>
-        <gavp name="PDN-Connection-ID"/>
-        <gavp name="Node-Id"/>
-        <gavp name="3GPP-PDP Type"/>
-        <gavp name="PDP-Address"/>
-        <gavp name="Dynamic-Address-Flag"/>
-        <gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
-        <gavp name="QoS-Information"/>
-        <gavp name="SGSN-Address"/>
-        <gavp name="GGSN-Address"/>
-        <gavp name="CG-Address"/>
-        <gavp name="Serving-Node-Type"/>
-        <gavp name="SGW-Change"/>
-        <gavp name="3GPP-IMSI-MCC-MNC"/>
-        <gavp name="IMSI-Unauthenticated-Flag"/>
-        <gavp name="3GPP-GGSN-MCC-MNC"/>
+				<gavp name="3GPP-Charging-Id"/>
+				<gavp name="PDN-Connection-ID"/>
+				<gavp name="Node-Id"/>
+				<gavp name="3GPP-PDP Type"/>
+				<gavp name="PDP-Address"/>
+				<gavp name="Dynamic-Address-Flag"/>
+				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
+				<gavp name="QoS-Information"/>
+				<gavp name="SGSN-Address"/>
+				<gavp name="GGSN-Address"/>
+				<gavp name="CG-Address"/>
+				<gavp name="Serving-Node-Type"/>
+				<gavp name="SGW-Change"/>
+				<gavp name="3GPP-IMSI-MCC-MNC"/>
+				<gavp name="IMSI-Unauthenticated-Flag"/>
+				<gavp name="3GPP-GGSN-MCC-MNC"/>
 				<gavp name="3GPP-NSAPI"/>
 				<gavp name="Called-Station-Id"/>
 				<gavp name="3GPP-Session-Stop-Indicator"/>
 				<gavp name="3GPP-Selection-Mode"/>
-        <gavp name="3GPP-Charging-Characteristics"/>
-        <gavp name="Charging-Characteristics-Selection-Mode"/>
-        <gavp name="3GPP-SGSN-MCC-MNC"/>
+				<gavp name="3GPP-Charging-Characteristics"/>
+				<gavp name="Charging-Characteristics-Selection-Mode"/>
+				<gavp name="3GPP-SGSN-MCC-MNC"/>
 				<gavp name="3GPP-MS-TimeZone"/>
-				<gavp name="3GPP-CAMEL-Charging-Info"/>         <!-- ??-->
+				<gavp name="3GPP-CAMEL-Charging-Info"/>		<!-- ??-->
 				<gavp name="Charging-Rule-Base-Name"/>
 				<gavp name="3GPP-User-Location-Info"/>
 				<gavp name="3GPP-RAT-Type"/>
 				<gavp name="PS-Furnish-Charging-Information"/>
-        <gavp name="PDP-Context-Type"/>
-        <gavp name="Offline-Charging"/>
-        <gavp name="Traffic-Data-Volumes"/>
-        <gavp name="Service-Data-Container"/>
-        <gavp name="User-Equipment-Info"/>
-        <gavp name="Terminal-Information"/>
-        <gavp name="Start-Time"/>
-        <gavp name="Stop-Time"/>
-        <gavp name="Change-Condition"/>
-        <gavp name="Diagnostics"/>
-        <gavp name="Low-Priority-Indicator"/>
-      </grouped>
+				<gavp name="PDP-Context-Type"/>
+				<gavp name="Offline-Charging"/>
+				<gavp name="Traffic-Data-Volumes"/>
+				<gavp name="Service-Data-Container"/>
+				<gavp name="User-Equipment-Info"/>
+				<gavp name="Terminal-Information"/>
+				<gavp name="Start-Time"/>
+				<gavp name="Stop-Time"/>
+				<gavp name="Change-Condition"/>
+				<gavp name="Diagnostics"/>
+				<gavp name="Low-Priority-Indicator"/>
+			</grouped>
 		</avp>
 		<avp name="WLAN-Information" code="875" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -3256,98 +3255,98 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="Alphanumeric Shortcode" code="5"/>
 			<enum name="Other" code="6"/>
 		</avp>
-    <avp name="TMGI" code="900" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-StartStop-Indicatio" code="902" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="START" code="0"/>
-      <enum name="STOP" code="1"/>
-      <enum name="UPDATE" code="2"/>
-    </avp>
-    <avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctectString"/>
-    </avp>
-    <avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="Alternative-APN" code="905" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-Service-Type" code="906" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="MULTICAST" code="0"/>
-      <enum name="BROADCAST" code="1"/>
-    </avp>
-    <avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="2G" code="0"/>
-      <enum name="3G" code="1"/>
-      <enum name="2G-AND-3G" code="2"/>
-    </avp>
-    <avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="RAI" code="909" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="MBMS-Time-To-Data-Transfe" code="911" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="MBMS-Session-Identity-Repetition-Number" code="912" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="MBMS-Required-QoS" code="913" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-Counting-Information" code="914" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="COUNTING-NOT-APPLICABLE" code="0"/>
-      <enum name="COUNTING-APPLICABLE" code="1"/>
-    </avp>
-    <avp name="MBMS-User-Data-Mode-Indication" code="915" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="Unicast" code="0"/>
-      <enum name="Multicast and Unicast" code="1"/>
-    </avp>
-    <avp name="MBMS-GGSN-Address" code="916" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-GGSN-IPv6-Address" code="917" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-BMSC-SSM-IP-Address" code="918" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="MBMS-Flow-Identifier" code="920" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="CN-IP-Multicast-Distribution" code="921" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="NO-IP-MULTICAST" code="0"/>
-      <enum name="IP-MULTICAST" code="1"/>
-    </avp>
-    <avp name="CN-IP-Multicast-Distribution" code="922" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="uncompressed-header" code="0"/>
-      <enum name="compressed-header" code="1"/>
-    </avp>
-    <avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="UTRAN" code="0"/>
-      <enum name="E-UTRAN" code="1"/>
-      <enum name="UTRAN-AND-E-UTRAN" code="2"/>
-    </avp>
-    <!--
+		<avp name="TMGI" code="900" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-StartStop-Indicatio" code="902" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="START" code="0"/>
+			<enum name="STOP" code="1"/>
+			<enum name="UPDATE" code="2"/>
+		</avp>
+		<avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctectString"/>
+		</avp>
+		<avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Alternative-APN" code="905" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-Service-Type" code="906" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="MULTICAST" code="0"/>
+			<enum name="BROADCAST" code="1"/>
+		</avp>
+		<avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="2G" code="0"/>
+			<enum name="3G" code="1"/>
+			<enum name="2G-AND-3G" code="2"/>
+		</avp>
+		<avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="RAI" code="909" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MBMS-Time-To-Data-Transfe" code="911" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MBMS-Session-Identity-Repetition-Number" code="912" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MBMS-Required-QoS" code="913" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-Counting-Information" code="914" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="COUNTING-NOT-APPLICABLE" code="0"/>
+			<enum name="COUNTING-APPLICABLE" code="1"/>
+		</avp>
+		<avp name="MBMS-User-Data-Mode-Indication" code="915" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Unicast" code="0"/>
+			<enum name="Multicast and Unicast" code="1"/>
+		</avp>
+		<avp name="MBMS-GGSN-Address" code="916" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-GGSN-IPv6-Address" code="917" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-BMSC-SSM-IP-Address" code="918" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-Flow-Identifier" code="920" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="CN-IP-Multicast-Distribution" code="921" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NO-IP-MULTICAST" code="0"/>
+			<enum name="IP-MULTICAST" code="1"/>
+		</avp>
+		<avp name="CN-IP-Multicast-Distribution" code="922" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="uncompressed-header" code="0"/>
+			<enum name="compressed-header" code="1"/>
+		</avp>
+		<avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UTRAN" code="0"/>
+			<enum name="E-UTRAN" code="1"/>
+			<enum name="UTRAN-AND-E-UTRAN" code="2"/>
+		</avp>
+<!--
 Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 29.210
 ******** Found in TGPPGmb.xml ********
@@ -3563,8 +3562,8 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 			<enum name="QCI_7" 	code="7"/>
 			<enum name="QCI_8"	code="8"/>
 			<enum name="QCI_9"	code="9"/>
-      <!-- The values shall be used to indicate standardized characteristics associated with standardized QCI values from
-        3GPP TS 23.203-->
+			<!-- The values shall be used to indicate standardized characteristics associated with standardized QCI values from
+				3GPP TS 23.203 -->
 		</avp>
 		<avp name="QoS-Negotiation" code="1029" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -3794,22 +3793,22 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 			<enum name="CHANGE_CSG_SUBSCRIBED_HYBRID_CELL"   code="1"/>
 			<enum name="CHANGE_CSG_UNSUBSCRIBED_HYBRID_CELL"   code="2"/>
 		</avp>
-    <avp name="Packet-Filter-Usage" code="1072" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="SEND_TO_UE"  code="0"/>
-    </avp>
-    <avp name="Flow-Direction" code="1073" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="UNSPECIFIED"  code="0"/>
-      <enum name="DOWNLINK"   code="1"/>
-      <enum name="UPLINK"   code="2"/>
-      <enum name="BIDIRECTIONAL"   code="3"/>
-    </avp>
-    <avp name="QoS-Rule-Base-Name" code="1074" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
+		<avp name="Packet-Filter-Usage" code="1072" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SEND_TO_UE"  code="0"/>
+		</avp>
+		<avp name="Flow-Direction" code="1073" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UNSPECIFIED"  code="0"/>
+			<enum name="DOWNLINK"   code="1"/>
+			<enum name="UPLINK"   code="2"/>
+			<enum name="BIDIRECTIONAL"   code="3"/>
+		</avp>
+		<avp name="QoS-Rule-Base-Name" code="1074" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		  <type type-name="UTF8String"/>
+		</avp>
 
-    <!-- Note: The AVP codes from 1072 to 1099 are reserved for TS 29.212 -->
+<!-- Note: The AVP codes from 1072 to 1099 are reserved for TS 29.212 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -3903,7 +3902,7 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 			<enum name="unresolved" code="0"/>
 			<enum name="resolved" code="1"/>
 		</avp>
-<!--29.140 [16]
+<!-- 29.140 [16]
 Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 32.299
 -->
@@ -3934,9 +3933,9 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 <!-- http://www.openmobilealliance.org/tech/omna/omna-wsp-content-type.aspx -->
 		<avp name="Type-Number" code="1204" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-      <enum name="*/*" code="0"/>
-      <enum name="text/*" code="1"/>
-      <enum name="text/html" code="2"/>
+			<enum name="*/*" code="0"/>
+			<enum name="text/*" code="1"/>
+			<enum name="text/html" code="2"/>
 			<enum name="text/plain" code="3"/>
 			<enum name="text/x-hdml" code="4"/>
 			<enum name="text/x-ttml" code="5"/>
@@ -4434,12 +4433,9 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="Media-Initiator-Party" code="1288" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-<!--
-Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
--->
-<!--
-3GPP TS 29.272 V9.1.0 (2009-12
--->
+
+<!-- Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299 -->
+<!-- 3GPP TS 29.272 V9.1.0 (2009-12 -->
 		<avp name="Subscription-Data" code="1400" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 					<gavp name="Subscriber-Status"/>
@@ -5009,20 +5005,20 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 		<avp name="Routing-Area-Identity" code="1605" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="Location-Area-Identity" code="1606" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Service-Area-Identity" code="1607" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Geographical-Information" code="1608" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Geodetic-Information" code="1609" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Location-Area-Identity" code="1606" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Service-Area-Identity" code="1607" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Geographical-Information" code="1608" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Geodetic-Information" code="1609" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 
-    <!--
+<!--
 1610 Current-Location-Retrieved Enumerated
 1611 Age-Of-Location-Information Unsigned32
 1612 Active-APN Grouped
@@ -5431,13 +5427,12 @@ Note: The AVP codes from 1634 to 1699 are reserved for TS 29.272.
 			<enum name="Roaming-Default" code="4"/>
 			<enum name="Visiting-Default" code="5"/>
 		</avp>
-<!--
-Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299
--->
-    <avp name="Reserved" code="2100" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Application-Server-ID" code="2101" vendor-bit="must" vendor-id="TGPP">
+
+<!-- Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299 -->
+		<avp name="Reserved" code="2100" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Application-Server-ID" code="2101" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Application-Service-Type" code="2102" vendor-bit="must" vendor-id="TGPP">
@@ -5455,21 +5450,21 @@ Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299
 		<avp name="Delivery-Status" code="2104" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-    <avp name="Reserved" code="2105" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="2106" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="2107" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="2108" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Reserved" code="2109" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Reserved" code="2105" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="2106" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="2107" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="2108" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Reserved" code="2109" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="IM-Information" code="2110" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Interface-Id"/>
@@ -5504,10 +5499,10 @@ Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
 29.215 [22]
 Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
 -->
-    <avp name="Reserved" code="2300" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="SIP-Request-Timestamp-Fraction" code="2301" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Reserved" code="2300" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SIP-Request-Timestamp-Fraction" code="2301" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="SIP-Response-Timestamp-Fraction" code="2302" vendor-bit="must" vendor-id="TGPP">
@@ -5695,9 +5690,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
 	</application>
-  <application id="16777232" name="Ericsson Charging-CIP" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
-  </application>
-  <application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+	<application id="16777232" name="Ericsson Charging-CIP" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
+	</application>
+	<application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
 	<application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
 	</application>
@@ -5720,5 +5715,6 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	&gqpolicy;
 	&etsie2e4;
 	&Ericsson;
+	&Tango;
 	&mobileipv6;
 </dictionary>
