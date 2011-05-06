@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-12
+ * - draft-ietf-p2psip-base-13
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,7 +35,10 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-x509af.h>
 #include <packet-tcp.h>
+#include <packet-ssl-utils.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_reload = -1;
@@ -120,9 +123,9 @@ static int hf_reload_error_response_code = -1;
 static int hf_reload_error_response_info = -1;
 static int hf_reload_security_block = -1;
 static int hf_reload_certificates_length = -1;
-static int hf_reload_certificate = -1;
+static int hf_reload_certificates = -1;
 static int hf_reload_certificate_type = -1;
-static int hf_reload_certificate_data = -1;
+static int hf_reload_certificate = -1;
 static int hf_reload_signature = -1;
 static int hf_reload_hash_algorithm = -1;
 static int hf_reload_signature_algorithm = -1;
@@ -204,13 +207,13 @@ typedef struct _reload_conv_info_t {
 } reload_conv_info_t;
 
 
-/* ReLOAD Message classes = (message_code & 0x1) (response = request +1) */
+/* RELOAD Message classes = (message_code & 0x1) (response = request +1) */
 #define REQUEST         0x0001
 #define RESPONSE        0x0000
 
 #define ERROR           0xffff
 
-/* ReLOAD Message Methods = (message_code +1) & 0xfffe*/
+/* RELOAD Message Methods = (message_code +1) & 0xfffe*/
 #define METHOD_INVALID           0
 #define METHOD_PROBE             2
 #define METHOD_ATTACH            4
@@ -228,16 +231,16 @@ typedef struct _reload_conv_info_t {
 #define METHOD_CONFIGUPDATE     34
 
 
-/* ReLOAD Destinationtype */
+/* RELOAD Destinationtype */
 #define DESTINATIONTYPE_RESERVED            0
 #define DESTINATIONTYPE_NODE                1
 #define DESTINATIONTYPE_RESOURCE            2
 #define DESTINATIONTYPE_COMPRESSED          3
 
-/* ReLOAD forwarding option type */
+/* RELOAD forwarding option type */
 #define OPTIONTYPE_DIRECTRESPONSEFORWARDING  1
 
-/* ReLOAD CandTypes */
+/* RELOAD CandTypes */
 #define CANDTYPE_RESERVED        0
 #define CANDTYPE_HOST            1
 #define CANDTYPE_SRFLX           2
@@ -275,21 +278,6 @@ typedef struct _reload_conv_info_t {
 
 /* Certificate types */
 #define CERTIFICATETYPE_X509                                            0
-
-/* Hash Algorithm */
-#define HASHALGORITHM_NONE                                              0
-#define HASHALGORITHM_MD5                                               1
-#define HASHALGORITHM_SHA1                                              2
-#define HASHALGORITHM_SHA224                                            3
-#define HASHALGORITHM_SHA256                                            4
-#define HASHALGORITHM_SHA384                                            5
-#define HASHALGORITHM_SHA512                                            6
-
-/* Signature algorithm */
-#define SIGNATUREALGORITHM_ANONYMOUS                                    0
-#define SIGNATUREALGORITHM_RSA                                          1
-#define SIGNATUREALGORITHM_DSA                                          2
-#define SIGNATUREALGORITHM_ECDSA                                        3
 
 #define SIGNATUREIDENTITYTYPE_RESERVED                                  0
 #define SIGNATUREIDENTITYTYPE_CERTHASH                                  1
@@ -373,7 +361,7 @@ static const fragment_items reload_frag_items = {
   &hf_reload_fragment_count,
   &hf_reload_reassembled_in,
   &hf_reload_reassembled_length,
-  "ReLOAD fragments"
+  "RELOAD fragments"
 };
 
 
@@ -389,12 +377,12 @@ static const fragment_items reload_frag_items = {
 
 static const value_string classes[] = {
   {REQUEST,                                     "Request"},
-  {RESPONSE,                                    "Response"},
+  {RESPONSE,                                    "Answer"},
   {0x00, NULL}
 };
 
 static const value_string methods[] = {
-  {METHOD_INVALID,                              "Invalid"},
+  {METHOD_INVALID,                              "invalid"},
   {METHOD_PROBE,                                "Probe"},
   {METHOD_ATTACH,                               "Attach"},
   {METHOD_STORE,                                "Store"},
@@ -404,16 +392,16 @@ static const value_string methods[] = {
   {METHOD_JOIN,                                 "Join"},
   {METHOD_LEAVE,                                "Leave"},
   {METHOD_UPDATE,                               "Update"},
-  {METHOD_ROUTEQUERY,                           "Route Query"},
+  {METHOD_ROUTEQUERY,                           "RouteQuery"},
   {METHOD_PING,                                 "Ping"},
   {METHOD_STAT,                                 "Stat"},
-  {METHOD_APPATTACH,                            "App-Attach"},
-  {METHOD_CONFIGUPDATE,                         "Config Update"},
+  {METHOD_APPATTACH,                            "AppAttach"},
+  {METHOD_CONFIGUPDATE,                         "ConfigUpdate"},
   {0x00, NULL}
 };
 
 static const value_string destinationtypes[] = {
-  {DESTINATIONTYPE_RESERVED,                    "Reserved"},
+  {DESTINATIONTYPE_RESERVED,                    "reserved"},
   {DESTINATIONTYPE_NODE,                        "Node"},
   {DESTINATIONTYPE_RESOURCE,                    "Resource"},
   {DESTINATIONTYPE_COMPRESSED,                  "Compressed"},
@@ -426,7 +414,7 @@ static const value_string forwardingoptiontypes[] = {
 };
 
 static const value_string candtypes[] = {
-  {CANDTYPE_RESERVED,                           "reservedCand"},
+  {CANDTYPE_RESERVED,                           "reserved"},
   {CANDTYPE_HOST,                               "host"},
   {CANDTYPE_SRFLX,                              "srflx"},
   {CANDTYPE_PRFLX,                              "prflx"},
@@ -436,13 +424,13 @@ static const value_string candtypes[] = {
 
 static const value_string ipaddressporttypes [] = {
   {IPADDRESSPORTTYPE_RESERVED,                  "reserved"},
-  {IPADDRESSPORTTYPE_IPV4,                      "ipv4"},
-  {IPADDRESSPORTTYPE_IPV6,                      "ipv6"},
+  {IPADDRESSPORTTYPE_IPV4,                      "IPV4"},
+  {IPADDRESSPORTTYPE_IPV6,                      "IPV6"},
   {0x00, NULL}
 };
 
 static const value_string overlaylinktypes [] ={
-  {OVERLAYLINKTYPE_RESERVEDOVERLAYLINK,         "ReservedOverLayLink"},
+  {OVERLAYLINKTYPE_RESERVEDOVERLAYLINK,         "reserved"},
   {OVERLAYLINKTYPE_DTLS_UDP_SR,                 "DTLS-UDP-SR"},
   {OVERLAYLINKTYPE_DTLS_UDP_SR_NO_ICE,          "DTLS-UDP-SR-NO-ICE"},
   {OVERLAYLINKTYPE_TLS_TCP_FH_NO_ICE,           "TLS-TCP-FH-NO-ICE"},
@@ -471,37 +459,18 @@ static const value_string errorcodes [] ={
 };
 
 static const value_string certificatetypes[] = {
-  {CERTIFICATETYPE_X509,                        "x509"},
-  {0x00, NULL}
-};
-
-static const value_string hashalgorithms[] = {
-  {HASHALGORITHM_NONE,                          "none"},
-  {HASHALGORITHM_MD5,                           "md5"},
-  {HASHALGORITHM_SHA1,                          "sha1"},
-  {HASHALGORITHM_SHA224,                        "sha224"},
-  {HASHALGORITHM_SHA256,                        "sha256"},
-  {HASHALGORITHM_SHA384,                        "sha384"},
-  {HASHALGORITHM_SHA512 ,                       "sha512"},
-  {0x00, NULL}
-};
-
-static const value_string signaturealgorithms[] = {
-  {SIGNATUREALGORITHM_ANONYMOUS,                "anonymous"},
-  {SIGNATUREALGORITHM_RSA,                      "rsa"},
-  {SIGNATUREALGORITHM_DSA,                      "dsa"},
-  {SIGNATUREALGORITHM_ECDSA,                    "ecdsa"},
+  {CERTIFICATETYPE_X509,                        "X509"},
   {0x00, NULL}
 };
 
 static const value_string signatureidentitytypes[] = {
   {SIGNATUREIDENTITYTYPE_RESERVED,              "reserved"},
-  {SIGNATUREIDENTITYTYPE_CERTHASH,              "cert hash"},
+  {SIGNATUREIDENTITYTYPE_CERTHASH,              "CERT_HASH"},
   {0x00, NULL}
 };
 
 static const value_string probeinformationtypes[] = {
-  {PROBEINFORMATIONTYPE_RESERVED,               "reservedProbeInformation"},
+  {PROBEINFORMATIONTYPE_RESERVED,               "reserved"},
   {PROBEINFORMATIONTYPE_RESPONSIBLESET,         "responsible_set"},
   {PROBEINFORMATIONTYPE_NUMRESOURCES,           "num_resources"},
   {PROBEINFORMATIONTYPE_UPTIME,                 "uptime"},
@@ -510,19 +479,19 @@ static const value_string probeinformationtypes[] = {
 
 static const value_string datakindids[] = {
   {DATAKINDID_INVALID,                          "invalid"},
-  {DATAKINDID_TURNSERVICE,                      "turn-service"},
-  {DATAKINDID_CERTIFICATE_BY_NODE,              "certificate-by-node"},
-  {DATAKINDID_CERTIFICATE_BY_USER,              "certificate-by-user"},
+  {DATAKINDID_TURNSERVICE,                      "TURN-SERVICE"},
+  {DATAKINDID_CERTIFICATE_BY_NODE,              "CERTIFICATE_BY_NODE"},
+  {DATAKINDID_CERTIFICATE_BY_USER,              "CERTIFICATE_BY_USER"},
   {0x00, NULL}
 };
 
 static const value_string messageextensiontypes[] = {
-  {MESSAGEEXTENSIONTYPE_RESERVED,               "reservedMessageExtension"},
+  {MESSAGEEXTENSIONTYPE_RESERVED,               "reserved"},
   {0x00, NULL}
 };
 
 static const value_string configupdatetypes[] = {
-  {CONFIGUPDATETYPE_RESERVED,                   "reservedConfigUpdate"},
+  {CONFIGUPDATETYPE_RESERVED,                   "reserved"},
   {CONFIGUPDATETYPE_CONFIG,                     "config"},
   {CONFIGUPDATETYPE_KIND,                       "kind"},
   {0x00, NULL}
@@ -1240,7 +1209,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (effective_length < msg_length) {
     /* The effective length is too small for the packet */
-    expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
+    expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
     return 0;
   }
 
@@ -1433,7 +1402,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += MIN_HDR_LENGTH;
 
   if (((guint)offset + via_list_length) > msg_length) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
     return MIN_HDR_LENGTH;
   }
 
@@ -1448,7 +1417,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += via_list_length;
 
   if (((guint)offset + destination_list_length) > msg_length) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
     return offset;
   }
 
@@ -1463,7 +1432,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += destination_list_length;
 
   if (((guint)offset + options_length) > msg_length) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
     return offset;
   }
 
@@ -1550,12 +1519,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          msg_length - offset,
                          !last_fragment);
 
-      next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled ReLOAD",
+      next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RELOAD",
                                           reload_fd_head, &reload_frag_items, &update_col_info, reload_tree);
     }
     if (next_tvb == NULL) {
       /* Just show this as a fragment. */
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented ReLOAD protocol (trans id=%x%x off=%u)",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented RELOAD protocol (trans id=%x%x off=%u)",
                    transaction_id[0],transaction_id[1], fragment);
       if (reload_fd_head && reload_fd_head->reassembled_in != pinfo->fd->num) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
@@ -1741,7 +1710,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             configupdate_length = tvb_get_ntohl(tvb, offset + local_offset);
             proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_length, tvb,  offset + local_offset, 4, configupdate_length);
             if (5 + configupdate_length > message_body_length) {
-              expert_add_info_format(pinfo, ti_configupdate, PI_PROTOCOL, PI_ERROR, "Truncated ConfigupdateReq");
+              expert_add_info_format(pinfo, ti_configupdate, PI_PROTOCOL, PI_ERROR, "Truncated ConfigUpdateReq");
               break;
             }
             local_offset += 4;
@@ -1863,7 +1832,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             find_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset, 1, message_body_length);
             kinds_length = tvb_get_guint8(tvb, offset + find_offset);
             if (find_offset + 1 + kinds_length > message_body_length) {
-              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Request");
+              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated FindRequest");
               break;
             }
             proto_tree_add_uint(message_body_tree, hf_reload_findreq_kinds_length, tvb, offset + find_offset, 1, kinds_length);
@@ -1882,7 +1851,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             results_length = tvb_get_ntohs(tvb, offset);
             if ((guint32)results_length + 2 > message_body_length) {
-              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Answer");
+              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated FindAnswer");
               break;
             }
             proto_tree_add_uint(message_body_tree, hf_reload_findans_results_length, tvb, offset, 2, results_length);
@@ -2025,15 +1994,27 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           break;
         }
         ti_certificate = proto_tree_add_item(security_block_tree,
-                                             hf_reload_certificate, tvb, offset+security_block_offset + certificate_offset,
+                                             hf_reload_certificates, tvb, offset + security_block_offset + certificate_offset,
                                              1 + 2 + certificate_length,
                                              FALSE);
         certificate_tree = proto_item_add_subtree(ti_certificate, ett_reload_certificate);
 
         proto_tree_add_item(certificate_tree, hf_reload_certificate_type, tvb,
                             offset + security_block_offset + certificate_offset, 1, FALSE);
+        switch (tvb_get_guint8(tvb, offset + security_block_offset + certificate_offset)) {
+          case CERTIFICATETYPE_X509: {
+            asn1_ctx_t asn1_ctx;
 
-        dissect_opaque(tvb, pinfo, certificate_tree, hf_reload_certificate_data, offset+security_block_offset + certificate_offset+1, 2, -1);
+            asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+            dissect_x509af_Certificate(FALSE, tvb, offset + security_block_offset + certificate_offset + 1 + 2, &asn1_ctx,
+                                       certificate_tree, hf_reload_certificate);
+          }
+          break;
+
+          default:
+            dissect_opaque(tvb, pinfo, certificate_tree, hf_reload_certificate, offset + security_block_offset + certificate_offset + 1,
+                           2, -1);
+        }
         certificate_offset += 1 + 2 + certificate_length;
       }
     }
@@ -2154,11 +2135,11 @@ proto_register_reload(void)
   static hf_register_info hf[] = {
     { &hf_reload_response_in,
       { "Response In",  "reload.response-in", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "The response to this ReLOAD Request is in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL }
     },
     { &hf_reload_response_to,
       { "Request In", "reload.response-to", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a response to the ReLOAD Request in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL }
     },
     { &hf_reload_time,
       { "Time", "reload.time", FT_RELATIVE_TIME,
@@ -2166,7 +2147,7 @@ proto_register_reload(void)
     },
     { &hf_reload_duplicate,
       { "Duplicated original message in", "reload.duplicate", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a duplicate of ReLOAD message in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a duplicate of RELOAD message in this frame", HFILL }
     },
     { &hf_reload_forwarding,
       { "Forwarding Header",    "reload.forwarding",  FT_NONE,
@@ -2457,19 +2438,19 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificates_length,
-      { "certificates length",  "reload.certificates.length", FT_UINT16,
+      { "Certificates Length",  "reload.certificates.length", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
-    { &hf_reload_certificate,
-      { "Certificate",  "reload.certificate", FT_NONE,
+    { &hf_reload_certificates,
+      { "Certificates",  "reload.certificates", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificate_type,
-      { "Certificate type", "reload.certificate.type",  FT_UINT8,
+      { "Certificate Type", "reload.certificate.type",  FT_UINT8,
         BASE_DEC, VALS(certificatetypes), 0x0,  NULL, HFILL }
     },
-    { &hf_reload_certificate_data,
-      { "certificate data", "reload.certificate.data",  FT_BYTES,
+    { &hf_reload_certificate,
+      { "Certificate", "reload.certificate",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature,
@@ -2478,11 +2459,11 @@ proto_register_reload(void)
     },
     { &hf_reload_hash_algorithm,
       { "Hash Algorithm", "reload.hash_algorithm",  FT_UINT8,
-        BASE_DEC, VALS(hashalgorithms), 0x0,  NULL, HFILL }
+        BASE_DEC, VALS(tls_hash_algorithm), 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_algorithm,
       { "Signature Algorithm",  "reload.signature_algorithm", FT_UINT8,
-        BASE_DEC, VALS(signaturealgorithms),  0x0,  NULL, HFILL }
+        BASE_DEC, VALS(tls_signature_algorithm),  0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity,
       { "Signature Identity", "reload.signature.identity",  FT_NONE,
@@ -2684,24 +2665,24 @@ proto_register_reload(void)
       { "Defragmentation error", "reload.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "Defragmentation error due to illegal fragments", HFILL }},
 
-		{ &hf_reload_fragment_count,
-		  { "Fragment count", "reload.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+    { &hf_reload_fragment_count,
+      { "Fragment count", "reload.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}},
 
     { &hf_reload_fragment,
-      { "ReLOAD Fragment", "reload.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      { "RELOAD Fragment", "reload.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_reload_fragments,
-      { "ReLOAD Fragments", "reload.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+      { "RELOAD Fragments", "reload.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_reload_reassembled_in,
-      { "Reassembled ReLOAD in frame", "reload.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-        "This ReLOAD packet is reassembled in this frame", HFILL }},
+      { "Reassembled RELOAD in frame", "reload.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This RELOAD packet is reassembled in this frame", HFILL }},
 
-		{ &hf_reload_reassembled_length,
-		  { "Reassembled ReLOAD length", "reload.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+    { &hf_reload_reassembled_length,
+      { "Reassembled RELOAD length", "reload.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
         "The total length of the reassembled payload", HFILL}},
 
     { &hf_reload_configupdatereq,
@@ -2794,7 +2775,7 @@ proto_register_reload(void)
   reload_module = prefs_register_protocol(proto_reload, NULL);
   prefs_register_bool_preference(reload_module, "defragment",
                                  "Reassemble fragmented reload datagrams",
-                                 "Whether fragmented ReLOAD datagrams should be reassembled",
+                                 "Whether fragmented RELOAD datagrams should be reassembled",
                                  &reload_defragment);
   prefs_register_uint_preference(reload_module, "nodeid_length",
                                  "NodeId Length",

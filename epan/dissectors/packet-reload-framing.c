@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-10
+ * - draft-ietf-p2psip-base-13
  */
 
 #ifdef HAVE_CONFIG_H
@@ -65,7 +65,7 @@ typedef struct _reload_frame_conv_info_t {
 } reload_conv_info_t;
 
 
-/* ReLOAD Message classes = (message_code & 0x1) (response = request +1) */
+/* RELOAD Message classes = (message_code & 0x1) (response = request +1) */
 #define DATA            128
 #define ACK             129
 
@@ -84,8 +84,8 @@ static gint ett_reload_framing_message = -1;
 #define RELOAD_TOKEN                    0xd2454c4f
 
 static const value_string types[] = {
-  {DATA, "Data"},
-  {ACK,  "Ack"},
+  {DATA, "DATA"},
+  {ACK,  "ACK"},
   {0x00, NULL}
 };
 
@@ -129,37 +129,37 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (effective_length < MIN_HDR_LENGTH)
     return 0;
 
-  /* Get the type 
+  /* Get the type
    * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
    * 5.6.2.  Framing Header
    */
   type = tvb_get_guint8(tvb, 0);
 
   switch(type){
-	  case DATA:
-		/* in the data type, check the reload token to be sure this
-		 *  is a reLoad packet
-		 */
-		message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
-		if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
-		  return 0;
-		}
-		relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
-		if (relo_token != RELOAD_TOKEN) {
-		  return 0;
-		}
-		break;
-	  case ACK:
-		  if (effective_length != 9){
-			  return 0;
-		  }
-		  break;
-	  default:
-		  return 0;
+    case DATA:
+      /* in the data type, check the reload token to be sure this
+      *  is a reLoad packet
+      */
+      message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
+      if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
+        return 0;
+      }
+      relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
+      if (relo_token != RELOAD_TOKEN) {
+        return 0;
+      }
+      break;
+    case ACK:
+      if (effective_length != 9) {
+        return 0;
+      }
+      break;
+    default:
+      return 0;
   }
 
 
-  /* The message seems to be a valid reLOAD framing message! */
+  /* The message seems to be a valid RELOAD framing message! */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RELOAD Frame");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -279,7 +279,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       message_tree = proto_item_add_subtree(ti_message, ett_reload_framing_message);
       proto_tree_add_item(message_tree, hf_reload_framing_message_length, tvb, offset, 3, FALSE);
       offset += 3;
-      next_tvb = tvb_new_subset(tvb, offset, effective_length -offset, message_length);
+      next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
       if (reload_handle == NULL) {
         expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
         return tvb_length(tvb);
@@ -316,7 +316,7 @@ dissect_reload_framing_message_no_return(tvbuff_t *tvb, packet_info *pinfo, prot
 static void
 dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  /* XXX: Check if we have a valid ReLOAD Frame Type ? */
+  /* XXX: Check if we have a valid RELOAD Frame Type ? */
   tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LENGTH,
                    get_reload_framing_message_length, dissect_reload_framing_message_no_return);
 }
@@ -340,36 +340,36 @@ proto_register_reload_framing(void)
 
   static hf_register_info hf[] = {
     { &hf_reload_framing_type,
-      { "Framed Message Type", "reload_framing.probe_information.type", FT_UINT8,
+      { "Framed Message Type", "reload_framing.type", FT_UINT8,
         BASE_DEC, VALS(types),  0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_sequence,
-      { "sequence", "reload_framing.sequence", FT_UINT32,
+      { "Sequence", "reload_framing.sequence", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_ack_sequence,
-      { "ack sequence", "reload_framing.ack_sequence", FT_UINT32,
+      { "ACK Sequence", "reload_framing.ack_sequence", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_message,
-      { "message", "reload_framing.message", FT_BYTES,
+      { "Message", "reload_framing.message", FT_BYTES,
         BASE_NONE, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_message_length,
-      { "message length", "reload_framing.message.length", FT_UINT32,
+      { "Message length", "reload_framing.message.length", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_received,
-      { "received", "reload_framing.received", FT_UINT32,
+      { "Received", "reload_framing.received", FT_UINT32,
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_framing_response_in,
       { "Response In",  "reload_framing.response-in", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "The response to this ReLOAD Request is in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL }
     },
     { &hf_reload_framing_response_to,
       { "Request In", "reload_framing.response-to", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a response to the ReLOAD Request in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL }
     },
     { &hf_reload_framing_time,
       { "Time", "reload_framing.time", FT_RELATIVE_TIME,
@@ -377,7 +377,7 @@ proto_register_reload_framing(void)
     },
     { &hf_reload_framing_duplicate,
       { "Duplicated original message in", "reload_framing.duplicate", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a duplicate of ReLOAD message in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a duplicate of RELOAD message in this frame", HFILL }
     },
   };
 
