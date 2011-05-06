@@ -215,8 +215,8 @@ static void mark_lval_deprecated(const char *s);
 
 <DQUOTE>\\[0-7]{1,3} {
 	/* octal sequence */
-	unsigned int result;
-	sscanf(yytext + 1, "%o", &result);
+	unsigned long result;
+	result = strtoul(yytext + 1, NULL, 8);
 	if (result > 0xff) {
 		g_string_free(quoted_string, TRUE);
 		quoted_string = NULL;
@@ -228,8 +228,8 @@ static void mark_lval_deprecated(const char *s);
 
 <DQUOTE>\\x[[:xdigit:]]{1,2} {
 	/* hex sequence */
-	unsigned int result;
-	sscanf(yytext + 2, "%x", &result);
+	unsigned long result;
+	result = strtoul(yytext + 2, NULL, 16);
 	g_string_append_c(quoted_string, (gchar) result);
 }
 
