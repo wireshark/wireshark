@@ -80,6 +80,7 @@ static int hf_mgn_obj_id = -1;
 static int hf_org_spc_oui = -1;
 static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_3_subtype = -1;
+static int hf_ieee_802_1qbg_subtype = -1;
 static int hf_media_tlv_subtype = -1;
 static int hf_profinet_tlv_subtype = -1;
 static int hf_profinet_class2_port_status = -1;
@@ -125,6 +126,7 @@ static gint ett_802_3_flags = -1;
 static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
+static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
@@ -180,6 +182,7 @@ static const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_MEDIA_ENDPOINT,	"TIA" },
 	{ OUI_PROFINET,         "PROFINET" },
 	{ OUI_CISCO_2,          "Cisco" },
+	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
 	{ 0, NULL }
 };
 
@@ -216,6 +219,14 @@ static const value_string media_subtypes[] = {
 	{ 11, 	"Inventory - Asset ID" },
 	{ 0, NULL }
 };
+
+/* IEEE 802.1Qbg Subtypes */
+static const value_string ieee_802_1qbg_subtypes[] = {
+	{ 0x00, "EVB" },
+	{ 0x01, "CDCP" },
+	{ 0, NULL }
+};
+
 
 /* Media Class Values */
 static const value_string media_class_values[] = {
@@ -460,6 +471,13 @@ static const value_string operational_mau_type_values[] = {
 #define INV_AUTONEG_1000BASE_XFD	0x2000 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
 #define INV_AUTONEG_1000BASE_T		0x4000 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
 #define INV_AUTONEG_1000BASE_TFD	0x8000 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
+
+#define EVB_CAPA_STD		0x8000
+#define EVB_CAPA_RR		0x4000
+
+#define EVB_CAPA_RTE		0x0004
+#define EVB_CAPA_ECP		0x0002
+#define EVB_CAPA_VDP		0x0001
 
 #define MAX_MAC_LEN	6
 
@@ -1338,6 +1356,121 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 	return;
 }
+
+/* Dissect IEEE 802.1Qbg TLVs */
+static void
+dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subType;
+	guint8 tempByte;
+	guint16 tempShort;
+	guint32 tempOffset = offset;
+
+	proto_tree *evb_capabilities_subtree = NULL;
+
+	proto_item *tf = NULL;
+
+	subType = tvb_get_guint8(tvb, tempOffset);
+
+	if (tree)
+		proto_tree_add_item(tree, hf_ieee_802_1qbg_subtype, tvb, tempOffset, 1, FALSE);
+
+	tempOffset++;
+
+	switch (subType) {
+		case 0x00:
+			/* Get EVB capabilities */
+			tempShort = tvb_get_ntohs(tvb, tempOffset);
+			if (tree) {
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "supported capabilities: 0x%04X", tempShort);
+				evb_capabilities_subtree = proto_item_add_subtree(tf, ett_802_1qbg_capabilities_flags);
+
+				if (tempShort & EVB_CAPA_STD)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_STD,
+								16, "standard bridging (STD)", ""));
+
+				if (tempShort & EVB_CAPA_RR)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_RR,
+								16, "reflective relay (RR)", ""));
+
+				if (tempShort & EVB_CAPA_RTE)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_RTE,
+								16, "retransmission timer exponent (RTE)", ""));
+
+				if (tempShort & EVB_CAPA_ECP)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_ECP,
+								16, "edge control protocol (ECP)", ""));
+
+				if (tempShort & EVB_CAPA_VDP)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_VDP,
+								16, "VSI discovery protocol (VDP)", ""));
+			}
+
+			tempOffset += 2;
+
+			tempShort = tvb_get_ntohs(tvb, tempOffset);
+			if (tree) {
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "configured capabilities: 0x%04X", tempShort);
+				evb_capabilities_subtree = proto_item_add_subtree(tf, ett_802_1qbg_capabilities_flags);
+
+				if (tempShort & EVB_CAPA_STD)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_STD,
+								16, "standard bridging (STD)", ""));
+
+				if (tempShort & EVB_CAPA_RR)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_RR,
+								16, "reflective relay (RR)", ""));
+
+				if (tempShort & EVB_CAPA_RTE)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_RTE,
+								16, "retransmission timer exponent (RTE)", ""));
+
+				if (tempShort & EVB_CAPA_ECP)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_ECP,
+								16, "edge control protocol (ECP)", ""));
+
+				if (tempShort & EVB_CAPA_VDP)
+					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
+								decode_boolean_bitfield(tempShort, EVB_CAPA_VDP,
+								16, "VSI discovery protocol (VDP)", ""));
+			}
+
+			tempOffset += 2;
+
+			tempShort = tvb_get_ntohs(tvb, tempOffset);
+			if (tree) {
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "supported no. of VSIs: %04u", tempShort);
+			}
+
+			tempOffset += 2;
+
+			tempShort = tvb_get_ntohs(tvb, tempOffset);
+			if (tree) {
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "configured no. of VSIs: %04u", tempShort);
+			}
+
+			tempOffset += 2;
+
+			tempByte= tvb_get_guint8(tvb, tempOffset);
+			if (tree) {
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "retransmission timer exponent: %02u", tempByte);
+			}
+
+			break;
+	}
+
+	return;
+}
+
 
 /* Dissect IEEE 802.3 TLVs */
 static void
@@ -2505,6 +2638,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_CISCO_2:
 		subTypeStr = val_to_str(subType, cisco_subtypes, "Unknown subtype (0x%x)");
 		break;
+	case OUI_IEEE_802_1QBG:
+		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
+		break;
 	default:
 		subTypeStr = "Unknown";
 		break;
@@ -2550,6 +2686,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_CISCO_2:
 		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
+		break;
+	case OUI_IEEE_802_1QBG:
+		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
 		break;
 	default:
 		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), FALSE);
@@ -2774,16 +2913,20 @@ proto_register_lldp(void)
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_org_spc_oui,
-			{ "Organization Unique Code",	"lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-	   		VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
+			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
+			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_subtype,
-			{ "IEEE 802.1 Subtype",	"lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(ieee_802_1_subtypes), 0x0, NULL, HFILL }
+			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
+			VALS(ieee_802_1_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_subtype,
-			{ "IEEE 802.3 Subtype",	"lldp.ieee.802_3.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(ieee_802_3_subtypes), 0x0, NULL, HFILL }
+			{ "IEEE 802.3 Subtype", "lldp.ieee.802_3.subtype", FT_UINT8, BASE_HEX,
+			VALS(ieee_802_3_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_subtype,
+			{ "IEEE 802.1Qbg Subtype", "lldp.ieee.802_1qbg.subtype", FT_UINT8, BASE_HEX,
+			VALS(ieee_802_1qbg_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
@@ -2907,6 +3050,7 @@ proto_register_lldp(void)
 		&ett_802_3_autoneg_advertised,
 		&ett_802_3_power,
 		&ett_802_3_aggregation,
+		&ett_802_1qbg_capabilities_flags,
 		&ett_media_capabilities,
 		&ett_profinet_period,
 		&ett_cisco_fourwire_tlv
