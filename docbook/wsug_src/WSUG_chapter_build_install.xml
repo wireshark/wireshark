@@ -238,7 +238,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
       handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
 	how to do this.
 	<example id="Ch02Ex5">
-	  <title>Installing debs under Debian</title>
+	  <title>Installing debs under Debian, Ubuntu and other Debian derivatives</title>
 	  <programlisting>
 aptitude install wireshark-dev
 	  </programlisting>
@@ -359,7 +359,7 @@ rpm -ivh wireshark-&WiresharkCurrentVersion;.i386.rpm
   </section>
 
   <section> 
-    <title>Installing from deb's under Debian</title>
+    <title>Installing from deb's under Debian, Ubuntu and other Debian derivatives</title>
     <para>
       If you can just install from the repository then use:
       <programlisting>
@@ -375,6 +375,14 @@ dpkg -i wireshark-common_&WiresharkCurrentVersion;.0-1_i386.deb wireshark_&Wires
       </programlisting>
       dpkg doesn't take care of all dependencies, but reports what's missing.
     </para>
+    <note><title>Note!</title>
+	<para>
+	By installing Wireshark packages non-root users won't gain rights
+        automatically to capture packets. To allow non-root users to capture
+        packets follow the procedure described in
+        <ulink url="file:///usr/share/doc/wireshark-common/README.Debian">/usr/share/doc/wireshark-common/README.Debian</ulink>
+        </para>
+    </note>
   </section>
 
   <section> 
