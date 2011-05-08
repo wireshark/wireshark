@@ -649,22 +649,13 @@ welcome_if_new(const if_info_t *if_info, const gchar *user_descr, GdkColor *topi
     return eb;
 }
 
-
-/* load the list of interfaces */
-static void
-welcome_if_panel_load(void)
+/* load the sorted list of interfaces */
+static GList *
+welcome_if_panel_get_if_list()
 {
-    GtkWidget *child_box;
-    GtkWidget *interface_hb;
-
-    if_info_t     *if_info;
-    GList         *if_list;
+    GList *if_list;
     int err;
-    gchar         *err_str = NULL;
-    int           ifs;
-    GList         *curr;
-    gchar         *user_descr;
-
+    gchar *err_str = NULL;
 
     /* LOAD THE INTERFACES */
     if_list = capture_interface_list(&err, &err_str);
@@ -672,10 +663,24 @@ welcome_if_panel_load(void)
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
         g_free(err_str);
-        return;
     } else if (err_str) {
-	g_free(err_str);
+        g_free(err_str);
     }
+    return if_list;
+}
+
+/* list the interfaces */
+static void
+welcome_if_panel_list(GList *if_list)
+{
+    GtkWidget *child_box;
+    GtkWidget *interface_hb;
+
+    if_info_t     *if_info;
+    int           ifs;
+    GList         *curr;
+    gchar         *user_descr;
+
 
     /* List the interfaces */
     for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
@@ -703,8 +708,6 @@ welcome_if_panel_load(void)
         child_box = scroll_box_dynamic_add(welcome_if_panel_vb);
         gtk_box_pack_start(GTK_BOX(child_box), interface_hb, FALSE, FALSE, 1);
     }
-
-    free_interface_list(if_list);
 }
 #endif  /* HAVE_LIBPCAP */
 
@@ -720,6 +723,7 @@ welcome_if_panel_reload(void)
 
 
     if(welcome_if_panel_vb) {
+        GList *if_list;
         child_box = scroll_box_dynamic_reset(welcome_if_panel_vb);
         child_list = gtk_container_get_children(GTK_CONTAINER(child_box));
         child_list_item = child_list;
@@ -731,7 +735,10 @@ welcome_if_panel_reload(void)
 
         g_list_free(child_list);
 
-        welcome_if_panel_load();
+        if_list = welcome_if_panel_get_if_list();
+        welcome_if_panel_list(if_list);
+        free_interface_list(if_list);
+
         gtk_widget_show_all(welcome_if_panel_vb);
     }
 #endif  /* HAVE_LIBPCAP */
@@ -753,6 +760,7 @@ welcome_new(void)
     GtkWidget *topic_to_fill;
 #ifdef HAVE_LIBPCAP
     GtkWidget *if_child_box;
+    GList *if_list;
 #endif  /* HAVE_LIBPCAP */
     GtkWidget *file_child_box;
     gchar *label_text;
@@ -809,48 +817,62 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
 #ifdef HAVE_LIBPCAP
-    item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
-        "Interface List",
-        "Live list of the capture interfaces\n(counts incoming packets)",
-        "Same as Capture/Interfaces menu or toolbar item",
-        welcome_button_callback_helper, capture_if_cb);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+    if_list = welcome_if_panel_get_if_list();
+    if (g_list_length(if_list) > 0) {
 
-    label_text =  g_strdup("<span foreground=\"black\">Start capture on interface:</span>");
-    w = gtk_label_new(label_text);
-    gtk_label_set_markup(GTK_LABEL(w), label_text);
-    g_free (label_text);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
-
-    if_child_box = gtk_vbox_new(FALSE, 0);
-    /* 8 capture interfaces or 150 pixels height is about the size */
-    /* that still fits on a screen of about 1000*700 */
-    welcome_if_panel_vb = scroll_box_dynamic_new(GTK_BOX(if_child_box), 8, 150);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), welcome_if_panel_vb, FALSE, FALSE, 0);
-    welcome_if_panel_load();
-
-    item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
-        "Capture Options",
-        "Start a capture with detailed options",
-        "Same as Capture/Options menu or toolbar item",
-        welcome_button_callback_helper, capture_prep_cb);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-
-#ifdef _WIN32
-    /* Check for chimney offloading */
-    reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
-                              _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
-                              NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
-    if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
-        item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-            "Offloading Detected",
-            "TCP Chimney offloading is enabled. You \nmight not capture much data.",
-            topic_online_url(ONLINEPAGE_CHIMNEY),
-            topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
+            "Interface List",
+            "Live list of the capture interfaces\n(counts incoming packets)",
+            "Same as Capture/Interfaces menu or toolbar item",
+            welcome_button_callback_helper, capture_if_cb);
         gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-    }
+
+        label_text =  g_strdup("<span foreground=\"black\">Start capture on interface:</span>");
+        w = gtk_label_new(label_text);
+        gtk_label_set_markup(GTK_LABEL(w), label_text);
+        g_free (label_text);
+        gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
+        gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+
+        if_child_box = gtk_vbox_new(FALSE, 0);
+        /* 8 capture interfaces or 150 pixels height is about the size */
+        /* that still fits on a screen of about 1000*700 */
+        welcome_if_panel_vb = scroll_box_dynamic_new(GTK_BOX(if_child_box), 8, 150);
+        gtk_box_pack_start(GTK_BOX(topic_to_fill), welcome_if_panel_vb, FALSE, FALSE, 0);
+        welcome_if_panel_list(if_list);
+
+        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
+            "Capture Options",
+            "Start a capture with detailed options",
+            "Same as Capture/Options menu or toolbar item",
+            welcome_button_callback_helper, capture_prep_cb);
+        gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+#ifdef _WIN32
+        /* Check for chimney offloading */
+        reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
+                                  _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
+                                  NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
+        if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
+            item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
+                "Offloading Detected",
+                "TCP Chimney offloading is enabled. You \nmight not capture much data.",
+                topic_online_url(ONLINEPAGE_CHIMNEY),
+                topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+            gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+        }
 #endif /* _WIN32 */
+    } else {
+        label_text =  g_strdup("No interface can be used for capturing in\n"
+                               "this system with the current configuration.\n\n"
+                               "See Capture Help for details.");
+        w = gtk_label_new(label_text);
+        gtk_label_set_markup(GTK_LABEL(w), label_text);
+        g_free (label_text);
+        gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
+        gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+    }
+    
+    free_interface_list(if_list);
 
     /* capture help topic */
     topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
