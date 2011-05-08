@@ -8,11 +8,10 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -99,15 +98,25 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,FALSE);
 	if (!encap) {
 		char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, check your Preferences->Protocols->DLT_USER",
-									 pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
+					     pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 		proto_item_set_text(item,"%s",msg);
 		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
 		
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return;
-	} else {
-		proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 	}
+	if (encap->payload_proto == NULL) {
+		char* msg = ep_strdup_printf("User encapsulation's protocol %s not found: DLT=%d, check your Preferences->Protocols->DLT_USER",
+					     encap->payload_proto_name,
+					     pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
+		proto_item_set_text(item,"%s",msg);
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
+		
+		call_dissector(data_handle, tvb, pinfo, tree);
+		return;
+	}
+
+	proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 
 	len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
 	
