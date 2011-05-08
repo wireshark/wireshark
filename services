@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-04-29)
+(last updated 2011-05-02)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -16256,9 +16256,12 @@ athand-mmp      20999/udp  AT Hand MMP
 irtrans         21000/tcp  IRTrans Control
 irtrans         21000/udp  IRTrans Control
 #                          Marcus Mueller <marcus&irtrans.de> November 2004
-#               21001-21553 Unassigned
-dfserver	21554/tcp   MineScape Design File Server
-dfserver	21554/udp   MineScape Design File Server
+#               21001-21552 Unassigned
+rdm-tfs         21553/tcp  Raima RDM TFS
+#                          Paul Johnson <paul.johnson&raima.com> 02 May 2011
+#               21553/udp  Reserved          
+dfserver	21554/tcp  MineScape Design File Server
+dfserver	21554/udp  MineScape Design File Server
 #			   Michael Purser <mrp&mincom.com> June 2006
 #               21555-21589 Unassigned
 vofr-gateway	21590/tcp  VoFR Gateway
