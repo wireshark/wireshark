@@ -535,7 +535,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) && packet.ext_dst) {
         packet.dst64 = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_dst64, tvb, offset, 8, packet.dst64);
+            proto_tree_add_item(nwk_tree, hf_zbee_nwk_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
     }
@@ -547,7 +547,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (packet.ext_src) {
             packet.src64 = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 8, packet.src64);
+                proto_tree_add_item(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
             offset += 8;
 
@@ -842,7 +842,6 @@ dissect_zbee_nwk_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint8  route_options;
     guint8  route_id;
     guint16 dest_addr;
-    guint64 dest_ext_addr;
     guint8  path_cost;
 
     /* Get and display the route options field. */
@@ -890,9 +889,8 @@ dissect_zbee_nwk_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Get and display the extended destination address. */
     if (route_options & ZBEE_NWK_CMD_ROUTE_OPTION_DEST_EXT) {
-        dest_ext_addr = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(tree, hf_zbee_nwk_cmd_route_dest_ext, tvb, offset, 8, dest_ext_addr);
+            proto_tree_add_item(tree, hf_zbee_nwk_cmd_route_dest_ext, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
     }
@@ -928,8 +926,6 @@ dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint8  route_id;
     guint16 orig_addr;
     guint16 resp_addr;
-    guint64 orig_ext_addr;
-    guint64 resp_ext_addr;
     guint8  path_cost;
 
     /* Get and display the route options field. */
@@ -980,18 +976,16 @@ dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Get and display the originator extended address. */
     if (route_options & ZBEE_NWK_CMD_ROUTE_OPTION_ORIG_EXT) {
-        orig_ext_addr = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(tree, hf_zbee_nwk_cmd_route_orig_ext, tvb, offset, 8, orig_ext_addr);
+            proto_tree_add_item(tree, hf_zbee_nwk_cmd_route_orig_ext, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
     }
 
     /* Get and display the responder extended address. */
     if (route_options & ZBEE_NWK_CMD_ROUTE_OPTION_RESP_EXT) {
-        resp_ext_addr = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(tree, hf_zbee_nwk_cmd_route_resp_ext, tvb, offset, 8, resp_ext_addr);
+            proto_tree_add_item(tree, hf_zbee_nwk_cmd_route_resp_ext, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
     }
@@ -1293,7 +1287,6 @@ dissect_zbee_nwk_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 {
     guint8  options;
     guint8  report_type;
-    guint64 epid;
     int     report_count;
     int     i;
 
@@ -1308,9 +1301,8 @@ dissect_zbee_nwk_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset += 1;
 
     /* Get and display the epid. */
-    epid = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_uint64_format_value(tree, hf_zbee_nwk_cmd_epid, tvb, offset, 8, epid, "%s", print_eui64(epid));
+        proto_tree_add_item(tree, hf_zbee_nwk_cmd_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
     offset += 8;
 
@@ -1354,7 +1346,6 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     guint8  options;
     guint8  update_type;
     guint8  update_id;
-    guint64 epid;
     int     update_count;
     int     i;
 
@@ -1369,9 +1360,8 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset += 1;
 
     /* Get and display the epid. */
-    epid = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_uint64_format_value(tree, hf_zbee_nwk_cmd_epid, tvb, offset, 8, epid, "%s", print_eui64(epid));
+        proto_tree_add_item(tree, hf_zbee_nwk_cmd_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
     offset += 8;
 
@@ -1473,13 +1463,12 @@ static void dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* In ZigBee 2006 and later, the beacon contains an extended PAN ID. */
         epid = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_uint64_format_value(beacon_tree, hf_zbee_beacon_epid, tvb, offset, 8,
-                    epid, "%s", print_eui64(epid));
+            proto_tree_add_item(beacon_tree, hf_zbee_beacon_epid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
 
         /* Update the Info Column with the EPID. */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", print_eui64(epid));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", get_eui64_name(epid));
 
         /*
          * In ZigBee 2006 the Tx-Offset is optional, while in the 2007 and
@@ -1608,11 +1597,11 @@ void proto_register_zbee_nwk(void)
                 ZBEE_NWK_MCAST_MAX_RADIUS, NULL, HFILL }},
 
             { &hf_zbee_nwk_dst64,
-            { "Destination",   "zbee.nwk.dst64", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Destination",   "zbee.nwk.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64,
-            { "Extended Source",        "zbee.nwk.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Source",        "zbee.nwk.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64_origin,
@@ -1652,15 +1641,15 @@ void proto_register_zbee_nwk(void)
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_dest_ext,
-            { "Extended Destination",   "zbee.nwk.cmd.route.dest_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Destination",   "zbee.nwk.cmd.route.dest_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_orig_ext,
-            { "Extended Originator",    "zbee.nwk.cmd.route.orig_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Originator",    "zbee.nwk.cmd.route.orig_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_resp_ext,
-            { "Extended Responder",     "zbee.nwk.cmd.route.resp_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Responder",     "zbee.nwk.cmd.route.resp_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_cost,
@@ -1783,7 +1772,7 @@ void proto_register_zbee_nwk(void)
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_epid,
-            { "Extended PAN ID",        "zbee.nwk.cmd.epid", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended PAN ID",        "zbee.nwk.cmd.epid", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_protocol,
@@ -1811,7 +1800,7 @@ void proto_register_zbee_nwk(void)
                 "Whether the device can accept join requests from ZigBee end devices.", HFILL }},
 
             { &hf_zbee_beacon_epid,
-            { "Extended PAN ID",        "zbee.beacon.ext_panid", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended PAN ID",        "zbee.beacon.ext_panid", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "Extended PAN identifier.", HFILL }},
 
             { &hf_zbee_beacon_tx_offset,

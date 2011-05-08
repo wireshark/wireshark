@@ -1975,7 +1975,6 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             {
                 /* 6lowpan-ND */
                 guint8 status;
-                gchar *eui64;
 
                 /* Status */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, FALSE);
@@ -1992,8 +1991,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* EUI-64 */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, FALSE);
-                eui64 = tvb_bytes_to_str_punct(tvb, opt_offset, 8, ':');
-                proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
+                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(tvb, opt_offset, FALSE), val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
                 opt_offset += 8;
 
             }
@@ -4037,8 +4035,8 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_aro_registration_lifetime,
           { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
             "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
-        { &hf_icmpv6_opt_aro_eui64, /*  TODO: add a FT_EUI64 Type ? */
-          { "EUI-64", "icmpv6.opt.aro.eui64", FT_BYTES, BASE_NONE, NULL, 0x00,
+        { &hf_icmpv6_opt_aro_eui64,
+          { "EUI-64", "icmpv6.opt.aro.eui64", FT_EUI64, BASE_NONE, NULL, 0x00,
             "This field is used to uniquely identify the interface of the registered address", HFILL }},
         { &hf_icmpv6_opt_6co_context_length,
           { "Context Length", "icmpv6.opt.6co.context_length", FT_UINT8, BASE_DEC, NULL, 0x00,

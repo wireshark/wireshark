@@ -2953,6 +2953,7 @@ Samu Varjonen		<samu.varjonen [AT] hiit.fi> {
 }
 
 Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
+	Add FT_EUI64 Field Type
 	Aruba ERM dissector
 	ATMTCP dissector
 	CAPWAP dissector

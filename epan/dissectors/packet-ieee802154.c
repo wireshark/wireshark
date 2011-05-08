@@ -358,74 +358,6 @@ static const true_false_string ieee802154_gts_direction_tfs = {
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
 
-#define EUI64_STRLEN    (3*(sizeof(guint64)+1))
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      print_eui64
- *  DESCRIPTION
- *      Prints an EUI-64 address in a string. Does not attempt to
- *      resolve the OUI value.
- *
- *  PARAMETERS
- *      guint64 addr
- *  RETURNS
- *      gchar*
- *---------------------------------------------------------------
- */
-gchar *
-print_eui64(guint64 addr)
-{
-    address         eui64addr;
-
-    /* Endian-swap the address to put it into network order. */
-    addr = pntoh64(&addr);
-    /* Fill in the address struct. */
-    eui64addr.type = AT_EUI64;
-    eui64addr.len = sizeof(guint64);
-    eui64addr.data = &addr;
-    /* Print the address. */
-    return ep_address_to_str(&eui64addr);
-} /* print_eui64 */
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      print_eui64_oui
- *  DESCRIPTION
- *      Prints an EUI-64 address in a string. Attempts to lookup
- *      the vendor name from the OUI,
- *
- *  PARAMETERS
- *      guint64 addr
- *  RETURNS
- *      gchar*
- *---------------------------------------------------------------
- */
-gchar *
-print_eui64_oui(guint64 addr)
-{
-    const gchar     *manuf_name;
-    address         eui64addr;
-
-    /* Endian-swap the address to put it into network order. */
-    addr = pntoh64(&addr);
-    /* Fill in the address struct. */
-    eui64addr.type = AT_EUI64;
-    eui64addr.len = sizeof(guint64);
-    eui64addr.data = &addr;
-    /* Attempt an OUI lookup. */
-    manuf_name = get_manuf_name_if_known(eui64addr.data);
-    if (manuf_name == NULL) {
-        /* Could not find an OUI. */
-        return ep_address_to_str(&eui64addr);
-    }
-    else {
-        /* Found an address string. */
-        return ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", manuf_name,
-            ((guint8 *)(eui64addr.data))[3], ((guint8 *)(eui64addr.data))[4],
-            ((guint8 *)(eui64addr.data))[5], ((guint8 *)(eui64addr.data))[6],
-            ((guint8 *)(eui64addr.data))[7]);
-    }
-} /* print_eui64_oui */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -778,14 +710,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         /* Dynamic (not stack) memory required for address column. */
         void     *addr = ep_alloc(8);
-        gchar    *dst, *dst_oui;
 
         /* Get the address */
         packet->dst64 = tvb_get_letoh64(tvb, offset);
-
-        /* print the address strings. */
-        dst = print_eui64(packet->dst64);
-        dst_oui = print_eui64_oui(packet->dst64);
 
         /* Copy and convert the address to network byte order. */
         *(guint64 *)(addr) = pntoh64(&(packet->dst64));
@@ -798,12 +725,11 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, addr);
         SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, addr);
         if (tree) {
-            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_dst_addr64, tvb, offset,
-                    8, packet->dst64, "%s (%s)", dst_oui, dst);
-            proto_item_append_text(proto_root, ", Dst: %s", dst_oui);
+            proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(proto_root, ", Dst: %s", get_eui64_name(packet->dst64));
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_oui);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", get_eui64_name(packet->dst64));
         }
         offset += 8;
     }
@@ -898,14 +824,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         /* Dynamic (not stack) memory required for address column. */
         void    *addr = ep_alloc(8);
-        gchar   *src, *src_oui;
 
         /* Get the address. */
         packet->src64 = tvb_get_letoh64(tvb, offset);
-
-        /* Print the address strings. */
-        src = print_eui64(packet->src64);
-        src_oui = print_eui64_oui(packet->src64);
 
         /* Copy and convert the address to network byte order. */
         *(guint64 *)(addr) = pntoh64(&(packet->src64));
@@ -918,13 +839,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, addr);
         SET_ADDRESS(&pinfo->src, AT_EUI64, 8, addr);
         if (tree) {
-            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_src64, tvb, offset,
-                                               8, packet->src64, "%s (%s)", src_oui, src);
-            proto_item_append_text(proto_root, ", Src: %s", src_oui);
+            proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(proto_root, ", Src: %s", get_eui64_name(packet->src64));
         }
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_oui);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", get_eui64_name(packet->src64));
         }
         offset += 8;
     }
@@ -1006,7 +926,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) {
           packet->key_source.addr64 = tvb_get_ntoh64(tvb, offset);
           proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, offset, 8, packet->key_source.addr64);
-          proto_item_set_len(ti,1 + 8);
+          proto_item_set_len(ti, 1 + 8);
           offset += 4;
         }
         /* Add key identifier. */
@@ -1474,8 +1394,7 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         (*offset) += 2;
     } /* for */
     for (i=0; i<pend_num64; i++) {
-        guint64 addr = tvb_get_letoh64(tvb, *offset);
-        proto_tree_add_uint64_format_value(subtree, hf_ieee802154_pending64, tvb, *offset, 8, addr, "%s (%s)", print_eui64_oui(addr), print_eui64(addr));
+        proto_tree_add_item(subtree, hf_ieee802154_pending64, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         (*offset) += 8;
     } /* for */
 } /* dissect_ieee802154_pendaddr */
@@ -2381,29 +2300,6 @@ gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
     return FALSE;
 } /* ieee802154_long_addr_invalidate */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_tree_add_eui64
- *  DESCRIPTION
- *      Helper function to display an EUI-64 address to the tree.
- *  PARAMETERS
- *      proto_tree  *tree
- *      int         hfindex
- *      tvbuff_t    *tvb
- *      gint        start
- *      gint        length
- *      guint64     value;
- *  RETURNS
- *      proto_item *
- *---------------------------------------------------------------
- */
-proto_item *
-proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gint64 value)
-{
-    header_field_info *hf = proto_registrar_get_nth(hfindex);
-    return proto_tree_add_uint64_format(tree, hfindex, tvb, start, length, value, "%s: %s (%s)",
-            hf->name, print_eui64_oui(value), print_eui64(value));
-}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2481,7 +2377,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_dst_addr64,
-        { "Destination",                    "wpan.dst_addr64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Destination",                    "wpan.dst_addr64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_src_panID,
@@ -2493,7 +2389,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_src64,
-        { "Extended Source",                "wpan.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Extended Source",                "wpan.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_src64_origin,
@@ -2638,7 +2534,7 @@ void proto_register_ieee802154(void)
             "Device with pending data to receive.", HFILL }},
 
         { &hf_ieee802154_pending64,
-        { "Address",                    "wpan.pending64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Address",                    "wpan.pending64", FT_EUI64, BASE_NONE, NULL, 0x0,
             "Device with pending data to receive.", HFILL }},
 
             /* Auxiliary Security Header Fields */

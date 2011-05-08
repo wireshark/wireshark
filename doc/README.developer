@@ -1122,7 +1122,7 @@ FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
-		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC,
+		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC, FT_EUI64
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
 		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDDISPLAY	For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
@@ -1785,6 +1785,7 @@ The type of value this field holds. The current field types are:
 				address.
 	FT_GUID			A Globally Unique Identifier
 	FT_OID			An ASN.1 Object Identifier
+	FT_EUI64		A EUI-64 Address
 
 Some of these field types are still not handled in the display filter
 routines, but the most common ones are. The FT_UINT* variables all
@@ -2295,6 +2296,17 @@ protocol or field labels to the proto_tree:
 		format, ...);
 
 	proto_item *
+	proto_tree_add_eui64(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_eui64_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_eui64_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
 	proto_tree_add_oid_format_value(tree, id, tvb, start, length,
 		value_ptr, format, ...);
 
@@ -2424,6 +2436,7 @@ proto_tree_add_int()
 proto_tree_add_int64()
 proto_tree_add_guid()
 proto_tree_add_oid()
+proto_tree_add_eui64()
 ------------------------
 These routines are used to add items to the protocol tree if either:
 
@@ -2499,6 +2512,9 @@ e_guid_t structure.
 For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
 ASN.1 Object Identifier.
 
+For proto_tree_add_eui64(), the 'value' argument is a 64-bit integer 
+value
+
 proto_tree_add_bytes_format()
 proto_tree_add_time_format()
 proto_tree_add_ipxnet_format()
@@ -2515,6 +2531,7 @@ proto_tree_add_int_format()
 proto_tree_add_int64_format()
 proto_tree_add_guid_format()
 proto_tree_add_oid_format()
+proto_tree_add_eui64_format()
 ----------------------------
 These routines are used to add items to the protocol tree when the
 dissector routine wants complete control over how the field and value
@@ -2540,6 +2557,7 @@ proto_tree_add_int_format_value()
 proto_tree_add_int64_format_value()
 proto_tree_add_guid_format_value()
 proto_tree_add_oid_format_value()
+proto_tree_add_eui64_format_value()
 ------------------------------------
 
 These routines are used to add items to the protocol tree when the

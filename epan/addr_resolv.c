@@ -3051,6 +3051,54 @@ get_manuf_name_if_known(const guint8 *addr)
 
 } /* get_manuf_name_if_known */
 
+extern const gchar *
+get_eui64_name(const guint64 addr_eui64)
+{
+  gchar *cur;
+  hashmanuf_t  *mtp;
+  guint8 *addr = ep_alloc(8);
+  
+  /* Copy and convert the address to network byte order. */
+  *(guint64 *)(addr) = pntoh64(&(addr_eui64));
+
+  if ((gbl_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
+    initialize_ethers();
+    eth_resolution_initialized = TRUE;
+  }
+
+  if (!(gbl_resolv_flags & RESOLV_MAC) || ((mtp = manuf_name_lookup(addr)) == NULL)) {
+    cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+    return cur;
+  }
+  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", mtp->name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+  return cur;
+
+} /* get_eui64_name */
+
+
+const gchar *
+get_eui64_name_if_known(const guint64 addr_eui64)
+{
+  gchar *cur;
+  hashmanuf_t  *mtp;
+  guint8 *addr = ep_alloc(8);
+
+  /* Copy and convert the address to network byte order. */
+  *(guint64 *)(addr) = pntoh64(&(addr_eui64));
+
+  if (!eth_resolution_initialized) {
+    initialize_ethers();
+    eth_resolution_initialized = TRUE;
+  }
+
+  if ((mtp = manuf_name_lookup(addr)) == NULL) {
+    return NULL;
+  }
+
+  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", mtp->name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+  return cur;
+
+} /* get_eui64_name_if_known */
 
 #ifdef HAVE_C_ARES
 #define GHI_TIMEOUT (250 * 1000)

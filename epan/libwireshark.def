@@ -403,6 +403,7 @@ epan_get_runtime_version_info
 epan_get_version
 epan_init
 epan_strcasestr
+eui64_to_str
 escape_string
 escape_string_len
 ethertype
@@ -800,6 +801,9 @@ proto_tree_add_debug_text
 proto_tree_add_double
 proto_tree_add_double_format
 proto_tree_add_double_format_value
+proto_tree_add_eui64
+proto_tree_add_eui64_format
+proto_tree_add_eui64_format_value
 proto_tree_add_ether_format
 proto_tree_add_ether
 proto_tree_add_ether_format_value
@@ -1050,6 +1054,7 @@ tvb_bytes_to_str
 tvb_bytes_to_str_punct
 tvb_ensure_bytes_exist
 tvb_ensure_length_remaining
+tvb_eui64_to_str
 tvb_ether_to_str
 tvb_fake_unicode
 tvb_fc_to_str

@@ -498,7 +498,42 @@ bool_ne(fvalue_t *a, fvalue_t *b)
 	return (!bool_eq(a,b));
 }
 
+/* EUI64-specific */
+static gboolean
+eui64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
 
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an EUI64 Address if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (val64_from_unparsed(fv, s, TRUE, NULL)) {
+		return TRUE;
+	}
+
+	logfunc("\"%s\" is not a valid EUI64 Address", s);
+	return FALSE;
+}
+
+static int
+eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return 8*3-1;	/* XX:XX:XX:XX:XX:XX:XX:XX */
+}
+
+static void
+eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+  	guint8 *p_eui64 = ep_alloc(8);
+
+  	/* Copy and convert the address to network byte order. */
+  	*(guint64 *)(p_eui64) = pntoh64(&(fv->value.integer64));
+
+	sprintf(buf, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
+	p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
+	p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
+}
 
 void
 ftype_register_integers(void)
@@ -988,6 +1023,44 @@ ftype_register_integers(void)
 		NULL,				/* slice */
 	};
 
+	static ftype_t eui64_type = {
+		FT_EUI64,			/* ftype */
+		"FT_EUI64",			/* name */
+		"EUI64 address",		/* pretty_name */
+		FT_EUI64_LEN,			/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		eui64_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		eui64_to_repr,		/* val_to_string_repr */
+		eui64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		u_cmp_gt64,
+		u_cmp_ge64,
+		u_cmp_lt64,
+		u_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
+	
 	ftype_register(FT_UINT8, &uint8_type);
 	ftype_register(FT_UINT16, &uint16_type);
 	ftype_register(FT_UINT24, &uint24_type);
@@ -1001,4 +1074,5 @@ ftype_register_integers(void)
 	ftype_register(FT_BOOLEAN, &boolean_type);
 	ftype_register(FT_IPXNET, &ipxnet_type);
 	ftype_register(FT_FRAMENUM, &framenum_type);
+	ftype_register(FT_EUI64, &eui64_type);
 }

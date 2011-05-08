@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <gmodule.h>
 #include <epan/packet.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
@@ -72,7 +73,7 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         /* Extended PAN Identifiers are used in ZigBee 2006 & later. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
-        if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Pan: %s", print_eui64(ext_pan));
+        if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Pan: %s", eui64_to_str(ext_pan));
         len += sizeof(guint64);
     }
     else {
@@ -142,7 +143,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         /* ZigBee 2006 & later use an extended PAN Identifier. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
-        if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Extended PAN: %s", print_eui64(ext_pan));
+        if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Extended PAN: %s", eui64_to_str(ext_pan));
         len += sizeof(guint64);
     }
     else {
@@ -153,7 +154,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
     }
 
     ext_addr = tvb_get_letoh64(tvb, *offset + len);
-    if (tree) proto_item_append_text(ti, ", Extended Addr: %s", print_eui64_oui(ext_addr));
+    if (tree) proto_item_append_text(ti, ", Extended Addr: %s", get_eui64_name(ext_addr));
     len += sizeof(guint64);
 
     device = tvb_get_letohs(tvb, *offset + len);
@@ -444,7 +445,7 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         offset += sizeof(guint8);
     }
 
-    zbee_append_info(tree, pinfo, ", Device: %s", print_eui64_oui(ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -474,7 +475,7 @@ dissect_zbee_zdp_req_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
     cinfo    = zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", print_eui64_oui(ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -888,7 +889,7 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         guint16 addr16 = tvb_get_letohs(tvb, offset+sizeof(guint64));
 
         if (tree) {
-            proto_tree_add_text(tree, tvb, offset, sizeof(guint16)+sizeof(guint64), "{%s = 0x%04x}", print_eui64_oui(addr64), addr16);
+            proto_tree_add_text(tree, tvb, offset, sizeof(guint16)+sizeof(guint64), "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
         }
         offset += sizeof(guint16)+sizeof(guint64);
     } /* for */

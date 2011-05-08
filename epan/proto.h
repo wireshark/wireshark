@@ -1423,6 +1423,51 @@ extern proto_item *
 proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
+/** Add a FT_EUI64 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint64 value);
+
+/** Add a formatted FT_EUI64 to a proto_tree, with the format generating
+    the string for the value and with the field name being included
+    automatically.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+	gint start, gint length, const guint64 value, const char *format, ...)
+	G_GNUC_PRINTF(7,8);
+
+/** Add a formatted FT_EUI64 to a proto_tree, with the format generating
+    the entire string for the entry, including any field name.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+
+
 /** Useful for quick debugging. Also sends string to STDOUT, so don't
     leave call to this function in production code.
  @param tree the tree to append the text to

@@ -321,6 +321,37 @@ tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset)
   return buf;
 }
 
+/*
+ This function is very fast and this function is called a lot.
+ XXX update the ep_address_to_str stuff to use this function.
+*/
+gchar *
+eui64_to_str(const guint64 ad) {
+  gchar *buf;
+  guint8 *p_eui64;
+
+  p_eui64 = ep_alloc(8);
+  buf=ep_alloc(EUI64_STR_LEN);
+
+  /* Copy and convert the address to network byte order. */
+  *(guint64 *)(p_eui64) = pntoh64(&(ad));
+
+  sprintf(buf, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
+  p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
+  p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
+  return buf;
+}
+gchar *
+tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding)
+{
+  if(encoding)
+  {
+    return eui64_to_str(tvb_get_letoh64(tvb, offset));
+  }else {
+    return eui64_to_str(tvb_get_ntoh64(tvb, offset));
+  }
+}
+
 static void
 usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 {

@@ -227,7 +227,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                 NULL, HFILL }},
 
             { &hf_zbee_sec_src64,
-            { "Extended Source",                 "zbee.sec.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Source",                 "zbee.sec.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_sec_key_seqno,
@@ -503,7 +503,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         /* Get and display the source address of the device that secured this payload. */
         packet.src64 = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, packet.src64);
+            proto_tree_add_item(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
 #if 1
         if (!pinfo->fd->flags.visited) {

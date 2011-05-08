@@ -238,11 +238,6 @@ typedef struct {
     ieee802154_map_rec *map_rec;
 } ieee802154_hints_t;
 
-/* Some Helper Function Definitions. */
-extern gchar       *print_eui64(guint64);
-extern gchar       *print_eui64_oui(guint64);
-extern proto_item  *proto_tree_add_eui64(proto_tree *, int, tvbuff_t *, gint, gint, gint64);
-
 /* Short to Extended Address Prototypes */
 extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,
         const char *, guint);

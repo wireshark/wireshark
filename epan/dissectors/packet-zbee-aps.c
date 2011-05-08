@@ -1080,22 +1080,18 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static guint
 dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
-    guint64 init;
-    guint64 resp;
 
     /* Get and display the initiator address. */
-    init = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_initiator, tvb, offset, sizeof(guint64), init);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_initiator, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the responder address. */
-    resp = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_responder, tvb, offset, sizeof(guint64), resp);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_responder, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the SKKE data. */
     if (tree) {
@@ -1125,22 +1121,19 @@ dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static guint
 dissect_zbee_aps_skke_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
-    guint64 init;
-    guint64 resp;
 
     /* Get and display the initiator address. */
-    init = tvb_get_letoh64(tvb, offset);
+
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_initiator, tvb, offset, sizeof(guint64), init);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_initiator, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the responder address. */
-    resp = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_responder, tvb, offset, sizeof(guint64), resp);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_responder, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the SKKE data. */
     if (tree) {
@@ -1228,8 +1221,6 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         case ZBEE_APS_CMD_KEY_HIGH_SEC_NWK: {
             /* Network Key */
             guint8  seqno;
-            guint64 src;
-            guint64 dst;
 
             /* Get and display the sequence number. */
             seqno = tvb_get_guint8(tvb, offset);
@@ -1239,55 +1230,47 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             offset += 1;
 
             /* Get and display the destination address. */
-            dst = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_dst, tvb, offset, sizeof(guint64), dst);
+                proto_tree_add_item(tree, hf_zbee_aps_cmd_dst, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
-            offset += sizeof(guint64);
+            offset += 8;
 
             /* Get and display the source address. */
-            src = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_src, tvb, offset, sizeof(guint64), src);
+                proto_tree_add_item(tree, hf_zbee_aps_cmd_src, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
-            offset += sizeof(guint64);
+            offset += 8;
 
             break;
         }
         case ZBEE_APS_CMD_KEY_TC_MASTER:
         case ZBEE_APS_CMD_KEY_TC_LINK:{
             /* Trust Center master key. */
-            guint64 src;
-            guint64 dst;
 
             /* Get and display the destination address. */
-            dst = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_dst, tvb, offset, sizeof(guint64), dst);
+                proto_tree_add_item(tree, hf_zbee_aps_cmd_dst, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
-            offset += sizeof(guint64);
+            offset += 8;
 
             /* Get and display the source address. */
-            src = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_src, tvb, offset, sizeof(guint64), src);
+                proto_tree_add_item(tree, hf_zbee_aps_cmd_src, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
-            offset += sizeof(guint64);
+            offset += 8;
 
             break;
         }
         case ZBEE_APS_CMD_KEY_APP_MASTER:
         case ZBEE_APS_CMD_KEY_APP_LINK:{
             /* Application master or link key, both have the same format. */
-            guint64 partner;
             guint8  initiator;
 
             /* get and display the partner address.  */
-            partner = tvb_get_letoh64(tvb, offset);
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, sizeof(guint64), partner);
+                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
-            offset += sizeof(guint64);
+            offset += 8;
 
             /* get and display the initiator flag. */
             initiator = tvb_get_guint8(tvb, offset);
@@ -1323,22 +1306,20 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static guint
 dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint64 device;
     guint16 short_addr;
     guint8  status;
 
     /* Get and display the device address. */
-    device = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_device, tvb, offset, sizeof(guint64), device);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_device, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the short address. Only on ZigBee 2006 and later. */
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         short_addr = tvb_get_letohs(tvb, offset);
         if (tree) {
-            proto_tree_add_uint(tree, hf_zbee_aps_cmd_short_addr, tvb, offset,2, short_addr);
+            proto_tree_add_uint(tree, hf_zbee_aps_cmd_short_addr, tvb, offset, 2, short_addr);
         }
         offset +=2;
     }
@@ -1371,14 +1352,12 @@ dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static guint
 dissect_zbee_aps_remove_device(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
-    guint64 device;
 
     /* Get and display the device address. */
-    device = tvb_get_letoh64(tvb, offset);
     if(tree){
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_device, tvb, offset, sizeof(guint64), device);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_device, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Done */
     return offset;
@@ -1402,7 +1381,6 @@ static guint
 dissect_zbee_aps_request_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  key_type;
-    guint64 partner;
 
     /* Get and display the key type. */
     key_type = tvb_get_guint8(tvb, offset);
@@ -1413,11 +1391,10 @@ dissect_zbee_aps_request_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     /* Get and display the partner address. Only present on application master key. */
     if (key_type == ZBEE_APS_CMD_KEY_APP_MASTER) {
-        partner = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, sizeof(guint64), partner);
+            proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
-        offset += sizeof(guint64);
+        offset += 8;
     }
 
     /* Done */
@@ -1474,8 +1451,6 @@ dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     guint8  key_type;
     guint8  key_seqno;
-    guint64 initiator;
-    guint64 responder;
 
     /* Get and display the key type. */
     key_type = tvb_get_guint8(tvb, offset);
@@ -1494,18 +1469,16 @@ dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* Get and display the initiator address. */
-    initiator = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_initiator, tvb, offset, sizeof(guint64), initiator);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_initiator, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the responder address. */
-    responder = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_responder, tvb, offset, sizeof(guint64), responder);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_responder, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* Get and display the challenge. */
     if (tree) {
@@ -1583,16 +1556,14 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static guint
 dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint64     dst;
     proto_tree  *root = NULL;
     tvbuff_t    *tunnel_tvb;
 
     /* Get and display the destination address. */
-    dst = tvb_get_letoh64(tvb, offset);
     if (tree) {
-        proto_tree_add_eui64(tree, hf_zbee_aps_cmd_dst, tvb, offset, sizeof(guint64), dst);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_dst, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
-    offset += sizeof(guint64);
+    offset += 8;
 
     /* The remainder is a tunneled APS frame. */
     tunnel_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset),
@@ -1848,15 +1819,15 @@ void proto_register_zbee_aps(void)
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_initiator,
-            { "Initiator Address",      "zbee.aps.cmd.initiator", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Initiator Address",      "zbee.aps.cmd.initiator", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "The extended address of the device to initiate the SKKE procedure", HFILL }},
 
             { &hf_zbee_aps_cmd_responder,
-            { "Responder Address",      "zbee.aps.cmd.responder", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Responder Address",      "zbee.aps.cmd.responder", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "The extended address of the device responding to the SKKE procedure", HFILL }},
 
             { &hf_zbee_aps_cmd_partner,
-            { "Partner Address",        "zbee.aps.cmd.partner", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Partner Address",        "zbee.aps.cmd.partner", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "The partner to use this key with for link-level security.", HFILL }},
 
             { &hf_zbee_aps_cmd_initiator_flag,
@@ -1864,7 +1835,7 @@ void proto_register_zbee_aps(void)
                 "Inidicates the destination of the transport-key command requested this key.", HFILL }},
 
             { &hf_zbee_aps_cmd_device,
-            { "Device Address",         "zbee.aps.cmd.device", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Device Address",         "zbee.aps.cmd.device", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_challenge,
@@ -1884,11 +1855,11 @@ void proto_register_zbee_aps(void)
                     VALS(zbee_aps_key_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_dst,
-            { "Extended Destination",    "zbee.aps.cmd.dst", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Destination",    "zbee.aps.cmd.dst", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_src,
-            { "Extended Source",         "zbee.aps.cmd.src", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Source",         "zbee.aps.cmd.src", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_seqno,

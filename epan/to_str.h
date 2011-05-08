@@ -36,6 +36,7 @@
 #define MAX_IP6_STR_LEN 40
 #define MAX_ADDR_STR_LEN 256
 #define VINES_ADDR_LEN	6
+#define EUI64_STR_LEN 24
 
 /*
  * These are utility functions which convert various types to strings,
@@ -66,6 +67,8 @@ extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, const char punct);
 extern gchar*	tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset);
+extern gchar*	eui64_to_str(const guint64 ad);
+extern gchar*	tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding);
 extern gchar*	time_secs_to_str(const gint32 time_val);
 extern gchar*	time_secs_to_str_unsigned(const guint32);
 extern gchar*	time_msecs_to_str(gint32 time_val);

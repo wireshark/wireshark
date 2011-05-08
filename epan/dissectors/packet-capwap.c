@@ -1602,7 +1602,7 @@ proto_register_capwap_control(void)
 			NULL, HFILL }},
 		{ &hf_capwap_header_mac_eui64,
 		{ "MAC address",	"capwap.header.mac.eui64",
-			FT_BYTES, BASE_NONE, NULL, 0x00,
+			FT_EUI64, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_header_mac_data,
 		{ "MAC address",	"capwap.header.mac.data",

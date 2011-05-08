@@ -63,6 +63,7 @@ enum ftenum {
 	FT_PCRE,	/* a compiled Perl-Compatible Regular Expression object */
 	FT_GUID,	/* GUID, UUID */
 	FT_OID,		/* OBJECT IDENTIFIER */
+	FT_EUI64,	
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -77,6 +78,7 @@ enum ftenum {
 #define FT_IPv4_LEN         4
 #define FT_IPv6_LEN         16
 #define FT_IPXNET_LEN       4
+#define FT_EUI64_LEN        8
 
 typedef enum ftenum ftenum_t;
 typedef struct _ftype_t ftype_t;

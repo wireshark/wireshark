@@ -75,6 +75,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_IPXNET:
 		case FT_INT64:		/* XXX - should be able to compare with INT */
 		case FT_UINT64:		/* XXX - should be able to compare with INT */
+		case FT_EUI64:		/* XXX - should be able to compare with INT */
 			return a == b;
 
 		case FT_ETHER:
@@ -82,6 +83,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_UINT_BYTES:
 		case FT_GUID:
 		case FT_OID:
+
 			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID);
 
 		case FT_BOOLEAN:
@@ -173,6 +175,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_UINT_STRING:
 		case FT_UINT64:
 		case FT_INT64:
+		case FT_EUI64:
 		case FT_PCRE:
 		case FT_GUID:
 		case FT_OID:
@@ -295,6 +298,7 @@ is_bytes_type(enum ftenum type)
 		case FT_INT32:
 		case FT_INT64:
 		case FT_PCRE:
+		case FT_EUI64:
 			return FALSE;
 
 		case FT_NUM_TYPES:

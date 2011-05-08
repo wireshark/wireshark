@@ -158,6 +158,14 @@ extern const gchar *get_manuf_name(const guint8 *addr);
 /* get_manuf_name returns the vendor name or NULL if not known */
 extern const gchar *get_manuf_name_if_known(const guint8 *addr);
 
+/* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known 
+   "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" */
+extern const gchar *get_eui64_name(const guint64 addr);
+
+/* get_eui64_name_if_known returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known else NULL */
+extern const gchar *get_eui64_name_if_known(const guint64 addr);
+
+
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
 extern const gchar *get_ipxnet_name(const guint32 addr);

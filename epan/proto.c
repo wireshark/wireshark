@@ -231,6 +231,10 @@ static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, const guint encoding);
+static void
+proto_tree_set_eui64(field_info *fi, const guint64 value);
+static void
+proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding);
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const int len, const gint ett, const gint **fields,
@@ -1362,6 +1366,16 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
 
+		case FT_EUI64:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
+			DISSECTOR_ASSERT(length == FT_EUI64_LEN);
+			proto_tree_set_eui64_tvb(new_fi, tvb, start, encoding);
+			break;
 		case FT_GUID:
 			/*
 			 * Map all non-zero values to little-endian for
@@ -3261,6 +3275,89 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	return pi;
 }
+/* Add a FT_EUI64 to a proto_tree */
+proto_item *
+proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		     gint length, const guint64 value)
+{
+	proto_item		*pi;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+
+	DISSECTOR_ASSERT(hfinfo->type == FT_EUI64);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_eui64(new_fi, value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+				  gint start, gint length, const guint64 value,
+				  const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+
+	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	TRY_TO_FAKE_THIS_REPR(tree, pi);
+
+	va_start(ap, format);
+	proto_tree_set_representation_value(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+			    gint start, gint length, const guint64 value,
+			    const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+
+	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	TRY_TO_FAKE_THIS_REPR(tree, pi);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_EUI64 value */
+static void
+proto_tree_set_eui64(field_info *fi, const guint64 value)
+{
+	fvalue_set_integer64(&fi->value, value);
+}
+static void
+proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding)
+{
+	if(encoding)
+	{
+		proto_tree_set_eui64(fi, tvb_get_letoh64(tvb, start));
+	}else {
+		proto_tree_set_eui64(fi, tvb_get_ntoh64(tvb, start));
+	}
+}
 
 /* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
@@ -3759,7 +3856,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 g_snprintf(result+offset_r, size-offset_r, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
                                 offset_r = (int)strlen(result);
                                 break;
-
+                        case FT_EUI64:
+				offset_r += (int)g_strlcpy(result+offset_r, eui64_to_str(fvalue_get_integer64(&finfo->value)), size-offset_r);
+                                break;
                         /* XXX - make these just FT_INT? */
                         case FT_INT8:
                         case FT_INT16:
@@ -3800,7 +3899,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 break;
 
                         case FT_ETHER:
-                                offset_r += (int)g_strlcpy(result+offset_r, bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'), size-offset_r);
+                                offset_r += (int)g_strlcpy(result+offset_r, bytes_to_str_punct(fvalue_get(&finfo->value), FT_ETHER_LEN, ':'), size-offset_r);
                                 break;
 
                         case FT_GUID:
@@ -4639,6 +4738,7 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    { FT_INT24,		"FT_INT24" },
 	    { FT_INT32,		"FT_INT32" },
 	    { FT_INT64,		"FT_INT64" },
+	    { FT_EUI64,		"FT_EUI64" },
 	    { FT_FLOAT,		"FT_FLOAT" },
 	    { FT_DOUBLE,	"FT_DOUBLE" },
 	    { FT_ABSOLUTE_TIME,	"FT_ABSOLUTE_TIME" },
@@ -4943,6 +5043,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 	guint8				*bytes;
 	guint32				integer;
+	guint64				integer64;
 	ipv4_addr			*ipv4;
 	e_guid_t			*guid;
 	guint32				n_addr; /* network-order IPv4 address */
@@ -5103,7 +5204,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			break;
-
+		case FT_EUI64:
+			integer64 = fvalue_get_integer64(&fi->value);
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				   "%s: %s (%s)", hfinfo->name, 
+				   get_eui64_name(integer64), 
+				   eui64_to_str(integer64)); 
+			break;
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_EBCDIC:

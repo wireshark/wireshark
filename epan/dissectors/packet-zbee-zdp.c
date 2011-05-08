@@ -1406,7 +1406,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_ext_addr,
-        { "Extended Address",           "zbee.zdp.ext_addr", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Extended Address",           "zbee.zdp.ext_addr", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_device,
@@ -1650,7 +1650,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_target64,
-        { "Target",                     "zbee.zdp.target64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Target",                     "zbee.zdp.target64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_target_ep,
@@ -1658,7 +1658,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_replacement,
-        { "Replacement",                "zbee.zdp.replacement", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Replacement",                "zbee.zdp.replacement", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_replacement_ep,
@@ -1670,7 +1670,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_src64,
-        { "Source",                     "zbee.zdp.bind.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Source",                     "zbee.zdp.bind.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_src_ep,
@@ -1682,7 +1682,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_dst64,
-        { "Destination",                "zbee.zdp.bind.dst64", FT_UINT64, BASE_HEX, NULL, 0x0,
+        { "Destination",                "zbee.zdp.bind.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_dst_ep,
