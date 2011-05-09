@@ -56,7 +56,7 @@
 #define pcapng_debug3(str,p1,p2,p3)
 #endif
 
-static gboolean 
+static gboolean
 pcapng_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
@@ -324,7 +324,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
 	/* sanity check: option length */
 	if (oh->option_length > len) {
-		pcapng_debug2("pcapng_read_option: option_length %u larger than buffer (%u)", 
+		pcapng_debug2("pcapng_read_option: option_length %u larger than buffer (%u)",
 			      oh->option_length, len);
 		return 0;
 	}
@@ -411,7 +411,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 		pn->byte_swapped		= TRUE;
 		pn->version_major		= BSWAP16(shb.version_major);
 		pn->version_minor		= BSWAP16(shb.version_minor);
-			
+
 		/* tweak the block length to meet current swapping that we know now */
 		bh->block_total_length	= BSWAP32(bh->block_total_length);
 
@@ -457,8 +457,8 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length
-        - (int)sizeof(pcapng_block_header_t) 
-        - (int)sizeof (pcapng_section_header_block_t) 
+        - (int)sizeof(pcapng_block_header_t)
+        - (int)sizeof (pcapng_section_header_block_t)
         - (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
@@ -602,9 +602,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length 
-        - (int)sizeof(pcapng_block_header_t) 
-        - (int)sizeof (pcapng_interface_description_block_t) 
+	to_read = bh->block_total_length
+        - (int)sizeof(pcapng_block_header_t)
+        - (int)sizeof (pcapng_interface_description_block_t)
         - (int)sizeof(bh->block_total_length);
 	while (to_read > 0) {
 		/* read option */
@@ -655,7 +655,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				 *  char[] may not be aligned correctly.
 				 */
 				memcpy(&wblock->data.if_descr.if_speed, option_content, sizeof(guint64));
-				if(pn->byte_swapped) 
+				if(pn->byte_swapped)
 					wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
 				pcapng_debug1("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
 			} else {
@@ -733,7 +733,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 }
 
 
-static int 
+static int
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_, gboolean enhanced)
 {
 	int bytes_read;
@@ -855,7 +855,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.packet.cap_len - pseudo_header_len, fh);
 	if (bytes_read != (int) (wblock->data.packet.cap_len - pseudo_header_len)) {
 		*err = file_error(fh);
-		pcapng_debug1("pcapng_read_packet_block: couldn't read %u bytes of captured data", 
+		pcapng_debug1("pcapng_read_packet_block: couldn't read %u bytes of captured data",
 			      wblock->data.packet.cap_len - pseudo_header_len);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -889,8 +889,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = block_total_length 
-        - (int)sizeof(pcapng_block_header_t) 
+	to_read = block_total_length
+        - (int)sizeof(pcapng_block_header_t)
         - block_read    /* fixed and variable part, including padding */
         - (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
@@ -926,7 +926,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 				 *  char[] may not be aligned correctly.
 				 */
 				memcpy(&wblock->data.packet.pack_flags, option_content, sizeof(guint32));
-				if(pn->byte_swapped) 
+				if(pn->byte_swapped)
 					wblock->data.packet.pack_flags = BSWAP32(wblock->data.packet.pack_flags);
 				pcapng_debug1("pcapng_read_if_descr_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
 			} else {
@@ -946,7 +946,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 }
 
 
-static int 
+static int
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	int bytes_read;
@@ -973,8 +973,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 		wblock->data.simple_packet.packet_len	= spb.packet_len;
 	}
 
-	wblock->data.simple_packet.cap_len = bh->block_total_length 
-					     - (guint32)sizeof(pcapng_simple_packet_block_t) 
+	wblock->data.simple_packet.cap_len = bh->block_total_length
+					     - (guint32)sizeof(pcapng_simple_packet_block_t)
 					     - (guint32)sizeof(bh->block_total_length);
 
 	if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
@@ -1028,7 +1028,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.simple_packet.cap_len, fh);
 	if (bytes_read != (int) wblock->data.simple_packet.cap_len) {
 		*err = file_error(fh);
-		pcapng_debug1("pcapng_read_simple_packet_block: couldn't read %u bytes of captured data", 
+		pcapng_debug1("pcapng_read_simple_packet_block: couldn't read %u bytes of captured data",
 			      wblock->data.simple_packet.cap_len);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -1052,7 +1052,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	return block_read;
 }
 
-static int 
+static int
 pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
 	int bytes_read;
@@ -1091,8 +1091,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length 
-        - sizeof(pcapng_block_header_t) 
+	to_read = bh->block_total_length
+        - sizeof(pcapng_block_header_t)
         - block_read    /* fixed and variable part, including padding */
         - sizeof(bh->block_total_length);
 	while(to_read > 0) {
@@ -1128,7 +1128,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				 *  char[] may not be aligned correctly.
 				 */
 				memcpy(&wblock->data.if_stats.isb_ifrecv, option_content, sizeof(guint64));
-				if(pn->byte_swapped) 
+				if(pn->byte_swapped)
 					wblock->data.if_stats.isb_ifrecv = BSWAP64(wblock->data.if_stats.isb_ifrecv);
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifrecv);
 			} else {
@@ -1141,7 +1141,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				 *  char[] may not be aligned correctly.
 				 */
 				memcpy(&wblock->data.if_stats.isb_ifdrop, option_content, sizeof(guint64));
-				if(pn->byte_swapped) 
+				if(pn->byte_swapped)
 					wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_ifdrop);
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifdrop);
 			} else {
@@ -1158,7 +1158,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 }
 
 
-static int 
+static int
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_,int *err, gchar **err_info _U_)
 {
 	int block_read;
@@ -1188,7 +1188,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 }
 
 
-static int 
+static int
 pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
 	int block_read;
@@ -1201,8 +1201,8 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&bh, 1, sizeof bh, fh);
 	if (bytes_read != sizeof bh) {
-		pcapng_debug0("pcapng_read_block: end of file or error");
 		*err = file_error(fh);
+		pcapng_debug3("pcapng_read_block: file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
 		if (*err != 0)
 			return -1;
 		return 0;
@@ -1278,7 +1278,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 
 	if (!(block_total_length == bh.block_total_length)) {
 		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("pcapng_read_block: total block lengths (first %u and second %u) don't match", 
+		*err_info = g_strdup_printf("pcapng_read_block: total block lengths (first %u and second %u) don't match",
 			      bh.block_total_length, block_total_length);
 		return -1;
 	}
@@ -1288,7 +1288,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 
 
 /* classic wtap: open capture file */
-int 
+int
 pcapng_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
@@ -1349,7 +1349,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
 
 /* classic wtap: read packet */
-static gboolean 
+static gboolean
 pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	pcapng_t *pcapng = (pcapng_t *)wth->priv;
@@ -1379,6 +1379,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	while (1) {
 		bytes_read = pcapng_read_block(wth->fh, FALSE, pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
+			wth->data_offset = *data_offset;
+			pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
 			pcapng_debug0("pcapng_read: couldn't read packet block");
 			return FALSE;
 		}
@@ -1403,7 +1405,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		interface_data_t int_data;
 		guint64 time_units_per_second;
 		gint id;
-		
+
 		id = (gint)wblock.data.packet.interface_id;
 		int_data = g_array_index(pcapng->interface_data, interface_data_t, id);
 		time_units_per_second = int_data.time_units_per_second;
@@ -1415,6 +1417,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
 		    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
+		wth->data_offset = *data_offset + bytes_read;
+		pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
 		return FALSE;
 	}
 
@@ -1581,7 +1585,7 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	const guint32 zero_pad = 0;
 	guint32 pad_len;
 	guint32 phdr_len;
-	
+
 	phdr_len = (guint32)pcap_get_phdr_size(wblock->data.packet.wtap_encap, wblock->pseudo_header);
 	if ((phdr_len + wblock->data.packet.cap_len) % 4) {
 		pad_len = 4 - ((phdr_len + wblock->data.packet.cap_len) % 4);
@@ -1701,13 +1705,13 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 		wblock.type                    = BLOCK_TYPE_IDB;
 		wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
 		wblock.data.if_descr.snap_len  = wdh->snaplen; /* XXX */
-	
+
 		/* XXX - options unused */
 		wblock.data.if_descr.if_speed   = -1;
 		wblock.data.if_descr.if_tsresol = 6;    /* default: usec */
 		wblock.data.if_descr.if_os      = NULL;
 		wblock.data.if_descr.if_fcslen  = -1;
-	
+
 		if (!pcapng_write_block(wdh, &wblock, err)) {
 			return FALSE;
 		}
@@ -1738,7 +1742,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	/* Split the 64-bit timestamp into two 32-bit pieces */
         wblock.data.packet.ts_high      = (guint32)(ts >> 32);
         wblock.data.packet.ts_low       = (guint32)ts;
-	
+
 	wblock.data.packet.cap_len      = phdr->caplen;
 	wblock.data.packet.packet_len   = phdr->len;
 	wblock.data.packet.interface_id = interface_id;
@@ -1771,7 +1775,7 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean 
+gboolean
 pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	wtapng_block_t wblock;
@@ -1817,7 +1821,7 @@ int pcapng_dump_can_write_encap(int wtap_encap)
 	pcapng_debug2("pcapng_dump_can_write_encap: encap = %d (%s)",
 	              wtap_encap,
 	              wtap_encap_string(wtap_encap));
-	
+
 	/* Per-packet encapsulations is supported. */
 	if (wtap_encap == WTAP_ENCAP_PER_PACKET)
 		return 0;
