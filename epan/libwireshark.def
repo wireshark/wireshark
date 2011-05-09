@@ -945,6 +945,10 @@ se_strdup_vprintf
 se_strndup
 se_tree_create
 se_tree_create_non_persistent
+sl_alloc
+sl_alloc0
+sl_free
+sl_free_all
 set_column_custom_field
 set_column_custom_occurrence
 set_column_format
