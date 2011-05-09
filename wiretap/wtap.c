@@ -736,17 +736,9 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  * from the file so far.  (gint64, in case that's 64 bits.)
  */
 gint64
-wtap_read_so_far(wtap *wth, int *err)
+wtap_read_so_far(wtap *wth)
 {
-	gint64 file_pos;
-
-	file_pos = ws_lseek64(wth->fd, 0, SEEK_CUR);
-	if (file_pos == -1) {
-		if (err != NULL)
-			*err = errno;
-		return -1;
-	}
-	return file_pos;
+	return file_tell_raw(wth->fh);
 }
 
 struct wtap_pkthdr*

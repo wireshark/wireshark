@@ -910,7 +910,7 @@ guint8 *wtap_buf_ptr(wtap *wth);
 
 /* Return an approximation of the amount of data we've read sequentially
  * from the file so far. */
-gint64 wtap_read_so_far(wtap *wth, int *err);
+gint64 wtap_read_so_far(wtap *wth);
 gint64 wtap_file_size(wtap *wth, int *err);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);

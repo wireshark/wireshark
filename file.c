@@ -458,17 +458,6 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
      */
     size = wtap_file_size(cf->wth, NULL);
 
-    /*  Another possibility is that we're reading a compressed file and we've
-     *  read more (uncompressed) data from the file than exists in the
-     *  (compressed) file.  So check how much data we've actually read.
-     *
-     *  This is inside this "if val > 1.0" check to avoid the lseek() when
-     *  reading uncompressed files.  Testing has (thus far) shown no progress
-     *  bar weirdness resulting from switching from the data offset (when
-     *  reading the first part of the file) to the real file position.
-     */
-    file_pos = wtap_read_so_far(cf->wth, NULL);
-
     if (size >= 0)
       progbar_val = (gfloat) file_pos / (gfloat) size;
 
@@ -497,6 +486,7 @@ cf_read(capture_file *cf, gboolean from_save)
   const char  *errmsg;
   char         errmsg_errno[1024+1];
   gint64       data_offset;
+  gint64       file_pos;
   progdlg_t *volatile progbar = NULL;
   gboolean     stop_flag;
   volatile gint64 size;
@@ -561,11 +551,13 @@ cf_read(capture_file *cf, gboolean from_save)
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     if (size >= 0) {
       count++;
+      file_pos = wtap_read_so_far(cf->wth);
+
       /* Create the progress bar if necessary.
        * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
-        progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
+        progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
         if (from_save == FALSE)
           progbar = delayed_create_progress_dlg("Loading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
@@ -579,9 +571,9 @@ cf_read(capture_file *cf, gboolean from_save)
          to repaint what's pending, and doing so may involve an "ioctl()"
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
-      if (data_offset >= progbar_nextstep) {
+      if (file_pos >= progbar_nextstep) {
         if (progbar != NULL) {
-          progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
+          progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           /* update the packet bar content on the first run or frequently on very large files */
 #ifdef HAVE_LIBPCAP
           if (progbar_quantum > 500000 || displayed_once == 0) {
@@ -1322,7 +1314,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         /* Get the sum of the seek positions in all of the files. */
         file_pos = 0;
         for (i = 0; i < in_file_count; i++)
-          file_pos += wtap_read_so_far(in_files[i].wth, NULL);
+          file_pos += wtap_read_so_far(in_files[i].wth);
         progbar_val = (gfloat) file_pos / (gfloat) f_len;
         if (progbar_val > 1.0f) {
           /* Some file probably grew while we were reading it.

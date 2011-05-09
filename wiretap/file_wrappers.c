@@ -1006,6 +1006,11 @@ file_tell(FILE_T stream)
 	return stream->pos + (stream->seek ? stream->skip : 0);
 }
 
+gint64 file_tell_raw(FILE_T stream)
+{
+	return stream->raw_pos;
+}
+
 int 
 file_read(void *buf, unsigned int len, FILE_T file)
 {
