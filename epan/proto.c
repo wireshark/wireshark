@@ -273,33 +273,36 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-SLAB_ITEM_TYPE_DEFINE(field_info)
-static SLAB_FREE_LIST_DEFINE(field_info)
+static struct ws_memory_slab field_info_slab = 
+	WS_MEMORY_SLAB_INIT(field_info, 128);
+
 static field_info *field_info_tmp=NULL;
 #define FIELD_INFO_NEW(fi)					\
-	SLAB_ALLOC(fi, field_info)
+	fi = sl_alloc(&field_info_slab)
 #define FIELD_INFO_FREE(fi)					\
-	SLAB_FREE(fi, field_info)
+	sl_free(&field_info_slab, fi)
 
 /* Contains the space for proto_nodes. */
-SLAB_ITEM_TYPE_DEFINE(proto_node)
-static SLAB_FREE_LIST_DEFINE(proto_node)
+static struct ws_memory_slab proto_node_slab = 
+	WS_MEMORY_SLAB_INIT(proto_node, 128);
+
 #define PROTO_NODE_NEW(node)				\
-	SLAB_ALLOC(node, proto_node)			\
+	node = sl_alloc(&proto_node_slab); \
 	node->first_child = NULL;			\
 	node->last_child = NULL;			\
 	node->next = NULL;
 
 #define PROTO_NODE_FREE(node)				\
-	SLAB_FREE(node, proto_node)
+	sl_free(&proto_node_slab, node)
 
 /* String space for protocol and field items for the GUI */
-SLAB_ITEM_TYPE_DEFINE(item_label_t)
-static SLAB_FREE_LIST_DEFINE(item_label_t)
+static struct ws_memory_slab item_label_slab = 
+	WS_MEMORY_SLAB_INIT(item_label_t, 128);
+
 #define ITEM_LABEL_NEW(il)				\
-	SLAB_ALLOC(il, item_label_t)
+	il = sl_alloc(&item_label_slab);
 #define ITEM_LABEL_FREE(il)				\
-	SLAB_FREE(il, item_label_t)
+	sl_free(&item_label_slab, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
 	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
@@ -1242,7 +1245,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		 * good thing we saved it, now we can reverse the
 		 * memory leak and reclaim it.
 		 */
-		SLAB_FREE(field_info_tmp, field_info);
+		FIELD_INFO_FREE(field_info_tmp);
 	}
 	/* we might throw an exception, keep track of this one
 	 * across the "dangerous" section below.

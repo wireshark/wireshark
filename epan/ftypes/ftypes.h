@@ -27,7 +27,7 @@
 #define FTYPES_H
 
 #include <glib.h>
-#include "../slab.h"
+#include "../emem.h"
 
 /* field types */
 enum ftenum {
@@ -255,14 +255,10 @@ fvalue_new(ftenum_t ftype);
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
-
-/* Define type needed for the fvalue_t free list. */
-SLAB_ITEM_TYPE_DEFINE(fvalue_t)
-
 /* Free all memory used by an fvalue_t. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
+WS_VAR_IMPORT struct ws_memory_slab fvalue_t_slab;
 
 
 #define FVALUE_CLEANUP(fv)					\
@@ -277,7 +273,7 @@ WS_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
 #define FVALUE_FREE(fv)						\
 	{							\
 		FVALUE_CLEANUP(fv)				\
-		SLAB_FREE(fv, fvalue_t);			\
+		sl_free(&fvalue_t_slab, fv);			\
 	}
 
 

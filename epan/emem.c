@@ -661,7 +661,7 @@ emem_create_chunk(size_t size)
 	total_no_chunks++;
 #endif
 
-	npc->amount_free = npc->amount_free_init = size;
+	npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	npc->free_offset = npc->free_offset_init = 0;
 	return npc;
 }
@@ -883,17 +883,21 @@ sl_alloc(struct ws_memory_slab *mem_chunk)
 
 	/* XXX, debug_use_slices -> fallback to g_slice_alloc0 */
 
-	if (G_UNLIKELY(mem_chunk->freed != NULL)) {
+	if ((mem_chunk->freed != NULL)) {
 		ptr = mem_chunk->freed;
 		memcpy(&mem_chunk->freed, ptr, sizeof(void *));
 		return ptr;
 	}
 
 	if (!(chunk = mem_chunk->chunk_list) || chunk->amount_free < (guint) mem_chunk->item_size) {
-		chunk = emem_create_chunk(mem_chunk->item_size * mem_chunk->count);	/* NOTE: using version without guard pages! */
-		
-		/* XXX, align size for emem_create_chunk to pagesize, and/or posix_memalign (?) */
+		size_t alloc_size = mem_chunk->item_size * mem_chunk->count;
 
+		/* align to page-size */
+#if defined (_WIN32) || defined(USE_GUARD_PAGES)
+		alloc_size = (alloc_size + (pagesize - 1)) & ~(pagesize - 1);
+#endif
+
+		chunk = emem_create_chunk(alloc_size);	/* NOTE: using version without guard pages! */
 		chunk->next = mem_chunk->chunk_list;
 		mem_chunk->chunk_list = chunk;
 	}
@@ -911,11 +915,9 @@ sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr)
 	/* XXX, debug_use_slices -> fallback to g_slice_free1 */
 
 	/* XXX, abort if ptr not found in emem_verify_pointer_list()? */
-	if (ptr != NULL && emem_verify_pointer_list(mem_chunk->chunk_list, ptr)) {
-		void *tmp = mem_chunk->freed;
-
+	if (ptr != NULL /* && emem_verify_pointer_list(mem_chunk->chunk_list, ptr) */) {
+		memcpy(ptr, &(mem_chunk->freed), sizeof(void *));
 		mem_chunk->freed = ptr;
-		memcpy(ptr, &tmp, sizeof(void *));
 	}
 }
 
@@ -1258,6 +1260,7 @@ sl_free_all(struct ws_memory_slab *mem_chunk)
 	emem_chunk_t *chunk_list = mem_chunk->chunk_list;
 
 	mem_chunk->chunk_list = NULL;
+	mem_chunk->freed = NULL;
 	while (chunk_list) {
 		emem_chunk_t *chunk = chunk_list;
 

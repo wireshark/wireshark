@@ -34,7 +34,8 @@
 static ftype_t* type_list[FT_NUM_TYPES];
 
 /* Space for quickly allocating/de-allocating fvalue_t's */
-SLAB_FREE_LIST_DEFINE(fvalue_t)
+struct ws_memory_slab fvalue_t_slab = 
+		WS_MEMORY_SLAB_INIT(fvalue_t, 128);
 
 /* Initialize the ftype module. */
 void
@@ -203,7 +204,7 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	SLAB_ALLOC(fv, fvalue_t);
+	fv = sl_alloc(&fvalue_t_slab);
 
 	FTYPE_LOOKUP(ftype, ft);
 	fv->ftype = ft;

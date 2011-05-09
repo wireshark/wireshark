@@ -494,7 +494,7 @@ fvalue_get_integer64
 fvalue_get_sinteger
 fvalue_get_uinteger
 fvalue_string_repr_len
-fvalue_t_free_list              DATA
+fvalue_t_slab                   DATA
 fvalue_to_string_repr
 GatekeeperRejectReason_vals     DATA
 gbl_resolv_flags                DATA
