@@ -14536,6 +14536,7 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	smb_info_t *si = pinfo->private_data;
 	const char *fn;
 	int fn_len;
+	int pad;
 
 	DISSECTOR_ASSERT(si);
 
@@ -14626,8 +14627,10 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 	/* Pad to 4 bytes */
 
-	if (offset % 4)
-		offset += 4 - (offset % 4);
+	if (offset % 4) {
+		pad = 4 - (offset % 4);
+		COUNT_BYTES_SUBR(pad);
+	}
 
 	*trunc = FALSE;
 	return offset;
