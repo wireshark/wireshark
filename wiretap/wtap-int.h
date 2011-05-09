@@ -39,16 +39,19 @@
 #include <zlib.h>
 #endif /* HAVE_LIBZ */
 
+#include <wsutil/file_util.h>
+
 typedef struct wtap_reader *FILE_T;
 
 #include "wtap.h"
+
+int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
 struct wtap {
 	FILE_T			fh;
-        int                     fd;           /* File descriptor for cap file */
 	FILE_T			random_fh;    /* Secondary FILE_T for random access */
 	int			file_type;
 	int			snapshot_length;

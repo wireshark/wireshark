@@ -40,7 +40,7 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
   guint8 *buf;
   gint64 file_size;
   int packet_size;
-  struct stat statb;
+  ws_statb64 statb;
 
   *err = 0;
 
@@ -75,10 +75,8 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
   wth->phdr.caplen = packet_size;
   wth->phdr.len = packet_size;
 
-  if (fstat(wth->fd, &statb) == -1) {
-    *err = errno;
+  if (wtap_fstat(wth, &statb, err) == -1)
     return FALSE;
-  }
 
   wth->phdr.ts.secs = statb.st_mtime;
   wth->phdr.ts.nsecs = 0;

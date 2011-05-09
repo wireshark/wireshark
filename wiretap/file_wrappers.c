@@ -1006,9 +1006,21 @@ file_tell(FILE_T stream)
 	return stream->pos + (stream->seek ? stream->skip : 0);
 }
 
-gint64 file_tell_raw(FILE_T stream)
+gint64
+file_tell_raw(FILE_T stream)
 {
 	return stream->raw_pos;
+}
+
+int
+file_fstat(FILE_T stream, ws_statb64 *statb, int *err)
+{
+	if (ws_fstat64(stream->fd, statb) == -1) {
+		if (err != NULL)
+			*err = errno;
+		return -1;
+	}
+	return 0;
 }
 
 int 
@@ -1206,7 +1218,7 @@ file_close(FILE_T file)
 	file->err = 0;
 	file->err_info = NULL;
 	g_free(file);
-	return close(fd);
+	return ws_close(fd);
 }
 
 #ifdef HAVE_LIBZ

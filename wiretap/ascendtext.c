@@ -176,7 +176,7 @@ found:
 int ascend_open(wtap *wth, int *err, gchar **err_info)
 {
   gint64 offset;
-  struct stat statbuf;
+  ws_statb64 statbuf;
   guint8 buf[ASCEND_MAX_PKT_LEN];
   ascend_pkthdr header;
   gint64 dummy_seek_start;
@@ -235,8 +235,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
    */
-  if (fstat(wth->fd, &statbuf) == -1) {
-    *err = errno;
+  if (wtap_fstat(wth, &statbuf, err) == -1) {
     g_free(ascend);
     return -1;
   }

@@ -54,12 +54,22 @@ wtap_file_size(wtap *wth, int *err)
 {
 	ws_statb64 statb;
 
-	if (ws_fstat64(wth->fd, &statb) == -1) {
-		if (err != NULL)
-			*err = errno;
+	if (file_fstat((wth->fh == NULL) ? wth->random_fh : wth->fh,
+	    &statb, err) == -1)
 		return -1;
-	}
 	return statb.st_size;
+}
+
+/*
+ * Do an fstat on the file.
+ */
+int
+wtap_fstat(wtap *wth, ws_statb64 *statb, int *err)
+{
+	if (file_fstat((wth->fh == NULL) ? wth->random_fh : wth->fh,
+	    statb, err) == -1)
+		return -1;
+	return 0;
 }
 
 int

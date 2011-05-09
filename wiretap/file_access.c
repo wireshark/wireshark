@@ -222,6 +222,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			gboolean do_random)
 {
+	int	fd;
 	ws_statb64 statb;
 	wtap	*wth;
 	unsigned int	i;
@@ -296,23 +297,23 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		 * a file_close of wth->fh closing the standard
 		 * input of the process.
 		 */
-		wth->fd = ws_dup(0);
-		if (wth->fd < 0) {
+		fd = ws_dup(0);
+		if (fd < 0) {
 			*err = errno;
 			g_free(wth);
 			return NULL;
 		}
 #ifdef _WIN32
-		if (_setmode(wth->fd, O_BINARY) == -1) {
+		if (_setmode(fd, O_BINARY) == -1) {
 			/* "Shouldn't happen" */
 			*err = errno;
 			g_free(wth);
 			return NULL;
 		}
 #endif
-		if (!(wth->fh = filed_open(wth->fd))) {
+		if (!(wth->fh = filed_open(fd))) {
 			*err = errno;
-			ws_close(wth->fd);
+			ws_close(fd);
 			g_free(wth);
 			return NULL;
 		}

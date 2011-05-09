@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifndef __FILE_H__
@@ -27,6 +26,7 @@
 extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
 extern gint64 file_tell(FILE_T stream);
 extern gint64 file_tell_raw(FILE_T stream);
+extern int file_fstat(FILE_T stream, ws_statb64 *statb, int *err);
 extern int file_error(FILE_T fh, gchar **err_info);
 
 extern FILE_T file_open(const char *path);
