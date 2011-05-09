@@ -2056,14 +2056,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   set_if_capabilities(FALSE);
 
   /* Pcap-NG row */
-  pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format (experimental)");
+  pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
 #if GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format. "
-                              "This is still experimental.");
+  gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format.");
 #else
-  gtk_tooltips_set_tip(tooltips, pcap_ng_cb, "Capture packets in the next-generation capture file format. "
-                       "This is still experimental.", NULL);
+  gtk_tooltips_set_tip(tooltips, pcap_ng_cb, "Capture packets in the next-generation capture file format.",
+                       NULL);
 #endif
   gtk_container_add(GTK_CONTAINER(left_vb), pcap_ng_cb);
 

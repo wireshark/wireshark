@@ -180,8 +180,7 @@ capture_prefs_show(void)
 	/* Pcap-NG format */
 	pcap_ng_cb = create_preference_check_button(main_tb, row++,
 	    "Capture packets in pcap-ng format:",
-	    "Capture packets in the next-generation capture file format. "
-	    "This is still experimental.",
+	    "Capture packets in the next-generation capture file format.",
 	    prefs.capture_pcap_ng);
 	g_object_set_data(G_OBJECT(main_vb), PCAP_NG_KEY, pcap_ng_cb);
 
