@@ -294,9 +294,10 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     g_free(pd->task);
     pd->task = g_strdup(task);
 
+	/* XXX, dead code: pd already dereferenced. should it be: !pd->task?
 	if (!pd) {
 		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
-    }
+    } */
 
     if (pr >= 0.0 || pr <= 1.0) {
         ops->update_progress(pd->pw, (float) pr, task);
