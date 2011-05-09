@@ -620,15 +620,8 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 }
 
 static emem_chunk_t *
-emem_create_chunk(void) {
-#if defined (_WIN32)
-	BOOL ret;
-	char *buf_end, *prot1, *prot2;
-	DWORD oldprot;
-#elif defined(USE_GUARD_PAGES)
-	int ret;
-	char *buf_end, *prot1, *prot2;
-#endif /* _WIN32 / USE_GUARD_PAGES */
+emem_create_chunk(size_t size)
+{
 	emem_chunk_t *npc;
 
 	npc = g_new(emem_chunk_t, 1);
@@ -642,7 +635,7 @@ emem_create_chunk(void) {
 	 */
 
 	/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
-	npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
+	npc->buf = VirtualAlloc(NULL, size,
 		MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 
 	if (npc->buf == NULL) {
@@ -651,7 +644,7 @@ emem_create_chunk(void) {
 	}
 
 #elif defined(USE_GUARD_PAGES)
-	npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
+	npc->buf = mmap(NULL, size,
 		PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
 
 	if (npc->buf == MAP_FAILED) {
@@ -660,7 +653,7 @@ emem_create_chunk(void) {
 	}
 
 #else /* Is there a draft in here? */
-	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
+	npc->buf = g_malloc(size);
 	/* g_malloc() can't fail */
 #endif
 
@@ -668,8 +661,44 @@ emem_create_chunk(void) {
 	total_no_chunks++;
 #endif
 
+	npc->amount_free = npc->amount_free_init = size;
+	npc->free_offset = npc->free_offset_init = 0;
+	return npc;
+}
+
+static void
+emem_destroy_chunk(emem_chunk_t *npc)
+{
 #if defined (_WIN32)
-	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+	VirtualFree(npc->buf, 0, MEM_RELEASE);
+#elif defined(USE_GUARD_PAGES)
+	munmap(npc->buf, npc->amount_free_init);
+#else
+	g_free(npc->buf);
+#endif
+#ifdef SHOW_EMEM_STATS
+	total_no_chunks--;
+#endif
+	g_free(npc);
+}
+
+static emem_chunk_t *
+emem_create_chunk_gp(size_t size)
+{
+#if defined (_WIN32)
+	BOOL ret;
+	char *buf_end, *prot1, *prot2;
+	DWORD oldprot;
+#elif defined(USE_GUARD_PAGES)
+	int ret;
+	char *buf_end, *prot1, *prot2;
+#endif /* _WIN32 / USE_GUARD_PAGES */
+	emem_chunk_t *npc;
+
+	npc = emem_create_chunk(size);
+
+#if defined (_WIN32)
+	buf_end = npc->buf + size;
 
 	/* Align our guard pages on page-sized boundaries */
 	prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
@@ -683,7 +712,7 @@ emem_create_chunk(void) {
 	npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
 	npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;
 #elif defined(USE_GUARD_PAGES)
-	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+	buf_end = npc->buf + size;
 
 	/* Align our guard pages on page-sized boundaries */
 	prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
@@ -697,7 +726,7 @@ emem_create_chunk(void) {
 	npc->amount_free_init = prot2 - prot1 - pagesize;
 	npc->free_offset_init = (prot1 - npc->buf) + pagesize;
 #else
-	npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
+	npc->amount_free_init = size;
 	npc->free_offset_init = 0;
 #endif /* USE_GUARD_PAGES */
 
@@ -760,7 +789,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	if (!mem->free_list)
-		mem->free_list = emem_create_chunk();
+		mem->free_list = emem_create_chunk_gp(EMEM_PACKET_CHUNK_SIZE);
 
 	/* oops, we need to allocate more memory to serve this request
 	 * than we have free. move this node to the used list and try again
@@ -773,7 +802,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 		mem->used_list=npc;
 
 		if (!mem->free_list)
-			mem->free_list = emem_create_chunk();
+			mem->free_list = emem_create_chunk_gp(EMEM_PACKET_CHUNK_SIZE);
 	}
 
 	free_list = mem->free_list;
@@ -847,6 +876,50 @@ se_alloc(size_t size)
 }
 
 void *
+sl_alloc(struct ws_memory_slab *mem_chunk)
+{
+	emem_chunk_t *chunk;
+	void *ptr;
+
+	/* XXX, debug_use_slices -> fallback to g_slice_alloc0 */
+
+	if (G_UNLIKELY(mem_chunk->freed != NULL)) {
+		ptr = mem_chunk->freed;
+		memcpy(&mem_chunk->freed, ptr, sizeof(void *));
+		return ptr;
+	}
+
+	if (!(chunk = mem_chunk->chunk_list) || chunk->amount_free < (guint) mem_chunk->item_size) {
+		chunk = emem_create_chunk(mem_chunk->item_size * mem_chunk->count);	/* NOTE: using version without guard pages! */
+		
+		/* XXX, align size for emem_create_chunk to pagesize, and/or posix_memalign (?) */
+
+		chunk->next = mem_chunk->chunk_list;
+		mem_chunk->chunk_list = chunk;
+	}
+
+	ptr = chunk->buf + chunk->free_offset;
+	chunk->free_offset += mem_chunk->item_size;
+	chunk->amount_free -= mem_chunk->item_size;
+
+	return ptr;
+}
+
+void
+sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr)
+{
+	/* XXX, debug_use_slices -> fallback to g_slice_free1 */
+
+	/* XXX, abort if ptr not found in emem_verify_pointer_list()? */
+	if (ptr != NULL && emem_verify_pointer_list(mem_chunk->chunk_list, ptr)) {
+		void *tmp = mem_chunk->freed;
+
+		mem_chunk->freed = ptr;
+		memcpy(ptr, &tmp, sizeof(void *));
+	}
+}
+
+void *
 ep_alloc0(size_t size)
 {
 	return memset(ep_alloc(size),'\0',size);
@@ -858,6 +931,11 @@ se_alloc0(size_t size)
 	return memset(se_alloc(size),'\0',size);
 }
 
+void *
+sl_alloc0(struct ws_memory_slab *mem_chunk)
+{
+	return memset(sl_alloc(mem_chunk), '\0', mem_chunk->item_size);
+}
 
 static gchar *
 emem_strdup(const gchar *src, void *allocator(size_t))
@@ -1172,6 +1250,20 @@ se_free_all(void)
 #endif
 
 	emem_free_all(&se_packet_mem);
+}
+
+void
+sl_free_all(struct ws_memory_slab *mem_chunk)
+{
+	emem_chunk_t *chunk_list = mem_chunk->chunk_list;
+
+	mem_chunk->chunk_list = NULL;
+	while (chunk_list) {
+		emem_chunk_t *chunk = chunk_list;
+
+		chunk_list = chunk_list->next;
+		emem_destroy_chunk(chunk);
+	}
 }
 
 ep_stack_t

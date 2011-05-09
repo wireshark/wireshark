@@ -161,8 +161,30 @@ gchar* se_strdup_printf(const gchar* fmt, ...)
 /** release all memory allocated */
 void se_free_all(void);
 
+/**************************************************************
+ * slab allocator
+ **************************************************************/
+struct _emem_chunk_t;
 
+/* Macros to initialize ws_memory_slab */
+/* XXX, is G_MEM_ALIGN enough? http://mail.gnome.org/archives/gtk-devel-list/2004-December/msg00091.html */
+#define WS_MEMORY_SLAB_INIT(type, count) { ((sizeof(type) + (G_MEM_ALIGN - 1)) & ~(G_MEM_ALIGN - 1)), count, NULL, NULL }
+#define WS_MEMORY_SLAB_INIT_UNALIGNED(size, count) { size, count, NULL, NULL }
 
+struct ws_memory_slab {
+	const gint item_size;
+	const gint count;
+
+	struct _emem_chunk_t *chunk_list;
+	void *freed;
+};
+
+void *sl_alloc(struct ws_memory_slab *mem_chunk);
+void *sl_alloc0(struct ws_memory_slab *mem_chunk);
+void sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr);
+
+/** release all memory allocated */
+void sl_free_all(struct ws_memory_slab *mem_chunk);
 
 /**************************************************************
  * binary trees
