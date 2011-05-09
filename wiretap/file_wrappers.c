@@ -98,6 +98,7 @@ struct wtap_reader {
 #ifdef HAVE_LIBZ
 	/* zlib inflate stream */
 	z_stream strm;          /* stream structure in-place (not a pointer) */
+	int dont_check_crc;	/* 1 if we aren't supposed to check the CRC */
 #endif
 	/* fast seeking */
 	GPtrArray *fast_seek;
@@ -505,7 +506,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	if (ret == Z_STREAM_END) {
 		if (gz_next4(state, &crc) != -1 &&
 		    gz_next4(state, &len) != -1) {
-			if (crc != strm->adler) {
+			if (crc != strm->adler && !state->dont_check_crc) {
 				state->err = WTAP_ERR_DECOMPRESS;
 				state->err_info = "bad CRC";
 			} else if (len != (strm->total_out & 0xffffffffL)) {
@@ -785,6 +786,9 @@ filed_open(int fd)
 		errno = ENOMEM;
 		return NULL;
 	}
+
+	/* for now, assume we should check the crc */
+	state->dont_check_crc = 0;
 #endif
 	/* return stream */
 	return state;
@@ -795,6 +799,9 @@ file_open(const char *path)
 {
 	int fd;
 	FILE_T ft;
+#ifdef HAVE_LIBZ
+	const char *suffixp;
+#endif
 
 	/* open file and do correct filename conversions.
 
@@ -805,7 +812,7 @@ file_open(const char *path)
 	   here.  Pre-Large File Summit UN*Xes, and possibly even some
 	   post-LFS UN*Xes, might require O_LARGEFILE here, though.
 	   If so, we should probably handle that in ws_open(). */
-	if ((fd = ws_open(path, O_RDONLY|O_BINARY, 0666)) == -1)
+	if ((fd = ws_open(path, O_RDONLY|O_BINARY, 0000)) == -1)
 		return NULL;
 
 	/* open file handle */
@@ -814,6 +821,19 @@ file_open(const char *path)
 		ws_close(fd);
 		return NULL;
 	}
+
+#ifdef HAVE_LIBZ
+	/*
+	 * If this file's name ends in ".caz", it's probably a compressed
+	 * Windows Sniffer file.  The compression is gzip, but they don't
+	 * bother filling in the CRC; we set a flag to ignore CRC errors.
+	 */
+	suffixp = strrchr(path, '.');
+	if (suffixp != NULL) {
+		if (g_ascii_strcasecmp(suffixp, ".caz") == 0)
+			ft->dont_check_crc = 1;
+	}
+#endif
 
 	return ft;
 }

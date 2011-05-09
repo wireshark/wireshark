@@ -293,7 +293,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	if (use_stdin) {
 		/*
 		 * We dup FD 0, so that we don't have to worry about
-		 * an fclose or gzclose of wth->fh closing the standard
+		 * a file_close of wth->fh closing the standard
 		 * input of the process.
 		 */
 		wth->fd = ws_dup(0);
@@ -310,19 +310,18 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 #endif
+		if (!(wth->fh = filed_open(wth->fd))) {
+			*err = errno;
+			ws_close(wth->fd);
+			g_free(wth);
+			return NULL;
+		}
 	} else {
-		wth->fd = ws_open(filename, O_RDONLY|O_BINARY, 0000 /* no creation so don't matter */);
-		if (wth->fd < 0) {
+		if (!(wth->fh = file_open(filename))) {
 			*err = errno;
 			g_free(wth);
 			return NULL;
 		}
-	}
-	if (!(wth->fh = filed_open(wth->fd))) {
-		*err = errno;
-		ws_close(wth->fd);
-		g_free(wth);
-		return NULL;
 	}
 
 	if (do_random) {
