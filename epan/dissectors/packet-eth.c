@@ -37,6 +37,7 @@
 #include "packet-isl.h"
 #include "packet-llc.h"
 #include "packet-sll.h"
+#include "packet-usb.h"
 #include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
@@ -778,6 +779,7 @@ proto_reg_handoff_eth(void)
 	dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
+	dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, eth_withoutfcs_handle);
 
 	/*
 	 * This is to handle the output for the Cisco CMTS "cable intercept"
