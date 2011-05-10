@@ -852,11 +852,11 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
       } else if (rtcp_rtpfb_fmt == 4) {
         offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
       } else {
-			  /* Unknown FMT */
-			  proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
-			  offset = start_offset + packet_length;
+        /* Unknown FMT */
+        proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, FALSE );
+        offset = start_offset + packet_length;
       }
-	}
+    }
 
 	return offset;
 }
