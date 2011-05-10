@@ -653,32 +653,45 @@ static gboolean
 nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
 	gchar **err_info, gboolean fddihack)
 {
-    int bytes_read;
-    guchar *p=NULL;
+    int bytes_to_read, bytes_read;
     guint8 dummy[3];
 
-    if (fddihack == TRUE) {
-       /* read in FC, dest, src, DSAP and SSAP */
-       if (file_read(pd, 15, fh) == 15) {
-          if (pd[13] == 0xAA) {
-             /* it's SNAP, have to eat 3 bytes??? */
-             if (file_read(dummy, 3, fh) == 3) {
-                p=pd+15;
-                bytes_read = file_read(p, length-18, fh);
-                bytes_read += 18;
-             } else {
-                bytes_read = -1;
-             }
-          } else {
-             /* not SNAP */
-             p=pd+15;
-             bytes_read = file_read(p, length-15, fh);
-             bytes_read += 15;
-          }
-       } else
-          bytes_read = -1;
+    if (fddihack) {
+        /* read in FC, dest, src, DSAP and SSAP */
+        bytes_to_read = 15;
+        if (bytes_to_read > length)
+            bytes_to_read = length;
+        bytes_read = file_read(pd, bytes_to_read, fh);
+        if (bytes_read != bytes_to_read) {
+            if (*err == 0)
+                *err = WTAP_ERR_SHORT_READ;
+            return FALSE;
+        }
+        length -= bytes_read;
+        if (length == 0) {
+        	/* There's nothing past the FC, dest, src, DSAP and SSAP */
+        	return TRUE;
+        }
+        if (pd[13] == 0xAA) {
+            /* it's SNAP, have to eat 3 bytes??? */
+            bytes_to_read = 3;
+            if (bytes_to_read > length)
+                bytes_to_read = length;
+            bytes_read = file_read(dummy, bytes_to_read, fh);
+            if (bytes_read != bytes_to_read) {
+                if (*err == 0)
+                    *err = WTAP_ERR_SHORT_READ;
+                return FALSE;
+            }
+            length -= bytes_read;
+            if (length == 0) {
+                /* There's nothing past the FC, dest, src, DSAP, SSAP, and 3 bytes to eat */
+		return TRUE;
+	    }
+        }
+        bytes_read = file_read(pd + 15, length, fh);
     } else
-       bytes_read = file_read(pd, length, fh);
+        bytes_read = file_read(pd, length, fh);
 
     if (bytes_read != length) {
 	*err = file_error(fh, err_info);
