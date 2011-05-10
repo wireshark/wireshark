@@ -219,7 +219,7 @@ get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int
 		proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		num_bits = 7;
 		bit_offset++;
-	}else if((oct&0xc0)==0x20){
+	}else if((oct&0xc0)==0x80){
 		/* Two octets */
 		*val_len = 2;
 		proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
@@ -473,7 +473,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 
 	/* Time_Stride           :  1-4 octets, if TIS = 1 */
-	if((oct&0x02)== 1){
+	if((oct&0x02)== 2){
 		/* Time_Stride encoded as
 		 * 4.5.6.  Self-describing variable-length values
 		 */
@@ -582,6 +582,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(pinfo->private_data != NULL){
 		p_rohc_info = pinfo->private_data;
+		memset(&g_rohc_info, 0, sizeof(rohc_info));
 	}else{
 		g_rohc_info.rohc_compression	= FALSE;
 		g_rohc_info.rohc_ip_version		= g_version;
