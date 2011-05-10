@@ -46,6 +46,8 @@
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 
+static int registration_request_msg =0;
+
 /* Initialize the protocol and registered fields */
 static int proto_a11 = -1;
 static int hf_a11_type = -1;
@@ -99,6 +101,20 @@ static int hf_a11_ase_gre_proto_type = -1;
 static int hf_a11_ase_gre_key = -1;
 static int hf_a11_ase_pcf_addr_key = -1;
 
+static int hf_a11_ase_forward_rohc_info_len = -1;
+static int hf_a11_ase_forward_maxcid = -1;
+static int hf_a11_ase_forward_mrru = -1;
+static int hf_a11_ase_forward_large_cids = -1;
+static int hf_a11_ase_forward_profile_count = -1;
+static int hf_a11_ase_forward_profile = -1;
+
+static int hf_a11_ase_reverse_rohc_info_len = -1;
+static int hf_a11_ase_reverse_maxcid = -1;
+static int hf_a11_ase_reverse_mrru = -1;
+static int hf_a11_ase_reverse_large_cids = -1;
+static int hf_a11_ase_reverse_profile_count = -1;
+static int hf_a11_ase_reverse_profile = -1;
+
 /* Forward QoS Information */
 static int hf_a11_fqi_srid = -1;
 static int hf_a11_fqi_flags = -1;
@@ -149,6 +165,11 @@ static gint ett_a11_rqi_entry_flags = -1;
 static gint ett_a11_fqui_flowentry = -1;
 static gint ett_a11_rqui_flowentry = -1;
 static gint ett_a11_subscriber_profile = -1;
+static gint ett_a11_forward_rohc = -1;
+static gint ett_a11_reverse_rohc = -1;
+static gint ett_a11_forward_profile = -1;
+static gint ett_a11_reverse_profile = -1;
+
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
@@ -349,6 +370,7 @@ static const value_string a11_airlink_types[]= {
     {0, NULL},
 };
 
+
 #define ATTRIBUTE_NAME_LEN_MAX 128
 #define ATTR_TYPE_NULL 0
 #define ATTR_TYPE_INT 1
@@ -408,6 +430,7 @@ static const struct radius_attribute attrs[]={
     {"Flow Status",             26, 145,  4, ATTR_TYPE_INT},
     {"Unknown",                 -1, -1, -1, ATTR_TYPE_NULL},
 };
+
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
 
 #define RADIUS_VENDOR_SPECIFIC 26
@@ -555,6 +578,7 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
 
     return;
 }
+
 
 /* RADIUS attributed */
 static void
@@ -760,40 +784,145 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 /* Code to dissect Additional Session Info */
 static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ext_tree)
 {
-    guint clen = 0; /* consumed length */
+   guint clen = 0; /* consumed length */
 
-    while(clen < ase_len)
-    {
-        guint8 srid = tvb_get_guint8(tvb, offset+clen+1);
-        proto_item* ti = proto_tree_add_text
-            (ext_tree, tvb, offset+clen, 0x0D+1, "GRE Key Entry (SRID: %d)", srid);
-        proto_tree* exts_tree = proto_item_add_subtree(ti, ett_a11_ase);
+   while(clen < ase_len)
+   {
+      proto_tree* exts_tree;
+      guint8 srid = tvb_get_guint8(tvb, offset+clen+1);
+      guint16 service_option =tvb_get_ntohs(tvb,offset+clen+2);       
+      proto_item *ti;
+   
+      if(registration_request_msg && (service_option==64 || service_option==67)){
+          if(service_option == 67){
+	          guint8 profile_count=tvb_get_guint8(tvb, offset+clen+20);
+              guint8 reverse_profile_count=tvb_get_guint8(tvb, offset+clen+20+(profile_count*2)+1+6);
 
-        /* Entry Length */
-        proto_tree_add_item(exts_tree, hf_a11_ase_len_type, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
-        clen++;
+      	      ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+6+(profile_count*2)+1+6+(reverse_profile_count*2)+1, 
+                   "GRE Key Entry (SRID: %d)", srid);
+      	  }	else if(service_option== 64){
+              ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+2, "GRE Key Entry (SRID: %d)", srid);
+          }    
+      }else{
+          ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1, "GRE Key Entry (SRID: %d)", srid);
+      }
 
-        /* SRID */
-        proto_tree_add_item(exts_tree, hf_a11_ase_srid_type, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
-        clen++;
+      exts_tree = proto_item_add_subtree(ti, ett_a11_ase);
 
-        /* Service Option */
-        proto_tree_add_item(exts_tree, hf_a11_ase_servopt_type, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
-        clen+=2;
+      /* Entry Length */
+      proto_tree_add_item(exts_tree, hf_a11_ase_len_type, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+      clen++;
 
-        /* GRE Protocol Type*/
-        proto_tree_add_item(exts_tree, hf_a11_ase_gre_proto_type, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
-        clen+=2;
+      /* SRID */
+      proto_tree_add_item(exts_tree, hf_a11_ase_srid_type, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+      clen++;
 
-        /* GRE Key */
-        proto_tree_add_item(exts_tree, hf_a11_ase_gre_key, tvb, offset+clen, 4, ENC_BIG_ENDIAN);
-        clen+=4;
+      /* Service Option */
+      proto_tree_add_item(exts_tree, hf_a11_ase_servopt_type, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
+      clen+=2;
 
-        /* PCF IP Address */
-        proto_tree_add_item(exts_tree, hf_a11_ase_pcf_addr_key, tvb, offset+clen, 4, ENC_BIG_ENDIAN);
-        clen+=4;
-    }
+      /* GRE Protocol Type*/
+      proto_tree_add_item(exts_tree, hf_a11_ase_gre_proto_type, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
+      clen+=2;
+
+      /* GRE Key */
+      proto_tree_add_item(exts_tree, hf_a11_ase_gre_key, tvb, offset+clen, 4, ENC_BIG_ENDIAN);
+      clen+=4;
+
+      /* PCF IP Address */
+      proto_tree_add_item(exts_tree, hf_a11_ase_pcf_addr_key, tvb, offset+clen, 4, ENC_BIG_ENDIAN);
+      clen+=4;
+
+      if(registration_request_msg){
+          if(service_option == 0x0043){
+			  proto_item* tl;
+			  proto_tree* extv_tree;
+		      guint8 profile_count=tvb_get_guint8(tvb, offset+clen+6);
+              guint8 profile_index=0;
+			  guint8 reverse_profile_count;
+                
+              proto_item* tj = proto_tree_add_text(exts_tree, tvb, offset+clen,6+(profile_count*2)+1, "Forward ROHC Info");
+
+              proto_tree* extt_tree = proto_item_add_subtree(tj, ett_a11_forward_rohc);
+ 
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_rohc_info_len, tvb, offset+clen, 1, FALSE);
+              clen++;
+                
+                
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_maxcid, tvb, offset+clen, 2, FALSE);
+              clen+=2;
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_mrru, tvb, offset+clen, 2, FALSE);
+              clen+=2;
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_large_cids, tvb, offset+clen, 1, FALSE);
+              clen++;
+              profile_count=tvb_get_guint8(tvb, offset+clen);
+	        
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_profile_count, tvb, offset+clen, 1, FALSE);
+              clen++;
+
+
+              for(profile_index=0; profile_index<profile_count; profile_index++){
+      	          proto_item* tk = proto_tree_add_text (extt_tree, tvb, offset+clen, (2*profile_count), "Forward Profile : %d", profile_index);
+                  proto_tree* extu_tree = proto_item_add_subtree(tk, ett_a11_forward_profile);
+                  proto_tree_add_item(extu_tree, hf_a11_ase_forward_profile, tvb, offset+clen, 2, FALSE);
+                  clen+=2;
+              }/*for*/      		
+	
+		
+              reverse_profile_count=tvb_get_guint8(tvb, offset+clen+6);
+                
+              tl = proto_tree_add_text(exts_tree, tvb, offset+clen,6+(reverse_profile_count*2)+1, "Reverse ROHC Info");
+
+              extv_tree = proto_item_add_subtree(tl, ett_a11_reverse_rohc);
+
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_rohc_info_len, tvb, offset+clen, 1, FALSE);
+              clen++;
+
+
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_maxcid, tvb, offset+clen, 2, FALSE);
+              clen+=2;
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_mrru, tvb, offset+clen, 2, FALSE);
+              clen+=2;
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_large_cids, tvb, offset+clen, 1, FALSE);
+              clen++;
+
+              profile_count=tvb_get_guint8(tvb, offset+clen);
+
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_profile_count, tvb, offset+clen, 1, FALSE);
+              clen++;
+
+
+              for(profile_index=0; profile_index<reverse_profile_count; profile_index++){
+                  proto_item* tm = proto_tree_add_text(extv_tree, tvb, offset+clen, (2*profile_count), "Reverse Profile : %d", profile_index);
+
+                  proto_tree* extw_tree = proto_item_add_subtree(tm, ett_a11_reverse_profile);
+
+                  proto_tree_add_item(extw_tree, hf_a11_ase_reverse_profile, tvb, offset+clen, 2, FALSE);
+                  clen+=2;
+
+
+              }/*for*/
+	   }else if(service_option==0x0040){
+/*		guint8 zero =tvb_get_guint8(tvb,offset+clen);
+		zero =0;
+		proto_item* tj = proto_tree_add_text
+                        (exts_tree, tvb, offset+clen,1, "Forward ROHC Info:0",zero);
+		clen++;
+		zero =tvb_get_guint8(tvb,offset+clen);
+		proto_item* tl = proto_tree_add_text
+                        (exts_tree, tvb, offset+clen,1, "Reverse ROHC Info:0",zero);
+		clen++;
+*/
+		clen+=2;	
+	  }/*else-if*/
+  
+	}/* if */
+		
+   }/*while*/
+
+registration_request_msg =0;
 }
+
 
 #define A11_FQI_IPFLOW_DISC_ENABLED 0x80
 #define A11_FQI_DSCP_INCLUDED 0x40
@@ -1378,9 +1507,17 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "3GPP2 A11");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    switch (type) {
-    case REGISTRATION_REQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: PDSN=%s PCF=%s",
+    if(type == REGISTRATION_REQUEST)
+	    registration_request_msg =1;
+    else
+	    registration_request_msg =0;
+
+
+  switch (type) {
+  case REGISTRATION_REQUEST:
+	
+       registration_request_msg =1;
+       col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: PDSN=%s PCF=%s",
                      tvb_ip_to_str(tvb, 8),
                      tvb_ip_to_str(tvb, 12));
 
@@ -2032,16 +2169,90 @@ proto_register_a11(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             "Reverse Updated QoS Sub-Blob.", HFILL }
         },
-        { & hf_a11_subsciber_profile_len,
+        { &hf_a11_subsciber_profile_len,
           { "Subscriber QoS Profile Length",   "a11.ext.sqp.profilelen",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Subscriber QoS Profile Length.", HFILL }
         },
-        { & hf_a11_subsciber_profile,
+        { &hf_a11_subsciber_profile,
           { "Subscriber QoS Profile",   "a11.ext.sqp.profile",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Subscriber QoS Profile.", HFILL }
         },
+
+        { &hf_a11_ase_forward_rohc_info_len,
+          { "Forward ROHC Info Length",   "a11.ext.ase.forwardlen",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             "Forward ROHC Info Length", HFILL }
+        },
+
+        { &hf_a11_ase_forward_maxcid,
+          { "Forward MAXCID",   "a11.ext.ase.maxcid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Forward MAXCID", HFILL }
+        },
+
+        { &hf_a11_ase_forward_mrru,
+          { "Forward MRRU",   "a11.ext.ase.mrru",
+             FT_UINT16, BASE_DEC, NULL, 0,
+            "Forward MRRU", HFILL }
+           },
+
+        { &hf_a11_ase_forward_large_cids,
+          { "Forward Large CIDS",   "a11.ext.ase.forwardlargecids",
+            FT_UINT8, BASE_DEC, NULL, 128,
+            "Forward Large CIDS", HFILL }
+        },
+
+        { &hf_a11_ase_forward_profile_count,
+          { "Forward Profile Count",   "a11.ext.ase.profilecount",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Forward Profile Count", HFILL }
+         },
+
+
+        { &hf_a11_ase_forward_profile,
+          { "Forward Profile ",   "a11.ext.ase.forwardprofile",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Forward Profile ", HFILL }
+        },
+	
+        { &hf_a11_ase_reverse_rohc_info_len,
+          { "Reverse ROHC Info Length",   "a11.ext.ase.reverselen",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Reverse ROHC Info Length", HFILL }
+        },
+
+        { &hf_a11_ase_reverse_maxcid,
+          { "Reverse MAXCID",   "a11.ext.ase.revmaxcid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Reverse MAXCID", HFILL }
+        },
+
+        { &hf_a11_ase_reverse_mrru,
+          { "Reverse MRRU",   "a11.ext.ase.revmrru",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Reverse MRRU", HFILL }
+        },
+
+        { &hf_a11_ase_reverse_large_cids,
+          { "Reverse Large CIDS",   "a11.ext.ase.reverselargecids",
+            FT_UINT8, BASE_DEC, NULL, 128,
+            "Reverse Large CIDS", HFILL }
+        },
+
+        { &hf_a11_ase_reverse_profile_count,
+          { "Reverse Profile Count",   "a11.ext.ase.revprofilecount",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Reverse Profile Count", HFILL }
+         },
+
+
+         { &hf_a11_ase_reverse_profile,
+           { "Reverse Profile ",   "a11.ext.ase.reverseprofile",
+             FT_UINT16, BASE_DEC, NULL, 0,
+             "Reverse Profile ", HFILL }
+         },
     };
 
     /* Setup protocol subtree array */
@@ -2061,6 +2272,10 @@ proto_register_a11(void)
         &ett_a11_fqui_flowentry,
         &ett_a11_rqui_flowentry,
         &ett_a11_subscriber_profile,
+		&ett_a11_forward_rohc,
+        &ett_a11_reverse_rohc,
+	 	&ett_a11_forward_profile,
+		&ett_a11_reverse_profile,
     };
 
     /* Register the protocol name and description */
