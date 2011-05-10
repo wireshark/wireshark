@@ -400,7 +400,8 @@ cf_reset_state(capture_file *cf)
   cf->first_displayed = 0;
   cf->last_displayed = 0;
 
-  /* No frame selected, no field in that frame selected. */
+  /* No frames, no frame selected, no field in that frame selected. */
+  cf->count = 0;
   cf->current_frame = 0;
   cf->current_row = 0;
   cf->finfo_selected = NULL;
