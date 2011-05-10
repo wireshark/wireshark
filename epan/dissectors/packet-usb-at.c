@@ -64,8 +64,6 @@ static gboolean dissect_usb_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     const guchar at_magic_in[2] = {0x0d, 0x0a};
     const gchar at_magic_out[2] = {'A', 'T'};
 
-    tvbuff_t *next_tvb = NULL;
-
     if (((tvb_memeql(tvb, 0, at_magic_in, sizeof(at_magic_in)) == 0) ||
          (tvb_memeql(tvb, 0, at_magic_out, sizeof(at_magic_out)) == 0)) &&
          allowed_chars(tvb)) {
