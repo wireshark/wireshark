@@ -790,19 +790,21 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
    {
       proto_tree* exts_tree;
       guint8 srid = tvb_get_guint8(tvb, offset+clen+1);
-      guint16 service_option =tvb_get_ntohs(tvb,offset+clen+2);       
+      guint16 service_option =tvb_get_ntohs(tvb,offset+clen+2);
       proto_item *ti;
-   
+
       if(registration_request_msg && (service_option==64 || service_option==67)){
           if(service_option == 67){
 	          guint8 profile_count=tvb_get_guint8(tvb, offset+clen+20);
               guint8 reverse_profile_count=tvb_get_guint8(tvb, offset+clen+20+(profile_count*2)+1+6);
 
-      	      ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+6+(profile_count*2)+1+6+(reverse_profile_count*2)+1, 
+      	      ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+6+(profile_count*2)+1+6+(reverse_profile_count*2)+1,
                    "GRE Key Entry (SRID: %d)", srid);
-      	  }	else if(service_option== 64){
+      	  } else if(service_option== 64){
               ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+2, "GRE Key Entry (SRID: %d)", srid);
-          }    
+      	  } else {
+              ti = proto_tree_add_text(ext_tree, tvb, 0, 0, "Unknown service option %u (SRID: %d)", service_option, srid);
+          }
       }else{
           ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1, "GRE Key Entry (SRID: %d)", srid);
       }
@@ -840,15 +842,15 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 		      guint8 profile_count=tvb_get_guint8(tvb, offset+clen+6);
               guint8 profile_index=0;
 			  guint8 reverse_profile_count;
-                
+
               proto_item* tj = proto_tree_add_text(exts_tree, tvb, offset+clen,6+(profile_count*2)+1, "Forward ROHC Info");
 
               proto_tree* extt_tree = proto_item_add_subtree(tj, ett_a11_forward_rohc);
- 
+
               proto_tree_add_item(extt_tree, hf_a11_ase_forward_rohc_info_len, tvb, offset+clen, 1, FALSE);
               clen++;
-                
-                
+
+
               proto_tree_add_item(extt_tree, hf_a11_ase_forward_maxcid, tvb, offset+clen, 2, FALSE);
               clen+=2;
               proto_tree_add_item(extt_tree, hf_a11_ase_forward_mrru, tvb, offset+clen, 2, FALSE);
@@ -856,7 +858,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
               proto_tree_add_item(extt_tree, hf_a11_ase_forward_large_cids, tvb, offset+clen, 1, FALSE);
               clen++;
               profile_count=tvb_get_guint8(tvb, offset+clen);
-	        
+
               proto_tree_add_item(extt_tree, hf_a11_ase_forward_profile_count, tvb, offset+clen, 1, FALSE);
               clen++;
 
@@ -866,11 +868,11 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
                   proto_tree* extu_tree = proto_item_add_subtree(tk, ett_a11_forward_profile);
                   proto_tree_add_item(extu_tree, hf_a11_ase_forward_profile, tvb, offset+clen, 2, FALSE);
                   clen+=2;
-              }/*for*/      		
-	
-		
+              }/*for*/
+
+
               reverse_profile_count=tvb_get_guint8(tvb, offset+clen+6);
-                
+
               tl = proto_tree_add_text(exts_tree, tvb, offset+clen,6+(reverse_profile_count*2)+1, "Reverse ROHC Info");
 
               extv_tree = proto_item_add_subtree(tl, ett_a11_reverse_rohc);
@@ -913,11 +915,11 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
                         (exts_tree, tvb, offset+clen,1, "Reverse ROHC Info:0",zero);
 		clen++;
 */
-		clen+=2;	
+		clen+=2;
 	  }/*else-if*/
-  
+
 	}/* if */
-		
+
    }/*while*/
 
 registration_request_msg =0;
@@ -1515,7 +1517,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (type) {
   case REGISTRATION_REQUEST:
-	
+
        registration_request_msg =1;
        col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: PDSN=%s PCF=%s",
                      tvb_ip_to_str(tvb, 8),
@@ -2216,7 +2218,7 @@ proto_register_a11(void)
             FT_UINT16, BASE_DEC, NULL, 0,
             "Forward Profile ", HFILL }
         },
-	
+
         { &hf_a11_ase_reverse_rohc_info_len,
           { "Reverse ROHC Info Length",   "a11.ext.ase.reverselen",
             FT_UINT8, BASE_DEC, NULL, 0,
