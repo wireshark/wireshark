@@ -1491,6 +1491,11 @@ void proto_register_sgsap(void) {
         FT_UINT32, BASE_DEC, NULL, 0x0fffffff,
         NULL, HFILL}
     },
+    { &hf_sgsap_cn_id,
+        {"CN_ID", "sgsap.cn_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
     { &hf_sgsap_imsi_det_eps, 
         { "IMSI detach from EPS service type",    "sgsap.imsi_det_eps",
         FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_eps_serv_type_values),0x0,
