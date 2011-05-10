@@ -79,6 +79,7 @@ gtk_jxta_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_jxta_hostlist_init("hosts,jxta",NULL);
 }
 #else
+static void
 gtk_jxta_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_jxta_hostlist_init("hosts,jxta",NULL);
