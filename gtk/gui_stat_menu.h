@@ -96,7 +96,7 @@ extern void register_stat_menu_item(
  *
  * @param callback_data data for callback function
  */
-#define MAIN_MENU_USE_UIMANAGER 1
+/*#define MAIN_MENU_USE_UIMANAGER 1 */
 #ifdef MAIN_MENU_USE_UIMANAGER
 void eth_endpoints_cb(GtkAction *action, gpointer user_data);
 void fc_endpoints_cb(GtkAction *action, gpointer user_data);
