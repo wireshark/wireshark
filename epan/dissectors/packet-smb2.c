@@ -3452,6 +3452,7 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		flags_item = proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
 		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_close_flags);
 	}
+	proto_tree_add_item(flags_tree, hf_smb2_close_pq_attrib, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* reserved */
@@ -4014,8 +4015,6 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
-	proto_tree *flags_tree = NULL;
-	proto_item *flags_item = NULL;
 
 	switch (si->status) {
 	case 0x00000000: break;
@@ -4042,11 +4041,7 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
 
 
-	/* flags */
-	if(tree){
-		flags_item = proto_tree_add_item(tree, hf_smb2_ioctl_flags, tvb, offset, 4, TRUE);
-		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_ioctl_flags);
-	}
+	/* flags: reserved: must be zero */
 	offset += 4;
 
 	/* reserved */
