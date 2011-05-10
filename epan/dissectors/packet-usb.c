@@ -40,6 +40,7 @@
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
 
@@ -151,9 +152,11 @@ static const int *usb_endpoint_fields[] = {
 };
 
 static int usb_tap = -1;
+static gboolean try_heuristics = TRUE;
 
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -2006,7 +2009,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             pinfo->usb_conv_info=usb_conv_info;
             next_tvb=tvb_new_subset_remaining(tvb, offset);
-            if(dissector_try_uint(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
+            if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent)) {
+                return;
+            }
+            else if(dissector_try_uint(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                 return;
             }
         }
@@ -2356,6 +2362,7 @@ dissect_linux_usb_mmapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 void
 proto_register_usb(void)
 {
+    module_t *usb_module;
     static hf_register_info hf[] = {
 
     /* USB packet pseudoheader members */
@@ -2730,9 +2737,16 @@ proto_register_usb(void)
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", FT_UINT8, BASE_DEC);
-
+    register_heur_dissector_list("usb.bulk", &heur_subdissector_list);
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
+
+    usb_module = prefs_register_protocol(proto_usb, NULL);
+    prefs_register_bool_preference(usb_module, "try_heuristics",
+        "Try heuristic sub-dissectors",
+        "Try to decode a packet using a heuristic sub-dissector before "
+        "attempting to dissect the packet using the \"usb.bulk\" dissector "
+        "table.", &try_heuristics);
 
     usb_tap=register_tap("usb");
 }

@@ -4380,7 +4380,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  *
  * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */
-static void
+static gboolean
 dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
   /* In some cases, the 0x03 normally in byte 3 is escaped so we must look for
@@ -4421,6 +4421,9 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     dissect_ppp_hdlc_common(next_tvb, pinfo, tree);
   }
+  else
+    return (FALSE);
+  return (TRUE);
 }
 
 void
@@ -4438,16 +4441,12 @@ void
 proto_reg_handoff_ppp_raw_hdlc(void)
 {
   dissector_handle_t ppp_raw_hdlc_handle;
-  dissector_handle_t ppp_usb_handle;
 
   ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
   dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
-  ppp_usb_handle = create_dissector_handle(dissect_ppp_usb, proto_ppp);
-  dissector_add_uint("usb.bulk", IF_CLASS_UNKNOWN, ppp_usb_handle);
-  dissector_add_uint("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, ppp_usb_handle);
-  dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, ppp_usb_handle);
+  heur_dissector_add("usb.bulk", dissect_ppp_usb, proto_ppp);
 }
 
 /*

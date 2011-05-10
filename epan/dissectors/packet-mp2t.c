@@ -1361,6 +1361,7 @@ proto_reg_handoff_mp2t(void)
 	mp2t_handle = create_dissector_handle(dissect_mp2t, proto_mp2t);
 	dissector_add_uint("rtp.pt", PT_MP2T, mp2t_handle);
 	dissector_add_handle("udp.port", mp2t_handle);  /* for decode-as */
+	heur_dissector_add("usb.bulk", heur_dissect_mp2t, proto_mp2t);
 
 	pes_handle = find_dissector("mpeg-pes");
 	docsis_handle = find_dissector("docsis");
