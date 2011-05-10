@@ -2166,7 +2166,7 @@ init_io_stat_window(io_stat_t *io)
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-static void
+void
 gui_iostat_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	iostat_init(NULL,NULL);
@@ -2185,20 +2185,6 @@ register_tap_listener_gtk_iostat(void)
 	register_stat_cmd_arg("io,stat", iostat_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_GENERIC,		/* Group */
-		"/Menubar/StatisticsMenu/IOGraphs",   /* GUI path */
-		"IO-Graphs",                        /* Name */
-		WIRESHARK_STOCK_GRAPHS,             /* stock_id */
-		"_IO Graphs",                       /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(gui_iostat_cb), /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
 	register_stat_menu_item_stock("_IO Graphs",
 				      REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,

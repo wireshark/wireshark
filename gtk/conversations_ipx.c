@@ -42,7 +42,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-#include "gtk/stock_icons.h"
 
 
 static int
@@ -72,13 +71,19 @@ ipx_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+ipx_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	ipx_conversation_init("conv,ipx",NULL);
+}
+#else
 static void
 ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ipx_conversation_init("conv,ipx",NULL);
 }
-
+#endif
 
 void
 register_tap_listener_ipx_conversation(void)
@@ -86,20 +91,6 @@ register_tap_listener_ipx_conversation(void)
 	register_stat_cmd_arg("conv,ipx", ipx_conversation_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
-		"IPX",                              /* Name */
-		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
-		"IPX",                              /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(ipx_endpoints_cb),       /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else    
 	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ipx_endpoints_cb, NULL, NULL, NULL);

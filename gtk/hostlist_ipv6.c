@@ -45,7 +45,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
-#include "gtk/stock_icons.h"
 
 static int
 ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -82,13 +81,19 @@ gtk_ipv6_hostlist_init(const char *optarg, void* userdata _U_)
     init_hostlist_table(TRUE, "IPv6", "ipv6", filter, ipv6_hostlist_packet);
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_ipv6_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    gtk_ipv6_hostlist_init("hosts,ipv6", NULL);
+}
+#else
 static void
 gtk_ipv6_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     gtk_ipv6_hostlist_init("hosts,ipv6", NULL);
 }
-
+#endif
 
 void
 register_tap_listener_ipv6_hostlist(void)
@@ -96,20 +101,6 @@ register_tap_listener_ipv6_hostlist(void)
     register_stat_cmd_arg("hosts,ipv6", gtk_ipv6_hostlist_init, NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_ENDPOINT_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/EndpointListMenu/Endpoint-List-item", /* GUI path */
-		"IPv6",                             /* Name */
-		WIRESHARK_STOCK_ENDPOINTS,          /* stock_id */
-		"IPv6",                             /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(gtk_ipv6_hostlist_cb),   /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
     register_stat_menu_item("IPv6", REGISTER_STAT_GROUP_ENDPOINT_LIST,
         gtk_ipv6_hostlist_cb, NULL, NULL, NULL);

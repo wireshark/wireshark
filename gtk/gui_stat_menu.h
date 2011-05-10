@@ -96,8 +96,48 @@ extern void register_stat_menu_item(
  *
  * @param callback_data data for callback function
  */
-//#define MAIN_MENU_USE_UIMANAGER 1
+#define MAIN_MENU_USE_UIMANAGER 1
 #ifdef MAIN_MENU_USE_UIMANAGER
+void eth_endpoints_cb(GtkAction *action, gpointer user_data);
+void fc_endpoints_cb(GtkAction *action, gpointer user_data);
+void fddi_endpoints_cb(GtkAction *action, gpointer user_data);
+void ip_endpoints_cb(GtkAction *action, gpointer user_data);
+void ipv6_endpoints_cb(GtkAction *action, gpointer user_data);
+void ipx_endpoints_cb(GtkAction *action, gpointer user_data);
+void jxta_conversation_cb(GtkAction *action, gpointer user_data);
+void ncp_endpoints_cb(GtkAction *action, gpointer user_data);
+void rsvp_endpoints_cb(GtkAction *action, gpointer user_data);
+void sctp_conversation_cb(GtkAction *action, gpointer user_data);
+void tcpip_conversation_cb(GtkAction *action, gpointer user_data);
+void tr_conversation_cb(GtkAction *action, gpointer user_data);
+void udpip_conversation_cb(GtkAction *action, gpointer user_data);
+void usb_endpoints_cb(GtkAction *action, gpointer user_data);
+void wlan_endpoints_cb(GtkAction *action, gpointer user_data);
+
+void gtk_eth_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_fc_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_fddi_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_ip_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_ipv6_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_ipx_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_jxta_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_ncp_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_rsvp_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_sctp_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_tcpip_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_tr_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_udpip_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_usb_hostlist_cb(GtkAction *action, gpointer user_data);
+void gtk_wlan_hostlist_cb(GtkAction *action, gpointer user_data);
+
+void flow_graph_launch(GtkAction *action, gpointer user_data);
+
+void iax2_analysis_cb(GtkAction *action, gpointer user_data);
+
+void gui_iostat_cb(GtkAction *action, gpointer user_data);
+
+void voip_calls_launch(GtkAction *action, gpointer user_data);
+
 extern void register_stat_menu_item_stock(
     register_stat_group_t group,
     const char   *gui_path,

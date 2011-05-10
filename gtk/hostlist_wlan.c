@@ -42,7 +42,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
-#include "gtk/stock_icons.h"
 
 static int
 wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -74,13 +73,19 @@ gtk_wlan_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_wlan_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+        gtk_wlan_hostlist_init("hosts,wlan",NULL);
+}
+#else
 static void
 gtk_wlan_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
         gtk_wlan_hostlist_init("hosts,wlan",NULL);
 }
-
+#endif
 
 void
 register_tap_listener_wlan_hostlist(void)
@@ -88,20 +93,6 @@ register_tap_listener_wlan_hostlist(void)
         register_stat_cmd_arg("hosts,wlan", gtk_wlan_hostlist_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_ENDPOINT_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/EndpointListMenu/Endpoint-List-item", /* GUI path */
-		"WLAN",                             /* Name */
-		WIRESHARK_STOCK_ENDPOINTS,          /* stock_id */
-		"WLAN",                             /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(gtk_wlan_hostlist_cb),   /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
         register_stat_menu_item("WLAN", REGISTER_STAT_GROUP_ENDPOINT_LIST,
             gtk_wlan_hostlist_cb, NULL, NULL, NULL);

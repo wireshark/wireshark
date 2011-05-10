@@ -43,7 +43,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-#include "gtk/stock_icons.h"
 
 static int
 eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -72,13 +71,20 @@ eth_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-
-static void
-eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+eth_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	eth_conversation_init("conv,eth",NULL);
 }
 
+#else
+static void
+eth_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	eth_conversation_init("conv,eth",NULL);
+}
+#endif
 
 void
 register_tap_listener_eth_conversation(void)
@@ -86,23 +92,10 @@ register_tap_listener_eth_conversation(void)
 	register_stat_cmd_arg("conv,eth", eth_conversation_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
-		"Ethernet",                         /* Name */
-		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
-		"Ethernet",                         /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(eth_endpoints_cb),       /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
 	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    eth_endpoints_cb, NULL, NULL, NULL);
 #endif
+
 	register_conversation_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_conversation_packet);
 }

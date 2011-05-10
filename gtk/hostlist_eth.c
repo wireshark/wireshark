@@ -42,7 +42,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
-#include "gtk/stock_icons.h"
 
 
 static int
@@ -78,13 +77,19 @@ gtk_eth_hostlist_init(const char *optarg,
 
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_eth_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	gtk_eth_hostlist_init("hosts,eth",NULL);
+}
+#else
 static void
 gtk_eth_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_eth_hostlist_init("hosts,eth",NULL);
 }
-
+#endif
 
 void
 register_tap_listener_eth_hostlist(void)
@@ -92,24 +97,9 @@ register_tap_listener_eth_hostlist(void)
 	register_stat_cmd_arg("hosts,eth", gtk_eth_hostlist_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_ENDPOINT_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/EndpointListMenu/Endpoint-List-item", /* GUI path */
-		"Ethernet",                         /* Name */
-		WIRESHARK_STOCK_ENDPOINTS,          /* stock_id */
-		"Ethernet",                         /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(gtk_eth_hostlist_cb),    /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
 	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
 #endif
-
 	register_hostlist_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_hostlist_packet);
 }

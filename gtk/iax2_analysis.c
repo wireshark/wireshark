@@ -3407,7 +3407,11 @@ void iax2_analysis(
 
 /****************************************************************************/
 /* entry point from main menu */
+#ifdef MAIN_MENU_USE_UIMANAGER
+void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	address ip_src_fwd;
 	guint16 port_src_fwd;
@@ -3547,20 +3551,6 @@ register_tap_listener_iax2_analysis(void)
 	register_stat_cmd_arg("IAX2", iax2_analysis_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_TELEPHONY,		/* Group */
-		"/Menubar/TelephonyMenu/IAX2menu/StreamAnalysis", /* GUI path */
-		"Stream-Analysis",                  /* Name */
-		NULL,                               /* stock_id */
-		"Stream Analysis...",               /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(iax2_analysis_cb),       /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
 	register_stat_menu_item("IA_X2/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    iax2_analysis_cb, NULL, NULL, NULL);

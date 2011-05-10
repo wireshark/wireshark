@@ -44,7 +44,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/hostlist_table.h"
-#include "gtk/stock_icons.h"
 
 
 static int
@@ -79,13 +78,19 @@ gtk_fc_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_fc_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	gtk_fc_hostlist_init("hosts,fc",NULL);
+}
+#else
 static void
 gtk_fc_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_fc_hostlist_init("hosts,fc",NULL);
 }
-
+#endif
 
 void
 register_tap_listener_fc_hostlist(void)
@@ -93,20 +98,6 @@ register_tap_listener_fc_hostlist(void)
 	register_stat_cmd_arg("hosts,fc", gtk_fc_hostlist_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_ENDPOINT_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/EndpointListMenu/Endpoint-List-item", /* GUI path */
-		"Fibre Channel",                    /* Name */
-		WIRESHARK_STOCK_ENDPOINTS,          /* stock_id */
-		"Fibre Channel",                    /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(gtk_fc_hostlist_cb),     /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
-
 #else
 	register_stat_menu_item("Fibre Channel", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_fc_hostlist_cb, NULL, NULL, NULL);

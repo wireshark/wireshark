@@ -42,7 +42,6 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/conversations_table.h"
-#include "gtk/stock_icons.h"
 
 static int
 ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
@@ -69,13 +68,19 @@ ip_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+ip_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	ip_conversation_init("conv,ip",NULL);
+}
+#else
 static void
 ip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ip_conversation_init("conv,ip",NULL);
 }
-
+#endif
 
 void
 register_tap_listener_ip_conversation(void)
@@ -83,19 +88,6 @@ register_tap_listener_ip_conversation(void)
 	register_stat_cmd_arg("conv,ip", ip_conversation_init,NULL);
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	register_stat_menu_item_stock(
-		REGISTER_STAT_GROUP_CONVERSATION_LIST,		/* Group */
-		"/Menubar/StatisticsMenu/ConversationListMenu/List-item", /* GUI path */
-		"IPv4",                             /* Name */
-		WIRESHARK_STOCK_CONVERSATIONS,      /* stock_id */
-		"IPv4",                             /* label */
-		NULL,                               /* accelerator */
-		NULL,                               /* tooltip */
-		G_CALLBACK(ip_endpoints_cb),        /* callback */
-		TRUE,                               /* enabled */
-		NULL,                               /* selected_packet_enabled */
-		NULL,                               /* selected_tree_row_enabled */
-		NULL);                              /* callback_data */
 #else
 	register_stat_menu_item("IPv4", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ip_endpoints_cb, NULL, NULL, NULL);
