@@ -25,7 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  */
 
@@ -58,30 +58,27 @@ static guint32    tte_pref_ct_mask      = 0x0;
 /* Initialize the subtree pointers */
 static gint ett_tte = -1;
 static gint ett_tte_macdest = -1;
-static gint ett_tte_macsrc  = -1;
-
 
 
 /* Code to actually dissect the packets */
 static int
 dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tvbuff_t* tvb_next;
     int is_frame_pcf;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *tte_root_item, *tte_macdest_item, *tte_macsrc_item;
-    proto_tree *tte_tree, *tte_macdest_tree/*, *tte_macsrc_tree*/;
+    proto_item *tte_root_item, *tte_macdest_item;
+    proto_tree *tte_tree, *tte_macdest_tree;
 
     /* Check that there's enough data */
     if (tvb_length(tvb) < TTE_HEADER_LENGTH)
         return 0;
 
     /* check if data of pcf frame */
-    is_frame_pcf = 
+    is_frame_pcf =
        (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2) == ETHERTYPE_TTE_PCF);
 
-    /* return if no valid cosntant field is found */
+    /* return if no valid constant field is found */
     if (!is_frame_pcf)
     {
         if ( (tvb_get_ntohl(tvb, 0) & tte_pref_ct_mask) != tte_pref_ct_marker)
@@ -104,11 +101,12 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tte_macdest_item = proto_tree_add_item(tte_tree,
             hf_eth_dst, tvb, 0, TTE_MAC_LENGTH, FALSE);
 
-        tte_macsrc_item = proto_tree_add_item(tte_tree,
+        proto_tree_add_item(tte_tree,
             hf_eth_src, tvb, TTE_MAC_LENGTH, TTE_MAC_LENGTH, FALSE);
 
         proto_tree_add_item(tte_tree,
             hf_eth_type, tvb, TTE_MAC_LENGTH*2, TTE_ETHERTYPE_LENGTH,
+
             FALSE);
 
         tte_macdest_tree = proto_item_add_subtree(tte_macdest_item,
@@ -122,9 +120,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TTE_MACDEST_CTID_LENGTH, FALSE);
     }
 
-    tvb_next = tvb_new_subset_remaining(tvb, TTE_HEADER_LENGTH);
-
-    /* prevent the Columns to be cleared...appending cannot be prevented */
+    /* prevent clearing the Columns...appending cannot be prevented */
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 
     /* call std Ethernet dissector */
@@ -156,8 +152,7 @@ proto_register_tte(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_tte,
-        &ett_tte_macdest,
-        &ett_tte_macsrc
+        &ett_tte_macdest
     };
 
     /* Register the protocol name and description */
