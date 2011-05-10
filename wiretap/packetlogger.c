@@ -48,8 +48,6 @@ typedef struct packetlogger_header {
 	guint64 ts;
 } packetlogger_header_t;
 
-#define PACKETLOGGER_HEADER_SIZE 12
-
 static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
@@ -172,22 +170,12 @@ static gboolean
 packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err,
 			 gchar **err_info)
 {
-	guint bytes_read = 0;
-
-	bytes_read += file_read(&pl_hdr->len, 4, fh);
-	bytes_read += file_read(&pl_hdr->ts, 8, fh);
+	wtap_file_read_expected_bytes(&pl_hdr->len, 4, fh, err, err_info);
+	wtap_file_read_expected_bytes(&pl_hdr->ts, 8, fh, err, err_info);
 
 	/* Convert multi-byte values from big endian to host endian */
 	pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);
 	pl_hdr->ts = GUINT64_FROM_BE(pl_hdr->ts);
-
-	if(bytes_read < PACKETLOGGER_HEADER_SIZE) {
-		*err = file_error(fh, err_info);
-		if(*err == 0 && bytes_read > 0)
-			*err = WTAP_ERR_SHORT_READ;
-
-		return FALSE;
-	}
 
 	return TRUE;
 }

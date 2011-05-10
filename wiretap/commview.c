@@ -243,40 +243,30 @@ static gboolean
 commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err,
     gchar **err_info)
 {
-	int bytes_read = 0;
-
-	bytes_read += file_read(&cv_hdr->data_len, 2, fh);
-	bytes_read += file_read(&cv_hdr->source_data_len, 2, fh);
-	bytes_read += file_read(&cv_hdr->version, 1, fh);
-	bytes_read += file_read(&cv_hdr->year, 2, fh);
-	bytes_read += file_read(&cv_hdr->month, 1, fh);
-	bytes_read += file_read(&cv_hdr->day, 1, fh);
-	bytes_read += file_read(&cv_hdr->hours, 1, fh);
-	bytes_read += file_read(&cv_hdr->minutes, 1, fh);
-	bytes_read += file_read(&cv_hdr->seconds, 1, fh);
-	bytes_read += file_read(&cv_hdr->usecs, 4, fh);
-	bytes_read += file_read(&cv_hdr->flags, 1, fh);
-	bytes_read += file_read(&cv_hdr->signal_level_percent, 1, fh);
-	bytes_read += file_read(&cv_hdr->rate, 1, fh);
-	bytes_read += file_read(&cv_hdr->band, 1, fh);
-	bytes_read += file_read(&cv_hdr->channel, 1, fh);
-	bytes_read += file_read(&cv_hdr->direction, 1, fh);
-	bytes_read += file_read(&cv_hdr->signal_level_dbm, 1, fh);
-	bytes_read += file_read(&cv_hdr->noise_level, 1, fh);
+	wtap_file_read_expected_bytes(&cv_hdr->data_len, 2, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->source_data_len, 2, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->version, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->year, 2, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->month, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->day, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->hours, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->minutes, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->seconds, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->usecs, 4, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->flags, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->signal_level_percent, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->rate, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->band, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->channel, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->direction, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->signal_level_dbm, 1, fh, err, err_info);
+	wtap_file_read_expected_bytes(&cv_hdr->noise_level, 1, fh, err, err_info);
 
 	/* Convert multi-byte values from little endian to host endian format */
 	cv_hdr->data_len = GUINT16_FROM_LE(cv_hdr->data_len);
 	cv_hdr->source_data_len = GUINT16_FROM_LE(cv_hdr->source_data_len);
 	cv_hdr->year = GUINT16_FROM_LE(cv_hdr->year);
 	cv_hdr->usecs = GUINT32_FROM_LE(cv_hdr->usecs);
-
-	if(bytes_read < COMMVIEW_HEADER_SIZE) {
-		*err = file_error(fh, err_info);
-		if(*err == 0 && bytes_read > 0)
-			*err = WTAP_ERR_SHORT_READ;
-
-		return FALSE;
-	}
 
 	return TRUE;
 }

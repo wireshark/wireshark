@@ -579,14 +579,21 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(record_type, 2, wth->fh);
-	bytes_read += file_read(record_length, 4, wth->fh);
-	if (bytes_read != 6) {
+	if (bytes_read != 2) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 6;
+	wth->data_offset += 2;
+	bytes_read = file_read(record_length, 4, wth->fh);
+	if (bytes_read != 4) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0)
+			return -1;
+		return 0;
+	}
+	wth->data_offset += 4;
 
 	type = pletohs(record_type);
 

@@ -143,14 +143,21 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(LE_record_type, 2, wth->fh);
-	bytes_read += file_read(LE_record_length, 2, wth->fh);
-	if (bytes_read != 4) {
+	if (bytes_read != 2) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 4;
+	wth->data_offset += 2;
+	bytes_read = file_read(LE_record_length, 2, wth->fh);
+	if (bytes_read != 2) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0)
+			return -1;
+		return 0;
+	}
+	wth->data_offset += 2;
 	record_type = pletohs(LE_record_type);
 	record_length = pletohs(LE_record_length); /* make sure to do this for while() loop */
 
@@ -178,8 +185,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(LE_record_type, 2, wth->fh);
-		bytes_read += file_read(LE_record_length, 2, wth->fh);
-		if (bytes_read != 4) {
+		if (bytes_read != 2) {
 			*err = file_error(wth->fh, err_info);
 			if (*err != 0) {
 				g_free(wth->priv);
@@ -188,7 +194,18 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			g_free(wth->priv);
 			return 0;
 		}
-		wth->data_offset += 4;
+		wth->data_offset += 2;
+		bytes_read = file_read(LE_record_length, 2, wth->fh);
+		if (bytes_read != 2) {
+			*err = file_error(wth->fh, err_info);
+			if (*err != 0) {
+				g_free(wth->priv);
+				return -1;
+			}
+			g_free(wth->priv);
+			return 0;
+		}
+		wth->data_offset += 2;
 
 		record_type = pletohs(LE_record_type);
 		record_length = pletohs(LE_record_length);
