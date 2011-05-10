@@ -34,10 +34,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
 #include <epan/prefs.h>
 
 #include <glib.h>
@@ -868,8 +864,6 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "word 4 unused for this user");
 				offset = offset + 4;
 				/* W5 */
-				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
 				proto_tree_add_item(tipc_tree, hf_tipcv2_network_id, tipc_tvb, offset, 4, FALSE);
 				offset = offset + 4;
 				/* W6 */
@@ -1486,8 +1480,6 @@ w9:|                                                               |
 			offset = offset + 4;
 			/* W4 */
 			/* Network Identity: */
-			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
 			proto_tree_add_item(tipc_tree, hf_tipcv2_network_id, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 			if (handle_v2_as & (V2_AS_1_6)) {
