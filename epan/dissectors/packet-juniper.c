@@ -1024,29 +1024,19 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   int        bytes_processed;
   tvbuff_t   *next_tvb;
 
-  switch (atm_pictype) {
-  case JUNIPER_PIC_ATM1:
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM1");
-    break;
-  case JUNIPER_PIC_ATM2:
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM2");
-    break;
-  default: /* should not happen */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM unknown");
-    return;
-
-  }
-
   col_clear(pinfo->cinfo, COL_INFO);
 
   switch (atm_pictype) {
   case JUNIPER_PIC_ATM1:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM1");
     ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper ATM1 PIC");
     break;
   case JUNIPER_PIC_ATM2:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM2");
     ti = proto_tree_add_text (tree, tvb, 0, 0 , "Juniper ATM2 PIC");
     break;
   default: /* should not happen */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM unknown");
     proto_tree_add_text (tree, tvb, 0, 0 , "Juniper unknown ATM PIC");
     return;
   }
@@ -1070,21 +1060,17 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   cookie1 = tvb_get_ntohl(tvb, offset);
   cookie2 = tvb_get_ntoh64(tvb, offset);
 
-  switch (atm_pictype) {
-  case JUNIPER_PIC_ATM1:
+  if (atm_pictype == JUNIPER_PIC_ATM1) {
     proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, offset, 4, cookie1);
     offset += atm1_header_len;
     if ((cookie1 >> 24) == 0x80) /* OAM cell ? */
       next_proto = PROTO_OAM;
-    break;
-  case JUNIPER_PIC_ATM2:
+  }
+  else { /* JUNIPER_PIC_ATM2 */
     proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, offset, 8, cookie2);
     offset += atm2_header_len;
     if (cookie2 & 0x70) /* OAM cell ? */
       next_proto = PROTO_OAM;
-    break;
-  default: /* should not happen */
-    return;
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
