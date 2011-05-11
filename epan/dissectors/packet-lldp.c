@@ -1448,21 +1448,21 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "supported no. of VSIs: %04u", tempShort);
+				proto_tree_add_text(tree, tvb, tempOffset, 2, "supported no. of VSIs: %04u", tempShort);
 			}
 
 			tempOffset += 2;
 
 			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "configured no. of VSIs: %04u", tempShort);
+				proto_tree_add_text(tree, tvb, tempOffset, 2, "configured no. of VSIs: %04u", tempShort);
 			}
 
 			tempOffset += 2;
 
 			tempByte= tvb_get_guint8(tvb, tempOffset);
 			if (tree) {
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "retransmission timer exponent: %02u", tempByte);
+				proto_tree_add_text(tree, tvb, tempOffset, 1, "retransmission timer exponent: %02u", tempByte);
 			}
 
 			break;
