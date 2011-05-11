@@ -1,5 +1,5 @@
 /* packet-vtp.c
- * Routines for the disassembly of Cisco's Virtual Trunking Protocol
+ * Routines for the disassembly of Cisco's VLAN Trunking Protocol
  *
  * $Id$
  *
@@ -62,7 +62,9 @@ static int hf_vtp_802_10_index = -1;
 static int hf_vtp_vlan_name = -1;
 static int hf_vtp_vlan_tlvtype = -1;
 static int hf_vtp_vlan_tlvlength = -1;
-static gint hf_vtp_pruning_vid = -1;
+static gint hf_vtp_pruning_first_vid = -1;
+static gint hf_vtp_pruning_last_vid = -1;
+static gint hf_vtp_pruning_active_vid = -1;
 
 static gint ett_vtp = -1;
 static gint ett_vtp_vlan_info = -1;
@@ -90,6 +92,42 @@ static const value_string type_vals[] = {
 };
 
 static void
+set_vtp_info_col(tvbuff_t *tvb, packet_info *pinfo)
+{
+        switch (tvb_get_guint8(tvb, 1)) {
+
+        case SUMMARY_ADVERT:
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "Summary Advertisement, Revision: %u", tvb_get_ntohl(tvb, 36));
+
+                if (tvb_get_guint8(tvb, 2) > 0) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            ", Followers: %u", tvb_get_guint8(tvb, 2));
+                }
+
+                break;
+
+        case SUBSET_ADVERT:
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "Subset Advertisement, Revision: %u, Seq: %u",
+                    tvb_get_ntohl(tvb, 36), tvb_get_guint8(tvb, 2));
+                break;
+
+        case ADVERT_REQUEST:
+                col_set_str(pinfo->cinfo, COL_INFO, "Advertisement Request");
+                break;
+
+        case JOIN_MSG:
+                col_set_str(pinfo->cinfo, COL_INFO, "Join");
+                break;
+
+        default:
+                col_set_str(pinfo->cinfo, COL_INFO, "Unrecognized VTP message");
+                break;
+        }
+}
+
+static void
 dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -102,7 +140,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int pruning_vlan_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
-	col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
+	set_vtp_info_col(tvb, pinfo);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,
@@ -189,6 +227,10 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    1, md_len);
 			offset += 1;
 
+			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			    32, FALSE);
+			offset += 32;
+
 			proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
 			    offset, 2, FALSE);
 			break;
@@ -205,12 +247,12 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    32, FALSE);
 			offset += 32;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_pruning_vid, tvb, offset,
+			proto_tree_add_item(vtp_tree, hf_vtp_pruning_first_vid, tvb, offset,
 			    2, FALSE);
 			pruning_vlan_id = tvb_get_ntohs(tvb, offset);
 			offset += 2;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_pruning_vid, tvb, offset,
+			proto_tree_add_item(vtp_tree, hf_vtp_pruning_last_vid, tvb, offset,
 			    2, FALSE);
 			offset += 2;
 
@@ -226,7 +268,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    for (shift = 0; shift < 8; shift++) {
 				if (vlan_usage_bitmap & (1<<7)) {
-				    proto_tree_add_uint(vtp_pruning_tree, hf_vtp_pruning_vid,
+				    proto_tree_add_uint(vtp_pruning_tree, hf_vtp_pruning_active_vid,
 					tvb, offset, 1, pruning_vlan_id);
 				}
 
@@ -699,9 +741,18 @@ proto_register_vtp(void)
 		{ "Length",	"vtp.vlan_info.tlv_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-		{ &hf_vtp_pruning_vid,
-		{ "VLAN",	"vtp.pruning.vid", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Active (i.e. not pruned) VLAN ID", HFILL }}
+		{ &hf_vtp_pruning_first_vid,
+		{ "First VLAN ID",	"vtp.pruning.first", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"First VLAN ID for which pruning information is present", HFILL }},
+
+		{ &hf_vtp_pruning_last_vid,
+		{ "Last VLAN ID",	"vtp.pruning.last", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Last VLAN ID for which pruning information is present", HFILL }},
+
+		{ &hf_vtp_pruning_active_vid,
+		{ "VLAN",	"vtp.pruning.active", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Active advertised VLAN ID", HFILL }},
+
         };
 	static gint *ett[] = {
 		&ett_vtp,
@@ -711,7 +762,7 @@ proto_register_vtp(void)
 		&ett_vtp_pruning,
 	};
 
-        proto_vtp = proto_register_protocol("Virtual Trunking Protocol",
+        proto_vtp = proto_register_protocol("VLAN Trunking Protocol",
 	    "VTP", "vtp");
         proto_register_field_array(proto_vtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
