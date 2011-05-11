@@ -1628,27 +1628,59 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                                          const char *string)
 {
-    guint ueid = 0;
-    guint rnti;
+    guint number_of_ues;
+    guint ueids[MAX_SRs];
+    guint rntis[MAX_SRs];
     guint rapid;
     guint rach_attempt_number;
     mac_lte_oob_event oob_event;
     struct mac_lte_info *p_mac_lte_info;
     tvbuff_t *mac_lte_tvb = NULL;
+    guint16 n;
 
     /* Look for strings matching expected formats */
     if (sscanf(string, ">> RACH Preamble Request[UE =  %u]    [RAPID =  %u]    [Attempt = %u]",
-               &ueid, &rapid, &rach_attempt_number) == 3) {
+               &ueids[0], &rapid, &rach_attempt_number) == 3) {
         oob_event = ltemac_send_preamble;
     }
     else
-    if (sscanf(string, ">> Schedule Request[UE =  %u] [RNTI = %u]", &ueid, &rnti) == 2) {
+    if (sscanf(string, ">> Schedule Request[UE =  %u] [RNTI = %u]", &ueids[0], &rntis[0]) == 2) {
+        /* Older, single SR format */
         oob_event = ltemac_send_sr;
+        number_of_ues = 1;
     }
     else
-    if ((sscanf(string, ">> INFO MAC:    ProcessSRInd - CRNTI=%u", &rnti) == 1) ||
-        (sscanf(string, ">> INFO MAC:    SR failed for UE %u (CRNTI=%u)", &ueid, &rnti) == 2)) {
+    if (sscanf(string, ">> Schedule Requests (%u)  [UE=%u][RNTI=%u]",
+               &number_of_ues, &ueids[0], &rntis[0]) == 3) {
+        const char *current_position;
 
+        /* Newer, multi-UE format */
+        oob_event = ltemac_send_sr;
+
+        /* Parse other ueid/rnti pairs */
+        number_of_ues = MIN(number_of_ues, MAX_SRs);
+        if (number_of_ues > 1) {
+            current_position = string;
+
+            for (n=1; n < number_of_ues; n++) {
+
+                /* Find the start of the next entry */
+                current_position = strstr(current_position, "] ");
+                if (current_position != NULL) {
+                    current_position += 2;
+                }
+                else {
+                    /* This is an error - shouldn't happen */
+                    return;
+                }
+
+                /* Read this entry */
+                sscanf(current_position, "[UE=%u][RNTI=%u]", &ueids[n], &rntis[n]);
+            }
+        }
+    }
+    else
+    if (sscanf(string, ">> INFO MAC:    SR failed for UE %u (CRNTI=%u)", &ueids[0], &rntis[0]) == 2) {
         oob_event = ltemac_sr_failure;
     }
     else {
@@ -1669,24 +1701,27 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 
         switch (oob_event) {
             case ltemac_send_preamble:
-                p_mac_lte_info->ueid = ueid;
+                p_mac_lte_info->ueid = ueids[0];
                 p_mac_lte_info->rapid = rapid;
                 p_mac_lte_info->rach_attempt_number = rach_attempt_number;
                 p_mac_lte_info->direction = DIRECTION_UPLINK;
                 break;
             case ltemac_send_sr:
-                p_mac_lte_info->ueid = ueid;
-                p_mac_lte_info->rnti = rnti;
+                for (n=0; n < number_of_ues; n++) {
+                    p_mac_lte_info->oob_ueid[n] = ueids[n];
+                    p_mac_lte_info->oob_rnti[n] = rntis[n];
+                }
+                p_mac_lte_info->number_of_srs = number_of_ues;
                 p_mac_lte_info->direction = DIRECTION_UPLINK;
                 break;
             case ltemac_sr_failure:
-                p_mac_lte_info->rnti = rnti;
-                p_mac_lte_info->ueid = ueid;
+                p_mac_lte_info->rnti = rntis[0];
+                p_mac_lte_info->ueid = ueids[0];
                 p_mac_lte_info->direction = DIRECTION_DOWNLINK;
                 break;
         }
 
-        p_mac_lte_info->radioType = FDD_RADIO;
+        p_mac_lte_info->radioType = FDD_RADIO; /* TODO: will be the same as rest of log... */
         p_mac_lte_info->oob_event = oob_event;
 
         /* Store info in packet */
@@ -2297,16 +2332,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             }
 
-#if 0
-            /* PART OF WORK IN PROGRESS */
+            /* Last chance: is there a (private) registered protocol of the form
+               "dct2000.protocol" ? */
             if (protocol_handle == 0) {
                 /* TODO: only look inside preference? */
                 char dotted_protocol_name[64+128];
                 g_snprintf(dotted_protocol_name, 64+128, "dct2000.%s", protocol_name);
                 protocol_handle = find_dissector(dotted_protocol_name);
             }
-#endif
-
 
             break;
 

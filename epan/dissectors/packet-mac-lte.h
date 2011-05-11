@@ -153,6 +153,10 @@ typedef struct mac_lte_info
     mac_lte_oob_event  oob_event;
     guint8             rapid;
     guint8             rach_attempt_number;
+    #define MAX_SRs 20
+    guint16            number_of_srs;
+    guint16            oob_ueid[MAX_SRs];
+    guint16            oob_rnti[MAX_SRs];
 } mac_lte_info;
 
 

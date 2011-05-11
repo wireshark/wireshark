@@ -203,6 +203,7 @@ static int ett_mac_lte_power_headroom = -1;
 static int ett_mac_lte_oob = -1;
 
 
+
 /* Constants and value strings */
 
 static const value_string radio_type_vals[] =
@@ -1862,19 +1863,33 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
 /* Keep track of SR requests, failures and related grants, in order to show them
    as generated fields in these frames */
 static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
-                        tvbuff_t *tvb, mac_lte_info *p_mac_lte_info, proto_item *event_ti)
+                        tvbuff_t *tvb, mac_lte_info *p_mac_lte_info, gint idx, proto_item *event_ti)
 {
     SRResult *result = NULL;
+    SRState *state;
     SRResult *resultForSRFrame = NULL;
+
+    guint16 rnti;
+    guint16 ueid;
     proto_item *ti;
 
+    /* Get appropriate identifiers */
+    if (event == SR_Grant) {
+        rnti = p_mac_lte_info->rnti;
+        ueid = p_mac_lte_info->ueid;
+    }
+    else {
+        rnti = p_mac_lte_info->oob_rnti[idx];
+        ueid = p_mac_lte_info->oob_ueid[idx];
+    }
+
     /* Create state for this RNTI if necessary */
-    SRState *state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)(p_mac_lte_info->rnti)));
+    state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti));
     if (state == NULL) {
         /* Allocate status for this RNTI */
         state = se_alloc(sizeof(SRState));
         state->status = None;
-        g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)(p_mac_lte_info->rnti)), state);
+        g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
     }
 
     /* First time through - update state with new info */
@@ -2007,7 +2022,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
         if (event == SR_Request) {
             expert_add_info_format(pinfo, event_ti, PI_SEQUENCE, PI_ERROR,
                                    "UE %u: SR results in neither a grant nor a failure indication",
-                                   p_mac_lte_info->ueid);
+                                   ueid);
         }
         return;
     }
@@ -2055,18 +2070,15 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
         case InvalidSREvent:
             ti = proto_tree_add_none_format(tree, hf_mac_lte_sr_invalid_event,
                                             tvb, 0, 0, "UE %u: Invalid SR event - state=%s, event=%s",
-                                            p_mac_lte_info->ueid,
+                                            ueid,
                                             val_to_str_const(result->status, sr_status_vals, "Unknown"),
                                             val_to_str_const(result->event,  sr_event_vals,  "Unknown"));
             PROTO_ITEM_SET_GENERATED(ti);
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                   "UE %u: Invalid SR event for UE %u (C-RNTI %u) - state=%s, event=%s",
-                                   p_mac_lte_info->ueid,
-                                   p_mac_lte_info->ueid,
-                                   p_mac_lte_info->rnti,
+                                   "Invalid SR event for UE %u (C-RNTI %u) - state=%s, event=%s",
+                                   ueid, rnti,
                                    val_to_str_const(result->status, sr_status_vals, "Unknown"),
                                    val_to_str_const(result->event,  sr_event_vals,  "Unknown"));
-
             break;
     }
 }
@@ -2285,7 +2297,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ((direction == DIRECTION_UPLINK) && (p_mac_lte_info->reTxCount == 0) &&
         global_mac_lte_track_sr) {
 
-        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info, NULL);
+        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info, 0, NULL);
     }
 
     /* Add hidden item to filter on */
@@ -3073,6 +3085,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item             *ti;
     gint                   offset = 0;
     struct mac_lte_info    *p_mac_lte_info = NULL;
+    gint                   n;
 
     /* Allocate and zero tap struct */
     mac_lte_tap_info *tap_info = ep_alloc0(sizeof(mac_lte_tap_info));
@@ -3159,27 +3172,57 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        p_mac_lte_info->rach_attempt_number);
                 break;
             case ltemac_send_sr:
-                ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
-                                         tvb, 0, 0, p_mac_lte_info->rnti);
-                PROTO_ITEM_SET_GENERATED(ti);
+                for (n=0; n < p_mac_lte_info->number_of_srs; n++) {
+                    proto_item *sr_ti;
+                    proto_tree *sr_tree;
+                                                     
+                    /* SR event is subtree */
+                    sr_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
+                                                tvb, 0, 0, FALSE);
+                    sr_tree = proto_item_add_subtree(sr_ti, ett_mac_lte_oob);
+                    PROTO_ITEM_SET_GENERATED(sr_ti);
 
-                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
-                                         tvb, 0, 0, FALSE);
-                PROTO_ITEM_SET_GENERATED(ti);
 
-                /* Info column */
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                         "Scheduling Request sent for UE %u (C-RNTI=%u)",
-                                         p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                    /* RNTI */
+                    ti = proto_tree_add_uint(sr_tree, hf_mac_lte_context_rnti,
+                                             tvb, 0, 0, p_mac_lte_info->oob_rnti[n]);
+                    PROTO_ITEM_SET_GENERATED(ti);
 
-                /* Add expert info (an note) */
-                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
-                                       "Scheduling Request send for UE %u (RNTI %u)",
-                                       p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+                    /* UEID */
+                    ti = proto_tree_add_uint(sr_tree, hf_mac_lte_context_ueid,
+                                             tvb, 0, 0, p_mac_lte_info->oob_ueid[n]);
+                    PROTO_ITEM_SET_GENERATED(ti);
 
-                /* Update SR status */
-                if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info, ti);
+                    /* Add summary to root. */
+                    proto_item_append_text(sr_ti, " (UE=%u C-RNTI=%u)",
+                                           p_mac_lte_info->oob_ueid[n],
+                                           p_mac_lte_info->oob_rnti[n]);
+
+                    /* Info column */
+                    if (n == 0) {
+                        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                "Scheduling Requests (%u) sent: (UE=%u C-RNTI=%u)",
+                                                p_mac_lte_info->number_of_srs,
+                                                p_mac_lte_info->oob_ueid[n],
+                                                p_mac_lte_info->oob_rnti[n]);
+                    }
+                    else {
+                        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                " (UE=%u C-RNTI=%u)",
+                                                p_mac_lte_info->oob_ueid[n],
+                                                p_mac_lte_info->oob_rnti[n]);
+                    }
+
+                    /* Add expert info (a note) */
+                    expert_add_info_format(pinfo, sr_ti, PI_SEQUENCE, PI_NOTE,
+                                           "Scheduling Request sent for UE %u (RNTI %u)",
+                                           p_mac_lte_info->oob_ueid[n],
+                                           p_mac_lte_info->oob_rnti[n]);
+
+                    /* Update SR status for this UE */
+                    if (global_mac_lte_track_sr) {
+                        TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info, n, sr_ti);
+                    }
                 }
                 break;
             case ltemac_sr_failure:
@@ -3205,7 +3248,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Update SR status */
                 if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info, ti);
+                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info, 0, ti);
                 }
 
                 break;
