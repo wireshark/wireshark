@@ -576,7 +576,7 @@ dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_in
 
   if (max_field_length > 0) {
     if ((length + length_size) > max_field_length) {
-      expert_add_info_format(pinfo, ti_anchor, PI_PROTOCOL, PI_ERROR, "computed length > max_field length");
+      expert_add_info_format(pinfo, ti_anchor, PI_PROTOCOL, PI_ERROR, "Computed length > max_field length");
       length = max_field_length - length_size;
     }
   }
@@ -625,14 +625,14 @@ dissect_destination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
         guint nodeid_length = destination_length;
         /* We don't know the node ID. Just assume that all the data is part of it */
         if (nodeid_length < reload_nodeid_length) {
-          expert_add_info_format(pinfo, ti_destination, PI_PROTOCOL, PI_ERROR, "truncated node id");
+          expert_add_info_format(pinfo, ti_destination, PI_PROTOCOL, PI_ERROR, "Truncated node id");
         }
         else {
           nodeid_length = reload_nodeid_length;
         }
         ti_nodeid = proto_tree_add_item(destination_tree, hf_reload_nodeid, tvb, offset+ 2, nodeid_length, FALSE);
         if ((nodeid_length < 16) || (nodeid_length > 20)) {
-          expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
+          expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "Node ID length is not in the correct range");
         }
       }
       break;
@@ -690,21 +690,21 @@ dissect_probe_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   switch(type) {
   case   PROBEINFORMATIONTYPE_RESPONSIBLESET:
     if (probe_length < 4) {
-      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated Responsible Set Info");
+      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated responsible set info");
       return 2 + probe_length;
     }
     proto_tree_add_item(probe_information_tree, hf_reload_responsible_set, tvb, offset + 2, 4, FALSE);
     break;
   case PROBEINFORMATIONTYPE_NUMRESOURCES:
     if (probe_length < 4) {
-      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated Num Resource Info");
+      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated num resource info");
       return 2 + probe_length;
     }
     proto_tree_add_item(probe_information_tree, hf_reload_num_resources, tvb, offset + 2, 4, FALSE);
     break;
   case PROBEINFORMATIONTYPE_UPTIME:
     if (probe_length < 4) {
-      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated Uptime Info");
+      expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated uptime info");
       return 2 + probe_length;
     }
     proto_tree_add_item(probe_information_tree, hf_reload_uptime, tvb, offset + 2, 4, FALSE);
@@ -766,7 +766,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   /* Precalculate the length of the icecandidate list */
   if (2+icecandidates_length > length) {
     ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, length, FALSE);
-    expert_add_info_format(pinfo, ti_icecandidates, PI_PROTOCOL, PI_ERROR, "Truncated Ice candidates");
+    expert_add_info_format(pinfo, ti_icecandidates, PI_PROTOCOL, PI_ERROR, "Truncated ice candidates");
     return length;
   }
 
@@ -1483,14 +1483,14 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint nodeid_length = (guint) (option_length - option_offset);
             proto_item *ti_nodeid;
             if (reload_nodeid_length > nodeid_length) {
-              expert_add_info_format(pinfo, ti_directresponseforwarding, PI_PROTOCOL, PI_ERROR, "nodeid length truncated");
+              expert_add_info_format(pinfo, ti_directresponseforwarding, PI_PROTOCOL, PI_ERROR, "Node ID length truncated");
             }
             else {
               nodeid_length = reload_nodeid_length;
             }
             ti_nodeid = proto_tree_add_item(option_tree, hf_reload_nodeid, tvb, offset+local_offset+option_offset, nodeid_length, FALSE);
             if ((nodeid_length < 16) || (nodeid_length > 20)) {
-              expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
+              expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "Node ID length is not in the correct range");
             }
           }
         }
@@ -1554,7 +1554,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     extensions_length = tvb_get_ntohl(tvb, offset + 2 + 4 + message_body_length);
     if (forwarding_length + 2 + 4 + message_body_length + 4 + extensions_length > msg_length) {
       ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, (msg_length - forwarding_length), FALSE);
-      expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "truncated message contents");
+      expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated message contents");
       return msg_length;
     }
 
@@ -1609,7 +1609,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(probereq_tree, hf_reload_opaque_length_uint8, tvb, offset, 1, info_list_length);
 
             if (info_list_length > message_body_length - 1) {
-              expert_add_info_format(pinfo, ti_probereq, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
+              expert_add_info_format(pinfo, ti_probereq, PI_PROTOCOL, PI_ERROR, "Requested info list too long for field size");
               info_list_length = message_body_length - 1;
             }
             {
@@ -1633,7 +1633,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(probeans_tree, hf_reload_opaque_length_uint16, tvb, offset, 2, info_list_length);
 
             if (info_list_length > message_body_length - 2) {
-              expert_add_info_format(pinfo, ti_probeans, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
+              expert_add_info_format(pinfo, ti_probeans, PI_PROTOCOL, PI_ERROR, "Requested info list too long for field size");
               info_list_length = message_body_length - 2;
             }
             {
@@ -1684,7 +1684,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           else {
             if (message_body_length < 16) {
-              expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated ping Answer");
+              expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated ping answer");
             }
             else {
               proto_tree_add_item(message_body_tree, hf_reload_ping_response_id, tvb, offset, 8, FALSE);
@@ -1780,7 +1780,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 local_offset +=2;
                 while (replicas_offset < replicas_length) {
                   if ((replicas_offset + reload_nodeid_length) > replicas_length) {
-                    expert_add_info_format(pinfo, ti_replicas, PI_PROTOCOL, PI_ERROR, "Truncated NodeId");
+                    expert_add_info_format(pinfo, ti_replicas, PI_PROTOCOL, PI_ERROR, "Truncated NodeID");
                     break;
                   }
                   proto_tree_add_item(replicas_tree, hf_reload_nodeid, tvb, offset+2+local_offset+replicas_offset,
@@ -1918,7 +1918,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       error_length = tvb_get_ntohs(tvb, offset + 2);
       if ((guint)offset + 2 + 2 + error_length > msg_length) {
-        expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "truncated error message");
+        expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated error message");
         return msg_length;
       }
 
@@ -1939,7 +1939,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *ti_extension;
         guint32 extension_content_length = tvb_get_ntohl(tvb, offset + extension_offset + 3);
         if ((extension_offset + 3 + 4 + extension_content_length) > extensions_length) {
-          expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "truncated message extensions");
+          expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated message extensions");
           break;
         }
         ti_extension = proto_tree_add_item(message_contents_tree, hf_reload_message_extension, tvb, offset+ extension_offset, 3 + 4 + extension_content_length, FALSE);
@@ -1990,7 +1990,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         certificate_length = tvb_get_ntohs(tvb, offset + security_block_offset + certificate_offset + 1);
         if (certificate_offset + 1 + 2 + certificate_length > certificates_length) {
-          expert_add_info_format(pinfo, ti_security_block, PI_PROTOCOL, PI_ERROR, "truncated certificate");
+          expert_add_info_format(pinfo, ti_security_block, PI_PROTOCOL, PI_ERROR, "Truncated certificate");
           break;
         }
         ti_certificate = proto_tree_add_item(security_block_tree,
@@ -2066,7 +2066,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               certificate_hash_length = tvb_get_guint8(tvb, offset + security_block_offset + signatureidentityvalue_offset + 1);
               if (signatureidentityvalue_offset + 1 + 1 + certificate_hash_length > signatureidentityvalue_length) {
-                expert_add_info_format(pinfo, ti_signatureidentity, PI_PROTOCOL, PI_ERROR, "truncated signature identity value");
+                expert_add_info_format(pinfo, ti_signatureidentity, PI_PROTOCOL, PI_ERROR, "Truncated signature identity value");
                 break;
               }
               ti_signatureidentityvalue= proto_tree_add_item(signatureidentity_tree,
@@ -2134,11 +2134,11 @@ proto_register_reload(void)
   module_t *reload_module;
   static hf_register_info hf[] = {
     { &hf_reload_response_in,
-      { "Response In",  "reload.response-in", FT_FRAMENUM,
+      { "Response in",  "reload.response-in", FT_FRAMENUM,
         BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL }
     },
     { &hf_reload_response_to,
-      { "Request In", "reload.response-to", FT_FRAMENUM,
+      { "Request in", "reload.response-to", FT_FRAMENUM,
         BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL }
     },
     { &hf_reload_time,
@@ -2150,7 +2150,7 @@ proto_register_reload(void)
         BASE_NONE, NULL, 0x0, "This is a duplicate of RELOAD message in this frame", HFILL }
     },
     { &hf_reload_forwarding,
-      { "Forwarding Header",    "reload.forwarding",  FT_NONE,
+      { "Forwarding header",    "reload.forwarding",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_token,
@@ -2162,7 +2162,7 @@ proto_register_reload(void)
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_configuration_sequence,
-      { "Configuration Sequence", "reload.forwarding.configuration_sequence", FT_UINT16,
+      { "Configuration sequence", "reload.forwarding.configuration_sequence", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_version,
@@ -2178,7 +2178,7 @@ proto_register_reload(void)
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_fragment_fragmented,
-      { "Fragmented Bit", "reload.forwarding.fragment.fragmented", FT_BOOLEAN, 1, TFS(&tfs_set_notset), 0x0,
+      { "Fragmented bit", "reload.forwarding.fragment.fragmented", FT_BOOLEAN, 1, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL }
     },
     { &hf_reload_fragment_last_fragment,
@@ -2238,43 +2238,43 @@ proto_register_reload(void)
         BASE_DEC, NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_nodeid,
-      { "node id",    "reload.nodeid", FT_BYTES,
+      { "Node ID",    "reload.nodeid", FT_BYTES,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_resource_id,
-      { "resource id",    "reload.resource_id", FT_NONE,
+      { "Resource ID",    "reload.resource_id", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_destination_data_compressed_id,
-      { "compressed id",    "reload.destination.data.compressed_id",  FT_BYTES,
+      { "Compressed ID",    "reload.destination.data.compressed_id",  FT_BYTES,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_destination_list,
-      { "destination list",   "reload.forwarding.destination_list", FT_NONE,
+      { "Destination list",   "reload.forwarding.destination_list", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option,
-      { "forwarding option",    "reload.forwarding.option", FT_NONE,
+      { "Forwarding option",    "reload.forwarding.option", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option_type,
-      { "forwarding option type", "reload.forwarding.option.type",  FT_UINT8,
+      { "Forwarding option type", "reload.forwarding.option.type",  FT_UINT8,
         BASE_DEC, VALS(forwardingoptiontypes),  0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option_flags,
-      { "forwarding option flags",  "reload.forwarding.option.flags", FT_UINT8,
+      { "Forwarding option flags",  "reload.forwarding.option.flags", FT_UINT8,
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option_length,
-      { "forwarding option length", "forwarding.option.length", FT_UINT16,
+      { "Forwarding option length", "forwarding.option.length", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option_data,
-      { "forwarding option data", "reload.forwarding.option.data",  FT_BYTES,
+      { "Forwarding option data", "reload.forwarding.option.data",  FT_BYTES,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_forwarding_option_flag_response_copy,
-      { "Response Copy", "reload.forwarding.option.flag.response_copy", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
+      { "Response copy", "reload.forwarding.option.flag.response_copy", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL }
     },
     { &hf_reload_forwarding_option_flag_destination_critical,
@@ -2282,11 +2282,11 @@ proto_register_reload(void)
         NULL, HFILL }
     },
     { &hf_reload_forwarding_option_flag_forward_critical,
-      { "Forward Critical", "reload.forwarding.option.flags.forward_critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
+      { "Forward critical", "reload.forwarding.option.flags.forward_critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL }
     },
     { &hf_reload_forwarding_option_directresponseforwarding,
-      { "Direct Response Forwarding", "reload.forwarding.option.direct_response_forwarding",  FT_NONE,
+      { "Direct response forwarding", "reload.forwarding.option.direct_response_forwarding",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_attachreqans,
@@ -2294,11 +2294,11 @@ proto_register_reload(void)
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_ufrag,
-      { "ufrag",  "reload.ufrag", FT_BYTES,
+      { "Ufrag",  "reload.ufrag", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_password,
-      { "password", "reload.password",  FT_BYTES,
+      { "Password", "reload.password",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_role,
@@ -2306,51 +2306,51 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidates,
-      { "ice candidates",   "reload.icecandidates", FT_NONE,
+      { "Ice candidates",   "reload.icecandidates", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidates_length,
-      { "ice candidates length",  "reload.icecandidates.length",  FT_UINT16,
+      { "Ice candidates length",  "reload.icecandidates.length",  FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate,
-      { "ice candidate",    "reload.icecandidate",  FT_NONE,
+      { "Ice candidate",    "reload.icecandidate",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_relay_addr,
-      { "relay address",    "reload.icecandidate.relay_addr", FT_NONE,
+      { "Relay address",    "reload.icecandidate.relay_addr", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_srflx_addr,
-      { "srflx address",    "reload.icecandidate.srflx_addr", FT_NONE,
+      { "Srflx address",    "reload.icecandidate.srflx_addr", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_prflx_addr,
-      { "prfkx address",    "reload.icecandidate.prflx_addr", FT_NONE,
+      { "Prfkx address",    "reload.icecandidate.prflx_addr", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_ipaddressport,
-      { "Ip Address Port",    "reload.ipaddressport", FT_NONE,
+      { "IP address port",    "reload.ipaddressport", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_ipaddressport_type,
-      { "Ip Address-Port Type", "reload.ipaddressport.type",  FT_UINT8,
+      { "IP address-port type", "reload.ipaddressport.type",  FT_UINT8,
         BASE_HEX, VALS(ipaddressporttypes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_ipaddressport_length,
-      { "Ip Address-Port Length", "reload.ipaddressport.length",  FT_UINT8,
+      { "IP address-port length", "reload.ipaddressport.length",  FT_UINT8,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_ipv4addr,
-      { "Ipv4 Address", "reload.ipv4addr",  FT_IPv4,
+      { "IPv4 address", "reload.ipv4addr",  FT_IPv4,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_ipv6addr,
-      { "Ipv6 Address", "reload.ipv6addr",  FT_IPv6,
+      { "IPv6 address", "reload.ipv6addr",  FT_IPv6,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_port,
-      { "port", "reload.port",  FT_UINT16,
+      { "Port", "reload.port",  FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_overlaylink_type,
@@ -2358,31 +2358,31 @@ proto_register_reload(void)
         BASE_DEC, VALS(overlaylinktypes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_foundation,
-      { "Ice Candidate foundation", "reload.icecandidate.foundation", FT_BYTES,
+      { "Ice candidate foundation", "reload.icecandidate.foundation", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_priority,
-      { "Ice Candidate Priority", "reload.icecandidate.priority", FT_UINT32,
+      { "Ice candidate priority", "reload.icecandidate.priority", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_type,
-      { "Ice Candidate type", "reload.icecandidate.type", FT_UINT8,
+      { "Ice candidate type", "reload.icecandidate.type", FT_UINT8,
         BASE_DEC, VALS(candtypes),  0x0,  NULL, HFILL }
     },
     { &hf_reload_icecandidate_extensions_length,
-      { "Ice Candidate Extensions Length",  "reload.icecandidate.extensions_length",  FT_UINT16,
+      { "Ice candidate extensions length",  "reload.icecandidate.extensions_length",  FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_iceextension,
-      { "ice Extension",    "reload.iceextension",  FT_NONE,
+      { "Ice extension",    "reload.iceextension",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_iceextension_name,
-      { "Ice Extension Name", "reload.iceextension.name", FT_BYTES,
+      { "Ice extension name", "reload.iceextension.name", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_iceextension_value,
-      { "Ice Extension Value",  "reload.iceextension.value",  FT_BYTES,
+      { "Ice extension value",  "reload.iceextension.value",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_sendupdate,
@@ -2390,15 +2390,15 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_message_contents,
-      { "message contents",   "reload.message.contents",  FT_NONE,
+      { "Message contents",   "reload.message.contents",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_message_code,
-      { "Message Code", "reload.message.code",  FT_UINT16,
+      { "Message code", "reload.message.code",  FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_message_body,
-      { "Message Body", "reload.message.body",  FT_BYTES,
+      { "Message body", "reload.message.body",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_message_extensions_length,
@@ -2406,7 +2406,7 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_message_extension,
-      { "message extension",    "reload.message_extension", FT_NONE,
+      { "Message extension",    "reload.message_extension", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_message_extension_type,
@@ -2422,23 +2422,23 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_error_response,
-      { "error response", "reload.error_response",  FT_NONE,
+      { "Error response", "reload.error_response",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_error_response_code,
-      { "error code", "reload.error_response.code", FT_UINT16,
+      { "Error code", "reload.error_response.code", FT_UINT16,
         BASE_DEC, VALS(errorcodes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_error_response_info,
-      { "error info", "reload.error_response_info", FT_BYTES,
+      { "Error info", "reload.error_response_info", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_security_block,
-      { "Security Block", "reload.security_block",  FT_NONE,
+      { "Security block", "reload.security_block",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificates_length,
-      { "Certificates Length",  "reload.certificates.length", FT_UINT16,
+      { "Certificates length",  "reload.certificates.length", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificates,
@@ -2446,7 +2446,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificate_type,
-      { "Certificate Type", "reload.certificate.type",  FT_UINT8,
+      { "Certificate type", "reload.certificate.type",  FT_UINT8,
         BASE_DEC, VALS(certificatetypes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificate,
@@ -2458,51 +2458,51 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_hash_algorithm,
-      { "Hash Algorithm", "reload.hash_algorithm",  FT_UINT8,
+      { "Hash algorithm", "reload.hash_algorithm",  FT_UINT8,
         BASE_DEC, VALS(tls_hash_algorithm), 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_algorithm,
-      { "Signature Algorithm",  "reload.signature_algorithm", FT_UINT8,
+      { "Signature algorithm",  "reload.signature_algorithm", FT_UINT8,
         BASE_DEC, VALS(tls_signature_algorithm),  0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity,
-      { "Signature Identity", "reload.signature.identity",  FT_NONE,
+      { "Signature identity", "reload.signature.identity",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity_type,
-      { "Signature Identity Type",  "reload.signature.identity.type", FT_UINT8,
+      { "Signature identity type",  "reload.signature.identity.type", FT_UINT8,
         BASE_DEC, VALS(signatureidentitytypes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity_length,
-      { "Signature Identity Length",  "reload.signature.identity.length", FT_UINT16,
+      { "Signature identity length",  "reload.signature.identity.length", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity_value,
-      { "Signature Identity Value", "reload.signature.identity.value",  FT_NONE,
+      { "Signature identity value", "reload.signature.identity.value",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_identity_value_certificate_hash,
-      { "Signature Identity Value Certificate Hash",  "reload.signature.identity.value.certificate_hash", FT_BYTES,
+      { "Signature identity value certificate hash",  "reload.signature.identity.value.certificate_hash", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_signature_value,
-      { "Signature Value",  "reload.signature.value.",  FT_BYTES,
+      { "Signature value",  "reload.signature.value.",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_opaque_length_uint8,
-      { "length", "reload.opaque.length.8", FT_UINT8,
+      { "Opaque length", "reload.opaque.length.8", FT_UINT8,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_opaque_length_uint16,
-      { "length", "reload.opaque.length.6", FT_UINT16,
+      { "Opaque length", "reload.opaque.length.16", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_opaque_length_uint32,
-      { "length", "reload.opaque.length.32",  FT_UINT32,
+      { "Opaque length", "reload.opaque.length.32",  FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_opaque_data,
-      { "data", "reload.opaque.length.8", FT_BYTES,
+      { "Data", "reload.opaque.length.8", FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_routequeryreq,
@@ -2510,7 +2510,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_overlay_specific,
-      { "Overlay Specific Data",  "reload.overlay.specific.data", FT_NONE,
+      { "Overlay specific data",  "reload.overlay.specific.data", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_probereq,
@@ -2518,19 +2518,19 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_probe_information,
-      { "Probe Information",  "reload.probe_information", FT_NONE,
+      { "Probe information",  "reload.probe_information", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_probe_information_type,
-      { "Probe Information Type", "reload.probe_information.type", FT_UINT8,
+      { "Probe information type", "reload.probe_information.type", FT_UINT8,
         BASE_HEX, VALS(probeinformationtypes),  0x0,  NULL, HFILL }
     },
     { &hf_reload_responsible_set,
-      { "Responsible Set",  "reload.responsible_set", FT_UINT32,
+      { "Responsible set",  "reload.responsible_set", FT_UINT32,
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_num_resources,
-      { "Num Resources",  "reload.num_resources", FT_UINT32,
+      { "Num resources",  "reload.num_resources", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_uptime,
@@ -2538,11 +2538,11 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_probeans,
-      { "Probe Ans",  "reload.probeans", FT_NONE,
+      { "Probe ans",  "reload.probeans", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_appattach,
-      { "App Attach Req/Ans", "reload.appattach", FT_NONE,
+      { "App attach req/ans", "reload.appattach", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_application,
@@ -2550,43 +2550,43 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_ping_response_id,
-      { "Ping Response Id", "reload.ping.response_id",  FT_UINT64,
+      { "Ping response ID", "reload.ping.response_id",  FT_UINT64,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_ping_time,
-      { "Ping Time",  "reload.ping.time", FT_UINT64,
+      { "Ping time",  "reload.ping.time", FT_UINT64,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddata,
-      { "Stored Data",  "reload.storeddata", FT_NONE,
+      { "Stored data",  "reload.storeddata", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddata_length,
-      { "Stored Data length", "reload.storeddata.length", FT_UINT32,
+      { "Stored data length", "reload.storeddata.length", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddata_storage_time,
-      { "Stored Data storage time", "reload.storeddata.storage_time", FT_UINT64,
+      { "Stored data storage time", "reload.storeddata.storage_time", FT_UINT64,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddata_lifetime,
-      { "Stored Lifetime",  "reload.storeddata.lifetime", FT_UINT32,
+      { "Stored lifetime",  "reload.storeddata.lifetime", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_kinddata,
-      { "Kind Data",  "reload.kinddata", FT_NONE,
+      { "Kind data",  "reload.kinddata", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_kindid,
-      { "Kind Id",  "reload.kindid",  FT_UINT32,
+      { "Kind ID",  "reload.kindid",  FT_UINT32,
         BASE_DEC, VALS(datakindids),  0x0,  NULL, HFILL }
     },
     { &hf_reload_kinddata_generation_counter,
-      { "Generation Counter", "reload.kinddata.generation_counter", FT_UINT64,
+      { "Generation counter", "reload.kinddata.generation_counter", FT_UINT64,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_kinddata_values_length,
-      { "Values Length",  "reload.kinddata.values_length",  FT_UINT32,
+      { "Values length",  "reload.kinddata.values_length",  FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storereq,
@@ -2594,27 +2594,27 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_store_replica_num,
-      { "replica num",  "reload.store.replica_num", FT_UINT8,
+      { "Replica num",  "reload.store.replica_num", FT_UINT8,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_store_kind_data_length,
-      { "StoreReq Kind Data Length",  "reload.store.kind_data.length",  FT_UINT32,
+      { "StoreReq kind data length",  "reload.store.kind_data.length",  FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeans_kind_responses,
-      { "Kind Responses", "reload.storeans.kind_responses", FT_NONE,
+      { "Kind responses", "reload.storeans.kind_responses", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeans_kind_responses_length,
-      { "Kind Responses Length", "reload.storeans.kind_responses.length", FT_UINT16,
+      { "Kind responses length", "reload.storeans.kind_responses.length", FT_UINT16,
         BASE_DEC,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storekindresponse,
-      { "Store Kind Response", "reload.storekindresponse", FT_NONE,
+      { "Store kind response", "reload.storekindresponse", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storekindresponse_replicas,
-      { "Store Kind Response Replicas", "reload.storekindresponse.replicas", FT_NONE,
+      { "Store kind response replicas", "reload.storekindresponse.replicas", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddataspecifiers,
@@ -2626,7 +2626,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_kind_responses_length,
-      { "Kind Responses Length", "reload.fetchans.kind_responses.length", FT_UINT32,
+      { "Kind responses length", "reload.fetchans.kind_responses.length", FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_statans,
@@ -2634,11 +2634,11 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_findreq_kinds_length,
-      { "Kinds Length", "reload.findreq.kindslength", FT_UINT8,
+      { "Kinds length", "reload.findreq.kindslength", FT_UINT8,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_findans_results_length,
-      { "Results Length", "reload.findans.resultsslength", FT_UINT16,
+      { "Results length", "reload.findans.resultsslength", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_findkinddata,
@@ -2670,11 +2670,11 @@ proto_register_reload(void)
         NULL, HFILL}},
 
     { &hf_reload_fragment,
-      { "RELOAD Fragment", "reload.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      { "RELOAD fragment", "reload.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_reload_fragments,
-      { "RELOAD Fragments", "reload.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+      { "RELOAD fragments", "reload.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_reload_reassembled_in,
@@ -2686,32 +2686,32 @@ proto_register_reload(void)
         "The total length of the reassembled payload", HFILL}},
 
     { &hf_reload_configupdatereq,
-      { "ConfigUpdate Req",  "reload.configupdatereq.",  FT_BYTES,
+      { "ConfigUpdate req",  "reload.configupdatereq.",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
 
     { &hf_reload_configupdatereq_type,
-      { "ConfigUpdate Req Type", "reload.configupdatereq.type", FT_UINT8,
+      { "ConfigUpdate req type", "reload.configupdatereq.type", FT_UINT8,
         BASE_DEC, VALS(configupdatetypes),  0x0,  NULL, HFILL }
     },
 
     { &hf_reload_configupdatereq_length,
-      { "ConfigUpdate Req Length", "reload.configupdatereq.length", FT_UINT32,
+      { "ConfigUpdate req length", "reload.configupdatereq.length", FT_UINT32,
         BASE_DEC, NULL,  0x0,  NULL, HFILL }
     },
 
     { &hf_reload_configupdatereq_configdata,
-      { "ConfigUpdate Req Config Data",  "reload.configupdatereq.config_data",  FT_NONE,
+      { "ConfigUpdate req config data",  "reload.configupdatereq.config_data",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
 
     { &hf_reload_configupdatereq_kinds,
-      { "ConfigUpdate Req Kinds",  "reload.configupdatereq.kinds",  FT_NONE,
+      { "ConfigUpdate req kinds",  "reload.configupdatereq.kinds",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
 
     { &hf_reload_padding,
-      { "padding",  "reload.padding",  FT_NONE,
+      { "Padding",  "reload.padding",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
 
