@@ -31,7 +31,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <string.h>
 #include <epan/strutil.h>
 #include <ctype.h>
 
@@ -96,13 +95,6 @@ static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-/* Handler registration */
-void
-proto_reg_handoff_at_command(void)
-{
-    heur_dissector_add("usb.bulk", dissect_usb_at, proto_at);
-}
-
 void
 proto_register_at_command(void)
 {
@@ -120,5 +112,12 @@ proto_register_at_command(void)
     proto_register_field_array(proto_at, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_dissector("at", dissect_at, proto_at);
+}
+
+/* Handler registration */
+void
+proto_reg_handoff_at_command(void)
+{
+    heur_dissector_add("usb.bulk", dissect_usb_at, proto_at);
 }
 
