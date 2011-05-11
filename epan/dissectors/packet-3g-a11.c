@@ -2185,75 +2185,75 @@ proto_register_a11(void)
         { &hf_a11_ase_forward_rohc_info_len,
           { "Forward ROHC Info Length",   "a11.ext.ase.forwardlen",
              FT_UINT8, BASE_DEC, NULL, 0,
-             "Forward ROHC Info Length", HFILL }
+             NULL, HFILL }
         },
 
         { &hf_a11_ase_forward_maxcid,
           { "Forward MAXCID",   "a11.ext.ase.maxcid",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Forward MAXCID", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_forward_mrru,
           { "Forward MRRU",   "a11.ext.ase.mrru",
-             FT_UINT16, BASE_DEC, NULL, 0,
-            "Forward MRRU", HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
            },
 
         { &hf_a11_ase_forward_large_cids,
           { "Forward Large CIDS",   "a11.ext.ase.forwardlargecids",
             FT_UINT8, BASE_DEC, NULL, 128,
-            "Forward Large CIDS", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_forward_profile_count,
           { "Forward Profile Count",   "a11.ext.ase.profilecount",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Forward Profile Count", HFILL }
+            NULL, HFILL }
          },
 
 
         { &hf_a11_ase_forward_profile,
-          { "Forward Profile ",   "a11.ext.ase.forwardprofile",
+          { "Forward Profile",   "a11.ext.ase.forwardprofile",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Forward Profile ", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_reverse_rohc_info_len,
           { "Reverse ROHC Info Length",   "a11.ext.ase.reverselen",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Reverse ROHC Info Length", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_reverse_maxcid,
           { "Reverse MAXCID",   "a11.ext.ase.revmaxcid",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Reverse MAXCID", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_reverse_mrru,
           { "Reverse MRRU",   "a11.ext.ase.revmrru",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Reverse MRRU", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_reverse_large_cids,
           { "Reverse Large CIDS",   "a11.ext.ase.reverselargecids",
             FT_UINT8, BASE_DEC, NULL, 128,
-            "Reverse Large CIDS", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_a11_ase_reverse_profile_count,
           { "Reverse Profile Count",   "a11.ext.ase.revprofilecount",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Reverse Profile Count", HFILL }
+            NULL, HFILL }
          },
 
 
          { &hf_a11_ase_reverse_profile,
-           { "Reverse Profile ",   "a11.ext.ase.reverseprofile",
+           { "Reverse Profile",   "a11.ext.ase.reverseprofile",
              FT_UINT16, BASE_DEC, NULL, 0,
-             "Reverse Profile ", HFILL }
+             NULL, HFILL }
          },
     };
 
