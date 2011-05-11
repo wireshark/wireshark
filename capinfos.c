@@ -326,7 +326,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
   if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
-  if (cap_file_encap && (cf_info->file_encap = WTAP_ENCAP_PER_PACKET)) {
+  if (cap_file_encap && (cf_info->file_encap == WTAP_ENCAP_PER_PACKET)) {
     int i;
     for (i=0; i<WTAP_NUM_ENCAP_TYPES; i++) {
       if (cf_info->encap_counts[i] > 0)
