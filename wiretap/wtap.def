@@ -51,6 +51,7 @@ wtap_file_tsprecision
 wtap_file_type
 wtap_file_type_short_string
 wtap_file_type_string
+wtap_fstat
 wtap_get_bytes_dumped
 wtap_get_num_encap_types
 wtap_get_num_file_types
