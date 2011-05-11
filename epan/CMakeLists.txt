@@ -1035,14 +1035,15 @@ set(DISSECTOR_SRC
 	dissectors/packet-tzsp.c
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
-	dissectors/packet-uma.c
 	dissectors/packet-udp.c
-	dissectors/packet-usb.c
-	dissectors/packet-usb-masstorage.c
-	dissectors/packet-usb-hid.c
-	dissectors/packet-usb-hub.c
+	dissectors/packet-uma.c
 	dissectors/packet-umts_fp.c
 	dissectors/packet-umts_mac.c
+	dissectors/packet-usb.c
+	dissectors/packet-usb-at.c
+	dissectors/packet-usb-hid.c
+	dissectors/packet-usb-hub.c
+	dissectors/packet-usb-masstorage.c
 	dissectors/packet-user_encap.c
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
