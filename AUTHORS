@@ -2866,7 +2866,7 @@ Brian Stormont		<nospam [AT] stormyprods.com> {
 	WPA group key decryption
 }
 
-Vincent Helfre           <vincent.helfre [AT] ericsson.com> {
+Vincent Helfre		<vincent.helfre [AT] ericsson.com> {
 	SNDCP XID dissection
 }
 
@@ -3125,11 +3125,11 @@ Holger Freyther		<zecke [AT] selfish.org> {
 	NexusWare C7 MTP over UDP dissector
 }
 
-Jose Pico		 <jose [AT] taddong.com> {
+Jose Pico		<jose [AT] taddong.com> {
 	Routines for exporting SMB objects
 }
 
-David Perez		 <david [AT] taddong.com> {
+David Perez		<david [AT] taddong.com> {
 	Routines for exporting SMB objects
 }
 
@@ -3260,9 +3260,14 @@ Xiao Xiangquan		<xiaoxiangquan [AT] gmail.com> {
 	BT-UTP dissector
 }
 
-Hans-Christoph Schemmel		<hans-christoph.schemmel [AT] cinterion.com> {
+Hans-Christoph Schemmel	<hans-christoph.schemmel [AT] cinterion.com> {
 	3GPP TS 27.010 multiplexing protocol
 }
+
+Tyson Key		<tyson.key [AT] gmail.com> {
+	USB-encapsulated AT Commands dissector
+}
+
 
 and by:
 
