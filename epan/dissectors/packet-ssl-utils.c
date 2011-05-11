@@ -3098,12 +3098,14 @@ ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, g
     rec->plain_data.data = (guchar*)(rec + 1);
     memcpy(rec->plain_data.data, data, data_len);
     rec->plain_data.data_len = data_len;
-    rec->seq = flow->byte_seq;
-    rec->nxtseq = flow->byte_seq + data_len;
-    rec->flow = flow;
+    if (flow)
+    {
+        rec->seq = flow->byte_seq;
+        rec->nxtseq = flow->byte_seq + data_len;
+        rec->flow = flow;
+        flow->byte_seq += data_len;
+    }
     rec->next = NULL;
-
-    flow->byte_seq += data_len;
 
     /* insertion */
     prec = &pi->appl_data;
