@@ -371,47 +371,47 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
      */
     adapter_index = strtol(optarg_str_p, &p, 10);
     if (p != NULL && *p == '\0') {
-      if (adapter_index < 0) {
-        cmdarg_err("The specified adapter index is a negative number");
-        return 1;
-      }
-      if (adapter_index > INT_MAX) {
-        cmdarg_err("The specified adapter index is too large (greater than %d)",
-            INT_MAX);
-        return 1;
-      }
-      if (adapter_index == 0) {
-        cmdarg_err("There is no interface with that adapter index");
-        return 1;
-      }
-      if_list = capture_interface_list(&err, &err_str);
-      if (if_list == NULL) {
-        switch (err) {
-
-        case CANT_GET_INTERFACE_LIST:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            break;
-
-        case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
+        if (adapter_index < 0) {
+            cmdarg_err("The specified adapter index is a negative number");
+            return 1;
         }
-        return 2;
-      }
-      if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
-      if (if_info == NULL) {
-        cmdarg_err("There is no interface with that adapter index");
-        return 1;
-      }
-      capture_opts->iface = g_strdup(if_info->name);
-      /*  We don't set iface_descr here because doing so requires
-       *  capture_ui_utils.c which requires epan/prefs.c which is
-       *  probably a bit too much dependency for here...
-       */
-      free_interface_list(if_list);
+        if (adapter_index > INT_MAX) {
+            cmdarg_err("The specified adapter index is too large (greater than %d)",
+                       INT_MAX);
+            return 1;
+        }
+        if (adapter_index == 0) {
+            cmdarg_err("There is no interface with that adapter index");
+            return 1;
+        }
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                cmdarg_err("There are no interfaces on which a capture can be done");
+                break;
+            }
+            return 2;
+        }
+        if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
+        if (if_info == NULL) {
+            cmdarg_err("There is no interface with that adapter index");
+            return 1;
+        }
+        capture_opts->iface = g_strdup(if_info->name);
+        /*  We don't set iface_descr here because doing so requires
+         *  capture_ui_utils.c which requires epan/prefs.c which is
+         *  probably a bit too much dependency for here...
+         */
+        free_interface_list(if_list);
     } else {
-      capture_opts->iface = g_strdup(optarg_str_p);
+        capture_opts->iface = g_strdup(optarg_str_p);
     }
 
     return 0;
@@ -425,8 +425,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     switch(opt) {
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {
-          cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);
-          return 1;
+            cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);
+            return 1;
         }
         break;
 #ifdef HAVE_PCAP_REMOTE
@@ -440,8 +440,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
         if (get_ring_arguments(capture_opts, optarg_str_p) == FALSE) {
-          cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg_str_p);
-          return 1;
+            cmdarg_err("Invalid or unknown -b arg \"%s\"", optarg_str_p);
+            return 1;
         }
         break;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -511,7 +511,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
          * length, mirroring what tcpdump does.
          */
         if (capture_opts->snaplen == 0)
-          capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
+            capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
         break;
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
         capture_opts->real_time_mode = TRUE;
@@ -538,9 +538,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'y':        /* Set the pcap data link type */
         capture_opts->linktype = linktype_name_to_val(optarg_str_p);
         if (capture_opts->linktype == -1) {
-          cmdarg_err("The specified data link type \"%s\" isn't valid",
-              optarg_str_p);
-          return 1;
+            cmdarg_err("The specified data link type \"%s\" isn't valid",
+                       optarg_str_p);
+            return 1;
         }
         break;
     default:
@@ -599,26 +599,26 @@ capture_opts_print_interfaces(GList *if_list)
 
 void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
-  if (capture_opts->snaplen < 1)
-    capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
-  else if (capture_opts->snaplen < snaplen_min)
-    capture_opts->snaplen = snaplen_min;
+    if (capture_opts->snaplen < 1)
+        capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (capture_opts->snaplen < snaplen_min)
+        capture_opts->snaplen = snaplen_min;
 }
 
 
 void capture_opts_trim_ring_num_files(capture_options *capture_opts)
 {
-  /* Check the value range of the ring_num_files parameter */
-  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES) {
-    cmdarg_err("Too many ring buffer files (%u). Reducing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MAX_NUM_FILES);
-    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
-  } else if (capture_opts->ring_num_files > RINGBUFFER_WARN_NUM_FILES) {
-    cmdarg_err("%u is a lot of ring buffer files.\n", capture_opts->ring_num_files);
-  }
+    /* Check the value range of the ring_num_files parameter */
+    if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES) {
+        cmdarg_err("Too many ring buffer files (%u). Reducing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MAX_NUM_FILES);
+        capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
+    } else if (capture_opts->ring_num_files > RINGBUFFER_WARN_NUM_FILES) {
+        cmdarg_err("%u is a lot of ring buffer files.\n", capture_opts->ring_num_files);
+    }
 #if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts->ring_num_files < RINGBUFFER_MIN_NUM_FILES)
-    cmdarg_err("Too few ring buffer files (%u). Increasing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MIN_NUM_FILES);
-    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
+    else if (capture_opts->ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+        cmdarg_err("Too few ring buffer files (%u). Increasing to %u.\n", capture_opts->ring_num_files, RINGBUFFER_MIN_NUM_FILES);
+        capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 }
 
