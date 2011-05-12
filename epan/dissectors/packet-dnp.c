@@ -675,6 +675,7 @@ static const value_string dnp3_al_flags_vals[] _U_ = {
   { DNP3_AL_FIR,  "FIR" },
   { DNP3_AL_FIN,  "FIN" },
   { DNP3_AL_CON,  "CON" },
+  { DNP3_AL_UNS,  "UNS" },
   { 0,  NULL }
 };
 
@@ -2434,7 +2435,6 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8        al_ctl, al_seq, al_func, al_class = 0, i;
   guint16       bytes, obj_type;
-  gboolean      al_fir, al_fin, al_con, al_uns;
   guint         data_len = 0, offset = 0;
   proto_item   *ti = NULL, *tc, *t_robj;
   proto_tree   *al_tree = NULL, *field_tree = NULL, *robj_tree = NULL;
@@ -2445,10 +2445,6 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Handle the control byte and function code */
   al_ctl = tvb_get_guint8(tvb, offset);
   al_seq = al_ctl & DNP3_AL_SEQ;
-  al_fir = al_ctl & DNP3_AL_FIR;
-  al_fin = al_ctl & DNP3_AL_FIN;
-  al_con = al_ctl & DNP3_AL_CON;
-  al_uns = al_ctl & DNP3_AL_UNS;
   al_func = tvb_get_guint8(tvb, (offset+1));
   func_code_str = val_to_str_ext(al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
 
@@ -2464,6 +2460,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(ti, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(ti, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(ti, "CON, ");
+  if (al_ctl & DNP3_AL_UNS)  proto_item_append_text(ti, "UNS, ");
   proto_item_append_text(ti, "Sequence %u, %s)", al_seq, func_code_str);
 
   /* Add the al tree branch */
@@ -2489,7 +2486,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #if 0
   /* If this packet is NOT the final Application Layer Message, exit and continue
      processing the remaining data in the fragment. */
-  if (!al_fin) {
+  if (!(al_ctl & DNP3_AL_FIN)) {
     t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Buffering User Data Until Final Frame is Received..");
     return 1;
   }
@@ -2679,7 +2676,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item   *ti = NULL, *tdl, *tc, *al_chunks, *hidden_item;
     proto_tree   *dnp3_tree = NULL, *dl_tree = NULL, *tr_tree = NULL, *field_tree = NULL, *al_tree = NULL;
-    int           offset = 0, temp_offset = 0, al_result = 0;
+    int           offset = 0, temp_offset = 0;
     gboolean      dl_prm, tr_fir, tr_fin;
     guint8        dl_len, dl_ctl, dl_func, tr_ctl, tr_seq;
     const gchar  *func_code_str;
@@ -2965,9 +2962,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (next_tvb)
-    {
-      al_result = dissect_dnp3_al(next_tvb, pinfo, dnp3_tree);
-    }
+      dissect_dnp3_al(next_tvb, pinfo, dnp3_tree);
   }
 }
 
