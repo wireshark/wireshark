@@ -105,6 +105,7 @@ const value_string etype_vals[] = {
   { ETHERTYPE_CGMP, "Cisco Group Management Protocol" },
   { ETHERTYPE_GIGAMON, "Gigamon Header" },
   { ETHERTYPE_MSRP, "802.1Qat Multiple Stream Reservation Protocol" },
+  { ETHERTYPE_MMRP, "802.1ak Multiple Mac Registration Protocol" },
   { ETHERTYPE_AVBTP, "IEEE 1722 Audio Video Bridging Transport Protocol" },
   { ETHERTYPE_ROHC, "Robust Header Compression(RoHC)" },
   { ETHERTYPE_MAC_CONTROL, "MAC Control" },

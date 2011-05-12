@@ -3268,6 +3268,10 @@ Tyson Key		<tyson.key [AT] gmail.com> {
 	USB-encapsulated AT Commands dissector
 }
 
+Johannes Jochen		<johannes.jochen [AT] belden.com> {
+	Multiple MAC Registration Protocol dissector
+}
+
 
 and by:
 

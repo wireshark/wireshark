@@ -770,6 +770,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mq.c
 	dissectors/packet-mq-pcf.c
 	dissectors/packet-mrdisc.c
+	dissectors/packet-mrp-mmrp.c
 	dissectors/packet-mrp-msrp.c
 	dissectors/packet-msdp.c
 	dissectors/packet-msnlb.c
