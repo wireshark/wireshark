@@ -455,10 +455,10 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
     offset += 2;
     nonce_1_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, FALSE);
     offset += 32;
-    proto_item_append_text(nonce_1_item, " %d", 1);
+    proto_item_append_text(nonce_1_item, " 1");
     nonce_2_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, FALSE);
     offset += 32;
-    proto_item_append_text(nonce_1_item, " %d", 2);
+    proto_item_append_text(nonce_2_item, " 2");
     proto_tree_add_item(multicert_tree, hf_wai_ver_res, tvb, offset, 1, FALSE);
     offset++;
     offset += dissect_certificate(tvb, offset, multicert_tree, "1 ");
