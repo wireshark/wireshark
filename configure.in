@@ -718,6 +718,14 @@ AC_ARG_ENABLE(wireshark,
                   [build GTK+-based wireshark.  @<:@default=yes, if GTK+ available@:>@]),
     enable_wireshark=$enableval,enable_wireshark=yes)
 
+AC_ARG_ENABLE(packet-editor,
+  AC_HELP_STRING( [--enable-packet-editor],
+                  [add support for packet editor in wireshark.  @<:@default=no@:>@]),
+    enable_packet_editor=$enableval,enable_packet_editor=no)
+if test x$enable_packet_editor = xyes; then
+	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
+fi
+
 AC_ARG_ENABLE(threads,
   AC_HELP_STRING( [--enable-threads],
                   [use threads in wireshark.  @<:@default=no@:>@]),

@@ -88,6 +88,7 @@ struct PacketWinData {
 	int pd_bitoffset;
 };
 
+#ifdef WANT_PACKET_EDITOR
 struct FieldinfoWinData {
 	frame_data *frame;	   /* The frame being displayed */
 	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
@@ -116,6 +117,7 @@ struct CommonWinData {
 };
 
 static gboolean edit_pkt_common_key_pressed_cb(GdkEventKey *event, struct CommonWinData *DataPtr);
+#endif
 
 /* List of all the packet-detail windows popped up. */
 static GList *detail_windows;
@@ -156,6 +158,7 @@ button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
 	return FALSE;
 }
 
+#ifdef WANT_PACKET_EDITOR
 static field_info *
 proto_finfo_find(proto_tree *tree, field_info *old_finfo)
 {
@@ -821,8 +824,9 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	}
 	return TRUE;
 }
+#endif /* WANT_PACKET_EDITOR */
 
-void new_packet_window(GtkWidget *w _U_, gboolean editable)
+void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 {
 #define NewWinTitleLen 1000
 	char Title[NewWinTitleLen] = "";
@@ -906,11 +910,13 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable)
 	g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
 			 "changed", G_CALLBACK(new_tree_view_selection_changed_cb), DataPtr);
 	g_signal_connect(tree_view, "button_press_event", G_CALLBACK(button_press_handler), NULL);
+#ifdef WANT_PACKET_EDITOR
 	if (editable && DataPtr->frame->cap_len != 0) {
 		g_signal_connect(main_w, "key-press-event", G_CALLBACK(edit_pkt_win_key_pressed_cb), DataPtr);
 		/* XXX, popup-menu instead of row-activated? */
 		g_signal_connect(tree_view, "row-activated", G_CALLBACK(edit_pkt_tree_row_activated_cb), DataPtr);
 	}
+#endif
 	g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
 	/* draw the protocol tree & print hex data */
@@ -966,6 +972,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 
 		DataPtr->finfo_selected = finfo;
 
+#ifdef WANT_PACKET_EDITOR
 		DataPtr->pd_offset = 0;
 		DataPtr->pd_bitoffset = 0;
 
@@ -995,6 +1002,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 			if ((guint)DataPtr->pd_offset >= DataPtr->frame->cap_len)
 				DataPtr->pd_offset = 0;
 		}
+#endif
 
 		packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
 	}
