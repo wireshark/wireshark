@@ -133,7 +133,6 @@ pkg_title="$volume_name $version $architecture"
 pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
 /Developer/usr/bin/packagemaker --doc "Wireshark package.pmdoc" \
-    --version "$version" \
     --title "$pkg_title" \
     --verbose || exit 1
 
