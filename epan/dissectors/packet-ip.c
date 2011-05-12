@@ -182,7 +182,7 @@ static const fragment_items ip_frag_items = {
 	&hf_ip_fragment_count,
 	&hf_ip_reassembled_in,
 	&hf_ip_reassembled_length,
-	"IP fragments"
+	"IPv4 fragments"
 };
 
 static dissector_table_t ip_dissector_table;
@@ -1358,7 +1358,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph=ep_alloc(sizeof(ws_ip));
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv4");
   col_clear(pinfo->cinfo, COL_INFO);
 
   iph->ip_v_hl = tvb_get_guint8(tvb, offset);
@@ -1975,19 +1975,19 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_fragment,
-		{ "IP Fragment", "ip.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		{ "IPv4 Fragment", "ip.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ip_fragments,
-		{ "IP Fragments", "ip.fragments", FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "IPv4 Fragments", "ip.fragments", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ip_reassembled_in,
-		{ "Reassembled IP in frame", "ip.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		  "This IP packet is reassembled in this frame", HFILL }},
+		{ "Reassembled IPv4 in frame", "ip.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		  "This IPv4 packet is reassembled in this frame", HFILL }},
 
 		{ &hf_ip_reassembled_length,
-		{ "Reassembled IP length", "ip.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Reassembled IPv4 length", "ip.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }}
 	};
 	static gint *ett[] = {
@@ -2009,13 +2009,13 @@ proto_register_ip(void)
 	};
 	module_t *ip_module;
 
-	proto_ip = proto_register_protocol("Internet Protocol", "IP", "ip");
+	proto_ip = proto_register_protocol("Internet Protocol Version 4", "IPv4", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
 	ip_dissector_table = register_dissector_table("ip.proto",
-	    "IP protocol", FT_UINT8, BASE_DEC);
+	    "IPv4 protocol", FT_UINT8, BASE_DEC);
 
 	/* Register configuration options */
 	ip_module = prefs_register_protocol(proto_ip, NULL);
@@ -2024,16 +2024,16 @@ proto_register_ip(void)
 	    "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field (see RFC2474/RFC2475)",
 	    &g_ip_dscp_actif);
 	prefs_register_bool_preference(ip_module, "defragment",
-		"Reassemble fragmented IP datagrams",
-		"Whether fragmented IP datagrams should be reassembled",
+		"Reassemble fragmented IPv4 datagrams",
+		"Whether fragmented IPv4 datagrams should be reassembled",
 		&ip_defragment);
 	prefs_register_bool_preference(ip_module, "summary_in_tree",
-	    "Show IP summary in protocol tree",
-	    "Whether the IP summary line should be shown in the protocol tree",
+	    "Show IPv4 summary in protocol tree",
+	    "Whether the IPv4 summary line should be shown in the protocol tree",
 	    &ip_summary_in_tree);
 	prefs_register_bool_preference(ip_module, "check_checksum" ,
-		  "Validate the IP checksum if possible",
-		  "Whether to validate the IP checksum",
+		  "Validate the IPv4 checksum if possible",
+		  "Whether to validate the IPv4 checksum",
 		  &ip_check_checksum);
 	prefs_register_bool_preference(ip_module, "tso_support" ,
 		  "Support packet-capture from IP TSO-enabled hardware",
