@@ -946,7 +946,7 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
     str->data_len = len;
 }
 
-#ifdef HAVE_LIBGNUTLS
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 
 static gint ver_major, ver_minor, ver_patch;
 
@@ -2747,7 +2747,7 @@ ssl_lib_init(void)
     sscanf(str, "%d.%d.%d", &ver_major, &ver_minor, &ver_patch);
 }
 
-#else /* HAVE_LIBGNUTLS */
+#else /* defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT) */
 /* no libgnutl: dummy operation to keep interface consistent*/
 void
 ssl_lib_init(void)
