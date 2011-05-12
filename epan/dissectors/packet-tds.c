@@ -1023,12 +1023,12 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* XXX - Should this check be done in tds_get_variable_token_size()
          * instead? */
         if ((int) token_sz < 0) {
-            proto_tree_add_text(tree, tvb, 0, 0, "Bogus token size: %u",
+            proto_tree_add_text(query_tree, tvb, 0, 0, "Bogus token size: %u",
                                 token_sz);
             break;
         }
 
-        token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
+        token_item = proto_tree_add_text(query_tree, tvb, pos, token_sz,
                                          "Token 0x%02x %s", token,
                                          val_to_str(token, token_names, "Unknown Token Type"));
         token_tree = proto_item_add_subtree(token_item, ett_tds_token);
