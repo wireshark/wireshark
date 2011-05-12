@@ -87,5 +87,6 @@ all: COPYING.txt
 
 install: all
 
+CLEANFILES: COPYING.txt
 clean-local:
 	rm -rf Utilities Wireshark.app ScriptExec/build
