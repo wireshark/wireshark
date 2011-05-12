@@ -1258,12 +1258,23 @@ static const char *ui_desc_menubar =
 "      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
 "        <menuitem name='BSMAP' action='/Telephony/ANSI/BSMAP'/>\n"
 "        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>\n"
+"        <menuitem name='MAP-OP' action='/Telephony/ANSI/MAP-OP'/>\n"
 "      </menu>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
-"        <menuitem name='BSSMAP' action='/Telephony/GSM/BSMAP'/>\n"
-"        <menu name='DTAP' action='/Telephony/GSM/DTAP'/>\n"
-"          <menuitem name='CallControl' action='/Telephony/GSM/CallControl/'/>\n"
+"        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
+"        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
+"          <menuitem name='CallControl' action='/Telephony/GSM/DTAP/CC'/>\n"
+"          <menuitem name='GPRS-MM' action='/Telephony/GSM/DTAP/GMM'/>\n"
+"          <menuitem name='GPRS-SM' action='/Telephony/GSM/DTAP/SM'/>\n"
+"          <menuitem name='MM' action='/Telephony/GSM/DTAP/MM'/>\n"
+"          <menuitem name='RR' action='/Telephony/GSM/DTAP/RR'/>\n"
+"          <menuitem name='SMS' action='/Telephony/GSM/DTAP/SMS'/>\n"
+"          <menuitem name='TP' action='/Telephony/GSM/DTAP/TP'/>\n"
+"          <menuitem name='SS' action='/Telephony/GSM/DTAP/SS'/>\n"
 "        </menu>\n"
+"        <menuitem name='SACCH' action='/Telephony/GSM/SACCH'/>\n"
+"        <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>\n"
+"        <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>\n"
 "      </menu>\n"
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
@@ -1634,27 +1645,40 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Statistics/Summary",						GTK_STOCK_PROPERTIES,			"_Summary",						NULL, NULL,	G_CALLBACK(summary_open_cb) },
    { "/Statistics/ProtocolHierarchy",			NULL,							"_Protocol Hierarchy",			NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },
-   { "/Statistics/Conversations",	WIRESHARK_STOCK_CONVERSATIONS,	"Conversations",		NULL,							NULL,				G_CALLBACK(init_conversation_notebook_cb) },
-   { "/Statistics/Endpoints",		WIRESHARK_STOCK_ENDPOINTS,		"Endpoints",			NULL,							NULL,				G_CALLBACK(init_hostlist_notebook_cb) },
-   { "/Statistics/IOGraphs",			WIRESHARK_STOCK_GRAPHS,		"_IO Graph",			NULL,							NULL,				G_CALLBACK(gui_iostat_cb) },
+   { "/Statistics/Conversations",	WIRESHARK_STOCK_CONVERSATIONS,	"Conversations",			NULL,						NULL,				G_CALLBACK(init_conversation_notebook_cb) },
+   { "/Statistics/Endpoints",		WIRESHARK_STOCK_ENDPOINTS,		"Endpoints",				NULL,						NULL,				G_CALLBACK(init_hostlist_notebook_cb) },
+   { "/Statistics/IOGraphs",			WIRESHARK_STOCK_GRAPHS,		"_IO Graph",				NULL,						NULL,				G_CALLBACK(gui_iostat_cb) },
 
-   { "/Telephony/ANSI",					NULL,						"ANSI",					NULL, NULL, NULL },
-   { "/Telephony/ANSI/BSMAP",			NULL,						"A-Interface BSMAP",	NULL,							NULL,				G_CALLBACK(ansi_a_stat_gtk_bsmap_cb) },
-   { "/Telephony/ANSI/DTAP",			NULL,						"A-Interface DTAP",		NULL,							NULL,				G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
+   { "/Telephony/ANSI",					NULL,						"ANSI",						NULL, NULL, NULL },
+   { "/Telephony/ANSI/BSMAP",			NULL,						"A-Interface BSMAP",		NULL,						NULL,				G_CALLBACK(ansi_a_stat_gtk_bsmap_cb) },
+   { "/Telephony/ANSI/DTAP",			NULL,						"A-Interface DTAP",			NULL,						NULL,				G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
+   { "/Telephony/ANSI/MAP-OP",			NULL,						"MAP Operation",			NULL,						NULL,				G_CALLBACK(ansi_map_stat_gtk_cb) },
 
    { "/Telephony/GSM",					NULL,						"GSM",						NULL, NULL, NULL },
    { "/Telephony/GSM/BSSMAP",			NULL,						"_GSM/A-Interface BSSMAP",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
-   { "/Telephony/GSM/DTAP",				NULL,						"_GSM/A-Interface DTAP",	NULL, NULL,
-   { "/Telephony/GSM/DTAP/CallControl",	NULL,						"Call Control",				NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_cc_cb) },
 
-   { "/Telephony/IAX2",					NULL,						"IA_X2",				NULL, NULL, NULL },
-   { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",	NULL,							NULL,				G_CALLBACK(iax2_analysis_cb) },
-   { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",			NULL,							NULL,				G_CALLBACK(voip_calls_launch) },
+   { "/Telephony/GSM/DTAP",				NULL,						"_GSM/A-Interface DTAP",	NULL, NULL, NULL },
+   { "/Telephony/GSM/DTAP/CC",			NULL,						"Call Control",				NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_cc_cb) },
+   { "/Telephony/GSM/DTAP/GMM",			NULL,						"GPRS Mobility Management",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_gmm_cb) },
+   { "/Telephony/GSM/DTAP/SM",			NULL,						"GPRS Session Management",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_sm_cb) },
+   { "/Telephony/GSM/DTAP/MM",			NULL,						"Mobility Management",		NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_mm_cb) },
+   { "/Telephony/GSM/DTAP/RR",			NULL,						"Radio Resource Management",NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_rr_cb) },
+   { "/Telephony/GSM/DTAP/SMS",			NULL,						"Short Message Service",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_sms_cb) },
+   { "/Telephony/GSM/DTAP/TP",			NULL,		"Special Conformance Testing Functions",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_tp_cb) },
+   { "/Telephony/GSM/DTAP/SS",			NULL,						"Supplementary Services",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_ss_cb) },
 
-   { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",	NULL,							NULL,				G_CALLBACK(firewall_rule_cb) },
+   { "/Telephony/GSM/SACCH",			NULL,						"_GSM/A-Interface SACCH",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_sacch_rr_cb) },
+   { "/Telephony/GSM/MAP-OP",			NULL,						"_GSM/MAP Operation",		NULL,						NULL,				G_CALLBACK(gsm_map_stat_gtk_cb) },
+   { "/Telephony/GSM/MAPSummary",		NULL,						"MAP Summary",				NULL,						NULL,				G_CALLBACK(gsm_map_stat_gtk_sum_cb) },
 
-   { "/Internals/Dissectortables",	NULL,							"_Dissector tables",	NULL,							NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
-   { "/Internals/SupportedProtocols", NULL,					"_Supported Protocols (slow!)",	NULL,							NULL,				G_CALLBACK(supported_cb) },
+   { "/Telephony/IAX2",					NULL,						"IA_X2",					NULL, NULL, NULL },
+   { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(iax2_analysis_cb) },
+   { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
+
+   { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },
+
+   { "/Internals/Dissectortables",	NULL,							"_Dissector tables",		NULL,						NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
+   { "/Internals/SupportedProtocols", NULL,					"_Supported Protocols (slow!)",		NULL,						NULL,				G_CALLBACK(supported_cb) },
    
    { "/Help/Contents",				GTK_STOCK_HELP,					"_Contents",			"F1",							NULL,				G_CALLBACK(help_menu_cont_cb) },
    { "/Help/ManualPages",			NULL,							"ManualPages",			NULL,							NULL,				NULL },

@@ -330,11 +330,15 @@ ansi_map_stat_gtk_win_create(
     window_present(dlg_p->win);
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+ansi_map_stat_gtk_cb(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 ansi_map_stat_gtk_cb(
     GtkWidget       *w _U_,
     gpointer        d _U_)
+#endif
 {
     /*
      * if the window is already open, bring it to front
@@ -379,8 +383,10 @@ register_tap_listener_gtkansi_map_stat(void)
 
         exit(1);
     }
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
     register_stat_menu_item("_ANSI/MAP Operation", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
+#endif
     register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init,NULL);
 }

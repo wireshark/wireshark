@@ -139,12 +139,21 @@ void voip_calls_launch(GtkAction *action, gpointer user_data);
 
 void ansi_a_stat_gtk_bsmap_cb(GtkAction *action, gpointer user_data);
 void ansi_a_stat_gtk_dtap_cb(GtkAction *action, gpointer user_data);
+void ansi_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 
 void gsm_a_stat_gtk_bssmap_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_cc_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_gmm_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_sms_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_sm_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action, gpointer user_data);
+
+void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
+void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
 
 extern void register_stat_menu_item_stock(
     register_stat_group_t group,
