@@ -77,7 +77,7 @@ set(WIRESHARK_GTK_SRC
 	main_welcome.c
 	manual_addr_resolv.c
 	mcast_stream.c
-	menus.c
+	# menus.c
 	new_packet_list.c
 	packet_history.c
 	packet_list_store.c
@@ -150,7 +150,6 @@ set(WIRESHARK_TAP_SRC
 	fc_stat.c
 	flow_graph.c
 	funnel_stat.c
-	gsm_a_stat.c
 	gsm_map_stat.c
 	gsm_map_summary.c
 	gtp_stat.c
@@ -224,6 +223,11 @@ if (UI_MANAGER)
 		-DMAIN_MENU_USE_UIMANAGER=1
 	)
 endif()
+if (WANT_PACKET_EDITOR)
+	add_definitions(
+		-DWANT_PACKET_EDITOR=1
+	)
+endif()
 
 register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_TAP_SRC}
@@ -231,6 +235,8 @@ register_tap_files(wireshark-tap-register.c
 
 add_library(ui STATIC
 	${WIRESHARK_GTK_SRC}
+	gsm_a_stat.c
+	menus.c
 	${WIRESHARK_TAP_SRC}
 	wireshark-tap-register.c
 )
