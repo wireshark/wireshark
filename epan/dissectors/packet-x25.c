@@ -778,7 +778,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			    "(Called address modified)", fac);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_called_modif);
-		    proto_tree_add_text(fac_tree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    "Parameter %02X", tvb_get_guint8(tvb, *offset+1));
 		}
 		break;
