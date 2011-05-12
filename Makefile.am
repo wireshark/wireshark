@@ -949,7 +949,7 @@ osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 		echo "Package build abandoned." ; \
 	fi
 
-osx-package: osx-app
+osx-package: osx-app packaging/macosx/COPYING.txt
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		cd $(srcdir)/packaging/macosx ;  \
 		./osx-dmg.sh ; \
