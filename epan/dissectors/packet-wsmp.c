@@ -62,7 +62,6 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *wsmp_tree, *wsmdata_tree;
         tvbuff_t *wsmdata_tvb;
         guint16 acmlength, wsmlength, offset;
-        char* acm;        
 
         /* Make entries in Protocol column and Info column on summary display */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSMP");
@@ -106,7 +105,6 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hf_wsmp_acmlength, tvb, offset, 1, FALSE);
                 offset ++;
 				
-                acm = tvb_get_ephemeral_string(tvb, offset, acmlength);
                 proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, FALSE);
                 offset +=acmlength;
 
