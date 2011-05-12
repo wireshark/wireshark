@@ -55,7 +55,7 @@ DUMPCAP=$WS_BIN_PATH/dumpcap
 # an interfaces index (1 based) should do well for recent devbuilds
 if [ "$WS_SYSTEM" = "Windows" -a -z "$TRAFFIC_CAPTURE_IFACE" ] ; then
         # Try to fetch the first Ethernet interface.
-        TRAFFIC_CAPTURE_IFACE=`$TSHARK -D | \
+        TRAFFIC_CAPTURE_IFACE=`$TSHARK -D 2>&1 | \
                 egrep 'Ethernet|Network Connection|VMware' | \
                 head -1 | cut -c 1`
 fi
