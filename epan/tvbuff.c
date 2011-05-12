@@ -3425,9 +3425,9 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			inflateEnd(strm);
 			g_free(strm);
 			g_free(strmbuf);
-			g_free(compr);
 
 			if (uncompr == NULL) {
+				g_free(compr);
 				return NULL;
 			}
 
