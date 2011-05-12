@@ -223,7 +223,7 @@ static const fragment_items ipv6_frag_items = {
 	&hf_ipv6_fragment_count,
 	&hf_ipv6_reassembled_in,
 	&hf_ipv6_reassembled_length,
-	"fragments"
+	"IPv6 fragments"
 };
 
 static dissector_handle_t data_handle;
