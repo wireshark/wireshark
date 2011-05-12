@@ -215,6 +215,9 @@ PATH=$(PYTHON_DIR);$(PATH)
 #
 GLIB_VERSION=2.0
 
+##### To use UIManager insted of GtkItemFactory comment out this line NOTE not completly implemented yet some menus will be missing####
+#MAIN_MENU_USE_UIMANAGER=^#define MAIN_MENU_USE_UIMANAGER 1
+
 #
 # Mandatory: GLib, GTK & related library settings
 #

@@ -96,7 +96,6 @@ extern void register_stat_menu_item(
  *
  * @param callback_data data for callback function
  */
-/*#define MAIN_MENU_USE_UIMANAGER 1 */
 #ifdef MAIN_MENU_USE_UIMANAGER
 void eth_endpoints_cb(GtkAction *action, gpointer user_data);
 void fc_endpoints_cb(GtkAction *action, gpointer user_data);
@@ -137,6 +136,15 @@ void iax2_analysis_cb(GtkAction *action, gpointer user_data);
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
 
 void voip_calls_launch(GtkAction *action, gpointer user_data);
+
+void ansi_a_stat_gtk_bsmap_cb(GtkAction *action, gpointer user_data);
+void ansi_a_stat_gtk_dtap_cb(GtkAction *action, gpointer user_data);
+
+void gsm_a_stat_gtk_bssmap_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_cc_cb(GtkAction *action, gpointer user_data);
+void gsm_a_stat_gtk_dtap_gmm_cb(GtkAction *action, gpointer user_data);
 
 extern void register_stat_menu_item_stock(
     register_stat_group_t group,

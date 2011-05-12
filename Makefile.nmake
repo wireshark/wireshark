@@ -388,6 +388,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_GEOIP@/$(GEOIP_CONFIG)/" \
 	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    -e "s/@HAVE_NTDDNDIS_H@/$(NTDDNDIS_CONFIG)/" \
+	    -e "s/@MAIN_MENU_USE_UIMANAGER@/$(MAIN_MENU_USE_UIMANAGER)/" \
 	    < config.h.win32 > $@
 
 

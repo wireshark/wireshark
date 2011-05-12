@@ -1255,6 +1255,16 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
+"      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
+"        <menuitem name='BSMAP' action='/Telephony/ANSI/BSMAP'/>\n"
+"        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>\n"
+"      </menu>\n"
+"      <menu name= 'GSM' action='/Telephony/GSM'>\n"
+"        <menuitem name='BSSMAP' action='/Telephony/GSM/BSMAP'/>\n"
+"        <menu name='DTAP' action='/Telephony/GSM/DTAP'/>\n"
+"          <menuitem name='CallControl' action='/Telephony/GSM/CallControl/'/>\n"
+"        </menu>\n"
+"      </menu>\n"
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
 "      </menu>\n"
@@ -1627,6 +1637,15 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/Conversations",	WIRESHARK_STOCK_CONVERSATIONS,	"Conversations",		NULL,							NULL,				G_CALLBACK(init_conversation_notebook_cb) },
    { "/Statistics/Endpoints",		WIRESHARK_STOCK_ENDPOINTS,		"Endpoints",			NULL,							NULL,				G_CALLBACK(init_hostlist_notebook_cb) },
    { "/Statistics/IOGraphs",			WIRESHARK_STOCK_GRAPHS,		"_IO Graph",			NULL,							NULL,				G_CALLBACK(gui_iostat_cb) },
+
+   { "/Telephony/ANSI",					NULL,						"ANSI",					NULL, NULL, NULL },
+   { "/Telephony/ANSI/BSMAP",			NULL,						"A-Interface BSMAP",	NULL,							NULL,				G_CALLBACK(ansi_a_stat_gtk_bsmap_cb) },
+   { "/Telephony/ANSI/DTAP",			NULL,						"A-Interface DTAP",		NULL,							NULL,				G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
+
+   { "/Telephony/GSM",					NULL,						"GSM",						NULL, NULL, NULL },
+   { "/Telephony/GSM/BSSMAP",			NULL,						"_GSM/A-Interface BSSMAP",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
+   { "/Telephony/GSM/DTAP",				NULL,						"_GSM/A-Interface DTAP",	NULL, NULL,
+   { "/Telephony/GSM/DTAP/CallControl",	NULL,						"Call Control",				NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_dtap_cc_cb) },
 
    { "/Telephony/IAX2",					NULL,						"IA_X2",				NULL, NULL, NULL },
    { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",	NULL,							NULL,				G_CALLBACK(iax2_analysis_cb) },

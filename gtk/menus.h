@@ -29,9 +29,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*#define MAIN_MENU_USE_UIMANAGER 1 */
-
-	/* Add a new recent capture filename to the "Recent Files" submenu
+/* Add a new recent capture filename to the "Recent Files" submenu
    (duplicates will be ignored) */
 extern void add_menu_recent_capture_file(gchar *cf_name);
 

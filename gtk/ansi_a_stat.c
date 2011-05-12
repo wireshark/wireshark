@@ -325,11 +325,15 @@ ansi_a_stat_gtk_win_create(
     window_present(dlg_p->win);
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+ansi_a_stat_gtk_bsmap_cb(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 ansi_a_stat_gtk_bsmap_cb(
     GtkWidget   *w _U_,
     gpointer     d _U_)
+#endif
 {
     /*
      * if the window is already open, bring it to front
@@ -352,11 +356,15 @@ ansi_a_stat_gtk_bsmap_init(
     ansi_a_stat_gtk_bsmap_cb(NULL, NULL);
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+ansi_a_stat_gtk_dtap_cb(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 ansi_a_stat_gtk_dtap_cb(
     GtkWidget   *w _U_,
     gpointer     d _U_)
+#endif
 {
 
     /*
@@ -404,11 +412,14 @@ register_tap_listener_gtkansi_a_stat(void)
         exit(1);
     }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
     register_stat_menu_item("_ANSI/A-Interface BSMAP", REGISTER_STAT_GROUP_TELEPHONY,
                             ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
-    register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init,NULL);
-
     register_stat_menu_item("_ANSI/A-Interface DTAP", REGISTER_STAT_GROUP_TELEPHONY,
                             ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
+#endif
+    register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init,NULL);
+
     register_stat_cmd_arg("ansi_a,dtap", ansi_a_stat_gtk_dtap_init, NULL);
 }

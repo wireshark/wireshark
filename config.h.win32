@@ -70,6 +70,8 @@
 @HAVE_AIRPCAP@
 @HAVE_AIRPDCAP@
 
+@MAIN_MENU_USE_UIMANAGER@
+
 /* availability of pcap_freecode() is handled at runtime */
 #define HAVE_PCAP_FREECODE 1
 

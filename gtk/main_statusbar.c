@@ -499,7 +499,11 @@ packets_bar_update(void)
                 }
             }
         } else {
-            packets_str = g_strdup(" No Packets");
+			gulong computed_elapsed = cf_get_computed_elapsed();
+			packets_str = g_strdup_printf(" No Packets, Startup time: Load time: %lu:%02lu.%03lu",
+												computed_elapsed/60000,
+                                                computed_elapsed%60000/1000,
+                                                computed_elapsed%1000);
         }
         gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str);
     }
