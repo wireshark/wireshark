@@ -2029,14 +2029,14 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 16 */
-	proto_tree_add_boolean(tree, hf_sna_th_snai, tvb, offset, 1, th_byte);
+	proto_tree_add_boolean(bf_tree, hf_sna_th_snai, tvb, offset, 1, th_byte);
 
 	/* We luck out here because in their infinite wisdom the SNA
 	 * architects placed the MPF and EFI fields in the same bitfield
 	 * locations, even though for FID4 they're not in byte 0.
 	 * Thank you IBM! */
-	proto_tree_add_uint(tree, hf_sna_th_mpf, tvb, offset, 1, th_byte);
-	proto_tree_add_uint(tree, hf_sna_th_efi, tvb, offset, 1, th_byte);
+	proto_tree_add_uint(bf_tree, hf_sna_th_mpf, tvb, offset, 1, th_byte);
+	proto_tree_add_uint(bf_tree, hf_sna_th_efi, tvb, offset, 1, th_byte);
 
 	offset += 2;
 	/* 1 for byte 16, 1 for byte 17 which is reserved */
