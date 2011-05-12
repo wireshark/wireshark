@@ -5,7 +5,7 @@
 
 /* Input file: packet-ess-template.c */
 
-#line 1 "packet-ess-template.c"
+#line 1 "../../asn1/ess/packet-ess-template.c"
 /* packet-ess.c
  * Routines for RFC5035 Extended Security Services packet dissection
  *   Ronnie Sahlberg 2004
@@ -72,7 +72,7 @@ static gint ett_Category_attributes = -1;
 
 
 /*--- Included file: packet-ess-hf.c ---*/
-#line 1 "packet-ess-hf.c"
+#line 1 "../../asn1/ess/packet-ess-hf.c"
 static int hf_ess_ReceiptRequest_PDU = -1;        /* ReceiptRequest */
 static int hf_ess_ContentIdentifier_PDU = -1;     /* ContentIdentifier */
 static int hf_ess_Receipt_PDU = -1;               /* Receipt */
@@ -145,11 +145,11 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 66 "packet-ess-template.c"
+#line 66 "../../asn1/ess/packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
-#line 1 "packet-ess-val.h"
+#line 1 "../../asn1/ess/packet-ess-val.h"
 #define ub_receiptsTo                  16
 #define id_aa_receiptRequest           "1.2.840.113549.1.9.16.2.1"
 #define id_aa_contentIdentifier        "1.2.840.113549.1.9.16.2.7"
@@ -169,12 +169,12 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 68 "packet-ess-template.c"
+#line 68 "../../asn1/ess/packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-ess-ett.c ---*/
-#line 1 "packet-ess-ett.c"
+#line 1 "../../asn1/ess/packet-ess-ett.c"
 static gint ett_ess_ReceiptRequest = -1;
 static gint ett_ess_SEQUENCE_SIZE_1_ub_receiptsTo_OF_GeneralNames = -1;
 static gint ett_ess_ReceiptsFrom = -1;
@@ -208,7 +208,7 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 71 "packet-ess-template.c"
+#line 71 "../../asn1/ess/packet-ess-template.c"
 
 static const char *object_identifier_id;
 
@@ -281,7 +281,7 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
 
 
 /*--- Included file: packet-ess-fn.c ---*/
-#line 1 "packet-ess-fn.c"
+#line 1 "../../asn1/ess/packet-ess-fn.c"
 
 
 static int
@@ -408,8 +408,14 @@ static const ber_sequence_t Receipt_sequence[] = {
 
 static int
 dissect_ess_Receipt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+#line 101 "../../asn1/ess/ess.cnf"
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Receipt_sequence, hf_index, ett_ess_Receipt);
+
+
+
 
   return offset;
 }
@@ -541,7 +547,7 @@ dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "ess.cnf"
+#line 50 "../../asn1/ess/ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -607,7 +613,7 @@ dissect_ess_T_restrictiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "ess.cnf"
+#line 77 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -649,7 +655,7 @@ dissect_ess_T_tagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "ess.cnf"
+#line 68 "../../asn1/ess/ess.cnf"
   guint32 attribute;
   
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -703,7 +709,7 @@ dissect_ess_T_permissiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "ess.cnf"
+#line 86 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -745,7 +751,7 @@ dissect_ess_T_informativeTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "ess.cnf"
+#line 95 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -1120,7 +1126,7 @@ static void dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 142 "packet-ess-template.c"
+#line 142 "../../asn1/ess/packet-ess-template.c"
 
 /*--- proto_register_ess ----------------------------------------------*/
 void proto_register_ess(void) {
@@ -1135,7 +1141,7 @@ void proto_register_ess(void) {
 	NULL, HFILL }},
 
 /*--- Included file: packet-ess-hfarr.c ---*/
-#line 1 "packet-ess-hfarr.c"
+#line 1 "../../asn1/ess/packet-ess-hfarr.c"
     { &hf_ess_ReceiptRequest_PDU,
       { "ReceiptRequest", "ess.ReceiptRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1418,7 +1424,7 @@ void proto_register_ess(void) {
         "CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 155 "packet-ess-template.c"
+#line 155 "../../asn1/ess/packet-ess-template.c"
   };
 
   /* List of subtrees */
@@ -1426,7 +1432,7 @@ void proto_register_ess(void) {
      &ett_Category_attributes,
 
 /*--- Included file: packet-ess-ettarr.c ---*/
-#line 1 "packet-ess-ettarr.c"
+#line 1 "../../asn1/ess/packet-ess-ettarr.c"
     &ett_ess_ReceiptRequest,
     &ett_ess_SEQUENCE_SIZE_1_ub_receiptsTo_OF_GeneralNames,
     &ett_ess_ReceiptsFrom,
@@ -1460,7 +1466,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 161 "packet-ess-template.c"
+#line 161 "../../asn1/ess/packet-ess-template.c"
   };
   
   static uat_field_t attributes_flds[] = {
@@ -1507,7 +1513,7 @@ void proto_register_ess(void) {
 void proto_reg_handoff_ess(void) {
 
 /*--- Included file: packet-ess-dis-tab.c ---*/
-#line 1 "packet-ess-dis-tab.c"
+#line 1 "../../asn1/ess/packet-ess-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.1", dissect_ReceiptRequest_PDU, proto_ess, "id-aa-receiptRequest");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.7", dissect_ContentIdentifier_PDU, proto_ess, "id-aa-contentIdentifier");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.1", dissect_Receipt_PDU, proto_ess, "id-ct-receipt");
@@ -1527,6 +1533,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 206 "packet-ess-template.c"
+#line 206 "../../asn1/ess/packet-ess-template.c"
 }
 

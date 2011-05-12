@@ -5,7 +5,7 @@
 
 /* Input file: packet-ess-template.h */
 
-#line 1 "packet-ess-template.h"
+#line 1 "../../asn1/ess/packet-ess-template.h"
 /* packet-ess.h
  * Routines for RFC5035 Extended Security Services packet dissection
  *    Ronnie Sahlberg 2004

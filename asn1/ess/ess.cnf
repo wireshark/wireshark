@@ -97,5 +97,10 @@ FreeFormField/bitSetAttributes  informativeAttributeFlags
   %(DEFAULT_BODY)s
   ess_dissect_attribute_flags (attributes, actx);
   
+#.FN_BODY Receipt
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");
+  %(DEFAULT_BODY)s
+
 #.END
 
