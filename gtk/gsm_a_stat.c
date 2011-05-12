@@ -567,7 +567,7 @@ static void
 gsm_a_stat_gtk_dtap_gmm_cb(
     GtkWidget       *w _U_,
     gpointer        d _U_)
-#else
+#endif
 {
     gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_gmm,
     "GSM A-I/F DTAP GPRS Mobility Management Statistics",
