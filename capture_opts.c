@@ -633,39 +633,39 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 
     /* Did the user specify an interface to use? */
     if (capture_opts->iface == NULL) {
-      /* No - is a default specified in the preferences file? */
-      if (capture_device != NULL) {
-          /* Yes - use it. */
-          capture_opts->iface = g_strdup(capture_device);
-	  /*  We don't set iface_descr here because doing so requires
-	   *  capture_ui_utils.c which requires epan/prefs.c which is
-	   *  probably a bit too much dependency for here...
-	   */
-      } else {
-        /* No - pick the first one from the list of interfaces. */
-        if_list = capture_interface_list(&err, &err_str);
-        if (if_list == NULL) {
-          switch (err) {
+        /* No - is a default specified in the preferences file? */
+        if (capture_device != NULL) {
+            /* Yes - use it. */
+            capture_opts->iface = g_strdup(capture_device);
+            /*  We don't set iface_descr here because doing so requires
+             *  capture_ui_utils.c which requires epan/prefs.c which is
+             *  probably a bit too much dependency for here...
+             */
+        } else {
+            /* No - pick the first one from the list of interfaces. */
+            if_list = capture_interface_list(&err, &err_str);
+            if (if_list == NULL) {
+                switch (err) {
 
-          case CANT_GET_INTERFACE_LIST:
-              cmdarg_err("%s", err_str);
-              g_free(err_str);
-              break;
+                case CANT_GET_INTERFACE_LIST:
+                    cmdarg_err("%s", err_str);
+                    g_free(err_str);
+                    break;
 
-          case NO_INTERFACES_FOUND:
-              cmdarg_err("There are no interfaces on which a capture can be done");
-              break;
-          }
-          return FALSE;
+                case NO_INTERFACES_FOUND:
+                    cmdarg_err("There are no interfaces on which a capture can be done");
+                    break;
+                }
+                return FALSE;
+            }
+            if_info = (if_info_t *)if_list->data;	/* first interface */
+            capture_opts->iface = g_strdup(if_info->name);
+            /*  We don't set iface_descr here because doing so requires
+             *  capture_ui_utils.c which requires epan/prefs.c which is
+             *  probably a bit too much dependency for here...
+             */
+            free_interface_list(if_list);
         }
-        if_info = (if_info_t *)if_list->data;	/* first interface */
-        capture_opts->iface = g_strdup(if_info->name);
-        /*  We don't set iface_descr here because doing so requires
-         *  capture_ui_utils.c which requires epan/prefs.c which is
-         *  probably a bit too much dependency for here...
-         */
-        free_interface_list(if_list);
-      }
     }
 
     return TRUE;
