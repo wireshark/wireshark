@@ -1605,7 +1605,7 @@ main(int argc, char *argv[])
      if we're writing to a pipe. */
   if (global_capture_opts.saving_to_file &&
       global_capture_opts.output_to_pipe) {
-    if (have_tap_listeners()) {
+    if (tap_listeners_require_dissection()) {
       cmdarg_err("Taps aren't supported when saving to a pipe.");
       return 1;
     }
@@ -1680,8 +1680,8 @@ main(int argc, char *argv[])
 
         we're using a read filter on the packets;
 
-        we're using any taps. */
-  do_dissection = print_packet_info || rfcode || have_tap_listeners();
+        we're using any taps that need dissection. */
+  do_dissection = print_packet_info || rfcode || tap_listeners_require_dissection();
 
   if (cf_name) {
     /*

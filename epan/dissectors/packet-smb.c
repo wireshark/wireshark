@@ -6974,7 +6974,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * we exit from this dissector.
 		 */
 		error_string=register_tap_listener("ntlmssp", NULL, NULL,
-		    0, NULL, NULL, NULL);
+		    TL_IS_DISSECTOR_HELPER, NULL, NULL, NULL);
 		if(!error_string){
 			ntlmssp_tap_id=find_tap_id("ntlmssp");
 		}

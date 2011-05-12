@@ -417,7 +417,7 @@ dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 {
 	guint16 icid;
 	guint8 ctrl_id;
-	
+
 	icid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -427,7 +427,7 @@ dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	offset+=1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, move to %s)", icid, val_to_str(ctrl_id, ctrl_id_code_vals, "Unknown controller"));
-	
+
 	return offset;
 }
 
@@ -581,7 +581,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (DCID: 0x%04x)", dcid);
-					
+
 	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, TRUE);
 	offset+=2;
 
@@ -604,7 +604,7 @@ static int
 dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 info_type;
-	
+
 	info_type=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -632,7 +632,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s, %s)",
 						val_to_str(info_type, info_type_vals, "Unknown type"),
 						val_to_str(result, info_result_vals, "Unknown result"));
-	
+
 	if(tvb_length_remaining(tvb, offset)) {
 		switch(info_type){
 		case 0x0001: /* Connectionless MTU */
@@ -728,7 +728,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (SCID: 0x%04x)", val_to_str(result, configuration_result_vals, "Unknown"), scid);
-	
+
 	if(tvb_length_remaining(tvb, offset)){
 		if (psm_data)
 			if(pinfo->p2p_dir==P2P_DIR_RECV)
@@ -770,7 +770,7 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (SCID: 0x%04x)", val_to_str(result, result_vals, "Unknown"), scid);
 	}
-					
+
 	if (pinfo->fd->flags.visited == 0) {
 		if((psm_data=se_tree_lookup32(cid_to_psm_table, scid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000)))){
 			se_tree_insert32(cid_to_psm_table, dcid|((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000), psm_data);
@@ -790,7 +790,7 @@ static int
 dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 icid, result;
-	
+
 	icid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -800,7 +800,7 @@ dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, %s)", icid, val_to_str(result, move_result_vals, "Unknown result"));
-	
+
 	return offset;
 }
 
@@ -808,7 +808,7 @@ static int
 dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 icid, result;
-	
+
 	icid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -826,7 +826,7 @@ static int
 dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 icid;
-	
+
 	icid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -849,7 +849,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (SCID: 0x%04x, DCID: 0x%04x)", scid, dcid);
-	
+
 	return offset;
 }
 
@@ -1164,7 +1164,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			cmd_str = val_to_str(cmd_code, command_code_vals, "Unknown cmd");
 			proto_item_append_text(ti_command,"%s", cmd_str);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s", cmd_str);
-			
+
 			switch(cmd_code) {
 			case 0x01: /* Command Reject */
 				offset=dissect_comrej(tvb, offset, pinfo, btl2cap_cmd_tree);
@@ -1255,7 +1255,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* not a known fixed PSM, try to find a registered service to a dynamic PSM */
 			guint32 *service;
 			service=se_tree_lookup32(psm_to_service_table, ((pinfo->p2p_dir==P2P_DIR_RECV)?0x80000000:0) | psm);
-			
+
 			if(!service || !dissector_try_uint(l2cap_service_dissector_table, *service,	next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
 				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
@@ -1401,7 +1401,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_psm_dynamic,
 			{ "Dynamic PSM",           "btl2cap.psm",
-				FT_UINT16, BASE_HEX, NULL, 0x0,          
+				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"Dynamic Protocol/Service Multiplexer", HFILL }
 		},
 		{ &hf_btl2cap_scid,
@@ -1780,13 +1780,13 @@ proto_register_btl2cap(void)
 }
 
 
-void 
+void
 proto_reg_handoff_btl2cap(void)
 {
 	/* tap into the btsdp dissector to look for l2cap PSM infomation that
 	   helps us determine the type of l2cap payload, i.e. which service is
 	   using the PSM channel so we know which sub-dissector to call */
-	register_tap_listener("btsdp", NULL, NULL, 0, NULL, btl2cap_sdp_tap_packet, NULL);
+	register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btl2cap_sdp_tap_packet, NULL);
 }
 
 

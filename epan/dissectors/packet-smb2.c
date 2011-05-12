@@ -2025,7 +2025,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * we exit from this dissector.
 		 */
 		error_string=register_tap_listener("ntlmssp", NULL, NULL,
-		    0, NULL, NULL, NULL);
+		    TL_IS_DISSECTOR_HELPER, NULL, NULL, NULL);
 		if(!error_string){
 			ntlmssp_tap_id=find_tap_id("ntlmssp");
 		}
@@ -3678,7 +3678,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* flags */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, TRUE);
 	offset += 4;
-        
+
 	/* data or dcerpc ?*/
 	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);

@@ -603,7 +603,6 @@ h248_register_package
 has_global_profiles
 have_custom_cols
 have_filtering_tap_listeners
-have_tap_listeners
 heur_dissector_add
 heur_dissector_delete
 hex_str_to_bytes
@@ -1018,6 +1017,7 @@ tap_build_interesting
 tap_queue_init
 tap_queue_packet
 tcp_dissect_pdus
+tap_listeners_require_dissection
 test_for_directory
 test_for_fifo
 tfs_accept_reject               DATA

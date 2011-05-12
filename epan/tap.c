@@ -508,12 +508,23 @@ remove_tap_listener(void *tapdata)
 }
 
 /*
- * Return TRUE if we have tap listeners, FALSE otherwise.
+ * Return TRUE if we have one or more tap listeners that require dissection,
+ * FALSE otherwise.
  */
 gboolean
-have_tap_listeners(void)
+tap_listeners_require_dissection(void)
 {
-	return tap_listener_queue != NULL;
+	volatile tap_listener_t *tap_queue = tap_listener_queue;
+
+	while(tap_queue) {
+		if(!(tap_queue->flags & TL_IS_DISSECTOR_HELPER))
+			return TRUE;
+
+		tap_queue = tap_queue->next;
+	}
+
+	return FALSE;
+
 }
 
 /* Returns TRUE there is an active tap listener for the specified tap id. */

@@ -288,12 +288,12 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 
 	if(!pinfo->fd->flags.visited){
 		guint32 token;
-		
+
 		if( pinfo->p2p_dir == cr_flag )
 			token = dlci | 0x01; /* local service */
 		else
 			token = dlci;
-			
+
 		dlci_state=se_tree_lookup32(dlci_table, token);
 		if(!dlci_state){
 			dlci_state=se_alloc0(sizeof(dlci_state_t));
@@ -539,10 +539,10 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset=dissect_btrfcomm_Control(tvb, offset, rfcomm_tree, &pf_flag, &frame_type);
 	/* payload length */
 	offset=dissect_btrfcomm_PayloadLen(tvb, offset, rfcomm_tree, &frame_len);
-	
+
 	if (dlci && (frame_len || (frame_type == 0xef) || (frame_type == 0x2f) )) {
 		guint32 token;
-		
+
 		if( pinfo->p2p_dir == cr_flag )
 			token = dlci | 0x01; /* local service */
 		else
@@ -554,7 +554,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			se_tree_insert32(dlci_table, token, dlci_state);
 		}
 	}
-	
+
 	if ((check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
 		if(dlci && (frame_type == 0x2f))
@@ -632,7 +632,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rfcomm_data.cid = l2cap_data->cid;
 		rfcomm_data.dlci = dlci;
 
-		if(!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service, 
+		if(!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service,
 					next_tvb, pinfo, tree)){
 			/* unknown service, let the data dissector handle it */
 			call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -792,7 +792,7 @@ proto_register_btrfcomm(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
-	
+
 	dlci_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
 }
 
@@ -827,11 +827,11 @@ proto_reg_handoff_btrfcomm(void)
 	dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
 
 	data_handle = find_dissector("data");
-	
+
 	/* tap into the btsdp dissector to look for rfcomm channel infomation that
 	   helps us determine the type of rfcomm payload, i.e. which service is
 	   using the channels so we know which sub-dissector to call */
-	register_tap_listener("btsdp", NULL, NULL, 0, NULL, btrfcomm_sdp_tap_packet, NULL);
+	register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btrfcomm_sdp_tap_packet, NULL);
 }
 
 /* Bluetooth Handsfree (HF) profile dissection */
@@ -881,9 +881,9 @@ void
 proto_reg_handoff_bthf(void)
 {
 	dissector_handle_t bthf_handle;
-	
+
 	bthf_handle = create_dissector_handle(dissect_bthf, proto_bthf);
-	
+
 	dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthf_handle);
 	dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthf_handle);
 }
@@ -918,14 +918,14 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		/* ... or raw PPP */
-		if( ppp_handle ) 
-			call_dissector(ppp_handle, tvb, pinfo, tree); 
+		if( ppp_handle )
+			call_dissector(ppp_handle, tvb, pinfo, tree);
 		else {
 			/* TODO: remove the above 'if' and this 'else-body' when "ppp_raw_hdlc" is available, requires that it is
 			    made non-anonymous in ppp dissector to use */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s <PPP frame>", pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd");
-	                
+
 			call_dissector(data_handle, tvb, pinfo, tree);
 		}
 	}
@@ -958,12 +958,12 @@ void
 proto_reg_handoff_btdun(void)
 {
 	dissector_handle_t btdun_handle;
-	
+
 	btdun_handle = create_dissector_handle(dissect_btdun, proto_btdun);
-	
+
 	dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
 
-	ppp_handle = find_dissector("ppp_raw_hdlc"); 
+	ppp_handle = find_dissector("ppp_raw_hdlc");
 }
 
 /* Bluetooth Serial Port profile (SPP) dissection */
@@ -979,7 +979,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, FALSE);
 	st = proto_item_add_subtree(ti, ett_btspp);
-	
+
 	length = MIN(length,60);
 	ascii_only = TRUE;
 	for(i=0;i<length && ascii_only;i++) {
@@ -1022,9 +1022,9 @@ void
 proto_reg_handoff_btspp(void)
 {
 	dissector_handle_t btspp_handle;
-	
+
 	btspp_handle = create_dissector_handle(dissect_btspp, proto_btspp);
-	
+
 	dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
 }
 
