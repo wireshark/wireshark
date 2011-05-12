@@ -3105,10 +3105,10 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		(flags&F_RESPONSE)?" response":""));
 
     if (flags & F_RESPONSE) {
-      if ((flags & F_RCODE) != RCODE_NOERROR) {
+      if (rcode != RCODE_NOERROR) {
 	bufpos+=MIN(MAX_BUF_SIZE-bufpos,
 		    g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, ", %s",
-			val_to_str(flags & F_RCODE, rcode_vals, "Unknown error (%u)")));
+			val_to_str(rcode, rcode_vals, "Unknown error (%u)")));
       }
     }
     col_add_str(pinfo->cinfo, COL_INFO, buf);
@@ -3218,7 +3218,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (flags & F_RESPONSE) {
     bufpos+=MIN(MAX_BUF_SIZE-bufpos,
 		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
-		val_to_str(flags & F_RCODE, rcode_vals, "Unknown error")));
+		val_to_str(rcode, rcode_vals, "Unknown error")));
   }
   tf = proto_tree_add_uint_format(dns_tree, hf_dns_flags, tvb,
 		offset + DNS_FLAGS, 2,
