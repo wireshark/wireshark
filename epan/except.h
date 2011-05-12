@@ -36,6 +36,7 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <epan/g_gnuc.h>
 
 #define XCEPT_GROUP_ANY	0
 #define XCEPT_CODE_ANY	0

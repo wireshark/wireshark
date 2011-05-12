@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include <config.h>
 #include "exceptions.h"
 
 gboolean failed = FALSE;
@@ -105,7 +106,7 @@ run_tests(void)
         ex_thrown++;
     }
     ENDTRY;
-    
+
     if (finally_called != 1) {
         printf("03: FINALLY called %u times (not 1) on uncaught exception\n", finally_called);
         failed = TRUE;
@@ -139,7 +140,7 @@ run_tests(void)
         finally_called ++;
     }
     ENDTRY;
-    
+
     if (finally_called != 11) {
         printf("04: finally_called = %u (not 11) on rethrown exception\n", finally_called);
         failed = TRUE;
@@ -178,7 +179,7 @@ run_tests(void)
         finally_called ++;
     }
     ENDTRY;
-    
+
     if (finally_called != 11) {
         printf("05: finally_called = %u (not 11) on exception thrown from CATCH\n", finally_called);
         failed = TRUE;
