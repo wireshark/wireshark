@@ -396,6 +396,12 @@ cf_reset_state(capture_file *cf)
     free_frame_data_sequence(cf->frames);
     cf->frames = NULL;
   }
+#ifdef WANT_PACKET_EDITOR
+  if (cf->edited_frames) {
+    g_tree_destroy(cf->edited_frames);
+    cf->edited_frames = NULL;
+  }
+#endif
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = 0;
   cf->last_displayed = 0;
@@ -1516,6 +1522,22 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
   int err;
   gchar *err_info;
   char errmsg_errno[1024+1];
+
+#ifdef WANT_PACKET_EDITOR
+  /* if fdata->file_off == -1 it means packet was edited, and we must find data inside edited_frames tree */
+  if (G_UNLIKELY(fdata->file_off == -1)) {
+    const modified_frame_data *frame = (const modified_frame_data *) g_tree_lookup(cf->edited_frames, GINT_TO_POINTER(fdata->num));
+
+    if (!frame) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "fdata->file_off == -1, but can't find modified frame!");
+      return FALSE;
+    }
+
+    *pseudo_header = frame->ph;
+    memcpy(pd, frame->pd, fdata->cap_len);
+    return TRUE;
+  }
+#endif
 
   if (!wtap_seek_read(cf->wth, fdata->file_off, pseudo_header, pd,
                       fdata->cap_len, &err, &err_info)) {

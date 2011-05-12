@@ -824,6 +824,36 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	}
 	return TRUE;
 }
+
+static void
+edit_pkt_destroy_new_window(GtkObject *object _U_, gpointer user_data)
+{
+	/* like destroy_new_window, but without freeding DataPtr->pd */
+	struct PacketWinData *DataPtr = user_data;
+
+	detail_windows = g_list_remove(detail_windows, DataPtr);
+	epan_dissect_cleanup(&(DataPtr->edt));
+	g_free(DataPtr);
+
+	/* XXX, notify main packet list that packet should be redisplayed */
+}
+
+static gint g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_) { 
+	if (a > b)
+		return 1;
+	else if (a < b)
+		return -1;
+	else
+		return 0;
+}
+
+static void modifed_frame_data_free(gpointer data) {
+	modified_frame_data *mfd = (modified_frame_data *) data;
+
+	g_free(mfd->pd);
+	g_free(mfd);
+}
+
 #endif /* WANT_PACKET_EDITOR */
 
 void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
@@ -915,9 +945,10 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 		g_signal_connect(main_w, "key-press-event", G_CALLBACK(edit_pkt_win_key_pressed_cb), DataPtr);
 		/* XXX, popup-menu instead of row-activated? */
 		g_signal_connect(tree_view, "row-activated", G_CALLBACK(edit_pkt_tree_row_activated_cb), DataPtr);
-	}
+		g_signal_connect(main_w, "destroy", G_CALLBACK(edit_pkt_destroy_new_window), DataPtr);
+	} else
 #endif
-	g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
+		g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
 	/* draw the protocol tree & print hex data */
 	add_byte_views(&(DataPtr->edt), tree_view, DataPtr->bv_nb_ptr);
@@ -927,6 +958,21 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	DataPtr->pd_offset = 0;
 	DataPtr->pd_bitoffset = 0;
 	gtk_widget_show(main_w);
+
+#ifdef WANT_PACKET_EDITOR
+	if (editable && DataPtr->frame->cap_len != 0) {
+		/* XXX, there's no Save button here, so lets assume packet is always edited */
+		modified_frame_data *mfd = g_malloc(sizeof(modified_frame_data));
+
+		mfd->pd = DataPtr->pd;
+		mfd->ph = DataPtr->pseudo_header;
+
+		if (cfile.edited_frames == NULL)
+			cfile.edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL, modifed_frame_data_free);
+		g_tree_insert(cfile.edited_frames, GINT_TO_POINTER(DataPtr->frame->num), mfd);
+		DataPtr->frame->file_off = -1;
+	}
+#endif
 }
 
 static void

@@ -108,6 +108,9 @@ typedef struct _capture_file {
   gint         current_row;     /* Row number for current frame */
   epan_dissect_t *edt;          /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;	/* Field info for currently selected field */
+#ifdef WANT_PACKET_EDITOR
+  GTree       *edited_frames;   /* BST with modified frames */
+#endif
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);

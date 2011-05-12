@@ -65,6 +65,14 @@ typedef struct _frame_data {
   nstime_t     del_cap_ts;  /**< Delta timestamp to previous captured frame (yes, it can be negative) */
 } frame_data;
 
+#ifdef WANT_PACKET_EDITOR
+/* XXX, where this struct should go? */
+typedef struct {
+  union wtap_pseudo_header ph; /**< Modified pseudo header */
+  char *pd;                    /**< Modified packet data */
+} modified_frame_data;
+#endif
+
 /**
  * A data source.
  * Has a tvbuff and a name.
