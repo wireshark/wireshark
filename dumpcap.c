@@ -3484,6 +3484,9 @@ main(int argc, char *argv[])
                       log_flags,
                       console_log_handler, NULL /* user_data */);
 
+    /* Initialize the thread system */
+    if (!g_thread_supported())
+        g_thread_init(NULL);
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
@@ -3499,8 +3502,6 @@ main(int argc, char *argv[])
     SetConsoleCtrlHandler(capture_cleanup_handler, TRUE);
 
     /* Prepare to read from a pipe */
-    if (!g_thread_supported ())
-        g_thread_init (NULL);
     cap_pipe_pending_q = g_async_queue_new();
     cap_pipe_done_q = g_async_queue_new();
     cap_pipe_read_mtx = g_mutex_new();
