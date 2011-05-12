@@ -2079,7 +2079,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   tvbuff_t *common_header_tvb;
   tvbuff_t *parameters_tvb;
   tvbuff_t *data_tvb = NULL;
+#if 0
   proto_tree *assoc_tree;
+#endif
   guint8 source_ssn = INVALID_SSN;
   guint8 dest_ssn = INVALID_SSN;
   proto_item *assoc_item;
@@ -2156,8 +2158,8 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 	  if (assoc && assoc->assoc_id !=0){
 		  assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
 		  PROTO_ITEM_SET_GENERATED(assoc_item);
-		  assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
 #if 0
+		  assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
 		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
 		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->called_routing_ind);
 		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "calling_ssn %u", assoc->calling_ssn);
