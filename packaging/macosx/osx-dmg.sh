@@ -39,14 +39,13 @@
 # Defaults
 set_ds_store=false
 ds_store_root="root.ds_store"
-ds_store_util="util.ds_store"
-package="Wireshark.app"
+app_bundle="Wireshark.app"
 rw_name="RWwireshark.dmg"
 volume_name="Wireshark"
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
 utilities="Utilities"
-ws_bin="$package/Contents/Resources/bin/wireshark-bin"
+ws_bin="$app_bundle/Contents/Resources/bin/wireshark-bin"
 
 PATH=$PATH:/Developer/Tools
 
@@ -64,8 +63,8 @@ OPTIONS
 	-h,--help
 		display this help message
 	-s
-		set a new apperance (do not actually creates a bundle)
-	-p,--package
+		set a new apperance (do not actually create a bundle)
+	-b,--app-bundle
 		set the path to the Wireshark.app that should be copied
 		in the dmg
 "
@@ -80,8 +79,8 @@ do
 			exit 0 ;;
 	  	-s)
 			set_ds_store=true ;;
-	  	-p|--package)
-			package="$2"
+	  	-b|--app-bundle)
+			app_bundle="$2"
 			shift 1 ;;
 		*)
 			echo "Invalid command line option"
@@ -91,8 +90,8 @@ do
 done
 
 # Safety checks
-if [ ! -e "$package" ]; then
-	echo "Cannot find package: $package"
+if [ ! -e "$app_bundle" ]; then
+	echo "Cannot find application bundle: $app_bundle"
 	exit 1
 fi
 
@@ -101,7 +100,6 @@ if [ ! -e "$utilities" ]; then
 	echo "Cannot find utilities: $utilities"
 	exit 1
 fi
-echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
 
 # Get the architecture
 case `file $ws_bin` in
@@ -129,7 +127,18 @@ if [ -z "$version" ] ; then
 	echo "Cannot find VERSION in ../../configure.in"
 	exit 1
 fi
-img_name="$volume_name $version $architecture.dmg"
+
+echo -e "\nCREATE WIRESHARK PACKAGE\n"
+pkg_title="$volume_name $version $architecture"
+pkg_file="$pkg_title.pkg"
+rm -rf "$pkg_file"
+/Developer/usr/bin/packagemaker --doc "Wireshark package.pmdoc" \
+    --version "$version" \
+    --title "$pkg_title" \
+    --verbose || exit 1
+
+echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
+img_name="$pkg_title.dmg"
 
 # Create temp directory with desired contents of the release volume.
 rm -rf "$tmp_dir"
@@ -138,20 +147,14 @@ mkdir "$tmp_dir"
 echo -e "Copying files to temp directory"
 # Wireshark itself
 # Copy Wireshark.app
-cp -rf "$package" "$tmp_dir"/
+cp -rf "$pkg_file" "$tmp_dir"/
 # Link to Applications in order to drag and drop wireshark onto it
-ln -sf /Applications "$tmp_dir"/
+#ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
-cp -rf "$utilities" "$tmp_dir"/
-ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
+#cp -rf "$utilities" "$tmp_dir"/
+#ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
 # Copy the readme
 cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
-
-# Copy a background images inside hidden directories so the image file itself won't be shown.
-mkdir "$tmp_dir/.background"
-cp dmg_background.png "$tmp_dir/.background/background.png"
-mkdir "$tmp_dir/$utilities/.background"
-cp util_background.png "$tmp_dir/$utilities/.background/background.png"
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
@@ -160,7 +163,6 @@ if [ ${set_ds_store} = "false" ]; then
 	# with Apple script but involves user intervention so we
 	# just keep a copy of the correct settings and use that instead.
 	cp $ds_store_root "$tmp_dir/.DS_Store"
-	cp $ds_store_util "$tmp_dir/$utilities/.DS_Store"
 	auto_open_opt=-noautoopen
 fi
 
@@ -202,9 +204,7 @@ if [ ${set_ds_store} = "true" ]; then
 	echo
 	cp /Volumes/$volume_name/.DS_Store ./$ds_store_root
 	SetFile -a v ./$ds_store_root
-	cp /Volumes/$volume_name/$utilities/.DS_Store ./$ds_store_util
-	SetFile -a v ./$ds_store_util
-	echo "New $ds_store_root and $ds_store_util written. Re-run $0 without the -s option to use them"
+	echo "New $ds_store_root written. Re-run $0 without the -s option to use them"
 
 	# Unmount the disk image.
 	hdiutil detach "$DEV_NAME"

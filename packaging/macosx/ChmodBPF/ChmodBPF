@@ -21,7 +21,7 @@ StartService ()
 	# only the super-user can send raw packets but anybody in the
 	# admin group can capture packets.
 	#
-	chgrp admin /dev/bpf*
+	chgrp access_bpf /dev/bpf*
 	chmod g+rw /dev/bpf*
 }
 
