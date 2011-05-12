@@ -516,7 +516,7 @@ gsm_a_stat_gtk_dtap_mm_cb(
     GtkWidget       *w _U_,
     gpointer        d _U_)
 {
-    gsm_a_stat_gtk_dtap_cb(action, user_data, &dlg_dtap_mm,
+    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_mm,
     "GSM A-I/F DTAP Mobility Management Statistics",
     gsm_a_dtap_msg_mm_strings);
 }
