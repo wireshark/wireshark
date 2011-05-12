@@ -82,7 +82,6 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     const guint8*   src_addr;
     const guint8*   dst_addr;
-    const guint8*   eth_addr;
     guint8          attributes;
     guint8          portgroup;
 
@@ -115,7 +114,6 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Not really clear, what the difference between this and the next MAC address is
        Both are usually equal*/
-    eth_addr=tvb_get_ptr(tvb, offset, 6);
     proto_tree_add_item(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, ENC_NA);
     offset += 6;
 
