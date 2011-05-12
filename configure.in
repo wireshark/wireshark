@@ -829,7 +829,7 @@ if test "$GTK_OK" = "no" ; then
 	[
 		CFLAGS="$CFLAGS $GLIB_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS"
-	], AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread)
+	], AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread gmodule)
 else
 	#
 	# We have GTK+, and thus will be building Wireshark unless the
@@ -839,7 +839,7 @@ else
 	wireshark_man="wireshark.1"
         wireshark_SUBDIRS="codecs gtk"
 	# Don't use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread)
+	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread gmodule)
 fi
 
 #
@@ -1276,7 +1276,7 @@ else
 	else
 		if test "x$ac_cv_func_inflatePrime" = "xno" ; then
 			AC_MSG_RESULT(inflatePrime not found in zlib - disabling gzipped capture file support)
-		fi			
+		fi
 	fi
 fi
 
