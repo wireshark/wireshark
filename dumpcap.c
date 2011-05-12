@@ -3856,34 +3856,47 @@ main(int argc, char *argv[])
         exit_main(1);
     }
 
-    /* Let the user know what interface was chosen. */
+    /* Let the user know what interfaces were chosen. */
     /* get_interface_descriptive_name() is not available! */
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", global_capture_opts.iface);
+    for (i = 0; i < global_capture_opts.number_of_ifaces; i++) {
+        interface_options options;
+
+        options = g_array_index(global_capture_opts.ifaces, interface_options, i);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", options.name);
+    }
 
     if (list_link_layer_types) {
         /* Get the list of link-layer types for the capture device. */
         if_capabilities_t *caps;
         gchar *err_str;
+        gint i;
 
-        caps = get_if_capabilities(global_capture_opts.iface,
-                                   global_capture_opts.monitor_mode, &err_str);
-        if (caps == NULL) {
-            cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
-                       "Please check to make sure you have sufficient permissions, and that\n"
-                       "you have the proper interface or pipe specified.", global_capture_opts.iface, err_str);
-            g_free(err_str);
-            exit_main(2);
+        for (i = 0; i < global_capture_opts.number_of_ifaces; i++) {
+            interface_options options;
+
+            options = g_array_index(global_capture_opts.ifaces, interface_options, i);
+            caps = get_if_capabilities(options.name,
+                                       options.monitor_mode, &err_str);
+            if (caps == NULL) {
+                cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
+                           "Please check to make sure you have sufficient permissions, and that\n"
+                           "you have the proper interface or pipe specified.", options.name, err_str);
+                g_free(err_str);
+                exit_main(2);
+            }
+            if (caps->data_link_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no data link types.", options.name);
+                exit_main(2);
+            }
+            if (machine_readable)      /* tab-separated values to stdout */
+                /* XXX: We need to change the format and adopt consumers */
+                print_machine_readable_if_capabilities(caps);
+            else
+                /* XXX: We might want to print also the interface name */
+                capture_opts_print_if_capabilities(caps,
+                                                   options.monitor_mode);
+            free_if_capabilities(caps);
         }
-        if (caps->data_link_types == NULL) {
-            cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
-            exit_main(2);
-        }
-        if (machine_readable)      /* tab-separated values to stdout */
-            print_machine_readable_if_capabilities(caps);
-        else
-            capture_opts_print_if_capabilities(caps,
-                                               global_capture_opts.monitor_mode);
-        free_if_capabilities(caps);
         exit_main(0);
     }
 
