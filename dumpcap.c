@@ -328,7 +328,7 @@ static void WS_MSVC_NORETURN exit_main(int err) G_GNUC_NORETURN;
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(int packet_count);
-static void report_packet_drops(guint32 drops);
+static void report_packet_drops(guint32 received, guint32 drops, gchar *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(const char *cfilter, const char *errmsg);
 
@@ -3159,7 +3159,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if (pcap_stats(global_ld.pcap_h, stats) >= 0) {
             *stats_known = TRUE;
             /* Let the parent process know. */
-            report_packet_drops(stats->ps_drop);
+            report_packet_drops(stats->ps_recv, stats->ps_drop, capture_opts->iface);
         } else {
             g_snprintf(errmsg, sizeof(errmsg),
                        "Can't get packet-drop statistics: %s",
@@ -4087,17 +4087,19 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 }
 
 void
-report_packet_drops(guint32 drops)
+report_packet_drops(guint32 received, guint32 drops, gchar *name)
 {
-    char tmp[SP_DECISIZE+1+1];
+    char tmp1[SP_DECISIZE+1+1];
+    char tmp2[SP_DECISIZE+1+1];
 
-    g_snprintf(tmp, sizeof(tmp), "%u", drops);
+    g_snprintf(tmp1, sizeof(tmp1), "%u", received);
+    g_snprintf(tmp2, sizeof(tmp2), "%u", drops);
 
     if(capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);
-        pipe_write_block(2, SP_DROPS, tmp);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets captured/dropped on interface %s: %s/%s", name, tmp1, tmp2);
+        pipe_write_block(2, SP_DROPS, tmp2);
     } else {
-        fprintf(stderr, "Packets dropped: %s\n", tmp);
+        fprintf(stderr, "Packets captured/dropped on interface %s: %s/%s\n", name, tmp1, tmp2);
         /* stderr could be line buffered */
         fflush(stderr);
     }
