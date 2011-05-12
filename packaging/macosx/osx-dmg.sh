@@ -134,6 +134,7 @@ pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
 /Developer/usr/bin/packagemaker --doc "Wireshark package.pmdoc" \
     --title "$pkg_title" \
+    --version "$version" \
     --verbose || exit 1
 
 echo -e "\nCREATE WIRESHARK DISK IMAGE\n"

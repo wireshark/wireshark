@@ -1,5 +1,5 @@
 #
-# This was disabled at one point, since the contents of the 
+# This was disabled at one point, since the contents of the
 # Clearlooks-Quicksilver-OSX directory exceed the 99-character file
 # name limit imposed by the old tar format.  We now use ustar format,
 # which doesn't have that limitation.
@@ -79,6 +79,13 @@ EXTRA_DIST = \
 	utility-launcher	\
 	root.ds_store	\
 	util.ds_store
+
+COPYING.txt: ../../COPYING
+	cp $< $@
+
+all: COPYING.txt
+
+install: all
 
 clean-local:
 	rm -rf Utilities Wireshark.app ScriptExec/build
