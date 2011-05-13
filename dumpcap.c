@@ -592,7 +592,7 @@ open_capture_device(interface_options *interface_opts,
             }
         }
 #else
-        pcap_h = pcap_open_live(interface_opts->interface_opts, interface_opts->snaplen,
+        pcap_h = pcap_open_live(interface_opts->name, interface_opts->snaplen,
                                 interface_opts->promisc_mode, CAP_READ_TIMEOUT,
                                 *open_err_str);
 #endif
