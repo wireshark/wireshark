@@ -4111,6 +4111,7 @@ report_packet_drops(guint32 received, guint32 drops, gchar *name)
 
     if(capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets captured/dropped on interface %s: %s/%s", name, tmp1, tmp2);
+        /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp2);
     } else {
         fprintf(stderr, "Packets captured/dropped on interface %s: %s/%s\n", name, tmp1, tmp2);
