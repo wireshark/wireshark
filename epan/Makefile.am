@@ -186,6 +186,16 @@ tvbtest.o exntest.o: exceptions.h
 sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
 	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
 
+def_sym_filter_symbols =
+
+if !HAVE_PLUGINS
+# If we're not building plugins, these symbols don't get built.
+# Keep them out of the symbol list.
+def_sym_filter_symbols += /^register_all_wiretap_modules/ || /^register_all_plugin_tap_listeners/ || /^plugin_list/
+endif
+
+def_sym_filter_symbols += {next;};
+
 if HAVE_PLUGINS
 
 if ENABLE_STATIC
