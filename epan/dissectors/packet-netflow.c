@@ -3104,6 +3104,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 			forwarding_status = tvb_get_guint8(tvb, offset)>>6;
 			switch(forwarding_status) {
+			default:
 			case FORWARDING_STATUS_UNKNOWN:
 				x_vs = v9_forwarding_status_unknown_code;
 				x_hf = hf_cflow_forwarding_status_unknown_code;
