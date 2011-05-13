@@ -86,7 +86,7 @@ static GtkWidget    *expert_info_chat, *expert_info_none;
 
 static guint         main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
 static guint         status_levels[NUM_STATUS_LEVELS];
-static gchar        *packets_str = NULL;
+static GString      *packets_str = NULL;
 static gchar        *profile_str = NULL;
 
 
@@ -471,41 +471,34 @@ packets_bar_update(void)
     if(packets_bar) {
         /* Remove old status */
         if(packets_str) {
-            g_free(packets_str);
+            g_string_truncate(packets_str, 0);
             gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
-        }
+        } else {
+            packets_str = g_string_new ("");
+	}
 
         /* Do we have any packets? */
         if(cfile.count) {
+            g_string_append_printf(packets_str, " Packets: %u Displayed: %u Marked: %u",
+                                   cfile.count, cfile.displayed_count, cfile.marked_count);
             if(cfile.drops_known) {
-                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
-                    cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
-            } else if (cfile.ignored_count > 0) {
-                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Ignored: %u",
-                    cfile.count, cfile.displayed_count, cfile.marked_count, cfile.ignored_count);
-            } else {
-                if(cfile.is_tempfile){
-                    /* Live capture */
-                    packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
-                                                  cfile.count, cfile.displayed_count, cfile.marked_count);
-                }else{
-                    /* Loading an existing file */
-                    gulong computed_elapsed = cf_get_computed_elapsed();
-                    packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Load time: %lu:%02lu.%03lu",
-                                                  cfile.count, cfile.displayed_count, cfile.marked_count,
-                                                  computed_elapsed/60000,
-                                                  computed_elapsed%60000/1000,
-                                                  computed_elapsed%1000);
-                }
+                g_string_append_printf(packets_str, " Dropped: %u", cfile.drops);
+            }
+            if(cfile.ignored_count > 0) {
+                g_string_append_printf(packets_str, " Ignored: %u", cfile.ignored_count);
+            }
+            if(!cfile.is_tempfile){
+                /* Loading an existing file */
+                gulong computed_elapsed = cf_get_computed_elapsed();
+                g_string_append_printf(packets_str, " Load time: %lu:%02lu.%03lu",
+                                       computed_elapsed/60000,
+                                       computed_elapsed%60000/1000,
+                                       computed_elapsed%1000);
             }
         } else {
-			gulong computed_elapsed = cf_get_computed_elapsed();
-			packets_str = g_strdup_printf(" No Packets, Startup time: Load time: %lu:%02lu.%03lu",
-												computed_elapsed/60000,
-                                                computed_elapsed%60000/1000,
-                                                computed_elapsed%1000);
+            g_string_append(packets_str, " No Packets");
         }
-        gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str);
+        gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str->str);
     }
 }
 
