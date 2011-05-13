@@ -1699,9 +1699,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);	
 
 	/* Add subauthorities */
-	item = proto_tree_add_string_format (
-		subtree, hf_nt_sid_subauth, tvb, sa_offset,	num_auth*4, sa_str->str, "Subauthorities: %s", sa_str->str
-	);
+	proto_tree_add_string_format (subtree, hf_nt_sid_subauth, tvb, sa_offset,
+		num_auth*4, sa_str->str, "Subauthorities: %s", sa_str->str);
 	
 	if (rid) {
 		item = proto_tree_add_item (subtree,
