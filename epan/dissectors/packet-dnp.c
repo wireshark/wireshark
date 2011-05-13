@@ -336,9 +336,9 @@
 #define AL_OBJ_FDCTR_32T   0x1507   /* 21 07 32-Bit Frozen Delta Counter w/ Time of Freeze */
 #define AL_OBJ_FDCTR_16T   0x1508   /* 21 08 16-Bit Frozen Delta Counter w/ Time of Freeze */
 #define AL_OBJ_FCTR_32NF   0x1509   /* 21 09 32-Bit Frozen Counter Without Flag */
-#define AL_OBJ_FCTR_16NF   0x1510   /* 21 10 16-Bit Frozen Counter Without Flag */
-#define AL_OBJ_FDCTR_32NF  0x1511   /* 21 11 32-Bit Frozen Delta Counter Without Flag */
-#define AL_OBJ_FDCTR_16NF  0x1512   /* 21 12 16-Bit Frozen Delta Counter Without Flag */
+#define AL_OBJ_FCTR_16NF   0x150A   /* 21 10 16-Bit Frozen Counter Without Flag */
+#define AL_OBJ_FDCTR_32NF  0x150B   /* 21 11 32-Bit Frozen Delta Counter Without Flag */
+#define AL_OBJ_FDCTR_16NF  0x150C   /* 21 12 16-Bit Frozen Delta Counter Without Flag */
 #define AL_OBJ_CTRC_ALL    0x1600   /* 22 00 Counter Change Event Default Variation */
 #define AL_OBJ_CTRC_32     0x1601   /* 22 01 32-Bit Counter Change Event w/o Time */
 #define AL_OBJ_CTRC_16     0x1602   /* 22 02 16-Bit Counter Change Event w/o Time */
