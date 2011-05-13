@@ -72,7 +72,7 @@ Icon=wireshark.png
 TryExec=wireshark
 Exec=wireshark
 Terminal=false
-MimeType=vnd.tcpdump.pcap;
+MimeType=application/vnd.tcpdump.pcap;
 # Categorie entry according to version 1.0 of
 # http://www.freedesktop.org/wiki/Specifications/menu-spec
 Categories=System;Monitor;GTK;
