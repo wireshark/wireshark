@@ -64,7 +64,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->default_options.name         = g_strdup("");
   capture_opts->default_options.descr        = g_strdup("");
   capture_opts->default_options.cfilter      = g_strdup("");
-  capture_opts->default_options.snaplen      = 0;
+  capture_opts->default_options.snaplen      = WTAP_MAX_PACKET_SIZE;
   capture_opts->default_options.linktype     = -1;
   capture_opts->default_options.promisc_mode = TRUE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
