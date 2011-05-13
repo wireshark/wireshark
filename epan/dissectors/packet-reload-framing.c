@@ -150,7 +150,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       }
       break;
     case ACK:
-      if (effective_length != 9) {
+      if (effective_length < 9) {
         return 0;
       }
       break;
@@ -269,22 +269,18 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   case DATA:
     {
-      proto_item *ti_message;
-      proto_tree *message_tree;
       tvbuff_t *next_tvb;
 
       proto_tree_add_item(reload_framing_tree, hf_reload_framing_sequence, tvb, offset , 4, FALSE);
       offset += 4;
-      ti_message = proto_tree_add_item(reload_framing_tree, hf_reload_framing_message, tvb, offset, 3 + message_length, FALSE);
-      message_tree = proto_item_add_subtree(ti_message, ett_reload_framing_message);
-      proto_tree_add_item(message_tree, hf_reload_framing_message_length, tvb, offset, 3, FALSE);
+      proto_tree_add_item(reload_framing_tree, hf_reload_framing_message_length, tvb, offset, 3, FALSE);
       offset += 3;
       next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
       if (reload_handle == NULL) {
         expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
         return tvb_length(tvb);
       }
-      call_dissector_only(reload_handle, next_tvb, pinfo, message_tree);
+      call_dissector_only(reload_handle, next_tvb, pinfo, tree);
     }
     break;
 
@@ -415,5 +411,6 @@ proto_reg_handoff_reload_framing(void)
 
   heur_dissector_add("udp", dissect_reload_framing_heur, proto_reload_framing);
   heur_dissector_add("tcp", dissect_reload_framing_heur, proto_reload_framing);
+  heur_dissector_add("dtls", dissect_reload_framing_heur, proto_reload_framing);
 }
 

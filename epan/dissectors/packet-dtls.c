@@ -186,6 +186,8 @@ static gchar* dtls_keys_list = NULL;
 static gchar* dtls_debug_file_name = NULL;
 #endif
 
+static heur_dissector_list_t heur_subdissector_list;
+
 static const fragment_items dtls_frag_items = {
   /* Fragment subtrees */
   &ett_dtls_fragment,
@@ -272,6 +274,8 @@ dtls_parse(void)
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
 
+  ssl_set_debug(dtls_debug_file_name);
+
   if (ndtlsdecrypt > 0)
   {
 	  for (i = 0; i < ndtlsdecrypt; i++)
@@ -280,8 +284,6 @@ dtls_parse(void)
 		  ssl_parse_key_list(d, dtls_key_hash, dtls_associations, dtls_handle, FALSE);
 	  }
   }
-
-  ssl_set_debug(dtls_debug_file_name);
 
   dissector_add_handle("sctp.port", dtls_handle);
   dissector_add_handle("udp.port", dtls_handle);
@@ -430,9 +432,8 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conv_version= & ssl_session->version;
 
   /* try decryption only the first time we see this packet
-   * (to keep cipher synchronized)and only if we have
-   * the server private key*/
-  if (!ssl_session->private_key || pinfo->fd->flags.visited)
+   * (to keep cipher synchronized) */
+  if (pinfo->fd->flags.visited)
     ssl_session = NULL;
 
   /* Initialize the protocol column; we'll set it later when we
@@ -517,7 +518,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
    * add decrypted data to this packet info */
   ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
                    record_length, ssl->state);
-  if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
+  if (!ssl || (!save_plaintext && !(ssl->state & SSL_HAVE_SESSION_KEY))) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
     return ret;
   }
@@ -546,14 +547,21 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   /* run decryption and add decrypted payload to protocol data, if decryption
    * is successful*/
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
-  if (ssl_decrypt_record(ssl, decoder,
-                         content_type, tvb_get_ptr(tvb, offset, record_length),
-                         record_length, &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
+  if (ssl->state & SSL_HAVE_SESSION_KEY) {
+    if (ssl_decrypt_record(ssl, decoder, content_type, tvb_get_ptr(tvb, offset, record_length),
+                           record_length, &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
+      ret = 1;
+  }
+  else if (ssl->cipher == 0x0001 || ssl->cipher == 0x0002) {
+    /* Non-encrypting cipher RSA-NULL-MD5 or RSA-NULL-SHA */
+    memcpy(dtls_decrypted_data.data, tvb_get_ptr(tvb, offset, record_length), record_length);
+    dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
     ret = 1;
+  }
 
-    if (ret && save_plaintext) {
-      ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, 0);
-    }
+  if (ret && save_plaintext) {
+    ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, 0);
+  }
 
   return ret;
 }
@@ -812,14 +820,12 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         val_to_str(content_type, ssl_31_content_type, "unknown"),
                         association?association->info:"Application Data");
 
-    proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
-                        offset, record_length, 0);
-
     /* show decrypted data info, if available */
     appl_data = ssl_get_data_info(proto_dtls, pinfo, TVB_RAW_OFFSET(tvb)+offset);
     if (appl_data && (appl_data->plain_data.data_len > 0))
       {
         tvbuff_t *next_tvb;
+        gboolean dissected;
         /* try to dissect decrypted data*/
         ssl_debug_printf("dissect_dtls_record decrypted len %d\n",
                          appl_data->plain_data.data_len);
@@ -834,9 +840,18 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           ssl_debug_printf("dissect_dtls_record found association %p\n", (void *)association);
           ssl_print_text_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
 
-          call_dissector(association->handle, next_tvb, pinfo, top_tree);
+          dissected = call_dissector_only(association->handle, next_tvb, pinfo, top_tree);
         }
+        else {
+          /* try heuristic subdissectors */
+          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree);
+        }
+        if (dissected)
+          break;
       }
+
+    proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
+                        offset, record_length, 0);
     break;
 
   default:
@@ -2380,6 +2395,8 @@ proto_register_dtls(void)
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
                    "dtls", dtls_tap);
+
+  register_heur_dissector_list("dtls", &heur_subdissector_list);
 }
 
 /* If this dissector uses sub-dissector registration add a registration
