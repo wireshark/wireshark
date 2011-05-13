@@ -522,7 +522,12 @@ relinquish_all_capabilities(void)
 #endif
 
 static pcap_t *
-open_capture_device(capture_options *capture_opts,
+open_capture_device(interface_options *interface_opts,
+#ifdef HAVE_PCAP_OPEN
+                    capture_options *capture_opts,
+#else
+                    capture_options *capture_opts _U_,
+#endif
                     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
     pcap_t *pcap_h;
@@ -543,17 +548,15 @@ open_capture_device(capture_options *capture_opts,
      * If we're opening a remote device, use pcap_open(); that's currently
      * the only open routine that supports remote devices.
      */
-    if (strncmp (capture_opts->iface, "rpcap://", 8) == 0) {
+    if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
         auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
             RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
         auth.username = capture_opts->auth_username;
         auth.password = capture_opts->auth_password;
 
-        pcap_h = pcap_open(capture_opts->iface,
-                           capture_opts->has_snaplen ? capture_opts->snaplen :
-                           WTAP_MAX_PACKET_SIZE,
+        pcap_h = pcap_open(interface_opts->name, interface_opts->snaplen,
                            /* flags */
-                           (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
+                           (interface_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
                            (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
                            (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                            CAP_READ_TIMEOUT, &auth, *open_err_str);
@@ -566,16 +569,16 @@ open_capture_device(capture_options *capture_opts,
          * size, otherwise use pcap_open_live().
          */
 #ifdef HAVE_PCAP_CREATE
-        pcap_h = pcap_create(capture_opts->iface, *open_err_str);
+        pcap_h = pcap_create(interface_opts->name, *open_err_str);
         if (pcap_h != NULL) {
-            pcap_set_snaplen(pcap_h, capture_opts->has_snaplen ? capture_opts->snaplen : WTAP_MAX_PACKET_SIZE);
-            pcap_set_promisc(pcap_h, capture_opts->promisc_mode);
+            pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+            pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
             pcap_set_timeout(pcap_h, CAP_READ_TIMEOUT);
 
-            if (capture_opts->buffer_size > 1) {
-                pcap_set_buffer_size(pcap_h, capture_opts->buffer_size * 1024 * 1024);
+            if (interface_opts->buffer_size > 1) {
+                pcap_set_buffer_size(pcap_h, interface_opts->buffer_size * 1024 * 1024);
             }
-            if (capture_opts->monitor_mode)
+            if (interface_opts->monitor_mode)
                 pcap_set_rfmon(pcap_h, 1);
             err = pcap_activate(pcap_h);
             if (err < 0) {
@@ -589,10 +592,8 @@ open_capture_device(capture_options *capture_opts,
             }
         }
 #else
-        pcap_h = pcap_open_live(capture_opts->iface,
-                                capture_opts->has_snaplen ? capture_opts->snaplen :
-                                WTAP_MAX_PACKET_SIZE,
-                                capture_opts->promisc_mode, CAP_READ_TIMEOUT,
+        pcap_h = pcap_open_live(interface_opts->interface_opts, interface_opts->snaplen,
+                                interface_opts->promisc_mode, CAP_READ_TIMEOUT,
                                 *open_err_str);
 #endif
     }
@@ -728,6 +729,7 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
 static gboolean
 show_filter_code(capture_options *capture_opts)
 {
+    interface_options interface_opts;
     pcap_t *pcap_h;
     gchar open_err_str[PCAP_ERRBUF_SIZE];
     char errmsg[MSG_MAX_LENGTH+1];
@@ -735,47 +737,50 @@ show_filter_code(capture_options *capture_opts)
     struct bpf_program fcode;
     struct bpf_insn *insn;
     u_int i;
+    gint j;
 
-    pcap_h = open_capture_device(capture_opts, &open_err_str);
-    if (pcap_h == NULL) {
-        /* Open failed; get messages */
-        get_capture_device_open_failure_messages(open_err_str,
-                                                 capture_opts->iface,
-                                                 errmsg, sizeof errmsg,
-                                                 secondary_errmsg,
-                                                 sizeof secondary_errmsg);
-        /* And report them */
-        report_capture_error(errmsg, secondary_errmsg);
-        return FALSE;
-    }
+    for (j = 0; j < capture_opts->number_of_ifaces; j++) {
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
+        pcap_h = open_capture_device(&interface_opts, capture_opts, &open_err_str);
+        if (pcap_h == NULL) {
+            /* Open failed; get messages */
+            get_capture_device_open_failure_messages(open_err_str,
+                                                     interface_opts.name,
+                                                     errmsg, sizeof errmsg,
+                                                     secondary_errmsg,
+                                                     sizeof secondary_errmsg);
+            /* And report them */
+            report_capture_error(errmsg, secondary_errmsg);
+            return FALSE;
+        }
 
-    /* Set the link-layer type. */
-    if (!set_pcap_linktype(pcap_h, capture_opts, errmsg, sizeof errmsg,
-                           secondary_errmsg, sizeof secondary_errmsg)) {
+        /* Set the link-layer type. */
+        if (!set_pcap_linktype(pcap_h, capture_opts, errmsg, sizeof errmsg,
+                               secondary_errmsg, sizeof secondary_errmsg)) {
+            pcap_close(pcap_h);
+            report_capture_error(errmsg, secondary_errmsg);
+            return FALSE;
+        }
+
+        /* OK, try to compile the capture filter. */
+        if (!compile_capture_filter(interface_opts.name, pcap_h, &fcode,
+                                    interface_opts.cfilter)) {
+            pcap_close(pcap_h);
+            report_cfilter_error(interface_opts.cfilter, errmsg);
+            return FALSE;
+        }
         pcap_close(pcap_h);
-        report_capture_error(errmsg, secondary_errmsg);
-        return FALSE;
-    }
 
-    /* OK, try to compile the capture filter. */
-    if (!compile_capture_filter(capture_opts->iface, pcap_h, &fcode,
-                                capture_opts->cfilter)) {
-        pcap_close(pcap_h);
-        report_cfilter_error(capture_opts->cfilter, errmsg);
-        return FALSE;
-    }
-    pcap_close(pcap_h);
+        /* Now print the filter code. */
+        insn = fcode.bf_insns;
 
+        for (i = 0; i < fcode.bf_len; insn++, i++)
+            printf("%s\n", bpf_image(insn, i));
+    }
     if (capture_child) {
         /* Let our parent know we succeeded. */
         pipe_write_block(2, SP_SUCCESS, NULL);
     }
-
-    /* Now print the filter code. */
-    insn = fcode.bf_insns;
-
-    for (i = 0; i < fcode.bf_len; insn++, i++)
-        printf("%s\n", bpf_image(insn, i));
     return TRUE;
 }
 #endif
@@ -2139,6 +2144,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
     gchar       open_err_str[PCAP_ERRBUF_SIZE];
     gchar      *sync_msg_str;
+    interface_options interface_opts;
 #ifdef _WIN32
     int         err;
     gchar      *sync_secondary_msg_str;
@@ -2196,21 +2202,21 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         return FALSE;
     }
 #endif
-
-    ld->pcap_h = open_capture_device(capture_opts, &open_err_str);
+    interface_opts = g_array_index(capture_opts->ifaces, interface_options, 0);
+    ld->pcap_h = open_capture_device(&interface_opts, capture_opts, &open_err_str);
 
     if (ld->pcap_h != NULL) {
         /* we've opened "iface" as a network device */
 #ifdef _WIN32
         /* try to set the capture buffer size */
-        if (capture_opts->buffer_size > 1 &&
-            pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
+        if (interface_opts.buffer_size > 1 &&
+            pcap_setbuff(ld->pcap_h, interface_opts.buffer_size * 1024 * 1024) != 0) {
             sync_secondary_msg_str = g_strdup_printf(
                 "The capture buffer size of %dMB seems to be too high for your machine,\n"
                 "the default of 1MB will be used.\n"
                 "\n"
                 "Nonetheless, the capture is started.\n",
-                capture_opts->buffer_size);
+                interface_opts.buffer_size);
             report_capture_error("Couldn't set the capture buffer size!",
                                  sync_secondary_msg_str);
             g_free(sync_secondary_msg_str);
@@ -2219,7 +2225,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
 #if defined(HAVE_PCAP_REMOTE) && defined(HAVE_PCAP_SETSAMPLING)
         if ((capture_opts->sampling_method != CAPTURE_SAMP_NONE) &&
-            (strncmp (capture_opts->iface, "rpcap://", 8) == 0))
+            (strncmp (interface_opts.name, "rpcap://", 8) == 0))
         {
             struct pcap_samp *samp;
 
@@ -2259,11 +2265,11 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         if (!set_pcap_linktype(ld->pcap_h, capture_opts, errmsg, errmsg_len,
                                secondary_errmsg, secondary_errmsg_len))
             return FALSE;
-        ld->linktype = get_pcap_linktype(ld->pcap_h, capture_opts->iface);
+        ld->linktype = get_pcap_linktype(ld->pcap_h, interface_opts.name);
     } else {
         /* We couldn't open "iface" as a network device. */
         /* Try to open it as a pipe */
-        cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, (int) errmsg_len);
+        cap_pipe_open_live(interface_opts.name, &ld->cap_pipe_hdr, ld, errmsg, (int) errmsg_len);
 
 #ifndef _WIN32
         if (ld->cap_pipe_fd == -1)
@@ -2274,7 +2280,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                 if (ld->cap_pipe_err == PIPNEXIST) {
                     /* Pipe doesn't exist, so output message for interface */
                     get_capture_device_open_failure_messages(open_err_str,
-                                                             capture_opts->iface,
+                                                             interface_opts.name,
                                                              errmsg,
                                                              errmsg_len,
                                                              secondary_errmsg,
@@ -2352,7 +2358,7 @@ static void capture_loop_close_input(loop_data *ld)
 /* init the capture filter */
 static initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
-                         gchar * iface, gchar * cfilter)
+                         gchar * name, gchar * cfilter)
 {
     struct bpf_program fcode;
 
@@ -2361,7 +2367,7 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
     /* capture filters only work on real interfaces */
     if (cfilter && !from_cap_pipe) {
         /* A capture filter was specified; set it up. */
-        if (!compile_capture_filter(iface, pcap_h, &fcode, cfilter)) {
+        if (!compile_capture_filter(name, pcap_h, &fcode, cfilter)) {
             /* Treat this specially - our caller might try to compile this
                as a display filter and, if that succeeds, warn the user that
                the display and capture filter syntaxes are different. */
@@ -3859,10 +3865,10 @@ main(int argc, char *argv[])
     /* Let the user know what interfaces were chosen. */
     /* get_interface_descriptive_name() is not available! */
     for (i = 0; i < global_capture_opts.number_of_ifaces; i++) {
-        interface_options options;
+        interface_options interface_opts;
 
-        options = g_array_index(global_capture_opts.ifaces, interface_options, i);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", options.name);
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", interface_opts.name);
     }
 
     if (list_link_layer_types) {
@@ -3872,20 +3878,20 @@ main(int argc, char *argv[])
         gint i;
 
         for (i = 0; i < global_capture_opts.number_of_ifaces; i++) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(global_capture_opts.ifaces, interface_options, i);
-            caps = get_if_capabilities(options.name,
-                                       options.monitor_mode, &err_str);
+            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+            caps = get_if_capabilities(interface_opts.name,
+                                       interface_opts.monitor_mode, &err_str);
             if (caps == NULL) {
                 cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
                            "Please check to make sure you have sufficient permissions, and that\n"
-                           "you have the proper interface or pipe specified.", options.name, err_str);
+                           "you have the proper interface or pipe specified.", interface_opts.name, err_str);
                 g_free(err_str);
                 exit_main(2);
             }
             if (caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", options.name);
+                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
                 exit_main(2);
             }
             if (machine_readable)      /* tab-separated values to stdout */
@@ -3893,8 +3899,8 @@ main(int argc, char *argv[])
                 print_machine_readable_if_capabilities(caps);
             else
                 /* XXX: We might want to print also the interface name */
-                capture_opts_print_if_capabilities(caps,
-                                                   options.monitor_mode);
+                capture_opts_print_if_capabilities(caps, interface_opts.name,
+                                                   interface_opts.monitor_mode);
             free_if_capabilities(caps);
         }
         exit_main(0);

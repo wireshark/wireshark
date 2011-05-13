@@ -661,17 +661,17 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 }
 
 void
-capture_opts_print_if_capabilities(if_capabilities_t *caps,
+capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name,
                                    gboolean monitor_mode)
 {
     GList *lt_entry;
     data_link_info_t *data_link_info;
 
     if (caps->can_set_rfmon)
-        fprintf_stderr("Data link types when %sin monitor mode (use option -y to set):\n",
-                       monitor_mode ? "" : "not ");
+        fprintf_stderr("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
+                       name, monitor_mode ? "" : "not ");
     else
-        fprintf_stderr("Data link types (use option -y to set):\n");
+        fprintf_stderr("Data link types of interface %s (use option -y to set):\n", name);
     for (lt_entry = caps->data_link_types; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;

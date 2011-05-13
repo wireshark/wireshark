@@ -2742,7 +2742,8 @@ main(int argc, char *argv[])
       cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
       exit(2);
     }
-    capture_opts_print_if_capabilities(caps, global_capture_opts.monitor_mode);
+    capture_opts_print_if_capabilities(caps, global_capture_opts.iface,
+                                       global_capture_opts.monitor_mode);
     free_if_capabilities(caps);
     exit(0);
   }
