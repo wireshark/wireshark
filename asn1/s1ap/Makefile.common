@@ -36,7 +36,8 @@ ASN_FILE_LIST = \
 	S1AP-Containers.asn	\
 	S1AP-IEs.asn	\
 	S1AP-PDU-Contents.asn	\
-	S1AP-PDU-Descriptions.asn 
+	S1AP-PDU-Descriptions.asn	\
+	S1AP-SonTransfer-IEs.asn
 
 EXTRA_DIST = \
 	Makefile.nmake \
