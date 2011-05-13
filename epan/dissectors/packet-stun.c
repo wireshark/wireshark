@@ -841,8 +841,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				switch (tvb_get_guint8(tvb, offset+1)) {
 					case 1:
-					if (att_length < 8)
-						break;
 					proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, FALSE);
 
 					/* Show the address 'in the clear'.
