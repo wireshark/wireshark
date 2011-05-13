@@ -21,6 +21,6 @@ mv utility-launcher wireshark
 chmod 755 wireshark
 
 for BIN in $BINARIES ; do
-    rm -rf ./"$BIN"
+    rm -f ./"$BIN"
     ln -sn ./wireshark "$BIN"
 done
