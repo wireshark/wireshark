@@ -804,41 +804,57 @@ static const value_string v9_direction[] = {
 	{ 0, NULL }
 };
 
+#define FORWARDING_STATUS_UNKNOWN 0
+#define FORWARDING_STATUS_FORWARD 1
+#define FORWARDING_STATUS_DROP    2
+#define FORWARDING_STATUS_CONSUME 3
+
 static const value_string v9_forwarding_status[] = {
-	{ 0, "Unknown"},  /* Observed on IOS-XR 3.2 */
-	{ 1, "Forward"},  /* Observed on 7200 12.4(9)T */
-	{ 2, "Drop"},     /* Observed on 7200 12.4(9)T */
-	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
+	{ FORWARDING_STATUS_UNKNOWN, "Unknown"},  /* Observed on IOS-XR 3.2 */
+	{ FORWARDING_STATUS_FORWARD, "Forward"},  /* Observed on 7200 12.4(9)T */
+	{ FORWARDING_STATUS_DROP,    "Drop"},     /* Observed on 7200 12.4(9)T */
+	{ FORWARDING_STATUS_CONSUME, "Consume"},  /* Observed on 7200 12.4(9)T */
 	{ 0, NULL }
 };
 
-static const value_string v9_forwarding_status_code[] = {
-	{  64, "Forwarded (Unknown)" },
-	{  65, "Forwarded Fragmented" },
-	{  66, "Forwarded not Fragmented" },
-	{ 128, "Dropped (Unknown)" },
-	{ 129, "Drop ACL Deny" },
-	{ 130, "Drop ACL drop" },
-	{ 131, "Drop Unroutable" },
-	{ 132, "Drop Adjacency" },
-	{ 133, "Drop Fragmentation & DF set" },
-	{ 134, "Drop Bad header checksum" },
-	{ 135, "Drop Bad total Length" },
-	{ 136, "Drop Bad Header Length" },
-	{ 137, "Drop bad TTL" },
-	{ 138, "Drop Policer" },
-	{ 139, "Drop WRED" },
-	{ 140, "Drop RPF" },
-	{ 141, "Drop For us" },
-	{ 142, "Drop Bad output interface" },
-	{ 143, "Drop Hardware" },
-	{ 192, "Consumed (Unknown)" },
-	{ 193, "Terminate Punt Adjacency" },
-	{ 194, "Terminate Incomplete Adjacency" },
-	{ 195, "Terminate For us" },
-	{ 0, NULL }
+static const value_string v9_forwarding_status_unknown_code[] = {
+	{   0, NULL }
 };
-static value_string_ext v9_forwarding_status_code_ext = VALUE_STRING_EXT_INIT(v9_forwarding_status_code);
+
+static const value_string v9_forwarding_status_forward_code[] = {
+	{   0, "Forwarded (Unknown)" },
+	{   1, "Forwarded Fragmented" },
+	{   2, "Forwarded not Fragmented" },
+	{   0, NULL }
+};
+
+static const value_string v9_forwarding_status_drop_code[] = {
+	{   0, "Dropped (Unknown)" },
+	{   1, "Drop ACL Deny" },
+	{   2, "Drop ACL drop" },
+	{   3, "Drop Unroutable" },
+	{   4, "Drop Adjacency" },
+	{   5, "Drop Fragmentation & DF set" },
+	{   6, "Drop Bad header checksum" },
+	{   7, "Drop Bad total Length" },
+	{   8, "Drop Bad Header Length" },
+	{   9, "Drop bad TTL" },
+	{  10, "Drop Policer" },
+	{  11, "Drop WRED" },
+	{  12, "Drop RPF" },
+	{  13, "Drop For us" },
+	{  14, "Drop Bad output interface" },
+	{  15, "Drop Hardware" },
+	{   0, NULL }
+};
+
+static const value_string v9_forwarding_status_consume_code[] = {
+	{   0, "Consumed (Unknown)" },
+	{   1, "Terminate Punt Adjacency" },
+	{   2, "Terminate Incomplete Adjacency" },
+	{   3, "Terminate For us" },
+	{   0, NULL }
+};
 
 static const value_string v9_firewall_event[] = {
 	{ 0, "Default (ignore)"},
@@ -1044,7 +1060,10 @@ static int      hf_cflow_if_name		 = -1;
 static int      hf_cflow_if_descr		 = -1;
 static int      hf_cflow_sampler_name		 = -1;
 static int      hf_cflow_forwarding_status	 = -1;
-static int      hf_cflow_forwarding_code	 = -1;
+static int      hf_cflow_forwarding_status_unknown_code	 = -1;
+static int      hf_cflow_forwarding_status_forward_code	 = -1;
+static int      hf_cflow_forwarding_status_consume_code	 = -1;
+static int      hf_cflow_forwarding_status_drop_code	 = -1;
 static int      hf_cflow_nbar_appl_desc		 = -1;
 static int      hf_cflow_nbar_appl_id		 = -1;
 static int      hf_cflow_nbar_appl_name		 = -1;
@@ -3070,27 +3089,53 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 					    tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 
-		case 89: /* FORWARDING_STATUS */
+		case 89: {
+			/* FORWARDING_STATUS */
 			/* Forwarding status is encoded on 1 byte with
 			 * the 2 left bits giving the status and the 6
 			 * remaining bits giving the reason code. */
 
+			guint8              forwarding_status;
+			const value_string *x_vs;
+			int                 x_hf;
+
 			ti = proto_tree_add_text(pdutree, tvb, offset, length, "Forwarding Status");
-
-
 			fwdstattree = proto_item_add_subtree(ti, ett_fwdstat);
+
+			forwarding_status = tvb_get_guint8(tvb, offset)>>6;
+			switch(forwarding_status) {
+			case FORWARDING_STATUS_UNKNOWN:
+				x_vs = v9_forwarding_status_unknown_code;
+				x_hf = hf_cflow_forwarding_status_unknown_code;
+				break;
+			case FORWARDING_STATUS_FORWARD:
+				x_vs = v9_forwarding_status_forward_code;
+				x_hf = hf_cflow_forwarding_status_forward_code;
+				break;
+			case FORWARDING_STATUS_DROP:
+				x_vs = v9_forwarding_status_drop_code;
+				x_hf = hf_cflow_forwarding_status_drop_code;
+				break;
+			case FORWARDING_STATUS_CONSUME:
+				x_vs = v9_forwarding_status_consume_code;
+				x_hf = hf_cflow_forwarding_status_consume_code;
+				break;
+			}
+
 			proto_tree_add_item(fwdstattree, hf_cflow_forwarding_status,
- 			    tvb, offset, length, ENC_NA);
-			proto_tree_add_item(fwdstattree, hf_cflow_forwarding_code,
-			    tvb, offset, length, ENC_NA);
+					    tvb, offset, length, ENC_NA);
+
+			proto_tree_add_item(fwdstattree, x_hf,
+					    tvb, offset, length, ENC_NA);
 
 			/* add status code to tree summary */
 			if (length==1) {
-				proto_item_append_text(ti, ": %s", val_to_str((tvb_get_guint8(tvb, offset)>>6),
-									      v9_forwarding_status, "Unknown(%d)"));
-				proto_item_append_text(ti, ": %s", val_to_str_ext((tvb_get_guint8(tvb, offset)&0x3F),
-									      &v9_forwarding_status_code_ext, "Unknown(%d)"));
+				proto_item_append_text(ti, ": %s", val_to_str_const(forwarding_status,
+									      v9_forwarding_status, "(Unknown)"));
+				proto_item_append_text(ti, ": %s", val_to_str_const((tvb_get_guint8(tvb, offset)&0x3F),
+									      x_vs, "(Unknown)"));
 			};
+		}
 			break;
 
 		case 90: /* mplsVpnRouteDistinguisher */
@@ -5845,10 +5890,25 @@ proto_register_netflow(void)
 		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status), 0xC0,
 		  "Forwarding Status", HFILL}
 		 },
-		{&hf_cflow_forwarding_code,
-		 {"ForwdCode", "cflow.forwarding_code",
-		  FT_UINT8, BASE_DEC|BASE_EXT_STRING, &v9_forwarding_status_code_ext, 0x3F,
-		  "Forwarding Code", HFILL}
+		{&hf_cflow_forwarding_status_unknown_code,
+		 {"ForwdCode", "cflow.forwarding_status_unknown_code",
+		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_unknown_code), 0x3F,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_forwarding_status_forward_code,
+		 {"ForwdCode", "cflow.forwarding_status_foreward_code",
+		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_forward_code), 0x3F,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_forwarding_status_drop_code,
+		 {"ForwdCode", "cflow.forwarding_status_drop_code",
+		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_drop_code), 0x3F,
+		  NULL, HFILL}
+		 },
+		{&hf_cflow_forwarding_status_consume_code,
+		 {"ForwdCode", "cflow.forwarding_status_consume_code",
+		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_consume_code), 0x3F,
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_nbar_appl_desc,
 		 {"ApplicationDesc", "cflow.appl_desc",
