@@ -281,18 +281,15 @@ static fragment_data *new_head(const guint32 flags)
 /*
  * For a reassembled-packet hash table entry, free the fragment data
  * to which the value refers.
- * (Pre glib 2.10:The actual value structures get freed by "reassemble_cleanup()".)
- * http://www.wireshark.org/lists/wireshark-dev/200910/msg00074.html
+ * (The actual value structures get freed by "reassemble_cleanup()".)
  */
 static gboolean
-free_all_reassembled_fragments(gpointer key_arg, gpointer value,
+free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 				   gpointer user_data _U_)
 {
-	fragment_data *fd_head, *tmp_fd;
-	reassembled_key *key = (reassembled_key *)key_arg;
+	fragment_data *fd_head;
 
-	for (fd_head = value; fd_head != NULL; fd_head = tmp_fd) {
-		tmp_fd=fd_head->next;
+	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
 		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED)) {
 			g_free(fd_head->data);
 
@@ -305,11 +302,6 @@ free_all_reassembled_fragments(gpointer key_arg, gpointer value,
 			 */
 			fd_head->data = NULL;
 		}
-#if GLIB_CHECK_VERSION(2,10,0)
-		if(key->frame == fd_head->reassembled_in){
-			g_slice_free(fragment_data, fd_head);
-		}
-#endif
 	}
 
 	return TRUE;
@@ -348,17 +340,6 @@ dcerpc_fragment_free_key(void *ptr)
 	}
 }
 #endif
-
-#if GLIB_CHECK_VERSION(2,10,0)
-static void
-reassembled_key_free(void *ptr)
-{
-	reassembled_key *key = (reassembled_key *)ptr;
-
-	g_slice_free(reassembled_key, key);
-}
-#endif
-
 /*
  * Initialize a fragment table.
  */
@@ -444,13 +425,8 @@ reassembled_table_init(GHashTable **reassembled_table)
 				free_all_reassembled_fragments, NULL);
 	} else {
 		/* The fragment table does not exist. Create it */
-#if GLIB_CHECK_VERSION(2,10,0)
-		*reassembled_table = g_hash_table_new_full(reassembled_hash,
-							reassembled_equal, reassembled_key_free, NULL);
-#else
 		*reassembled_table = g_hash_table_new(reassembled_hash,
 				reassembled_equal);
-#endif
 	}
 }
 
@@ -743,11 +719,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * This was not fragmented, so there's no fragment
 		 * table; just hash it using the current frame number.
 		 */
-#if GLIB_CHECK_VERSION(2,10,0)
-		new_key = g_slice_new(reassembled_key);
-#else
 		new_key = se_alloc(sizeof(reassembled_key));
-#endif
 		new_key->frame = pinfo->fd->num;
 		new_key->id = id;
 		g_hash_table_insert(reassembled_table, new_key, fd_head);
@@ -756,11 +728,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * Hash it with the frame numbers for all the frames.
 		 */
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
-#if GLIB_CHECK_VERSION(2,10,0)
-			new_key = g_slice_new(reassembled_key);
-#else
 			new_key = se_alloc(sizeof(reassembled_key));
-#endif
 			new_key->frame = fd->frame;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key,
@@ -1968,11 +1936,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 		 */
 		fragment_reassembled(fd_head, pinfo, reassembled_table, id);
 		if (fd_head->next != NULL) {
-#if GLIB_CHECK_VERSION(2,10,0)
-			new_key = g_slice_new(reassembled_key);
-#else
 			new_key = se_alloc(sizeof(reassembled_key));
-#endif
 			new_key->frame = pinfo->fd->num;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key, fd_head);
