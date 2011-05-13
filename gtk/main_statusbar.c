@@ -471,7 +471,6 @@ packets_bar_update(void)
     if(packets_bar) {
         /* Remove old status */
         if(packets_str) {
-            g_string_truncate(packets_str, 0);
             gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
         } else {
             packets_str = g_string_new ("");
@@ -479,8 +478,8 @@ packets_bar_update(void)
 
         /* Do we have any packets? */
         if(cfile.count) {
-            g_string_append_printf(packets_str, " Packets: %u Displayed: %u Marked: %u",
-                                   cfile.count, cfile.displayed_count, cfile.marked_count);
+            g_string_printf(packets_str, " Packets: %u Displayed: %u Marked: %u",
+                            cfile.count, cfile.displayed_count, cfile.marked_count);
             if(cfile.drops_known) {
                 g_string_append_printf(packets_str, " Dropped: %u", cfile.drops);
             }
@@ -496,7 +495,7 @@ packets_bar_update(void)
                                        computed_elapsed%1000);
             }
         } else {
-            g_string_append(packets_str, " No Packets");
+            g_string_printf(packets_str, " No Packets");
         }
         gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str->str);
     }
