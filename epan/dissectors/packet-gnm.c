@@ -5,7 +5,7 @@
 
 /* Input file: packet-gnm-template.c */
 
-#line 1 "packet-gnm-template.c"
+#line 1 "../../asn1/gnm/packet-gnm-template.c"
 /* packet-gnm.c
  * Routines for GENERIC NETWORK INFORMATION MODEL Data dissection
  *
@@ -56,7 +56,7 @@ static int proto_gnm = -1;
 
 
 /*--- Included file: packet-gnm-hf.c ---*/
-#line 1 "packet-gnm-hf.c"
+#line 1 "../../asn1/gnm/packet-gnm-hf.c"
 static int hf_gnm_SupportedTOClasses_PDU = -1;    /* SupportedTOClasses */
 static int hf_gnm_AcceptableCircuitPackTypeList_PDU = -1;  /* AcceptableCircuitPackTypeList */
 static int hf_gnm_AlarmSeverityAssignmentList_PDU = -1;  /* AlarmSeverityAssignmentList */
@@ -227,12 +227,12 @@ static int hf_gnm_TransmissionCharacteristics_dCME = -1;
 static int hf_gnm_TransmissionCharacteristics_echoControl = -1;
 
 /*--- End of included file: packet-gnm-hf.c ---*/
-#line 50 "packet-gnm-template.c"
+#line 50 "../../asn1/gnm/packet-gnm-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-gnm-ett.c ---*/
-#line 1 "packet-gnm-ett.c"
+#line 1 "../../asn1/gnm/packet-gnm-ett.c"
 static gint ett_gnm_MappingList = -1;
 static gint ett_gnm_SignalRate = -1;
 static gint ett_gnm_SupportedTOClasses = -1;
@@ -301,11 +301,11 @@ static gint ett_gnm_TpsInGtpList = -1;
 static gint ett_gnm_TransmissionCharacteristics = -1;
 
 /*--- End of included file: packet-gnm-ett.c ---*/
-#line 53 "packet-gnm-template.c"
+#line 53 "../../asn1/gnm/packet-gnm-template.c"
 
 
 /*--- Included file: packet-gnm-fn.c ---*/
-#line 1 "packet-gnm-fn.c"
+#line 1 "../../asn1/gnm/packet-gnm-fn.c"
 
 
 static int
@@ -2029,7 +2029,7 @@ static void dissect_Version_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-gnm-fn.c ---*/
-#line 55 "packet-gnm-template.c"
+#line 55 "../../asn1/gnm/packet-gnm-template.c"
 
 
 
@@ -2058,7 +2058,7 @@ void proto_register_gnm(void) {
 
 
 /*--- Included file: packet-gnm-hfarr.c ---*/
-#line 1 "packet-gnm-hfarr.c"
+#line 1 "../../asn1/gnm/packet-gnm-hfarr.c"
     { &hf_gnm_SupportedTOClasses_PDU,
       { "SupportedTOClasses", "gnm.SupportedTOClasses",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2729,14 +2729,14 @@ void proto_register_gnm(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gnm-hfarr.c ---*/
-#line 82 "packet-gnm-template.c"
+#line 82 "../../asn1/gnm/packet-gnm-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-gnm-ettarr.c ---*/
-#line 1 "packet-gnm-ettarr.c"
+#line 1 "../../asn1/gnm/packet-gnm-ettarr.c"
     &ett_gnm_MappingList,
     &ett_gnm_SignalRate,
     &ett_gnm_SupportedTOClasses,
@@ -2805,7 +2805,7 @@ void proto_register_gnm(void) {
     &ett_gnm_TransmissionCharacteristics,
 
 /*--- End of included file: packet-gnm-ettarr.c ---*/
-#line 87 "packet-gnm-template.c"
+#line 87 "../../asn1/gnm/packet-gnm-template.c"
   };
 
   /* Register protocol */
@@ -2822,7 +2822,7 @@ void proto_register_gnm(void) {
 void proto_reg_handoff_gnm(void) {
 
 /*--- Included file: packet-gnm-dis-tab.c ---*/
-#line 1 "packet-gnm-dis-tab.c"
+#line 1 "../../asn1/gnm/packet-gnm-dis-tab.c"
   register_ber_oid_dissector("0.0.13.3100.0.7.1", dissect_RelatedObjectInstance_PDU, proto_gnm, "a-TPInstance(1)");
   register_ber_oid_dissector("0.0.13.3100.0.7.2", dissect_ObjectList_PDU, proto_gnm, "affectedObjectList(2)");
   register_ber_oid_dissector("0.0.13.3100.0.7.3", dissect_AlarmSeverityAssignmentList_PDU, proto_gnm, "alarmSeverityAssignmentList(3)");
@@ -2894,7 +2894,7 @@ void proto_reg_handoff_gnm(void) {
 
 
 /*--- End of included file: packet-gnm-dis-tab.c ---*/
-#line 102 "packet-gnm-template.c"
+#line 102 "../../asn1/gnm/packet-gnm-template.c"
 	/* Wrapper to call CMIP */
 	register_ber_oid_dissector("0.0.13.3100.0.7.9", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientConnection(9)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.10", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientTrail(10)");

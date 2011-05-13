@@ -5,7 +5,7 @@
 
 /* Input file: packet-h225-template.h */
 
-#line 1 "packet-h225-template.h"
+#line 1 "../../asn1/h225/packet-h225-template.h"
 /* packet-h225.h
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -89,7 +89,7 @@ typedef struct _h225_packet_info {
 
 
 /*--- Included file: packet-h225-exp.h ---*/
-#line 1 "packet-h225-exp.h"
+#line 1 "../../asn1/h225/packet-h225-exp.h"
 WS_VAR_IMPORT const value_string T_h323_message_body_vals[];
 WS_VAR_IMPORT const value_string h225_ReleaseCompleteReason_vals[];
 extern const value_string h225_PresentationIndicator_vals[];
@@ -151,7 +151,7 @@ int dissect_h225_TransportQOS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 int dissect_h225_ExtendedAliasAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-h225-exp.h ---*/
-#line 83 "packet-h225-template.h"
+#line 83 "../../asn1/h225/packet-h225-template.h"
 
 #endif  /* PACKET_H225_H */
 

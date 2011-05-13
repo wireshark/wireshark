@@ -5,7 +5,7 @@
 
 /* Input file: packet-sv-template.h */
 
-#line 1 "packet-sv-template.h"
+#line 1 "../../asn1/sv/packet-sv-template.h"
 /* packet-sv.h
  * Routines for IEC 61850 Sampled Vales packet dissection
  * Michael Bernhard 2008

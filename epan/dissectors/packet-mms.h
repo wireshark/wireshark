@@ -5,7 +5,7 @@
 
 /* Input file: packet-mms-template.h */
 
-#line 1 "packet-mms-template.h"
+#line 1 "../../asn1/mms/packet-mms-template.h"
 /* packet-mms.h
  * Routines for MMS packet dissection
  *   Ronnie Sahlberg 2005
@@ -36,12 +36,12 @@
 
 
 /*--- Included file: packet-mms-exp.h ---*/
-#line 1 "packet-mms-exp.h"
+#line 1 "../../asn1/mms/packet-mms-exp.h"
 extern const value_string mms_MMSpdu_vals[];
 int dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-mms-exp.h ---*/
-#line 30 "packet-mms-template.h"
+#line 30 "../../asn1/mms/packet-mms-template.h"
 
 #endif  /* PACKET_MMS_H */
 

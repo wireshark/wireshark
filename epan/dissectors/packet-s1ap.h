@@ -5,7 +5,7 @@
 
 /* Input file: packet-s1ap-template.h */
 
-#line 1 "packet-s1ap-template.h"
+#line 1 "../../asn1/s1ap/packet-s1ap-template.h"
 /* packet-s1ap.h
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  *
@@ -35,7 +35,7 @@
 
 
 /*--- Included file: packet-s1ap-exp.h ---*/
-#line 1 "packet-s1ap-exp.h"
+#line 1 "../../asn1/s1ap/packet-s1ap-exp.h"
 WS_VAR_IMPORT const value_string s1ap_CauseMisc_vals[];
 WS_VAR_IMPORT const value_string s1ap_CauseProtocol_vals[];
 WS_VAR_IMPORT const value_string s1ap_CauseRadioNetwork_vals[];
@@ -54,6 +54,6 @@ int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-s1ap-exp.h ---*/
-#line 29 "packet-s1ap-template.h"
+#line 29 "../../asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */

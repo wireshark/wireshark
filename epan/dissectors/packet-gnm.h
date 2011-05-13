@@ -5,7 +5,7 @@
 
 /* Input file: packet-gnm-template.h */
 
-#line 1 "packet-gnm-template.h"
+#line 1 "../../asn1/gnm/packet-gnm-template.h"
 /* packet-gnm.c
  * Routines for GENERIC NETWORK INFORMATION MODEL Data dissection
  *

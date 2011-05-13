@@ -5,7 +5,7 @@
 
 /* Input file: packet-h450-template.c */
 
-#line 1 "packet-h450-template.c"
+#line 1 "../../asn1/h450/packet-h450-template.c"
 /* packet-h450.c
  * Routines for h450 packet dissection
  * Based on the previous h450 dissector by:
@@ -60,7 +60,7 @@ static int hf_h450_operation = -1;
 static int hf_h450_error = -1;
 
 /*--- Included file: packet-h450-hf.c ---*/
-#line 1 "packet-h450-hf.c"
+#line 1 "../../asn1/h450/packet-h450-hf.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -447,12 +447,12 @@ static int hf_h450_12_ssMWICallbackCall = -1;     /* NULL */
 static int hf_h450_12_ssCISilentMonitorPermitted = -1;  /* NULL */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-#line 54 "packet-h450-template.c"
+#line 54 "../../asn1/h450/packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-h450-ett.c ---*/
-#line 1 "packet-h450-ett.c"
+#line 1 "../../asn1/h450/packet-h450-ett.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -625,12 +625,12 @@ static gint ett_h450_12_FeatureValues = -1;
 static gint ett_h450_12_FeatureControl = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-#line 57 "packet-h450-template.c"
+#line 57 "../../asn1/h450/packet-h450-template.c"
 
 static const value_string h450_str_operation[] = {
 
 /*--- Included file: packet-h450-table10.c ---*/
-#line 1 "packet-h450-table10.c"
+#line 1 "../../asn1/h450/packet-h450-table10.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -728,14 +728,14 @@ static const value_string h450_str_operation[] = {
   {  85, "cmnInform" },
 
 /*--- End of included file: packet-h450-table10.c ---*/
-#line 60 "packet-h450-template.c"
+#line 60 "../../asn1/h450/packet-h450-template.c"
   {   0, NULL}
 };
 
 static const value_string h450_str_error[] = {
 
 /*--- Included file: packet-h450-table20.c ---*/
-#line 1 "packet-h450-table20.c"
+#line 1 "../../asn1/h450/packet-h450-table20.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -816,7 +816,7 @@ static const value_string h450_str_error[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-h450-table20.c ---*/
-#line 65 "packet-h450-template.c"
+#line 65 "../../asn1/h450/packet-h450-template.c"
   {   0, NULL}
 };
 
@@ -827,7 +827,7 @@ static rose_ctx_t h450_rose_ctx;
 
 
 /*--- Included file: packet-h450-fn.c ---*/
-#line 1 "packet-h450-fn.c"
+#line 1 "../../asn1/h450/packet-h450-fn.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -916,7 +916,7 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "h450.cnf"
+#line 62 "../../asn1/h450/h450.cnf"
   h450_rose_ctx.apdu_depth = 1;
   actx->rose_ctx = &h450_rose_ctx;
 
@@ -969,7 +969,7 @@ static const per_sequence_t h450_H4501SupplementaryService_sequence[] = {
 
 static int
 dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "h450.cnf"
+#line 55 "../../asn1/h450/h450.cnf"
   proto_item *hidden_item;
 
   hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
@@ -4481,7 +4481,7 @@ static int dissect_h450_12_CmnArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h450-fn.c ---*/
-#line 74 "packet-h450-template.c"
+#line 74 "../../asn1/h450/packet-h450-template.c"
 
 typedef struct _h450_op_t {
   gint32 opcode;
@@ -4492,7 +4492,7 @@ typedef struct _h450_op_t {
 static const h450_op_t h450_op_tab[] = {
 
 /*--- Included file: packet-h450-table11.c ---*/
-#line 1 "packet-h450-table11.c"
+#line 1 "../../asn1/h450/packet-h450-table11.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -4590,7 +4590,7 @@ static const h450_op_t h450_op_tab[] = {
   /* cmnInform                */ {  85, dissect_h450_12_CmnArg_PDU, NULL },
 
 /*--- End of included file: packet-h450-table11.c ---*/
-#line 83 "packet-h450-template.c"
+#line 83 "../../asn1/h450/packet-h450-template.c"
 };                                 
 
 typedef struct _h450_err_t {
@@ -4601,7 +4601,7 @@ typedef struct _h450_err_t {
 static const h450_err_t h450_err_tab[] = {
 
 /*--- Included file: packet-h450-table21.c ---*/
-#line 1 "packet-h450-table21.c"
+#line 1 "../../asn1/h450/packet-h450-table21.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -4682,7 +4682,7 @@ static const h450_err_t h450_err_tab[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-h450-table21.c ---*/
-#line 92 "packet-h450-template.c"
+#line 92 "../../asn1/h450/packet-h450-template.c"
 };                                 
 
 static const h450_op_t *get_op(gint32 opcode) {
@@ -4844,7 +4844,7 @@ void proto_register_h450(void) {
                            NULL, HFILL }},
 
 /*--- Included file: packet-h450-hfarr.c ---*/
-#line 1 "packet-h450-hfarr.c"
+#line 1 "../../asn1/h450/packet-h450-hfarr.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -6275,14 +6275,14 @@ void proto_register_h450(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 252 "packet-h450-template.c"
+#line 252 "../../asn1/h450/packet-h450-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-h450-ettarr.c ---*/
-#line 1 "packet-h450-ettarr.c"
+#line 1 "../../asn1/h450/packet-h450-ettarr.c"
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
@@ -6455,7 +6455,7 @@ void proto_register_h450(void) {
     &ett_h450_12_FeatureControl,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 257 "packet-h450-template.c"
+#line 257 "../../asn1/h450/packet-h450-template.c"
   };
 
 

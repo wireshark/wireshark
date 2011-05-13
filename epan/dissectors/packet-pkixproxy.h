@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkixproxy-template.h */
 
-#line 1 "packet-pkixproxy-template.h"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-template.h"
 /* packet-pkixproxy.h
  * Routines for RFC3820 PKIXProxy packet dissection
  *  Ronnie Sahlberg 2004

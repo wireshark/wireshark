@@ -5,7 +5,7 @@
 
 /* Input file: packet-disp-template.c */
 
-#line 1 "packet-disp-template.c"
+#line 1 "../../asn1/disp/packet-disp-template.c"
 /* packet-disp.c
  * Routines for X.525 (X.500 Directory Shadow Asbtract Service) and X.519 DISP packet dissection
  * Graeme Lunt 2005
@@ -75,7 +75,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 
 /*--- Included file: packet-disp-hf.c ---*/
-#line 1 "packet-disp-hf.c"
+#line 1 "../../asn1/disp/packet-disp-hf.c"
 static int hf_disp_EstablishParameter_PDU = -1;   /* EstablishParameter */
 static int hf_disp_ModificationParameter_PDU = -1;  /* ModificationParameter */
 static int hf_disp_ShadowingAgreementInfo_PDU = -1;  /* ShadowingAgreementInfo */
@@ -185,13 +185,13 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 69 "packet-disp-template.c"
+#line 69 "../../asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
 
 /*--- Included file: packet-disp-ett.c ---*/
-#line 1 "packet-disp-ett.c"
+#line 1 "../../asn1/disp/packet-disp-ett.c"
 static gint ett_disp_ModificationParameter = -1;
 static gint ett_disp_SET_OF_SupplierAndConsumers = -1;
 static gint ett_disp_ShadowingAgreementInfo = -1;
@@ -248,11 +248,11 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 73 "packet-disp-template.c"
+#line 73 "../../asn1/disp/packet-disp-template.c"
 
 
 /*--- Included file: packet-disp-fn.c ---*/
-#line 1 "packet-disp-fn.c"
+#line 1 "../../asn1/disp/packet-disp-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Subtree -> Subtree/subtree -> Subtree */
@@ -658,7 +658,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "disp.cnf"
+#line 58 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -854,7 +854,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "disp.cnf"
+#line 68 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -879,7 +879,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "disp.cnf"
+#line 38 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -985,7 +985,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "disp.cnf"
+#line 78 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1287,7 +1287,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "disp.cnf"
+#line 48 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1373,7 +1373,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "disp.cnf"
+#line 88 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1407,7 +1407,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "disp.cnf"
+#line 98 "../../asn1/disp/disp.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1498,7 +1498,7 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 75 "packet-disp-template.c"
+#line 75 "../../asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -1628,7 +1628,7 @@ void proto_register_disp(void) {
   {
 
 /*--- Included file: packet-disp-hfarr.c ---*/
-#line 1 "packet-disp-hfarr.c"
+#line 1 "../../asn1/disp/packet-disp-hfarr.c"
     { &hf_disp_EstablishParameter_PDU,
       { "EstablishParameter", "disp.EstablishParameter",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2059,7 +2059,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 203 "packet-disp-template.c"
+#line 203 "../../asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2067,7 +2067,7 @@ void proto_register_disp(void) {
     &ett_disp,
 
 /*--- Included file: packet-disp-ettarr.c ---*/
-#line 1 "packet-disp-ettarr.c"
+#line 1 "../../asn1/disp/packet-disp-ettarr.c"
     &ett_disp_ModificationParameter,
     &ett_disp_SET_OF_SupplierAndConsumers,
     &ett_disp_ShadowingAgreementInfo,
@@ -2124,7 +2124,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 209 "packet-disp-template.c"
+#line 209 "../../asn1/disp/packet-disp-template.c"
   };
   module_t *disp_module;
 
@@ -2154,7 +2154,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
-#line 1 "packet-disp-dis-tab.c"
+#line 1 "../../asn1/disp/packet-disp-dis-tab.c"
   dissector_add_string("dop.oid", "agreement.2.5.19.1", create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
   dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
   dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
@@ -2163,7 +2163,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 237 "packet-disp-template.c"
+#line 237 "../../asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -5,7 +5,7 @@
 
 /* Input file: packet-ulp-template.c */
 
-#line 1 "packet-ulp-template.c"
+#line 1 "../../asn1/ulp/packet-ulp-template.c"
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
@@ -69,7 +69,7 @@ static gboolean ulp_desegment = TRUE;
 
 
 /*--- Included file: packet-ulp-hf.c ---*/
-#line 1 "packet-ulp-hf.c"
+#line 1 "../../asn1/ulp/packet-ulp-hf.c"
 static int hf_ulp_ULP_PDU_PDU = -1;               /* ULP_PDU */
 static int hf_ulp_length = -1;                    /* INTEGER_0_65535 */
 static int hf_ulp_version = -1;                   /* Version */
@@ -669,13 +669,13 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 63 "packet-ulp-template.c"
+#line 63 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
 
 /*--- Included file: packet-ulp-ett.c ---*/
-#line 1 "packet-ulp-ett.c"
+#line 1 "../../asn1/ulp/packet-ulp-ett.c"
 static gint ett_ulp_ULP_PDU = -1;
 static gint ett_ulp_UlpMessage = -1;
 static gint ett_ulp_SUPLINIT = -1;
@@ -886,12 +886,12 @@ static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 67 "packet-ulp-template.c"
+#line 67 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Include constants */
 
 /*--- Included file: packet-ulp-val.h ---*/
-#line 1 "packet-ulp-val.h"
+#line 1 "../../asn1/ulp/packet-ulp-val.h"
 #define maxReqLength                   50
 #define maxClientLength                50
 #define maxNumGeoArea                  32
@@ -909,12 +909,12 @@ static gint ett_ulp_PolygonDescription = -1;
 #define maxWimaxBSMeas                 32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 70 "packet-ulp-template.c"
+#line 70 "../../asn1/ulp/packet-ulp-template.c"
 
 
 
 /*--- Included file: packet-ulp-fn.c ---*/
-#line 1 "packet-ulp-fn.c"
+#line 1 "../../asn1/ulp/packet-ulp-fn.c"
 
 
 static int
@@ -3488,7 +3488,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "ulp.cnf"
+#line 59 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3501,7 +3501,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "ulp.cnf"
+#line 64 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3514,7 +3514,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "ulp.cnf"
+#line 69 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -4462,7 +4462,7 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "ulp.cnf"
+#line 48 "../../asn1/ulp/ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6200,7 +6200,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "ulp.cnf"
+#line 36 "../../asn1/ulp/ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -6229,7 +6229,7 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 29 "ulp.cnf"
+#line 29 "../../asn1/ulp/ulp.cnf"
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
 
 	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -6251,7 +6251,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 73 "packet-ulp-template.c"
+#line 73 "../../asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -6278,7 +6278,7 @@ void proto_register_ulp(void) {
 
 
 /*--- Included file: packet-ulp-hfarr.c ---*/
-#line 1 "packet-ulp-hfarr.c"
+#line 1 "../../asn1/ulp/packet-ulp-hfarr.c"
     { &hf_ulp_ULP_PDU_PDU,
       { "ULP-PDU", "ulp.ULP_PDU",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8665,7 +8665,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 98 "packet-ulp-template.c"
+#line 98 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -8673,7 +8673,7 @@ void proto_register_ulp(void) {
 	  &ett_ulp,
 
 /*--- Included file: packet-ulp-ettarr.c ---*/
-#line 1 "packet-ulp-ettarr.c"
+#line 1 "../../asn1/ulp/packet-ulp-ettarr.c"
     &ett_ulp_ULP_PDU,
     &ett_ulp_UlpMessage,
     &ett_ulp_SUPLINIT,
@@ -8884,7 +8884,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 104 "packet-ulp-template.c"
+#line 104 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;

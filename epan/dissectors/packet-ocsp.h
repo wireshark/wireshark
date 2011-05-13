@@ -5,7 +5,7 @@
 
 /* Input file: packet-ocsp-template.h */
 
-#line 1 "packet-ocsp-template.h"
+#line 1 "../../asn1/ocsp/packet-ocsp-template.h"
 /* packet-ocsp.h
  * Routines for Online Certificate Status Protocol (RFC2560) packet dissection
  *  Ronnie Sahlberg 2004

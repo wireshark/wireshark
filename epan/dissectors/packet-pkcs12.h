@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkcs12-template.h */
 
-#line 1 "packet-pkcs12-template.h"
+#line 1 "../../asn1/pkcs12/packet-pkcs12-template.h"
 /* packet-pkcs12.h
  * Routines for PKCS#12 Personal Information Exchange packet dissection
  * Graeme Lunt 2006

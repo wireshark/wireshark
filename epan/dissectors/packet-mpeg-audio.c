@@ -5,7 +5,7 @@
 
 /* Input file: packet-mpeg-audio-template.c */
 
-#line 1 "packet-mpeg-audio-template.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 /* MPEG audio packet decoder.
  * Written by Shaun Jackman <sjackman@gmail.com>.
  * Copyright 2007 Shaun Jackman
@@ -45,7 +45,7 @@
 
 
 /*--- Included file: packet-mpeg-audio-hf.c ---*/
-#line 1 "packet-mpeg-audio-hf.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-hf.c"
 static int hf_mpeg_audio_sync = -1;               /* BIT_STRING_SIZE_11 */
 static int hf_mpeg_audio_version = -1;            /* T_version */
 static int hf_mpeg_audio_layer = -1;              /* T_layer */
@@ -70,18 +70,18 @@ static int hf_mpeg_audio_track = -1;              /* INTEGER_0_255 */
 static int hf_mpeg_audio_genre = -1;              /* T_genre */
 
 /*--- End of included file: packet-mpeg-audio-hf.c ---*/
-#line 39 "packet-mpeg-audio-template.c"
+#line 39 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-ett.c ---*/
-#line 1 "packet-mpeg-audio-ett.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-ett.c"
 static gint ett_mpeg_audio_Audio = -1;
 static gint ett_mpeg_audio_ID3v1 = -1;
 
 /*--- End of included file: packet-mpeg-audio-ett.c ---*/
-#line 40 "packet-mpeg-audio-template.c"
+#line 40 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-fn.c ---*/
-#line 1 "packet-mpeg-audio-fn.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-fn.c"
 
 
 static int
@@ -449,7 +449,7 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-audio-fn.c ---*/
-#line 41 "packet-mpeg-audio-template.c"
+#line 41 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 static int proto_mpeg_audio = -1;
 
@@ -569,7 +569,7 @@ proto_register_mpeg_audio(void)
 	static hf_register_info hf[] = {
 
 /*--- Included file: packet-mpeg-audio-hfarr.c ---*/
-#line 1 "packet-mpeg-audio-hfarr.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-hfarr.c"
     { &hf_mpeg_audio_sync,
       { "sync", "mpeg-audio.sync",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -660,7 +660,7 @@ proto_register_mpeg_audio(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 159 "packet-mpeg-audio-template.c"
+#line 159 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg.audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -679,12 +679,12 @@ proto_register_mpeg_audio(void)
 	static gint *ett[] = {
 
 /*--- Included file: packet-mpeg-audio-ettarr.c ---*/
-#line 1 "packet-mpeg-audio-ettarr.c"
+#line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-ettarr.c"
     &ett_mpeg_audio_Audio,
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 176 "packet-mpeg-audio-template.c"
+#line 176 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

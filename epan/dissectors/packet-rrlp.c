@@ -5,7 +5,7 @@
 
 /* Input file: packet-rrlp-template.c */
 
-#line 1 "packet-rrlp-template.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-template.c"
 /* packet-rrlp.c
  * Routines for 3GPP Radio Resource LCS Protocol (RRLP) packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
@@ -64,7 +64,7 @@ static int proto_rrlp = -1;
 
 
 /*--- Included file: packet-rrlp-hf.c ---*/
-#line 1 "packet-rrlp-hf.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-hf.c"
 static int hf_rrlp_PDU_PDU = -1;                  /* PDU */
 static int hf_rrlp_privateExtensionList = -1;     /* PrivateExtensionList */
 static int hf_rrlp_pcs_Extensions = -1;           /* PCS_Extensions */
@@ -875,13 +875,13 @@ static int hf_rrlp_GANSSModelID_model7 = -1;
 static int hf_rrlp_GANSSModelID_model8 = -1;
 
 /*--- End of included file: packet-rrlp-hf.c ---*/
-#line 58 "packet-rrlp-template.c"
+#line 58 "../../asn1/rrlp/packet-rrlp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rrlp = -1;
 
 /*--- Included file: packet-rrlp-ett.c ---*/
-#line 1 "packet-rrlp-ett.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-ett.c"
 static gint ett_rrlp_ExtensionContainer = -1;
 static gint ett_rrlp_PrivateExtensionList = -1;
 static gint ett_rrlp_PrivateExtension = -1;
@@ -1126,24 +1126,24 @@ static gint ett_rrlp_GANSSModelID = -1;
 static gint ett_rrlp_AssistanceNeeded = -1;
 
 /*--- End of included file: packet-rrlp-ett.c ---*/
-#line 62 "packet-rrlp-template.c"
+#line 62 "../../asn1/rrlp/packet-rrlp-template.c"
 
 /* Include constants */
 
 /*--- Included file: packet-rrlp-val.h ---*/
-#line 1 "packet-rrlp-val.h"
+#line 1 "../../asn1/rrlp/packet-rrlp-val.h"
 #define maxNumOfPrivateExtensions      10
 #define maxExt_GeographicalInformation 20
 #define maxGPSAssistanceData           40
 #define maxGANSSAssistanceData         40
 
 /*--- End of included file: packet-rrlp-val.h ---*/
-#line 65 "packet-rrlp-template.c"
+#line 65 "../../asn1/rrlp/packet-rrlp-template.c"
 
 
 
 /*--- Included file: packet-rrlp-fn.c ---*/
-#line 1 "packet-rrlp-fn.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-fn.c"
 
 
 static int
@@ -1223,7 +1223,7 @@ dissect_rrlp_ExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "rrlp.cnf"
+#line 34 "../../asn1/rrlp/rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -7007,7 +7007,7 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "rrlp.cnf"
+#line 26 "../../asn1/rrlp/rrlp.cnf"
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
@@ -7029,7 +7029,7 @@ static void dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 68 "packet-rrlp-template.c"
+#line 68 "../../asn1/rrlp/packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -7040,7 +7040,7 @@ void proto_register_rrlp(void) {
 
 
 /*--- Included file: packet-rrlp-hfarr.c ---*/
-#line 1 "packet-rrlp-hfarr.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-hfarr.c"
     { &hf_rrlp_PDU_PDU,
       { "PDU", "rrlp.PDU",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10271,7 +10271,7 @@ void proto_register_rrlp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 77 "packet-rrlp-template.c"
+#line 77 "../../asn1/rrlp/packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -10279,7 +10279,7 @@ void proto_register_rrlp(void) {
 	  &ett_rrlp,
 
 /*--- Included file: packet-rrlp-ettarr.c ---*/
-#line 1 "packet-rrlp-ettarr.c"
+#line 1 "../../asn1/rrlp/packet-rrlp-ettarr.c"
     &ett_rrlp_ExtensionContainer,
     &ett_rrlp_PrivateExtensionList,
     &ett_rrlp_PrivateExtension,
@@ -10524,7 +10524,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_AssistanceNeeded,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 83 "packet-rrlp-template.c"
+#line 83 "../../asn1/rrlp/packet-rrlp-template.c"
   };
 
 

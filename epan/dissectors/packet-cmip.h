@@ -5,7 +5,7 @@
 
 /* Input file: packet-cmip-template.h */
 
-#line 1 "packet-cmip-template.h"
+#line 1 "../../asn1/cmip/packet-cmip-template.h"
 /* packet-cmip.h
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
@@ -36,7 +36,7 @@
 
 
 /*--- Included file: packet-cmip-exp.h ---*/
-#line 1 "packet-cmip-exp.h"
+#line 1 "../../asn1/cmip/packet-cmip-exp.h"
 extern const value_string cmip_ObjectClass_vals[];
 extern const value_string cmip_ObjectInstance_vals[];
 extern const value_string cmip_AdministrativeState_vals[];
@@ -57,7 +57,7 @@ int dissect_cmip_ProbableCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 int dissect_cmip_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-cmip-exp.h ---*/
-#line 30 "packet-cmip-template.h"
+#line 30 "../../asn1/cmip/packet-cmip-template.h"
 
 #endif  /* PACKET_CMIP_H */
 

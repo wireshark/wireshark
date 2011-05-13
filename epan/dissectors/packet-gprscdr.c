@@ -5,7 +5,7 @@
 
 /* Input file: packet-gprscdr-template.c */
 
-#line 1 "packet-gprscdr-template.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-template.c"
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
@@ -52,7 +52,7 @@ static int proto_gprscdr = -1;
 
 
 /*--- Included file: packet-gprscdr-hf.c ---*/
-#line 1 "packet-gprscdr-hf.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-hf.c"
 static int hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU = -1;  /* GPRSCallEventRecord */
 static int hf_gprscdr_gsm0408Cause = -1;          /* INTEGER */
 static int hf_gprscdr_gsm0902MapErrorValue = -1;  /* INTEGER */
@@ -215,13 +215,13 @@ static int hf_gprscdr_LevelOfCAMELService_callDurationSupervision = -1;
 static int hf_gprscdr_LevelOfCAMELService_onlineCharging = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 46 "packet-gprscdr-template.c"
+#line 46 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 
 /*--- Included file: packet-gprscdr-ett.c ---*/
-#line 1 "packet-gprscdr-ett.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-ett.c"
 static gint ett_gprscdr_Diagnostics = -1;
 static gint ett_gprscdr_IPAddress = -1;
 static gint ett_gprscdr_IPBinaryAddress = -1;
@@ -259,13 +259,13 @@ static gint ett_gprscdr_PSFurnishChargingInformation = -1;
 static gint ett_gprscdr_MBMSInformation = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 50 "packet-gprscdr-template.c"
+#line 50 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static dissector_handle_t gprscdr_handle;
 
 
 /*--- Included file: packet-gprscdr-fn.c ---*/
-#line 1 "packet-gprscdr-fn.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-fn.c"
 
 
 static int
@@ -465,7 +465,7 @@ dissect_gprscdr_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "gprscdr.cnf"
+#line 26 "../../asn1/gprscdr/gprscdr.cnf"
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
    
@@ -2044,7 +2044,7 @@ int dissect_gprscdr_GPRSCallEventRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 54 "packet-gprscdr-template.c"
+#line 54 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -2056,7 +2056,7 @@ proto_register_gprscdr(void)
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-gprscdr-hfarr.c ---*/
-#line 1 "packet-gprscdr-hfarr.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-hfarr.c"
     { &hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU,
       { "GPRSCallEventRecord", "gprscdr.GPRSCallEventRecord",
         FT_UINT32, BASE_DEC, VALS(gprscdr_GPRSCallEventRecord_vals), 0,
@@ -2695,7 +2695,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 64 "packet-gprscdr-template.c"
+#line 64 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -2704,7 +2704,7 @@ proto_register_gprscdr(void)
 	&ett_gprscdr_timestamp,
 
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
-#line 1 "packet-gprscdr-ettarr.c"
+#line 1 "../../asn1/gprscdr/packet-gprscdr-ettarr.c"
     &ett_gprscdr_Diagnostics,
     &ett_gprscdr_IPAddress,
     &ett_gprscdr_IPBinaryAddress,
@@ -2742,7 +2742,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_MBMSInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 71 "packet-gprscdr-template.c"
+#line 71 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);

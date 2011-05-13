@@ -5,7 +5,7 @@
 
 /* Input file: packet-nbap-template.c */
 
-#line 1 "packet-nbap-template.c"
+#line 1 "../../asn1/nbap/packet-nbap-template.c"
 /* packet-nbap-template.c
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
  * Copyright 2005, 2009 Anders Broman <anders.broman@ericsson.com>
@@ -56,7 +56,7 @@
 
 
 /*--- Included file: packet-nbap-val.h ---*/
-#line 1 "packet-nbap-val.h"
+#line 1 "../../asn1/nbap/packet-nbap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -1512,7 +1512,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 50 "packet-nbap-template.c"
+#line 50 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -1521,7 +1521,7 @@ static int hf_nbap_transportLayerAddress_ipv6 = -1;
 
 
 /*--- Included file: packet-nbap-hf.c ---*/
-#line 1 "packet-nbap-hf.c"
+#line 1 "../../asn1/nbap/packet-nbap-hf.c"
 static int hf_nbap_ActivationInformation_PDU = -1;  /* ActivationInformation */
 static int hf_nbap_Additional_EDCH_Setup_Info_PDU = -1;  /* Additional_EDCH_Setup_Info */
 static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Response_List */
@@ -4807,7 +4807,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 57 "packet-nbap-template.c"
+#line 57 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -4815,7 +4815,7 @@ static int ett_nbap_TransportLayerAddress = -1;
 
 
 /*--- Included file: packet-nbap-ett.c ---*/
-#line 1 "packet-nbap-ett.c"
+#line 1 "../../asn1/nbap/packet-nbap-ett.c"
 static gint ett_nbap_PrivateIE_ID = -1;
 static gint ett_nbap_ProcedureID = -1;
 static gint ett_nbap_TransactionID = -1;
@@ -6444,7 +6444,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 63 "packet-nbap-template.c"
+#line 63 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -6467,7 +6467,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 
 /*--- Included file: packet-nbap-fn.c ---*/
-#line 1 "packet-nbap-fn.c"
+#line 1 "../../asn1/nbap/packet-nbap-fn.c"
 
 static const value_string nbap_Criticality_vals[] = {
   {   0, "reject" },
@@ -6609,7 +6609,7 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 91 "nbap.cnf"
+#line 91 "../../asn1/nbap/nbap.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
                             "unknown message"));
@@ -6643,7 +6643,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "nbap.cnf"
+#line 98 "../../asn1/nbap/nbap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -6651,7 +6651,7 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
-#line 104 "nbap.cnf"
+#line 104 "../../asn1/nbap/nbap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));
@@ -7895,7 +7895,7 @@ dissect_nbap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 80 "nbap.cnf"
+#line 80 "../../asn1/nbap/nbap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &nbap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
@@ -8463,7 +8463,7 @@ dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "nbap.cnf"
+#line 116 "../../asn1/nbap/nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -52855,7 +52855,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 84 "packet-nbap-template.c"
+#line 84 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -52918,7 +52918,7 @@ void proto_register_nbap(void) {
 
 
 /*--- Included file: packet-nbap-hfarr.c ---*/
-#line 1 "packet-nbap-hfarr.c"
+#line 1 "../../asn1/nbap/packet-nbap-hfarr.c"
     { &hf_nbap_ActivationInformation_PDU,
       { "ActivationInformation", "nbap.ActivationInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -66049,7 +66049,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 145 "packet-nbap-template.c"
+#line 145 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -66058,7 +66058,7 @@ void proto_register_nbap(void) {
 		  &ett_nbap_TransportLayerAddress,
 
 /*--- Included file: packet-nbap-ettarr.c ---*/
-#line 1 "packet-nbap-ettarr.c"
+#line 1 "../../asn1/nbap/packet-nbap-ettarr.c"
     &ett_nbap_PrivateIE_ID,
     &ett_nbap_ProcedureID,
     &ett_nbap_TransactionID,
@@ -67687,7 +67687,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 152 "packet-nbap-template.c"
+#line 152 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -67722,7 +67722,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- Included file: packet-nbap-dis-tab.c ---*/
-#line 1 "packet-nbap-dis-tab.c"
+#line 1 "../../asn1/nbap/packet-nbap-dis-tab.c"
   dissector_add_uint("nbap.ies", id_TUTRANGPSMeasurementValueInformation, new_create_dissector_handle(dissect_TUTRANGPSMeasurementValueInformation_PDU, proto_nbap));
   dissector_add_uint("nbap.ies", id_SFNSFNMeasurementValueInformation, new_create_dissector_handle(dissect_SFNSFNMeasurementValueInformation_PDU, proto_nbap));
   dissector_add_uint("nbap.ies", id_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission, new_create_dissector_handle(dissect_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue_PDU, proto_nbap));
@@ -68817,7 +68817,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 185 "packet-nbap-template.c"
+#line 185 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

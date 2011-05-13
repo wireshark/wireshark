@@ -5,7 +5,7 @@
 
 /* Input file: packet-gsm_map-template.h */
 
-#line 1 "packet-gsm_map-template.h"
+#line 1 "../../asn1/gsm_map/packet-gsm_map-template.h"
 /* packet-gsm_map-template.h
  * Routines for GSM MAP packet dissection
  * Copyright 2004 - 2006, Anders Broman <anders.broman@ericsson.com>
@@ -64,7 +64,7 @@ void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
-#line 1 "packet-gsm_map-exp.h"
+#line 1 "../../asn1/gsm_map/packet-gsm_map-exp.h"
 
 /* --- Module MAP-SS-Code --- --- ---                                         */
 
@@ -198,7 +198,7 @@ extern const value_string gsm_ss_LocationMethod_vals[];
 int dissect_gsm_ss_LocationMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 58 "packet-gsm_map-template.h"
+#line 58 "../../asn1/gsm_map/packet-gsm_map-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */

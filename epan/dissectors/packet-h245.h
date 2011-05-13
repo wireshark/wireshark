@@ -5,7 +5,7 @@
 
 /* Input file: packet-h245-template.h */
 
-#line 1 "packet-h245-template.h"
+#line 1 "../../asn1/h245/packet-h245-template.h"
 /* packet-h245.h
  * Routines for h245 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -131,7 +131,7 @@ extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
 
 /*--- Included file: packet-h245-exp.h ---*/
-#line 1 "packet-h245-exp.h"
+#line 1 "../../asn1/h245/packet-h245-exp.h"
 extern const value_string h245_Capability_vals[];
 extern const value_string DataProtocolCapability_vals[];
 extern const value_string h245_TransportAddress_vals[];
@@ -149,7 +149,7 @@ int dissect_h245_UnicastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 int dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-h245-exp.h ---*/
-#line 125 "packet-h245-template.h"
+#line 125 "../../asn1/h245/packet-h245-template.h"
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

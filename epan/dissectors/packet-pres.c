@@ -5,7 +5,7 @@
 
 /* Input file: packet-pres-template.c */
 
-#line 1 "packet-pres-template.c"
+#line 1 "../../asn1/pres/packet-pres-template.c"
 /* packet-pres.c
  * Routine to dissect ISO 8823 OSI Presentation Protocol packets
  * Based on the dissector by
@@ -103,7 +103,7 @@ static int hf_pres_Typed_data_type = -1;
 
 
 /*--- Included file: packet-pres-hf.c ---*/
-#line 1 "packet-pres-hf.c"
+#line 1 "../../asn1/pres/packet-pres-hf.c"
 static int hf_pres_UD_type_PDU = -1;              /* UD_type */
 static int hf_pres_UDC_type_PDU = -1;             /* UDC_type */
 static int hf_pres_mode_selector = -1;            /* Mode_selector */
@@ -185,14 +185,14 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 97 "packet-pres-template.c"
+#line 97 "../../asn1/pres/packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
 
 
 /*--- Included file: packet-pres-ett.c ---*/
-#line 1 "packet-pres-ett.c"
+#line 1 "../../asn1/pres/packet-pres-ett.c"
 static gint ett_pres_CP_type = -1;
 static gint ett_pres_T_normal_mode_parameters = -1;
 static gint ett_pres_T_extensions = -1;
@@ -231,7 +231,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 102 "packet-pres-template.c"
+#line 102 "../../asn1/pres/packet-pres-template.c"
 
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
@@ -360,7 +360,7 @@ pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pin
 
 
 /*--- Included file: packet-pres-fn.c ---*/
-#line 1 "packet-pres-fn.c"
+#line 1 "../../asn1/pres/packet-pres-fn.c"
 
 static const value_string pres_T_mode_value_vals[] = {
   {   0, "x410-1984-mode" },
@@ -438,7 +438,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "pres.cnf"
+#line 76 "../../asn1/pres/pres.cnf"
   const char *name;
   char *oid;
 
@@ -501,13 +501,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "pres.cnf"
+#line 101 "../../asn1/pres/pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 104 "pres.cnf"
+#line 104 "../../asn1/pres/pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -637,7 +637,7 @@ dissect_pres_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "pres.cnf"
+#line 37 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -661,7 +661,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "pres.cnf"
+#line 52 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -1092,7 +1092,7 @@ static const value_string pres_Abort_reason_vals[] = {
 
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "pres.cnf"
+#line 94 "../../asn1/pres/pres.cnf"
   guint32 reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1378,7 +1378,7 @@ static void dissect_UDC_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 229 "packet-pres-template.c"
+#line 229 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1554,7 +1554,7 @@ void proto_register_pres(void) {
 
 
 /*--- Included file: packet-pres-hfarr.c ---*/
-#line 1 "packet-pres-hfarr.c"
+#line 1 "../../asn1/pres/packet-pres-hfarr.c"
     { &hf_pres_UD_type_PDU,
       { "UD-type", "pres.UD_type",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1869,7 +1869,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 403 "packet-pres-template.c"
+#line 403 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1877,7 +1877,7 @@ void proto_register_pres(void) {
 		&ett_pres,
 
 /*--- Included file: packet-pres-ettarr.c ---*/
-#line 1 "packet-pres-ettarr.c"
+#line 1 "../../asn1/pres/packet-pres-ettarr.c"
     &ett_pres_CP_type,
     &ett_pres_T_normal_mode_parameters,
     &ett_pres_T_extensions,
@@ -1916,7 +1916,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 409 "packet-pres-template.c"
+#line 409 "../../asn1/pres/packet-pres-template.c"
   };
 
   static uat_field_t users_flds[] = {

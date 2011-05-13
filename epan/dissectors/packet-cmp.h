@@ -5,7 +5,7 @@
 
 /* Input file: packet-cmp-template.h */
 
-#line 1 "packet-cmp-template.h"
+#line 1 "../../asn1/cmp/packet-cmp-template.h"
 /* packet-cmp.h
  * Routines for RFC2510 Certificate Management Protocol packet dissection
  *   Ronnie Sahlberg 2004
@@ -38,7 +38,7 @@ void proto_reg_handoff_cmp(void);
 
 
 /*--- Included file: packet-cmp-exp.h ---*/
-#line 1 "packet-cmp-exp.h"
+#line 1 "../../asn1/cmp/packet-cmp-exp.h"
 extern const value_string cmp_CMPCertificate_vals[];
 extern const value_string cmp_PKIBody_vals[];
 extern const value_string cmp_PKIStatus_vals[];
@@ -83,7 +83,7 @@ int dissect_cmp_PollReqContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 int dissect_cmp_PollRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-cmp-exp.h ---*/
-#line 32 "packet-cmp-template.h"
+#line 32 "../../asn1/cmp/packet-cmp-template.h"
 
 #endif  /* PACKET_CMP_H */
 

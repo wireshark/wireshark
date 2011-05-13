@@ -5,7 +5,7 @@
 
 /* Input file: packet-acp133-template.c */
 
-#line 1 "packet-acp133-template.c"
+#line 1 "../../asn1/acp133/packet-acp133-template.c"
 /* packet-acp133.c
  * Routines for ACP133 specific syntaxes in X.500 packet dissection
  * Graeme Lunt 2005
@@ -59,7 +59,7 @@ static int proto_acp133 = -1;
 
 
 /*--- Included file: packet-acp133-hf.c ---*/
-#line 1 "packet-acp133-hf.c"
+#line 1 "../../asn1/acp133/packet-acp133-hf.c"
 static int hf_acp133_ACPPreferredDelivery_PDU = -1;  /* ACPPreferredDelivery */
 static int hf_acp133_ALType_PDU = -1;             /* ALType */
 static int hf_acp133_Community_PDU = -1;          /* Community */
@@ -140,13 +140,13 @@ static int hf_acp133_OnSupported_acp127_pn = -1;
 static int hf_acp133_OnSupported_acp127_tn = -1;
 
 /*--- End of included file: packet-acp133-hf.c ---*/
-#line 53 "packet-acp133-template.c"
+#line 53 "../../asn1/acp133/packet-acp133-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acp133 = -1;
 
 /*--- Included file: packet-acp133-ett.c ---*/
-#line 1 "packet-acp133-ett.c"
+#line 1 "../../asn1/acp133/packet-acp133-ett.c"
 static gint ett_acp133_OnSupported = -1;
 static gint ett_acp133_Addressees = -1;
 static gint ett_acp133_MonthlyUKMs = -1;
@@ -168,11 +168,11 @@ static gint ett_acp133_Capability = -1;
 static gint ett_acp133_SET_OF_ExtendedContentType = -1;
 
 /*--- End of included file: packet-acp133-ett.c ---*/
-#line 57 "packet-acp133-template.c"
+#line 57 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- Included file: packet-acp133-fn.c ---*/
-#line 1 "packet-acp133-fn.c"
+#line 1 "../../asn1/acp133/packet-acp133-fn.c"
 
 static const value_string acp133_ACPPreferredDelivery_vals[] = {
   {   0, "smtp" },
@@ -1016,7 +1016,7 @@ static void dissect_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-acp133-fn.c ---*/
-#line 59 "packet-acp133-template.c"
+#line 59 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- proto_register_acp133 -------------------------------------------*/
@@ -1027,7 +1027,7 @@ void proto_register_acp133(void) {
   {
 
 /*--- Included file: packet-acp133-hfarr.c ---*/
-#line 1 "packet-acp133-hfarr.c"
+#line 1 "../../asn1/acp133/packet-acp133-hfarr.c"
     { &hf_acp133_ACPPreferredDelivery_PDU,
       { "ACPPreferredDelivery", "acp133.ACPPreferredDelivery",
         FT_UINT32, BASE_DEC, VALS(acp133_ACPPreferredDelivery_vals), 0,
@@ -1338,7 +1338,7 @@ void proto_register_acp133(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acp133-hfarr.c ---*/
-#line 68 "packet-acp133-template.c"
+#line 68 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* List of subtrees */
@@ -1346,7 +1346,7 @@ void proto_register_acp133(void) {
     &ett_acp133,
 
 /*--- Included file: packet-acp133-ettarr.c ---*/
-#line 1 "packet-acp133-ettarr.c"
+#line 1 "../../asn1/acp133/packet-acp133-ettarr.c"
     &ett_acp133_OnSupported,
     &ett_acp133_Addressees,
     &ett_acp133_MonthlyUKMs,
@@ -1368,7 +1368,7 @@ void proto_register_acp133(void) {
     &ett_acp133_SET_OF_ExtendedContentType,
 
 /*--- End of included file: packet-acp133-ettarr.c ---*/
-#line 74 "packet-acp133-template.c"
+#line 74 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* Register protocol */
@@ -1386,7 +1386,7 @@ void proto_reg_handoff_acp133(void) {
 
 
 /*--- Included file: packet-acp133-dis-tab.c ---*/
-#line 1 "packet-acp133-dis-tab.c"
+#line 1 "../../asn1/acp133/packet-acp133-dis-tab.c"
   register_ber_oid_dissector("2.6.5.2.4", dissect_DLSubmitPermission_PDU, proto_acp133, "id-at-mhs-dl-submit-permissions");
   register_ber_oid_dissector("2.6.5.2.13", dissect_DLPolicy_PDU, proto_acp133, "id-at-mhs-dl-policy");
   register_ber_oid_dissector("2.6.5.2.16", dissect_AddressCapabilities_PDU, proto_acp133, "id-at-mhs-or-addresses-with-capabilities");
@@ -1429,7 +1429,7 @@ void proto_reg_handoff_acp133(void) {
 
 
 /*--- End of included file: packet-acp133-dis-tab.c ---*/
-#line 90 "packet-acp133-template.c"
+#line 90 "../../asn1/acp133/packet-acp133-template.c"
 
   /* X.402 Object Classes */
   oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");

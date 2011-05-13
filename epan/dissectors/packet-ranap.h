@@ -5,7 +5,7 @@
 
 /* Input file: packet-ranap-template.h */
 
-#line 1 "packet-ranap-template.h"
+#line 1 "../../asn1/ranap/packet-ranap-template.h"
 /* packet-ranap-template.h
  * Routines for GSM Supplementary Services dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -33,7 +33,7 @@
 #define PACKET_RANAP_H
 
 /*--- Included file: packet-ranap-exp.h ---*/
-#line 1 "packet-ranap-exp.h"
+#line 1 "../../asn1/ranap/packet-ranap-exp.h"
 extern const value_string ranap_Service_Handover_vals[];
 int dissect_ranap_EncryptionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_ranap_IntegrityProtectionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -44,6 +44,6 @@ int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(tvbuff_t *tvb _
 int dissect_ranap_TargetRNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-ranap-exp.h ---*/
-#line 27 "packet-ranap-template.h"
+#line 27 "../../asn1/ranap/packet-ranap-template.h"
 
 #endif  /* PACKET_RANAP_H */

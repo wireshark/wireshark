@@ -5,7 +5,7 @@
 
 /* Input file: packet-acp133-template.h */
 
-#line 1 "packet-acp133-template.h"
+#line 1 "../../asn1/acp133/packet-acp133-template.h"
 /* packet-acp133.h
  * Routines for ACP133 specific syntaxes in X.500 packet dissection
  * Graeme Lunt 2005

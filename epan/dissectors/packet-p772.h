@@ -5,7 +5,7 @@
 
 /* Input file: packet-p772-template.h */
 
-#line 1 "packet-p772-template.h"
+#line 1 "../../asn1/p772/packet-p772-template.h"
 /* packet-p772.h
  * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005

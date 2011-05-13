@@ -5,7 +5,7 @@
 
 /* Input file: packet-smrse-template.c */
 
-#line 1 "packet-smrse-template.c"
+#line 1 "../../asn1/smrse/packet-smrse-template.c"
 /* packet-smrse.c
  * Routines for SMRSE Short Message Relay Service packet dissection
  *   Ronnie Sahlberg 2004
@@ -56,7 +56,7 @@ static int hf_smrse_length = -1;
 static int hf_smrse_Octet_Format = -1;
 
 /*--- Included file: packet-smrse-hf.c ---*/
-#line 1 "packet-smrse-hf.c"
+#line 1 "../../asn1/smrse/packet-smrse-hf.c"
 static int hf_smrse_sc_address = -1;              /* SMS_Address */
 static int hf_smrse_password = -1;                /* Password */
 static int hf_smrse_address_type = -1;            /* T_address_type */
@@ -85,13 +85,13 @@ static int hf_smrse_sm_diag_info = -1;            /* RP_UD */
 static int hf_smrse_ms_address = -1;              /* SMS_Address */
 
 /*--- End of included file: packet-smrse-hf.c ---*/
-#line 50 "packet-smrse-template.c"
+#line 50 "../../asn1/smrse/packet-smrse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_smrse = -1;
 
 /*--- Included file: packet-smrse-ett.c ---*/
-#line 1 "packet-smrse-ett.c"
+#line 1 "../../asn1/smrse/packet-smrse-ett.c"
 static gint ett_smrse_SMR_Bind = -1;
 static gint ett_smrse_SMS_Address = -1;
 static gint ett_smrse_T_address_value = -1;
@@ -105,12 +105,12 @@ static gint ett_smrse_RPError = -1;
 static gint ett_smrse_RPAlertSC = -1;
 
 /*--- End of included file: packet-smrse-ett.c ---*/
-#line 54 "packet-smrse-template.c"
+#line 54 "../../asn1/smrse/packet-smrse-template.c"
 
 
 
 /*--- Included file: packet-smrse-fn.c ---*/
-#line 1 "packet-smrse-fn.c"
+#line 1 "../../asn1/smrse/packet-smrse-fn.c"
 
 static const value_string smrse_T_address_type_vals[] = {
   {   0, "unknown-type" },
@@ -155,7 +155,7 @@ dissect_smrse_T_numbering_plan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "smrse.cnf"
+#line 21 "../../asn1/smrse/smrse.cnf"
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
 	gint8 class;
@@ -481,7 +481,7 @@ dissect_smrse_RPAlertSC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-smrse-fn.c ---*/
-#line 57 "packet-smrse-template.c"
+#line 57 "../../asn1/smrse/packet-smrse-template.c"
 
 static const value_string tag_vals[] = {
 	{  1,	"AliveTest" },
@@ -589,7 +589,7 @@ void proto_register_smrse(void) {
 
 
 /*--- Included file: packet-smrse-hfarr.c ---*/
-#line 1 "packet-smrse-hfarr.c"
+#line 1 "../../asn1/smrse/packet-smrse-hfarr.c"
     { &hf_smrse_sc_address,
       { "sc-address", "smrse.sc_address",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -696,7 +696,7 @@ void proto_register_smrse(void) {
         "SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 163 "packet-smrse-template.c"
+#line 163 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -704,7 +704,7 @@ void proto_register_smrse(void) {
     &ett_smrse,
 
 /*--- Included file: packet-smrse-ettarr.c ---*/
-#line 1 "packet-smrse-ettarr.c"
+#line 1 "../../asn1/smrse/packet-smrse-ettarr.c"
     &ett_smrse_SMR_Bind,
     &ett_smrse_SMS_Address,
     &ett_smrse_T_address_value,
@@ -718,7 +718,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 169 "packet-smrse-template.c"
+#line 169 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* Register protocol */

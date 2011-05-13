@@ -5,7 +5,7 @@
 
 /* Input file: packet-sv-template.c */
 
-#line 1 "packet-sv-template.c"
+#line 1 "../../asn1/sv/packet-sv-template.c"
 /* packet-sv.c
  * Routines for IEC 61850 Sampled Vales packet dissection
  * Michael Bernhard 2008
@@ -108,7 +108,7 @@ static int hf_sv_phsmeas_q_derived = -1;
 
 
 /*--- Included file: packet-sv-hf.c ---*/
-#line 1 "packet-sv-hf.c"
+#line 1 "../../asn1/sv/packet-sv-hf.c"
 static int hf_sv_savPdu = -1;                     /* SavPdu */
 static int hf_sv_noASDU = -1;                     /* INTEGER_0_65535 */
 static int hf_sv_seqASDU = -1;                    /* SEQUENCE_OF_ASDU */
@@ -120,7 +120,7 @@ static int hf_sv_smpSynch = -1;                   /* T_smpSynch */
 static int hf_sv_seqData = -1;                    /* Data */
 
 /*--- End of included file: packet-sv-hf.c ---*/
-#line 102 "packet-sv-template.c"
+#line 102 "../../asn1/sv/packet-sv-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sv = -1;
@@ -129,14 +129,14 @@ static int ett_phsmeas_q = -1;
 
 
 /*--- Included file: packet-sv-ett.c ---*/
-#line 1 "packet-sv-ett.c"
+#line 1 "../../asn1/sv/packet-sv-ett.c"
 static gint ett_sv_SampledValues = -1;
 static gint ett_sv_SavPdu = -1;
 static gint ett_sv_SEQUENCE_OF_ASDU = -1;
 static gint ett_sv_ASDU = -1;
 
 /*--- End of included file: packet-sv-ett.c ---*/
-#line 109 "packet-sv-template.c"
+#line 109 "../../asn1/sv/packet-sv-template.c"
 
 static const value_string sv_q_validity_vals[] = {
   {   0, "good" },
@@ -217,7 +217,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 
 
 /*--- Included file: packet-sv-fn.c ---*/
-#line 1 "packet-sv-fn.c"
+#line 1 "../../asn1/sv/packet-sv-fn.c"
 
 
 static int
@@ -243,7 +243,7 @@ dissect_sv_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_sv_T_smpCnt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 19 "sv.cnf"
+#line 19 "../../asn1/sv/sv.cnf"
 	guint32 value;
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
 	sv_data.smpCnt = value;
@@ -273,7 +273,7 @@ static const value_string sv_T_smpSynch_vals[] = {
 
 static int
 dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "sv.cnf"
+#line 25 "../../asn1/sv/sv.cnf"
 	guint32 value;
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
 	sv_data.smpSynch = value;
@@ -286,7 +286,7 @@ dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_sv_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "sv.cnf"
+#line 31 "../../asn1/sv/sv.cnf"
 	offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 
 
@@ -361,7 +361,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 188 "packet-sv-template.c"
+#line 188 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -481,7 +481,7 @@ void proto_register_sv(void) {
 
 
 /*--- Included file: packet-sv-hfarr.c ---*/
-#line 1 "packet-sv-hfarr.c"
+#line 1 "../../asn1/sv/packet-sv-hfarr.c"
     { &hf_sv_savPdu,
       { "savPdu", "sv.savPdu",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -520,7 +520,7 @@ void proto_register_sv(void) {
         "Data", HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 306 "packet-sv-template.c"
+#line 306 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -530,14 +530,14 @@ void proto_register_sv(void) {
 		&ett_phsmeas_q,
 
 /*--- Included file: packet-sv-ettarr.c ---*/
-#line 1 "packet-sv-ettarr.c"
+#line 1 "../../asn1/sv/packet-sv-ettarr.c"
     &ett_sv_SampledValues,
     &ett_sv_SavPdu,
     &ett_sv_SEQUENCE_OF_ASDU,
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 314 "packet-sv-template.c"
+#line 314 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* Register protocol */

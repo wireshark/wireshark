@@ -5,7 +5,7 @@
 
 /* Input file: packet-ftam-template.h */
 
-#line 1 "packet-ftam-template.h"
+#line 1 "../../asn1/ftam/packet-ftam-template.h"
 /* packet-ftam.h
  * Routine to dissect OSI ISO 8571 FTAM Protocol packets
  * based on the ASN.1 specification from http://www.itu.int/ITU-T/asn1/database/iso/8571-4/1988/
@@ -41,7 +41,7 @@
 
 
 /*--- Included file: packet-ftam-exp.h ---*/
-#line 1 "packet-ftam-exp.h"
+#line 1 "../../asn1/ftam/packet-ftam-exp.h"
 extern const value_string ftam_Date_and_Time_Attribute_vals[];
 extern const value_string ftam_Object_Availability_Attribute_vals[];
 extern const value_string ftam_Object_Size_Attribute_vals[];
@@ -58,6 +58,6 @@ int dissect_ftam_Attribute_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int dissect_ftam_Pathname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-ftam-exp.h ---*/
-#line 35 "packet-ftam-template.h"
+#line 35 "../../asn1/ftam/packet-ftam-template.h"
 
 #endif  /* PACKET_FTAM_H */

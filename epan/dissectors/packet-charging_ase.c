@@ -5,7 +5,7 @@
 
 /* Input file: packet-charging_ase-template.c */
 
-#line 1 "packet-charging_ase-template.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-template.c"
 /* packet-charging_ase-template.c
  * Copyright 2009 , Anders Broman <anders.broman [AT] ericsson.com>
  *
@@ -51,7 +51,7 @@ static int proto_charging_ase = -1;
 
 
 /*--- Included file: packet-charging_ase-hf.c ---*/
-#line 1 "packet-charging_ase-hf.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-hf.c"
 static int hf_charging_ase_charging_ase_ChargingMessageType_PDU = -1;  /* ChargingMessageType */
 static int hf_charging_ase_crgt = -1;             /* ChargingTariffInformation */
 static int hf_charging_ase_aocrg = -1;            /* AddOnChargingInformation */
@@ -116,12 +116,12 @@ static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
 /*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 45 "packet-charging_ase-template.c"
+#line 45 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static int ett_charging_ase = -1;
 
 /*--- Included file: packet-charging_ase-ett.c ---*/
-#line 1 "packet-charging_ase-ett.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-ett.c"
 static gint ett_charging_ase_ChargingMessageType = -1;
 static gint ett_charging_ase_ChargingAcknowledgementInformation = -1;
 static gint ett_charging_ase_T_acknowledgementIndicators = -1;
@@ -154,13 +154,13 @@ static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
 /*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 48 "packet-charging_ase-template.c"
+#line 48 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static dissector_handle_t charging_ase_handle;
 
 
 /*--- Included file: packet-charging_ase-fn.c ---*/
-#line 1 "packet-charging_ase-fn.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-fn.c"
 
 static const asn_namedbit ChargingControlIndicators_bits[] = {
   {  0, &hf_charging_ase_ChargingControlIndicators_subscriberCharge, -1, -1, "subscriberCharge", NULL },
@@ -533,7 +533,7 @@ dissect_charging_ase_CriticalityType(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_charging_ase_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 14 "charging_ase.cnf"
+#line 14 "../../asn1/charging_ase/charging_ase.cnf"
 
 	proto_tree_add_text(tree, tvb, offset, -1, "Extensions not dissected");
 	return tvb_length(tvb);
@@ -840,7 +840,7 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 52 "packet-charging_ase-template.c"
+#line 52 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static void
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -865,7 +865,7 @@ proto_register_charging_ase(void)
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-charging_ase-hfarr.c ---*/
-#line 1 "packet-charging_ase-hfarr.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-hfarr.c"
     { &hf_charging_ase_charging_ase_ChargingMessageType_PDU,
       { "ChargingMessageType", "charging_ase.ChargingMessageType",
         FT_UINT32, BASE_DEC, VALS(charging_ase_ChargingMessageType_vals), 0,
@@ -1112,7 +1112,7 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 75 "packet-charging_ase-template.c"
+#line 75 "../../asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
@@ -1120,7 +1120,7 @@ proto_register_charging_ase(void)
     &ett_charging_ase,
 
 /*--- Included file: packet-charging_ase-ettarr.c ---*/
-#line 1 "packet-charging_ase-ettarr.c"
+#line 1 "../../asn1/charging_ase/packet-charging_ase-ettarr.c"
     &ett_charging_ase_ChargingMessageType,
     &ett_charging_ase_ChargingAcknowledgementInformation,
     &ett_charging_ase_T_acknowledgementIndicators,
@@ -1153,7 +1153,7 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 81 "packet-charging_ase-template.c"
+#line 81 "../../asn1/charging_ase/packet-charging_ase-template.c"
         };
 
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);

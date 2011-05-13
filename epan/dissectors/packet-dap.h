@@ -5,7 +5,7 @@
 
 /* Input file: packet-dap-template.h */
 
-#line 1 "packet-dap-template.h"
+#line 1 "../../asn1/dap/packet-dap-template.h"
 /* packet-dap.h
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection
  * Graeme Lunt 2005
@@ -36,7 +36,7 @@
 
 
 /*--- Included file: packet-dap-exp.h ---*/
-#line 1 "packet-dap-exp.h"
+#line 1 "../../asn1/dap/packet-dap-exp.h"
 extern const value_string dap_FamilyGrouping_vals[];
 extern const value_string dap_ContextSelection_vals[];
 extern const value_string dap_Filter_vals[];
@@ -108,6 +108,6 @@ int dissect_dap_ServiceError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 int dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-dap-exp.h ---*/
-#line 30 "packet-dap-template.h"
+#line 30 "../../asn1/dap/packet-dap-template.h"
 
 #endif  /* PACKET_DAP_H */

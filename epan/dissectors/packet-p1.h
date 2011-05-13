@@ -5,7 +5,7 @@
 
 /* Input file: packet-p1-template.h */
 
-#line 1 "packet-p1-template.h"
+#line 1 "../../asn1/p1/packet-p1-template.h"
 /* packet-p3.h
  * Routines for X.411 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
@@ -36,7 +36,7 @@
 
 
 /*--- Included file: packet-p1-val.h ---*/
-#line 1 "packet-p1-val.h"
+#line 1 "../../asn1/p1/packet-p1-val.h"
 #define op_message_submission          3
 #define op_probe_submission            4
 #define op_cancel_deferred_delivery    7
@@ -172,14 +172,14 @@
 #define ub_x121_address_length         16
 
 /*--- End of included file: packet-p1-val.h ---*/
-#line 30 "packet-p1-template.h"
+#line 30 "../../asn1/p1/packet-p1-template.h"
 
 void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_cont_type);
 char* p1_get_last_oraddress(void);
 void dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 
 /*--- Included file: packet-p1-exp.h ---*/
-#line 1 "packet-p1-exp.h"
+#line 1 "../../asn1/p1/packet-p1-exp.h"
 extern const value_string p1_Credentials_vals[];
 extern const value_string p1_SecurityProblem_vals[];
 extern const value_string p1_ContentType_vals[];
@@ -232,7 +232,7 @@ int dissect_p1_TeletexNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tv
 int dissect_p1_SecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-p1-exp.h ---*/
-#line 35 "packet-p1-template.h"
+#line 35 "../../asn1/p1/packet-p1-template.h"
 
 void proto_reg_handoff_p1(void);
 void proto_register_p1(void);

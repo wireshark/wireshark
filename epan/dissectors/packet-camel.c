@@ -5,7 +5,7 @@
 
 /* Input file: packet-camel-template.c */
 
-#line 1 "packet-camel-template.c"
+#line 1 "../../asn1/camel/packet-camel-template.c"
 /* packet-camel-template.c
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
@@ -117,7 +117,7 @@ int hf_camelsrt_DeltaTime80=-1;
 
 
 /*--- Included file: packet-camel-hf.c ---*/
-#line 1 "packet-camel-hf.c"
+#line 1 "../../asn1/camel/packet-camel-hf.c"
 static int hf_camel_PAR_cancelFailed_PDU = -1;    /* PAR_cancelFailed */
 static int hf_camel_PAR_requestedInfoError_PDU = -1;  /* PAR_requestedInfoError */
 static int hf_camel_UnavailableNetworkResource_PDU = -1;  /* UnavailableNetworkResource */
@@ -591,7 +591,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 111 "packet-camel-template.c"
+#line 111 "../../asn1/camel/packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -618,7 +618,7 @@ static guint ett_camel_calledpartybcdnumber = -1;
 
 
 /*--- Included file: packet-camel-ett.c ---*/
-#line 1 "packet-camel-ett.c"
+#line 1 "../../asn1/camel/packet-camel-ett.c"
 static gint ett_camel_AChChargingAddress = -1;
 static gint ett_camel_AOCBeforeAnswer = -1;
 static gint ett_camel_AOCGPRS = -1;
@@ -807,7 +807,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 136 "packet-camel-template.c"
+#line 136 "../../asn1/camel/packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -943,7 +943,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 
 
 /*--- Included file: packet-camel-val.h ---*/
-#line 1 "packet-camel-val.h"
+#line 1 "../../asn1/camel/packet-camel-val.h"
 #define tc_Messages                    "0.0.17.773.2.1.3"
 #define tc_NotationExtensions          "0.0.17.775.2.4.1"
 #define ros_InformationObjects         "2.4.5.0"
@@ -1126,11 +1126,11 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 270 "packet-camel-template.c"
+#line 270 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
-#line 1 "packet-camel-table.c"
+#line 1 "../../asn1/camel/packet-camel-table.c"
 
 /* CAMEL OPERATIONS */
 const value_string camel_opr_code_strings[] = {
@@ -1216,7 +1216,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 272 "packet-camel-template.c"
+#line 272 "../../asn1/camel/packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -1263,7 +1263,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
 
 /*--- Included file: packet-camel-fn.c ---*/
-#line 1 "packet-camel-fn.c"
+#line 1 "../../asn1/camel/packet-camel-fn.c"
 
 
 static int
@@ -6807,11 +6807,11 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 317 "packet-camel-template.c"
+#line 317 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
-#line 1 "packet-camel-table2.c"
+#line 1 "../../asn1/camel/packet-camel-table2.c"
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
@@ -7018,7 +7018,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 319 "packet-camel-template.c"
+#line 319 "../../asn1/camel/packet-camel-template.c"
 
 
 static guint8 camel_pdu_type = 0;
@@ -7135,13 +7135,13 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- Included file: packet-camel-dis-tab.c ---*/
-#line 1 "packet-camel-dis-tab.c"
+#line 1 "../../asn1/camel/packet-camel-dis-tab.c"
   register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
   register_ber_oid_dissector("0.4.0.0.1.1.2.2", dissect_CAP_U_ABORT_REASON_PDU, proto_camel, "id-CAP-U-ABORT-Reason");
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 434 "packet-camel-template.c"
+#line 434 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -7316,7 +7316,7 @@ void proto_register_camel(void) {
 #endif
 
 /*--- Included file: packet-camel-hfarr.c ---*/
-#line 1 "packet-camel-hfarr.c"
+#line 1 "../../asn1/camel/packet-camel-hfarr.c"
     { &hf_camel_PAR_cancelFailed_PDU,
       { "PAR-cancelFailed", "camel.PAR_cancelFailed",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9203,7 +9203,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 607 "packet-camel-template.c"
+#line 607 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9219,7 +9219,7 @@ void proto_register_camel(void) {
 
 
 /*--- Included file: packet-camel-ettarr.c ---*/
-#line 1 "packet-camel-ettarr.c"
+#line 1 "../../asn1/camel/packet-camel-ettarr.c"
     &ett_camel_AChChargingAddress,
     &ett_camel_AOCBeforeAnswer,
     &ett_camel_AOCGPRS,
@@ -9408,7 +9408,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 621 "packet-camel-template.c"
+#line 621 "../../asn1/camel/packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

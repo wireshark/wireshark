@@ -5,7 +5,7 @@
 
 /* Input file: packet-smrse-template.h */
 
-#line 1 "packet-smrse-template.h"
+#line 1 "../../asn1/smrse/packet-smrse-template.h"
 /* packet-smrse.h
  * Routines for SMRSE Short Message Relay Service packet dissection
  *   Ronnie Sahlberg 2004

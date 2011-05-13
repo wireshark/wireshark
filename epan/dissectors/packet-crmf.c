@@ -5,7 +5,7 @@
 
 /* Input file: packet-crmf-template.c */
 
-#line 1 "packet-crmf-template.c"
+#line 1 "../../asn1/crmf/packet-crmf-template.c"
 /* packet-crmf.c
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
@@ -55,7 +55,7 @@ static int proto_crmf = -1;
 static int hf_crmf_type_oid = -1;
 
 /*--- Included file: packet-crmf-hf.c ---*/
-#line 1 "packet-crmf-hf.c"
+#line 1 "../../asn1/crmf/packet-crmf-hf.c"
 static int hf_crmf_CertRequest_PDU = -1;          /* CertRequest */
 static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
 static int hf_crmf_RegToken_PDU = -1;             /* RegToken */
@@ -138,12 +138,12 @@ static int hf_crmf_attributes = -1;               /* Attributes */
 static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
-#line 49 "packet-crmf-template.c"
+#line 49 "../../asn1/crmf/packet-crmf-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-crmf-ett.c ---*/
-#line 1 "packet-crmf-ett.c"
+#line 1 "../../asn1/crmf/packet-crmf-ett.c"
 static gint ett_crmf_CertReqMessages = -1;
 static gint ett_crmf_CertReqMsg = -1;
 static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue = -1;
@@ -172,13 +172,13 @@ static gint ett_crmf_PrivateKeyInfo = -1;
 static gint ett_crmf_Attributes = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
-#line 52 "packet-crmf-template.c"
+#line 52 "../../asn1/crmf/packet-crmf-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-crmf-fn.c ---*/
-#line 1 "packet-crmf-fn.c"
+#line 1 "../../asn1/crmf/packet-crmf-fn.c"
 
 
 static int
@@ -240,7 +240,7 @@ dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "crmf.cnf"
+#line 74 "../../asn1/crmf/crmf.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -888,7 +888,7 @@ static void dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-crmf-fn.c ---*/
-#line 56 "packet-crmf-template.c"
+#line 56 "../../asn1/crmf/packet-crmf-template.c"
 
 
 /*--- proto_register_crmf ----------------------------------------------*/
@@ -902,7 +902,7 @@ void proto_register_crmf(void) {
         "Type of AttributeTypeAndValue", HFILL }},
 
 /*--- Included file: packet-crmf-hfarr.c ---*/
-#line 1 "packet-crmf-hfarr.c"
+#line 1 "../../asn1/crmf/packet-crmf-hfarr.c"
     { &hf_crmf_CertRequest_PDU,
       { "CertRequest", "crmf.CertRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1225,14 +1225,14 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
-#line 68 "packet-crmf-template.c"
+#line 68 "../../asn1/crmf/packet-crmf-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-crmf-ettarr.c ---*/
-#line 1 "packet-crmf-ettarr.c"
+#line 1 "../../asn1/crmf/packet-crmf-ettarr.c"
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
     &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
@@ -1261,7 +1261,7 @@ void proto_register_crmf(void) {
     &ett_crmf_Attributes,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
-#line 73 "packet-crmf-template.c"
+#line 73 "../../asn1/crmf/packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1281,7 +1281,7 @@ void proto_reg_handoff_crmf(void) {
 	oid_add_from_string("id-regInfo","1.3.6.1.5.5.7.5.2");
 
 /*--- Included file: packet-crmf-dis-tab.c ---*/
-#line 1 "packet-crmf-dis-tab.c"
+#line 1 "../../asn1/crmf/packet-crmf-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
   register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.1", dissect_RegToken_PDU, proto_crmf, "id-regCtrl-regToken");
@@ -1295,6 +1295,6 @@ void proto_reg_handoff_crmf(void) {
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/
-#line 91 "packet-crmf-template.c"
+#line 91 "../../asn1/crmf/packet-crmf-template.c"
 }
 

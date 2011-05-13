@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkcs1-template.c */
 
-#line 1 "packet-pkcs1-template.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-template.c"
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
  *  Ronnie Sahlberg 2004
@@ -51,7 +51,7 @@
 static int proto_pkcs1 = -1;
 
 /*--- Included file: packet-pkcs1-hf.c ---*/
-#line 1 "packet-pkcs1-hf.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-hf.c"
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
 static int hf_pkcs1_version = -1;                 /* Version */
@@ -65,22 +65,22 @@ static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier *
 static int hf_pkcs1_digest = -1;                  /* Digest */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 45 "packet-pkcs1-template.c"
+#line 45 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkcs1-ett.c ---*/
-#line 1 "packet-pkcs1-ett.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-ett.c"
 static gint ett_pkcs1_RSAPublicKey = -1;
 static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 48 "packet-pkcs1-template.c"
+#line 48 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
-#line 1 "packet-pkcs1-fn.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-fn.c"
 
 
 static int
@@ -174,7 +174,7 @@ dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 50 "packet-pkcs1-template.c"
+#line 50 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -183,7 +183,7 @@ void proto_register_pkcs1(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkcs1-hfarr.c ---*/
-#line 1 "packet-pkcs1-hfarr.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-hfarr.c"
     { &hf_pkcs1_modulus,
       { "modulus", "pkcs1.modulus",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -230,20 +230,20 @@ void proto_register_pkcs1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 57 "packet-pkcs1-template.c"
+#line 57 "../../asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkcs1-ettarr.c ---*/
-#line 1 "packet-pkcs1-ettarr.c"
+#line 1 "../../asn1/pkcs1/packet-pkcs1-ettarr.c"
     &ett_pkcs1_RSAPublicKey,
     &ett_pkcs1_RSAPrivateKey,
     &ett_pkcs1_DigestInfo,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 62 "packet-pkcs1-template.c"
+#line 62 "../../asn1/pkcs1/packet-pkcs1-template.c"
   };
 
   /* Register protocol */

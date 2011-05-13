@@ -5,7 +5,7 @@
 
 /* Input file: packet-p7-template.c */
 
-#line 1 "packet-p7-template.c"
+#line 1 "../../asn1/p7/packet-p7-template.c"
 /* packet-p7.c
  * Routines for X.413 (P7) packet dissection
  * Graeme Lunt 2007
@@ -66,7 +66,7 @@ static int proto_p7 = -1;
 
 
 /*--- Included file: packet-p7-val.h ---*/
-#line 1 "packet-p7-val.h"
+#line 1 "../../asn1/p7/packet-p7-val.h"
 #define op_ms_submission_control       2
 #define op_ms_message_submission       3
 #define op_ms_probe_submission         4
@@ -123,11 +123,11 @@ static int proto_p7 = -1;
 #define ub_ua_restrictions             16
 
 /*--- End of included file: packet-p7-val.h ---*/
-#line 60 "packet-p7-template.c"
+#line 60 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-hf.c ---*/
-#line 1 "packet-p7-hf.c"
+#line 1 "../../asn1/p7/packet-p7-hf.c"
 static int hf_p7_AutoActionType_PDU = -1;         /* AutoActionType */
 static int hf_p7_AutoActionError_PDU = -1;        /* AutoActionError */
 static int hf_p7_EntryType_PDU = -1;              /* EntryType */
@@ -495,13 +495,13 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed = -1;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class = -1;
 
 /*--- End of included file: packet-p7-hf.c ---*/
-#line 62 "packet-p7-template.c"
+#line 62 "../../asn1/p7/packet-p7-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
 
 /*--- Included file: packet-p7-ett.c ---*/
-#line 1 "packet-p7-ett.c"
+#line 1 "../../asn1/p7/packet-p7-ett.c"
 static gint ett_p7_Attribute = -1;
 static gint ett_p7_AttributeValues = -1;
 static gint ett_p7_AutoActionRegistration = -1;
@@ -637,11 +637,11 @@ static gint ett_p7_RTSE_apdus = -1;
 static gint ett_p7_RTABapdu = -1;
 
 /*--- End of included file: packet-p7-ett.c ---*/
-#line 66 "packet-p7-template.c"
+#line 66 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table.c ---*/
-#line 1 "packet-p7-table.c"
+#line 1 "../../asn1/p7/packet-p7-table.c"
 
 /* P7 ABSTRACT-OPERATIONS */
 const value_string p7_opr_code_string_vals[] = {
@@ -680,11 +680,11 @@ static const value_string p7_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p7-table.c ---*/
-#line 68 "packet-p7-template.c"
+#line 68 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-fn.c ---*/
-#line 1 "packet-p7-fn.c"
+#line 1 "../../asn1/p7/packet-p7-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Filter -> Filter/and -> Filter */
@@ -4089,11 +4089,11 @@ static void dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 70 "packet-p7-template.c"
+#line 70 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table11.c ---*/
-#line 1 "packet-p7-table11.c"
+#line 1 "../../asn1/p7/packet-p7-table11.c"
 
 static const ros_opr_t p7_opr_tab[] = {
   /* ms-bind */ 
@@ -4121,10 +4121,10 @@ static const ros_opr_t p7_opr_tab[] = {
 
 
 /*--- End of included file: packet-p7-table11.c ---*/
-#line 72 "packet-p7-template.c"
+#line 72 "../../asn1/p7/packet-p7-template.c"
 
 /*--- Included file: packet-p7-table21.c ---*/
-#line 1 "packet-p7-table21.c"
+#line 1 "../../asn1/p7/packet-p7-table21.c"
 
 static const ros_err_t p7_err_tab[] = {
   /* ms-bind-error*/ 
@@ -4160,7 +4160,7 @@ static const ros_err_t p7_err_tab[] = {
 
 
 /*--- End of included file: packet-p7-table21.c ---*/
-#line 73 "packet-p7-template.c"
+#line 73 "../../asn1/p7/packet-p7-template.c"
 
 static const ros_info_t p7_ros_info = {
   "P7",
@@ -4181,7 +4181,7 @@ void proto_register_p7(void) {
   {
 
 /*--- Included file: packet-p7-hfarr.c ---*/
-#line 1 "packet-p7-hfarr.c"
+#line 1 "../../asn1/p7/packet-p7-hfarr.c"
     { &hf_p7_AutoActionType_PDU,
       { "AutoActionType", "p7.AutoActionType",
         FT_OID, BASE_NONE, NULL, 0,
@@ -5640,7 +5640,7 @@ void proto_register_p7(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 92 "packet-p7-template.c"
+#line 92 "../../asn1/p7/packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5648,7 +5648,7 @@ void proto_register_p7(void) {
     &ett_p7,
 
 /*--- Included file: packet-p7-ettarr.c ---*/
-#line 1 "packet-p7-ettarr.c"
+#line 1 "../../asn1/p7/packet-p7-ettarr.c"
     &ett_p7_Attribute,
     &ett_p7_AttributeValues,
     &ett_p7_AutoActionRegistration,
@@ -5784,7 +5784,7 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 98 "packet-p7-template.c"
+#line 98 "../../asn1/p7/packet-p7-template.c"
   };
   module_t *p7_module;
 
@@ -5812,7 +5812,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- Included file: packet-p7-dis-tab.c ---*/
-#line 1 "packet-p7-dis-tab.c"
+#line 1 "../../asn1/p7/packet-p7-dis-tab.c"
   register_ber_oid_dissector("2.6.4.3.42", dissect_ReportLocation_PDU, proto_p7, "id-att-ac-correlated-report-list");
   register_ber_oid_dissector("2.6.4.3.76", dissect_SequenceNumber_PDU, proto_p7, "id-att-ac-report-subject-entry");
   register_ber_oid_dissector("2.6.4.3.43", dissect_ReportSummary_PDU, proto_p7, "id-att-ac-report-summary");
@@ -5843,7 +5843,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/
-#line 124 "packet-p7-template.c"
+#line 124 "../../asn1/p7/packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 

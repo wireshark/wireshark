@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkixproxy-template.c */
 
-#line 1 "packet-pkixproxy-template.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
 /* packet-pkixproxy.c
  * Routines for RFC3820 PKIXProxy packet dissection
  *  Ronnie Sahlberg 2004
@@ -51,7 +51,7 @@
 static int proto_pkixproxy = -1;
 
 /*--- Included file: packet-pkixproxy-hf.c ---*/
-#line 1 "packet-pkixproxy-hf.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-hf.c"
 static int hf_pkixproxy_ProxyCertInfoExtension_PDU = -1;  /* ProxyCertInfoExtension */
 static int hf_pkixproxy_pCPathLenConstraint = -1;  /* ProxyCertPathLengthConstraint */
 static int hf_pkixproxy_proxyPolicy = -1;         /* ProxyPolicy */
@@ -59,21 +59,21 @@ static int hf_pkixproxy_policyLanguage = -1;      /* OBJECT_IDENTIFIER */
 static int hf_pkixproxy_policy = -1;              /* OCTET_STRING */
 
 /*--- End of included file: packet-pkixproxy-hf.c ---*/
-#line 45 "packet-pkixproxy-template.c"
+#line 45 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkixproxy-ett.c ---*/
-#line 1 "packet-pkixproxy-ett.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-ett.c"
 static gint ett_pkixproxy_ProxyCertInfoExtension = -1;
 static gint ett_pkixproxy_ProxyPolicy = -1;
 
 /*--- End of included file: packet-pkixproxy-ett.c ---*/
-#line 48 "packet-pkixproxy-template.c"
+#line 48 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
 
 
 /*--- Included file: packet-pkixproxy-fn.c ---*/
-#line 1 "packet-pkixproxy-fn.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-fn.c"
 
 
 static int
@@ -143,7 +143,7 @@ static void dissect_ProxyCertInfoExtension_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-pkixproxy-fn.c ---*/
-#line 50 "packet-pkixproxy-template.c"
+#line 50 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
 
 
 /*--- proto_register_pkixproxy ----------------------------------------------*/
@@ -153,7 +153,7 @@ void proto_register_pkixproxy(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixproxy-hfarr.c ---*/
-#line 1 "packet-pkixproxy-hfarr.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-hfarr.c"
     { &hf_pkixproxy_ProxyCertInfoExtension_PDU,
       { "ProxyCertInfoExtension", "pkixproxy.ProxyCertInfoExtension",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -176,19 +176,19 @@ void proto_register_pkixproxy(void) {
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-pkixproxy-hfarr.c ---*/
-#line 58 "packet-pkixproxy-template.c"
+#line 58 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkixproxy-ettarr.c ---*/
-#line 1 "packet-pkixproxy-ettarr.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-ettarr.c"
     &ett_pkixproxy_ProxyCertInfoExtension,
     &ett_pkixproxy_ProxyPolicy,
 
 /*--- End of included file: packet-pkixproxy-ettarr.c ---*/
-#line 63 "packet-pkixproxy-template.c"
+#line 63 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
   };
 
   /* Register protocol */
@@ -205,12 +205,12 @@ void proto_register_pkixproxy(void) {
 void proto_reg_handoff_pkixproxy(void) {
 
 /*--- Included file: packet-pkixproxy-dis-tab.c ---*/
-#line 1 "packet-pkixproxy-dis-tab.c"
+#line 1 "../../asn1/pkixproxy/packet-pkixproxy-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.14", dissect_ProxyCertInfoExtension_PDU, proto_pkixproxy, "id-pe-proxyCertInfo");
 
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/
-#line 78 "packet-pkixproxy-template.c"
+#line 78 "../../asn1/pkixproxy/packet-pkixproxy-template.c"
   oid_add_from_string("id-ppl-anyLanguage","1.3.6.1.5.5.7.21.0");
   oid_add_from_string("id-ppl-inheritAll","1.3.6.1.5.5.7.21.1");
   oid_add_from_string("id-ppl-independent","1.3.6.1.5.5.7.21.2");

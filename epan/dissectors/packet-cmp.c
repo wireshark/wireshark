@@ -5,7 +5,7 @@
 
 /* Input file: packet-cmp-template.c */
 
-#line 1 "packet-cmp-template.c"
+#line 1 "../../asn1/cmp/packet-cmp-template.c"
 /* packet-cmp.c
  *
  * Routines for RFC2510 Certificate Management Protocol packet dissection
@@ -78,7 +78,7 @@ static int hf_cmp_tcptrans10_version = -1;
 static int hf_cmp_tcptrans10_flags = -1;
 
 /*--- Included file: packet-cmp-hf.c ---*/
-#line 1 "packet-cmp-hf.c"
+#line 1 "../../asn1/cmp/packet-cmp-hf.c"
 static int hf_cmp_PBMParameter_PDU = -1;          /* PBMParameter */
 static int hf_cmp_DHBMParameter_PDU = -1;         /* DHBMParameter */
 static int hf_cmp_CAProtEncCertValue_PDU = -1;    /* CAProtEncCertValue */
@@ -239,13 +239,13 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 72 "packet-cmp-template.c"
+#line 72 "../../asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
 
 /*--- Included file: packet-cmp-ett.c ---*/
-#line 1 "packet-cmp-ett.c"
+#line 1 "../../asn1/cmp/packet-cmp-ett.c"
 static gint ett_cmp_CMPCertificate = -1;
 static gint ett_cmp_PKIMessage = -1;
 static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate = -1;
@@ -295,14 +295,14 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 76 "packet-cmp-template.c"
+#line 76 "../../asn1/cmp/packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
 
 
 /*--- Included file: packet-cmp-fn.c ---*/
-#line 1 "packet-cmp-fn.c"
+#line 1 "../../asn1/cmp/packet-cmp-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* PKIMessage -> PKIBody -> NestedMessageContent -> PKIMessages -> PKIMessage */
@@ -401,7 +401,7 @@ dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "cmp.cnf"
+#line 90 "../../asn1/cmp/cmp.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -500,7 +500,7 @@ const value_string cmp_PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "cmp.cnf"
+#line 106 "../../asn1/cmp/cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1097,7 +1097,7 @@ static const ber_choice_t PKIBody_choice[] = {
 
 int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "cmp.cnf"
+#line 96 "../../asn1/cmp/cmp.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1459,7 +1459,7 @@ static void dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 81 "packet-cmp-template.c"
+#line 81 "../../asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
@@ -1718,7 +1718,7 @@ void proto_register_cmp(void) {
 				"TCP transport flags", HFILL }},
 
 /*--- Included file: packet-cmp-hfarr.c ---*/
-#line 1 "packet-cmp-hfarr.c"
+#line 1 "../../asn1/cmp/packet-cmp-hfarr.c"
     { &hf_cmp_PBMParameter_PDU,
       { "PBMParameter", "cmp.PBMParameter",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2349,7 +2349,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 338 "packet-cmp-template.c"
+#line 338 "../../asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2357,7 +2357,7 @@ void proto_register_cmp(void) {
 		&ett_cmp,
 
 /*--- Included file: packet-cmp-ettarr.c ---*/
-#line 1 "packet-cmp-ettarr.c"
+#line 1 "../../asn1/cmp/packet-cmp-ettarr.c"
     &ett_cmp_CMPCertificate,
     &ett_cmp_PKIMessage,
     &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate,
@@ -2407,7 +2407,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 344 "packet-cmp-template.c"
+#line 344 "../../asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2481,7 +2481,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- Included file: packet-cmp-dis-tab.c ---*/
-#line 1 "packet-cmp-dis-tab.c"
+#line 1 "../../asn1/cmp/packet-cmp-dis-tab.c"
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_cmp, "id-PasswordBasedMac");
   register_ber_oid_dissector("1.2.640.113533.7.66.30", dissect_DHBMParameter_PDU, proto_cmp, "id-DHBasedMac");
   register_ber_oid_dissector("1.3.6.1.5.5.7.4.1", dissect_CAProtEncCertValue_PDU, proto_cmp, "id-it-caProtEncCert");
@@ -2501,7 +2501,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 416 "packet-cmp-template.c"
+#line 416 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

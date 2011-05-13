@@ -5,7 +5,7 @@
 
 /* Input file: packet-t125-template.h */
 
-#line 1 "packet-t125-template.h"
+#line 1 "../../asn1/t125/packet-t125-template.h"
 /* packet-t125.h
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg

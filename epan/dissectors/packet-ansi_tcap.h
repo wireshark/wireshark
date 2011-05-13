@@ -5,7 +5,7 @@
 
 /* Input file: packet-ansi_tcap-template.h */
 
-#line 1 "packet-ansi_tcap-template.h"
+#line 1 "../../asn1/ansi_tcap/packet-ansi_tcap-template.h"
 /* packet-ansi_tcap.h
  *
  * $Id$

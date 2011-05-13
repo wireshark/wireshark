@@ -5,7 +5,7 @@
 
 /* Input file: packet-h323-template.h */
 
-#line 1 "packet-h323-template.h"
+#line 1 "../../asn1/h323/packet-h323-template.h"
 /* packet-h323.h
  * Routines for H.235 packet dissection
  * 2007  Tomas Kukosa

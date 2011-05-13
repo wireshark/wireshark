@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkixac-template.h */
 
-#line 1 "packet-pkixac-template.h"
+#line 1 "../../asn1/pkixac/packet-pkixac-template.h"
 /* packet-pkixac.h
  *
  * Routines for PKIXAttributeCertificate (RFC3281) packet dissection.

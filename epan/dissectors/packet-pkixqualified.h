@@ -5,7 +5,7 @@
 
 /* Input file: packet-pkixqualified-template.h */
 
-#line 1 "packet-pkixqualified-template.h"
+#line 1 "../../asn1/pkixqualified/packet-pkixqualified-template.h"
 /* packet-pkixqualified.h
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004

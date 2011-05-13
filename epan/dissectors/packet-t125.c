@@ -5,7 +5,7 @@
 
 /* Input file: packet-t125-template.c */
 
-#line 1 "packet-t125-template.c"
+#line 1 "../../asn1/t125/packet-t125-template.c"
 /* packet-t125.c
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg
@@ -51,7 +51,7 @@
 static int proto_t125 = -1;
 
 /*--- Included file: packet-t125-hf.c ---*/
-#line 1 "packet-t125-hf.c"
+#line 1 "../../asn1/t125/packet-t125-hf.c"
 static int hf_t125_ConnectMCSPDU_PDU = -1;        /* ConnectMCSPDU */
 static int hf_t125_maxChannelIds = -1;            /* INTEGER_0_MAX */
 static int hf_t125_maxUserIds = -1;               /* INTEGER_0_MAX */
@@ -171,13 +171,13 @@ static int hf_t125_Segmentation_begin = -1;
 static int hf_t125_Segmentation_end = -1;
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 45 "packet-t125-template.c"
+#line 45 "../../asn1/t125/packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
 
 /*--- Included file: packet-t125-ett.c ---*/
-#line 1 "packet-t125-ett.c"
+#line 1 "../../asn1/t125/packet-t125-ett.c"
 static gint ett_t125_Segmentation = -1;
 static gint ett_t125_DomainParameters = -1;
 static gint ett_t125_Connect_Initial_U = -1;
@@ -247,11 +247,11 @@ static gint ett_t125_ConnectMCSPDU = -1;
 static gint ett_t125_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 49 "packet-t125-template.c"
+#line 49 "../../asn1/t125/packet-t125-template.c"
 
 
 /*--- Included file: packet-t125-fn.c ---*/
-#line 1 "packet-t125-fn.c"
+#line 1 "../../asn1/t125/packet-t125-fn.c"
 
 
 static int
@@ -1977,7 +1977,7 @@ static const ber_choice_t ConnectMCSPDU_choice[] = {
 
 static int
 dissect_t125_ConnectMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 22 "t125.cnf"
+#line 22 "../../asn1/t125/t125.cnf"
   	gint connectmcs_value;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -2091,7 +2091,7 @@ static const ber_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t125_DomainMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "t125.cnf"
+#line 33 "../../asn1/t125/t125.cnf"
   	gint domainmcs_value;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -2120,7 +2120,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 51 "packet-t125-template.c"
+#line 51 "../../asn1/t125/packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
@@ -2157,7 +2157,7 @@ void proto_register_t125(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-t125-hfarr.c ---*/
-#line 1 "packet-t125-hfarr.c"
+#line 1 "../../asn1/t125/packet-t125-hfarr.c"
     { &hf_t125_ConnectMCSPDU_PDU,
       { "ConnectMCSPDU", "t125.ConnectMCSPDU",
         FT_UINT32, BASE_DEC, VALS(t125_ConnectMCSPDU_vals), 0,
@@ -2624,7 +2624,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 86 "packet-t125-template.c"
+#line 86 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -2632,7 +2632,7 @@ void proto_register_t125(void) {
 	  &ett_t125,
 
 /*--- Included file: packet-t125-ettarr.c ---*/
-#line 1 "packet-t125-ettarr.c"
+#line 1 "../../asn1/t125/packet-t125-ettarr.c"
     &ett_t125_Segmentation,
     &ett_t125_DomainParameters,
     &ett_t125_Connect_Initial_U,
@@ -2702,7 +2702,7 @@ void proto_register_t125(void) {
     &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 92 "packet-t125-template.c"
+#line 92 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */

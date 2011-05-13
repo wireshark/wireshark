@@ -5,7 +5,7 @@
 
 /* Input file: packet-cms-template.h */
 
-#line 1 "packet-cms-template.h"
+#line 1 "../../asn1/cms/packet-cms-template.h"
 /* packet-cms.h
  * Routines for RFC5652 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
@@ -37,7 +37,7 @@
 
 
 /*--- Included file: packet-cms-exp.h ---*/
-#line 1 "packet-cms-exp.h"
+#line 1 "../../asn1/cms/packet-cms-exp.h"
 extern const value_string cms_SignerIdentifier_vals[];
 int dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -57,7 +57,7 @@ int dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-cms-exp.h ---*/
-#line 31 "packet-cms-template.h"
+#line 31 "../../asn1/cms/packet-cms-template.h"
 
 #endif  /* PACKET_CMS_H */
 

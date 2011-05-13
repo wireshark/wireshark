@@ -5,7 +5,7 @@
 
 /* Input file: packet-dsp-template.c */
 
-#line 1 "packet-dsp-template.c"
+#line 1 "../../asn1/dsp/packet-dsp-template.c"
 /* packet-dsp.c
  * Routines for X.518 (X.500 Distributed Operations)  packet dissection
  * Graeme Lunt 2005
@@ -69,7 +69,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 
 /*--- Included file: packet-dsp-hf.c ---*/
-#line 1 "packet-dsp-hf.c"
+#line 1 "../../asn1/dsp/packet-dsp-hf.c"
 static int hf_dsp_AccessPoint_PDU = -1;           /* AccessPoint */
 static int hf_dsp_MasterAndShadowAccessPoints_PDU = -1;  /* MasterAndShadowAccessPoints */
 static int hf_dsp_DitBridgeKnowledge_PDU = -1;    /* DitBridgeKnowledge */
@@ -209,13 +209,13 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 63 "packet-dsp-template.c"
+#line 63 "../../asn1/dsp/packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
 
 /*--- Included file: packet-dsp-ett.c ---*/
-#line 1 "packet-dsp-ett.c"
+#line 1 "../../asn1/dsp/packet-dsp-ett.c"
 static gint ett_dsp_ChainedReadArgumentData = -1;
 static gint ett_dsp_ChainedReadArgument = -1;
 static gint ett_dsp_T_signedChainedReadArgument = -1;
@@ -289,11 +289,11 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 67 "packet-dsp-template.c"
+#line 67 "../../asn1/dsp/packet-dsp-template.c"
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
-#line 1 "packet-dsp-fn.c"
+#line 1 "../../asn1/dsp/packet-dsp-fn.c"
 
 
 static int
@@ -1787,7 +1787,7 @@ static void dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 69 "packet-dsp-template.c"
+#line 69 "../../asn1/dsp/packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
@@ -1994,7 +1994,7 @@ void proto_register_dsp(void) {
   {
 
 /*--- Included file: packet-dsp-hfarr.c ---*/
-#line 1 "packet-dsp-hfarr.c"
+#line 1 "../../asn1/dsp/packet-dsp-hfarr.c"
     { &hf_dsp_AccessPoint_PDU,
       { "AccessPoint", "dsp.AccessPoint",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2545,7 +2545,7 @@ void proto_register_dsp(void) {
         "EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 274 "packet-dsp-template.c"
+#line 274 "../../asn1/dsp/packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2553,7 +2553,7 @@ void proto_register_dsp(void) {
     &ett_dsp,
 
 /*--- Included file: packet-dsp-ettarr.c ---*/
-#line 1 "packet-dsp-ettarr.c"
+#line 1 "../../asn1/dsp/packet-dsp-ettarr.c"
     &ett_dsp_ChainedReadArgumentData,
     &ett_dsp_ChainedReadArgument,
     &ett_dsp_T_signedChainedReadArgument,
@@ -2627,7 +2627,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 280 "packet-dsp-template.c"
+#line 280 "../../asn1/dsp/packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2659,7 +2659,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- Included file: packet-dsp-dis-tab.c ---*/
-#line 1 "packet-dsp-dis-tab.c"
+#line 1 "../../asn1/dsp/packet-dsp-dis-tab.c"
   register_ber_oid_dissector("2.5.12.1", dissect_AccessPoint_PDU, proto_dsp, "id-doa-myAccessPoint");
   register_ber_oid_dissector("2.5.12.2", dissect_AccessPoint_PDU, proto_dsp, "id-doa-superiorKnowledge");
   register_ber_oid_dissector("2.5.12.3", dissect_MasterAndShadowAccessPoints_PDU, proto_dsp, "id-doa-specificKnowledge");
@@ -2668,7 +2668,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 310 "packet-dsp-template.c"
+#line 310 "../../asn1/dsp/packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 
