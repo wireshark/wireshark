@@ -191,10 +191,8 @@ def_sym_filter_symbols =
 if !HAVE_PLUGINS
 # If we're not building plugins, these symbols don't get built.
 # Keep them out of the symbol list.
-def_sym_filter_symbols += /^register_all_wiretap_modules/ || /^register_all_plugin_tap_listeners/ || /^plugin_list/
+def_sym_filter_symbols += /^register_all_wiretap_modules/ || /^register_all_plugin_tap_listeners/ || /^plugin_list/ {next;};
 endif
-
-def_sym_filter_symbols += {next;};
 
 if HAVE_PLUGINS
 
