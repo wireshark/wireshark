@@ -420,6 +420,15 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
        break;
     }
 
+    if (wth->phdr.len > WTAP_MAX_PACKET_SIZE) {
+    /* Check if wth->phdr.len is sane, small values of wth.phdr.len before
+       the case loop above can cause integer underflows */ 
+        *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("visual: File has %u-byte original packet, bigger than maximum of %u",
+                    wth->phdr.len, WTAP_MAX_PACKET_SIZE);
+        return FALSE;
+    }
+
     /* Sanity check */
     if (wth->phdr.len < wth->phdr.caplen)
     {
