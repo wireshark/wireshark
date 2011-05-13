@@ -24,7 +24,7 @@
         <string>Wiresharkdoc.icns</string>
         <key>CFBundleTypeMIMETypes</key>
         <array>
-          <string>pcap</string>
+          <string>vnd.tcpdump.pcap</string>
         </array>
         <key>CFBundleTypeName</key>
         <string>Libpcap Network Capture</string>
