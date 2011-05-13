@@ -780,11 +780,12 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 #endif
 				silence_frames = (gint32)((arrive_time - arrive_time_prev)*SAMPLE_RATE - decoded_bytes_prev/2);
 
-				/* Fix for bug 4119: don't insert more than 1000 silence frames.
+				/* Fix for bug 4119/5902: don't insert too many silence frames.
 				 * XXX - is there a better thing to do here?
 				 */
-				if (silence_frames > 1000)
-					silence_frames = 1000;
+#define MAX_SILENCE_FRAMES 240000
+				if (silence_frames > MAX_SILENCE_FRAMES)
+					silence_frames = MAX_SILENCE_FRAMES;
 
 				for (i = 0; i< silence_frames; i++) {
 					silence.status = status;
@@ -808,11 +809,11 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				status = S_WRONG_TIMESTAMP;
 			}
 
-			/* Fix for bug 4119: don't insert more than 1000 silence frames.
+			/* Fix for bug 4119/5902: don't insert too many silence frames.
 			 * XXX - is there a better thing to do here?
 			 */
-			if (silence_frames > 1000)
-				silence_frames = 1000;
+			if (silence_frames > MAX_SILENCE_FRAMES)
+				silence_frames = MAX_SILENCE_FRAMES;
 
 			for (i = 0; i< silence_frames; i++) {
 				silence.status = status;
