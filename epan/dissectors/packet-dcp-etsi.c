@@ -643,18 +643,17 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     if(bits % 8)
       bytes++;
     if(tree) {
-      proto_item *i = NULL;
       if(strcmp(tag, "*ptr")==0) {
         prot = (char*)tvb_get_ephemeral_string (tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
-        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
+        proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
               offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
-	      "%s %s rev %d.%d", tag, prot, maj, min);
+              "%s %s rev %d.%d", tag, prot, maj, min);
       } else {
-        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
+        proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
               offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
-	      "%s (%u bits)", tag, bits);
+              "%s (%u bits)", tag, bits);
       }
     }
     offset += bytes;
