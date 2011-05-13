@@ -126,7 +126,7 @@ typedef struct _value_string_ext {
   const gchar *_vs_name;      /* vse "Name" (for error messages)             */
 } value_string_ext;
 
-/* "Acessors" */
+/* "Accessors" */
 #define VALUE_STRING_EXT_VS_P(x) (x)->_vs_p
 #define VALUE_STRING_EXT_VS_NUM_ENTRIES(x) (x)->_vs_num_entries
 #define VALUE_STRING_EXT_VS_NAME(x) (x)->_vs_name
