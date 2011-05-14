@@ -5435,7 +5435,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 				coding = "unknown";
 				break;
 			}
-			ti = proto_tree_add_text(tree, tvb, offset, l, "%s%s'%s'", label, coding, out);
+			ti = proto_tree_add_text(tree, tvb, offset, l, "%s%s '%s'", label, coding, out);
 			lvt-=l;
 			offset+=l;
 		} while (lvt > 0);
@@ -5448,6 +5448,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 		if (character_set == 1) {
 		    proto_tree_add_text(subtree, tvb, start+offs+1, 2, "Code Page: %d", tvb_get_ntohs(tvb, start+offs+1));
 		}
+		/* XXX - put the string value here */
 	}
 	return offset;
 }
