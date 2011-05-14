@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
+#include <epan/reassemble.h>
 
 /* Start content from packet-batadv.h */
 #define ETH_P_BATMAN  0x4305
@@ -40,6 +41,7 @@
 #define BATADV_UNICAST_V5       0x03
 #define BATADV_BCAST_V5         0x04
 #define BATADV_VIS_V5           0x05
+#define BATADV_UNICAST_FRAG_V12 0x06
 
 #define ECHO_REPLY 0
 #define DESTINATION_UNREACHABLE 3
@@ -151,6 +153,17 @@ struct unicast_packet_v6 {
 };
 #define UNICAST_PACKET_V6_SIZE 9
 
+struct unicast_frag_packet_v12 {
+	guint8   packet_type;
+	guint8   version;
+	address  dest;
+	guint8   ttl;
+	guint8   flags;
+	address  orig;
+	guint16  seqno;
+};
+#define UNICAST_FRAG_PACKET_V12_SIZE 18
+
 struct bcast_packet_v6 {
 	guint8  packet_type;
 	guint8  version;  /* batman version field */
@@ -210,8 +223,11 @@ static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
 static gint ett_batadv_icmp_rr = -1;
 static gint ett_batadv_unicast = -1;
+static gint ett_batadv_unicast_frag = -1;
 static gint ett_batadv_vis = -1;
 static gint ett_batadv_vis_entry = -1;
+static gint ett_msg_fragment = -1;
+static gint ett_msg_fragments = -1;
 
 /* hfs */
 static int hf_batadv_packet_type = -1;
@@ -248,6 +264,13 @@ static int hf_batadv_unicast_version = -1;
 static int hf_batadv_unicast_dst = -1;
 static int hf_batadv_unicast_ttl = -1;
 
+static int hf_batadv_unicast_frag_version = -1;
+static int hf_batadv_unicast_frag_dst = -1;
+static int hf_batadv_unicast_frag_ttl = -1;
+static int hf_batadv_unicast_frag_flags = -1;
+static int hf_batadv_unicast_frag_orig = -1;
+static int hf_batadv_unicast_frag_seqno = -1;
+
 static int hf_batadv_vis_version = -1;
 static int hf_batadv_vis_type = -1;
 static int hf_batadv_vis_seqno = -1;
@@ -261,10 +284,23 @@ static int hf_batadv_vis_entry_src = -1;
 static int hf_batadv_vis_entry_dst = -1;
 static int hf_batadv_vis_entry_quality = -1;
 
+static int hf_msg_fragments = -1;
+static int hf_msg_fragment = -1;
+static int hf_msg_fragment_overlap = -1;
+static int hf_msg_fragment_overlap_conflicts = -1;
+static int hf_msg_fragment_multiple_tails = -1;
+static int hf_msg_fragment_too_long_fragment = -1;
+static int hf_msg_fragment_error = -1;
+static int hf_msg_fragment_count = -1;
+static int hf_msg_reassembled_in = -1;
+static int hf_msg_reassembled_length = -1;
+
 /* flags */
 static int hf_batadv_batman_flags_directlink = -1;
 static int hf_batadv_batman_flags_vis_server = -1;
 static int hf_batadv_batman_flags_primaries_first_hop = -1;
+static int hf_batadv_unicast_frag_flags_head = -1;
+static int hf_batadv_unicast_frag_flags_largetail = -1;
 
 static const value_string icmp_packettypenames[] = {
 	{ ECHO_REPLY, "ECHO_REPLY" },
@@ -278,6 +314,26 @@ static const value_string vis_packettypenames[] = {
 	{ VIS_TYPE_SERVER_SYNC, "SERVER_SYNC" },
 	{ VIS_TYPE_CLIENT_UPDATE, "CLIENT_UPDATE" },
 	{ 0, NULL }
+};
+
+static const fragment_items msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_msg_fragment,
+	&ett_msg_fragments,
+	/* Fragment fields */
+	&hf_msg_fragments,
+	&hf_msg_fragment,
+	&hf_msg_fragment_overlap,
+	&hf_msg_fragment_overlap_conflicts,
+	&hf_msg_fragment_multiple_tails,
+	&hf_msg_fragment_too_long_fragment,
+	&hf_msg_fragment_error,
+	&hf_msg_fragment_count,
+	/* Reassembled in field */
+	&hf_msg_reassembled_in,
+	&hf_msg_reassembled_length,
+	/* Tag */
+	"Message fragments"
 };
 
 
@@ -303,7 +359,9 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -322,6 +380,10 @@ static int proto_batadv_plugin = -1;
 /* tap */
 static int batadv_tap = -1;
 static int batadv_follow_tap = -1;
+
+/* segmented messages */
+static GHashTable *msg_fragment_table = NULL;
+static GHashTable *msg_reassembled_table = NULL;
 
 static unsigned int batadv_ethertype = ETH_P_BATMAN;
 
@@ -342,6 +404,9 @@ static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	case BATADV_UNICAST_V5:
 		dissect_batadv_unicast(tvb, pinfo, tree);
+		break;
+	case BATADV_UNICAST_FRAG_V12:
+		dissect_batadv_unicast_frag(tvb, pinfo, tree);
 		break;
 	case BATADV_BCAST_V5:
 		dissect_batadv_bcast(tvb, pinfo, tree);
@@ -1489,6 +1554,132 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	}
 }
 
+static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 version;
+
+	/* set protocol name */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_FRAG");
+
+	version = tvb_get_guint8(tvb, 1);
+	switch (version) {
+	case 12:
+	case 13:
+		dissect_batadv_unicast_frag_v12(tvb, pinfo, tree);
+		break;
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+	}
+}
+
+static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *tf;
+	struct unicast_frag_packet_v12 *unicast_frag_packeth;
+	const guint8  *dest_addr, *orig_addr;
+	gboolean save_fragmented = FALSE;
+	fragment_data *frag_msg = NULL;
+	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
+
+	tvbuff_t *new_tvb;
+	guint length_remaining;
+	int offset = 0;
+	int head = 0;
+
+	unicast_frag_packeth = ep_alloc(sizeof(struct unicast_frag_packet_v12));
+
+	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
+	dest_addr = tvb_get_ptr(tvb, 2, 6);
+	SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, 6, dest_addr);
+	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 8);
+	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 9);
+	orig_addr = tvb_get_ptr(tvb, 10, 6);
+	SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, 6, orig_addr);
+	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 16);
+
+	save_fragmented = pinfo->fragmented;
+	pinfo->fragmented = TRUE;
+
+	/* Set info column */
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE,
+			                                    "B.A.T.M.A.N. Unicast Fragment, Dst: %s (%s)",
+			                                    get_ether_name(dest_addr), ether_to_str(dest_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE, FALSE);
+		}
+		batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
+	}
+
+	/* items */
+	proto_tree_add_uint_format(batadv_unicast_frag_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_V5,
+					"Packet Type: %s (%u)", "BATADV_UNICAST", BATADV_UNICAST_V5);
+	offset += 1;
+
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_version, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, dest_addr);
+	offset += 6;
+
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_ttl, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	tf = proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_flags, tvb, offset, 1, FALSE);
+	/* <flags> */
+	flag_tree =  proto_item_add_subtree(tf, ett_batadv_batman_flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_head, tvb, offset, 1, unicast_frag_packeth->flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_unicast_frag_flags_largetail, tvb, offset, 1, unicast_frag_packeth->flags);
+	/* </flags> */
+	offset += 1;
+
+	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, orig_addr);
+	offset += 6;
+
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_seqno, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
+	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, orig_addr);
+
+	SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dest_addr);
+	SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dest_addr);
+
+	tap_queue_packet(batadv_tap, pinfo, unicast_frag_packeth);
+
+	length_remaining = tvb_length_remaining(tvb, offset);
+
+	head = (unicast_frag_packeth->flags & 0x1);
+	frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
+		unicast_frag_packeth->seqno + head,
+		msg_fragment_table,
+		msg_reassembled_table,
+		1 - head,
+		tvb_length_remaining(tvb, offset),
+		head);
+
+	new_tvb = process_reassembled_data(tvb, offset, pinfo,
+		"Reassembled Message", frag_msg, &msg_frag_items,
+		NULL, batadv_unicast_frag_tree);
+	if (new_tvb) {
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, new_tvb);
+		}
+
+		call_dissector(eth_handle, new_tvb, pinfo, tree);
+	}
+
+	pinfo->fragmented = save_fragmented;
+}
+
 static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
@@ -1807,6 +1998,12 @@ static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 }
 
+static void batadv_init_routine(void)
+{
+        fragment_table_init(&msg_fragment_table);
+        reassembled_table_init(&msg_reassembled_table);
+}
+
 void proto_register_batadv(void)
 {
 	module_t *batadv_module;
@@ -1972,6 +2169,46 @@ void proto_register_batadv(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_batadv_unicast_frag_version,
+		  { "Version", "batadv.unicast_frag.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_dst,
+		  { "Destination", "batadv.unicast_frag.dst",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_ttl,
+		  { "Time to Live", "batadv.unicast_frag.ttl",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_flags,
+		  { "Flags", "batadv.unicast_frag.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_flags_head,
+		  { "Head", "batadv.unicast_frag.flags.head",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_flags_largetail,
+		  { "Largetail", "batadv.unicast_frag.flags.largetail",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_orig,
+		  { "Originator", "batadv.unicast_frag.orig",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_seqno,
+		  { "Sequence number", "batadv.unicast_frag.seq",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_batadv_vis_version,
 		  { "Version", "batadv.vis.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2031,6 +2268,58 @@ void proto_register_batadv(void)
 		  { "Quality", "batadv.vis.quality",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
+		},
+		{ &hf_msg_fragments,
+		  {"Message fragments", "batadv.unicast_frag.fragments",
+		    FT_NONE, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment,
+		  {"Message fragment", "batadv.unicast_frag.fragment",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_overlap,
+		  {"Message fragment overlap", "batadv.unicast_frag.fragment.overlap",
+		    FT_BOOLEAN, 0, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_overlap_conflicts,
+		   {"Message fragment overlapping with conflicting data",
+		    "batadv.unicast_frag.fragment.overlap.conflicts",
+		    FT_BOOLEAN, 0, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_multiple_tails,
+		  {"Message has multiple tail fragments",
+		    "batadv.unicast_frag.fragment.multiple_tails",
+		    FT_BOOLEAN, 0, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_too_long_fragment,
+		  {"Message fragment too long", "batadv.unicast_frag.fragment.too_long_fragment",
+		    FT_BOOLEAN, 0, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_error,
+		  {"Message defragmentation error", "batadv.unicast_frag.fragment.error",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragment_count,
+		  {"Message fragment count", "batadv.unicast_frag.fragment.count",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_reassembled_in,
+		  {"Reassembled in", "msg.reassembled.in",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_reassembled_length,
+		  {"Reassembled length", "msg.reassembled.length",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
 		}
 	};
 
@@ -2044,8 +2333,11 @@ void proto_register_batadv(void)
 		&ett_batadv_icmp,
 		&ett_batadv_icmp_rr,
 		&ett_batadv_unicast,
+		&ett_batadv_unicast_frag,
 		&ett_batadv_vis,
-		&ett_batadv_vis_entry
+		&ett_batadv_vis_entry,
+		&ett_msg_fragment,
+		&ett_msg_fragments
 	};
 
 	proto_batadv_plugin = proto_register_protocol(
@@ -2064,6 +2356,8 @@ void proto_register_batadv(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_batadv_plugin, hf, array_length(hf));
+
+	register_init_routine(&batadv_init_routine);
 }
 
 void proto_reg_handoff_batadv(void)
