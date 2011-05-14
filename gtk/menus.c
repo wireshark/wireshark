@@ -1254,8 +1254,11 @@ static const char *ui_desc_menubar =
 "        <placeholder name='BACnet-List-item'/>\n"
 "      </menu>\n"
 "      <menuitem name='FlowGraph' action='/Analyze/StatisticsMenu/FlowGraph'/>\n"
-"      <menu name= 'HTTPMenu' action='/Analyze/HTTP'>\n"
+"      <menu name= 'HTTPMenu' action='/Analyze/StatisticsMenu/HTTP'>\n"
 "        <placeholder name='HTTP-List-item'/>\n"
+"      </menu>\n"
+"      <menu name= 'TCPStreamGraphMenu' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu'>\n"
+"        <menuitem name='BSMAP' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
 "      </menu>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
@@ -1647,7 +1650,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/BACnet",										NULL,				"BACnet",						NULL, NULL, NULL },
    
    { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
-   { "/Analyze/HTTP",										NULL,				"HTTP",							NULL, NULL, NULL },
+   { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenuTime-Sequence-Graph-Stevens",	NULL,			"TCP StreamGraph",							NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
 
    { "/Statistics/Summary",						GTK_STOCK_PROPERTIES,			"_Summary",						NULL, NULL,	G_CALLBACK(summary_open_cb) },
    { "/Statistics/ProtocolHierarchy",			NULL,							"_Protocol Hierarchy",			NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },
