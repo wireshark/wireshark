@@ -10364,8 +10364,8 @@ static const value_string ff2_il_vals[] = {
 	{ 0x0104,	"Find File Both Directory Info"},
 	{ 0x0105,	"Find File Full Directory Info"},
 	{ 0x0106,	"Find File Id Both Directory Info"},
-	{ 0x0202,	"Find File UNIX"},
-	{ 0x020B,	"Find File UNIX Info2"},
+	{ 0x0202,	"Find File Unix"},
+	{ 0x020B,	"Find File Unix Info2"},
 	{0, NULL}
 };
 
@@ -10395,6 +10395,7 @@ static const value_string qpi_loi_vals[] = {
 	{ 0x0206,	"Query File Posix Attr Flags"},
 	{ 0x0207,	"Query File Posix Permissions"},
 	{ 0x0208,	"Query File Posix Lock"},
+	{ 0x020b,	"Query File Unix Info2"},
 	{ 1004,		"Query File Basic Info"},
 	{ 1005,		"Query File Standard Info"},
 	{ 1006,		"Query File Internal Info"},
@@ -10456,6 +10457,7 @@ static const value_string spi_loi_vals[] = {
 	{ 0x0208,	"Set File Posix Lock"},
 	{ 0x0209,	"Set File Posix Open"},
 	{ 0x020a,	"Set File Posix Unlink"},
+	{ 0x020b,	"Set File Unix Info2"},
 	{ 1004,         "Set File Basic Info"},
 	{ 1010,         "Set Rename Information"},
 	{ 1013,         "Set Disposition Information"},
@@ -12532,6 +12534,165 @@ dissect_qpi_unix_unlink(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
+/* SMB_FIND_FILE_UNIX_INFO2 */
+
+static const true_false_string tfs_i2f_secure_delete = {
+	"File should be erased such that the data is not recoverable",
+	"File need not be erased such that the data is not recoverable"
+};
+static const true_false_string tfs_i2f_enable_undelete = {
+	"File should opt-in to a server-specific deletion recovery scheme",
+	"File should not opt-in to a server-specific deletion recovery scheme"
+};
+static const true_false_string tfs_i2f_synchronous = {
+	"I/O to this file should be performed synchronously",
+	"I/O to this file need not be performed synchronously"
+};
+static const true_false_string tfs_i2f_immutable = {
+	"NO changes can be made to this file",
+	"Changes can be made to this file if permissions allow it"
+};
+static const true_false_string tfs_i2f_append_only = {
+	"Only appends can be made to this file",
+	"Writes can be made atop existing data in this file"
+};
+static const true_false_string tfs_i2f_do_not_backup = {
+	"Backup programs should ignore this file",
+	"Backup programs should not ignore this file"
+};
+static const true_false_string tfs_i2f_no_update_atime = {
+	"The server is not required to update the last access time on this file",
+	"The server is required to update the last access time on this file"
+};
+static const true_false_string tfs_i2f_hidden = {
+	"User interface programs may ignore this file",
+	"User interface programs should not ignore this file based solely on this flag"
+};
+static int
+dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf)
+{
+	guint32 flags;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	flags = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf, tvb, offset, 4,
+			flags);
+		tree = proto_item_add_subtree(item, ett_smb_info2_file_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_secure_delete,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_enable_undelete,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_synchronous,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_immutable,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_append_only,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_do_not_backup,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_no_update_atime,
+		tvb, offset, 4, flags);
+	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_hidden,
+		tvb, offset, 4, flags);
+
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		  int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* End of file (file size) */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Number of bytes (or blocks?  The SNIA spec for UNIX basic
+	   info says "bytes", the Samba page for this says "blocks") */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Last status change */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_status);
+	*bcp -= 8;
+
+	/* Last access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_access);
+	*bcp -= 8;
+
+	/* Last modification time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_change);
+	*bcp -= 8;
+
+	/* File owner uid */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* File group gid */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* File type */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* Major device number */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Minor device number */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Unique id */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Permissions */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Nlinks */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Creation time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_creation_time);
+	*bcp -= 8;
+
+	/* File flags */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_unix_info2_file_flags(tvb, tree, offset, hf_smb_unix_info2_file_flags);
+	*bcp -= 4;
+
+	/* File flags mask */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_unix_info2_file_flags(tvb, tree, offset, hf_smb_unix_info2_file_flags_mask);
+	*bcp -= 4;
+
+	return offset;
+}
+
 /* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
 */
 int
@@ -12861,6 +13022,10 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qpi_unix_lock(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
+	case 0x020b:	/* Query File Unix Info2*/
+		offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
 	}
 
 	return offset;
@@ -12946,6 +13111,10 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x020a:	/* Set File Unix Unlink*/
 		offset = dissect_qpi_unix_unlink(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x020b:	/* Set File Unix Info2*/
+		offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 1010:	/* Set File Rename */
@@ -14574,70 +14743,10 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	/* End of file (file size) */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Number of bytes */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Last status change */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_status);
-	*bcp -= 8;
-
-	/* Last access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_access);
-	*bcp -= 8;
-
-	/* Last modification time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_change);
-	*bcp -= 8;
-
-	/* File owner uid */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* File group gid */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* File type */
-	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, TRUE);
-	COUNT_BYTES_SUBR(4);
-
-	/* Major device number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Minor device number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Unique id */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Permissions */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Nlinks */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
+	/* Unix basic info */
+	offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc)
+		return offset;
 
 	/* Name */
 
@@ -14657,77 +14766,6 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	}
 
 	*trunc = FALSE;
-	return offset;
-}
-
-/* SMB_FIND_FILE_UNIX_INFO2 */
-
-static const true_false_string tfs_i2f_secure_delete = {
-	"File should be erased such that the data is not recoverable",
-	"File need not be erased such that the data is not recoverable"
-};
-static const true_false_string tfs_i2f_enable_undelete = {
-	"File should opt-in to a server-specific deletion recovery scheme",
-	"File should not opt-in to a server-specific deletion recovery scheme"
-};
-static const true_false_string tfs_i2f_synchronous = {
-	"I/O to this file should be performed synchronously",
-	"I/O to this file need not be performed synchronously"
-};
-static const true_false_string tfs_i2f_immutable = {
-	"NO changes can be made to this file",
-	"Changes can be made to this file if permissions allow it"
-};
-static const true_false_string tfs_i2f_append_only = {
-	"Only appends can be made to this file",
-	"Writes can be made atop existing data in this file"
-};
-static const true_false_string tfs_i2f_do_not_backup = {
-	"Backup programs should ignore this file",
-	"Backup programs should not ignore this file"
-};
-static const true_false_string tfs_i2f_no_update_atime = {
-	"The server is not required to update the last access time on this file",
-	"The server is required to update the last access time on this file"
-};
-static const true_false_string tfs_i2f_hidden = {
-	"User interface programs may ignore this file",
-	"User interface programs should not ignore this file based solely on this flag"
-};
-static int
-dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf)
-{
-	guint32 flags;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	flags = tvb_get_letohl(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_uint(parent_tree, hf, tvb, offset, 4,
-			flags);
-		tree = proto_item_add_subtree(item, ett_smb_info2_file_flags);
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_secure_delete,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_enable_undelete,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_synchronous,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_immutable,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_append_only,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_do_not_backup,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_no_update_atime,
-		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_smb_unix_info2_file_flags_hidden,
-		tvb, offset, 4, flags);
-
-	offset += 4;
-
 	return offset;
 }
 
@@ -14754,86 +14792,10 @@ dissect_find_file_unix_info2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	/* End of file (file size) */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Number of bytes (or blocks?  The SNIA spec for UNIX basic
-	   info says "bytes", the Samba page for this says "blocks") */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Last status change */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_status);
-	*bcp -= 8;
-
-	/* Last access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_access);
-	*bcp -= 8;
-
-	/* Last modification time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_change);
-	*bcp -= 8;
-
-	/* File owner uid */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* File group gid */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* File type */
-	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, TRUE);
-	COUNT_BYTES_SUBR(4);
-
-	/* Major device number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Minor device number */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Unique id */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Permissions */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Nlinks */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	/* Creation time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_unix_file_creation_time);
-	*bcp -= 8;
-
-	/* File flags */
-	CHECK_BYTE_COUNT_SUBR(4);
-	offset = dissect_unix_info2_file_flags(tvb, tree, offset, hf_smb_unix_info2_file_flags);
-	*bcp -= 4;
-
-	/* File flags mask */
-	CHECK_BYTE_COUNT_SUBR(4);
-	offset = dissect_unix_info2_file_flags(tvb, tree, offset, hf_smb_unix_info2_file_flags_mask);
-	*bcp -= 4;
+	/* Unix Info2 */
+	offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc)
+		return offset;
 
 	/* Name length */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -14921,11 +14883,11 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 		offset = dissect_4_3_4_6_id_both(tvb, pinfo, tree, offset, bcp,
 		    trunc);
 		break;
-	case 0x0202:	/*Find File UNIX*/
+	case 0x0202:	/*Find File Unix*/
 		offset = dissect_4_3_4_8(tvb, pinfo, tree, offset, bcp,
 		    trunc);
 		break;
-	case 0x020B:	/*Find File UNIX Info2*/
+	case 0x020B:	/*Find File Unix Info2*/
 		offset = dissect_find_file_unix_info2(tvb, pinfo, tree, offset, bcp,
 		    trunc);
 		break;
