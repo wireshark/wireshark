@@ -60,11 +60,13 @@ static gboolean allowed_chars(tvbuff_t *tvb)
 /* Experimental approach based upon the one used for PPP */
 static gboolean dissect_usb_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    const guchar at_magic_in[2] = {0x0d, 0x0a};
-    const gchar at_magic_out[2] = {'A', 'T'};
+    const gchar at_magic1[2] = {0x0d, 0x0a};
+    const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
+    const gchar at_magic3[2] = {'A', 'T'};
 
-    if (((tvb_memeql(tvb, 0, at_magic_in, sizeof(at_magic_in)) == 0) ||
-         (tvb_memeql(tvb, 0, at_magic_out, sizeof(at_magic_out)) == 0)) &&
+    if (((tvb_memeql(tvb, 0, at_magic1, sizeof(at_magic1)) == 0) ||
+         (tvb_memeql(tvb, 0, at_magic2, sizeof(at_magic2)) == 0) ||
+         (tvb_memeql(tvb, 0, at_magic3, sizeof(at_magic3)) == 0)) &&
          allowed_chars(tvb)) {
         dissect_at(tvb, pinfo, tree);
         return (TRUE);
