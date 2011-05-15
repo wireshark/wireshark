@@ -859,7 +859,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 static gint
 h_scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
+	rtp_channel_info_t *rci = user_data;
 	rci->cursor_catch = TRUE;
 	return TRUE;
 }
@@ -874,9 +874,7 @@ stop_channels(void)
 	GtkWidget *dialog;
 
 	/* we should never be here if we are already in STOP */
-	if(rtp_channels->stop){
-		exit(10);
-	}
+	g_assert(rtp_channels->stop == FALSE); 
 
 	rtp_channels->stop = TRUE;
 	/* force a draw_cursor to stop it */
@@ -1123,15 +1121,15 @@ init_rtp_channels_vals(void)
 #if PORTAUDIO_API_1
 
 static int paCallback(   void *inputBuffer, void *outputBuffer,
-                             unsigned long framesPerBuffer,
-                             PaTimestamp outTime, void *userData)
+			 unsigned long framesPerBuffer,
+			 PaTimestamp outTime, void *userData)
 {
 #else /* PORTAUDIO_API_1 */
 static int paCallback( const void *inputBuffer, void *outputBuffer,
-                             unsigned long framesPerBuffer,
-							 const PaStreamCallbackTimeInfo* outTime,
-							 PaStreamCallbackFlags statusFlags _U_,
-                             void *userData)
+		       unsigned long framesPerBuffer,
+		       const PaStreamCallbackTimeInfo* outTime,
+		       PaStreamCallbackFlags statusFlags _U_,
+		       void *userData)
 {
 #endif /* PORTAUDIO_API_1 */
 	rtp_play_channels_t *rpci = (rtp_play_channels_t *)userData;
@@ -1209,7 +1207,7 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 
 /****************************************************************************/
 static void
-on_bt_check_clicked(GtkButton *button _U_, gpointer user_data _U_)
+on_bt_check_clicked(GtkButton *button _U_, gpointer user_data)
 {
 	rtp_channel_info_t *rci = user_data;
 
@@ -1409,14 +1407,9 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 }
 /****************************************************************************/
-static gint expose_event_channels(GtkWidget *widget, GdkEventExpose *event)
+static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	rtp_channel_info_t *rci;
-
-	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
-	if(!rci){
-		exit(10);
-	}
+	rtp_channel_info_t *rci = user_data;
 
 	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_drawable(widget->window,
@@ -1430,34 +1423,29 @@ static gint expose_event_channels(GtkWidget *widget, GdkEventExpose *event)
 }
 
 /****************************************************************************/
-static gint
-configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
+static gboolean
+configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci;
+	rtp_channel_info_t *rci = user_data;
 	int i;
 
 	/* the first color is blue to highlight the selected item
 	 * the other collors are the same as in the Voip Graph analysys
 	 * to match the same calls
 	 */
-        static GdkColor col[MAX_NUM_COL_CONV+1] = {
-                {0,     0x00FF, 0x00FF, 0xFFFF},
-                {0,     0x90FF, 0xEEFF, 0x90FF},
-                {0,     0xFFFF, 0xA0FF, 0x7AFF},
-                {0,     0xFFFF, 0xB6FF, 0xC1FF},
-                {0,     0xFAFF, 0xFAFF, 0xD2FF},
-                {0,     0xFFFF, 0xFFFF, 0x33FF},
-                {0,     0x66FF, 0xCDFF, 0xAAFF},
-                {0,     0xE0FF, 0xFFFF, 0xFFFF},
-                {0,     0xB0FF, 0xC4FF, 0xDEFF},
-                {0,     0x87FF, 0xCEFF, 0xFAFF},
-                {0,     0xD3FF, 0xD3FF, 0xD3FF}
-        };
-
-	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
-	if(!rci){
-		exit(10);
-	}
+	static GdkColor col[MAX_NUM_COL_CONV+1] = {
+		{0,	0x00FF, 0x00FF, 0xFFFF},
+		{0,	0x90FF, 0xEEFF, 0x90FF},
+		{0,	0xFFFF, 0xA0FF, 0x7AFF},
+		{0,	0xFFFF, 0xB6FF, 0xC1FF},
+		{0,	0xFAFF, 0xFAFF, 0xD2FF},
+		{0,	0xFFFF, 0xFFFF, 0x33FF},
+		{0,	0x66FF, 0xCDFF, 0xAAFF},
+		{0,	0xE0FF, 0xFFFF, 0xFFFF},
+		{0,	0xB0FF, 0xC4FF, 0xDEFF},
+		{0,	0x87FF, 0xCEFF, 0xFAFF},
+		{0,	0xD3FF, 0xD3FF, 0xD3FF}
+	};
 
 	if(rci->pixmap){
 		g_object_unref(rci->pixmap);
@@ -1489,17 +1477,12 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 }
 
 /****************************************************************************/
-static gint
-button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
+static gboolean
+button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci;
+	rtp_channel_info_t *rci = user_data;
 	int this_channel;
 	guint32 prev_index;
-
-	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
-	if(!rci){
-		exit(10);
-	}
 
 	if (!rci->selected) {
 
@@ -1591,7 +1574,6 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_container_add(GTK_CONTAINER(viewport), rci->draw_area);
 	gtk_container_add(GTK_CONTAINER(rci->scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
-	g_object_set_data(G_OBJECT(rci->draw_area), "rtp_channel_info_t", rci);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
 	GTK_WIDGET_SET_FLAGS(rci->draw_area, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(rci->draw_area);
@@ -1599,7 +1581,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->scroll_window, FALSE, FALSE, 0);
 
 	/* signals needed to handle backing pixmap */
-	g_signal_connect(rci->draw_area, "expose_event", G_CALLBACK(expose_event_channels), NULL);
+	g_signal_connect(rci->draw_area, "expose_event", G_CALLBACK(expose_event_channels), rci);
 	g_signal_connect(rci->draw_area, "configure_event", G_CALLBACK(configure_event_channels), rci);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
 	g_signal_connect(rci->draw_area, "button_press_event", G_CALLBACK(button_press_event_channel), rci);
@@ -1654,9 +1636,7 @@ play_channels(void)
 	GtkWidget *dialog;
 
 	/* we should never be here if we are in PLAY and !PAUSE */
-	if(!rtp_channels->stop && !rtp_channels->pause){
-		exit(10);
-	}
+	g_assert(!rtp_channels->stop && !rtp_channels->pause);
 
 	/* if we are in PAUSE change the state */
 	if (rtp_channels->pause) {
@@ -1969,7 +1949,7 @@ decode_streams(void)
 	progbar_count = 0;
 
 	/* Mark the RTP streams to be played using the selected VoipCalls. If voip_calls is NULL
-           then this was called from "RTP Analysis" so mark all strams */
+	   then this was called from "RTP Analysis" so mark all strams */
 	if (rtp_streams_hash) {
 		if (voip_calls)
 			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
@@ -1998,8 +1978,8 @@ decode_streams(void)
 
 	/* Resize the main scroll window to display no more than preferred (or default) max channels, scroll bar will be used if needed */
 
-        if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
-                prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
+	if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
+		prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
 	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH,
 		MIN(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
@@ -2189,12 +2169,12 @@ rtp_player_dlg_create(void)
 	g_signal_connect(bt_play, "clicked", G_CALLBACK(on_bt_play_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_play, "Play the RTP channel(s)", NULL);
 
-        bt_pause = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
+	bt_pause = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_pause);
 	g_signal_connect(bt_pause, "clicked", G_CALLBACK(on_bt_pause_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_pause, "Pause the RTP channel(s)", NULL);
 
-        bt_stop = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
+	bt_stop = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_stop);
 	g_signal_connect(bt_stop, "clicked", G_CALLBACK(on_bt_stop_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_stop, "Stop the RTP channel(s)", NULL);
@@ -2249,8 +2229,8 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	err = Pa_Initialize();
 	if( err != paNoError ) {
 		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
-                                  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
-                                  "Can not Initialize the PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
+						 GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+						 "Can not Initialize the PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
 		gtk_dialog_run (GTK_DIALOG (dialog));
 		gtk_widget_destroy (dialog);
 		initialized = FALSE;
