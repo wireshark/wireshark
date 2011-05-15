@@ -1478,7 +1478,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 
 /****************************************************************************/
 static gboolean
-button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_, gpointer user_data)
+button_press_event_channel(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data)
 {
 	rtp_channel_info_t *rci = user_data;
 	int this_channel;
