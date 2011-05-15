@@ -120,8 +120,8 @@
  */
 #include "wiretap/libpcap.h"
 
-/**#define DEBUG_DUMPCAP**/
-/**#define DEBUG_CHILD_DUMPCAP**/
+#define DEBUG_DUMPCAP
+#define DEBUG_CHILD_DUMPCAP
 
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
@@ -1293,8 +1293,7 @@ print_statistics_loop(gboolean machine_readable)
             }
         }
 #ifdef _WIN32
-        if (! global_ld.from_cap_pipe)
-            Sleep(1 * 1000);
+        Sleep(1 * 1000);
 #else
         sleep(1);
 #endif
@@ -2254,7 +2253,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #ifdef _WIN32
             /* try to set the capture buffer size */
             if (interface_opts.buffer_size > 1 &&
-                pcap_setbuff(pcap_opts.pcap_h, option.buffer_size * 1024 * 1024) != 0) {
+                pcap_setbuff(pcap_opts.pcap_h, interface_opts.buffer_size * 1024 * 1024) != 0) {
                 sync_secondary_msg_str = g_strdup_printf(
                     "The capture buffer size of %dMB seems to be too high for your machine,\n"
                     "the default of 1MB will be used.\n"
@@ -2272,7 +2271,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                 (strncmp (interface_opts.name, "rpcap://", 8) == 0)) {
                 struct pcap_samp *samp;
 
-                if ((samp = pcap_setsampling(option.pcap_h)) != NULL) {
+                if ((samp = pcap_setsampling(pcap_opts.pcap_h)) != NULL) {
                     switch (capture_opts->sampling_method) {
                     case CAPTURE_SAMP_BY_COUNT:
                         samp->method = PCAP_SAMP_1_EVERY_N;
