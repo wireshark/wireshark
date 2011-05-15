@@ -4427,10 +4427,10 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-//#if 0
+#if 0
         fprintf (stderr, "Warning: couldn't find action path= %s\n",
                 path);
-//#endif
+#endif
         return;
     }
 #if GLIB_CHECK_VERSION(2,6,0)
