@@ -983,7 +983,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_d
 }
 
 static gboolean
-expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
 {
 	sctp_graph_t *ios;
 
