@@ -1258,7 +1258,11 @@ static const char *ui_desc_menubar =
 "        <placeholder name='HTTP-List-item'/>\n"
 "      </menu>\n"
 "      <menu name= 'TCPStreamGraphMenu' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu'>\n"
-"        <menuitem name='BSMAP' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
+"        <menuitem name='Sequence-Graph-Stevens' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
+"        <menuitem name='Sequence-Graph-tcptrace' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>\n"
+"        <menuitem name='Throughput-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph'/>\n"
+"        <menuitem name='RTT-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>\n"
+"        <menuitem name='Window-Scaling-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
 "      </menu>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
@@ -1652,7 +1656,11 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
    { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },
    { "/Analyze/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenuTime-Sequence-Graph-Stevens",	NULL,			"TCP StreamGraph",							NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",	NULL, "Time-Sequence Graph (Stevens)",	NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace",	NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",				NULL, "Throughput Graph",				NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",					NULL, "Round Trip Time Graph",			NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",			NULL, "Window Scaling Graph",			NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
 
    { "/Statistics/Summary",						GTK_STOCK_PROPERTIES,			"_Summary",						NULL, NULL,	G_CALLBACK(summary_open_cb) },
    { "/Statistics/ProtocolHierarchy",			NULL,							"_Protocol Hierarchy",			NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },

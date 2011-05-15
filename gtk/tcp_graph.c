@@ -589,7 +589,47 @@ static void unset_busy_cursor(GdkWindow *w)
 	gdk_window_set_cursor(w, NULL);
   	gdk_flush(); 
 }
+#ifdef MAIN_MENU_USE_UIMANAGER
+void tcp_graph_cb (GtkAction *action, gpointer user_data)
+{
+	struct segment current;
+	struct graph *g;
+	const gchar *name;
+	guint graph_type;
 
+	name = gtk_action_get_name (action);
+	if(strcmp(name, "Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens") == 0){
+		graph_type = GRAPH_TSEQ_STEVENS;
+	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace") == 0){
+		graph_type = GRAPH_TSEQ_TCPTRACE;
+	}else if(strcmp(name, "StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph") == 0){
+		graph_type = GRAPH_THROUGHPUT;
+	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph") == 0){
+		graph_type = GRAPH_RTT;
+	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph") == 0){
+		graph_type = GRAPH_WSCALE;
+	}
+
+	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
+
+	if (! (g = graph_new()))
+		return;
+
+	refnum++;
+	graph_initialize_values (g);
+
+	g->type = graph_type;
+	if (!select_tcpip_session (&cfile, &current)) {
+		return;
+	}
+
+	graph_segment_list_get(g);
+	create_gui(g);
+	/* display_text(g); */
+	graph_init_sequence(g);
+
+}
+#else
 static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
 {
 	struct segment current;
@@ -615,7 +655,7 @@ static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action
 	/* display_text(g); */
 	graph_init_sequence(g);
 }
-
+#endif
 static void create_gui (struct graph *g)
 {
 	debug(DBS_FENTRY) puts ("create_gui()");
@@ -4327,6 +4367,8 @@ static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epa
 void
 register_tap_listener_tcp_graph(void)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
     register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (Stevens)", REGISTER_STAT_GROUP_UNSORTED,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(0));
     register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (tcptrace)", REGISTER_STAT_GROUP_UNSORTED,
@@ -4337,4 +4379,6 @@ register_tap_listener_tcp_graph(void)
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
     register_stat_menu_item("TCP Stream Graph/Window Scaling Graph", REGISTER_STAT_GROUP_UNSORTED,
 	tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(GRAPH_WSCALE));
+#endif
+
 }
