@@ -4427,10 +4427,10 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-#if 0
+//#if 0
         fprintf (stderr, "Warning: couldn't find action path= %s\n",
                 path);
-#endif
+//#endif
         return;
     }
 #if GLIB_CHECK_VERSION(2,6,0)
@@ -6190,8 +6190,10 @@ set_menus_for_selected_packet(capture_file *cf)
 
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnorePacket",
                          frame_selected);
+#ifdef WANT_PACKET_EDITOR
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
                          frame_selected);
+#endif /* WANT_PACKET_EDITOR */
 #else /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity_old("/Edit/Mark All Displayed Packets (toggle)",
                          cf->displayed_count > 0);
@@ -6352,6 +6354,9 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && (gbl_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
+                         tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
+
 
 #else /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity_old("/Analyze/Follow TCP Stream",
@@ -6935,24 +6940,24 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              (id == -1) ? FALSE : TRUE);
 #ifdef MAIN_MENU_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
-                             "/Menubar/MenuFile/Export/SelectedPacketBytes", TRUE);
+                             "/Menubar/FileMenu/Export/SelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu,
-                             "/Menubar/MenuGo/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Description",
+                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/EditMenu/Copy/Description",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Fieldname",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/EditMenu/Copy/Fieldname",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Value",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/EditMenu/Copy/Value",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/AsFilter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/EditMenu/Copy/AsFilter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/ApplyasColumn",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/AnalyzeMenu/ApplyasColumn",
                              hfinfo->type != FT_NONE);
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/ApplyAsFilter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/AnalyzeMenu/ApplyAsFilter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/PrepareaFilter",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/AnalyzeMenu/PrepareaFilter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuView/ExpandSubtrees",
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/ViewMenu/ExpandSubtrees",
                              cf->finfo_selected->tree_type != -1);
 #else
         set_menu_sensitivity_old(
