@@ -50,7 +50,7 @@
 #define AUTO_MAX_YSCALE         0
 #define MAX_TICK_VALUES         5
 #define DEFAULT_TICK_VALUE      3
-#define MAX_YSCALE              22
+#define MAX_YSCALE             22
 #define MAX_COUNT_TYPES         3
 
 #define COUNT_TYPE_FRAMES   0
@@ -284,9 +284,9 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	else
 	{
 		u_data->io->min_x=((guint32) (u_data->io->x1_tmp_sec*1000000.0))+u_data->io->x1_tmp_usec;
-		u_data->io->max_x=((guint32) (u_data->io->x2_tmp_sec*1000000.0))+u_data->io->x2_tmp_usec;		
+		u_data->io->max_x=((guint32) (u_data->io->x2_tmp_sec*1000000.0))+u_data->io->x2_tmp_usec;
 		u_data->io->uoff = FALSE;
-	}	
+	}
 
 	u_data->io->tmp_width = u_data->io->max_x - u_data->io->min_x;
 
@@ -396,7 +396,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		b = 0;
 	}
 
-	if (!u_data->io->uoff)	
+	if (!u_data->io->uoff)
 	{
 		if (a>=1000000)
 		{
@@ -419,7 +419,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		if (start%2!=0)
 			start--;
 		b = 0;
-		
+
 	}
 
 	for (i=start, j=b; i<=u_data->io->max_x; i+=a, j++)
@@ -590,12 +590,9 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 			draw_sack_graph(u_data);
 			break;
 	}
+
 	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
-
-	if(!ios){
-		exit(10);
-	}
-
+	g_assert(ios != NULL);
 
 	gdk_draw_pixmap(u_data->io->draw_area->window,
 	                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
@@ -640,12 +637,12 @@ sctp_graph_close_cb(GtkWidget* widget _U_, gpointer u_data)
 
 
 
-static gint
-configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, struct sctp_udata *u_data)
+static gboolean
+on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-	if(!u_data->io){
-		exit(10);
-	}
+	struct sctp_udata *u_data = user_data;
+
+	g_assert(u_data->io != NULL);
 
 	if(u_data->io->pixmap){
 		gdk_pixmap_unref(u_data->io->pixmap);
@@ -669,15 +666,13 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, struct sctp_uda
 	return TRUE;
 }
 
-static gint
-expose_event(GtkWidget *widget, GdkEventExpose *event)
+static gboolean
+on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
 {
 	sctp_graph_t *ios;
 
 	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(widget), "sctp_graph_t");
-	if(!ios){
-		exit(10);
-	}
+	g_assert(ios != NULL);
 
 	gdk_draw_pixmap(widget->window,
 	                widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
@@ -811,9 +806,10 @@ on_zoomout_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 }
 
 
-static gint
-on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
+static gboolean
+on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
+	struct sctp_udata *u_data = user_data;
 	sctp_graph_t *ios;
 
 	if (u_data->io->rectangle==TRUE)
@@ -824,11 +820,9 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
 		                   (gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
 		                   (gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
-		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
-		if(!ios){
-			exit(10);
-		}
+		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
+		g_assert(ios != NULL);
 
 		gdk_draw_pixmap(u_data->io->draw_area->window,
 		                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
@@ -852,9 +846,10 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 }
 
 
-static gint
-on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
+static gboolean
+on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
+	struct sctp_udata *u_data = user_data;
 	sctp_graph_t *ios;
 	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value, frame;
 	gint label_width, label_height;
@@ -886,11 +881,9 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
 		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
 				   u_data->io->rect_y_max - u_data->io->rect_y_min);
-		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
-		if(!ios){
-			exit(10);
-		}
+		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
+		g_assert(ios != NULL);
 
 		gdk_draw_pixmap(u_data->io->draw_area->window,
 		                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
@@ -910,14 +903,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		}
 		if (u_data->io->uoff)
 		{
-			if (x2_tmp - x1_tmp <= 1500)			
+			if (x2_tmp - x1_tmp <= 1500)
 				u_data->io->uoff = FALSE;
 			u_data->io->x1_tmp_sec=(guint32)x1_tmp;
 			u_data->io->x1_tmp_usec=0;
 			u_data->io->x2_tmp_sec=(guint32)x2_tmp;
 			u_data->io->x2_tmp_usec=0;
 		}
-		else 
+		else
 		{
 			u_data->io->x1_tmp_sec=(guint32)x1_tmp/1000000;
 			u_data->io->x1_tmp_usec=x1_tmp%1000000;
@@ -944,7 +937,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		if (u_data->io->rectangle_present==TRUE)
 		{
 			u_data->io->rectangle_present=FALSE;
-			if (event->x >= u_data->io->rect_x_min && event->x <= u_data->io->rect_x_max && 
+			if (event->x >= u_data->io->rect_x_min && event->x <= u_data->io->rect_x_max &&
 			     event->y >= u_data->io->rect_y_min && event->y <= u_data->io->rect_y_max)
 				zoomin_bt_fcn(u_data);
 			else
@@ -976,7 +969,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			tmptsn =(tsn_t*)(tsnlist->data);
 			tfirst = tsn->secs + tsn->usecs/1000000.0;
 			frame = tsn->frame_number;
-			
+
 			while (tsnlist)
 			{
 				tsnlist = g_list_previous(tsnlist);
@@ -1017,11 +1010,10 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			                (gint)(position),
 			                (gint)(event->y-10),
 			                layout);
-			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
-			if(!ios){
-				exit(10);
-			}
+			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
+			g_assert(ios != NULL);
+
 			gdk_draw_pixmap(u_data->io->draw_area->window,
 		                    u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
 		                    ios->pixmap,
@@ -1098,8 +1090,8 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_show(bt_close);
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_graph_close_cb), u_data);
 
-	g_signal_connect(u_data->io->draw_area,"button_press_event",G_CALLBACK(on_button_press), u_data);
-	g_signal_connect(u_data->io->draw_area,"button_release_event",G_CALLBACK(on_button_release), u_data);
+	g_signal_connect(u_data->io->draw_area,"button_press_event",G_CALLBACK(on_button_press_event), u_data);
+	g_signal_connect(u_data->io->draw_area,"button_release_event",G_CALLBACK(on_button_release_event), u_data);
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
 	/* dlg_set_cancel(u_data->io->window, bt_close); */
 
@@ -1168,17 +1160,16 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 }
 
 
-static gint
+static void
 quit(GtkObject *object _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data=(struct sctp_udata*)user_data;
+	struct sctp_udata *u_data=user_data;
 
 	decrease_childcount(u_data->parent);
 	remove_child(u_data, u_data->parent);
 	g_free(u_data->io);
 	u_data->assoc->min_max = NULL;
 	g_free(u_data);
-	return TRUE;
 }
 
 
@@ -1191,8 +1182,8 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 	gtk_widget_set_size_request(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
-	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
-	g_signal_connect(u_data->io->draw_area, "configure_event", G_CALLBACK(configure_event), u_data);
+	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(on_expose_event), NULL);
+	g_signal_connect(u_data->io->draw_area, "configure_event", G_CALLBACK(on_configure_event), u_data);
 
 	gtk_widget_show(u_data->io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), u_data->io->draw_area, TRUE, TRUE, 0);
