@@ -121,7 +121,7 @@ on_key_list_select_row(GtkTreeSelection *selection, gpointer data)
         path_up = gtk_tree_path_copy(path);
         path_down = gtk_tree_path_copy(path);
         gtk_tree_path_next(path_down);
-        
+
         if (gtk_tree_model_iter_n_children(model, NULL) >= MAX_ENCRYPTION_KEYS) {
             gtk_widget_set_sensitive(add_new_key_bt, FALSE);
         } else {
@@ -161,7 +161,7 @@ on_key_list_select_row(GtkTreeSelection *selection, gpointer data)
 static void
 on_key_list_reorder(GtkTreeModel *model _U_, GtkTreePath *path _U_, GtkTreeIter *iter _U_, gpointer no _U_, gpointer data) {
     GtkTreeSelection *selection;
-    
+
     selection = g_object_get_data(G_OBJECT(data), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY);
     on_key_list_select_row(selection, data);
 }
@@ -356,7 +356,7 @@ on_capture_type_cb_changed(GtkWidget *cb, gpointer user_data _U_)
     if (cb == NULL) {
         return;
     }
-    
+
     s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
 
     if ((g_ascii_strcasecmp("",s)))
@@ -1404,17 +1404,17 @@ void
 on_decryption_mode_cb_changed(GtkWidget *cb, gpointer data _U_)
 {
     gint cur_active;
-    
+
     if (cb == NULL) {
         return;
     }
-    
+
     cur_active = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
-    
+
     if (cur_active < 0) {
         return;
     }
-    
+
     switch(cur_active) {
         /* XXX - Don't use magic numbers here */
         case 1: /* Wireshark */
@@ -1482,14 +1482,14 @@ update_decryption_mode_list(GtkWidget *cb)
      * signal handler, but it doesn't work... one of these days I'll try to figure out why...
      */
     current_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
-    
+
     while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(cb)), NULL) > 0) {
         gtk_combo_box_remove_text(GTK_COMBO_BOX(cb), 0);
     }
 
     gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
     gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-    
+
     if (airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0)
     {
         gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
@@ -1497,7 +1497,7 @@ update_decryption_mode_list(GtkWidget *cb)
     else
     {
         /* The last decryption mode was 'Driver', but no more AirPcap adapter are found */
-        if (g_ascii_strcasecmp(current_text,AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+        if (current_text == NULL || g_ascii_strcasecmp(current_text, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
         {
             g_free(current_text);
             current_text = g_strdup(AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
@@ -1535,7 +1535,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* retrieve main window */
     airpcap_advanced_w = GTK_WIDGET(data);
-    
+
     /* Set the channel and offset */
     channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
     channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY));
@@ -2410,7 +2410,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
         /* At the end, so that it appears completely all together ... */
         gtk_widget_show (key_management_w);
     }
-    
+
     gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter);
     gtk_tree_selection_select_iter(selection, &iter);
 }
