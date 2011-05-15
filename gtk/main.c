@@ -1300,7 +1300,7 @@ cmdarg_err_cont(const char *fmt, ...)
 
 /*
    Once every 3 seconds we get a callback here which we use to update
-   the tap extensions. 
+   the tap extensions.
  */
 static gboolean
 tap_update_cb(gpointer data _U_)
@@ -1319,7 +1319,7 @@ void reset_tap_update_timer(void)
 void
 protect_thread_critical_region(void)
 {
-	/* Threading support for TAP:s removed 
+	/* Threading support for TAP:s removed
 	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
 	 * See the commit for removed code:
 	 * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
@@ -1328,7 +1328,7 @@ protect_thread_critical_region(void)
 void
 unprotect_thread_critical_region(void)
 {
-	/* Threading support for TAP:s removed 
+	/* Threading support for TAP:s removed
 	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
 	 */
 
@@ -1658,14 +1658,14 @@ main_cf_cb_packet_selected(gpointer data)
     add_main_byte_views(cf->edt);
     main_proto_tree_draw(cf->edt->tree);
 
-    /* Note: Both string and hex value searches in the packet data produce a non-zero 
+    /* Note: Both string and hex value searches in the packet data produce a non-zero
        search_pos if successful */
-    if(cf->search_in_progress && 
+    if(cf->search_in_progress &&
       (cf->search_pos != 0 || (cf->string && cf->decode_data))) {
         highlight_field(cf->edt->tvb, cf->search_pos,
                         (GtkTreeView *)tree_view_gbl, cf->edt->tree);
-    } 
-  
+    }
+
     /* A packet is selected. */
     set_menus_for_selected_packet(cf);
 }
@@ -3089,7 +3089,7 @@ create_console(void)
   if (!has_console) {
     /* We have no console to which to print the version string, so
        create one and make it the standard input, output, and error. */
-    
+
     /*
      * See if we have an existing console (i.e. we were run from a
      * command prompt)
@@ -3370,11 +3370,6 @@ void main_widgets_rearrange(void) {
     if (prefs.filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(statusbar), filter_tb, FALSE, TRUE, 1);
     }
-
-#ifdef HAVE_AIRPCAP
-    /* airpcap toolbar */
-    gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
-#endif
 
     /* statusbar widgets */
     statusbar_widgets_pack(statusbar);
@@ -3668,7 +3663,7 @@ static void copy_global_profile (const gchar *profile_name)
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "Can't create directory\n\"%s\":\n%s.",
 		   pf_dir_path, strerror(errno));
-     
+
      g_free(pf_dir_path);
    }
 
@@ -3677,7 +3672,7 @@ static void copy_global_profile (const gchar *profile_name)
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
 		   pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
-	 
+
      g_free(pf_filename);
      g_free(pf_dir_path);
      g_free(pf_dir_path2);
