@@ -2623,6 +2623,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             if(flags & RPL_DAOACK_FLAG_D)
             {
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_dodagid, tvb, rpl_offset, 16, FALSE);
+                rpl_offset += 16;
             }
 
             /* Options */
