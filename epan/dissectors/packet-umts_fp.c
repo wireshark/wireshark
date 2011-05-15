@@ -3699,7 +3699,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_edch_header_crc,
             { "E-DCH Header CRC",
-              "fp.edch.header-crc", FT_UINT16, BASE_HEX, 0, 0xfef,
+              "fp.edch.header-crc", FT_UINT16, BASE_HEX, 0, 0xfef0,
               NULL, HFILL
             }
         },
