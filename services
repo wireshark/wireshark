@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-05-02)
+(last updated 2011-05-13)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -13248,7 +13248,10 @@ max		6074/udp   Microsoft Max
 dpm-acm         6075/tcp   Microsoft DPM Access Control Manager
 #                          Prabu Ambravaneswaran <prambrav&microsoft.com> 29 October 2009
 #               6075/udp   Reserved
-#               6076-6082  Unassigned
+#               6076-6081  Unassigned
+#               6082/tcp   Reserved
+p25cai          6082/udp   APCO Project 25 Common Air Interface - UDP encapsulation
+#                          APCO Project 25 (Steve Glass) <admin&sedition.org.au> 13 May 2011
 #               6083/tcp   Reserved
 miami-bcast     6083/udp   telecomsoftware miami broadcast
 #                          Peter Steiner <steiner&telecomsoftware.com> 22 February 2011
@@ -14602,13 +14605,19 @@ dbabble	        8132/udp    dbabble
 isdd            8148/tcp    i-SDD file transfer
 isdd            8148/udp    i-SDD file transfer
 #                           Frank Waarsenburg <frank&eye-display.nl> November 2004
-#               8149-8159   Unassigned
+#               8149/tcp    Reserved
+eor-game        8149/udp    Edge of Reality game data
+#                           Sky Schulz <sky&edgeofreality.com> 09 May 2011
+#               8150-8159   Unassigned
 patrol		8160/tcp    Patrol
 patrol		8160/udp    Patrol
 patrol-snmp	8161/tcp    Patrol SNMP
 patrol-snmp	8161/udp    Patrol SNMP
 #			    Portnoy Boxman <portnoy_boxman&bmc.com>
-#               8162-8181   Unassigned
+#               8162-8180   Unassigned
+intermapper     8181/tcp    Intermapper network management system
+#                           William Fisher <william.w.fisher&intermapper.com> 09 May 2011
+#               8181/udp    Reserved
 vmware-fdm      8182/tcp    VMware Fault Domain Manager
 vmware-fdm      8182/udp    VMware Fault Domain Manager
 #                           Ron Passerini <rpasserini&vmware.com> 27 April 2010 
@@ -14895,7 +14904,10 @@ dragonfly       8913/udp    Dragonfly System Service
 twds            8937/tcp    Transaction Warehouse Data Service
 #                           Lance M. Steenson <lance&transactionwarehouse.net> 18 September 2009
 #               8937/udp    Reserved
-#               8938-8953   Unassigned
+#               8938-8952   Unassigned
+ub-dns-control  8953/tcp    unbound dns nameserver control
+#                           Wouter Wijngaards <wouter&nlnetlabs.nl> 10 May 2011
+#               8953/udp    Reserved
 cumulus-admin   8954/tcp    Cumulus Admin Port
 cumulus-admin   8954/udp    Cumulus Admin Port
 #                           Thomas Schleu <tschleu&canto.de>
