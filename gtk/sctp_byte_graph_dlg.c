@@ -26,7 +26,6 @@
 #  include <config.h>
 #endif
 #include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
@@ -851,7 +850,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 {
 	struct sctp_udata *u_data = user_data;
 	sctp_graph_t *ios;
-	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value, frame;
+	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value;
 	gint label_width, label_height;
 	gdouble x_value, position, tfirst;
 	gint lwidth;
@@ -968,7 +967,6 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			tsn = (tsn_t*) (tsnlist->data);
 			tmptsn =(tsn_t*)(tsnlist->data);
 			tfirst = tsn->secs + tsn->usecs/1000000.0;
-			frame = tsn->frame_number;
 
 			while (tsnlist)
 			{
