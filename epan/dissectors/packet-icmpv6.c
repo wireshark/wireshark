@@ -130,6 +130,9 @@ static int hf_icmpv6_opt_target_linkaddr_mac = -1;
 static int hf_icmpv6_opt_linkaddr = -1;
 static int hf_icmpv6_opt_src_linkaddr = -1;
 static int hf_icmpv6_opt_target_linkaddr = -1;
+static int hf_icmpv6_opt_linkaddr_eui64 = -1;
+static int hf_icmpv6_opt_src_linkaddr_eui64 = -1;
+static int hf_icmpv6_opt_target_linkaddr_eui64 = -1;
 static int hf_icmpv6_opt_prefix_len = -1;
 static int hf_icmpv6_opt_prefix_flag = -1;
 static int hf_icmpv6_opt_prefix_flag_l = -1;
@@ -1261,7 +1264,18 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     link_str = tvb_ether_to_str(tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s",  link_str);
+                /* if the opt len is 16 and the 6 last bytes is 0n the Link Addr is EUI64 Address */ 
+                }else if(opt_len == 16 && tvb_get_ntohl(tvb, opt_offset + 8) == 0 && tvb_get_ntohs(tvb, opt_offset + 12) == 0){
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_eui64, tvb, opt_offset, 8, FALSE);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_eui64, tvb, opt_offset, 8, FALSE);
+                    PROTO_ITEM_SET_HIDDEN(ti_opt);
 
+                    /* Padding: 6 bytes */
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, FALSE);
+
+                    link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
+                    proto_item_append_text(ti, " : %s",  link_str);
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
@@ -1284,6 +1298,18 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", link_str);
                     proto_item_append_text(ti, " : %s",  link_str);
 
+                /* if the opt len is 16 and the 6 last bytes is 0n the Link Addr is EUI64 Address */ 
+                }else if(opt_len == 16 && tvb_get_ntohl(tvb, opt_offset + 8) == 0 && tvb_get_ntohs(tvb, opt_offset + 12) == 0){
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_eui64, tvb, opt_offset, 8, FALSE);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_eui64, tvb, opt_offset, 8, FALSE);
+                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+
+                    /* Padding: 6 bytes */
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, FALSE);
+
+                    link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
+                    proto_item_append_text(ti, " : %s",  link_str);
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
@@ -3759,22 +3785,31 @@ proto_register_icmpv6(void)
           { "Padding", "icmpv6.opt.padding", FT_NONE, BASE_NONE, NULL, 0x0,
             "Padding (Must be 0)", HFILL }},
         { &hf_icmpv6_opt_linkaddr,
-          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_src_linkaddr,
-          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_target_linkaddr,
-          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_linkaddr_mac,
-          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_src_linkaddr_mac,
-          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_target_linkaddr_mac,
-          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_linkaddr_eui64,
+          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_src_linkaddr_eui64,
+          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_target_linkaddr_eui64,
+          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_len,
           { "Prefix Length", "icmpv6.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
