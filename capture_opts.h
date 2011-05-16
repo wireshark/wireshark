@@ -84,6 +84,17 @@ typedef struct interface_options_tag {
     int buffer_size;
 #endif
     gboolean monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+    capture_source src_type;
+    gchar *remote_host;
+    gchar *remote_port;
+    capture_auth auth_type;
+    gchar *auth_username;
+    gchar *auth_password;
+    gboolean datatx_udp;
+    gboolean nocap_rpcap;
+    gboolean nocap_local;
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_sampling sampling_method;
     int sampling_param;
@@ -115,7 +126,7 @@ typedef struct capture_options_tag {
     interface_options default_options;
 #ifdef HAVE_PCAP_REMOTE
                                     /**< XXX: Should this whole block moved to
-                                      *< interface_options ?*/
+                                      *< interface_options ? Yes!*/
     capture_source src_type;        /**< Capturing on remote interface */
     gchar    *remote_host;          /**< Host name or network address
                                       *< for remote capturing */

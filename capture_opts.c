@@ -70,6 +70,17 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->default_options.buffer_size     = 1;                /* 1 MB */
 #endif
   capture_opts->default_options.monitor_mode    = FALSE;
+#ifdef HAVE_PCAP_REMOTE
+  capture_opts->default_options.src_type        = CAPTURE_IFLOCAL;
+  capture_opts->default_options.remote_host     = NULL;
+  capture_opts->default_options.remote_port     = NULL;
+  capture_opts->default_options.auth_type       = CAPTURE_AUTH_NULL;
+  capture_opts->default_options.auth_username   = NULL;
+  capture_opts->default_options.auth_password   = NULL;
+  capture_opts->default_options.datatx_udp      = FALSE;
+  capture_opts->default_options.nocap_rpcap     = TRUE;
+  capture_opts->default_options.nocap_local     = FALSE;
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
   capture_opts->default_options.sampling_method = CAPTURE_SAMP_NONE;
   capture_opts->default_options.sampling_param  = 0;
@@ -159,6 +170,27 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         g_log(log_domain, log_level, "Buffer size[%02d]    : %d (MB)", i, interface_opts.buffer_size);
 #endif
         g_log(log_domain, log_level, "Monitor Mode[%02d]   : %s", i, interface_opts.monitor_mode?"TRUE":"FALSE");
+#ifdef HAVE_PCAP_REMOTE
+        g_log(log_domain, log_level, "Capture source[%02d] : %s", i,
+            interface_opts.src_type == CAPTURE_IFLOCAL ? "Local interface" :
+            interface_opts.src_type == CAPTURE_IFREMOTE ? "Remote interface" :
+            "Unknown");
+        if (interface_opts.src_type == CAPTURE_IFREMOTE) {
+            g_log(log_domain, log_level, "Remote host[%02d]    : %s", i, interface_opts.remote_host);
+            g_log(log_domain, log_level, "Remote port[%02d]    : %s", i, interface_opts.remote_port);
+        }
+        g_log(log_domain, log_level, "Authentication[%02d] : %s", i,
+            interface_opts.auth_type == CAPTURE_AUTH_NULL ? "Null" :
+            interface_opts.auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
+            "Unknown");
+        if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
+            g_log(log_domain, log_level, "Auth username[%02d]  : %s", i, interface_opts.auth_password);
+            g_log(log_domain, log_level, "Auth password[%02d]  : <hidden>", i);
+        }
+        g_log(log_domain, log_level, "UDP data tfer[%02d]  : %u", i, interface_opts.datatx_udp);
+        g_log(log_domain, log_level, "No cap. RPCAP[%02d]  : %u", i, interface_opts.nocap_rpcap);
+        g_log(log_domain, log_level, "No cap. local[%02d]  : %u", i, interface_opts.nocap_local);
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
         g_log(log_domain, log_level, "Sampling meth.[%02d] : %d", i, interface_opts.sampling_method);
         g_log(log_domain, log_level, "Sampling param.[%02d]: %d", i, interface_opts.sampling_param);
@@ -174,6 +206,27 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Buffer size[df]    : %d (MB)", capture_opts->default_options.buffer_size);
 #endif
     g_log(log_domain, log_level, "Monitor Mode[df]   : %s", capture_opts->default_options.monitor_mode?"TRUE":"FALSE");
+#ifdef HAVE_PCAP_REMOTE
+    g_log(log_domain, log_level, "Capture source[df] : %s",
+        capture_opts->default_options.src_type == CAPTURE_IFLOCAL ? "Local interface" :
+        capture_opts->default_options.src_type == CAPTURE_IFREMOTE ? "Remote interface" :
+        "Unknown");
+    if (capture_opts->default_options.src_type == CAPTURE_IFREMOTE) {
+        g_log(log_domain, log_level, "Remote host[df]    : %s", capture_opts->default_options.remote_host);
+        g_log(log_domain, log_level, "Remote port[df]    : %s", capture_opts->default_options.remote_port);
+    }
+    g_log(log_domain, log_level, "Authentication[df] : %s",
+        capture_opts->default_options.auth_type == CAPTURE_AUTH_NULL ? "Null" :
+        capture_opts->default_options.auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
+        "Unknown");
+    if (capture_opts->default_options.auth_type == CAPTURE_AUTH_PWD) {
+        g_log(log_domain, log_level, "Auth username[df]  : %s", capture_opts->default_options.auth_password);
+        g_log(log_domain, log_level, "Auth password[df]  : <hidden>");
+    }
+    g_log(log_domain, log_level, "UDP data tfer[df]  : %u", capture_opts->default_options.datatx_udp);
+    g_log(log_domain, log_level, "No cap. RPCAP[df]  : %u", capture_opts->default_options.nocap_rpcap);
+    g_log(log_domain, log_level, "No cap. local[df]  : %u", capture_opts->default_options.nocap_local);
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     g_log(log_domain, log_level, "Sampling meth. [df]: %d", capture_opts->default_options.sampling_method);
     g_log(log_domain, log_level, "Sampling param.[df]: %d", capture_opts->default_options.sampling_param);
@@ -199,6 +252,10 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "UDP data transfer  : %u", capture_opts->datatx_udp);
     g_log(log_domain, log_level, "No capture RPCAP   : %u", capture_opts->nocap_rpcap);
     g_log(log_domain, log_level, "No capture local   : %u", capture_opts->nocap_local);
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+    g_log(log_domain, log_level, "Sampling meth.     : %d", capture_opts->sampling_method);
+    g_log(log_domain, log_level, "Sampling param.    : %d", capture_opts->sampling_param);
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
@@ -419,6 +476,20 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
     capture_opts->auth_type = CAPTURE_AUTH_PWD;
     capture_opts->auth_username = g_strdup(arg);
     capture_opts->auth_password = g_strdup(p);
+    if (capture_opts->ifaces->len > 0) {
+        interface_options interface_opts;
+
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+        capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+        interface_opts.auth_type = CAPTURE_AUTH_PWD;
+        interface_opts.auth_username = g_strdup(arg);
+        interface_opts.auth_password = g_strdup(p);
+        g_array_append_val(capture_opts->ifaces, interface_opts);
+    } else {
+        capture_opts->default_options.auth_type = CAPTURE_AUTH_PWD;
+        capture_opts->default_options.auth_username = g_strdup(arg);
+        capture_opts->default_options.auth_password = g_strdup(p);
+    }
     *colonp = ':';
     return TRUE;
 }
@@ -503,6 +574,33 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
     interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+    interface_opts.src_type = capture_opts->default_options.src_type;
+    if (capture_opts->default_options.remote_host) {
+        interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+    } else {
+        interface_opts.remote_host = NULL;
+    }
+    if (capture_opts->default_options.remote_port) {
+        interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
+    } else {
+        interface_opts.remote_port = NULL;
+    }
+    interface_opts.auth_type = capture_opts->default_options.auth_type;
+    if (capture_opts->default_options.auth_username) {
+        interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+    } else {
+        interface_opts.auth_username = NULL;
+    }
+    if (capture_opts->default_options.auth_password) {
+        interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
+    } else {
+        interface_opts.auth_password = NULL;
+    }
+    interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
+    interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+    interface_opts.nocap_local = capture_opts->default_options.nocap_local;
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     interface_opts.sampling_method = capture_opts->default_options.sampling_method;
     interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
@@ -639,6 +737,16 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #ifdef HAVE_PCAP_REMOTE
     case 'r':
         capture_opts->nocap_rpcap = FALSE;
+        if (capture_opts->ifaces->len > 0) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            interface_opts.nocap_rpcap = FALSE;
+            g_array_append_val(capture_opts->ifaces, interface_opts);
+        } else {
+            capture_opts->default_options.nocap_rpcap = FALSE;
+        }
         break;
 #endif
     case 's':        /* Set the snapshot (capture) length */
@@ -667,6 +775,16 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #ifdef HAVE_PCAP_REMOTE
     case 'u':
         capture_opts->datatx_udp = TRUE;
+        if (capture_opts->ifaces->len > 0) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            interface_opts.datatx_udp = TRUE;
+            g_array_append_val(capture_opts->ifaces, interface_opts);
+        } else {
+            capture_opts->default_options.datatx_udp = TRUE;
+        }
         break;
 #endif
     case 'w':        /* Write to capture file x */
@@ -853,6 +971,33 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
         interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
         interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+        interface_opts.src_type = capture_opts->default_options.src_type;
+        if (capture_opts->default_options.remote_host) {
+            interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+        } else {
+            interface_opts.remote_host = NULL;
+        }
+        if (capture_opts->default_options.remote_port) {
+            interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
+        } else {
+            interface_opts.remote_port = NULL;
+        }
+        interface_opts.auth_type = capture_opts->default_options.auth_type;
+        if (capture_opts->default_options.auth_username) {
+            interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+        } else {
+            interface_opts.auth_username = NULL;
+        }
+        if (capture_opts->default_options.auth_password) {
+            interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
+        } else {
+            interface_opts.auth_password = NULL;
+        }
+        interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
+        interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+        interface_opts.nocap_local = capture_opts->default_options.nocap_local;
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
         interface_opts.sampling_method = capture_opts->default_options.sampling_method;
         interface_opts.sampling_param  = capture_opts->default_options.sampling_param;

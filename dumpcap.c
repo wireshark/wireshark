@@ -524,18 +524,13 @@ relinquish_all_capabilities(void)
 
 static pcap_t *
 open_capture_device(interface_options *interface_opts,
-#ifdef HAVE_PCAP_OPEN
-                    capture_options *capture_opts,
-#else
-                    capture_options *capture_opts _U_,
-#endif
                     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
     pcap_t *pcap_h;
 #ifdef HAVE_PCAP_CREATE
     int         err;
 #endif
-#ifdef HAVE_PCAP_REMOTE
+#if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
     struct pcap_rmtauth auth;
 #endif
 
@@ -544,7 +539,7 @@ open_capture_device(interface_options *interface_opts,
        if they succeed; to tell if that's happened, we have to clear
        the error buffer, and check if it's still a null string.  */
     (*open_err_str)[0] = '\0';
-#ifdef HAVE_PCAP_OPEN
+#if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
     /*
      * If we're opening a remote device, use pcap_open(); that's currently
      * the only open routine that supports remote devices.
@@ -552,17 +547,17 @@ open_capture_device(interface_options *interface_opts,
     if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
         auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
             RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
-        auth.username = capture_opts->auth_username;
-        auth.password = capture_opts->auth_password;
+        auth.username = interface_opts->auth_username;
+        auth.password = interface_opts->auth_password;
 
         pcap_h = pcap_open(interface_opts->name, interface_opts->snaplen,
                            /* flags */
                            (interface_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
-                           (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
-                           (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
+                           (interface_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
+                           (interface_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                            CAP_READ_TIMEOUT, &auth, *open_err_str);
     } else
-#endif /* HAVE_PCAP_OPEN */
+#endif
     {
         /*
          * If we're not opening a remote device, use pcap_create() and
@@ -747,7 +742,7 @@ show_filter_code(capture_options *capture_opts)
 
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
-        pcap_h = open_capture_device(&interface_opts, capture_opts, &open_err_str);
+        pcap_h = open_capture_device(&interface_opts, &open_err_str);
         if (pcap_h == NULL) {
             /* Open failed; get messages */
             get_capture_device_open_failure_messages(open_err_str,
@@ -2246,7 +2241,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
 
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", interface_opts.name);
-        pcap_opts.pcap_h = open_capture_device(&interface_opts, capture_opts, &open_err_str);
+        pcap_opts.pcap_h = open_capture_device(&interface_opts, &open_err_str);
 
         if (pcap_opts.pcap_h != NULL) {
             /* we've opened "iface" as a network device */
