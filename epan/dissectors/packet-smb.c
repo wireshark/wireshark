@@ -11932,7 +11932,7 @@ int
 dissect_qfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	/* file id */
+	/* file position */
 	CHECK_BYTE_COUNT_SUBR(8);
 	proto_tree_add_item(tree, hf_smb_position, tvb, offset, 8, TRUE);
 	COUNT_BYTES_SUBR(8);
@@ -12008,7 +12008,7 @@ int
 dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	/* end of file */
+	/* offset of end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
 	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
 	COUNT_BYTES_SUBR(8);
@@ -15899,37 +15899,50 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
-				/* FIND_FIRST2 */
-				if(t2i && t2i->subcmd==0x0001){
-					item=proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
+				switch (t2i->subcmd) {
+
+				case 0x0001:	/* FIND_FIRST2 */
+					if (t2i->info_level == -1)
+						item=proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+					else
+						item=proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
 					if(t2i->name){
 						item=proto_tree_add_string(tree, hf_smb_search_pattern, tvb, 0, 0, t2i->name);
 						PROTO_ITEM_SET_GENERATED(item);
 					}
-				}
+					break;
 
-				/* QUERY_PATH_INFORMATION */
-				if(t2i && t2i->subcmd==0x0005){
-					item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
+				case 0x0005:	/* QUERY_PATH_INFORMATION */
+					if (t2i->info_level == -1)
+						item=proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+					else
+						item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
 					if(t2i->name){
 						item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, t2i->name);
 						PROTO_ITEM_SET_GENERATED(item);
 					}
-				}
-				/* QUERY_FILE_INFORMATION */
-				if(t2i && t2i->subcmd==0x0007){
-					item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
+					break;
+
+				case 0x0007:	/* QUERY_FILE_INFORMATION */
+					if (t2i->info_level == -1)
+						item=proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+					else
+						item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
-				}
-				/* QUERY_FS_INFORMATION */
-				if(t2i && t2i->subcmd==0x0003){
-					item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
+					break;
+
+				case 0x0003:	/* QUERY_FS_INFORMATION */
+					if (t2i->info_level == -1)
+						item=proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+					else
+						item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
+					break;
 				}
 
-				if (t2i && check_col(pinfo->cinfo, COL_INFO)) {
+				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str_ext(t2i->subcmd,
 							       &trans2_cmd_vals_ext,
