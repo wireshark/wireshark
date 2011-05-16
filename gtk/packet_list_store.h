@@ -65,9 +65,9 @@ struct _PacketListRecord
 	frame_data *fdata;
 
 	/** Has this record been columnized? */
-	gboolean columnized:1;
+	gboolean columnized;
 	/** Has this record been colorized? */
-	gboolean colorized:1;
+	gboolean colorized;
 
 	/* admin stuff used by the custom list model */
 	/** position within the physical array */
