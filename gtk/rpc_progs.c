@@ -409,8 +409,13 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	gdk_window_raise(win->window);
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer data _U_)
+#else
 static void
 gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
+#endif
 {
 	gtk_rpcprogs_init("",NULL);
 }
@@ -420,6 +425,9 @@ register_tap_listener_gtkrpcprogs(void)
 {
 	register_stat_cmd_arg("rpc,programs", gtk_rpcprogs_init,NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("ONC-RPC Programs", REGISTER_STAT_GROUP_UNSORTED,
 	gtk_rpcprogs_cb, NULL, NULL, NULL);
+#endif
 }

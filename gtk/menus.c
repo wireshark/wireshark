@@ -1264,6 +1264,9 @@ static const char *ui_desc_menubar =
 "        <menuitem name='RTT-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>\n"
 "        <menuitem name='Window-Scaling-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
 "      </menu>\n"
+"      <menuitem name='ONC-RPC-Programs' action='/Analyze/StatisticsMenu/ONC-RPC-Programs'/>\n"
+"      <menuitem name='UDPMulticastStreams' action='/Analyze/StatisticsMenu/UDPMulticastStreams'/>\n"
+"      <menuitem name='WLANTraffic' action='/Analyze/StatisticsMenu/WLANTraffic'/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
 "      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
@@ -1656,11 +1659,15 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
    { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },
    { "/Analyze/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",	NULL, "Time-Sequence Graph (Stevens)",	NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace",	NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",				NULL, "Throughput Graph",				NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",					NULL, "Round Trip Time Graph",			NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",			NULL, "Window Scaling Graph",			NULL, NULL, 	G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",	NULL, "Time-Sequence Graph (Stevens)",	NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace",	NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",				NULL, "Throughput Graph",				NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",					NULL, "Round Trip Time Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",			NULL, "Window Scaling Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   
+   { "/Analyze/StatisticsMenu/ONC-RPC-Programs",								NULL, "ONC-RPC Programs",				NULL, NULL,	G_CALLBACK(gtk_rpcprogs_cb) },
+   { "/Analyze/StatisticsMenu/UDPMulticastStreams",								NULL, "UDP Multicast Streams",			NULL, NULL,	G_CALLBACK(mcaststream_launch) },
+   { "/Analyze/StatisticsMenu/WLANTraffic",										NULL, "WLAN Traffic",					NULL, NULL,	G_CALLBACK(wlanstat_launch) },
 
    { "/Statistics/Summary",						GTK_STOCK_PROPERTIES,			"_Summary",						NULL, NULL,	G_CALLBACK(summary_open_cb) },
    { "/Statistics/ProtocolHierarchy",			NULL,							"_Protocol Hierarchy",			NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },

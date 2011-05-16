@@ -773,8 +773,13 @@ mcaststream_dlg_show(GList *list)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+mcaststream_launch(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 mcaststream_launch(GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	/* Register the tap listener */
 	register_tap_listener_mcast_stream();
@@ -792,6 +797,9 @@ mcaststream_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_mcast_stream_dlg(void)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("UDP Multicast Streams", REGISTER_STAT_GROUP_UNSORTED,
 	    mcaststream_launch, NULL, NULL, NULL);
+#endif
 }

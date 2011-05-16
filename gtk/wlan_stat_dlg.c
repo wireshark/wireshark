@@ -1958,8 +1958,13 @@ wlanstat_dlg_create (void)
 	gdk_window_raise(wlanstat_dlg_w->window);
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+wlanstat_launch (GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 wlanstat_launch (GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	if (wlanstat_dlg_w) {
 		reactivate_window(wlanstat_dlg_w);
@@ -1975,6 +1980,9 @@ register_tap_listener_wlanstat (void)
 
       	SET_ADDRESS(&broadcast, AT_ETHER, 6, src);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item ("WLAN Traffic", REGISTER_STAT_GROUP_UNSORTED,
 				 wlanstat_launch, NULL, NULL, NULL);
+#endif
 }

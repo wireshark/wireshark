@@ -158,6 +158,10 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
 void tcp_graph_cb (GtkAction *action, gpointer user_data);
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);
 
+void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);
+void mcaststream_launch(GtkAction *action, gpointer user_data);
+void wlanstat_launch(GtkAction *action, gpointer user_data);
+
 extern void register_stat_menu_item_stock(
     register_stat_group_t group,
     const char   *gui_path,
