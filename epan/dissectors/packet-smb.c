@@ -12375,7 +12375,7 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* unix ACL
 */
 static int
-dissect_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc)
 {
 	guint16 num_file_aces;
@@ -12481,7 +12481,7 @@ dissect_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static int
-dissect_unix_xattr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+dissect_qspi_unix_xattr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
 		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
@@ -12490,7 +12490,7 @@ dissect_unix_xattr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _
 }
 
 static int
-dissect_unix_attr_flags(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+dissect_qspi_unix_attr_flags(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
 		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
@@ -12508,7 +12508,7 @@ dissect_qpi_unix_permissions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_unix_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+dissect_qspi_unix_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
 		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
@@ -12517,7 +12517,7 @@ dissect_unix_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 }
 
 static int
-dissect_unix_open(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+dissect_qspi_unix_open(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
 		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
@@ -12526,7 +12526,7 @@ dissect_unix_open(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 }
 
 static int
-dissect_unix_unlink(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+dissect_qspi_unix_unlink(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
 		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
@@ -12606,7 +12606,7 @@ dissect_unix_info2_file_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 }
 
 static int
-dissect_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		  int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* End of file (file size) */
@@ -13003,15 +13003,15 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* XXX add this from the SNIA doc */
 		break;
 	case 0x0204:	/* Query File Unix ACL*/
-		offset = dissect_unix_acl(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_acl(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0205:	/* Query File Unix XATTR*/
-		offset = dissect_unix_xattr(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_xattr(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0206:	/* Query File Unix Attr Flags*/
-		offset = dissect_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0207:	/* Query File Unix Permissions*/
@@ -13019,11 +13019,11 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 					   &trunc);
 		break;
 	case 0x0208:	/* Query File Unix Lock*/
-		offset = dissect_unix_lock(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_lock(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x020b:	/* Query File Unix Info2*/
-		offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_info2(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	}
@@ -13090,31 +13090,31 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 0x0204:	/* Set File Unix ACL*/
-		offset = dissect_unix_acl(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_acl(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0205:	/* Set File Unix XATTR*/
-		offset = dissect_unix_xattr(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_xattr(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0206:	/* Set File Unix Attr Flags*/
-		offset = dissect_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0208:	/* Set File Unix Lock*/
-		offset = dissect_unix_lock(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_lock(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0209:	/* Set File Unix Open*/
-		offset = dissect_unix_open(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_open(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x020a:	/* Set File Unix Unlink*/
-		offset = dissect_unix_unlink(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_unlink(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x020b:	/* Set File Unix Info2*/
-		offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qspi_unix_info2(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 1010:	/* Set File Rename */
@@ -14793,7 +14793,7 @@ dissect_find_file_unix_info2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	COUNT_BYTES_SUBR(4);
 
 	/* Unix Info2 */
-	offset = dissect_unix_info2(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_qspi_unix_info2(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc)
 		return offset;
 
