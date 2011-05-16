@@ -873,7 +873,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         if (next_header == LOWPAN_HC1_NEXT_UDP) {
             hc_udp_encoding = tvb_get_guint8(tvb, offset);
             if (tree) {
-                ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint8), "HC_UDP Encoding");
+                ti = proto_tree_add_text(tree, tvb, offset, sizeof(guint8), "HC_UDP Encoding");
                 hc_tree = proto_item_add_subtree(ti, ett_6lowpan_hc2_udp);
                 proto_tree_add_boolean(hc_tree, hf_6lowpan_hc2_udp_src, tvb, offset, sizeof(guint8), hc_udp_encoding & LOWPAN_HC2_UDP_SRCPORT);
                 proto_tree_add_boolean(hc_tree, hf_6lowpan_hc2_udp_dst, tvb, offset, sizeof(guint8), hc_udp_encoding & LOWPAN_HC2_UDP_DSTPORT);
