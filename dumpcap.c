@@ -123,6 +123,12 @@
 /**#define DEBUG_DUMPCAP**/
 /**#define DEBUG_CHILD_DUMPCAP**/
 
+#ifdef _WIN32
+#ifdef DEBUG_DUMPCAP
+#include <conio.h>          /* _getch() */
+#endif
+#endif
+
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
