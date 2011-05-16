@@ -334,7 +334,7 @@ eui64_to_str(const guint64 ad) {
   buf=ep_alloc(EUI64_STR_LEN);
 
   /* Copy and convert the address to network byte order. */
-  *(guint64 *)(p_eui64) = pntoh64(&(ad));
+  *(guint64 *)(void *)(p_eui64) = pntoh64(&(ad));
 
   sprintf(buf, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
   p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],

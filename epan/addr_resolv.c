@@ -3059,7 +3059,7 @@ get_eui64_name(const guint64 addr_eui64)
   guint8 *addr = ep_alloc(8);
   
   /* Copy and convert the address to network byte order. */
-  *(guint64 *)(addr) = pntoh64(&(addr_eui64));
+  *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
   if ((gbl_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
     initialize_ethers();
@@ -3084,7 +3084,7 @@ get_eui64_name_if_known(const guint64 addr_eui64)
   guint8 *addr = ep_alloc(8);
 
   /* Copy and convert the address to network byte order. */
-  *(guint64 *)(addr) = pntoh64(&(addr_eui64));
+  *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
