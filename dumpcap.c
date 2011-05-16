@@ -2279,12 +2279,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         sync_msg_str = g_strdup_printf(
                             "Unknown sampling method %d specified,\n"
                             "continue without packet sampling",
-                            interface_opts->sampling_method);
+                            interface_opts.sampling_method);
                         report_capture_error("Couldn't set the capture "
                                              "sampling", sync_msg_str);
                         g_free(sync_msg_str);
                     }
-                    samp->value = interface_opts->sampling_param;
+                    samp->value = interface_opts.sampling_param;
                 } else {
                     report_capture_error("Couldn't set the capture sampling",
                                          "Cannot get packet sampling data structure");
