@@ -108,7 +108,6 @@ typedef struct capture_options_tag {
                                       *<      Replaced by interface_options.descr */
     GArray   *ifaces;               /**< array of interfaces.
                                          Currently only used by dumpcap. */
-    gint      number_of_ifaces;     /**< Curently only used by dumpcap. */
     interface_options default_options;
 #ifdef HAVE_PCAP_REMOTE
                                     /**< XXX: Should this whole block moved to

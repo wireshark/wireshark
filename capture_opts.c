@@ -60,7 +60,6 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->iface                        = NULL;             /* Default is "pick the first interface" */
   capture_opts->iface_descr                  = NULL;
   capture_opts->ifaces                       = g_array_new(FALSE, FALSE, sizeof(interface_options));
-  capture_opts->number_of_ifaces             = 0;
   capture_opts->default_options.name         = g_strdup("");
   capture_opts->default_options.descr        = g_strdup("");
   capture_opts->default_options.cfilter      = g_strdup("");
@@ -136,13 +135,13 @@ capture_opts_init(capture_options *capture_opts, void *cf)
 /* log content of capture_opts */
 void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts) {
-    gint i;
+    guint i;
 
     g_log(log_domain, log_level, "CAPTURE OPTIONS    :");
-    g_log(log_domain, log_level, "CFile              : 0x%p", capture_opts->cf);
+    g_log(log_domain, log_level, "CFile              : %p", capture_opts->cf);
     g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
 
-    for (i = 0; i < capture_opts->number_of_ifaces; i++) {
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_options options;
         
         options = g_array_index(capture_opts->ifaces, interface_options, i);
@@ -459,7 +458,6 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     options.monitor_mode = capture_opts->default_options.monitor_mode;
 
     g_array_append_val(capture_opts->ifaces, options);
-    capture_opts->number_of_ifaces++;
 
     return 0;
 }
@@ -494,11 +492,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     case 'B':        /* Buffer size */
         capture_opts->buffer_size = get_positive_int(optarg_str_p, "buffer size");
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             options.buffer_size = get_positive_int(optarg_str_p, "buffer size");
             g_array_append_val(capture_opts->ifaces, options);
         } else {
@@ -518,11 +516,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->has_cfilter = TRUE;
         g_free(capture_opts->cfilter);
         capture_opts->cfilter = g_strdup(optarg_str_p);
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             g_free(options.cfilter);
             options.cfilter = g_strdup(capture_opts->cfilter);
             g_array_append_val(capture_opts->ifaces, options);
@@ -543,11 +541,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #ifdef HAVE_PCAP_CREATE
     case 'I':        /* Capture in monitor mode */
         capture_opts->monitor_mode = TRUE;
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             options.monitor_mode = TRUE;
             g_array_append_val(capture_opts->ifaces, options);
         } else {
@@ -572,11 +570,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     case 'p':        /* Don't capture in promiscuous mode */
         capture_opts->promisc_mode = FALSE;
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             options.promisc_mode = FALSE;
             g_array_append_val(capture_opts->ifaces, options);
         } else {
@@ -601,11 +599,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
          */
         if (capture_opts->snaplen == 0)
             capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             options.snaplen = capture_opts->snaplen;
             g_array_append_val(capture_opts->ifaces, options);
         } else {
@@ -641,11 +639,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
                        optarg_str_p);
             return 1;
         }
-        if (capture_opts->number_of_ifaces > 0) {
+        if (capture_opts->ifaces->len > 0) {
             interface_options options;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->number_of_ifaces - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->number_of_ifaces - 1);
+            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
             options.linktype = linktype_name_to_val(optarg_str_p);
             g_array_append_val(capture_opts->ifaces, options);
         } else {
@@ -708,7 +706,7 @@ capture_opts_print_interfaces(GList *if_list)
 
 void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
-    gint i;
+    guint i;
     interface_options options;
 
     if (capture_opts->snaplen < 1)
@@ -716,7 +714,7 @@ void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
     else if (capture_opts->snaplen < snaplen_min)
         capture_opts->snaplen = snaplen_min;
 
-    for (i = 0; i < capture_opts->number_of_ifaces; i++) {
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
         options = g_array_index(capture_opts->ifaces, interface_options, 0);
         capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, 0);
         if (options.snaplen < 1)
@@ -755,7 +753,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 
 
     /* Did the user specify an interface to use? */
-    if (capture_opts->number_of_ifaces == 0) {
+    if (capture_opts->ifaces->len == 0) {
         /* No - is a default specified in the preferences file? */
         if (capture_device != NULL) {
             /* Yes - use it. */
@@ -800,7 +798,6 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 #endif
         options.monitor_mode = capture_opts->default_options.monitor_mode;
         g_array_append_val(capture_opts->ifaces, options);
-        capture_opts->number_of_ifaces++;
     }
 
     return TRUE;
