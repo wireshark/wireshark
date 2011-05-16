@@ -3476,7 +3476,7 @@ typedef struct
   guint16  EARFCN;
   gboolean existMeasurementBandwidth;
   guint8   MeasurementBandwidth;
-} RepeatedEUTRAN_Cells_t;;
+} RepeatedEUTRAN_Cells_t;
 
 typedef struct
 {
