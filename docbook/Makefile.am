@@ -19,7 +19,7 @@ FOP_OPTS=-Xmx256m
 # (See Bug # 1446 for note re 'force-html' below)
 # Sorry about the indenting, but that's what automake requires...
 if HAVE_ELINKS
-HTML2TXT=$(ELINKS) -dump -dump-width 72
+HTML2TXT=$(ELINKS) -dump -dump-width 72 -no-numbering -no-references
 ## links: -dump requires 'url' argument (as opposed to elinks & lynx)
 ## (Rather than fixing things we'll just disable the use of links).
 ##else

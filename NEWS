@@ -1,49 +1,125 @@
-Wireshark 1.3.0 Release Notes
+Wireshark 1.6.0rc1 Release Notes
 
    ------------------------------------------------------------------
 
 What is Wireshark?
 
    Wireshark is the world's most popular network protocol analyzer.
-   It is used for troubleshooting, analysis, development, and
+   It is used for troubleshooting, analysis, development and
    education.
 
 What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
-
-     o The NetFlow dissector could run off with your dog, crash your
-       truck, and write a country music song about the experience.
-
-       Versions affected: 0.99.5 to 1.0.8
-
    The following bugs have been fixed:
 
-     o Wireshark could crash without warning.
+     o Wireshark is unresponsive when capturing from named pipes on
+       Windows. (Bug 1759)
+
+     o Ring buffers are no longer turned on by default when using
+       multiple capture files.
 
   New and Updated Features
 
    The following features are new (or have been significantly
-   updated) since version 1.0:
+   updated) since version 1.4:
 
-     o The packet list internals have been rewritten and are now more
-       efficient.
+     o Wireshark can import text dumps, similar to text2pcap.
 
-     o Capturing from pipes on Windows has been improved.
+     o You can now view Wireshark's dissector tables (for example the
+       TCP port to dissector mappings) from the main window.
+
+     o TShark can show a specific occurrence of a field when using
+       '-T fields'.
+
+     o Custom columns can show a specific occurrence of a field.
+
+     o You can hide columns in the packet list.
+
+     o Wireshark can now export SMB objects.
+
+     o dftest and randpkt now have manual pages.
+
+     o TShark can now display iSCSI, ICMP and ICMPv6 service response
+       times.
+
+     o Dumpcap can now save files with a user-specified group id.
+
+     o Syntax checking is done for capture filters.
+
+     o You can display the compiled BPF code for capture filters in
+       the Capture Options dialog.
+
+     o You can now navigate backwards and forwards through TCP and
+       UDP sessions using Ctrl+, and Ctrl+. .
+
+     o Packet length is (finally) a default column.
+
+     o TCP window size is now avaiable both scaled and unscaled. A
+       TCP window scaling graph is available in the GUI.
+
+     o 802.1q VLAN tags are now shown by the Ethernet II dissector.
+
+     o Various dissectors now display some UTF-16 strings as proper
+       Unicode including the DCE/RPC and SMB dissectors.
+
+     o The RTP player now has an option to show the time of day in
+       the graph in addition to the seconds since beginning of
+       capture.
+
+     o The RTP player now shows why media interruptions occur.
+
+     o Graphs now save as PNG images by default.
+
+     o TShark can read and write host name information from and to
+       pcapng-formatted files. Wireshark can read it. TShark can dump
+       host name information via
+
+       [-z hosts]
+
+       .
+
+     o The tshark -z option now uses the
+
+       [-z <proto>,srt]
+
+       syntax instead of
+
+       [-z <proto>,rtt]
+
+       for all protocols that support service response time
+       statistics. This syntax now matches Wireshark's syntax for
+       this option.
 
   New Protocol Support
+
+   ADwin, ADwin-Config, Apache Etch, Aruba PAPI, Babel Routing
+   Protocol, Broadcast/Multicast Control, Constrained Application
+   Protocol (COAP), Digium TDMoE, Erlang Distribution Protocol,
+   Ether-S-I/O, FastCGI, Fibre Channel over InfiniBand (FCoIB),
+   Gopher, Gigamon GMHDR, IDMP, Infiniband Socket Direct Protocol
+   (SDP), JSON, LISP Control, LISP Data, LISP, MikroTik MAC-Telnet,
+   MRP Multiple Mac Registration Protocol (MMRP) Mongo Wire Protocol,
+   MUX27010, Network Monitor 802.11 radio header, OPC UA
+   ExtensionObjects, GPPI-GEOLOCATION-GPS, ReLOAD, ReLOAD Framing,
+   RObust Header Compression (ROHC), RSIP, SAMETIME, SCoP, SGSAP,
+   Tektronix Teklink, USB/AT Commands, uTorrent Transport Protocol,
+   WAI authentication, Wi-Fi P2P (Wi-Fi Direct)
 
   Updated Protocol Support
 
   New and Updated Capture File Support
 
+   Apple PacketLogger, Catapult DCT2000, Daintree SNA, Endace ERF, HP
+   OpenVMS TCPTrace, IPFIX (the file format, not the protocol),
+   Lucent/Ascend debug, Microsoft Network Monitor, Network
+   Instruments, TamoSoft CommView
+
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the download page on the main web site.
+   http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
@@ -58,44 +134,48 @@ File Locations
    Wireshark and TShark look in several different locations for
    preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
    These locations vary from platform to platform. You can use
-   About->Folders to find the default locations on your system.
+   About→Folders to find the default locations on your system.
 
 Known Problems
 
-   Wireshark may appear offscreen on multi-monitor Windows systems.
-   (Bug 553)
-
    Wireshark might make your system disassociate from a wireless
-   network on OS X. (Bug 1315)
+   network on OS X 10.4. (Bug 1315)
 
    Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
-   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
-
    The BER dissector might infinitely loop. (Bug 1516)
-
-   Wireshark can't dynamically update the packet list. This means
-   that host name resolutions above a certain response time threshold
-   won't show up in the packet list. (Bug 1605)
 
    Capture filters aren't applied when capturing from named pipes.
    (Bug 1814)
 
-   Wireshark might freeze when reading from a pipe. (Bug 2082)
-
-   Capturing from named pipes might be delayed on Windows. (Bug 2200)
-
    Filtering tshark captures with display filters (-R) no longer
    works. (Bug 2234)
 
+   The 64-bit Windows installer does not ship with libsmi. (Win64
+   development page)
+
+   Application crash when changing real-time option. (Bug 4035)
+
+   Hex pane display issue after startup. (Bug 4056)
+
+   Crash when sorting column while capturing. (Bug 4273)
+
+   Packet list rows are oversized. (Bug 4357)
+
+   Summary pane selected frame highlighting not maintained. (Bug
+   4445)
+
+   Character echo pauses in Capture Filter field in Capture Options.
+   (Bug 5356)
+
 Getting Help
 
-   Community support is available on the wireshark-users mailing
-   list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on the web site.
+   Community support is available on Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and
+   archives for all of Wireshark's mailing lists can be found on the
+   web site.
 
-   Commercial support, training, and development services are
-   available from CACE Technologies.
+   Training is available from Wireshark University.
 
 Frequently Asked Questions
 
