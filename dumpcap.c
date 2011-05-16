@@ -120,8 +120,8 @@
  */
 #include "wiretap/libpcap.h"
 
-#define DEBUG_DUMPCAP
-#define DEBUG_CHILD_DUMPCAP
+/**#define DEBUG_DUMPCAP**/
+/**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
@@ -3392,6 +3392,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
     if (ld->pdh) {
         gboolean successful;
+
         /* We're supposed to write the packet to a file; do so.
            If this fails, set "ld->go" to FALSE, to stop the capture, and set
            "ld->err" to the error. */
@@ -3406,8 +3407,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
         } else {
             ld->packet_count++;
             /* if the user told us to stop after x packets, do we already have enough? */
-            if ((ld->packet_max > 0) && (ld->packet_count >= ld->packet_max))
-            {
+            if ((ld->packet_max > 0) && (ld->packet_count >= ld->packet_max)) {
                 ld->go = FALSE;
             }
         }
