@@ -4791,7 +4791,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 				ti = proto_tree_add_bytes_format_value(pdutree, hf_ipfix_enterprise_private_entry,
 								  tvb, offset, length, NULL,
 								  "(%s) Type %u: Value (hex bytes): %s",
-								  pen_str,
+								  pen_str ? pen_str : "(null)",
 								  masked_type,
 								  tvb_bytes_to_str_punct(tvb, offset, length, ' '));
 			}
@@ -6092,7 +6092,7 @@ proto_register_netflow(void)
 		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
-		{&hf_cflow_permanent_packets, 
+		{&hf_cflow_permanent_packets,
 		 {"Permanent Packets", "cflow.permanent_packets",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Running Count of packets for permanent flows", HFILL}
