@@ -84,6 +84,10 @@ typedef struct interface_options_tag {
     int buffer_size;
 #endif
     gboolean monitor_mode;
+#ifdef HAVE_PCAP_SETSAMPLING
+    capture_sampling sampling_method;
+    int sampling_param;
+#endif
 } interface_options;
 
 /** Capture options coming from user interface */
@@ -126,10 +130,12 @@ typedef struct capture_options_tag {
     gboolean nocap_local;           /**< TODO: Whether to capture local traffic */
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-                                    /**< XXX: Should this whole block moved to
-                                      *< interface_options ?*/
-    capture_sampling sampling_method; /**< PCAP packet sampling method */
-    int sampling_param;             /**< PCAP packet sampling parameter */
+    capture_sampling sampling_method; /**< PCAP packet sampling method
+                                        *< XXX: Can finally be be removed.
+                                        *<      Replaced by interface_options.sampling_method */
+    int sampling_param;             /**< PCAP packet sampling parameter
+                                      *< XXX: Can finally be be removed.
+                                      *<      Replaced by interface_options.sampling_param */
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     int      buffer_size;           /**< the capture buffer size (MB)

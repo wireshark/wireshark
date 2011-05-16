@@ -2266,13 +2266,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             }
 #endif
 
-#if defined(HAVE_PCAP_REMOTE) && defined(HAVE_PCAP_SETSAMPLING)
-            if ((capture_opts->sampling_method != CAPTURE_SAMP_NONE) &&
-                (strncmp (interface_opts.name, "rpcap://", 8) == 0)) {
+#if defined(HAVE_PCAP_SETSAMPLING)
+            if (interface_opts.sampling_method != CAPTURE_SAMP_NONE) {
                 struct pcap_samp *samp;
 
                 if ((samp = pcap_setsampling(pcap_opts.pcap_h)) != NULL) {
-                    switch (capture_opts->sampling_method) {
+                    switch (interface_opts.sampling_method) {
                     case CAPTURE_SAMP_BY_COUNT:
                         samp->method = PCAP_SAMP_1_EVERY_N;
                         break;
@@ -2285,12 +2284,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         sync_msg_str = g_strdup_printf(
                             "Unknown sampling method %d specified,\n"
                             "continue without packet sampling",
-                            capture_opts->sampling_method);
+                            interface_opts->sampling_method);
                         report_capture_error("Couldn't set the capture "
                                              "sampling", sync_msg_str);
                         g_free(sync_msg_str);
                     }
-                    samp->value = capture_opts->sampling_param;
+                    samp->value = interface_opts->sampling_param;
                 } else {
                     report_capture_error("Couldn't set the capture sampling",
                                          "Cannot get packet sampling data structure");

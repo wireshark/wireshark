@@ -55,79 +55,83 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 void
 capture_opts_init(capture_options *capture_opts, void *cf)
 {
-  capture_opts->cf                           = cf;
-  capture_opts->cfilter                      = g_strdup("");     /* No capture filter string specified */
-  capture_opts->iface                        = NULL;             /* Default is "pick the first interface" */
-  capture_opts->iface_descr                  = NULL;
-  capture_opts->ifaces                       = g_array_new(FALSE, FALSE, sizeof(interface_options));
-  capture_opts->default_options.name         = g_strdup("");
-  capture_opts->default_options.descr        = g_strdup("");
-  capture_opts->default_options.cfilter      = g_strdup("");
-  capture_opts->default_options.snaplen      = WTAP_MAX_PACKET_SIZE;
-  capture_opts->default_options.linktype     = -1;
-  capture_opts->default_options.promisc_mode = TRUE;
+  capture_opts->cf                              = cf;
+  capture_opts->cfilter                         = g_strdup("");     /* No capture filter string specified */
+  capture_opts->iface                           = NULL;             /* Default is "pick the first interface" */
+  capture_opts->iface_descr                     = NULL;
+  capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
+  capture_opts->default_options.name            = NULL;
+  capture_opts->default_options.descr           = NULL;
+  capture_opts->default_options.cfilter         = g_strdup("");
+  capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE;
+  capture_opts->default_options.linktype        = -1;
+  capture_opts->default_options.promisc_mode    = TRUE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  capture_opts->default_options.buffer_size  = 1;                /* 1 MB */
+  capture_opts->default_options.buffer_size     = 1;                /* 1 MB */
 #endif
-  capture_opts->default_options.monitor_mode = FALSE;
+  capture_opts->default_options.monitor_mode    = FALSE;
+#ifdef HAVE_PCAP_SETSAMPLING
+  capture_opts->default_options.sampling_method = CAPTURE_SAMP_NONE;
+  capture_opts->default_options.sampling_param  = 0;
+#endif
 #ifdef HAVE_PCAP_REMOTE
-  capture_opts->src_type                     = CAPTURE_IFLOCAL;
-  capture_opts->remote_host                  = NULL;
-  capture_opts->remote_port                  = NULL;
-  capture_opts->auth_type                    = CAPTURE_AUTH_NULL;
-  capture_opts->auth_username                = NULL;
-  capture_opts->auth_password                = NULL;
-  capture_opts->datatx_udp                   = FALSE;
-  capture_opts->nocap_rpcap                  = TRUE;
-  capture_opts->nocap_local                  = FALSE;
+  capture_opts->src_type                        = CAPTURE_IFLOCAL;
+  capture_opts->remote_host                     = NULL;
+  capture_opts->remote_port                     = NULL;
+  capture_opts->auth_type                       = CAPTURE_AUTH_NULL;
+  capture_opts->auth_username                   = NULL;
+  capture_opts->auth_password                   = NULL;
+  capture_opts->datatx_udp                      = FALSE;
+  capture_opts->nocap_rpcap                     = TRUE;
+  capture_opts->nocap_local                     = FALSE;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-  capture_opts->sampling_method              = CAPTURE_SAMP_NONE;
-  capture_opts->sampling_param               = 0;
+  capture_opts->sampling_method                 = CAPTURE_SAMP_NONE;
+  capture_opts->sampling_param                  = 0;
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  capture_opts->buffer_size                  = 1;                /* 1 MB */
+  capture_opts->buffer_size                     = 1;                /* 1 MB */
 #endif
-  capture_opts->has_snaplen                  = FALSE;
-  capture_opts->snaplen                      = WTAP_MAX_PACKET_SIZE; /* snapshot length - default is
-                                                                        infinite, in effect */
-  capture_opts->promisc_mode                 = TRUE;             /* promiscuous mode is the default */
-  capture_opts->monitor_mode                 = FALSE;
-  capture_opts->linktype                     = -1;               /* the default linktype */
-  capture_opts->saving_to_file               = FALSE;
-  capture_opts->save_file                    = NULL;
-  capture_opts->group_read_access            = FALSE;
-  capture_opts->use_pcapng                   = FALSE;            /* the default is pcap */
-  capture_opts->real_time_mode               = TRUE;
-  capture_opts->show_info                    = TRUE;
-  capture_opts->quit_after_cap               = FALSE;
-  capture_opts->restart                      = FALSE;
+  capture_opts->has_snaplen                     = FALSE;
+  capture_opts->snaplen                         = WTAP_MAX_PACKET_SIZE; /* snapshot length - default is
+                                                                           infinite, in effect */
+  capture_opts->promisc_mode                    = TRUE;             /* promiscuous mode is the default */
+  capture_opts->monitor_mode                    = FALSE;
+  capture_opts->linktype                        = -1;               /* the default linktype */
+  capture_opts->saving_to_file                  = FALSE;
+  capture_opts->save_file                       = NULL;
+  capture_opts->group_read_access               = FALSE;
+  capture_opts->use_pcapng                      = FALSE;            /* the default is pcap */
+  capture_opts->real_time_mode                  = TRUE;
+  capture_opts->show_info                       = TRUE;
+  capture_opts->quit_after_cap                  = FALSE;
+  capture_opts->restart                         = FALSE;
 
-  capture_opts->multi_files_on               = FALSE;
-  capture_opts->has_file_duration            = FALSE;
-  capture_opts->file_duration                = 60;               /* 1 min */
-  capture_opts->has_ring_num_files           = FALSE;
-  capture_opts->ring_num_files               = RINGBUFFER_MIN_NUM_FILES;
+  capture_opts->multi_files_on                  = FALSE;
+  capture_opts->has_file_duration               = FALSE;
+  capture_opts->file_duration                   = 60;               /* 1 min */
+  capture_opts->has_ring_num_files              = FALSE;
+  capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
 
-  capture_opts->has_autostop_files           = FALSE;
-  capture_opts->autostop_files               = 1;
-  capture_opts->has_autostop_packets         = FALSE;
-  capture_opts->autostop_packets             = 0;
-  capture_opts->has_autostop_filesize        = FALSE;
-  capture_opts->autostop_filesize            = 1024;             /* 1 MB */
-  capture_opts->has_autostop_duration        = FALSE;
-  capture_opts->autostop_duration            = 60;               /* 1 min */
+  capture_opts->has_autostop_files              = FALSE;
+  capture_opts->autostop_files                  = 1;
+  capture_opts->has_autostop_packets            = FALSE;
+  capture_opts->autostop_packets                = 0;
+  capture_opts->has_autostop_filesize           = FALSE;
+  capture_opts->autostop_filesize               = 1024;             /* 1 MB */
+  capture_opts->has_autostop_duration           = FALSE;
+  capture_opts->autostop_duration               = 60;               /* 1 min */
 
 
-  capture_opts->fork_child                   = -1;               /* invalid process handle */
+  capture_opts->fork_child                      = -1;               /* invalid process handle */
 #ifdef _WIN32
-  capture_opts->signal_pipe_write_fd         = -1;
+  capture_opts->signal_pipe_write_fd            = -1;
 #endif
-  capture_opts->state                        = CAPTURE_STOPPED;
-  capture_opts->output_to_pipe               = FALSE;
+  capture_opts->state                           = CAPTURE_STOPPED;
+  capture_opts->output_to_pipe                  = FALSE;
 #ifndef _WIN32
-  capture_opts->owner                        = getuid();
-  capture_opts->group                        = getgid();
+  capture_opts->owner                           = getuid();
+  capture_opts->group                           = getgid();
 #endif
 }
 
@@ -142,25 +146,38 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
 
     for (i = 0; i < capture_opts->ifaces->len; i++) {
-        interface_options options;
-        
-        options = g_array_index(capture_opts->ifaces, interface_options, i);
-        g_log(log_domain, log_level, "Interface name[%02d] : %s", i, options.name);
-        g_log(log_domain, log_level, "Interface Descr[%02d]: %s", i, options.descr);
-        g_log(log_domain, log_level, "Capture filter[%02d] : %s", i, options.cfilter);
-        g_log(log_domain, log_level, "Snap length[%02d]    : %d", i, options.snaplen);
-        g_log(log_domain, log_level, "Link Type[%02d]      : %d", i, options.linktype);
-        g_log(log_domain, log_level, "Promiscous Mode[%02d]: %s", i, options.promisc_mode?"TRUE":"FALSE");
+        interface_options interface_opts;
+
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+        g_log(log_domain, log_level, "Interface name[%02d] : %s", i, interface_opts.name);
+        g_log(log_domain, log_level, "Interface Descr[%02d]: %s", i, interface_opts.descr);
+        g_log(log_domain, log_level, "Capture filter[%02d] : %s", i, interface_opts.cfilter);
+        g_log(log_domain, log_level, "Snap length[%02d]    : %d", i, interface_opts.snaplen);
+        g_log(log_domain, log_level, "Link Type[%02d]      : %d", i, interface_opts.linktype);
+        g_log(log_domain, log_level, "Promiscous Mode[%02d]: %s", i, interface_opts.promisc_mode?"TRUE":"FALSE");
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        g_log(log_domain, log_level, "Buffer size[%02d]    : %d (MB)", i, options.buffer_size);
+        g_log(log_domain, log_level, "Buffer size[%02d]    : %d (MB)", i, interface_opts.buffer_size);
 #endif
-        g_log(log_domain, log_level, "Monitor Mode[%02d]   : %s", i, options.monitor_mode?"TRUE":"FALSE");
+        g_log(log_domain, log_level, "Monitor Mode[%02d]   : %s", i, interface_opts.monitor_mode?"TRUE":"FALSE");
+#ifdef HAVE_PCAP_SETSAMPLING
+        g_log(log_domain, log_level, "Sampling meth.[%02d] : %d", i, interface_opts.sampling_method);
+        g_log(log_domain, log_level, "Sampling param.[%02d]: %d", i, interface_opts.sampling_param);
+#endif
     }
     g_log(log_domain, log_level, "Interface name[df] : %s", capture_opts->default_options.name);
+    g_log(log_domain, log_level, "Interface Descr[df]: %s", capture_opts->default_options.descr);
     g_log(log_domain, log_level, "Capture filter[df] : %s", capture_opts->default_options.cfilter);
     g_log(log_domain, log_level, "Snap length[df]    : %d", capture_opts->default_options.snaplen);
     g_log(log_domain, log_level, "Link Type[df]      : %d", capture_opts->default_options.linktype);
     g_log(log_domain, log_level, "Promiscous Mode[df]: %s", capture_opts->default_options.promisc_mode?"TRUE":"FALSE");
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+    g_log(log_domain, log_level, "Buffer size[df]    : %d (MB)", capture_opts->default_options.buffer_size);
+#endif
+    g_log(log_domain, log_level, "Monitor Mode[df]   : %s", capture_opts->default_options.monitor_mode?"TRUE":"FALSE");
+#ifdef HAVE_PCAP_SETSAMPLING
+    g_log(log_domain, log_level, "Sampling meth. [df]: %d", capture_opts->default_options.sampling_method);
+    g_log(log_domain, log_level, "Sampling param.[df]: %d", capture_opts->default_options.sampling_param);
+#endif
 
 #ifdef HAVE_PCAP_REMOTE
     g_log(log_domain, log_level, "Capture source     : %s",
@@ -186,6 +203,8 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
+    g_log(log_domain, log_level, "Interface Name     : %s", capture_opts->iface);
+    g_log(log_domain, log_level, "Interface Descr.   : %s", capture_opts->iface_descr);
     g_log(log_domain, log_level, "SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
     g_log(log_domain, log_level, "Promisc            : %u", capture_opts->promisc_mode);
     g_log(log_domain, log_level, "LinkType           : %d", capture_opts->linktype);
@@ -342,9 +361,33 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
     if (strcmp(arg, "count") == 0) {
         capture_opts->sampling_method = CAPTURE_SAMP_BY_COUNT;
         capture_opts->sampling_param = get_positive_int(p, "sampling count");
+        if (capture_opts->ifaces->len > 0) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            interface_opts.sampling_method = CAPTURE_SAMP_BY_COUNT;
+            interface_opts.sampling_param = get_positive_int(p, "sampling count");
+            g_array_append_val(capture_opts->ifaces, interface_opts);
+        } else {
+            capture_opts->default_options.sampling_method = CAPTURE_SAMP_BY_COUNT;
+            capture_opts->default_options.sampling_param = get_positive_int(p, "sampling count");
+        }
     } else if (strcmp(arg, "timer") == 0) {
         capture_opts->sampling_method = CAPTURE_SAMP_BY_TIMER;
         capture_opts->sampling_param = get_positive_int(p, "sampling timer");
+        if (capture_opts->ifaces->len > 0) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            interface_opts.sampling_method = CAPTURE_SAMP_BY_TIMER;
+            interface_opts.sampling_param = get_positive_int(p, "sampling timer");
+            g_array_append_val(capture_opts->ifaces, interface_opts);
+        } else {
+            capture_opts->default_options.sampling_method = CAPTURE_SAMP_BY_COUNT;
+            capture_opts->default_options.sampling_param = get_positive_int(p, "sampling timer");
+        }
     }
     *colonp = ':';
     return TRUE;
@@ -390,7 +433,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     if_info_t   *if_info;
     int         err;
     gchar       *err_str;
-    interface_options options;
+    interface_options interface_opts;
 
 
     /*
@@ -437,7 +480,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             return 1;
         }
         capture_opts->iface = g_strdup(if_info->name);
-        options.name = g_strdup(if_info->name);
+        interface_opts.name = g_strdup(if_info->name);
         /*  We don't set iface_descr here because doing so requires
          *  capture_ui_utils.c which requires epan/prefs.c which is
          *  probably a bit too much dependency for here...
@@ -445,19 +488,27 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         free_interface_list(if_list);
     } else {
         capture_opts->iface = g_strdup(optarg_str_p);
-        options.name = g_strdup(optarg_str_p);
+        interface_opts.name = g_strdup(optarg_str_p);
     }
-    options.descr = g_strdup(capture_opts->default_options.descr);
-    options.cfilter = g_strdup(capture_opts->default_options.cfilter);
-    options.snaplen = capture_opts->default_options.snaplen;
-    options.linktype = capture_opts->default_options.linktype;
-    options.promisc_mode = capture_opts->default_options.promisc_mode;
+    if (capture_opts->default_options.descr) {
+        interface_opts.descr = g_strdup(capture_opts->default_options.descr);
+    } else {
+        interface_opts.descr = NULL;
+    }
+    interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
+    interface_opts.snaplen = capture_opts->default_options.snaplen;
+    interface_opts.linktype = capture_opts->default_options.linktype;
+    interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    options.buffer_size = capture_opts->default_options.buffer_size;
+    interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
-    options.monitor_mode = capture_opts->default_options.monitor_mode;
+    interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_SETSAMPLING
+    interface_opts.sampling_method = capture_opts->default_options.sampling_method;
+    interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
+#endif
 
-    g_array_append_val(capture_opts->ifaces, options);
+    g_array_append_val(capture_opts->ifaces, interface_opts);
 
     return 0;
 }
@@ -493,12 +544,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'B':        /* Buffer size */
         capture_opts->buffer_size = get_positive_int(optarg_str_p, "buffer size");
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            options.buffer_size = get_positive_int(optarg_str_p, "buffer size");
-            g_array_append_val(capture_opts->ifaces, options);
+            interface_opts.buffer_size = get_positive_int(optarg_str_p, "buffer size");
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             capture_opts->default_options.buffer_size = get_positive_int(optarg_str_p, "buffer size");
         }
@@ -517,13 +568,13 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         g_free(capture_opts->cfilter);
         capture_opts->cfilter = g_strdup(optarg_str_p);
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            g_free(options.cfilter);
-            options.cfilter = g_strdup(capture_opts->cfilter);
-            g_array_append_val(capture_opts->ifaces, options);
+            g_free(interface_opts.cfilter);
+            interface_opts.cfilter = g_strdup(capture_opts->cfilter);
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             g_free(capture_opts->default_options.cfilter);
             capture_opts->default_options.cfilter = g_strdup(capture_opts->cfilter);
@@ -542,12 +593,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'I':        /* Capture in monitor mode */
         capture_opts->monitor_mode = TRUE;
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            options.monitor_mode = TRUE;
-            g_array_append_val(capture_opts->ifaces, options);
+            interface_opts.monitor_mode = TRUE;
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             capture_opts->default_options.monitor_mode = TRUE;
         }
@@ -571,12 +622,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'p':        /* Don't capture in promiscuous mode */
         capture_opts->promisc_mode = FALSE;
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            options.promisc_mode = FALSE;
-            g_array_append_val(capture_opts->ifaces, options);
+            interface_opts.promisc_mode = FALSE;
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             capture_opts->default_options.promisc_mode = FALSE;
         }
@@ -600,12 +651,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         if (capture_opts->snaplen == 0)
             capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            options.snaplen = capture_opts->snaplen;
-            g_array_append_val(capture_opts->ifaces, options);
+            interface_opts.snaplen = capture_opts->snaplen;
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             capture_opts->default_options.snaplen = capture_opts->snaplen;
         }
@@ -640,12 +691,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             return 1;
         }
         if (capture_opts->ifaces->len > 0) {
-            interface_options options;
+            interface_options interface_opts;
 
-            options = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            options.linktype = linktype_name_to_val(optarg_str_p);
-            g_array_append_val(capture_opts->ifaces, options);
+            interface_opts.linktype = linktype_name_to_val(optarg_str_p);
+            g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
             capture_opts->default_options.linktype = linktype_name_to_val(optarg_str_p);
         }
@@ -707,7 +758,7 @@ capture_opts_print_interfaces(GList *if_list)
 void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
     guint i;
-    interface_options options;
+    interface_options interface_opts;
 
     if (capture_opts->snaplen < 1)
         capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
@@ -715,13 +766,13 @@ void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
         capture_opts->snaplen = snaplen_min;
 
     for (i = 0; i < capture_opts->ifaces->len; i++) {
-        options = g_array_index(capture_opts->ifaces, interface_options, 0);
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, 0);
         capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, 0);
-        if (options.snaplen < 1)
-            options.snaplen = WTAP_MAX_PACKET_SIZE;
-        else if (options.snaplen < snaplen_min)
-            options.snaplen = snaplen_min;
-        g_array_append_val(capture_opts->ifaces, options);
+        if (interface_opts.snaplen < 1)
+            interface_opts.snaplen = WTAP_MAX_PACKET_SIZE;
+        else if (interface_opts.snaplen < snaplen_min)
+            interface_opts.snaplen = snaplen_min;
+        g_array_append_val(capture_opts->ifaces, interface_opts);
     }
 }
 
@@ -749,7 +800,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
     if_info_t   *if_info;
     int         err;
     gchar       *err_str;
-    interface_options options;
+    interface_options interface_opts;
 
 
     /* Did the user specify an interface to use? */
@@ -758,7 +809,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
         if (capture_device != NULL) {
             /* Yes - use it. */
             capture_opts->iface = g_strdup(capture_device);
-            options.name = g_strdup(capture_device);
+            interface_opts.name = g_strdup(capture_device);
             /*  We don't set iface_descr here because doing so requires
              *  capture_ui_utils.c which requires epan/prefs.c which is
              *  probably a bit too much dependency for here...
@@ -782,22 +833,31 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
             }
             if_info = (if_info_t *)if_list->data;	/* first interface */
             capture_opts->iface = g_strdup(if_info->name);
-            options.name = g_strdup(if_info->name);
+            interface_opts.name = g_strdup(if_info->name);
             /*  We don't set iface_descr here because doing so requires
              *  capture_ui_utils.c which requires epan/prefs.c which is
              *  probably a bit too much dependency for here...
              */
             free_interface_list(if_list);
         }
-        options.cfilter = g_strdup(capture_opts->default_options.cfilter);
-        options.snaplen = capture_opts->default_options.snaplen;
-        options.linktype = capture_opts->default_options.linktype;
-        options.promisc_mode = capture_opts->default_options.promisc_mode;
+        if (capture_opts->default_options.descr) {
+            interface_opts.descr = g_strdup(capture_opts->default_options.descr);
+        } else {
+            interface_opts.descr = NULL;
+        }
+        interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
+        interface_opts.snaplen = capture_opts->default_options.snaplen;
+        interface_opts.linktype = capture_opts->default_options.linktype;
+        interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        options.buffer_size = capture_opts->default_options.buffer_size;
+        interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
-        options.monitor_mode = capture_opts->default_options.monitor_mode;
-        g_array_append_val(capture_opts->ifaces, options);
+        interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = capture_opts->default_options.sampling_method;
+        interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
+#endif
+        g_array_append_val(capture_opts->ifaces, interface_opts);
     }
 
     return TRUE;
