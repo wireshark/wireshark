@@ -545,7 +545,7 @@ open_capture_device(interface_options *interface_opts,
      * the only open routine that supports remote devices.
      */
     if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
-        auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
+        auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
             RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
         auth.username = interface_opts->auth_username;
         auth.password = interface_opts->auth_password;
