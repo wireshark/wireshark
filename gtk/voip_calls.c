@@ -336,7 +336,7 @@ static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 ca
 
 /****************************************************************************/
 /* Insert the item in the graph list */
-void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time_val, guint32 frame_num)
+static void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time_val, guint32 frame_num)
 {
 	graph_analysis_item_t *gai, *new_gai;
 	GList *list;

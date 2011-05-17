@@ -602,7 +602,7 @@ new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 	new_packet_list_recreate();
 }
 
-void
+static void
 new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
 {
 	/* We have to check for skip-update because we get an emit in menus_set_column_resolved() */

@@ -2877,7 +2877,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
  */
 
 /* Present floats with two decimals */
-void
+static void
 iax2_float_data_func (GtkTreeViewColumn *column _U_,
 		      GtkCellRenderer   *renderer,
 		      GtkTreeModel      *model,

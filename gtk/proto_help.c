@@ -41,6 +41,8 @@
 #include <epan/strutil.h>
 #include <epan/proto.h>
 
+#include "gtk/proto_help.h"
+
 #if GLIB_CHECK_VERSION(2,14,0) /* GRegex */
 
 #define PH_MENU_TOP "/Protocol Help"

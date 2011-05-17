@@ -3531,7 +3531,7 @@ menu_dissector_filter_cb(  GtkWidget *widget _U_,
     g_free( (void *) buf);
 }
 
-gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data) {
+static gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data) {
     dissector_filter_t *filter_entry = callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
@@ -3540,7 +3540,7 @@ gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, g
     return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
 }
 
-void menu_dissector_filter(void) {
+static void menu_dissector_filter(void) {
     GList *list_entry = dissector_filter_list;
     dissector_filter_t *filter_entry;
 
