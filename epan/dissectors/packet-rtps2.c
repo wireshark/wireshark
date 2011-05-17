@@ -54,7 +54,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -1257,7 +1256,7 @@ static int rtps_util_add_locator_list(proto_tree *tree,
 
     for (i = 0; i < num_locators; ++i) {
       g_snprintf(temp_buff, 20, "Locator[%d]", i);
-      rtps_util_add_locator_t(tree,
+      rtps_util_add_locator_t(locator_tree,
                         tvb,
                         offset,
                         little_endian,
@@ -5458,7 +5457,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
 
           } /* End of switch for parameters for vendor RTI */
         } /* End of branch vendor RTI */
-	else if (vendor_id == RTPS_VENDOR_TOC) {
+        else if (vendor_id == RTPS_VENDOR_TOC) {
           switch(parameter) {
             /* 0...2...........7...............15.............23...............31
              * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -5484,10 +5483,10 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         NULL,   /* not an array */
                         0);     /* ndds 4.0 hack: init to false */
               break;
-	    default:
-	      break;
-	  } /* End of switch for parameters for vendor TOC */
-	} /* End of branch vendor TOC */
+            default:
+              break;
+          } /* End of switch for parameters for vendor TOC */
+        } /* End of branch vendor TOC */
 
         /* Put here other branches if you are planning to dissect parameters
          * ID from different vendors.
@@ -8278,7 +8277,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
     /* Allocate sample_info_flags and sample_info_length
      * to store a copy of the flags for each sample info */
     if (rtps_max_batch_samples_dissected == 0) {
-      sample_info_max = 1024;	/* Max size of sampleInfo shown */
+      sample_info_max = 1024;   /* Max size of sampleInfo shown */
     }
     sample_info_flags = (guint16 *)ep_alloc(sizeof(guint16) * sample_info_max);
     sample_info_length = (guint32 *)ep_alloc(sizeof(guint32) * sample_info_max);
@@ -8293,11 +8292,11 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
       gint offset_begin_sampleinfo = offset;
 
       if (rtps_max_batch_samples_dissected > 0 && (guint)sample_info_count >= rtps_max_batch_samples_dissected) {
-        ti = proto_tree_add_text(sil_tree,
-                        tvb,
-                        offset,
-                        -1,
-                        "... (more samples available. Configure this limit from preferences dialog)");
+        proto_tree_add_text(sil_tree,
+                            tvb,
+                            offset,
+                            -1,
+                            "... (more samples available. Configure this limit from preferences dialog)");
         offset = sampleListOffset;
         break;
       }
@@ -8450,11 +8449,11 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
         label = "serializedData[%d]";
       }
       proto_tree_add_text(sil_tree,
-                        tvb,
-                        offset,
-                        sample_info_length[count],
-                        label,
-			count);
+                          tvb,
+                          offset,
+                          sample_info_length[count],
+                          label,
+                          count);
       offset += sample_info_length[count];
     }
   }
