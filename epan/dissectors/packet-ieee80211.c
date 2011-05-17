@@ -4699,7 +4699,7 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
       byte2 = tvb_get_guint8(tag_tvb, tag_off + 1);
       g_snprintf(out_buff, SHORT_STR,
         "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
-         (byte1 & 0x60) >> 5, match_strval((byte1 & 0x60) >> 5, wme_acs),
+         (byte1 & 0x60) >> 5, val_to_str((byte1 & 0x60) >> 5, wme_acs, "(Unknown: %d)"),
          (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
          byte2 & 0x0f, (byte2 & 0xf0) >> 4,
          tvb_get_letohs(tag_tvb, tag_off + 2));
@@ -5058,7 +5058,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       txop = tvb_get_letohs(tvb, offset + 2);
       proto_tree_add_bytes_format(ietree, hf_ieee80211_aironet_ie_qos_val, tvb, offset, 4, NULL,
           "CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
-        (byte1 & 0x60) >> 5, match_strval((byte1 & 0x60) >> 5, wme_acs),
+        (byte1 & 0x60) >> 5, val_to_str((byte1 & 0x60) >> 5, wme_acs, "(Unknown: %d)"),
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
         txop);

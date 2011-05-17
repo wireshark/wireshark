@@ -2242,12 +2242,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * AUTH_GSSAPI procname.
 		 */
 		if (flavor == FLAVOR_AUTHGSSAPI_MSG) {
-			procname = (char *)match_strval(gss_proc, rpc_authgssapi_proc);
+			procname = (char *)val_to_str_const(gss_proc, rpc_authgssapi_proc, "(null)");
 		}
-
-		/* Don't pass NULL string pointers to the format routines below */
-		if (!procname)
-			procname = "(null)";
 
 		rpc_prog_key.prog = prog;
 		if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {

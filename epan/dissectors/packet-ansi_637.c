@@ -1339,9 +1339,7 @@ trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset,
 
     value = tvb_get_ntohs(tvb, offset);
 
-    str = match_strval(value, ansi_srvc_cat_strings);
-
-    if (NULL == str) str = "Reserved";
+    str = val_to_str_const(value, ansi_srvc_cat_strings, "Reserved");
 
     proto_tree_add_text(tree, tvb, offset, 2,
 	"%s", str);

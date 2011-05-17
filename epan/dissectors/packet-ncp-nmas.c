@@ -206,7 +206,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
         guint16 c_char;
         guint32 length_remaining = 0;
 
-	buffer=ep_alloc(ITEM_LABEL_LENGTH+1);
+        buffer=ep_alloc(ITEM_LABEL_LENGTH+1);
         if (little) {
             str_length = tvb_get_letohl(tvb, foffset);
         }
@@ -224,18 +224,18 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
         }
         if(str_length == 0)
         {
-       	    proto_tree_add_string(nmas_tree, hfinfo, tvb, offset,
+            proto_tree_add_string(nmas_tree, hfinfo, tvb, offset,
                 4, "<Not Specified>");
             return foffset;
         }
-	/*
-	 * XXX - other than the special-casing of null bytes,
-	 * we could just use "proto_tree_add_item()", as for
-	 * FT_STRING, FT_STRINGZ, and FT_UINT_STRING fields,
-	 * the display representation of an item is generated
-	 * using "format_text()", so it handles non-printable
-	 * characters.
-	 */
+        /*
+         * XXX - other than the special-casing of null bytes,
+         * we could just use "proto_tree_add_item()", as for
+         * FT_STRING, FT_STRINGZ, and FT_UINT_STRING fields,
+         * the display representation of an item is generated
+         * using "format_text()", so it handles non-printable
+         * characters.
+         */
         for ( i = 0; i < str_length; i++ )
         {
                 c_char = tvb_get_guint8(tvb, foffset );
@@ -261,8 +261,8 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
 
                 if(length_remaining==1)
                 {
-                	i++;
-                	break;
+                        i++;
+                        break;
                 }
         }
         buffer[i] = '\0';
@@ -474,7 +474,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
 }
 
 void
-dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 func _U_, guint8 subfunc, ncp_req_hash_value	*request_value)
+dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 func _U_, guint8 subfunc, ncp_req_hash_value *request_value)
 {
     guint32             foffset=0, roffset=0;
     guint32             subverb=0;
@@ -484,6 +484,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     proto_tree          *atree;
     proto_item          *aitem;
     proto_item          *expert_item;
+    const gchar         *str;
 
 
     foffset = 8;
@@ -595,13 +596,12 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     break;
                 case 7:
                     encrypt_error = tvb_get_ntohl(tvb, foffset);
-                    if (match_strval(encrypt_error, nmas_errors_enum)!=NULL)
+                    str = match_strval(encrypt_error, nmas_errors_enum);
+                    if (str)
                     {
-                        if (check_col(pinfo->cinfo, COL_INFO)) {
-                           col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", match_strval(encrypt_error, nmas_errors_enum));
-                        }
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", str);
                         expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, FALSE);
-                        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Payload Error: %s", match_strval(encrypt_error, nmas_errors_enum));
+                        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Payload Error: %s", str);
                     }
                     else
                     {
@@ -620,13 +620,12 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 break;
             }
         }
-        if (match_strval(return_code, nmas_errors_enum)!=NULL)
+        str = match_strval(return_code, nmas_errors_enum);
+        if (str)
         {
             expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
-            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, match_strval(return_code, nmas_errors_enum));
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", match_strval(return_code, nmas_errors_enum));
-            }
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, str);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", str);
         }
         else
         {
@@ -656,27 +655,27 @@ proto_register_nmas(void)
 {
     static hf_register_info hf_nmas[] = {
         { &hf_func,
-        { "Function",		"nmas.func", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "Function", "nmas.func", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_subfunc,
-        { "Subfunction",		"nmas.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "Subfunction", "nmas.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ping_version,
-        { "Ping Version",		"nmas.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "Ping Version", "nmas.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ping_flags,
-        { "Flags",		"nmas.ping_flags", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "Flags", "nmas.ping_flags", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_frag_handle,
-        { "Fragment Handle",        "nmas.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "Fragment Handle", "nmas.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_length,
-        { "Length",        "nmas.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Length", "nmas.length", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_subverb,

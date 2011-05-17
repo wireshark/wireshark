@@ -171,8 +171,8 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
 {
     gchar                   flags_str[1024];
     const gchar            *sep;
-    proto_item		   *tinew;
-    proto_tree		   *flags_tree;
+    proto_item             *tinew;
+    proto_tree             *flags_tree;
     guint32                 i;
     guint32                 bvalue = 0;
     guint32                 flags = 0;
@@ -293,7 +293,7 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     }
 
     tinew = proto_tree_add_uint_format(sss_tree, hf_flags, tvb, foffset, 4, flags, "%s 0x%08x", "Flags:", flags);
-	flags_tree = proto_item_add_subtree(tinew, ett_nds);
+    flags_tree = proto_item_add_subtree(tinew, ett_nds);
 
     bvalue = 0x00000001;
 
@@ -463,7 +463,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
         }
         if(str_length == 0)
         {
-       	    proto_tree_add_string(sss_tree, hfinfo, tvb, offset,
+            proto_tree_add_string(sss_tree, hfinfo, tvb, offset,
                 4, "<Not Specified>");
             return foffset;
         }
@@ -492,8 +492,8 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
 
                 if(length_remaining==1)
                 {
-                	i++;
-                	break;
+                        i++;
+                        break;
                 }
         }
         buffer[i] = '\0';
@@ -666,7 +666,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
 }
 
 void
-dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 subfunc, ncp_req_hash_value	*request_value)
+dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 subfunc, ncp_req_hash_value *request_value)
 {
     guint32             foffset=0;
     guint32             subverb=0;
@@ -675,6 +675,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     guint32             number_of_items=0;
     gint32              length_of_string=0;
     guint32             i = 0;
+    const gchar		*str;
 
     proto_tree          *atree;
     proto_item          *aitem;
@@ -698,8 +699,9 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     case 2:
         if (request_value) {
             subverb = request_value->req_nds_flags;
-            if (match_strval(subverb, sss_verb_enum)) {
-                proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", match_strval(subverb, sss_verb_enum));
+            str = match_strval(subverb, sss_verb_enum);
+            if (str) {
+                proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", str);
             }
         }
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
@@ -713,10 +715,11 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         {
             foffset += 4;
             return_code = tvb_get_letohl(tvb, foffset);
-            if ( match_strval(return_code, sss_errors_enum) != NULL )
+            str = match_strval(return_code, sss_errors_enum);
+            if (str)
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, TRUE);
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "SSS Error: %s", match_strval(return_code, sss_errors_enum));
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "SSS Error: %s", str);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
                 }
@@ -774,30 +777,30 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
 void
 proto_register_sss(void)
 {
-	static hf_register_info hf_sss[] = {
-		{ &hf_buffer_size,
-		{ "Buffer Size",		"sss.buffer", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+    static hf_register_info hf_sss[] = {
+        { &hf_buffer_size,
+        { "Buffer Size", "sss.buffer", FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
 
-		{ &hf_ping_version,
-		{ "Ping Version",		"sss.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_ping_version,
+        { "Ping Version", "sss.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
-		{ &hf_flags,
-		{ "Flags",		"sss.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_flags,
+        { "Flags", "sss.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
-		{ &hf_context,
-		{ "Context",		"sss.context", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_context,
+        { "Context", "sss.context", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
-		{ &hf_frag_handle,
-		{ "Fragment Handle",		"sss.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_frag_handle,
+        { "Fragment Handle", "sss.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
-		{ &hf_length,
-		{ "Length",		"sss.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_length,
+        { "Length", "sss.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
 
         { &hf_verb,
         { "Verb",    "sss.verb",
@@ -814,13 +817,13 @@ proto_register_sss(void)
           FT_STRING,    BASE_NONE,   NULL,   0x0,
           NULL, HFILL }},
 
-		{ &hf_sss_version,
-		{ "SecretStore Protocol Version",		"sss.version", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+        { &hf_sss_version,
+        { "SecretStore Protocol Version", "sss.version", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
         { &hf_return_code,
-		{ "Return Code",		"sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0,
-			NULL, HFILL }},
+        { "Return Code", "sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0,
+          NULL, HFILL }},
 
         { &hf_enc_cred,
         { "Encrypted Credential",    "sss.enc_cred",
@@ -930,12 +933,12 @@ proto_register_sss(void)
 
     };
 
-	static gint *ett[] = {
-		&ett_sss,
-	};
-	/*module_t *sss_module;*/
+        static gint *ett[] = {
+            &ett_sss,
+        };
+        /*module_t *sss_module;*/
 
-	proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
-	proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
-	proto_register_subtree_array(ett, array_length(ett));
+        proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
+        proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
+        proto_register_subtree_array(ett, array_length(ett));
 }

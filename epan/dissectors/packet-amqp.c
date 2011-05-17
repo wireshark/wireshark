@@ -2353,9 +2353,8 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_connection_methods);
-    if (method_name == NULL)
-        method_name = "<invalid connection method>";
+    method_name = val_to_str_const(method, amqp_0_10_connection_methods,
+                                   "<invalid connection method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -2695,9 +2694,8 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_session_methods);
-    if (method_name == NULL)
-        method_name = "<invalid session method>";
+    method_name = val_to_str_const(method, amqp_0_10_session_methods,
+                                   "<invalid session method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -2969,9 +2967,8 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_execution_methods);
-    if (method_name == NULL)
-        method_name = "<invalid execution method>";
+    method_name = val_to_str_const(method, amqp_0_10_execution_methods,
+                                   "<invalid execution method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -3160,9 +3157,8 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_message_methods);
-    if (method_name == NULL)
-        method_name = "<invalid message method>";
+    method_name = val_to_str_const(method, amqp_0_10_message_methods,
+                                   "<invalid message method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -3512,9 +3508,8 @@ dissect_amqp_0_10_tx(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_tx_methods);
-    if (method_name == NULL)
-        method_name = "<invalid tx method>";
+    method_name = val_to_str_const(method, amqp_0_10_tx_methods,
+                                   "<invalid tx method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -3556,9 +3551,8 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_dtx_methods);
-    if (method_name == NULL)
-        method_name = "<invalid dtx method>";
+    method_name = val_to_str_const(method, amqp_0_10_dtx_methods,
+                                   "<invalid dtx method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -3757,9 +3751,8 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_exchange_methods);
-    if (method_name == NULL)
-        method_name = "<invalid exchange method>";
+    method_name = val_to_str_const(method, amqp_0_10_exchange_methods,
+                                   "<invalid exchange method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -4026,9 +4019,8 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_queue_methods);
-    if (method_name == NULL)
-        method_name = "<invalid queue method>";
+    method_name = val_to_str_const(method, amqp_0_10_queue_methods,
+                                   "<invalid queue method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -4187,9 +4179,8 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_file_methods);
-    if (method_name == NULL)
-        method_name = "<invalid file method>";
+    method_name = val_to_str_const(method, amqp_0_10_file_methods,
+                                   "<invalid file method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -4528,9 +4519,8 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
-    method_name = match_strval(method, amqp_0_10_stream_methods);
-    if (method_name == NULL)
-        method_name = "<invalid stream method>";
+    method_name = val_to_str_const(method, amqp_0_10_stream_methods,
+                                   "<invalid stream method>");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO, method_name);
         col_append_str(pinfo->cinfo, COL_INFO, " ");

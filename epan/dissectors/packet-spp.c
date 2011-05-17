@@ -69,8 +69,6 @@ static dissector_table_t spp_socket_dissector_table;
 static const char*
 spp_conn_ctrl(guint8 ctrl)
 {
-	const char *p;
-
 	static const value_string conn_vals[] = {
 		{ 0x00,                        "Data, No Ack Required" },
 		{ SPP_EOM,                     "End-of-Message" },
@@ -82,14 +80,7 @@ spp_conn_ctrl(guint8 ctrl)
 		{ 0x00,                        NULL }
 	};
 
-	p = match_strval((ctrl & 0xf0), conn_vals );
-
-	if (p) {
-		return p;
-	}
-	else {
-		return "Unknown";
-	}
+	return val_to_str_const((ctrl & 0xf0), conn_vals, "Unknown");
 }
 
 static const char*

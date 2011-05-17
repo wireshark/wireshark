@@ -873,10 +873,9 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    val_to_str(param_type, param_vals,
 		      "Unknown parameter type (0x%02x)"));
 		param_tree = proto_item_add_subtree(ti, ett_ses_param);
-		param_str = match_strval(param_type, param_vals);
+		param_str = val_to_str_const(param_type, param_vals, "Unknown");
 		proto_tree_add_text(param_tree, tvb, offset, 1,
-		    "Parameter type: %s",
-		    param_str != NULL ? param_str : "Unknown");
+		    "Parameter type: %s", param_str);
 		offset++;
 		pg_len--;
 		param_len = get_item_len(tvb, offset, &len_len);
@@ -952,10 +951,9 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 		    val_to_str(param_type, param_vals,
 		      "Unknown parameter type (0x%02x)"));
 		param_tree = proto_item_add_subtree(ti, ett_ses_param);
-		param_str = match_strval(param_type, param_vals);
+		param_str = val_to_str_const(param_type, param_vals, "Unknown");
 		proto_tree_add_text(param_tree, tvb, offset, 1,
-		    "Parameter type: %s",
-		    param_str != NULL ? param_str : "Unknown");
+		    "Parameter type: %s", param_str);
 		offset++;
 		len--;
 		param_len = get_item_len(tvb, offset, &len_len);
@@ -1136,22 +1134,22 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		guint32 ses_id = 0;
 
 		/* Use conversation index as segment id */
-		conversation  = find_conversation (pinfo->fd->num, 
-						   &pinfo->src, &pinfo->dst, pinfo->ptype, 
+		conversation  = find_conversation (pinfo->fd->num,
+						   &pinfo->src, &pinfo->dst, pinfo->ptype,
 						   pinfo->srcport, pinfo->destport, 0);
 		if (conversation != NULL) {
 			ses_id = conversation->index;
 		}
 		fragment_len = tvb_reported_length_remaining (tvb, offset);
-		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset, 
+		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset,
 					  fragment_len, FALSE);
 		proto_item_append_text (ti, " (%d byte%s)", fragment_len, plurality (fragment_len, "", "s"));
-		frag_msg = fragment_add_seq_next (tvb, offset, pinfo, 
+		frag_msg = fragment_add_seq_next (tvb, offset, pinfo,
 						  ses_id, ses_fragment_table,
 						  ses_reassembled_table, fragment_len,
 						  (enclosure_item_flags & END_SPDU) ? FALSE : TRUE);
-		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled SES", 
-						     frag_msg, &ses_frag_items, NULL, 
+		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled SES",
+						     frag_msg, &ses_frag_items, NULL,
 						     (enclosure_item_flags & END_SPDU) ? tree : ses_tree);
 
 		has_user_information = TRUE;
@@ -1968,9 +1966,9 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		type = tvb_get_guint8(tvb, offset+2);
 		/* check SPDU type */
 		if (match_strval(type, ses_vals) == NULL)
-			{
-				return FALSE;  /* no, it isn't a session PDU */
-			}
+		{
+			return FALSE;  /* no, it isn't a session PDU */
+		}
 	}
 
 	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be

@@ -1231,7 +1231,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		GET_DATA;
 
 		bits_length = curr_bits_length = oct>>(32-bits_needed);
-		
+
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
 		proto_item_set_len(tf, (bits_length>>3)+1);
 		/* This is already done - length doesn't contain this field
@@ -2770,7 +2770,7 @@ de_gmm_req_ms_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 {
 	guint32	curr_offset;
 	guint32 bit_offset;
-	
+
 	curr_offset = offset;
 	bit_offset = (curr_offset<<3)+4;
 
@@ -2781,13 +2781,13 @@ de_gmm_req_ms_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset+=2;
 	curr_offset++;
-	
+
 	return len;
 }
 
 /* [7] 10.5.5.26 UE network capability
  * See subclause 9.9.3.x in 3GPP TS 24.301 [120].
- */ 
+ */
 
 /* [7] 10.5.5.27 E-UTRAN inter RAT information container */
 static guint16
@@ -2827,7 +2827,7 @@ de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 {
 	guint32	curr_offset;
 	guint32 bit_offset;
-	
+
 	curr_offset = offset;
 	bit_offset = curr_offset<<3;
 
@@ -3098,7 +3098,7 @@ static const true_false_string gsm_a_gm_nsapi_ul_stat_vals = {
 	"uplink data are pending for the preserved PDP context",
 	"no uplink data are pending for the preserved PDP context or the PDP context is PDP-INACTIVE or is PDP-ACTIVE with a RAB already established"
 };
- 
+
 static guint16
 de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -3134,7 +3134,7 @@ de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_8_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	curr_offset++;
-	
+
 	return(len);
 }
 
@@ -3958,11 +3958,10 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	const gchar	*str;
 
 	oct = tvb_get_guint8(tvb, offset);
-	str = match_strval(oct, gsm_a_sm_cause_vals);
 
 	/* SM Cause can be sent in both directions */
-	if (!str)
-		str = "Protocol error, unspecified / Service option temporarily out of order";
+	str = val_to_str_const(oct, gsm_a_sm_cause_vals,
+			       "Protocol error, unspecified / Service option temporarily out of order");
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_cause, tvb,
 				offset, 1, oct, "%s (%u)", str, oct);
@@ -3981,11 +3980,10 @@ de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	const gchar	*str;
 
 	oct = tvb_get_guint8(tvb, offset);
-	str = match_strval(oct, gsm_a_sm_cause_vals);
 
 	/* SM Cause 2 is sent only in the Network-to-MS direction */
-	if (!str)
-		str = "Service option temporarily out of order";
+	str = val_to_str_const(oct, gsm_a_sm_cause_vals,
+			       "Service option temporarily out of order");
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_cause_2, tvb,
 				offset, 1, oct, "%s (%u)", str, oct);
@@ -4686,7 +4684,7 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL);
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
-	
+
 	ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
 	ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
@@ -4754,11 +4752,11 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TV_SHORT( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , NULL);
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
-	
+
 	ELEM_OPT_TV_SHORT( 0xA0 , GSM_A_PDU_TYPE_GM , DE_REQ_MS_INFO , NULL);
-	
+
 	ELEM_OPT_TLV( 0x37 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3319" );
-	
+
 	ELEM_OPT_TLV( 0x38 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3323" );
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);

@@ -71,12 +71,12 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(tree){
 		ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 0, FALSE);
 		hci_h1_tree = proto_item_add_subtree(ti, ett_hci_h1);
-		
+
 		if(pinfo->p2p_dir == P2P_DIR_SENT ||
 		   pinfo->p2p_dir == P2P_DIR_RECV)
 			proto_item_append_text(hci_h1_tree, " %s %s",
-					       match_strval(pinfo->p2p_dir,
-							    hci_h1_direction_vals),
+					       val_to_str(pinfo->p2p_dir,
+							  hci_h1_direction_vals, "Unknown: %d"),
 					       val_to_str(type,
 							  hci_h1_type_vals,
 							  "Unknown 0x%02x"));
@@ -91,8 +91,8 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(pinfo->p2p_dir == P2P_DIR_SENT ||
 		   pinfo->p2p_dir == P2P_DIR_RECV)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-				     match_strval(pinfo->p2p_dir,
-						  hci_h1_direction_vals),
+				     val_to_str(pinfo->p2p_dir,
+						hci_h1_direction_vals, "Unknown: %d"),
 				     val_to_str(type, hci_h1_type_vals,
 						"Unknown 0x%02x"));
 		else
