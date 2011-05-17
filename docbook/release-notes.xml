@@ -35,11 +35,27 @@ Wireshark Info
 
       <itemizedlist>
 
+<!-- Sort by bug # -->
+<!--
+        <listitem><para>
+	  Wireshark will ruin your favorite songs by singing them a capella,
+	  loudly, and slightly off key.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
+          0000</ulink>)
+        </para></listitem>
+-->
+
         <listitem><para>
           Wireshark is unresponsive when capturing from named pipes on Windows.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
           1759</ulink>)
         </para></listitem>
+
+	<listitem><para>
+	  Crash when sorting column while capturing.
+	  (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4273">Bug
+	  4273</ulink>)
+	</para></listitem>
 
 	<listitem><para>
 	  Ring buffers are no longer turned on by default when using multiple
@@ -61,7 +77,21 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark can import text dumps, similar to text2pcap.
+	    Wireshark is now distributed as an installation package rather than
+	    a drag-installer on OS X. The installer adds a startup item that
+	    should make it easier to capture packets.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Large file (greater than 2 GB) support has been improved.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark and TShark can import text dumps, similar to text2pcap.
           </para>
         </listitem>
 
@@ -154,7 +184,8 @@ Wireshark Info
 
 	<listitem>
 	  <para>
-	    802.1q VLAN tags are now shown by the Ethernet II dissector.
+	    802.1q VLAN tags are now shown in the Ethernet II protocol tree
+	    instead of a separate tree.
 	  </para>
 	</listitem>
 
@@ -194,12 +225,17 @@ Wireshark Info
 
         <listitem>
           <para>
-            The tshark -z option now uses the <cmdsynopsis><arg>-z
-            &lt;proto&gt;,srt</arg></cmdsynopsis> syntax instead of
-            <cmdsynopsis><arg>-z &lt;proto&gt;,rtt</arg></cmdsynopsis>
-            for all protocols that support service response time
-            statistics.  This syntax now matches Wireshark's syntax
-            for this option.
+	    TShark's -z option now uses the <cmdsynopsis><arg>-z
+	    &lt;proto&gt;,srt</arg></cmdsynopsis> syntax instead of
+	    <cmdsynopsis><arg>-z &lt;proto&gt;,rtt</arg></cmdsynopsis> for all
+	    protocols that support service response time statistics. This
+	    matches Wireshark's syntax for this option.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark and TShark can now read compressed Windows Sniffer files.
           </para>
         </listitem>
 
@@ -362,12 +398,6 @@ TamoSoft CommView
       Hex pane display issue after startup.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056">Bug
       4056</ulink>)
-    </para>
-
-    <para>
-      Crash when sorting column while capturing.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4273">Bug
-      4273</ulink>)
     </para>
 
     <para>
