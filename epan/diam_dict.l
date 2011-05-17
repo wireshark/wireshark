@@ -269,9 +269,6 @@ description_attr description=\042
 		yyterminate();
 	}
 
-	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-
-
 	for (e = ents.next; e; e = e->next) {
 		if (strcmp(e->name,yytext) == 0) {
 			yyin = ddict_open(sys_dir,e->file);
@@ -282,6 +279,7 @@ description_attr description=\042
 					yyterminate();
 				}
 			} else {
+				include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 				yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 				BEGIN LOADING;
 			}
@@ -290,7 +288,7 @@ description_attr description=\042
 	}
 
 	if (!e) {
-		fprintf(stderr, "Could not find entity: '%s'", e->name );
+		fprintf(stderr, "Could not find entity: '%s'\n", yytext );
 		yyterminate();
 	}
 

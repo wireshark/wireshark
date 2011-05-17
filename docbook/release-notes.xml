@@ -39,14 +39,80 @@ Wireshark Info
 
         <listitem>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
+            Large/infinite loop in the DICOM dissector.
+            <!-- Fixed in trunk: r36958 -->
             <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+            <!-- Fixed in trunk-1.2: r37213 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5876">Bug
+            5876</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.15 and 1.4.0 to 1.4.4.</para>
+          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
+            that a corrupted Diameter dictionary file could crash Wireshark.
+            <!-- Fixed in trunk: r37011 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r37213 -->
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
+            that a corrupted snoop file could crash Wireshark.
+            <!-- Fixed in trunk: r37068 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r37213 -->
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            David Maciejak of Fortinet's FortiGuard Labs discovered that
+            malformed compressed capture data could crash Wireshark.
+            <!-- Fixed in trunk: r37081 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r37213 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5908">Bug
+            5908</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
+            that a corrupted Visual Networks file could crash Wireshark.
+            <!-- Fixed in trunk: r37128 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r37213 -->
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -71,6 +137,7 @@ Wireshark Info
         </para></listitem>
 -->
 
+      </itemizedlist>
 
     </para>
 
@@ -102,7 +169,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-Snoop.
+There are no capture file support updates in this release.
 
     </para>
     </section>
@@ -187,6 +254,12 @@ Snoop.
       32-bit installer.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3610">Bug
       3610</ulink>)
+    </para>
+
+    <para>
+      Wireshark will not run on Windows 2000.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5874">Bug
+      5874</ulink>)
     </para>
 
   </section>
