@@ -2231,7 +2231,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
     if ((use_threads == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
-        g_snprintf(errmsg, errmsg_len,
+        g_snprintf(errmsg, (gulong) errmsg_len,
                    "Using threads is required for capturing on mulitple interfaces! Use the -t option.");
         return FALSE;
     }
