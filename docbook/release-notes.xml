@@ -33,9 +33,9 @@ Wireshark Info
 
     The following bugs have been fixed:
 
+<!--
       <itemizedlist>
 
-<!--
         <listitem><para>
           Wireshark is unresponsive when capturing from named pipes on Windows.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
@@ -46,9 +46,9 @@ Wireshark Info
 	  Ring buffers are no longer turned on by default when using multiple
 	  capture files.
 	</para></listitem>
--->
 
       </itemizedlist>
+-->
 
     </para>
 
