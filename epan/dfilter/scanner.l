@@ -408,7 +408,7 @@ str_to_gint32(char *s, gint32* pint)
 		return FALSE;
 	}
 
-	*pint = integer;
+	*pint = (gint32)integer;
 	return TRUE;
 }
 
