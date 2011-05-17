@@ -1460,6 +1460,9 @@ AC_ARG_WITH(dumpcap-group,
   if test "x$withval" = "xyes"; then
       AC_MSG_ERROR([No dumpcap group specified.])
   elif test "x$withval" != "xno"; then
+      if test "x$enable_dumpcap" = "xno" ; then
+          AC_MSG_ERROR(dumpcap group install works only with dumpcap but dumpcap is disabled)
+      fi
       AC_MSG_RESULT($withval)
       DUMPCAP_GROUP="$withval"
   fi
