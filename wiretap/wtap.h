@@ -925,6 +925,7 @@ void wtap_close(wtap *wth);
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
 gboolean wtap_dump_can_compress(int filetype);
+gboolean wtap_dump_has_name_resolution(int filetype);
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, gboolean compressed, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
