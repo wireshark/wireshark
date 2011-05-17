@@ -591,6 +591,7 @@ static int hf_sccp_variable_pointer1 = -1;
 static int hf_sccp_variable_pointer2 = -1;
 static int hf_sccp_variable_pointer3 = -1;
 static int hf_sccp_optional_pointer = -1;
+static int hf_sccp_param_length = -1;
 static int hf_sccp_ssn = -1;
 static int hf_sccp_gt_digits = -1;
 
@@ -1088,12 +1089,12 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
     g_strlcat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
-				 "Unknown"), GT_MAX_SIGNALS+1);
+				 "Unknown: %d"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (length - 1) || even_length == TRUE)
       g_strlcat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
-				   "Unknown"), GT_MAX_SIGNALS+1);
+				   "Unknown: %d"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;
   }
@@ -1310,7 +1311,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 							   : hf_sccp_calling_national_indicator,
 				      tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
     if (national == 0)
-          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_NOTE, "Address is coded to "
+          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
 				 "international standards.  This doesn't normally happen in ANSI "
 				 "networks.");
   }
@@ -1582,7 +1583,7 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint 
 
   param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEQUENCING_SEGMENTING,
-					      sccp_parameter_values, "Unknown"));
+					      sccp_parameter_values, "Unknown: %d"));
   param_tree = proto_item_add_subtree(param_item,
 				      ett_sccp_sequencing_segmenting);
 
@@ -1814,7 +1815,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEGMENTATION,
-					      sccp_parameter_values, "Unknown"));
+					      sccp_parameter_values, "Unknown: %d"));
   param_tree = proto_item_add_subtree(param_item, ett_sccp_segmentation);
 
   proto_tree_add_item(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, ENC_NA);
@@ -2063,6 +2064,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint16 parameter_length;
   guint8 length_length;
+  proto_item *pi;
 
   if (parameter_type != PARAMETER_LONG_DATA) {
     parameter_length = tvb_get_guint8(tvb, offset);
@@ -2073,13 +2075,16 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
     length_length = PARAMETER_LONG_DATA_LENGTH_LENGTH;
   }
 
-  if (sccp_tree && sccp_show_length) {
-    proto_tree_add_text(sccp_tree, tvb, offset, length_length,
-			"%s length: %d",
-			val_to_str(parameter_type, sccp_parameter_values,
-				   "Unknown"),
-			parameter_length);
+  pi = proto_tree_add_uint_format(sccp_tree, hf_sccp_param_length, tvb, offset,
+				  length_length, parameter_length, "%s length: %d",
+				  val_to_str(parameter_type, sccp_parameter_values,
+					     "Unknown: %d"),
+				  parameter_length);
+  if (!sccp_show_length) {
+    /* The user doesn't want to see it... */
+    PROTO_ITEM_SET_HIDDEN(pi);
   }
+
 
   offset += length_length;
 
@@ -2178,7 +2183,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
      *  put that info there should call col_set_fence() to protect it.
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		 val_to_str(message_type, sccp_message_type_acro_values, "Unknown"));
+		 val_to_str(message_type, sccp_message_type_acro_values, "Unknown: %d"));
   };
 
   if (sccp_tree) {
@@ -2752,7 +2757,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 			pi = proto_tree_add_uint(pt, hf_sccp_assoc_msg, tvb, 0, 0, m->framenum);
 
 			if (assoc->payload != SCCP_PLOAD_NONE)
-				proto_item_append_text(pi," %s", val_to_str(assoc->payload, assoc_protos, "Unknown"));
+				proto_item_append_text(pi," %s", val_to_str(assoc->payload, assoc_protos, "Unknown: %d"));
 
 			if (m->data.co.label)
 				proto_item_append_text(pi," %s", m->data.co.label);
@@ -2948,6 +2953,10 @@ proto_register_sccp(void)
 	NULL, HFILL}},
     { &hf_sccp_optional_pointer,
       { "Pointer to Optional parameter", "sccp.optional_pointer",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	NULL, HFILL}},
+    { &hf_sccp_param_length,
+      { "Variable parameter length", "sccp.parameter_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	NULL, HFILL}},
     { &hf_sccp_ssn,
