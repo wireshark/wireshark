@@ -43,7 +43,7 @@ Wireshark Info
           <para>
             Large/infinite loop in the DICOM dissector.
             <!-- Fixed in trunk: r36958 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r37222 -->
             <!-- Fixed in trunk-1.2: r37213 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5876">Bug
             5876</ulink>)
