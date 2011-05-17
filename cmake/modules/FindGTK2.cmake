@@ -28,6 +28,8 @@
 #
 #   GTK2_DEBUG - Enables verbose debugging of the module
 #   GTK2_SKIP_MARK_AS_ADVANCED - Disable marking cache variables as advanced
+#   GTK2_ADDITIONAL_SUFFIXES - Allows defining additional directories to
+#                              search for include files
 #
 #=================
 # Example Usage:
@@ -61,9 +63,24 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the License for more information.
 #=============================================================================
-# (To distributed this file outside of CMake, substitute the full
+# (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# Version 1.2 (8/30/2010) (CMake 2.8.3)
+#   * Merge patch for detecting gdk-pixbuf library (split off
+#     from core GTK in 2.21).  Thanks to Vincent Untz for the patch
+#     and Ricardo Cruz for the heads up.
+# Version 1.1 (8/19/2010) (CMake 2.8.3)
+#   * Add support for detecting GTK2 under macports (thanks to Gary Kramlich)
+# Version 1.0 (8/12/2010) (CMake 2.8.3)
+#   * Add support for detecting new pangommconfig.h header file
+#     (Thanks to Sune Vuorela & the Debian Project for the patch)
+#   * Add support for detecting fontconfig.h header
+#   * Call find_package(Freetype) since it's required
+#   * Add support for allowing users to add additional library directories
+#     via the GTK2_ADDITIONAL_SUFFIXES variable (kind of a future-kludge in
+#     case the GTK developers change versions on any of the directories in the
+#     future).
 # Version 0.8 (1/4/2010)
 #   * Get module working under MacOSX fink by adding /sw/include, /sw/lib
 #     to PATHS and the gobject library
@@ -131,13 +148,15 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
     endif()
 
     set(_relatives
-        # FIXME
+        # If these ever change, things will break.
+        ${GTK2_ADDITIONAL_SUFFIXES}
         glibmm-2.4
         glib-2.0
         atk-1.0
         atkmm-1.6
         cairo
         cairomm-1.0
+        gdk-pixbuf-2.0
         gdkmm-2.4
         giomm-2.4
         gtk-2.0
@@ -172,11 +191,8 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /usr/openwin/lib
             /sw/include
             /sw/lib
-            /usr/include/gdk-pixbuf-2.0
             /opt/local/include
             /opt/local/lib
-            /opt/local/lib/gtk-2.0/include
-            /opt/local/include/gdk-pixbuf-2.0/
             $ENV{GTKMM_BASEPATH}/include
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/include
@@ -395,6 +411,10 @@ endif()
 # Find all components
 #
 
+find_package(Freetype)
+list(APPEND GTK2_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
+list(APPEND GTK2_LIBRARIES ${FREETYPE_LIBRARIES})
+
 foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
     if(_GTK2_component STREQUAL "gtk")
         _GTK2_FIND_INCLUDE_DIR(GTK2_GLIB_INCLUDE_DIR glib.h)
@@ -404,19 +424,31 @@ foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
         _GTK2_FIND_INCLUDE_DIR(GTK2_GOBJECT_INCLUDE_DIR gobject/gobject.h)
         _GTK2_FIND_LIBRARY    (GTK2_GOBJECT_LIBRARY gobject false true)
 
+        _GTK2_FIND_INCLUDE_DIR(GTK2_GDK_PIXBUF_INCLUDE_DIR gdk-pixbuf/gdk-pixbuf.h)
+        _GTK2_FIND_LIBRARY    (GTK2_GDK_PIXBUF_LIBRARY gdk_pixbuf false true)
+
         _GTK2_FIND_INCLUDE_DIR(GTK2_GDK_INCLUDE_DIR gdk/gdk.h)
         _GTK2_FIND_INCLUDE_DIR(GTK2_GDKCONFIG_INCLUDE_DIR gdkconfig.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-x11 false true)
-        _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-win32 false true)
-        _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-quartz false true)
-
         _GTK2_FIND_INCLUDE_DIR(GTK2_GTK_INCLUDE_DIR gtk/gtk.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-x11 false true)
-        _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-win32 false true)
-        _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-quartz false true)
+
+        if(UNIX)
+            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-x11 false true)
+            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-x11 false true)
+        endif()
+        if(WIN32)
+            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-win32 false true)
+            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-win32 false true)
+        endif()
+        if(APPLE)
+            _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-quartz false true)
+            _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-quartz false true)
+        endif()
+
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_CAIRO_INCLUDE_DIR cairo.h)
         _GTK2_FIND_LIBRARY    (GTK2_CAIRO_LIBRARY cairo false false)
+
+        _GTK2_FIND_INCLUDE_DIR(GTK2_FONTCONFIG_INCLUDE_DIR fontconfig/fontconfig.h)
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_PANGO_INCLUDE_DIR pango/pango.h)
         _GTK2_FIND_LIBRARY    (GTK2_PANGO_LIBRARY pango false true)
@@ -424,8 +456,6 @@ foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
         _GTK2_FIND_INCLUDE_DIR(GTK2_ATK_INCLUDE_DIR atk/atk.h)
         _GTK2_FIND_LIBRARY    (GTK2_ATK_LIBRARY atk false true)
 
-        _GTK2_FIND_INCLUDE_DIR(GTK2_GDKPIXBUF_INCLUDE_DIR gdk-pixbuf/gdk-pixbuf.h)
-        _GTK2_FIND_LIBRARY    (GTK2_GDKPIXBUF_LIBRARY gdk_pixbuf false true)
 
     elseif(_GTK2_component STREQUAL "gtkmm")
 
@@ -445,6 +475,7 @@ foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
         _GTK2_FIND_LIBRARY    (GTK2_CAIROMM_LIBRARY cairomm true true)
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_PANGOMM_INCLUDE_DIR pangomm.h)
+        _GTK2_FIND_INCLUDE_DIR(GTK2_PANGOMMCONFIG_INCLUDE_DIR pangommconfig.h)
         _GTK2_FIND_LIBRARY    (GTK2_PANGOMM_LIBRARY pangomm true true)
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_SIGC++_INCLUDE_DIR sigc++/sigc++.h)
