@@ -811,18 +811,42 @@ again:
 	 */
 	deseg_offset = offset;
 
-	/* find the most previous PDU starting before this sequence number */
+    /* If we've seen this segment before (e.g., it's a retransmission),
+     * there's nothing for us to do.  Certainly, don't add it to the list
+     * of multisegment_pdus (that would cause subsequent lookups to find
+     * the retransmission instead of the original transmission, breaking
+     * dissection of the desegmented pdu if we'd already seen the end of
+     * the pdu).
+     */
+    if ((msp = se_tree_lookup32(flow->multisegment_pdus, seq))) {
+	const char* str;
+
+	if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
+	    str = "";
+	    col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
+	} else {
+	    str = "Retransmitted ";
+	}
+
+	nbytes = tvb_reported_length_remaining(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, nbytes,
+			    "%sSSL segment data (%u byte%s)",
+			    str, nbytes, plurality(nbytes, "", "s"));
+	return;
+    }
+
+    /* Else, find the most previous PDU starting before this sequence number */
 	msp=se_tree_lookup32_le(flow->multisegment_pdus, seq-1);
 	if(msp && msp->seq<=seq && msp->nxtpdu>seq){
 		int len;
 
-		if(!pinfo->fd->flags.visited){
+        if (!PINFO_FD_VISITED(pinfo)) {
 			msp->last_frame=pinfo->fd->num;
 			msp->last_frame_time=pinfo->fd->abs_ts;
 		}
 
 		/* OK, this PDU was found, which means the segment continues
-		   a higher-level PDU and that we must desegment it.
+         * a higher-level PDU and that we must desegment it.
 		*/
 		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
 			/* The dissector asked for the entire segment */
@@ -832,10 +856,8 @@ again:
 		}
 
 		ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
-			ssl_fragment_table,
-			seq - msp->seq,
-			len,
-			(LT_SEQ (nxtseq,msp->nxtpdu)) );
+                                 ssl_fragment_table, seq - msp->seq,
+                                 len, (LT_SEQ (nxtseq,msp->nxtpdu)));
 
 		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
 			msp->flags&=(~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
@@ -858,20 +880,20 @@ again:
 		}
 	} else {
 		/* This segment was not found in our table, so it doesn't
-		   contain a continuation of a higher-level PDU.
-		   Call the normal subdissector.
+         * contain a continuation of a higher-level PDU.
+         * Call the normal subdissector.
 		*/
 		process_ssl_payload(tvb, offset, pinfo, tree, association);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
-		   before it could handle the packet?
-		   If so we have to create some structures in our table but
-		   this is something we only do the first time we see this
-		   packet.
+         * before it could handle the packet?
+         * If so we have to create some structures in our table but
+         * this is something we only do the first time we see this
+         * packet.
 		*/
 		if(pinfo->desegment_len) {
-			if (!pinfo->fd->flags.visited)
+            if (!PINFO_FD_VISITED(pinfo))
 				must_desegment = TRUE;
 
 			/*
@@ -883,9 +905,9 @@ again:
 		}
 
 		/* Either no desegmentation is necessary, or this is
-		   segment contains the beginning but not the end of
-		   a higher-level PDU and thus isn't completely
-		   desegmented.
+         * segment contains the beginning but not the end of
+         * a higher-level PDU and thus isn't completely
+         * desegmented.
 		*/
 		ipfd_head = NULL;
 	}
@@ -910,7 +932,8 @@ again:
 
 			/* create a new TVB structure for desegmented data */
 			next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
-					ipfd_head->datalen, ipfd_head->datalen);
+                                               ipfd_head->datalen,
+					       ipfd_head->datalen);
 
 			/* add desegmented data to the data source list */
 			add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
@@ -925,8 +948,7 @@ again:
 			 * data?
 			 */
 			old_len=(int)(tvb_reported_length(next_tvb)-tvb_reported_length_remaining(tvb, offset));
-			if(pinfo->desegment_len &&
-			    pinfo->desegment_offset<=old_len){
+            if(pinfo->desegment_len && pinfo->desegment_offset <= old_len) {
 				/*
 				 * "desegment_len" isn't 0, so it needs more
 				 * data for something - and "desegment_offset"
@@ -966,8 +988,7 @@ again:
 				 * Show the stuff in this TCP segment as
 				 * just raw TCP segment data.
 				 */
-				nbytes =
-				    tvb_reported_length_remaining(tvb, offset);
+                nbytes = tvb_reported_length_remaining(tvb, offset);
 				proto_tree_add_text(tree, tvb, offset, -1,
 				    "SSL segment data (%u byte%s)", nbytes,
 				    plurality(nbytes, "", "s"));
@@ -991,55 +1012,54 @@ again:
 				}
 
 				/* Did the subdissector ask us to desegment
-				   some more data?  This means that the data
-				   at the beginning of this segment completed
-				   a higher-level PDU, but the data at the
-				   end of this segment started a higher-level
-				   PDU but didn't complete it.
-
-				   If so, we have to create some structures
-				   in our table, but this is something we
-				   only do the first time we see this packet.
+                 * some more data?  This means that the data
+                 * at the beginning of this segment completed
+                 * a higher-level PDU, but the data at the
+                 * end of this segment started a higher-level
+                 * PDU but didn't complete it.
+		 *
+                 * If so, we have to create some structures
+                 * in our table, but this is something we
+                 * only do the first time we see this packet.
 				*/
 				if(pinfo->desegment_len) {
-					if (!pinfo->fd->flags.visited)
+                    if (!PINFO_FD_VISITED(pinfo))
 						must_desegment = TRUE;
 
 					/* The stuff we couldn't dissect
-					   must have come from this segment,
-					   so it's all in "tvb".
-
-				 	   "pinfo->desegment_offset" is
-				 	   relative to the beginning of
-				 	   "next_tvb"; we want an offset
-				 	   relative to the beginning of "tvb".
-
-				 	   First, compute the offset relative
-				 	   to the *end* of "next_tvb" - i.e.,
-				 	   the number of bytes before the end
-				 	   of "next_tvb" at which the
-				 	   subdissector stopped.  That's the
-				 	   length of "next_tvb" minus the
-				 	   offset, relative to the beginning
-				 	   of "next_tvb, at which the
-				 	   subdissector stopped.
+                     * must have come from this segment,
+                     * so it's all in "tvb".
+		     *
+                     * "pinfo->desegment_offset" is
+                     * relative to the beginning of
+                     * "next_tvb"; we want an offset
+                     * relative to the beginning of "tvb".
+		     *
+                     * First, compute the offset relative
+                     * to the *end* of "next_tvb" - i.e.,
+                     * the number of bytes before the end
+                     * of "next_tvb" at which the
+                     * subdissector stopped.  That's the
+                     * length of "next_tvb" minus the
+                     * offset, relative to the beginning
+                     * of "next_tvb, at which the
+                     * subdissector stopped.
 				 	*/
-					deseg_offset =
-					    ipfd_head->datalen - pinfo->desegment_offset;
+                    deseg_offset = ipfd_head->datalen - pinfo->desegment_offset;
 
 					/* "tvb" and "next_tvb" end at the
-					   same byte of data, so the offset
-					   relative to the end of "next_tvb"
-					   of the byte at which we stopped
-					   is also the offset relative to
-					   the end of "tvb" of the byte at
-					   which we stopped.
-
-					   Convert that back into an offset
-					   relative to the beginninng of
-					   "tvb", by taking the length of
-					   "tvb" and subtracting the offset
-					   relative to the end.
+                     * same byte of data, so the offset
+                     * relative to the end of "next_tvb"
+                     * of the byte at which we stopped
+                     * is also the offset relative to
+                     * the end of "tvb" of the byte at
+                     * which we stopped.
+		     *
+                     * Convert that back into an offset
+                     * relative to the beginninng of
+                     * "tvb", by taking the length of
+                     * "tvb" and subtracting the offset
+                     * relative to the end.
 					*/
 					deseg_offset=tvb_reported_length(tvb) - deseg_offset;
 				}
@@ -1070,7 +1090,7 @@ again:
 	    deseg_seq = seq + (deseg_offset - offset);
 
 	    if( ((nxtseq - deseg_seq) <= 1024*1024)
-	    &&  (!pinfo->fd->flags.visited) ){
+            &&  (!PINFO_FD_VISITED(pinfo))) {
 		if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
 			/* The subdissector asked to reassemble using the
 			 * entire next segment.
@@ -1088,9 +1108,7 @@ again:
 
 		/* add this segment as the first one for this new pdu */
 		fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
-			ssl_fragment_table,
-			0,
-			nxtseq - deseg_seq,
+                         ssl_fragment_table, 0, nxtseq - deseg_seq,
 			LT_SEQ(nxtseq, msp->nxtpdu));
 		}
 	}
