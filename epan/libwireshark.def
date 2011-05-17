@@ -387,6 +387,7 @@ ep_strdup_printf
 ep_strdup_vprintf
 ep_strndup
 ep_strsplit
+ep_tvb_get_bits
 ep_tvb_memdup
 epan_base64_decode
 epan_cleanup
@@ -1069,6 +1070,7 @@ tvb_find_line_end_unquoted
 tvb_format_text
 tvb_format_text_wsp
 tvb_free
+tvb_get_bits_buf
 tvb_get_bits8
 tvb_get_bits16
 tvb_get_bits32

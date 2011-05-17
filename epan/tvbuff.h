@@ -363,6 +363,9 @@ extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_b
  */
 extern guint32 tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian);
 
+void tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf);
+guint8 *ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits);
+
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in

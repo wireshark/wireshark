@@ -1656,6 +1656,59 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
 	return (guint8)value;
 }
 
+void
+tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf)
+{
+	/* Byte align offset */
+	gint offset = bit_offset >> 3;
+	bit_offset = bit_offset & 0x7;
+
+	if (G_LIKELY(bit_offset != 0)) {
+		/* XXX, this can be optimized */
+		while (no_of_bits >= 8) {
+			guint16 value = (tvb_get_ntohs(tvb, offset) & bit_mask16[bit_offset]) >> (8 - bit_offset);
+
+			*buf++ = (guint8) value;
+			offset++;
+			no_of_bits -= 8;
+		}
+
+		/* something left? */
+		if (no_of_bits > 0)
+			*buf = tvb_get_bits8(tvb, offset * 8 + bit_offset, no_of_bits);
+
+	} else {
+		/* fast code path for bit_offset == 0 */
+		while (no_of_bits >= 8) {
+			*buf++ = tvb_get_guint8(tvb, offset);
+			offset++;
+			no_of_bits -= 8;
+		}
+
+		/* something left? */
+		if (no_of_bits > 0)
+			*buf = tvb_get_guint8(tvb, offset) >> (8-no_of_bits);
+	}
+}
+
+guint8 *
+ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
+{
+	gint no_of_bytes;
+	guint8 *buf;
+
+	/* XXX, no_of_bits == -1 -> to end of tvb? */
+
+	if (no_of_bits < 0 || bit_offset < 0) {
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	no_of_bytes = (no_of_bits >> 3) + ((no_of_bits & 0x7) != 0);	/* ceil(no_of_bits / 8.0) */
+	buf = ep_alloc(no_of_bytes);
+	tvb_get_bits_buf(tvb, bit_offset, no_of_bits, buf);
+	return buf;
+}
+
 /* Get 9 - 16 bits */
 /* Bit offset mask for number of bits = 16 - 32 */
 static const guint32 bit_mask32[] = {
