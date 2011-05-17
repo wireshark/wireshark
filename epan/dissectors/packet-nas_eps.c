@@ -1347,7 +1347,7 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	"TMSI",
 	"IMSI"
 };
- 
+
 static guint16
 de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2338,7 +2338,7 @@ de_esm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	return(len);
 }
- 
+
 /*
  * 9.9.4.8 Packet flow identifier
  * See subclause 10.5.6.11 in 3GPP TS 24.008
@@ -3416,8 +3416,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 	/* 	Old GUTI 	EPS mobile identity 9.9.3.12	M	LV	12 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Old GUTI");
 	/* No more Mandatory elements */
-	if (curr_len==0)
-		return;
+
 	/* 	B-	NAS key set identifier	Non-current native NAS key set identifier 9.9.3.21	O	TV	1 */
 	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID , " - Non-current native NAS key set identifier" );
 	/* 8-	GPRS ciphering key sequence number	Ciphering key sequence number 9.9.3.4a	O	TV	1  */
@@ -3542,7 +3541,7 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 	curr_offset = offset;
 	curr_len = len;
-	
+
 	/* This message is sent by the UE to the network */
 	pinfo->link_dir = P2P_DIR_UL;
 
@@ -4041,7 +4040,7 @@ nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	/* Notification indicator Notification indicator 9.9.4.7A M LV 2 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_NOTIF_IND, NULL);
-	
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -4090,11 +4089,6 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	/* Request type 9.9.4.14 M V 1/2 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
-
-	/* Lengths already fixed by the call to ELEM_MAND_V macro */
-
-	if (curr_len==0)
-		return;
 
 	/* D- ESM information transfer flag 9.9.4.5 O TV 1 */
 	ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , NULL );
