@@ -1122,7 +1122,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_string(digits_tree, hf_sccp_gt_digits, tvb, 0, length, gt_digits);
   proto_tree_add_uint(digits_tree, called ? hf_sccp_called_gt_digits_length
 					  : hf_sccp_calling_gt_digits_length,
-		      tvb, 0, length, strlen(gt_digits));
+		      tvb, 0, length, (guint32)strlen(gt_digits));
 
   return digits_tree;
 }
