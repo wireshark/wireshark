@@ -1412,9 +1412,11 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
   data_start = MIN(data_start, item_start);
   data_end   = MAX(data_end,   item_end);
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
-    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
+      offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
   return data_end;
 }
@@ -1593,9 +1595,11 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     data_end = MAX(data_end, item_end);
   }
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
-    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
+      offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
 
   return MAX(offset, data_end);
@@ -1779,11 +1783,14 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if ((conv_ntlmssp_info != NULL) && (conv_ntlmssp_info->flags == 0)) {
       conv_ntlmssp_info->flags = negotiate_flags;
     }
-  }
+  } else
+    negotiate_flags = 0;
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
-    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
+      offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
 
   /* If there are still more bytes before the data block dissect an MIC (message integrity_code) field */
