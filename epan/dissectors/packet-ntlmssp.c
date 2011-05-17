@@ -2834,7 +2834,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_version_minor,
       { "Minor Version", "ntlmssp.version.minor", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_build_number,
-      { "Major Version", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { "Build Number", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_ntlm_current_revision,
       { "NTLM Current Revision", "ntlmssp.version.ntlm_current_revision", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
