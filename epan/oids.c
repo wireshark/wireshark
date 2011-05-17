@@ -507,7 +507,7 @@ static void restart_needed_warning(void) {
 		report_failure("Wireshark needs to be restarted for these changes to take effect");
 }
 
-static void register_mibs() {
+static void register_mibs(void) {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
 	guint i;
