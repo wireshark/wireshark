@@ -2820,7 +2820,10 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                       FALSE);
                 }
 
-                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)", match_strval((atoi(oaction) & 0xeb), open_create_mode_vals), p_filename, match_strval((atoi(p_rights) & 0x5f), ncp_rights_vals));
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)",
+                                       val_to_str((atoi(oaction) & 0xeb), open_create_mode_vals, "Unknown: %d"),
+                                       p_filename,
+                                       val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
             }
             /* The following allows for oplock ack's and level 2 request echoed to expert tap. */
             if (ncp_rec->func == 87 && ncp_rec->subfunc == 34) {
@@ -2832,7 +2835,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 build_expert_data(ncp_tree, "ncp.cc_function",
                                   cc_function, sizeof cc_function, 0, FALSE);
 
-                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle %s - %s", p_filehandle, match_strval(atoi(cc_function), ncp_cc_function_vals));
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle %s - %s", p_filehandle,
+                                       val_to_str(atoi(cc_function), ncp_cc_function_vals, "Unknown: %d"));
             }
             /* The following allows for Update file handle rights echoed to expert tap. */
             if (ncp_rec->func == 87 && ncp_rec->subfunc == 44) {
@@ -2846,7 +2850,10 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_rights, sizeof p_rights, 0, FALSE);
                 build_expert_data(ncp_tree, "ncp.new_access_rights_mask",
                                   n_rights, sizeof n_rights, 0, FALSE);
-                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Change handle %s rights from:(%s) to:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals), match_strval((atoi(n_rights) & 0x1ff), access_rights_vals));
+                expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Change handle %s rights from:(%s) to:(%s)",
+                                       p_filehandle,
+                                       val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"),
+                                       val_to_str((atoi(n_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
             }
         }
     }
@@ -2866,13 +2873,18 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_filehandle, sizeof p_filehandle, 0, FALSE);
 
                 if (ncp_rec->subfunc == 1) {
-                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle);
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s",
+                                           val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
+                                           p_filehandle);
                 }
                 else
                 {
                     build_expert_data(ncp_tree, "ncp.o_c_ret_flags",
                                       oplockflg, sizeof oplockflg, 0, FALSE);
-                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s, %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle, match_strval(atoi(oplockflg), ncp_o_c_ret_flags_vals));
+                    expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s, %s",
+                                           val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
+                                           p_filehandle,
+                                           val_to_str(atoi(oplockflg), ncp_o_c_ret_flags_vals, "Unknown: %d"));
                 }
             }
             /* The following allows for Update file handle rights echoed to expert tap. */
@@ -2884,7 +2896,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_filehandle, sizeof p_filehandle, 0, FALSE);
                 build_expert_data(ncp_tree, "ncp.effective_rights",
                                   p_rights, sizeof p_rights, 0, FALSE);
-                expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Handle %s effective rights:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals));
+                expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Handle %s effective rights:(%s)", p_filehandle,
+                                       val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
             }
         }
         /* The following allows for specific NCP server info to be echoed to the expert tap. */
@@ -3062,7 +3075,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             if (strcmp(vvalues->vstring, "zendmSearchType")==0) {
                 proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                            value1, value2,
-                                           "Value (%d) = %s", value2, match_strval(value2, zensearchenum));
+                                           "Value (%d) = %s", value2,
+                                           val_to_str(value2, zensearchenum, "Unknown: %d"));
             }
             else
             {
@@ -3084,11 +3098,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             value1 = tvb_get_letohl(tvb, voffset); /* length of field */
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset); /* type of Protocol */
-            valuestr = match_strval(value2, nds_protocol_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Protocol)";
-            }
+            valuestr = val_to_str_const(value2, nds_protocol_type, "(Undefined Protocol)");
             tvb_ensure_bytes_exist(tvb, voffset, value1);
             proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                        value1, value2, valuestr, value2);
@@ -3136,11 +3146,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             value1 = tvb_get_letohl(tvb, voffset); /* length of field */
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset); /* Name Space */
-            valuestr = match_strval(value2, name_space_type);
-            if (valuestr == NULL)
-            {
-                valuestr = "Unknown Name Space";
-            }
+            valuestr = val_to_str_const(value2, name_space_type, "Unknown Name Space");
             proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
                                   4, valuestr);
             voffset = voffset+4;
@@ -3170,20 +3176,12 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset = voffset+value2;
             voffset += align_4(tvb, voffset);
             rtype = tvb_get_letohs(tvb, voffset); /* replica type */
-            valuestr = match_strval(rtype, nds_replica_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Unknown Replica Type)";
-            }
+            valuestr = val_to_str_const(rtype, nds_replica_type, "(Unknown Replica Type)");
             proto_tree_add_string(nvtree, hf_replica_type, tvb, voffset,
                                   2, valuestr);
             voffset = voffset+2;
             rstate = tvb_get_letohs(tvb, voffset); /* replica state */
-            valuestr = match_strval(rstate, nds_replica_state);
-            if (valuestr == NULL)
-            {
-                valuestr="(Unknown Replica State)";
-            }
+            valuestr = val_to_str_const(rstate, nds_replica_state, "(Unknown Replica State)");
             proto_tree_add_string(nvtree, hf_replica_state, tvb, voffset,
                                   2, valuestr);
             voffset = voffset+2;
@@ -3213,11 +3211,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                 }
                 voffset += align_4(tvb, voffset);
                 value4 = tvb_get_letohl(tvb, voffset); /* type of Protocol */
-                valuestr = match_strval(value4, nds_protocol_type);
-                if (valuestr == NULL)
-                {
-                    valuestr="(Undefined Protocol)";
-                }
+                valuestr = val_to_str_const(value4, nds_protocol_type, "(Undefined Protocol)");
                 proto_tree_add_uint_format(adtree, hf_nds_uint32value, tvb, voffset,
                                            4, value4, valuestr, value4);
                 voffset = voffset+4;
@@ -3567,11 +3561,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         break;
     case 2: /* Based */
         value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-        vstring = match_strval(value1, es_type);
-        if (vstring == NULL)
-        {
-            vstring = "No ES Type Found";
-        }
+        vstring = val_to_str_const(value1, es_type, "No ES Type Found");
         nesitem = proto_tree_add_string_format(estree, hf_es_type, tvb, ioffset,
                                                4, vstring, "Base Context Type - %s", vstring);
         nestree = proto_item_add_subtree(nesitem, ett_nds);
@@ -3653,11 +3643,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             break;
         }
         value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-        vstring = match_strval(value1, es_type);
-        if (vstring == NULL)
-        {
-            vstring = "No ES Type Found";
-        }
+        vstring = val_to_str_const(value1, es_type, "No ES Type Found");
         nesitem = proto_tree_add_string_format(estree, hf_es_type, tvb, ioffset,
                                                4, vstring, "Object Name Type - %s", vstring);
         nestree = proto_item_add_subtree(nesitem, ett_nds);
@@ -3757,11 +3743,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
             for (i = 1 ; i <= value1; i++ )
             {
                 value2 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = match_strval(value2, nds_protocol_type);
-                if (values->vstring == NULL)
-                {
-                    values->vstring="(Undefined Protocol)";
-                }
+                values->vstring = val_to_str_const(value2, nds_protocol_type, "(Undefined Protocol)");
                 proto_tree_add_uint_format(sub1tree, hf_nds_uint32value, tvb, ioffset,
                                            4, value2, vstring, value2);
                 ioffset = ioffset+4;
@@ -3801,11 +3783,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
 
         }
         value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-        vstring = match_strval(value1, es_type);
-        if (vstring == NULL)
-        {
-            vstring = "No ES Type Found";
-        }
+        vstring = val_to_str_const(value1, es_type, "No ES Type Found");
         nesitem = proto_tree_add_string_format(estree, hf_es_type, tvb, ioffset,
                                                4, vstring, "Object Name Type - %s", vstring);
         nestree = proto_item_add_subtree(nesitem, ett_nds);
@@ -3951,11 +3929,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
     ioffset = values->voffset;
     search_tag = tvb_get_letohl(tvb, ioffset); /* Get next search operation tag */
-    search_string = match_strval(search_tag, itersearchenum);
-    if(search_string == NULL)
-    {
-        search_string = "(No Search Operation Type Found!)";
-    }
+    search_string = val_to_str_const(search_tag, itersearchenum, "(No Search Operation Type Found!)");
     proto_tree_add_uint_format(it_tree, hf_iter_search, tvb, ioffset, 4,
                                search_tag, "Search Operation Type: %d, (0x%04x), %s",
                                search_tag, search_tag, search_string);
@@ -3981,11 +3955,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
         /* start of DCWPutValue */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(values->vvalue, nds_syntax);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Syntax Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
         proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
                                   4, values->vstring);
         ioffset = ioffset + 4;
@@ -4031,11 +4001,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         /* start of DCWPutValue */
 #if 0
         values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(values->vvalue, nds_syntax);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Syntax Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
         proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
                               4, values->vstring);
         ioffset = ioffset + 4;
@@ -4074,11 +4040,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
         /* start of DCWPutValue */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(values->vvalue, nds_syntax);
-        if (values->vstring == NULL)
-            {
-                values->vstring = "No Syntax Found";
-            }
+        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
         proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
                               4, values->vstring);
         ioffset = ioffset + 4;
@@ -4116,11 +4078,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
         /* start of DCWPutValue */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(values->vvalue, nds_syntax);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Syntax Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
         proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
                               4, values->vstring);
         ioffset = ioffset + 4;
@@ -4141,11 +4099,7 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     case NDS_SEARCH_ENTRY_SUBCOUNT_EQ:
         /* start of DCWPutValue */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(values->vvalue, nds_syntax);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Syntax Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
         proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
                               4, values->vstring);
         ioffset = ioffset + 4;
@@ -4235,11 +4189,7 @@ process_search_match(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
     /* start of DCWPutValue */
     values->vvalue = tvb_get_letohl(tvb, ioffset);
-    values->vstring = match_strval(values->vvalue, nds_syntax);
-    if (values->vstring == NULL)
-    {
-        values->vstring = "No Syntax Found";
-    }
+    values->vstring = val_to_str_const(values->vvalue, nds_syntax, "No Syntax Found");
     proto_tree_add_string(it_tree, hf_nds_syntax, tvb, ioffset,
     4, values->vstring);
     ioffset = ioffset + 4;
@@ -4264,11 +4214,7 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
     const char *search_string;
 
     search_tag = tvb_get_letohl(tvb, ioffset);
-    search_string = match_strval(search_tag, itersearchenum);
-    if(search_string == NULL)
-    {
-        search_string = "(No Search Tag Found)";
-    }
+    search_string = val_to_str_const(search_tag, itersearchenum, "(No Search Tag Found)");
     proto_tree_add_uint_format(it_tree, hf_iter_search, tvb, ioffset, 4,
         search_tag, "Type of Search: Tag = %d, (0x%04x), %s",
         search_tag, search_tag, search_string);
@@ -4508,19 +4454,11 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     }
     if (iter_flags & DSI_REPLICA_TYPE) { /* Replica Type */
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0x00ff;
-        values->vstring = match_strval(values->vvalue, nds_replica_type);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Replica Type Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_replica_type, "No Replica Type Found");
         proto_tree_add_string(it_tree, hf_replica_type, tvb, ioffset,
         4, values->vstring);
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0xff00;
-        values->vstring = match_strval(values->vvalue, nds_replica_state);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Replica State Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_replica_state, "No Replica State Found");
         proto_tree_add_string(it_tree, hf_replica_state, tvb, ioffset,
         4, values->vstring);
         ioffset = ioffset + 4;
@@ -4598,11 +4536,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     }
     if (iter_flags & DSI_REPLICA_STATE) { /* Replica State */
         values->vvalue = tvb_get_letohl(tvb, ioffset) & 0xff00;
-        values->vstring = match_strval(values->vvalue, nds_replica_state);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No Replica State Found";
-        }
+        values->vstring = val_to_str_const(values->vvalue, nds_replica_state, "No Replica State Found");
         proto_tree_add_string(it_tree, hf_replica_state, tvb, ioffset,
         4, values->vstring);
         ioffset = ioffset + 2;
@@ -4705,11 +4639,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
 
 
     while (TRUE) {
-        verb_string = match_strval(it_verb, iterator_subverbs);
-        if(verb_string == NULL)
-        {
-            verb_string = "(No Iteration Verb Found)";
-        }
+        verb_string = val_to_str_const(it_verb, iterator_subverbs, "(No Iteration Verb Found)");
         it_subitem = proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
             it_verb, "Iterator Verb: %d, (0x%04x), %s",
             it_verb, it_verb, verb_string);
@@ -4774,11 +4704,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                     /* Process the attribute tag */
 #if 0
                     values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    values.vstring = match_strval(values.vvalue, nds_tags);
-                    if(values.vstring == NULL)
-                    {
-                        values.vstring = "No Tags Set";
-                    }
+                    values.vstring = val_to_str_const(values.vvalue, nds_tags, "No Tags Set");
                     proto_tree_add_string(it_subtree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);
 #endif
                     proto_tree_add_item(it_subtree, hf_iter_index, tvb, ioffset, 4, TRUE);
@@ -4826,11 +4752,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 ioffset += 4;
                 if (number_to_get == 0) {
                     values.vvalue = tvb_get_letohl(tvb, ioffset);
-                    values.vstring = match_strval(values.vvalue, nds_tags);
-                    if(values.vstring == NULL)
-                    {
-                        values.vstring = "No Tags Set";
-                    }
+                    values.vstring = val_to_str_const(values.vvalue, nds_tags, "No Tags Set");
                     proto_tree_add_string(it_tree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);
                     ioffset = ioffset + 4;
 
@@ -4853,10 +4775,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
         else    /* Reply Packets */
         {                                           /* All replies include a completion code first */
             rcode = tvb_get_letohl(tvb, ioffset);
-            error_string = match_strval(rcode, nds_reply_errors);
-            if (error_string == NULL) {
-                error_string = "Unknown Interation Verb Completion Code";
-            }
+            error_string = val_to_str_const(rcode, nds_reply_errors, "Unknown Interation Verb Completion Code");
             expert_item = proto_tree_add_uint_format(it_subtree, hf_iter_verb_completion_code, tvb, ioffset,
                     4, rcode, "Completion Code: 0x%08x, %s",
                     rcode, error_string );
@@ -4894,11 +4813,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
             case IT_FIRST:
             case IT_LAST:
                 values.vvalue = tvb_get_letohl(tvb, ioffset);
-                values.vstring = match_strval(values.vvalue, nds_info_type);
-                if(values.vstring == NULL)
-                {
-                    values.vstring = "No Info Type Set";
-                }
+                values.vstring = val_to_str_const(values.vvalue, nds_info_type, "No Info Type Set");
                 proto_tree_add_string(it_subtree, hf_nds_info_type, tvb, ioffset, 4, values.vstring);
                 ioffset = ioffset + 4;
                 proto_tree_add_item(it_subtree, hf_data_size, tvb, ioffset, 4, TRUE);
@@ -4965,11 +4880,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
         it_verb = tvb_get_letohl(tvb, ioffset);
         ioffset += 4;
         if (it_verb == IT_DONE || tvb_length_remaining(tvb, ioffset) < 4) {
-            verb_string = match_strval(it_verb, iterator_subverbs);
-            if(verb_string == NULL)
-            {
-                verb_string = "Internal error processing NDS iteration verbs";
-            }
+            verb_string = val_to_str_const(it_verb, iterator_subverbs, "Internal error processing NDS iteration verbs");
             proto_tree_add_uint_format(it_tree, hf_ncp_nds_iterverb, tvb, ioffset-4, 4,
                 it_verb, "Iterator Verb: %d, (0x%04x), %s",
                 it_verb, it_verb, verb_string);
@@ -5064,11 +4975,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             for (i = 1 ; i <= values->vvalue; i++ )
             {
                 value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = match_strval(value1, nds_syntax);
-                if (values->vstring == NULL)
-                {
-                    values->vstring = "No Syntax Found";
-                }
+                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
                 proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
                                       4, values->vstring);
                 ioffset = ioffset + 4;
@@ -5089,11 +4996,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             for (i = 1 ; i <= values->vvalue; i++ )
             {
                 value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = match_strval(value1, nds_syntax);
-                if (values->vstring == NULL)
-                {
-                    values->vstring = "No Syntax Found";
-                }
+                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
                 proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
                                       4, values->vstring);
                 ioffset = ioffset + 4;
@@ -5127,11 +5030,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             for (i = 1 ; i <= values->vvalue; i++ )
             {
                 value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = match_strval(value1, nds_syntax);
-                if (values->vstring == NULL)
-                {
-                    values->vstring = "No Syntax Found";
-                }
+                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
                 proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
                                       4, values->vstring);
                 ioffset = ioffset + 4;
@@ -5222,11 +5121,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             for (i = 1 ; i <= values->vvalue; i++ )
             {
                 value1 = tvb_get_letohl(tvb, ioffset);
-                values->vstring = match_strval(value1, nds_syntax);
-                if (values->vstring == NULL)
-                {
-                    values->vstring = "No Syntax Found";
-                }
+                values->vstring = val_to_str_const(value1, nds_syntax, "No Syntax Found");
                 proto_tree_add_string(ntree, hf_nds_syntax, tvb, ioffset,
                                       4, values->vstring);
                 ioffset = ioffset + 4;
@@ -5416,11 +5311,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         break;
                     case 0x00000004:                /*p3values.bit3 = "Replica State"*/
                         value1 = tvb_get_letohl(tvb, ioffset);
-                        temp_values.vstring = match_strval(value1, nds_replica_state);
-                        if (temp_values.vstring == NULL)
-                        {
-                            temp_values.vstring = "No Replica State Found";
-                        }
+                        temp_values.vstring = val_to_str_const(value1, nds_replica_state, "No Replica State Found");
                         proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
                                               4, temp_values.vstring);
                         ioffset = ioffset + 4;
@@ -5464,19 +5355,11 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000080:                /*p3values.bit8 = "Replica Type & State"*/
                         value1 = tvb_get_letohl(tvb, ioffset);
                         value2 = value1 & 0x00ff;
-                        temp_values.vstring = match_strval(value2, nds_replica_type);
-                        if (temp_values.vstring == NULL)
-                        {
-                            temp_values.vstring = "No Replica Type Found";
-                        }
+                        temp_values.vstring = val_to_str_const(value2, nds_replica_type, "No Replica Type Found");
                         proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset,
                                               4, temp_values.vstring);
                         value3 = value1 & 0xff00;
-                        temp_values.vstring = match_strval(value3, nds_replica_state);
-                        if (temp_values.vstring == NULL)
-                        {
-                            temp_values.vstring = "No Replica State Found";
-                        }
+                        temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
                         proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
                                               4, temp_values.vstring);
                         ioffset = ioffset + 4;
@@ -5509,11 +5392,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         {
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);
-            valuestr = match_strval(value1, nds_kind_of_changes);
-            if (valuestr == NULL)
-            {
-                valuestr="(Kind Change Not Found)";
-            }
+            valuestr = val_to_str_const(value1, nds_kind_of_changes, "(Kind Change Not Found)");
             tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
             proto_tree_add_uint_format(ntree, hf_nds_uint32value, tvb, ioffset,
                                        values->vlength, value1, valuestr, value1);
@@ -5539,11 +5418,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         for (i = 0 ; i < values->vvalue; i++ )
         {
             value1 = tvb_get_letohl(tvb, ioffset);
-            valuestr = match_strval(value1, nds_protocol_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Protocol)";
-            }
+            valuestr = val_to_str_const(value1, nds_protocol_type, "(Undefined Protocol)");
             tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
             proto_tree_add_uint_format(ntree, hf_nds_uint32value, tvb, ioffset,
                                        values->vlength, value1, valuestr, value1);
@@ -5569,11 +5444,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             for (i = 1 ; i <= value1; i++ )
             {
                 value2 = tvb_get_letohl(tvb, ioffset);
-                valuestr = match_strval(value2, nds_protocol_type);
-                if (valuestr == NULL)
-                {
-                    valuestr="(Undefined Protocol)";
-                }
+                valuestr = val_to_str_const(value2, nds_protocol_type, "(Undefined Protocol)");
                 tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                 proto_tree_add_uint_format(atree, hf_nds_uint32value, tvb, ioffset,
                                            values->vlength, value2, valuestr, value2);
@@ -5625,11 +5496,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             atree = proto_item_add_subtree(aitem, ett_nds);
 
             value2 = tvb_get_letohl(tvb, ioffset);
-            valuestr = match_strval(value2, nds_protocol_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Protocol)";
-            }
+            valuestr = val_to_str_const(value2, nds_protocol_type, "(Undefined Protocol)");
             tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
             proto_tree_add_uint_format(atree, hf_nds_uint32value, tvb, ioffset,
                                        values->vlength, value2, valuestr, value2);
@@ -5672,22 +5539,14 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
 
     case MVTYPE_PROC_ENTRY_SPECIFIERS: /* Process Entry Specifiers */
         value2 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-        values->vstring = match_strval(value2, es_type);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No ES Type Found";
-        }
+        values->vstring = val_to_str_const(value2, es_type, "No ES Type Found");
         esitem = proto_tree_add_string_format(ntree, hf_es_type, tvb, ioffset,
                                               4, values->vstring, "Output Entry Specifier - %s", values->vstring);
         estree = proto_item_add_subtree(esitem, ett_nds);
         ioffset = ioffset + 4;
         ioffset = print_es_type(estree, tvb, values, value2, ioffset);
         value3 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-        values->vstring = match_strval(value3, es_type);
-        if (values->vstring == NULL)
-        {
-            values->vstring = "No ES Type Found";
-        }
+        values->vstring = val_to_str_const(value3, es_type, "No ES Type Found");
         esitem = proto_tree_add_string_format(ntree, hf_es_type, tvb, ioffset,
                                               4, values->vstring, "Input Entry Specifier - %s", values->vstring);
         estree = proto_item_add_subtree(esitem, ett_nds);
@@ -5703,11 +5562,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         for (i = 0 ; i < value4; i++ )
         {
             value5 = tvb_get_letohl(tvb, ioffset);
-            valuestr = match_strval(value5, nds_protocol_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Protocol)";
-            }
+            valuestr = val_to_str_const(value5, nds_protocol_type, "(Undefined Protocol)");
             proto_tree_add_string_format(atree, hf_value_string, tvb, ioffset,
                                          4, valuestr, "Protocol -> %s", valuestr);
             ioffset = ioffset+4;
@@ -5720,11 +5575,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         for (i = 0 ; i < value6; i++ )
         {
             value7 = tvb_get_letohl(tvb, ioffset);
-            valuestr = match_strval(value7, nds_protocol_type);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Protocol)";
-            }
+            valuestr = val_to_str_const(value7, nds_protocol_type, "(Undefined Protocol)");
             proto_tree_add_string_format(atree, hf_value_string, tvb, ioffset,
                                          4, valuestr, "Protocol -> %s", valuestr);
             ioffset = ioffset+4;
@@ -5958,19 +5809,11 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000400:                /* Replica Type & State */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         value2 = value1 & 0x00ff;
-                        temp_values.vstring = match_strval(value2, nds_replica_type);
-                        if (temp_values.vstring == NULL)
-                        {
-                            temp_values.vstring = "No Replica Type Found";
-                        }
+                        temp_values.vstring = val_to_str_const(value2, nds_replica_type, "No Replica Type Found");
                         proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset,
                                               4, temp_values.vstring);
                         value3 = value1 & 0xff00;
-                        temp_values.vstring = match_strval(value3, nds_replica_state);
-                        if (temp_values.vstring == NULL)
-                        {
-                            temp_values.vstring = "No Replica State Found";
-                        }
+                        temp_values.vstring = val_to_str_const(value3, nds_replica_state, "No Replica State Found");
                         proto_tree_add_string(ntree, hf_replica_state, tvb, ioffset,
                                               4, temp_values.vstring);
                         ioffset = ioffset + 4;
@@ -6498,11 +6341,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             proto_tree_add_item(ntree, hf_nds_tune_mark, tvb, ioffset, 2, FALSE);
             ioffset += 2;
             value1 = tvb_get_letohs(tvb, ioffset);
-            valuestr = match_strval(value1, nds_tuned_tags);
-            if (valuestr == NULL)
-            {
-                valuestr="(Undefined Tuned Name Tag)";
-            }
+            valuestr = val_to_str_const(value1, nds_tuned_tags, "(Undefined Tuned Name Tag)");
             proto_tree_add_string_format(ntree, hf_value_string, tvb, ioffset,
                                          2, valuestr, "Tuned Name Tag -> %s", valuestr);
             ioffset += 2;
@@ -6542,11 +6381,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     ioffset += align_4(tvb, ioffset);
 
                     value5 = tvb_get_letohl(tvb, ioffset);
-                    valuestr = match_strval(value5, nds_tuned_item_tags);
-                    if (valuestr == NULL)
-                    {
-                        valuestr="(Undefined Tuned Name Tag)";
-                    }
+                    valuestr = val_to_str_const(value5, nds_tuned_item_tags, "(Undefined Tuned Name Tag)");
                     if (value5 == 0) { /* Items are timestamp + Distinguished name (0 value == one entry)*/
                         proto_tree_add_string_format(sub2tree, hf_value_string, tvb, ioffset,
                                                      4, valuestr, "Item Tag -> %s", valuestr);
@@ -6598,11 +6433,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
     case MVTYPE_PROCESS_ITERATOR: /* Process Iterator subverbs. */
         temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
 
-        temp_values.vstring = match_strval(temp_values.vvalue, nds_info_type);
-        if(temp_values.vstring == NULL)
-        {
-            temp_values.vstring = "No Info Type Set";
-        }
+        temp_values.vstring = val_to_str_const(temp_values.vvalue, nds_info_type, "No Info Type Set");
         /*g_strdup(value)*/
         proto_tree_add_string(ntree, hf_nds_info_type, tvb, ioffset, 4, temp_values.vstring);
         ioffset = ioffset + 4;
@@ -6714,11 +6545,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         }
         ioffset += align_4(tvb, ioffset);
         value4 = tvb_get_letohl(tvb, ioffset);
-        values->vstring = match_strval(value4, iterator_subverbs);
-        if(values->vstring == NULL)
-        {
-            values->vstring = "(No Iteration Verb Found)";
-        }
+        values->vstring = val_to_str_const(value4, iterator_subverbs, "(No Iteration Verb Found)");
         ioffset += 4;
         dissect_nds_iterator(ntree, tvb, pinfo, value4, value5, ioffset, TRUE);
 
@@ -8359,8 +8186,8 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[i].vstring = NULL;
             pvalues[i].mvtype = 0;
         }
-        verb_string = val_to_str(request_value->nds_request_verb,
-                                 ncp_nds_verb_vals, "Continuation Fragment");
+        verb_string = val_to_str_const(request_value->nds_request_verb,
+                                       ncp_nds_verb_vals, "Continuation Fragment");
         if(request_value->req_nds_prot_flags & 0x4000)
         {
             /* CRC is included in the NDS header so justify the offset */
@@ -8371,11 +8198,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         {
         case 0x01:
             pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[0].vstring = match_strval(pvalues[0].vvalue, nds_tags);
-            if(pvalues[0].vstring == NULL)
-            {
-                pvalues[0].vstring = "No Tags Set";
-            }
+            pvalues[0].vstring = val_to_str_const(pvalues[0].vvalue, nds_tags, "No Tags Set");
             pvalues[0].vtype = VTYPE_STRING;
             pvalues[0].vdesc = "Tag: %s";
             pvalues[0].vlength = 4;
@@ -8509,11 +8332,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[0].hfname = hf_nds_iteration;
             nds_offset = nds_offset+pvalues[0].vlength;
             pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vstring = match_strval(pvalues[1].vvalue, nds_info_type);
-            if(pvalues[1].vstring == NULL)
-            {
-                pvalues[1].vstring = "No Info Type Set";
-            }
+            pvalues[1].vstring = val_to_str_const(pvalues[1].vvalue, nds_info_type, "No Info Type Set");
             pvalues[1].vtype = VTYPE_STRING;
             pvalues[1].vdesc = "Info Type: %s";
             pvalues[1].vlength = 4;
@@ -8593,11 +8412,8 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[0].hfname = hf_nds_iteration;
             nds_offset = nds_offset+pvalues[0].vlength;
             pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-            pvalues[1].vstring = match_strval(pvalues[1].vvalue, class_def_type);
-            if(pvalues[1].vstring == NULL)
-            {
-                pvalues[1].vstring = "No Class Definition Type Set";
-            }
+            pvalues[1].vstring = val_to_str_const(pvalues[1].vvalue, class_def_type,
+                                                  "No Class Definition Type Set");
             pvalues[1].vtype = VTYPE_STRING;
             pvalues[1].vdesc = "Class Definition Type: %s";
             pvalues[1].vlength = 4;
@@ -8863,10 +8679,11 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[1].hfname = hf_iter_completion_code;
             expert_item = proto_tree_add_uint_format(ncp_tree, pvalues[1].hfname, tvb, nds_offset,
                                                      4, pvalues[1].vvalue, "NDS Iteration Completion Code: 0x%08x, %s",
-                                                     pvalues[1].vvalue, match_strval(pvalues[1].vvalue, nds_reply_errors));
+                                                     pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
 
             if (pvalues[1].vvalue != 0 && ncp_echo_err) {
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NDS Iteration Error: 0x%08x %s", pvalues[1].vvalue, match_strval(pvalues[1].vvalue, nds_reply_errors));
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NDS Iteration Error: 0x%08x %s",
+                                       pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
             }
             nds_offset = nds_offset+pvalues[1].vlength;
             pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
@@ -9123,11 +8940,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         {
             /* Yes - process the completion code. */
             nds_error_code = tvb_get_letohl(tvb, nds_offset);
-            nds_error_string = match_strval(nds_error_code, nds_reply_errors);
-            if (nds_error_string == NULL)
-            {
-                nds_error_string = "NDS Error - No Definition Found";
-            }
+            nds_error_string = val_to_str_const(nds_error_code, nds_reply_errors, "NDS Error - No Definition Found");
         }
     }
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -9380,8 +9193,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 4, TRUE);
         }
         foffset = foffset+4;
-        verb_string = val_to_str(nds_verb, ncp_nds_verb_vals,
-                                 "Continuation Fragment");
+        verb_string = val_to_str_const(nds_verb, ncp_nds_verb_vals,
+                                       "Continuation Fragment");
         switch(nds_verb) {
 
         case 0x01:
@@ -9810,12 +9623,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[2].hfname= hf_nds_eid;
                 foffset = foffset+pvalues[2].vlength;
                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_info_type);
                 global_flags = pvalues[3].vvalue;
-                if(pvalues[3].vstring == NULL)
-                {
-                    pvalues[3].vstring = "No Info Type Set";
-                }
+                pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_info_type, "No Info Type Set");
                 pvalues[3].vtype = VTYPE_STRING;
                 pvalues[3].vdesc = "Info Type: %s";
                 pvalues[3].vlength = 4;
@@ -9864,12 +9673,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[3].hfname= hf_nds_eid;
                 foffset = foffset+pvalues[3].vlength;
                 pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                pvalues[4].vstring = match_strval(pvalues[4].vvalue, nds_info_type);
                 global_flags = pvalues[4].vvalue;
-                if(pvalues[4].vstring == NULL)
-                {
-                    pvalues[4].vstring = "No Info Type Set";
-                }
+                pvalues[4].vstring = val_to_str_const(pvalues[4].vvalue, nds_info_type, "No Info Type Set");
                 pvalues[4].vtype = VTYPE_STRING;
                 pvalues[4].vdesc = "Info Type: %s";
                 pvalues[4].vlength = 4;
@@ -10163,11 +9968,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].hfname= hf_nds_eid;
             foffset = foffset+pvalues[3].vlength;
             pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[4].vstring = match_strval(pvalues[4].vvalue, nds_search_scope);
-            if(pvalues[4].vstring == NULL)
-            {
-                pvalues[4].vstring = "No Search Scope Defined";
-            }
+            pvalues[4].vstring = val_to_str_const(pvalues[4].vvalue, nds_search_scope, "No Search Scope Defined");
             pvalues[4].vtype = VTYPE_STRING;
             pvalues[4].vdesc = "Replica Type: %s";
             pvalues[4].vlength = 4;
@@ -10608,11 +10409,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset = foffset+pvalues[2].vlength;
             foffset += align_4(tvb, foffset);
             pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_syntax);
-            if(pvalues[3].vstring == NULL)
-            {
-                pvalues[3].vstring = "No Syntax Found";
-            }
+            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_syntax, "No Syntax Found");
             pvalues[3].vtype = VTYPE_STRING;
             pvalues[3].vdesc = "Syntax: %s";
             pvalues[3].vlength = 4;
@@ -10690,11 +10487,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset = foffset+pvalues[1].vlength;
             pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
             global_flags = pvalues[2].vvalue;
-            pvalues[2].vstring = match_strval(pvalues[2].vvalue, class_def_type);
-            if(pvalues[2].vstring == NULL)
-            {
-                pvalues[2].vstring = "No Class Definition Type Set";
-            }
+            pvalues[2].vstring = val_to_str_const(pvalues[2].vvalue, class_def_type, "No Class Definition Type Set");
             pvalues[2].vtype = VTYPE_STRING;
             pvalues[2].vdesc = "Class Definition Type: %s";
             pvalues[2].vlength = 4;
@@ -11109,11 +10902,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].hfname= hf_nds_master_part_id;
             foffset = foffset+pvalues[2].vlength;
             pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-            pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_replica_type);
-            if(pvalues[3].vstring == NULL)
-            {
-                pvalues[3].vstring = "No Replica Type Found";
-            }
+            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, nds_replica_type, "No Replica Type Found");
             pvalues[3].vtype = VTYPE_STRING;
             pvalues[3].vdesc = "Replica Type: %s";
             pvalues[3].vlength = 4;
@@ -11342,11 +11131,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset = foffset+pvalues[0].vlength;
             pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[1].vtype = VTYPE_UINT32;
-            pvalues[1].vdesc = match_strval(pvalues[1].vvalue, nds_verb2b_flag_vals);
-            if(pvalues[1].vdesc == NULL)
-            {
-                pvalues[1].vdesc = "No Flag Definition Found";
-            }
+            pvalues[1].vdesc = val_to_str_const(pvalues[1].vvalue, nds_verb2b_flag_vals, "No Flag Definition Found");
             pvalues[1].vlength = 4;
             pvalues[1].hfname = hf_nds_verb2b_req_flags;
             pvalues[1].voffset = foffset;
@@ -11431,11 +11216,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[3].vtype = VTYPE_STRING;
             pvalues[3].vdesc = "NDS Verb: %s";
-            pvalues[3].vstring = match_strval(pvalues[3].vvalue, ncp_nds_verb_vals);
-            if(pvalues[3].vstring == NULL)
-            {
-                pvalues[3].vstring = "(No Verb Found)";
-            }
+            pvalues[3].vstring = val_to_str_const(pvalues[3].vvalue, ncp_nds_verb_vals, "(No Verb Found)");
             pvalues[3].vlength = 4;
             pvalues[3].voffset = foffset;
             pvalues[3].hfname= hf_mv_string;
@@ -11687,11 +11468,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             foffset = foffset+pvalues[3].vlength;
             pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[4].vtype = VTYPE_UINT32;
-            pvalues[4].vdesc = match_strval(pvalues[4].vvalue, nds_scope_vals);
-            if(pvalues[4].vdesc == NULL)
-            {
-                pvalues[4].vdesc = "Unknown Scope Defined";
-            }
+            pvalues[4].vdesc = val_to_str_const(pvalues[4].vvalue, nds_scope_vals, "Unknown Scope Defined");
             pvalues[4].vlength = 4;
             pvalues[4].hfname = hf_nds_scope;
             pvalues[4].voffset = foffset;
