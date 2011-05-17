@@ -329,7 +329,6 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Waddress)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
@@ -343,7 +342,14 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		# for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
+		#
+		# GLib blocks this for now.
+		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
+		#
+		# All the registration functions block these for now.
+		#
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 		#
 		# epan/dissectors/packet-afs.c blocks this one for now.
@@ -364,7 +370,16 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
-# Use the faster pre gcc 4.5 floating point precision
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
+
+#
+# Use the faster pre gcc 4.5 floating point precision if available;
+# clang doesn't error out on -f options that it doesn't know about,
+# it just warns and ignores them, so this check doesn't cause us
+# to omit -fexcess-precision=fast, which produces a pile of
+# annoying warnings.
+#
 if test "x$CC" != "xclang" ; then
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 fi
