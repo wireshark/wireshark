@@ -419,7 +419,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
    to cleanup any previous private data of the export object functionality before perform
    the eo_reset function or when the window closes */
 void
-eo_smb_cleanup()
+eo_smb_cleanup(void)
 {
 	int 	         i,last;
 	active_file	*in_list_file;

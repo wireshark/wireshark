@@ -651,7 +651,7 @@ welcome_if_new(const if_info_t *if_info, const gchar *user_descr, GdkColor *topi
 
 /* load the sorted list of interfaces */
 static GList *
-welcome_if_panel_get_if_list()
+welcome_if_panel_get_if_list(void)
 {
     GList *if_list;
     int err;

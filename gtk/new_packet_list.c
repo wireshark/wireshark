@@ -1516,7 +1516,7 @@ new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 }
 
 static void
-toggle_mark_all_displayed_frames()
+toggle_mark_all_displayed_frames(void)
 {
 	/* XXX: we might need a progressbar here */
 	guint32 framenum;
@@ -1617,7 +1617,7 @@ new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
 static void
-untime_reference_all_frames()
+untime_reference_all_frames(void)
 {
 	/* XXX: we might need a progressbar here */
 	guint32 framenum;

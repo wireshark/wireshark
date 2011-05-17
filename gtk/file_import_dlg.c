@@ -822,7 +822,7 @@ file_import_ok_cb(GtkWidget *widget _U_, gpointer data)
  * Dialog creator
  */
 static GtkWidget *
-file_import_dlg_new()
+file_import_dlg_new(void)
 {
     GtkWidget  *main_w, *main_vb,
                *input_frm, *input_tb, *input_vb,
