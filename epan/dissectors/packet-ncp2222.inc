@@ -3061,7 +3061,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             tvb_ensure_bytes_exist(tvb, voffset, value1);
             if (strcmp(vvalues->vstring, "zendmSearchType")==0) {
                 proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-                                           value1, value2, 
+                                           value1, value2,
                                            "Value (%d) = %s", value2, match_strval(value2, zensearchenum));
             }
             else
@@ -3196,7 +3196,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                 /* If this request flag is set then this is a server. Server structures
                  * include the RootID as part of the replica data. */
                 proto_tree_add_item(nvtree, hf_nds_partition_root_id, tvb, voffset, 4, FALSE);
-                voffset += 4; 
+                voffset += 4;
             }
             number_of_items = tvb_get_letohl(tvb, voffset);  /* Number of Addresses */
             aditem = proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
@@ -6572,7 +6572,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset += value2;
                     }
                     /* XXX: What if "multiple items" ?                 */
-                    /*      What if "Undefined ... " ?                 */  
+                    /*      What if "Undefined ... " ?                 */
                     /*      For now: we'll just keep on walking...     */
                     /*      Presumably we'll get a ReportedBoundsError */
                     /*       pretty quickly.                           */
@@ -9904,7 +9904,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             if (pvalues[0].vvalue == 1) {
                 /* Version 1 specifies for this offset value to always be a value of 1*/
                 /* No need to display to user */
-                foffset += 4; 
+                foffset += 4;
             }
             pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
             pvalues[1].vtype = VTYPE_UINT32;
@@ -11432,6 +11432,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vtype = VTYPE_STRING;
             pvalues[3].vdesc = "NDS Verb: %s";
             pvalues[3].vstring = match_strval(pvalues[3].vvalue, ncp_nds_verb_vals);
+            if(pvalues[3].vstring == NULL)
+            {
+                pvalues[3].vstring = "(No Verb Found)";
+            }
             pvalues[3].vlength = 4;
             pvalues[3].voffset = foffset;
             pvalues[3].hfname= hf_mv_string;
