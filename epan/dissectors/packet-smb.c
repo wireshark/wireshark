@@ -12477,60 +12477,67 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_item_set_len(it, offset-old_offset);
 	}
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qspi_unix_xattr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qspi_unix_attr_flags(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qpi_unix_permissions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qspi_unix_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qspi_unix_open(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
 static int
 dissect_qspi_unix_unlink(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc)
 {
 	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
 
+	*trunc = FALSE;
 	return offset;
 }
 
@@ -12690,6 +12697,7 @@ dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	offset = dissect_unix_info2_file_flags(tvb, tree, offset, hf_smb_unix_info2_file_flags_mask);
 	*bcp -= 4;
 
+	*trunc = FALSE;
 	return offset;
 }
 
