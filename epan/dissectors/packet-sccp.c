@@ -617,6 +617,7 @@ static int hf_sccp_called_gt_tt = -1;
 static int hf_sccp_called_gt_np = -1;
 static int hf_sccp_called_gt_es = -1;
 static int hf_sccp_called_gt_digits = -1;
+static int hf_sccp_called_gt_digits_length = -1;
 
 /* Calling party address */
 static int hf_sccp_calling_national_indicator = -1;
@@ -641,6 +642,7 @@ static int hf_sccp_calling_gt_tt = -1;
 static int hf_sccp_calling_gt_np = -1;
 static int hf_sccp_calling_gt_es = -1;
 static int hf_sccp_calling_gt_digits = -1;
+static int hf_sccp_calling_gt_digits_length = -1;
 
 /* Other parameter values */
 static int hf_sccp_dlr = -1;
@@ -691,17 +693,18 @@ static gint ett_sccp_called = -1;
 static gint ett_sccp_called_ai = -1;
 static gint ett_sccp_called_pc = -1;
 static gint ett_sccp_called_gt = -1;
+static gint ett_sccp_called_gt_digits = -1;
 static gint ett_sccp_calling = -1;
 static gint ett_sccp_calling_ai = -1;
 static gint ett_sccp_calling_pc = -1;
 static gint ett_sccp_calling_gt = -1;
+static gint ett_sccp_calling_gt_digits = -1;
 static gint ett_sccp_sequencing_segmenting = -1;
 static gint ett_sccp_segmentation = -1;
 static gint ett_sccp_ansi_isni_routing_control = -1;
 static gint ett_sccp_xudt_msg_fragment = -1;
 static gint ett_sccp_xudt_msg_fragments = -1;
 static gint ett_sccp_assoc = -1;
-static gint ett_sccp_digits = -1;
 
 /* Declarations to desegment XUDT Messages */
 static gboolean sccp_xudt_desegment = TRUE;
@@ -1064,7 +1067,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
         || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
 
-static proto_item *
+static proto_tree *
 dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree, guint length,
 				    gboolean even_length, gboolean called,
@@ -1072,7 +1075,8 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint offset = 0;
   guint8 odd_signal, even_signal;
-  proto_item *digits_item, *hidden_item;
+  proto_item *digits_item;
+  proto_tree *digits_tree;
   char *gt_digits;
 
   gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
@@ -1100,12 +1104,11 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 	*gt_ptr  = (guint8 *)ep_strdup(gt_digits);
   }
 
-  digits_item = proto_tree_add_string_format(tree,
-					     called ? hf_sccp_called_gt_digits
-						    : hf_sccp_calling_gt_digits,
-					     tvb, 0, length, gt_digits,
-					     "Address information (digits): %s",
-					     gt_digits);
+  digits_item = proto_tree_add_string(tree, called ? hf_sccp_called_gt_digits
+						   : hf_sccp_calling_gt_digits,
+				      tvb, 0, length, gt_digits);
+  digits_tree = proto_item_add_subtree(digits_item, called ? ett_sccp_called_gt_digits
+							   : ett_sccp_calling_gt_digits);
 
   if (set_addresses && route_on_gt) {
     if (called) {
@@ -1115,20 +1118,21 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  hidden_item = proto_tree_add_string(tree, hf_sccp_gt_digits, tvb, 0, length, gt_digits);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_tree_add_string(digits_tree, hf_sccp_gt_digits, tvb, 0, length, gt_digits);
+  proto_tree_add_uint(digits_tree, called ? hf_sccp_called_gt_digits_length
+					  : hf_sccp_calling_gt_digits_length,
+		      tvb, 0, length, strlen(gt_digits));
 
-  return digits_item;
+  return digits_tree;
 }
 
 static void
 dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length,
 			  guint8 gti, gboolean route_on_gt, gboolean called)
 {
-  proto_item *gt_item = 0;
-  proto_item *digits_item = 0;
-  proto_tree *gt_tree = 0;
-  proto_tree *digits_tree = 0;
+  proto_item *gt_item;
+  proto_tree *gt_tree;
+  proto_tree *digits_tree;
   tvbuff_t *signals_tvb;
   guint offset = 0;
   guint8 odd_even, nai = 0, np = 0, es;
@@ -1208,7 +1212,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			       (length - offset));
 
-  digits_item = dissect_sccp_gt_address_information(signals_tvb, pinfo, gt_tree,
+  digits_tree = dissect_sccp_gt_address_information(signals_tvb, pinfo, gt_tree,
 						    (length - offset),
 						    even, called, route_on_gt);
 
@@ -1217,14 +1221,10 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	case GT_NP_ISDN:
 	case GT_NP_ISDN_MOBILE:
 		if(nai == GT_NAI_INTERNATIONAL_NUM) {
-			digits_tree = proto_item_add_subtree(digits_item,
-							     ett_sccp_digits);
 			dissect_e164_cc(signals_tvb, digits_tree, 0, TRUE);
 		}
 	break;
 	case GT_NP_LAND_MOBILE:
-		digits_tree = proto_item_add_subtree(digits_item,
-						     ett_sccp_digits);
 		dissect_e212_mcc_mnc_in_address(signals_tvb, pinfo, digits_tree, 0);
 	break;
 	default:
@@ -3052,9 +3052,14 @@ proto_register_sccp(void)
 	FT_UINT8, BASE_HEX, VALS(sccp_es_values), GT_ES_MASK,
 	NULL, HFILL }},
     { &hf_sccp_called_gt_digits,
-      { "GT Digits",
+      { "Called Party Digits",
 	"sccp.called.digits",
 	FT_STRING, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_sccp_called_gt_digits_length,
+      { "Number of Called Party Digits",
+	"sccp.called.digits.length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	NULL, HFILL }},
     { &hf_sccp_calling_national_indicator,
       { "National Indicator", "sccp.calling.ni",
@@ -3149,9 +3154,14 @@ proto_register_sccp(void)
 	FT_UINT8, BASE_HEX, VALS(sccp_es_values), GT_ES_MASK,
 	NULL, HFILL }},
     { &hf_sccp_calling_gt_digits,
-      { "GT Digits",
+      { "Calling Party Digits",
 	"sccp.calling.digits",
 	FT_STRING, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_sccp_calling_gt_digits_length,
+      { "Number of Calling Party Digits",
+	"sccp.calling.digits.length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	NULL, HFILL }},
     { &hf_sccp_dlr,
       { "Destination Local Reference", "sccp.dlr",
@@ -3325,17 +3335,18 @@ proto_register_sccp(void)
     &ett_sccp_called_ai,
     &ett_sccp_called_pc,
     &ett_sccp_called_gt,
+    &ett_sccp_called_gt_digits,
     &ett_sccp_calling,
     &ett_sccp_calling_ai,
     &ett_sccp_calling_pc,
     &ett_sccp_calling_gt,
+    &ett_sccp_calling_gt_digits,
     &ett_sccp_sequencing_segmenting,
     &ett_sccp_segmentation,
     &ett_sccp_ansi_isni_routing_control,
     &ett_sccp_xudt_msg_fragment,
     &ett_sccp_xudt_msg_fragments,
-    &ett_sccp_assoc,
-    &ett_sccp_digits
+    &ett_sccp_assoc
   };
 
 
