@@ -294,13 +294,13 @@ dlg_destroy(GtkWidget *w _U_, gpointer user_data _U_)
 }
 
 void
-decrease_analyse_childcount()
+decrease_analyse_childcount(void)
 {
 	n_children--;
 }
 
 void
-increase_analyse_childcount()
+increase_analyse_childcount(void)
 {
 	n_children++;
 }

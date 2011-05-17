@@ -201,7 +201,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
 
 /* Reset the temporary colorfilters */
 void
-color_filters_reset_tmp()
+color_filters_reset_tmp(void)
 {
 	guint8 i;
 

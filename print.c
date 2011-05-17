@@ -1285,7 +1285,7 @@ print_stream_ps_stdio_new(FILE *fh)
 	return print_stream_ps_alloc(TRUE, fh);
 }
 
-output_fields_t* output_fields_new()
+output_fields_t* output_fields_new(void)
 {
     output_fields_t* fields = g_new(output_fields_t, 1);
     fields->print_header = FALSE;

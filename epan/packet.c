@@ -1902,7 +1902,7 @@ dissector_dump_decodes_display(const gchar *table_name,
 }
 
 void
-dissector_dump_decodes()
+dissector_dump_decodes(void)
 {
 	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
 }
@@ -1921,7 +1921,7 @@ register_postdissector(dissector_handle_t handle)
 }
 
 gboolean
-have_postdissector()
+have_postdissector(void)
 {
 	guint i;
 	dissector_handle_t handle;
