@@ -832,7 +832,7 @@ proto_registrar_get_byname(const char *field_name)
 }
 
 
-void
+static void
 ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
 {
 	subtree_lvl * pushed_tree;
@@ -847,7 +847,7 @@ ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
 	ptvc->pushed_tree = pushed_tree;
 }
 
-void
+static void
 ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
 {
 	ptvc->pushed_tree = NULL;
@@ -964,7 +964,7 @@ ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 	return ptvc->tree;
 }
 
-proto_tree *
+static proto_tree *
 ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
 {
 	ptvcursor_push_subtree(ptvc, it, ett_subtree);
