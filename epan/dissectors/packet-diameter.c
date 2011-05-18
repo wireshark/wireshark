@@ -45,11 +45,9 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <time.h>
 #include <glib.h>
 #include <epan/filesystem.h>
 #include <epan/packet.h>
@@ -380,7 +378,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	if(vendor->vs_avps_ext == NULL) {
 		g_array_sort(vendor->vs_avps, compare_avps);
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1,
-                                                           g_strdup_printf("diameter_vendor_%s",val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown")));
+							   g_strdup_printf("diameter_vendor_%s",val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown")));
 #if 0
 		{ /* Debug code */
 			value_string* vendor_avp_vs=VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
@@ -526,7 +524,6 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 			break;
 		default:
 			pi = proto_tree_add_item(pt,t->hf_other,tvb,2,-1,FALSE);
-			pt = proto_item_add_subtree(pi,t->ett);
 			break;
 	}
 
@@ -590,7 +587,6 @@ address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 			break;
 		default:
 			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,FALSE);
-			pt = proto_item_add_subtree(pi,t->ett);
 			expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 					       "Bad Address Length (%u)", len);
 
