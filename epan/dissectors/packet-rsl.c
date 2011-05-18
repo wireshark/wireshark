@@ -951,7 +951,6 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* The Algorithm Identifier field (octet 3) indicates the relevant ciphering algorithm. It is coded as: */
 static const value_string rsl_algorithm_id_vals[] = {
-	{  0x00,	"Pn" },
 	{  0x00,	"Reserved" },
 	{  0x01,	"No encryption shall be used" },
 	{  0x02,	"GSM encryption algorithm version 1 (A5/1)" },

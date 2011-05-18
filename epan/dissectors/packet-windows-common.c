@@ -265,13 +265,13 @@ const value_string DOS_errors[] = {
  */
 const value_string NT_errors[] = {
   { 0x00000000, "STATUS_SUCCESS" },
-  { 0x00000000, "STATUS_WAIT_0" },
+  /*{ 0x00000000, "STATUS_WAIT_0" }, */
   { 0x00000001, "STATUS_WAIT_1" },
   { 0x00000002, "STATUS_WAIT_2" },
   { 0x00000003, "STATUS_WAIT_3" },
   { 0x0000003F, "STATUS_WAIT_63" },
   { 0x00000080, "STATUS_ABANDONED" },
-  { 0x00000080, "STATUS_ABANDONED_WAIT_0" },
+  /*{ 0x00000080, "STATUS_ABANDONED_WAIT_0" },*/
   { 0x000000BF, "STATUS_ABANDONED_WAIT_63" },
   { 0x000000C0, "STATUS_USER_APC" },
   { 0x00000100, "STATUS_KERNEL_APC" },
@@ -1392,10 +1392,10 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-19",       "Local Service"},
 	{"S-1-5-20",       "Network Service"},
 	/*
-	 * S-1-5-21-<d1>-<d2>-<d3>-<RID> where "<d1>-<d2>-<d3>" is the NT domain 
+	 * S-1-5-21-<d1>-<d2>-<d3>-<RID> where "<d1>-<d2>-<d3>" is the NT domain
 	 *          RIDs are defined in 'wkwn_S_1_5_21_rids' */
 	{"S-1-5-21",       "Domain SID"},
-	 
+
 	/* S-1-5-32-<RID>: Builtin local group SIDs  */
 	{"S-1-5-32",       "Local Group"},
 	{"S-1-5-32-544",   "Administrators"},
@@ -1424,7 +1424,7 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-64-10",    "NTLM"},
 	{"S-1-5-64-14",    "SChannel"},
 	{"S-1-5-64-21",    "Digest"},
-	
+
 	{"S-1-5-80",       "NT Service"},
 
 	{"S-1-16",         "Mandatory Level"},
@@ -1493,7 +1493,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	guint8 revision, num_auth;
 	guint32 sa_field, rid=0;
 	guint64 authority=0;
-	emem_strbuf_t *sa_str = NULL, *sid_in_dec_str = NULL, *sid_in_hex_str = NULL, *label_str = NULL, 
+	emem_strbuf_t *sa_str = NULL, *sid_in_dec_str = NULL, *sid_in_hex_str = NULL, *label_str = NULL,
 				  *domain_str = NULL, *wkwn_sid1_str = NULL, *wkwn_sid2_str = NULL;
 	const char *mapped_name = NULL, *mapped_rid = NULL;
 	gboolean domain_sid = FALSE, s_1_5_32 = FALSE, s_1_5_64 = FALSE, locally_defined = FALSE,
@@ -1539,20 +1539,20 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	wkwn_sid1_str = ep_strbuf_new_label("");
 	label_str = ep_strbuf_new_label("");
 
-	if (strcmp(sid_in_dec_str->str, "S-1-16")==0) 
+	if (strcmp(sid_in_dec_str->str, "S-1-16")==0)
 		S_1_16 = TRUE;
-	
-	/* Look for well-known SIDs in format 'S-1-<Identifier Authority>' (i.e., exactly 3 fields) */ 
+
+	/* Look for well-known SIDs in format 'S-1-<Identifier Authority>' (i.e., exactly 3 fields) */
 	if (num_auth==0 || S_1_16) {
 		mapped_name = match_wkwn_sids(sid_in_dec_str->str);
 		if (mapped_name) {
 			ep_strbuf_append_printf(label_str, "%s", mapped_name);
-			ep_strbuf_append_printf(wkwn_sid1_str, "%s", 
+			ep_strbuf_append_printf(wkwn_sid1_str, "%s",
 				(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
 			wkwn_sid1_len = 8;
 		}
 	}
-	
+
 	sa_offset = offset;
 	sa_str = ep_strbuf_new_label("");
 	wkwn_sid2_str = ep_strbuf_new_label("");
@@ -1571,47 +1571,47 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		*/
 		sa_field = tvb_get_letohl(tvb, offset);
 		ep_strbuf_append_printf(sid_in_dec_str, "-%u", sa_field);
-		ep_strbuf_append_printf(sa_str, 
+		ep_strbuf_append_printf(sa_str,
 			(i==1 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")),
 			sa_field);
-		if (sid_display_hex) 
+		if (sid_display_hex)
 			ep_strbuf_append_printf(sid_in_hex_str, "-%x", sa_field);
 
 		if (i==1) {
 			/* Look for well-known SIDs at level one ("S-1-<authority>-<value>") */
 			if (S_1_16) {
-				/* Mandatory Level (S-1-16) */ 
+				/* Mandatory Level (S-1-16) */
 				mapped_rid = match_wkwn_sids(sid_in_dec_str->str);
 				if (mapped_rid) {
 					/* Get the RID */
 					ep_strbuf_append_printf(label_str, "%s-%s", mapped_name, mapped_rid);
 					rid = sa_field;
 					rid_offset = offset;
-					ep_strbuf_append_printf(wkwn_sid2_str, "%s", 
+					ep_strbuf_append_printf(wkwn_sid2_str, "%s",
 						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
 					wkwn_sid1_len=12;				}
 			} else {
 				mapped_name = match_wkwn_sids(sid_in_dec_str->str);
 				if (mapped_name) {
 					ep_strbuf_append_printf(label_str, "%s", mapped_name);
-					ep_strbuf_append_printf(wkwn_sid1_str, "%s", 
+					ep_strbuf_append_printf(wkwn_sid1_str, "%s",
 						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
 					wkwn_sid1_len = 12;
 				}
 				/* The following three SID types have (unique) RIDs */
-				if (strcmp(sid_in_dec_str->str, "S-1-5-21")==0) { 
+				if (strcmp(sid_in_dec_str->str, "S-1-5-21")==0) {
 					/* Domain SID */
 					domain_sid = TRUE;
 				} else if (strcmp(sid_in_dec_str->str, "S-1-5-32")==0) {
-					/* Local Group (S-1-5-32) SID */ 
+					/* Local Group (S-1-5-32) SID */
 					s_1_5_32 = TRUE;
 				} else if (strcmp(sid_in_dec_str->str, "S-1-5-64")==0) {
-					/* Authentication (S-1-5-64) SID */ 
+					/* Authentication (S-1-5-64) SID */
 					s_1_5_64 = TRUE;
 				}
 			}
 		} else if (i==2  && !domain_sid) {
-			/* The only well-known SIDS with two subauthority fields ("level 2 SIDs") are 
+			/* The only well-known SIDS with two subauthority fields ("level 2 SIDs") are
 			   Local Group (S-1-5-32), and Authentication (S-1-5-64). */
 			if (s_1_5_32 || s_1_5_64) {
 				mapped_rid = match_wkwn_sids(sid_in_dec_str->str);
@@ -1620,7 +1620,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 					ep_strbuf_append_printf(label_str, "-%s", mapped_rid);
 					rid = sa_field;
 					rid_offset = offset;
-					ep_strbuf_append_printf(wkwn_sid2_str, "%s", 
+					ep_strbuf_append_printf(wkwn_sid2_str, "%s",
 						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
 					wkwn_sid2_len=16;
 				} else {
@@ -1628,22 +1628,22 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 					locally_defined = TRUE;
 				}
 			} else {
-				if (mapped_name) {	
+				if (mapped_name) {
 					/* A level 1 well-known SID appended with locally defined value */
 					locally_defined = TRUE;
-				} 
+				}
 			}
-		} else {				
-			/* 3 or more sub-auth fields - NOTE: Except for domain SIDs, there are no wkwn SIDs with 3 or more 
-			   sub-auth fields so we don't lookup SIDs here. Logon Session SIDs have 3 sub-auth fields but the 
+		} else {
+			/* 3 or more sub-auth fields - NOTE: Except for domain SIDs, there are no wkwn SIDs with 3 or more
+			   sub-auth fields so we don't lookup SIDs here. Logon Session SIDs have 3 sub-auth fields but the
 			   last two are locally defined. */
 			if (domain_sid) {
-				if (num_auth >= 4) {					
+				if (num_auth >= 4) {
 					if (i >= 2 && i <=4 ) {
 						/* Add the field to the domain string (d1-d2-d3) */
-						ep_strbuf_append_printf(domain_str, 
+						ep_strbuf_append_printf(domain_str,
 							(i==2 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")), sa_field);
-				
+
 					} else if (i==5) {
 						rid = sa_field;
 						rid_offset = offset;
@@ -1651,7 +1651,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 						ep_strbuf_append_printf(label_str, "-%s", mapped_rid);
 
 					} else {
-						locally_defined = TRUE; 
+						locally_defined = TRUE;
 					}
 				} else {
 					mapped_name = "Corrupt domain SID";
@@ -1659,7 +1659,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			} else {
 				if (mapped_name) {
 					/* A locally defined value appended to a level 2 well-known SID*/
-					locally_defined = TRUE; 
+					locally_defined = TRUE;
 				}
 			}
 		}
@@ -1668,27 +1668,27 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	if ( !(mapped_name || domain_sid || s_1_5_32 || s_1_5_64) ) {
 	    /* If requested, try to map the NON-well-known SID to an object name discovered in this capture  */
-		if (sid_name_snooping) { 
+		if (sid_name_snooping) {
 			mapped_name = find_sid_name(sid_in_dec_str->str);
 		} else {
 			mapped_name = "<Unknown SID type>";
 		}
 	}
 
-	if (locally_defined) { 
+	if (locally_defined) {
 		ep_strbuf_append_printf(label_str, "-<locally defined>");
-	}	
+	}
 
 	/* It's tree time
 	   Display the full SID string in hex or dec */
 	item = proto_tree_add_string_format(
 		parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start),
 		(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str),
-		"%s: %s", name, (sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str) 
+		"%s: %s", name, (sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str)
 	);
 	proto_item_append_text(item, "  (%s)", label_str->str);
 
-	
+
 	subtree = proto_item_add_subtree(item, ett_nt_sid);
 
 	/* Add revision, num_auth, and authority */
@@ -1696,12 +1696,12 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, offset_sid_start+1, 1, TRUE);
 	proto_tree_add_uint64_format_value(subtree,
 		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
-		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);	
+		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
 
 	/* Add subauthorities */
 	proto_tree_add_string_format (subtree, hf_nt_sid_subauth, tvb, sa_offset,
 		num_auth*4, sa_str->str, "Subauthorities: %s", sa_str->str);
-	
+
 	if (rid) {
 		item = proto_tree_add_item (subtree,
 			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec), tvb, rid_offset, 4, TRUE);
@@ -1709,24 +1709,24 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	}
 
 	/* Add well-known SID and domain strings if present */
-	if (*wkwn_sid1_str->str) { 
+	if (*wkwn_sid1_str->str) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
-			wkwn_sid1_str->str, "Well-known SID: %s", wkwn_sid1_str->str);	
-		proto_item_append_text(hidden_item, "  (%s)", mapped_name);		
+			wkwn_sid1_str->str, "Well-known SID: %s", wkwn_sid1_str->str);
+		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
-	if (*wkwn_sid2_str->str) { 
+	if (*wkwn_sid2_str->str) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
-			wkwn_sid2_str->str, "Well-known SID: %s", wkwn_sid2_str->str);	
+			wkwn_sid2_str->str, "Well-known SID: %s", wkwn_sid2_str->str);
 		proto_item_append_text(hidden_item, "  (%s)", label_str->str);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 	if (domain_sid && *domain_str->str) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_domain, tvb, offset_sid_start + 12, 12,
-			domain_str->str, "Domain: %s", domain_str->str);	
+			domain_str->str, "Domain: %s", domain_str->str);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 

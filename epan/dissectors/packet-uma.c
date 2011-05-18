@@ -754,7 +754,6 @@ static const value_string radio_pri_vals[] = {
 	{ 1,		"Radio priority 2"},
 	{ 2,		"Radio priority 3"},
 	{ 3,		"Radio priority 4"},
-	{ 3,		"Radio Priority Unknown"}, /* XX: ?? */
 	{ 0,	NULL }
 };
 
