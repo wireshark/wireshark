@@ -103,6 +103,7 @@
 #include "log.h"
 #include <epan/funnel.h>
 
+#define MSG_MAX_LENGTH 4096
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -1765,24 +1766,27 @@ main(int argc, char *argv[])
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
-        /* Get the list of link-layer types for the capture device. */
-        if_capabilities_t *caps;
+        guint i;
+        interface_options interface_opts;
 
-        caps = capture_get_if_capabilities(global_capture_opts.iface,
-                                           global_capture_opts.monitor_mode,
-                                           &err_str);
-        if (caps == NULL) {
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            return 2;
+        /* Get the list of link-layer types for the capture devices. */
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+            if_capabilities_t *caps;
+
+            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+            caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str);
+            if (caps == NULL) {
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                return 2;
+            }
+            if (caps->data_link_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
+                return 2;
+            }
+            capture_opts_print_if_capabilities(caps, interface_opts.name, interface_opts.monitor_mode);
+            free_if_capabilities(caps);
         }
-        if (caps->data_link_types == NULL) {
-            cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
-            return 2;
-        }
-        capture_opts_print_if_capabilities(caps, global_capture_opts.iface,
-                                           global_capture_opts.monitor_mode);
-        free_if_capabilities(caps);
         return 0;
     }
 
@@ -1968,6 +1972,8 @@ static gboolean
 capture(void)
 {
   gboolean ret;
+  guint i;
+  GString *str = g_string_new("");
 #ifdef USE_TSHARK_SELECT
   fd_set readfds;
 #endif
@@ -2041,9 +2047,27 @@ capture(void)
 
   global_capture_opts.state = CAPTURE_PREPARING;
 
-  /* Let the user know what interface was chosen. */
-  global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
-  fprintf(stderr, "Capturing on %s\n", global_capture_opts.iface_descr);
+  /* Let the user know which interfaces were chosen. */
+  for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+    interface_options interface_opts;
+
+    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+    g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
+    if (i > 0) {
+        if (global_capture_opts.ifaces->len > 2) {
+            g_string_append_printf(str, ",");
+        }
+        g_string_append_printf(str, " ");
+        if (i == global_capture_opts.ifaces->len - 1) {
+            g_string_append_printf(str, "and ");
+        }
+    }
+    g_string_append_printf(str, "%s", interface_opts.descr);
+  }
+  fprintf(stderr, "Capturing on %s\n", str->str);
+  g_string_free(str, TRUE);
 
   ret = sync_pipe_start(&global_capture_opts);
 
@@ -3043,7 +3067,7 @@ print_columns(capture_file *cf)
        * the same time, sort of like an "Update list of packets
        * in real time" capture in Wireshark.)
        */
-      if (global_capture_opts.iface != NULL)
+      if (global_capture_opts.ifaces->len > 0)
         continue;
 #endif
       column_len = strlen(cf->cinfo.col_data[i]);
