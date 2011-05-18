@@ -864,7 +864,7 @@ welcome_new(void)
     } else {
         label_text =  g_strdup("No interface can be used for capturing in\n"
                                "this system with the current configuration.\n\n"
-                               "See Capture Help for details.");
+                               "See Capture Help below for details.");
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
         g_free (label_text);
