@@ -833,6 +833,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					guint16 location = offset;
 					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
 						sack_length, "SACK FRAME: length = %u", sack_length);
+					ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
 					/* display the R Bitmap */
 					for (loop_count = 0; loop_count < sack_length; loop_count++)
 					{
@@ -1062,9 +1063,8 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* These frames SHOULD NOT have an info field */
 				if (tree)
 				{
-					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_reported_length-2),
+					proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_reported_length-2),
 						"No Information Field");
-					ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
 				}
 				break;
 			case U_UA:
