@@ -1,5 +1,5 @@
 /* packet-dvbci.c
- * Routines for DVB-CI (Common Inteface) dissection
+ * Routines for DVB-CI (Common Interface) dissection
  * Copyright 2011, Martin Kaiser <martin@kaiser.cx>
  *
  * $Id$
@@ -23,16 +23,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* the dissector supports DVB-CI as defined in EN50221
- * reassembly of fragmented data is not implemented yet
- * only resource manager, app info and ca resources are
- * supported at the moment
+/* The dissector supports DVB-CI as defined in EN50221.
+ * Reassembly of fragmented data is not implemented yet.
+ * Only resource manager, app info and ca resources are
+ *  supported at the moment.
  *
- * further resources and CI+ (www.ci-plus.com) will be added in
- * future versions
+ * Further resources and CI+ (www.ci-plus.com) will be added in
+ *  future versions.
  *
- * the pcap input format for this dissector is documented at
- * http://www.kaiser.cx/pcap-dvbci.html
+ * The pcap input format for this dissector is documented at
+ * http://www.kaiser.cx/pcap-dvbci.html.
  */
 
 #ifdef HAVE_CONFIG_H
