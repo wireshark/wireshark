@@ -46,13 +46,6 @@ gboolean profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_
  */
 void profile_new_cb (GtkWidget *w _U_, gpointer data _U_);
 
-/** User requested to copy the current profile.
- *
- * @param w parent widget (unused)
- * @param data pointer to user_data (unused)
- */
-void profile_copy_cb (GtkWidget *w _U_, gpointer data _U_);
-
 /** User requested to delete the current profile.
  *
  * @param w parent widget (unused)

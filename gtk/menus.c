@@ -3375,7 +3375,6 @@ static const char *ui_statusbar_profiles_menu_popup =
 "     <menuitem name='Profiles' action='/Profiles'/>\n"
 "     <separator/>\n"
 "     <menuitem name='New' action='/New'/>\n"
-"     <menuitem name='Copy' action='/Copy'/>\n"
 "     <menuitem name='Delete' action='/Delete'/>\n"
 "     <menuitem name='Rename' action='/Rename'/>\n"
 "     <separator/>\n"
@@ -3388,7 +3387,6 @@ static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 {
 	{ "/Profiles",	NULL,	"Configuration Profiles...",	NULL,	NULL,	  G_CALLBACK(profile_dialog_cb) },
 	{ "/New",	GTK_STOCK_NEW,	"New...",	NULL,	NULL,	  G_CALLBACK(profile_new_cb) },
-	{ "/Copy",	GTK_STOCK_COPY,	"Copy...",	NULL,	NULL,	  G_CALLBACK(profile_copy_cb) },
 	{ "/Delete",	GTK_STOCK_DELETE,	"Delete",	NULL,	NULL,	  G_CALLBACK(profile_delete_cb) },
 #if GLIB_CHECK_VERSION(2,6,0)
 	{ "/Rename",	GTK_STOCK_EDIT,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },

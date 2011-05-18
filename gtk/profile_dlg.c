@@ -69,8 +69,7 @@ static GList *edited_profiles = NULL;
 #define PROF_STAT_COPY     5
 
 #define PROF_OPERATION_NEW  1
-#define PROF_OPERATION_COPY 2
-#define PROF_OPERATION_EDIT 3
+#define PROF_OPERATION_EDIT 2
 
 typedef struct {
   char *name;           /* profile name */
@@ -1041,7 +1040,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
 	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
 	  gtk_widget_show (menu_item);
 	  
-	  menu_item = gtk_menu_item_new_with_label ("Copy from Global");
+	  menu_item = gtk_menu_item_new_with_label ("New from Global");
 	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
 	  gtk_widget_show (menu_item);
 
@@ -1078,19 +1077,38 @@ static void
 profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
 {
   gint operation = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "operation"));
-  GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+  GtkComboBox  *combo_box = g_object_get_data (G_OBJECT(w), "create_from");
+  GtkWidget    *entry = g_object_get_data (G_OBJECT(w), "entry");
+  GtkTreeStore *store;
+  GtkTreeIter iter;
   const gchar *new_name =  gtk_entry_get_text(GTK_ENTRY(entry));
-  const gchar *profile_name = get_profile_name();
+  const gchar *profile_name = NULL;
+  gboolean     from_global = FALSE;
   char        *pf_dir_path, *pf_dir_path2, *pf_filename;
 
   if (strlen(new_name) == 0 || profile_is_invalid_name(new_name)) {
     return;
   }
 
-  if (operation == PROF_OPERATION_EDIT && strcmp(new_name, profile_name) == 0) {
-    /* Rename without a change, do nothing */
-    window_destroy(GTK_WIDGET(parent_w));
-    return;
+  switch (operation) {
+  case PROF_OPERATION_NEW:
+    if (gtk_combo_box_get_active_iter(combo_box, &iter)) {
+      store = GTK_TREE_STORE(gtk_combo_box_get_model(combo_box));
+      gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &profile_name, 1, &from_global, -1);
+    } else {
+      return;
+    }
+    break;
+  case PROF_OPERATION_EDIT:
+    profile_name = get_profile_name();
+    if (strcmp(new_name, profile_name) == 0) {
+      /* Rename without a change, do nothing */
+      window_destroy(GTK_WIDGET(parent_w));
+      return;
+    }
+    break;
+  default:
+    g_assert_not_reached();
   }
 
   if (profile_exists (new_name, FALSE)) {
@@ -1110,30 +1128,19 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
 		    pf_dir_path, strerror(errno));
       
       g_free(pf_dir_path);
+    } else if (strlen (profile_name) && 
+	       copy_persconffile_profile(new_name, profile_name, from_global, &pf_filename,
+					 &pf_dir_path, &pf_dir_path2) == -1)
+    {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+		    pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+	
+      g_free(pf_filename);
+      g_free(pf_dir_path);
+      g_free(pf_dir_path2);
     } else {
       change_configuration_profile (new_name);
-    }
-    break;
-  case PROF_OPERATION_COPY:
-    if (create_persconffile_profile(new_name, &pf_dir_path) == -1) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Can't create directory\n\"%s\":\n%s.",
-		    pf_dir_path, strerror(errno));
-      
-      g_free(pf_dir_path);
-    } else {
-      if (copy_persconffile_profile(new_name, profile_name, FALSE, &pf_filename,
-				    &pf_dir_path, &pf_dir_path2) == -1) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-		      pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
-	
-	g_free(pf_filename);
-	g_free(pf_dir_path);
-	g_free(pf_dir_path2);
-      } else {
-	change_configuration_profile (new_name);
-      }
     }
     break;
   case PROF_OPERATION_EDIT:
@@ -1150,7 +1157,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
     }
     break;
   default:
-      g_assert_not_reached();
+    g_assert_not_reached();
   }
 
   window_destroy(GTK_WIDGET(parent_w));
@@ -1165,11 +1172,17 @@ profile_name_edit_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void
 profile_name_edit_dlg (gint operation)
 {
+  WS_DIR      *dir;             /* scanned directory */
+  WS_DIRENT   *file;            /* current file */
   GtkWidget   *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
-  GtkWidget   *entry, *label;
-  gchar       *window_title=NULL, *new_name;
-  const gchar *profile_name;
+  GtkWidget   *entry, *label, *combo_box=NULL;
+  GtkCellRenderer *cell;
+  GtkTreeStore    *store;
+  GtkTreeIter   iter, parent;
+  gchar       *window_title=NULL;
+  const gchar *profile_name, *profiles_dir, *name;
   GtkTooltips *tooltips;
+  gboolean     has_global = has_global_profiles();
 
   tooltips = gtk_tooltips_new();
   profile_name = get_profile_name();
@@ -1177,9 +1190,6 @@ profile_name_edit_dlg (gint operation)
   switch (operation) {
   case PROF_OPERATION_NEW:
     window_title = g_strdup ("Create New Profile");
-    break;
-  case PROF_OPERATION_COPY:
-    window_title = g_strdup_printf ("Copy: %s", profile_name);
     break;
   case PROF_OPERATION_EDIT:
     window_title = g_strdup_printf ("Rename: %s", profile_name);
@@ -1202,6 +1212,63 @@ profile_name_edit_dlg (gint operation)
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 
+  if (operation == PROF_OPERATION_NEW) {
+    label = gtk_label_new(ep_strdup_printf("Create from:"));
+    gtk_tooltips_set_tip (tooltips, label, "All configuration files will be copied from this profile", NULL);
+    gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+
+    store = gtk_tree_store_new(3, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
+    combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL (store));
+    gtk_tooltips_set_tip (tooltips, combo_box, "All configuration files will be copied from this profile", NULL);
+
+    cell = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_box), cell, TRUE);
+    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo_box), cell,
+                                   "text", 0, "sensitive", 2,
+                                   NULL);
+
+    gtk_tree_store_append(store, &iter, NULL);
+    gtk_tree_store_set(store, &iter, 0, "", 1, FALSE, 2, TRUE, -1);
+
+    if (has_global) {
+      gtk_tree_store_append(store, &parent, NULL);
+      gtk_tree_store_set(store, &parent, 0, "Personal", 1, FALSE, 2, FALSE, -1);
+    }
+
+    gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
+    gtk_tree_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, FALSE, 2, TRUE, -1);
+    profiles_dir = get_profiles_dir();
+    if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+      while ((file = ws_dir_read_name(dir)) != NULL) {
+	name = ws_dir_get_name(file);
+	if (profile_exists(name, FALSE)) {
+	  gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
+	  gtk_tree_store_set(store, &iter, 0, name, 1, FALSE, 2, TRUE, -1);
+	}
+      }
+      ws_dir_close (dir);
+    }
+
+    if (has_global) {
+      gtk_tree_store_append(store, &parent, NULL);
+      gtk_tree_store_set(store, &parent, 0, "Global", 1, FALSE, 2, FALSE, -1);
+      profiles_dir = get_global_profiles_dir();
+      if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+	while ((file = ws_dir_read_name(dir)) != NULL) {
+	  name = ws_dir_get_name(file);
+	  if (profile_exists(name, TRUE)) {
+	    gtk_tree_store_append(store, &iter, &parent);
+	    gtk_tree_store_set(store, &iter, 0, name, 1, TRUE, 2, TRUE, -1);
+	  }
+	}
+	ws_dir_close (dir);
+      }
+    }
+    gtk_table_attach_defaults(GTK_TABLE(main_tb), combo_box, 1, 2, 0, 1);
+    g_object_unref(store);
+  }
+
   label = gtk_label_new(ep_strdup_printf("Profile name:"));
   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
@@ -1211,11 +1278,6 @@ profile_name_edit_dlg (gint operation)
   switch (operation) {
   case PROF_OPERATION_NEW:
     gtk_entry_set_text(GTK_ENTRY(entry), "New profile");
-    break;
-  case PROF_OPERATION_COPY:
-    new_name = g_strdup_printf ("%s (copy)", profile_name);
-    gtk_entry_set_text(GTK_ENTRY(entry), new_name);
-    g_free (new_name);
     break;
   case PROF_OPERATION_EDIT:
     gtk_entry_set_text(GTK_ENTRY(entry), profile_name);
@@ -1235,10 +1297,12 @@ profile_name_edit_dlg (gint operation)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+  g_object_set_data (G_OBJECT(ok_bt), "create_from", combo_box);
   g_object_set_data (G_OBJECT(ok_bt), "operation", GINT_TO_POINTER(operation));
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(profile_name_edit_ok), win);
 
   dlg_set_activate(entry, ok_bt);
+  gtk_widget_grab_focus(entry);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_name_edit_cancel), win);
@@ -1252,12 +1316,6 @@ void
 profile_new_cb (GtkWidget *w _U_, gpointer data _U_)
 {
   profile_name_edit_dlg (PROF_OPERATION_NEW);
-}
-
-void
-profile_copy_cb (GtkWidget *w _U_, gpointer data _U_)
-{
-  profile_name_edit_dlg (PROF_OPERATION_COPY);
 }
 
 void
