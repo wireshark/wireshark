@@ -341,13 +341,12 @@ dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	guint len;
-	proto_item *userinfo_item;
 
 	len = tvb_strsize(tvb, 0);
 
 	if (tree) {
-		userinfo_item = proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
-			tvb_get_ephemeral_string(tvb, 0, len));
+		proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
+				    tvb_get_ephemeral_string(tvb, 0, len));
 	}
 
 	return len;
@@ -358,13 +357,12 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	guint len;
-	proto_item *stringcmd_item;
 
 	len = tvb_strsize(tvb, 0);
 
 	if (tree) {
-		stringcmd_item = proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
-			tvb_get_ephemeral_string(tvb, 0, len));
+		proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
+				    tvb_get_ephemeral_string(tvb, 0, len));
 	}
 
 	return len;
