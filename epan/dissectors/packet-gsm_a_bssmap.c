@@ -5,7 +5,7 @@
  * In association with Telos Technology Inc.
  *
  * Updated to 3GPP TS 48.008 version 8.4.0 Release 8
- * Copyrigt 2008, Anders Broman <anders.broman [at] ericsson.com
+ * Copyright 2008, Anders Broman <anders.broman [at] ericsson.com
  * Title        3GPP            Other
  *
  *   Reference [2]
@@ -887,6 +887,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
         case 0x15: str = "Alternative channel configuration requested "; break;
         case 0x16: str = "Call Identifier already allocated"; break;
         case 0x17: str = "INTERNAL HANDOVER ENQUIRY reject"; break;
+        case 0x18: str = "Redundancy Level not adequate"; break;
 
         case 0x20: str = "Equipment failure"; break;
         case 0x21: str = "No radio resource available"; break;
@@ -906,11 +907,20 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
         case 0x32: str = "Switch circuit pool"; break;
         case 0x33: str = "Requested speech version unavailable"; break;
         case 0x34: str = "LSA not allowed"; break;
+        case 0x35: str = "Requested Codec Type or Codec Configuration unavailable"; break;
+        case 0x36: str = "Requested A-Interface Type unavailable"; break;
+        case 0x37: str = "Invalid CSG cell"; break;
+
+        case 0x3f: str = "Requested Redundancy Level not available"; break;
 
         case 0x40: str = "Ciphering algorithm not supported"; break;
         case 0x41: str = "GERAN Iu-mode failure"; break;
         case 0x42: str = "Incoming Relocation Not Supported Due To PUESBINE Feature"; break;
         case 0x43: str = "Access Restricted Due to Shared Networks"; break;
+        case 0x44: str = "Requested Codec Type or Codec Configuration not supported"; break;
+        case 0x45: str = "Requested A-Interface Type not supported"; break;
+        case 0x46: str = "Requested Redundancy Level not supported"; break;
+        case 0x47: str = "Reserved for international use"; break;
 
         case 0x50: str = "Terrestrial circuit already allocated"; break;
         case 0x51: str = "Invalid message contents"; break;
@@ -919,23 +929,23 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
         case 0x54: str = "Unknown Message type"; break;
         case 0x55: str = "Unknown Information Element"; break;
         case 0x56: str = "DTM Handover - Invalid PS Indication"; break;
+        case 0x57: str = "Call Identifier already allocated"; break;
 
         case 0x60: str = "Protocol Error between BSS and MSC"; break;
         case 0x61: str = "VGCS/VBS call non existent"; break;
         case 0x62: str = "DTM Handover - Timer Expiry"; break;
 
         default:
-            if (oct <= 0x17) { str = "Reserved for international use"; }
-            else if ((oct >= 0x18) && (oct <= 0x1f)) { str = "Reserved for national use"; }
+            if ((oct >= 0x19) && (oct <= 0x1f)) { str = "Reserved for national use"; }
             else if ((oct >= 0x2c) && (oct <= 0x2f)) { str = "Reserved for national use"; }
-            else if ((oct >= 0x35) && (oct <= 0x3f)) { str = "Reserved for international use"; }
-            else if ((oct >= 0x44) && (oct <= 0x47)) { str = "Reserved for international use"; }
+            else if ((oct >= 0x38) && (oct <= 0x3e)) { str = "Reserved for international use"; }
             else if ((oct >= 0x48) && (oct <= 0x4f)) { str = "Reserved for national use"; }
             else if ((oct >= 0x58) && (oct <= 0x5f)) { str = "Reserved for national use"; }
             else if ((oct >= 0x63) && (oct <= 0x67)) { str = "Reserved for international use"; }
             else if ((oct >= 0x68) && (oct <= 0x6f)) { str = "Reserved for national use"; }
             else if ((oct >= 0x70) && (oct <= 0x77)) { str = "Reserved for international use"; }
             else if ((oct >= 0x78) && (oct <= 0x7f)) { str = "Reserved for national use"; }
+            else { str = "Unknown"; }
             break;
         }
 
