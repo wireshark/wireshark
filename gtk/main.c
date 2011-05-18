@@ -2727,24 +2727,27 @@ main(int argc, char *argv[])
   }
 
   if (list_link_layer_types) {
-    /* Get the list of link-layer types for the capture device. */
+    /* Get the list of link-layer types for the capture devices. */
     if_capabilities_t *caps;
+    guint i;
+    interface_options interface_opts;
 
-    caps = capture_get_if_capabilities(global_capture_opts.iface,
-                                       global_capture_opts.monitor_mode,
-                                       &err_str);
-    if (caps == NULL) {
-      cmdarg_err("%s", err_str);
-      g_free(err_str);
-      exit(2);
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+
+      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+      caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str);
+      if (caps == NULL) {
+        cmdarg_err("%s", err_str);
+        g_free(err_str);
+        exit(2);
+      }
+      if (caps->data_link_types == NULL) {
+        cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
+        exit(2);
+      }
+      capture_opts_print_if_capabilities(caps, interface_opts.name, interface_opts.monitor_mode);
+      free_if_capabilities(caps);
     }
-    if (caps->data_link_types == NULL) {
-      cmdarg_err("The capture device \"%s\" has no data link types.", global_capture_opts.iface);
-      exit(2);
-    }
-    capture_opts_print_if_capabilities(caps, global_capture_opts.iface,
-                                       global_capture_opts.monitor_mode);
-    free_if_capabilities(caps);
     exit(0);
   }
 
