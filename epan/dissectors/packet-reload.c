@@ -2093,28 +2093,11 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return msg_length;
 }
 
-#if 0 /* XXX: See note in proto_reg_handoff_reload() */
-static int
-dissect_reload_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return dissect_reload_message(tvb, pinfo, tree);
-}
-#endif
-
 static void
 dissect_reload_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_reload_message(tvb, pinfo, tree);
 }
-
-#if 0 /* XXX: See note in proto_reg_handoff_reload() */
-static void
-dissect_reload_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LENGTH,
-                   get_reload_message_length, dissect_reload_message_no_return);
-}
-#endif
 
 static gboolean
 dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2791,15 +2774,6 @@ proto_register_reload(void)
 void
 proto_reg_handoff_reload(void)
 {
-
-#if 0  /* XXX: Are the tcp & udp handles supposed to be registered */
-       /*   to "tcp.port" & "udp.port" for some value(s) of port ? */
-  dissector_handle_t reload_tcp_handle;
-  dissector_handle_t reload_udp_handle;
-
-  reload_tcp_handle = create_dissector_handle(dissect_reload_tcp, proto_reload);
-  reload_udp_handle = new_create_dissector_handle(dissect_reload_udp, proto_reload);
-#endif
 
   data_handle = find_dissector("data");
 
