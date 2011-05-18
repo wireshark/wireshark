@@ -473,6 +473,16 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	rec_size = g_ntohl(hdr.rec_len);
 	orig_size = g_ntohl(hdr.orig_len);
 	packet_size = g_ntohl(hdr.incl_len);
+	if (orig_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("snoop: File has %u-byte original length, bigger than maximum of %u",
+		    orig_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
+	}
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
