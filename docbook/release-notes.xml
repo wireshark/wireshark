@@ -95,7 +95,7 @@ Wireshark Info
             David Maciejak of Fortinet's FortiGuard Labs discovered that
             malformed compressed capture data could crash Wireshark.
             <!-- Fixed in trunk: r37081 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r37257 -->
             <!-- Fixed in trunk-1.2: r37213 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5908">Bug
             5908</ulink>)
