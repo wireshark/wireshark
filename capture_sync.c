@@ -334,9 +334,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #ifdef HAVE_PCAP_SETSAMPLING
     char ssampling[ARGV_NUMBER_LEN];
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     char buffer_size[ARGV_NUMBER_LEN];
-#endif
 #ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
@@ -346,7 +344,6 @@ sync_pipe_start(capture_options *capture_opts) {
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-    int i;
     char control_id[ARGV_NUMBER_LEN];
     gchar *signal_pipe_name;
 #else
@@ -357,8 +354,12 @@ sync_pipe_start(capture_options *capture_opts) {
     int sync_pipe_read_fd;
     int argc;
     const char **argv;
+    int i;
+    guint j;
+    interface_options interface_opts;
 
-
+    if (capture_opts->ifaces->len > 1)
+        capture_opts->use_pcapng = TRUE;
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
     capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
 
@@ -371,24 +372,13 @@ sync_pipe_start(capture_options *capture_opts) {
         return FALSE;
     }
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[0]: %s", argv[0]);
+    if (capture_opts->ifaces->len > 1)
+      argv = sync_pipe_add_arg(argv, &argc, "-t");
 
-    argv = sync_pipe_add_arg(argv, &argc, "-i");
-    argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
+    if (capture_opts->use_pcapng)
+      argv = sync_pipe_add_arg(argv, &argc, "-n");
 
-    if (capture_opts->has_snaplen) {
-      argv = sync_pipe_add_arg(argv, &argc, "-s");
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->snaplen);
-      argv = sync_pipe_add_arg(argv, &argc, ssnap);
-    }
-
-    if (capture_opts->linktype != -1) {
-      argv = sync_pipe_add_arg(argv, &argc, "-y");
-      g_snprintf(sdlt, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
-      argv = sync_pipe_add_arg(argv, &argc, sdlt);
-    }
-
-    if(capture_opts->multi_files_on) {
+    if (capture_opts->multi_files_on) {
       if (capture_opts->has_autostop_filesize) {
         argv = sync_pipe_add_arg(argv, &argc, "-b");
         g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
@@ -432,41 +422,71 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
-    if (!capture_opts->promisc_mode)
-      argv = sync_pipe_add_arg(argv, &argc, "-p");
-#ifdef HAVE_PCAP_CREATE
-    if (capture_opts->monitor_mode)
-      argv = sync_pipe_add_arg(argv, &argc, "-I");
-#endif
-    if (capture_opts->use_pcapng)
-      argv = sync_pipe_add_arg(argv, &argc, "-n");
+    for (j = 0; j < capture_opts->ifaces->len; j++) {
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
+
+        argv = sync_pipe_add_arg(argv, &argc, "-i");
+        argv = sync_pipe_add_arg(argv, &argc, interface_opts.name);
+
+        if (interface_opts.cfilter != NULL && strlen(interface_opts.cfilter) != 0) {
+            argv = sync_pipe_add_arg(argv, &argc, "-f");
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts.cfilter);
+        }
+
+        if (interface_opts.snaplen != WTAP_MAX_PACKET_SIZE) {
+            argv = sync_pipe_add_arg(argv, &argc, "-s");
+            g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts.snaplen);
+            argv = sync_pipe_add_arg(argv, &argc, ssnap);
+        }
+
+        if (interface_opts.linktype != -1) {
+            argv = sync_pipe_add_arg(argv, &argc, "-y");
+            g_snprintf(sdlt, ARGV_NUMBER_LEN, "%s", linktype_val_to_name(interface_opts.linktype));
+            argv = sync_pipe_add_arg(argv, &argc, sdlt);
+        }
+
+        if (!interface_opts.promisc_mode) {
+            argv = sync_pipe_add_arg(argv, &argc, "-p");
+        }
+
+        if (interface_opts.buffer_size != 1) {
+            argv = sync_pipe_add_arg(argv, &argc, "-B");
+            g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts.buffer_size);
+            argv = sync_pipe_add_arg(argv, &argc, buffer_size);
+        }
+
+        if (interface_opts.monitor_mode) {
+            argv = sync_pipe_add_arg(argv, &argc, "-I");
+        }
+
 #ifdef HAVE_PCAP_REMOTE
-    if (capture_opts->datatx_udp)
-      argv = sync_pipe_add_arg(argv, &argc, "-u");
+        if (interface_opts.datatx_udp)
+            argv = sync_pipe_add_arg(argv, &argc, "-u");
 
-    if (!capture_opts->nocap_rpcap)
-      argv = sync_pipe_add_arg(argv, &argc, "-r");
+        if (!interface_opts.nocap_rpcap)
+            argv = sync_pipe_add_arg(argv, &argc, "-r");
 
-    if (capture_opts->auth_type == CAPTURE_AUTH_PWD)
-    {
-        argv = sync_pipe_add_arg(argv, &argc, "-A");
-        g_snprintf(sauth, sizeof(sauth), "%s:%s", capture_opts->auth_username,
-                   capture_opts->auth_password);
-        argv = sync_pipe_add_arg(argv, &argc, sauth);
-    }
+        if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
+            argv = sync_pipe_add_arg(argv, &argc, "-A");
+            g_snprintf(sauth, sizeof(sauth), "%s:%s",
+                       interface_opts.auth_username,
+                       interface_opts.auth_password);
+            argv = sync_pipe_add_arg(argv, &argc, sauth);
+        }
 #endif
+
 #ifdef HAVE_PCAP_SETSAMPLING
-    if (capture_opts->sampling_method != CAPTURE_SAMP_NONE)
-    {
-        argv = sync_pipe_add_arg(argv, &argc, "-m");
-        g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
-             capture_opts->sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
-             capture_opts->sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
-             "undef",
-             capture_opts->sampling_param);
-        argv = sync_pipe_add_arg(argv, &argc, ssampling);
-    }
+        if (interface_opts.sampling_method != CAPTURE_SAMP_NONE) {
+            argv = sync_pipe_add_arg(argv, &argc, "-m");
+            g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
+                       interface_opts.sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
+                       interface_opts.sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
+                       "undef",
+                       interface_opts.sampling_param);
+            argv = sync_pipe_add_arg(argv, &argc, ssampling);
+        }
 #endif
+    }
 
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
@@ -479,24 +499,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #endif
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    argv = sync_pipe_add_arg(argv, &argc, "-B");
-#ifdef HAVE_PCAP_REMOTE
-    if (capture_opts->src_type == CAPTURE_IFREMOTE)
-      /* No buffer size when using remote interfaces */
-      g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", 1);
-    else
-#endif
-    g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
-    argv = sync_pipe_add_arg(argv, &argc, buffer_size);
-#endif
-
-    if (capture_opts->cfilter != NULL && strlen(capture_opts->cfilter) != 0) {
-      argv = sync_pipe_add_arg(argv, &argc, "-f");
-      argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
-    }
-
-    if(capture_opts->save_file) {
+    if (capture_opts->save_file) {
       argv = sync_pipe_add_arg(argv, &argc, "-w");
       argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
@@ -595,6 +598,9 @@ sync_pipe_start(capture_options *capture_opts) {
        */
       dup2(sync_pipe[PIPE_WRITE], 2);
       ws_close(sync_pipe[PIPE_READ]);
+      for (i = 0; i < argc; i++) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", i, argv[i]);
+      }
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                 argv[0], strerror(errno));
