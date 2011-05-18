@@ -449,11 +449,13 @@ sync_pipe_start(capture_options *capture_opts) {
             argv = sync_pipe_add_arg(argv, &argc, "-p");
         }
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         if (interface_opts.buffer_size != 1) {
             argv = sync_pipe_add_arg(argv, &argc, "-B");
             g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts.buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);
         }
+#endif
 
         if (interface_opts.monitor_mode) {
             argv = sync_pipe_add_arg(argv, &argc, "-I");
