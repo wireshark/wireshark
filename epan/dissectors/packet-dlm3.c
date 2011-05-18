@@ -49,8 +49,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -461,7 +459,6 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  guint length, int offset)
 {
   guint32     m_type;
-  proto_item *sub_item;
 
   m_type   = tvb_get_letohl(tvb, offset);
   proto_tree_add_uint(tree,
@@ -549,12 +546,12 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   offset += 4;
   if ((length - offset) > 0) {
-    sub_item = proto_tree_add_item(tree,
-                                   hf_dlm3_m_extra,
-                                   tvb,
-                                   offset,
-                                   -1,
-                                   TRUE);
+    proto_tree_add_item(tree,
+                        hf_dlm3_m_extra,
+                        tvb,
+                        offset,
+                        -1,
+                        TRUE);
   }
 }
 
@@ -845,7 +842,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       dissect_dlm3_msg(tvb, pinfo, sub_tree, length, offset);
     } else if (h_cmd== DLM3_RCOM) {
       sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_rcom);
-      dissect_dlm3_rcom(tvb, pinfo, sub_item, length, offset);
+      dissect_dlm3_rcom(tvb, pinfo, sub_tree, length, offset);
     }
   }
   return tvb_length(tvb);
