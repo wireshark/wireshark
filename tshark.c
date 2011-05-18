@@ -2055,16 +2055,29 @@ capture(void)
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
     global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
     g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
-    if (i > 0) {
-        if (global_capture_opts.ifaces->len > 2) {
-            g_string_append_printf(str, ",");
-        }
-        g_string_append_printf(str, " ");
-        if (i == global_capture_opts.ifaces->len - 1) {
-            g_string_append_printf(str, "and ");
-        }
+  }
+#ifdef _WIN32
+  if (global_capture_opts.ifaces->len < 2) {
+#else
+  if (global_capture_opts.ifaces->len < 4) {
+#endif
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+      interface_options interface_opts;
+
+      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+      if (i > 0) {
+          if (global_capture_opts.ifaces->len > 2) {
+              g_string_append_printf(str, ",");
+          }
+          g_string_append_printf(str, " ");
+          if (i == global_capture_opts.ifaces->len - 1) {
+              g_string_append_printf(str, "and ");
+          }
+      }
+      g_string_append_printf(str, "%s", interface_opts.descr);
     }
-    g_string_append_printf(str, "%s", interface_opts.descr);
+  } else {
+    g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
   }
   fprintf(stderr, "Capturing on %s\n", str->str);
   g_string_free(str, TRUE);
