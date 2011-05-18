@@ -27,8 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -1192,7 +1190,7 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
         for (i = 0; i < numrec; i++) {
             subti = proto_tree_add_text (rscn_tree, tvb, offset, 20,
                                          "Device Entry %d", i);
-            dev_tree = proto_item_add_subtree (rscn_tree, ett_fcswils_rscn_dev);
+            dev_tree = proto_item_add_subtree (subti, ett_fcswils_rscn_dev);
 
             proto_tree_add_item (dev_tree, hf_swils_rscn_portstate, tvb, offset, 1, 0);
             proto_tree_add_string (dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3,
@@ -1319,7 +1317,7 @@ dissect_swils_zone_obj (tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
             mbrlen = 4 + tvb_get_guint8 (tvb, offset+3);
             subti = proto_tree_add_text (zobj_tree, tvb, offset, mbrlen,
                                          "Zone Member %d", i);
-            zmbr_tree = proto_item_add_subtree (zobj_tree,
+            zmbr_tree = proto_item_add_subtree (subti,
                                                 ett_fcswils_zonembr);
             dissect_swils_zone_mbr (tvb, zmbr_tree, offset);
             offset += mbrlen;
