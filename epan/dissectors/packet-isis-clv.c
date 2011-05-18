@@ -74,7 +74,7 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 		if ( tree ) {
 			proto_item *ti;
-	
+
 			/*
 			 * Throw an exception rather than putting in a
 			 * partial address.
@@ -172,7 +172,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 		break;
 	default:
-		ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
+		proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
 		    "type 0x%02x (0x%02x): ", pw_type, length );
 		auth_unsupported=TRUE;
 		break;
@@ -553,6 +553,7 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			opts[q].dissect(tvb, clv_tree, offset,
 				id_length, length);
 		} else {
+#if 0 /* XXX: Left as commented out in case info about "unknown code" is ever to be displayed under a sub-tree */
 			if (tree) {
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, "Unknown code %u (%u)",
@@ -562,6 +563,13 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			} else {
 				clv_tree = NULL;
 			}
+#else
+			if (tree) {
+				ti = proto_tree_add_text(tree, tvb, offset - 2,
+					length + 2, "Unknown code %u (%u)",
+					code, length);
+			}
+#endif
 		}
 		offset += length;
 	}
