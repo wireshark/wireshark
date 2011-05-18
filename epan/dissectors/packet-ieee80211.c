@@ -7707,7 +7707,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_lifetime, tvb, offset + 17, 4, TRUE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset + 21, 4, TRUE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dstcount, tvb, offset + 25, 1, TRUE);
-        flags = tvb_get_letohs (tvb, offset + 26);
+        flags = tvb_get_guint8 (tvb, offset + 26);
         item = proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dest_flags, tvb, offset + 26, 1, TRUE);
         subtree = proto_item_add_subtree(item, ett_msh_dest_flags_tree);
         proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_do_flags, tvb, offset + 26, 1, flags);
