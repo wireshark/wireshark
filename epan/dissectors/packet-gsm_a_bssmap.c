@@ -102,7 +102,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x27, "Uplink Request Acknowledge" },
     { 0x28, "Suspend" },
     { 0x29, "Resume" },
-	/* This value (2a) was allocated in an earlier phase of the protocol and shall not be used in the future. */
+    /* This value (2a) was allocated in an earlier phase of the protocol and shall not be used in the future. */
     { 0x2a, "Connection Oriented Information(Obsolete)" },
     { 0x2b, "Perform Location Request" },
     { 0x2c, "LSA Information" },
@@ -118,8 +118,8 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x36, "MSC Invoke Trace" },
     { 0x37, "BSS Invoke Trace" },
 
-	{ 0x38, "Unallocated" },
-	{ 0x39, "Unallocated" },
+    { 0x38, "Unallocated" },
+    { 0x39, "Unallocated" },
 
     { 0x3a, "Connectionless Information" },
     { 0x3b, "VGCS/VBS Assignment Status" },
@@ -127,7 +127,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x3d, "Reset IP Resource" },
     { 0x3e, "Reset IP Resource Acknowledge" },
 
-	{ 0x3f, "Unallocated" },
+    { 0x3f, "Unallocated" },
 
     { 0x40, "Block" },
     { 0x41, "Blocking Acknowledge" },
@@ -157,31 +157,31 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x59, "Cipher Mode Reject" },
     { 0x5a, "Load Indication" },
 
-	{ 0x5b, "Unallocated" },
-	{ 0x5c, "Unallocated" },
-	{ 0x5d, "Unallocated" },
-	{ 0x5e, "Unallocated" },
-	{ 0x5f, "Unallocated" },
+    { 0x5b, "Unallocated" },
+    { 0x5c, "Unallocated" },
+    { 0x5d, "Unallocated" },
+    { 0x5e, "Unallocated" },
+    { 0x5f, "Unallocated" },
 
-	{ 0x60, "VGCS Additional Information" },
+    { 0x60, "VGCS Additional Information" },
     { 0x61, "VGCS SMS" },
     { 0x62, "Notification Data" },
     { 0x63, "Uplink Application Data" },
 
-	{ 0x64, "Unallocated" },
-	{ 0x65, "Unallocated" },
-	{ 0x66, "Unallocated" },
-	{ 0x67, "Unallocated" },
-	{ 0x68, "Unallocated" },
-	{ 0x69, "Unallocated" },
-	{ 0x6a, "Unallocated" },
-	{ 0x6b, "Unallocated" },
-	{ 0x6c, "Unallocated" },
-	{ 0x6d, "Unallocated" },
-	{ 0x6e, "Unallocated" },
-	{ 0x6f, "Unallocated" },
+    { 0x64, "Unallocated" },
+    { 0x65, "Unallocated" },
+    { 0x66, "Unallocated" },
+    { 0x67, "Unallocated" },
+    { 0x68, "Unallocated" },
+    { 0x69, "Unallocated" },
+    { 0x6a, "Unallocated" },
+    { 0x6b, "Unallocated" },
+    { 0x6c, "Unallocated" },
+    { 0x6d, "Unallocated" },
+    { 0x6e, "Unallocated" },
+    { 0x6f, "Unallocated" },
 
-	{ 0x70, "Internal Handover Required" },
+    { 0x70, "Internal Handover Required" },
     { 0x71, "Internal Handover Required Reject" },
     { 0x72, "Internal Handover Command" },
     { 0x73, "Internal Handover Enquiry" },
@@ -1803,8 +1803,8 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
     if (add_string)
         g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
 
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_qa, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_pvi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_qa, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_pvi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset++;
 
@@ -3525,10 +3525,10 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_method, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_ganss_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_usage, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	curr_offset++;
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_method, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_ganss_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_usage, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
 
     return(curr_offset-offset);
 }
@@ -3663,7 +3663,7 @@ static const value_string bssap_speech_codec_values[] = {
     { 0x0c,     "OFR_AMR-WB" },
     { 0x0d,     "OHR_AMR-WB" },
     { 0x0e,     "Reserved" },
-	{ 0x0f,     "Codec Extension" },
+    { 0x0f,     "Codec Extension" },
     { 0,        NULL }
 };
 static value_string_ext bssap_speech_codec_values_ext = VALUE_STRING_EXT_INIT(bssap_speech_codec_values);
@@ -3700,18 +3700,18 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
                  * HR_AMR is coded '100'
                  * OHR_AMR is coded '1011'
                  */
-				/* FI indicates Full IP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* TF indicates TFO support */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
+                /* FI indicates Full IP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* TF indicates TFO support */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
                 consumed+=2;
@@ -3725,45 +3725,45 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
                  * OFR_AMR-WB is coded '1100'
                  * OHR_AMR-WB is coded '1101'
                  */
-				/* FI indicates Full IP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* TF indicates TFO support */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
+                /* FI indicates Full IP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* TF indicates TFO support */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
                 curr_offset++;
                 consumed++;
                 break;
-			case 0xf:
-				/* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
-				/* Codec Extension */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
-				break;
+            case 0xf:
+                /* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                /* Codec Extension */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                break;
             default:
-				proto_tree_add_text(subtree, tvb, curr_offset, 2,"Unknown codec - the rest of the dissection my be suspect");
-				curr_offset+=2;
-				consumed+=2;
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,"Unknown codec - the rest of the dissection my be suspect");
+                curr_offset+=2;
+                consumed+=2;
                 break;
         }
     }
@@ -3816,18 +3816,18 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
                  * HR_AMR is coded '100'
                  * OHR_AMR is coded '1011'
                  */
-				/* FI indicates Full IP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* TF indicates TFO support */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
+                /* FI indicates Full IP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* TF indicates TFO support */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
                 consumed+=2;
@@ -3841,44 +3841,45 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
                  * OFR_AMR-WB is coded '1100'
                  * OHR_AMR-WB is coded '1101'
                  */
-				/* FI indicates Full IP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* TF indicates TFO support */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
+                /* FI indicates Full IP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* TF indicates TFO support */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
                 curr_offset++;
                 consumed++;
                 break;
-			case 0xf:
-				/* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
-				/* PI indicates PCMoIP */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* PT indicates PCMoTDM */
-				proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				/* Codec Type */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
-				/* Codec Extension */
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				curr_offset++;
-				consumed++;
+            case 0xf:
+                /* Currently (3GPP TS 48.008 version 9.4.0 Release 9) CSData Codec Type is the only extended one */
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                /* Codec Extension */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec_r3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                consumed++;
+                break;
             default:
-				proto_tree_add_text(subtree, tvb, curr_offset, 2, "Unknown codec - the rest of the dissection my be suspect");
-				curr_offset+=2;
-				consumed+=2;
+                proto_tree_add_text(subtree, tvb, curr_offset, 2, "Unknown codec - the rest of the dissection my be suspect");
+                curr_offset+=2;
+                consumed+=2;
                 break;
         }
     }
@@ -4288,8 +4289,8 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
         str = match_strval_idx((guint32) oct, bssmap_field_element_ids, &idx);
         ie_len = tvb_get_guint8(tvb, curr_offset++);
 
-	if (!str)
-	    str = "Unknown";
+        if (!str)
+            str = "Unknown";
 
         /*
          * add Field Element name
@@ -6281,128 +6282,128 @@ bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
-    bssmap_ass_req,				/* Assignment Request */
-    bssmap_ass_complete,		/* Assignment Complete */
-    bssmap_ass_failure,			/* Assignment Failure */
-    bssmap_vgcs_vbs_setup,		/* VGCS/VBS Setup */
-    bssmap_vgcs_vbs_setup_ack,  /* VGCS/VBS Setup Ack */
-    bssmap_vgcs_vbs_setup_refuse,   /* VGCS/VBS Setup Refuse */
-    bssmap_vgcs_vbs_ass_req,    /* VGCS/VBS Assignment Request */
-    bssmap_chan_mod_req,        /* 0x08 Channel Modify request */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-	NULL,						/* Unallocated */
-    bssmap_ho_req,				/* 0x10 Handover Request */
-    bssmap_ho_reqd,				/* Handover Required */
-    bssmap_ho_req_ack,			/* Handover Request Acknowledge */
-    bssmap_ho_cmd,				/* Handover Command */
-    bssmap_ho_complete,			/* Handover Complete */
-    bssmap_ho_succ ,			/* Handover Succeeded */
-    bssmap_ho_failure,			/* Handover Failure */
-    bssmap_ho_performed,		/* Handover Performed */
-    bssmap_ho_cand_enq,			/* Handover Candidate Enquire */
-    bssmap_ho_cand_resp,		/* Handover Candidate Response */
-    bssmap_ho_reqd_rej,			/* Handover Required Reject */
-    bssmap_ho_det,				/* 0x1b Handover Detect */
-    bssmap_vgcs_vbs_ass_res,    /* 0x1c VGCS/VBS Assignment Result */
-    bssmap_vgcs_vbs_ass_fail,   /* 0x1d VGCS/VBS Assignment Failure */
-    NULL,						/* 0x1e No dsta VGCS/VBS Queuing Indication */
-    bssmap_uplink_req,			/* 0x1f Uplink Request */
+    bssmap_ass_req,                     /* Assignment Request */
+    bssmap_ass_complete,                /* Assignment Complete */
+    bssmap_ass_failure,                 /* Assignment Failure */
+    bssmap_vgcs_vbs_setup,              /* VGCS/VBS Setup */
+    bssmap_vgcs_vbs_setup_ack,          /* VGCS/VBS Setup Ack */
+    bssmap_vgcs_vbs_setup_refuse,       /* VGCS/VBS Setup Refuse */
+    bssmap_vgcs_vbs_ass_req,            /* VGCS/VBS Assignment Request */
+    bssmap_chan_mod_req,                /* 0x08 Channel Modify request */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    NULL,                               /* Unallocated */
+    bssmap_ho_req,                      /* 0x10 Handover Request */
+    bssmap_ho_reqd,                     /* Handover Required */
+    bssmap_ho_req_ack,                  /* Handover Request Acknowledge */
+    bssmap_ho_cmd,                      /* Handover Command */
+    bssmap_ho_complete,                 /* Handover Complete */
+    bssmap_ho_succ,                     /* Handover Succeeded */
+    bssmap_ho_failure,                  /* Handover Failure */
+    bssmap_ho_performed,                /* Handover Performed */
+    bssmap_ho_cand_enq,                 /* Handover Candidate Enquire */
+    bssmap_ho_cand_resp,                /* Handover Candidate Response */
+    bssmap_ho_reqd_rej,                 /* Handover Required Reject */
+    bssmap_ho_det,                      /* 0x1b Handover Detect */
+    bssmap_vgcs_vbs_ass_res,            /* 0x1c VGCS/VBS Assignment Result */
+    bssmap_vgcs_vbs_ass_fail,           /* 0x1d VGCS/VBS Assignment Failure */
+    NULL,                               /* 0x1e No dsta VGCS/VBS Queuing Indication */
+    bssmap_uplink_req,                  /* 0x1f Uplink Request */
 
-    bssmap_clear_cmd,			/* 0x20 Clear Command */
-    NULL /* no associated data */,  /* Clear Complete */
-    bssmap_clear_req,			/* Clear Request */
-    NULL,						/* Reserved */
-    NULL,						/* Reserved */
-    bssmap_sapi_rej,			/* SAPI 'n' Reject */
-    bssmap_confusion,			/* Confusion */
-    bssmap_uplink_req_ack,		/* Uplink Request Acknowledge */
-    bssmap_sus,					/* Suspend */
-    bssmap_res,					/* Resume */
-    bssmap_conn_oriented,		/* Connection Oriented Information */
-    bssmap_perf_loc_req,		/* Perform Location Request */
-    bssmap_lsa_info,			/* LSA Information */
-    bssmap_perf_loc_res,		/* Perform Location Response */
-    bssmap_perf_loc_abort,		/* Perform Location Abort */
-    bssmap_common_id,			/* Common Id */
-    bssmap_reset,				/* Reset */
-    NULL /* no associated data */,  /* Reset Acknowledge */
-    bssmap_overload,			/* Overload */
-    NULL,						/* Reserved */
-    bssmap_reset_cct,			/* Reset Circuit */
-    bssmap_reset_cct_ack,		/* Reset Circuit Acknowledge */
-    bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
-    bssmap_bss_invoke_trace,    /* 0x37 BSS Invoke Trace */
+    bssmap_clear_cmd,                   /* 0x20 Clear Command */
+    NULL /* no associated data */,      /* Clear Complete */
+    bssmap_clear_req,                   /* Clear Request */
+    NULL,                               /* Reserved */
+    NULL,                               /* Reserved */
+    bssmap_sapi_rej,                    /* SAPI 'n' Reject */
+    bssmap_confusion,                   /* Confusion */
+    bssmap_uplink_req_ack,              /* Uplink Request Acknowledge */
+    bssmap_sus,                         /* Suspend */
+    bssmap_res,                         /* Resume */
+    bssmap_conn_oriented,               /* Connection Oriented Information */
+    bssmap_perf_loc_req,                /* Perform Location Request */
+    bssmap_lsa_info,                    /* LSA Information */
+    bssmap_perf_loc_res,                /* Perform Location Response */
+    bssmap_perf_loc_abort,              /* Perform Location Abort */
+    bssmap_common_id,                   /* Common Id */
+    bssmap_reset,                       /* Reset */
+    NULL /* no associated data */,      /* Reset Acknowledge */
+    bssmap_overload,                    /* Overload */
+    NULL,                               /* Reserved */
+    bssmap_reset_cct,                   /* Reset Circuit */
+    bssmap_reset_cct_ack,               /* Reset Circuit Acknowledge */
+    bssmap_msc_invoke_trace,            /* MSC Invoke Trace */
+    bssmap_bss_invoke_trace,            /* 0x37 BSS Invoke Trace */
 
-    NULL,						/* 0x38 unallocated */
-    NULL,						/* 0x39 unallocated */
-    
-	NULL,						/* 0x3a Connectionless Information */
-	NULL,						/* 0x3b VGCS/VBS ASSIGNMENT STATUS */
-	NULL,						/* 0x3c VGCS/VBS AREA CELL INFO */
-    bssmap_reset_ip_res,		/* 0x3d 3.2.1.87 RESET IP RESOURCE */
-    bssmap_reset_ip_res_ack,	/* 0x3e 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE */
-	NULL,						/* 0x3f VGCS/VBS AREA CELL INFO */
-    bssmap_block,				/* Block */
-    bssmap_block_ack,			/* Blocking Acknowledge */
-    bssmap_unblock,				/* Unblock */
-    bssmap_unblock_ack,			/* Unblocking Acknowledge */
-    bssmap_cct_group_block,		/* Circuit Group Block */
-    bssmap_cct_group_block_ack, /* Circuit Group Blocking Acknowledge */
-    bssmap_cct_group_unblock,   /* Circuit Group Unblock */
-    bssmap_cct_group_unblock_ack,   /* Circuit Group Unblocking Acknowledge */
-    bssmap_unequipped_cct,		/* Unequipped Circuit */
-    bssmap_uplink_req_conf,		/* Uplink Request Confirmation */
-    bssmap_uplink_rel_ind,		/* Uplink Release Indication */
-    bssmap_uplink_rej_cmd,		/* Uplink Reject Command */
-    bssmap_uplink_rel_cmd,		/* Uplink Release Command */
-    bssmap_uplink_seized_cmd,   /* Uplink Seized Command */
-    bssmap_change_cct,			/* Change Circuit */
-    bssmap_change_cct_ack,		/* Change Circuit Acknowledge */
-    bssmap_res_req,				/* Resource Request */
-    bssmap_res_ind,				/* Resource Indication */
-    bssmap_paging,				/* Paging */
-    bssmap_ciph_mode_cmd,		/* Cipher Mode Command */
-    bssmap_cm_upd,				/* Classmark Update */
-    bssmap_ciph_mode_complete,  /* Cipher Mode Complete */
-    NULL /* no associated data */,  /* Queuing Indication */
-    bssmap_cl3_info,			/* Complete Layer 3 Information */
+    NULL,                               /* 0x38 unallocated */
+    NULL,                               /* 0x39 unallocated */
+
+    NULL,                               /* 0x3a Connectionless Information */
+    NULL,                               /* 0x3b VGCS/VBS ASSIGNMENT STATUS */
+    NULL,                               /* 0x3c VGCS/VBS AREA CELL INFO */
+    bssmap_reset_ip_res,                /* 0x3d 3.2.1.87 RESET IP RESOURCE */
+    bssmap_reset_ip_res_ack,            /* 0x3e 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE */
+    NULL,                               /* 0x3f VGCS/VBS AREA CELL INFO */
+    bssmap_block,                       /* Block */
+    bssmap_block_ack,                   /* Blocking Acknowledge */
+    bssmap_unblock,                     /* Unblock */
+    bssmap_unblock_ack,                 /* Unblocking Acknowledge */
+    bssmap_cct_group_block,             /* Circuit Group Block */
+    bssmap_cct_group_block_ack,         /* Circuit Group Blocking Acknowledge */
+    bssmap_cct_group_unblock,           /* Circuit Group Unblock */
+    bssmap_cct_group_unblock_ack,       /* Circuit Group Unblocking Acknowledge */
+    bssmap_unequipped_cct,              /* Unequipped Circuit */
+    bssmap_uplink_req_conf,             /* Uplink Request Confirmation */
+    bssmap_uplink_rel_ind,              /* Uplink Release Indication */
+    bssmap_uplink_rej_cmd,              /* Uplink Reject Command */
+    bssmap_uplink_rel_cmd,              /* Uplink Release Command */
+    bssmap_uplink_seized_cmd,           /* Uplink Seized Command */
+    bssmap_change_cct,                  /* Change Circuit */
+    bssmap_change_cct_ack,              /* Change Circuit Acknowledge */
+    bssmap_res_req,                     /* Resource Request */
+    bssmap_res_ind,                     /* Resource Indication */
+    bssmap_paging,                      /* Paging */
+    bssmap_ciph_mode_cmd,               /* Cipher Mode Command */
+    bssmap_cm_upd,                      /* Classmark Update */
+    bssmap_ciph_mode_complete,          /* Cipher Mode Complete */
+    NULL /* no associated data */,      /* Queuing Indication */
+    bssmap_cl3_info,                    /* Complete Layer 3 Information */
     bssmap_cls_m_req /* no associated data */,  /* Classmark Request */
-    bssmap_ciph_mode_rej,		/* Cipher Mode Reject */
-    bssmap_load_ind,			/* 0x5a Load Indication */
+    bssmap_ciph_mode_rej,               /* Cipher Mode Reject */
+    bssmap_load_ind,                    /* 0x5a Load Indication */
 
-    NULL,						/* 0x5b unallocated */
-    NULL,						/* 0x5c unallocated */
-    NULL,						/* 0x5d unallocated */
-    NULL,						/* 0x5e unallocated */
-    NULL,						/* 0x5f unallocated */
+    NULL,                               /* 0x5b unallocated */
+    NULL,                               /* 0x5c unallocated */
+    NULL,                               /* 0x5d unallocated */
+    NULL,                               /* 0x5e unallocated */
+    NULL,                               /* 0x5f unallocated */
 
-    bssmap_vgcs_add_inf,		/* 0x60 VGCS Additional Information */
-    bssmap_vgcs_sms,			/* 0x61 VGCS SMS */
-    bssmap_notification_data,   /* 0x62 Notification Data*/
-    bssmap_uplink_app_data,		/* 0x63 Uplink Application Data */
+    bssmap_vgcs_add_inf,                /* 0x60 VGCS Additional Information */
+    bssmap_vgcs_sms,                    /* 0x61 VGCS SMS */
+    bssmap_notification_data,           /* 0x62 Notification Data*/
+    bssmap_uplink_app_data,             /* 0x63 Uplink Application Data */
 
-	NULL,						/* 0x64 unallocated */
-	NULL,						/* 0x65 unallocated */
-	NULL,						/* 0x66 unallocated */
-	NULL,						/* 0x67 unallocated */
-	NULL,						/* 0x68 unallocated */
-	NULL,						/* 0x69 unallocated */
-	NULL,						/* 0x6a unallocated */
-	NULL,						/* 0x6b unallocated */
-    NULL,						/* 0x6c unallocated */
-    NULL,						/* 0x6d unallocated */
-    NULL,						/* 0x6e unallocated */
-    NULL,						/* 0x6f unallocated */
+    NULL,                               /* 0x64 unallocated */
+    NULL,                               /* 0x65 unallocated */
+    NULL,                               /* 0x66 unallocated */
+    NULL,                               /* 0x67 unallocated */
+    NULL,                               /* 0x68 unallocated */
+    NULL,                               /* 0x69 unallocated */
+    NULL,                               /* 0x6a unallocated */
+    NULL,                               /* 0x6b unallocated */
+    NULL,                               /* 0x6c unallocated */
+    NULL,                               /* 0x6d unallocated */
+    NULL,                               /* 0x6e unallocated */
+    NULL,                               /* 0x6f unallocated */
 
-	bssmap_int_ho_req,			/* 0x70 Internal Handover Required */
-    bssmap_int_ho_req_rej,		/* 0x71 Internal Handover Required Reject */
-    bssmap_int_ho_cmd,			/* 0x72 Internal Handover Command */
-    bssmap_int_ho_enq,			/* 0x73 Internal Handover Enquiry */
+    bssmap_int_ho_req,                  /* 0x70 Internal Handover Required */
+    bssmap_int_ho_req_rej,              /* 0x71 Internal Handover Required Reject */
+    bssmap_int_ho_cmd,                  /* 0x72 Internal Handover Command */
+    bssmap_int_ho_enq,                  /* 0x73 Internal Handover Enquiry */
 
     NULL,   /* NONE */
 };
@@ -6592,17 +6593,17 @@ proto_register_gsm_a_bssmap(void)
         FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_be_cell_id_disc_vals_ext, 0x0f,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_pci,
+        { &hf_gsm_a_bssmap_pci,
         { "Preemption Capability indicator(PCI)","ggsm_a_bssmap.pci",
         FT_BOOLEAN,8, TFS(&bssmap_pci_value), 0x40,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_qa,
+        { &hf_gsm_a_bssmap_qa,
         { "Queuing Allowed Indicator(QA)","ggsm_a_bssmap.qa",
         FT_BOOLEAN,8, TFS(&tfs_allowed_not_allowed), 0x02,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_pvi,
+        { &hf_gsm_a_bssmap_pvi,
         { "Preemption Vulnerability Indicator(PVI)","ggsm_a_bssmap.pvi",
         FT_BOOLEAN,8, TFS(&bssmap_pvi_value), 0x01,
         NULL, HFILL }
@@ -6813,17 +6814,17 @@ proto_register_gsm_a_bssmap(void)
         FT_UINT8, BASE_DEC,NULL, 0x07,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_method,
+        { &hf_gsm_a_bssmap_method,
         { "Method","gsm_a_bssmap.method",
         FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_method_vals), 0xc0,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_ganss_id,
+        { &hf_gsm_a_bssmap_ganss_id,
         { "GANSS Id","gsm_a_bssmap.ganss_id",
         FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_ganss_id_vals), 0x38,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssmap_usage,
+        { &hf_gsm_a_bssmap_usage,
         { "Usage","gsm_a_bssmap.usage",
         FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_usage_vals), 0x07,
         NULL, HFILL }
@@ -6868,17 +6869,17 @@ proto_register_gsm_a_bssmap(void)
         FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssap_speech_codec_values_ext, 0x0f,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssap_extended_codec,
+        { &hf_gsm_a_bssap_extended_codec,
         { "Extended Codec Type","gsm_a_bssmap.extended_codec",
         FT_UINT8, BASE_DEC, VALS(bssap_extended_codec_values), 0x0,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssap_extended_codec_r2,
+        { &hf_gsm_a_bssap_extended_codec_r2,
         { "Redundancy Level 2","gsm_a_bssmap.r2",
         FT_BOOLEAN,8, TFS(&tfs_supported_not_supported), 0x80,
         NULL, HFILL }
     },
-	{ &hf_gsm_a_bssap_extended_codec_r3,
+        { &hf_gsm_a_bssap_extended_codec_r3,
         { "Redundancy Level 3","gsm_a_bssmap.r3",
         FT_BOOLEAN,8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }
@@ -6939,120 +6940,120 @@ proto_register_gsm_a_bssmap(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_chan_type_extension,
-    { "Extension", "gsm_a_bssmap.chanType.permittedIndicator.extension",
-        FT_BOOLEAN, 8, TFS(&bssmap_chan_type_extension_value), 0x80,
-        NULL, HFILL }
+        { "Extension", "gsm_a_bssmap.chanType.permittedIndicator.extension",
+            FT_BOOLEAN, 8, TFS(&bssmap_chan_type_extension_value), 0x80,
+            NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_cause_extension,
-    { "Extension", "gsm_a_bssmap.causeType.extension",
-        FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
-        NULL, HFILL }
+        { "Extension", "gsm_a_bssmap.causeType.extension",
+            FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
+            NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_emlpp_prio,
-    { "eMLPP Priority", "gsm_a_bssmap.emlpp_priority",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_call_priority_vals), 0x07,
-        NULL, HFILL }
+        { "eMLPP Priority", "gsm_a_bssmap.emlpp_priority",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_call_priority_vals), 0x07,
+            NULL, HFILL }
     },
 
     { &hf_fe_extra_info_prec,
-    { "Pre-emption Recommendation", "fe_extra_info.prec",
-        FT_UINT8, BASE_DEC, VALS(fe_extra_info_prec_vals), 0x01,
-        NULL, HFILL }
+        { "Pre-emption Recommendation", "fe_extra_info.prec",
+            FT_UINT8, BASE_DEC, VALS(fe_extra_info_prec_vals), 0x01,
+            NULL, HFILL }
     },
     { &hf_fe_extra_info_lcs,
-    { "LCS Information", "fe_extra_info.lcs",
-        FT_UINT8, BASE_DEC, VALS(fe_extra_info_lcs_vals), 0x02,
-        NULL, HFILL }
+        { "LCS Information", "fe_extra_info.lcs",
+            FT_UINT8, BASE_DEC, VALS(fe_extra_info_lcs_vals), 0x02,
+            NULL, HFILL }
     },
     { &hf_fe_extra_info_ue_prob,
-    { "UE support of UMTS", "fe_extra_info.ue_prob",
-        FT_UINT8, BASE_DEC, VALS(fe_extra_info_ue_prob_vals), 0x04,
-        NULL, HFILL }
+        { "UE support of UMTS", "fe_extra_info.ue_prob",
+            FT_UINT8, BASE_DEC, VALS(fe_extra_info_ue_prob_vals), 0x04,
+            NULL, HFILL }
     },
     { &hf_fe_extra_info_spare,
-    { "Extra Information Spare bits", "fe_extra_info.spare",
-        FT_UINT8, BASE_HEX, NULL, 0xf8,
-        NULL, HFILL }
+        { "Extra Information Spare bits", "fe_extra_info.spare",
+            FT_UINT8, BASE_HEX, NULL, 0xf8,
+            NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_mode,
-    { "Channel Mode", "fe_cur_chan_type2.chan_mode",
-         FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0x0f,
-         NULL, HFILL }
+        { "Channel Mode", "fe_cur_chan_type2.chan_mode",
+             FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0x0f,
+             NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_mode_spare,
-    { "Channel Mode Spare bits", "fe_cur_chan_type2_chan_mode.spare",
-        FT_UINT8, BASE_HEX, NULL, 0xf0,
-        NULL, HFILL }
+        { "Channel Mode Spare bits", "fe_cur_chan_type2_chan_mode.spare",
+            FT_UINT8, BASE_HEX, NULL, 0xf0,
+            NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_field,
-    { "Channel Field", "fe_cur_chan_type2.chan_field",
-        FT_UINT8, BASE_HEX, VALS(fe_cur_chan_type2_chan_field_vals),0x0f,
-        NULL, HFILL }
+        { "Channel Field", "fe_cur_chan_type2.chan_field",
+            FT_UINT8, BASE_HEX, VALS(fe_cur_chan_type2_chan_field_vals),0x0f,
+            NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_field_spare,
-    { "Channel field Spare bits", "fe_cur_chan_type2_chan_field.spare",
-        FT_UINT8, BASE_HEX, NULL, 0xf0,
-        NULL, HFILL }
+        { "Channel field Spare bits", "fe_cur_chan_type2_chan_field.spare",
+            FT_UINT8, BASE_HEX, NULL, 0xf0,
+            NULL, HFILL }
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell,
-    { "RXLEV-NCELL", "fe_target_radio_cell_info.rxlev_ncell",
-        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
-        NULL, HFILL }
+        { "RXLEV-NCELL", "fe_target_radio_cell_info.rxlev_ncell",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
+            NULL, HFILL }
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell_spare,
-    { "RXLEV-NCELL Spare bits", "fe_target_radio_cell_info.rxlev_ncell_spare",
-        FT_UINT8, BASE_HEX, NULL, 0xc0,
-        NULL, HFILL }
+        { "RXLEV-NCELL Spare bits", "fe_target_radio_cell_info.rxlev_ncell_spare",
+            FT_UINT8, BASE_HEX, NULL, 0xc0,
+            NULL, HFILL }
     },
     { &hf_fe_dtm_info_dtm_ind,
-    { "DTM indicator", "fe_dtm_info.dtm_ind",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_dtm_ind_vals), 0x01,
-        NULL, HFILL }
+        { "DTM indicator", "fe_dtm_info.dtm_ind",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_dtm_ind_vals), 0x01,
+            NULL, HFILL }
     },
     { &hf_fe_dtm_info_sto_ind,
-    { "Time Slot Operation indicator", "fe_dtm_info.sto_ind",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_sto_ind_vals), 0x02,
-        NULL, HFILL }
+        { "Time Slot Operation indicator", "fe_dtm_info.sto_ind",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_sto_ind_vals), 0x02,
+            NULL, HFILL }
     },
     { &hf_fe_dtm_info_egprs_ind,
-    { "EGPRS indicator", "fe_dtm_info.egprs_ind",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_egprs_ind_vals), 0x04,
-        NULL, HFILL }
+        { "EGPRS indicator", "fe_dtm_info.egprs_ind",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_egprs_ind_vals), 0x04,
+            NULL, HFILL }
     },
     { &hf_fe_dtm_info_spare_bits,
-    { "DTM Info Spare bits", "fe_dtm_info.spare_bits",
-        FT_UINT8, BASE_HEX, NULL, 0xf8,
-        NULL, HFILL }
+        { "DTM Info Spare bits", "fe_dtm_info.spare_bits",
+            FT_UINT8, BASE_HEX, NULL, 0xf8,
+            NULL, HFILL }
     },
     { &hf_fe_cell_load_info_cell_capacity_class,
-    { "Cell capacity class", "fe_cell_load_info.cell_capacity_class",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        NULL, HFILL }
+        { "Cell capacity class", "fe_cell_load_info.cell_capacity_class",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
     },
     { &hf_fe_cell_load_info_load_value,
-    { "Load value", "fe_cell_load_info.load_info",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        NULL, HFILL }
+        { "Load value", "fe_cell_load_info.load_info",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
     },
     { &hf_fe_cell_load_info_rt_load_value,
-    { "Realtime load value", "fe_cell_load_info.rt_load_value",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        NULL, HFILL }
+        { "Realtime load value", "fe_cell_load_info.rt_load_value",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
     },
     { &hf_fe_cell_load_info_nrt_load_information_value,
-    { "Non-Realtime load information value", "fe_cell_load_info.nrt_load_info_value",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_cell_load_nrt_vals), 0,
-        NULL, HFILL }
+        { "Non-Realtime load information value", "fe_cell_load_info.nrt_load_info_value",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_cell_load_nrt_vals), 0,
+            NULL, HFILL }
     },
     { &hf_fe_ps_indication,
-    { "PS Indication", "fe_ps_indication.value",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }
+        { "PS Indication", "fe_ps_indication.value",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
     },
     { &hf_fe_dtm_ho_command_ind_spare,
-    { "Spare octet", "fe_dtm_ho_command_ind.spare",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }
+        { "Spare octet", "fe_dtm_ho_command_ind.spare",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
     },
     };
 
