@@ -151,12 +151,12 @@ static const int netmon_encap[] = {
 	WTAP_ENCAP_TOKEN_RING,
 	WTAP_ENCAP_FDDI_BITSWAPPED,
 	WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
-	WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
+	WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk, but format 2.x uses it for IP-over-IEEE 1394 */
 	WTAP_ENCAP_IEEE802_11_NETMON_RADIO,
-				/* NDIS "DIX" - used for 802.11 */
-	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
-	WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET 878.2 */
-	WTAP_ENCAP_UNKNOWN,	/* NDIS ATM (no, this is NOT used for ATM) */
+				/* NDIS "DIX", but format 2.x uses it for 802.11 */
+	WTAP_ENCAP_RAW_IP,	/* NDIS ARCNET raw, but format 2.x uses it for "Tunneling interfaces" */
+	WTAP_ENCAP_RAW_IP,	/* NDIS ARCNET 878.2, but format 2.x uses it for "Wireless WAN" */
+	WTAP_ENCAP_RAW_IP,	/* NDIS ATM (no, this is NOT used for ATM); format 2.x uses it for "Raw IP Frames" */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS Wireless WAN */
 	WTAP_ENCAP_UNKNOWN	/* NDIS IrDA */
 };

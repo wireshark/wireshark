@@ -147,9 +147,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Support for MS NetMon 3.x traces containing raw IPv6 ("Type 7") packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5817">Bug
+          5817</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Service Indicator in M3UA protocol data.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5834">Bug
           5834</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IEC60870-5-104 protocol, incorrect decoding of timestamp type CP56Time2a.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5889">Bug
+          5889</ulink>)
         </para></listitem>
 
 <!-- bug 5908 -->
@@ -181,7 +193,10 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-Netflow,
+DICOM,
+IEC104,
+M3UA,
+TCP,
 
     </para>
     </section>
@@ -189,7 +204,7 @@ Netflow,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-There is no new or updated capture file support in this release.
+Network Monitor.
 
     </para>
     </section>
