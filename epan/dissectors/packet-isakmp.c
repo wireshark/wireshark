@@ -92,7 +92,7 @@ static int hf_isakmp_typepayload     = -1;
 static int hf_isakmp_nextpayload     = -1;
 static int hf_isakmp_criticalpayload = -1;
 static int hf_isakmp_datapayload     = -1;
-static int hf_isakmp_extradata	     = -1;
+static int hf_isakmp_extradata       = -1;
 static int hf_isakmp_version         = -1;
 static int hf_isakmp_exchangetype_v1 = -1;
 static int hf_isakmp_exchangetype_v2 = -1;
@@ -136,22 +136,22 @@ static int hf_isakmp_id_data_ipv6_range_start = -1;
 static int hf_isakmp_id_data_ipv6_range_end = -1;
 static int hf_isakmp_id_data_key_id = -1;
 static int hf_isakmp_id_data_cert = -1;
-static int hf_isakmp_cert_encoding_v1   = -1;
-static int hf_isakmp_cert_encoding_v2   = -1;
-static int hf_isakmp_cert_data     = -1;
-static int hf_isakmp_certreq_type_v1   = -1;
-static int hf_isakmp_certreq_type_v2   = -1;
+static int hf_isakmp_cert_encoding_v1 = -1;
+static int hf_isakmp_cert_encoding_v2 = -1;
+static int hf_isakmp_cert_data = -1;
+static int hf_isakmp_certreq_type_v1 = -1;
+static int hf_isakmp_certreq_type_v2 = -1;
 static int hf_isakmp_certreq_authority_v1  = -1;
 static int hf_isakmp_certreq_authority_v2 = -1;
 static int hf_isakmp_certreq_authority_sig = -1;
 static int hf_isakmp_auth_meth = -1;
 static int hf_isakmp_auth_data = -1;
-static int hf_isakmp_notify_doi  = -1;
+static int hf_isakmp_notify_doi = -1;
 static int hf_isakmp_notify_protoid_v1 = -1;
 static int hf_isakmp_notify_protoid_v2 = -1;
-static int hf_isakmp_notify_msgtype_v1  = -1;
-static int hf_isakmp_notify_msgtype_v2  = -1;
-static int hf_isakmp_notify_data  = -1;
+static int hf_isakmp_notify_msgtype_v1 = -1;
+static int hf_isakmp_notify_msgtype_v2 = -1;
+static int hf_isakmp_notify_data = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there_ack = -1;
 static int hf_isakmp_notify_data_unity_load_balance = -1;
@@ -179,17 +179,17 @@ static int hf_isakmp_notify_data_rohc_attr_profile = -1;
 static int hf_isakmp_notify_data_rohc_attr_integ = -1;
 static int hf_isakmp_notify_data_rohc_attr_icv_len = -1;
 static int hf_isakmp_notify_data_rohc_attr_mrru = -1;
-static int hf_isakmp_delete_doi  = -1;
+static int hf_isakmp_delete_doi = -1;
 static int hf_isakmp_delete_protoid_v1 = -1;
 static int hf_isakmp_delete_protoid_v2 = -1;
-static int hf_isakmp_delete_spi  = -1;
-static int hf_isakmp_vid_bytes  = -1;
-static int hf_isakmp_vid_string  = -1;
-static int hf_isakmp_vid_cp_product  = -1;
-static int hf_isakmp_vid_cp_version  = -1;
-static int hf_isakmp_vid_cp_timestamp   = -1;
-static int hf_isakmp_vid_cp_reserved   = -1;
-static int hf_isakmp_vid_cp_features   = -1;
+static int hf_isakmp_delete_spi = -1;
+static int hf_isakmp_vid_bytes = -1;
+static int hf_isakmp_vid_string = -1;
+static int hf_isakmp_vid_cp_product = -1;
+static int hf_isakmp_vid_cp_version = -1;
+static int hf_isakmp_vid_cp_timestamp = -1;
+static int hf_isakmp_vid_cp_reserved = -1;
+static int hf_isakmp_vid_cp_features = -1;
 static int hf_isakmp_vid_cisco_unity_major = -1;
 static int hf_isakmp_vid_cisco_unity_minor = -1;
 static int hf_isakmp_vid_ms_nt5_isakmpoakley = -1;
@@ -211,10 +211,10 @@ static int hf_isakmp_ts_end_r_ctl = -1;
 static int hf_isakmp_ts_start_type = -1;
 static int hf_isakmp_ts_end_type = -1;
 static int hf_isakmp_ts_data = -1;
-static int hf_isakmp_num_spis        = -1;
-static int hf_isakmp_hash	     = -1;
-static int hf_isakmp_sig	     = -1;
-static int hf_isakmp_nonce	     = -1;
+static int hf_isakmp_num_spis = -1;
+static int hf_isakmp_hash = -1;
+static int hf_isakmp_sig = -1;
+static int hf_isakmp_nonce = -1;
 
 static int hf_isakmp_tf_attr = -1;
 static int hf_isakmp_tf_attr_type_v1 = -1;
@@ -283,9 +283,9 @@ static int hf_isakmp_fragment_count = -1;
 static int hf_isakmp_reassembled_in = -1;
 static int hf_isakmp_reassembled_length = -1;
 
-static int hf_isakmp_cisco_frag_packetid      = -1;
-static int hf_isakmp_cisco_frag_seq     = -1;
-static int hf_isakmp_cisco_frag_last    = -1;
+static int hf_isakmp_cisco_frag_packetid = -1;
+static int hf_isakmp_cisco_frag_seq = -1;
+static int hf_isakmp_cisco_frag_last = -1;
 
 static int hf_isakmp_key_exch_dh_group = -1;
 static int hf_isakmp_key_exch_data = -1;
@@ -322,7 +322,7 @@ static int hf_isakmp_cfg_attr_internal_ip6_link_interface = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_link_id = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_prefix_ip = -1;
 static int hf_isakmp_cfg_attr_internal_ip6_prefix_length = -1;
-static int hf_isakmp_cfg_attr_xauth_type  = -1;
+static int hf_isakmp_cfg_attr_xauth_type = -1;
 static int hf_isakmp_cfg_attr_xauth_user_name = -1;
 static int hf_isakmp_cfg_attr_xauth_user_password = -1;
 static int hf_isakmp_cfg_attr_xauth_passcode = -1;
@@ -387,7 +387,7 @@ static const fragment_items isakmp_frag_items = {
   "Message fragments"
 };
 /* IKE port number assigned by IANA */
-#define UDP_PORT_ISAKMP	500
+#define UDP_PORT_ISAKMP 500
 #define TCP_PORT_ISAKMP 500
 
 /*
@@ -688,7 +688,7 @@ static const value_string transform_ike_attr_type[] = {
   { IKE_ATTR_HASH_ALGORITHM,	"Hash-Algorithm" },
   { IKE_ATTR_AUTHENTICATION_METHOD,"Authentication-Method" },
   { IKE_ATTR_GROUP_DESCRIPTION,	"Group-Description" },
-  { IKE_ATTR_GROUP_TYPE,		"Group-Type" },
+  { IKE_ATTR_GROUP_TYPE,	"Group-Type" },
   { IKE_ATTR_GROUP_PRIME,	"Group-Prime" },
   { IKE_ATTR_GROUP_GENERATOR_ONE,"Group-Generator-One" },
   { IKE_ATTR_GROUP_GENERATOR_TWO,"Group-Generator-Two" },
@@ -697,8 +697,8 @@ static const value_string transform_ike_attr_type[] = {
   { IKE_ATTR_LIFE_TYPE,		"Life-Type" },
   { IKE_ATTR_LIFE_DURATION,	"Life-Duration" },
   { IKE_ATTR_PRF,		"PRF" },
-  { IKE_ATTR_KEY_LENGTH,		"Key-Length" },
-  { IKE_ATTR_FIELD_SIZE,		"Field-Size" },
+  { IKE_ATTR_KEY_LENGTH,	"Key-Length" },
+  { IKE_ATTR_FIELD_SIZE,	"Field-Size" },
   { IKE_ATTR_GROUP_ORDER,	"Group-Order" },
   { 0,	NULL },
 };
@@ -1342,9 +1342,8 @@ static const value_string cp_product[] = {
 };
 
 static const value_string cp_version[] = {
-  { 2,	"4.1" },
-  { 3,	"4.1 SP-1" },
-  { 3,	"4.1 (SP-2 or above)" },
+  { 2,"4.1" },
+  { 3,"4.1 SP-1" },
   { 4002,"4.1 (SP-2 or above)" },
   { 5000,"NG" },
   { 5001,"NG Feature Pack 1" },
@@ -3842,7 +3841,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
          case 16407: /* REDIRECT */
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_type, tvb, offset, 1, FALSE);
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, FALSE);
-               switch(tvb_get_guint8(tvb,offset)){ /* Ident Type ? */
+               switch(tvb_get_guint8(tvb, offset)){ /* Ident Type ? */
                 case 1:
                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
                 break;
@@ -3856,8 +3855,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
                 break;
                }
-               length -= tvb_get_guint8(tvb,offset+1)-2;
-               offset += tvb_get_guint8(tvb,offset+1)+2;
+               length -= tvb_get_guint8(tvb, offset+1) - 2;
+               offset += tvb_get_guint8(tvb, offset+1) + 2;
                if(length)
                {
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_nonce_data, tvb, offset, length, FALSE);
@@ -3866,7 +3865,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
          case 16408: /* REDIRECT_FROM */
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_type, tvb, offset, 1, FALSE);
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, FALSE);
-               switch(tvb_get_guint8(tvb,offset)){ /* Ident Type ? */
+               switch(tvb_get_guint8(tvb, offset)){ /* Ident Type ? */
                 case 1:
                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
                 break;
@@ -3877,8 +3876,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
                 break;
                }
-               length -= tvb_get_guint8(tvb,offset+1)-2;
-               offset += tvb_get_guint8(tvb,offset+1)+2;
+               length -= tvb_get_guint8(tvb, offset+1) - 2;
+               offset += tvb_get_guint8(tvb, offset+1) + 2;
           break;
           case 16409: /* TICKET_LT_OPAQUE */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_lifetime, tvb, offset, 4, FALSE);
@@ -5280,7 +5279,7 @@ proto_register_isakmp(void)
         FT_UINT32, BASE_DEC, VALS(cp_product), 0x0,
         NULL, HFILL }},
     { &hf_isakmp_vid_cp_version,
-      { "Checkpoint Cersion", "isakmp.vid.cp.version",
+      { "Checkpoint Version", "isakmp.vid.cp.version",
         FT_UINT32, BASE_DEC, VALS(cp_version), 0x0,
         "Encoded Version number", HFILL }},
     { &hf_isakmp_vid_cp_timestamp,
