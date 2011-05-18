@@ -1674,7 +1674,10 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 			offset++;
 			value = ((value & bit_mask) << 8) | tvb_get_guint8(tvb, offset);
 
-			*buf++ = (guint8) (value >> bit_shift);
+			if (lsb0)
+				*buf++ = (guint8) (GUINT16_SWAP_LE_BE(value) >> bit_shift);
+			else
+				*buf++ = (guint8) (value >> bit_shift);
 			no_of_bits -= 8;
 		}
 
@@ -1689,10 +1692,12 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 			}
 
 			if (lsb0) {
-				value = (value >> bit_offset) & (bit_mask8[8-no_of_bits]);
+				if (tot_no_bits > 8)
+					value = (GUINT16_SWAP_LE_BE(value) >> bit_offset) & (bit_mask8[8-no_of_bits]);
+				else
+					value = (value >> bit_offset) & (bit_mask8[8-no_of_bits]);
 
 				/* value = (value & ((1 << tot_no_bits)-1)) >> bit_offset; */
-
 
 			} else {
 				if (tot_no_bits > 8)
