@@ -1057,14 +1057,6 @@ guint oid_string2encoded(const char *oid_str, guint8 **bytes) {
 	return 0;
 }
 
-static char* oid2str(oid_info_t* oid, guint32* subids, guint len, guint left) {
-	if (left == 0) {
-		return oid->name;
-	} else {
-		return ep_strdup_printf("%s.%s",oid->name,oid_subid2string(subids+(len-left),left));
-	}
-}
-
 const gchar *oid_resolved_from_string(const gchar *oid_str) {
 	guint32 *subid_oid;
 	guint subid_oid_length = oid_string2subid(oid_str, &subid_oid);
