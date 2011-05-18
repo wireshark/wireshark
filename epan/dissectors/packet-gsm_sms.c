@@ -39,7 +39,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <gmodule.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -2778,11 +2777,13 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 			    } else
 				length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
 
-				/* XXX - using proto_tree_add_string() doesn't work */
-				ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
-									       i * MAX_SMS_FRAG_LEN, length_ucs2,
-									       &utf8_text[i * MAX_SMS_FRAG_LEN],
-									       "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
+                            /* XXX - using proto_tree_add_string() doesn't work */
+                            ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
+                                                                           i * MAX_SMS_FRAG_LEN, length_ucs2,
+                                                                           &utf8_text[i * MAX_SMS_FRAG_LEN],
+                                                                           "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
+                            PROTO_ITEM_SET_GENERATED(ucs2_item);
+
 			    /* return the save byte to utf8 buffer*/
 			    if(i * MAX_SMS_FRAG_LEN < len_sms) {
 				utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
@@ -2791,6 +2792,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 			}
 		    } else {
 			ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
+                        PROTO_ITEM_SET_GENERATED(ucs2_item);
 		    }
 		}
 
