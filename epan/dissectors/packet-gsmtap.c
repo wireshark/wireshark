@@ -185,7 +185,7 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_TCH_F,		"SACCH/F" },
 	{ GSMTAP_CHANNEL_ACCH|
-	  GSMTAP_CHANNEL_TCH_F,		"SACCH/H" },
+	  GSMTAP_CHANNEL_TCH_H,		"SACCH/H" },
 	{ 0,				NULL },
 };
 
