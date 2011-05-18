@@ -30,8 +30,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 
 #include <glib.h>
@@ -59,7 +57,6 @@ static int ett_msrp					= -1;
 static int ett_raw_text				= -1;
 static int ett_msrp_reqresp			= -1;
 static int ett_msrp_hdr				= -1;
-static int ett_msrp_element			= -1;
 static int ett_msrp_data			= -1;
 static int ett_msrp_end_line		= -1;
 static int ett_msrp_setup			= -1;
@@ -454,9 +451,9 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
 	gint next_offset = 0;
-	proto_item *ti, *th, *msrp_headers_item, *msrp_element_item;
+	proto_item *ti, *th, *msrp_headers_item;
 	proto_tree *msrp_tree, *reqresp_tree, *raw_tree, *msrp_hdr_tree, *msrp_end_tree;
-	proto_tree *msrp_element_tree, *msrp_data_tree;
+	proto_tree *msrp_data_tree;
 	gint linelen;
 	gint space_offset;
 	gint token_2_start;
@@ -471,7 +468,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint line_end_offset;
 	gint message_end_offset;
 	gint colon_offset;
-	char *transaction_id_str = NULL;
 	gint header_len;
 	gint hf_index;
 	gint value_offset;
@@ -505,9 +501,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Work out 2nd token's length by finding next space */
 	space_offset = tvb_find_guint8(tvb, token_2_start, linelen-token_2_start, ' ');
 	token_2_len = space_offset - token_2_start;
-
-	/* Transaction ID found store it for later use */
-	transaction_id_str = tvb_get_ephemeral_string(tvb, token_2_start, token_2_len);
 
 	/* Look for another space in this line to indicate a 4th token */
 	token_3_start = space_offset + 1;
@@ -650,12 +643,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 * Add it to the protocol tree,
 					 * but display the line as is.
 					 */
-					msrp_element_item = proto_tree_add_string_format(msrp_hdr_tree,
+					proto_tree_add_string_format(msrp_hdr_tree,
 				                   hf_header_array[hf_index], tvb,
 				                   offset, next_offset - offset,
 				                   value, "%s",
 				                   tvb_format_text(tvb, offset, linelen));
-					msrp_element_tree = proto_item_add_subtree( msrp_element_item, ett_msrp_element);
 
 					switch ( hf_index ) {
 
@@ -774,7 +766,6 @@ proto_register_msrp(void)
 		&ett_raw_text,
 		&ett_msrp_reqresp,
 		&ett_msrp_hdr,
-		&ett_msrp_element,
 		&ett_msrp_data,
 		&ett_msrp_end_line,
 		&ett_msrp_setup
