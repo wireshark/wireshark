@@ -166,6 +166,12 @@ Wireshark Info
           5889</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          DNP3 dissector incorrect constants AL_OBJ_FCTR_16NF _FDCTR_32NF _FDCTR_16NF.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5920">Bug
+          5920</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
