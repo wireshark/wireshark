@@ -511,7 +511,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 void
 isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const isis_clv_handle_t *opts, int len, int id_length,
-	int unknown_tree_id)
+	int unknown_tree_id _U_)
 {
 	guint8 code;
 	guint8 length;
