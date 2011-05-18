@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_map.c                                                          */
-/* ../../tools/asn2wrs.py -b -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . ansi_map.asn */
+/* ../../../tools/asn2wrs.py -b -p ansi_map -c ../../../asn1/ansi_map/ansi_map.cnf -s ../../../asn1/ansi_map/packet-ansi_map-template -D ../../../asn1/ansi_map ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -3046,7 +3046,7 @@ static const value_string ansi_map_PACA_Level_vals[]  = {
     {   6, "Priority Level 6"},
     {   7, "Priority Level 7"},
     {   8, "Priority Level 8"},
-    {   8, "Priority Level 9"},
+    {   9, "Priority Level 9"},
     {   10, "Priority Level 10"},
     {   11, "Priority Level 11"},
     {   12, "Priority Level 12"},
@@ -3244,8 +3244,8 @@ static const value_string ansi_map_SMS_NotificationIndicator_vals[]  = {
 static const value_string ansi_map_SMS_OriginationRestrictions_default_vals[]  = {
     {   0, "Block all"},
     {   1, "Reserved"},
-    {   1, "Allow specific"},
-    {   1, "Allow all"},
+    {   2, "Allow specific"},
+    {   3, "Allow all"},
     {   0, NULL }
 };
 /* DIRECT (octet 1, bit C) */
@@ -16120,7 +16120,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  61: /*TMSI Directive*/
         offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirectiveRes);
         break;
-    case  62: /*NumberPortabilityRequest */ 
+    case  62: /*NumberPortabilityRequest */
         offset = dissect_ansi_map_NumberPortabilityRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_numberPortabilityRequestRes);
 		break;
     case  63: /*Service Request*/
@@ -19654,7 +19654,7 @@ void proto_register_ansi_map(void) {
 
 	static enum_val_t ansi_map_response_matching_type_values[] = {
 		{"Only Transaction ID will be used in Invoke/response matching",					"Transaction ID only", 0},
-		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1}, 
+		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1},
 		{"Transaction ID Source and Destination will be used in Invoke/response matching",	"Transaction ID Source and Destination", 2},
 		{NULL, NULL, -1}
 	};
