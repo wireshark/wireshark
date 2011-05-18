@@ -1657,25 +1657,51 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
 }
 
 void
-tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf)
+tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0)
 {
+	guint8 bit_mask, bit_shift;
 	/* Byte align offset */
 	gint offset = bit_offset >> 3;
 	bit_offset = bit_offset & 0x7;
 
-	if (G_LIKELY(bit_offset != 0)) {
-		/* XXX, this can be optimized */
-		while (no_of_bits >= 8) {
-			guint16 value = (tvb_get_ntohs(tvb, offset) & bit_mask16[bit_offset]) >> (8 - bit_offset);
+	bit_mask = (lsb0) ? 0xff : bit_mask8[bit_offset];
+	bit_shift = (lsb0) ? bit_offset : (8 - bit_offset);
 
-			*buf++ = (guint8) value;
+	if (G_LIKELY(bit_offset != 0)) {
+		guint16 value = (guint16) tvb_get_guint8(tvb, offset);
+
+		while (no_of_bits >= 8) {
 			offset++;
+			value = ((value & bit_mask) << 8) | tvb_get_guint8(tvb, offset);
+
+			*buf++ = (guint8) (value >> bit_shift);
 			no_of_bits -= 8;
 		}
 
 		/* something left? */
-		if (no_of_bits > 0)
-			*buf = tvb_get_bits8(tvb, offset * 8 + bit_offset, no_of_bits);
+		if (no_of_bits > 0) {
+			guint8 tot_no_bits = bit_offset+no_of_bits;
+
+			/* Overlaps with next byte? Get next byte */
+			if (tot_no_bits > 8) {
+				offset++;
+				value = ((value & bit_mask) << 8) | tvb_get_guint8(tvb, offset);
+			}
+
+			if (lsb0) {
+				value = (value >> bit_offset) & (bit_mask8[8-no_of_bits]);
+
+				/* value = (value & ((1 << tot_no_bits)-1)) >> bit_offset; */
+
+
+			} else {
+				if (tot_no_bits > 8)
+					value = value >> (16 - tot_no_bits);
+				else
+					value = (value & bit_mask) >> (8-tot_no_bits);
+			}
+			*buf = (guint8) value;
+		}
 
 	} else {
 		/* fast code path for bit_offset == 0 */
@@ -1686,13 +1712,17 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf)
 		}
 
 		/* something left? */
-		if (no_of_bits > 0)
-			*buf = tvb_get_guint8(tvb, offset) >> (8-no_of_bits);
+		if (no_of_bits > 0) {
+			if (lsb0)
+				*buf = tvb_get_guint8(tvb, offset) & bit_mask8[8-no_of_bits]; /* read: ((1 << no_of_bits)-1) */
+			else
+				*buf = tvb_get_guint8(tvb, offset) >> (8-no_of_bits);
+		}
 	}
 }
 
 guint8 *
-ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
+ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
 {
 	gint no_of_bytes;
 	guint8 *buf;
@@ -1705,7 +1735,7 @@ ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 
 	no_of_bytes = (no_of_bits >> 3) + ((no_of_bits & 0x7) != 0);	/* ceil(no_of_bits / 8.0) */
 	buf = ep_alloc(no_of_bytes);
-	tvb_get_bits_buf(tvb, bit_offset, no_of_bits, buf);
+	tvb_get_bits_buf(tvb, bit_offset, no_of_bits, buf, lsb0);
 	return buf;
 }
 
