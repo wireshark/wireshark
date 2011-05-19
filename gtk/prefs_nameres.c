@@ -159,7 +159,7 @@ nameres_prefs_show(void)
 
 #else /* HAVE_C_ARES || HAVE_GNU_ADNS */
 	table_row++;
-	c_resolv_cb = create_preference_static_text(main_tb, table_row,
+	create_preference_static_text(main_tb, table_row,
 	    "Enable concurrent DNS name resolution: N/A",
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
