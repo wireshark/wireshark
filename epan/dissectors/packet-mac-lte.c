@@ -2336,10 +2336,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         gint       offset_start_subheader = offset;
         guint8 first_byte = tvb_get_guint8(tvb, offset);
 
-        /* Add PDU block header subtree */
+        /* Add PDU block header subtree.
+           Default with length of 1 byte. */
         pdu_subheader_ti = proto_tree_add_string_format(pdu_header_tree,
                                                         hf_mac_lte_sch_subheader,
-                                                        tvb, offset, 0,
+                                                        tvb, offset, 1,
                                                         "",
                                                         "Sub-header");
         pdu_subheader_tree = proto_item_add_subtree(pdu_subheader_ti,
@@ -2363,6 +2364,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* LCID.  Has different meaning depending upon direction. */
         lcids[number_of_headers] = first_byte & 0x1f;
         if (direction == DIRECTION_UPLINK) {
+
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, FALSE);
             write_pdu_label_and_info(pdu_ti, NULL, pinfo,
@@ -2371,12 +2373,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                       ulsch_lcid_vals, "(Unknown LCID)"));
         }
         else {
+            /* Downlink */
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, FALSE);
             write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                      "(%s",
                                      val_to_str_const(lcids[number_of_headers],
                                                       dlsch_lcid_vals, "(Unknown LCID)"));
+
             if (lcids[number_of_headers] == DRX_COMMAND_LCID) {
                 expert_add_info_format(pinfo, lcid_ti, PI_SEQUENCE, PI_NOTE,
                                        "DRX command received for UE %u (RNTI %u)",
@@ -2416,6 +2420,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Length field follows if not the last header or for a fixed-sized
            control element */
         if (!extension) {
+            /* Last one... */
             if (is_fixed_sized_control_element(lcids[number_of_headers], direction)) {
                 pdu_lengths[number_of_headers] = 0;
             }
@@ -2424,6 +2429,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
         else {
+            /* Not the last one */
             if (!is_fixed_sized_control_element(lcids[number_of_headers], direction) &&
                 (lcids[number_of_headers] != PADDING_LCID)) {
 
@@ -2515,7 +2521,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* Set length of this subheader */
-        proto_item_set_len(pdu_subheader_ti, offset- offset_start_subheader);
+        proto_item_set_len(pdu_subheader_ti, offset - offset_start_subheader);
 
         number_of_headers++;
     } while (extension);
