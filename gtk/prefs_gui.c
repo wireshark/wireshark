@@ -51,7 +51,7 @@
 
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
-static gboolean fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
+static gboolean fileopen_dir_changed_cb(GtkWidget *myentry, GdkEvent *event _U_, gpointer parent_w _U_);
 static gboolean fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 static gboolean recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
@@ -103,16 +103,16 @@ static const enum_val_t filter_toolbar_placement_vals[] _U_ = {
 };
 
 static const enum_val_t highlight_style_vals[] _U_ = {
-  	{ "FALSE", "Bold",     FALSE },
-  	{ "TRUE",  "Inverse",  TRUE },
+	{ "FALSE", "Bold",     FALSE },
+ 	{ "TRUE",  "Inverse",  TRUE },
 	{ NULL,    NULL,       0 }
 };
 
 
 static const enum_val_t toolbar_style_vals[] _U_ = {
-  	{ "ICONS", "Icons only",     TB_STYLE_ICONS },
-  	{ "TEXT",  "Text only",      TB_STYLE_TEXT },
-  	{ "BOTH",  "Icons & Text",   TB_STYLE_BOTH },
+ 	{ "ICONS", "Icons only",     TB_STYLE_ICONS },
+ 	{ "TEXT",  "Text only",      TB_STYLE_TEXT },
+ 	{ "BOTH",  "Icons & Text",   TB_STYLE_BOTH },
 	{ NULL,    NULL,             0 }
 };
 
@@ -188,11 +188,11 @@ gui_prefs_show(void)
 	main_vb = gtk_vbox_new(FALSE, 7);
 	gtk_container_set_border_width( GTK_CONTAINER(main_vb), 5 );
 
-        /* Main table */
-        main_tb = gtk_table_new(GUI_TABLE_ROWS, 2, FALSE);
-        gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-        gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-        gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+	/* Main table */
+	main_tb = gtk_table_new(GUI_TABLE_ROWS, 2, FALSE);
+	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Packet list selection browseable */
@@ -330,9 +330,9 @@ gui_prefs_show(void)
 	/* Webbrowser */
 	if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++,
-                "Web browser command:",
-                "Command line to desired browser.",
-                prefs.gui_webbrowser);
+						    "Web browser command:",
+						    "Command line to desired browser.",
+						    prefs.gui_webbrowser);
 	    gtk_entry_set_text(GTK_ENTRY(webbrowser_te), prefs.gui_webbrowser);
 	    g_object_set_data(G_OBJECT(main_vb), GUI_WEBBROWSER_KEY, webbrowser_te);
 	}
@@ -394,31 +394,31 @@ void
 gui_prefs_fetch(GtkWidget *w)
 {
 	prefs.gui_plist_sel_browse = fetch_enum_value(
-	    g_object_get_data(G_OBJECT(w), PLIST_SEL_BROWSE_KEY), selection_mode_vals);
+		g_object_get_data(G_OBJECT(w), PLIST_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
-	    g_object_get_data(G_OBJECT(w), PTREE_SEL_BROWSE_KEY), selection_mode_vals);
+		g_object_get_data(G_OBJECT(w), PTREE_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_geometry_save_position =
-	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
-	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
-	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	prefs.gui_macosx_style =
-	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
 #endif
 
 #ifdef _WIN32
 	prefs.gui_console_open = fetch_enum_value(
-	    g_object_get_data(G_OBJECT(w), GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
+		g_object_get_data(G_OBJECT(w), GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
 #endif
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
-	    g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
+		g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
 
 	g_free(prefs.gui_fileopen_dir);
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
-                                              GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
+						  GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
 	prefs.gui_ask_unsaved =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
@@ -601,21 +601,19 @@ fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_,
 }
 
 static gboolean
-fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpointer parent_w)
+fileopen_dir_changed_cb(GtkWidget *fileopen_dir_te, GdkEvent *event _U_, gpointer parent_w _U_)
 {
-	GtkWidget	*fileopen_dir_te;
 	char *lastchar;
 	gint fileopen_dir_te_length;
 
-	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
-	fileopen_dir_te_length = (gint) strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
+	fileopen_dir_te_length = (gint) strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_dir_te)));
 	if (fileopen_dir_te_length == 0)
 		return FALSE;
-	lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
+	lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_dir_te), fileopen_dir_te_length-1, -1);
 	if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0){
-		gtk_editable_insert_text(GTK_EDITABLE(fileopen_entry), G_DIR_SEPARATOR_S,
-            1, /* new_text_length */
-            &fileopen_dir_te_length); /* *position */
+		gtk_editable_insert_text(GTK_EDITABLE(fileopen_dir_te), G_DIR_SEPARATOR_S,
+					 1, /* new_text_length */
+					 &fileopen_dir_te_length); /* *position */
 	}
 	return FALSE;
 }
