@@ -969,7 +969,7 @@ See the developer's guide section "C-Runtime "Redistributable" files" for detail
 # You may want to install the FOP hyphenation patterns from
 # http://offo.sourceforge.net/hyphenation/
 !IFNDEF FOP
-FOP=fop-0.95\fop.bat
+FOP=fop-1.0\fop.bat
 !ENDIF
 
 # Additional options to fop.
