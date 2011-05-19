@@ -61,7 +61,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 # Wireshark configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
-	smi_modules ipmap.html
+	smi_modules ipmap.html pdml2html.xsl
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory

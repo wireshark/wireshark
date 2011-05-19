@@ -47,6 +47,7 @@
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
+#include <epan/filesystem.h>
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"
@@ -243,12 +244,19 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	}
 }
 
+#define PDML2HTML_XSL "pdml2html.xsl"
 void
-write_pdml_preamble(FILE *fh)
+write_pdml_preamble(FILE *fh, const gchar* filename)
 {
+	time_t t=time(NULL);
+	char *ts=asctime(localtime(&t));
+	ts[strlen(ts)-1]=0; /* overwrite \n */
+
 	fputs("<?xml version=\"1.0\"?>\n", fh);
+	fputs("<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n", fh);
+	fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at http://anonsvn.wireshark.org/trunk/wireshark/" PDML2HTML_XSL ". -->\n", get_datafile_dir());
 	fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
-	fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+	fprintf(fh, "creator=\"%s/%s\" time=\"%s\" capture_file=\"%s\">\n", PACKAGE, VERSION, ts, filename);
 }
 
 void

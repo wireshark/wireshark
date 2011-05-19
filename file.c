@@ -2489,7 +2489,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_pdml_preamble(fh);
+  write_pdml_preamble(fh, cf->filename);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;

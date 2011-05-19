@@ -604,6 +604,7 @@ set(INSTALL_FILES
 	ipmap.html
 	manuf
 	${CMAKE_BINARY_DIR}/mergecap.html
+	pdml2html.xsl
 	${CMAKE_BINARY_DIR}/randpkt.html
 	${CMAKE_BINARY_DIR}/rawshark.html
 	services
