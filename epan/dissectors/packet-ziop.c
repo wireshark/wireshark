@@ -261,7 +261,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       if (flags & 0x01) {
         ep_strbuf_printf(flags_strbuf, "little-endian");
       }
-      ti = proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
+      proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
                                             flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
 

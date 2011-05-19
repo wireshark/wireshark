@@ -2771,8 +2771,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        *  almost certainly not understand the data.
        */
       if (b_bit) {
-	if (!is_retransmission)
-	  call_subdissector = TRUE;
+        if (!is_retransmission)
+          call_subdissector = TRUE;
       } else
         return FALSE;
     }
@@ -3091,7 +3091,6 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   proto_tree *block_tree;
   proto_tree *flags_tree;
   proto_item *ctsa_item;
-  proto_item *num_of_gap_blocks;
   proto_tree *acks_tree;
   guint32 tsns_gap_acked = 0;
   guint32 tsns_nr_gap_acked = 0;
@@ -3103,7 +3102,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   ctsa_item = proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_cumulative_tsn_ack, chunk_tvb, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET, NR_SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_adv_rec_window_credit, chunk_tvb, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, NR_SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, ENC_BIG_ENDIAN);
 
-  num_of_gap_blocks = proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_gap_blocks, chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_gap_blocks, chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  NR_SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_nr_gap_blocks,  chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_OFFSET, NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_number_of_dup_tsns, chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET, NR_SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH, ENC_BIG_ENDIAN);
