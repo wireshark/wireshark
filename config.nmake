@@ -35,7 +35,7 @@ WTAP_VERSION_MICRO=1
 # Base directory, where your libraries reside, which are needed to
 # compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs
+WIRESHARK_LIBS=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs-1.6
 
 #
 # Base directory, where your programs reside.
