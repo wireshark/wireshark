@@ -567,7 +567,7 @@ static void analyze_config(void) {
 
 }
 
-extern mate_config* mate_cfg() {
+extern mate_config* mate_cfg(void) {
 	return matecfg;
 }
 
