@@ -509,6 +509,9 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, "-w");
       argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
+    for (i = 0; i < argc; i++) {
+      g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", i, argv[i]);
+    }
 
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
@@ -604,9 +607,6 @@ sync_pipe_start(capture_options *capture_opts) {
        */
       dup2(sync_pipe[PIPE_WRITE], 2);
       ws_close(sync_pipe[PIPE_READ]);
-      for (i = 0; i < argc; i++) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[%d]: %s", i, argv[i]);
-      }
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                 argv[0], strerror(errno));
