@@ -1311,8 +1311,10 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
   data_start = MIN(data_start, item_start);
   data_end   = MAX(data_end,   item_end);
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
     offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
   return data_end;
@@ -1570,8 +1572,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     data_end = MAX(data_end, item_end);
   }
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
     offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
 
@@ -1774,10 +1778,13 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if ((conv_ntlmssp_info != NULL) && (conv_ntlmssp_info->flags == 0)) {
       conv_ntlmssp_info->flags = negotiate_flags;
     }
-    }
+  } else
+    negotiate_flags = 0;
 
-  /* If there are more bytes before the data block dissect a version field */
+  /* If there are more bytes before the data block dissect a version field
+     if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
     offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
 
@@ -2737,7 +2744,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_version_minor,
       { "Minor Version", "ntlmssp.version.minor", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_build_number,
-      { "Major Version", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { "Build Number", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_ntlm_current_revision,
       { "NTLM Current Revision", "ntlmssp.version.ntlm_current_revision", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_address_list,

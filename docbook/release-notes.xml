@@ -142,6 +142,13 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+          AIM dissector has some endian issues.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5464">Bug
+          5464</ulink>)
+        </para></listitem>
+
         <listitem><para>
           Telephony→MTP3→MSUS doesn't display window.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5605">Bug
@@ -170,6 +177,18 @@ Wireshark Info
           DNP3 dissector incorrect constants AL_OBJ_FCTR_16NF _FDCTR_32NF _FDCTR_16NF.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5920">Bug
           5920</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          3GPP QoS: Traffic class is not decoded properly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5928">Bug
+          5928</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when creating ProtoField.framenum in Lua.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5930">Bug
+          5930</ulink>)
         </para></listitem>
 
       </itemizedlist>
