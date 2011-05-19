@@ -43,6 +43,7 @@
 #include "packet-idp.h"
 
 #include "packet-windows-common.h"
+#include "packet-smb.h"
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"
@@ -10442,7 +10443,7 @@ static const value_string qpi_loi_vals[] = {
 */
 static const value_string spi_loi_vals[] = {
 	{ 1,		"Info Standard"},
-	{ 2,		"Info Query EA Size"},
+	{ 2,		"Info Set EAs"},
 	{ 4,		"Info Query All EAs"},
 	{ 0x0101,	"Set File Basic Info"},
 	{ 0x0102,	"Set File Disposition Info"},
@@ -10745,7 +10746,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	switch(subcmd){
-	case 0x00:	/*TRANS2_OPEN2*/
+	case 0x0000:	/*TRANS2_OPEN2*/
 		/* open flags */
 		CHECK_BYTE_COUNT_TRANS(2);
 		offset = dissect_open_flags(tvb, tree, offset, 0x000f);
@@ -10801,7 +10802,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			    format_text(fn, strlen(fn)));
 		}
 		break;
-	case 0x01:	/*TRANS2_FIND_FIRST2*/
+	case 0x0001:	/*TRANS2_FIND_FIRST2*/
 		/* Search Attributes */
 		CHECK_BYTE_COUNT_TRANS(2);
 		offset = dissect_search_attributes(tvb, tree, offset);
@@ -10846,7 +10847,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x02:	/*TRANS2_FIND_NEXT2*/
+	case 0x0002:	/*TRANS2_FIND_NEXT2*/
 		/* sid */
 		CHECK_BYTE_COUNT_TRANS(2);
 		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
@@ -10888,7 +10889,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
@@ -10903,7 +10904,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 						   "Unknown (0x%02x)"));
 
 		break;
-	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
@@ -10944,7 +10945,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
@@ -10971,7 +10972,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x07: {	/*TRANS2_QUERY_FILE_INFORMATION*/
+	case 0x0007: {	/*TRANS2_QUERY_FILE_INFORMATION*/
 		guint16 fid;
 
 		/* fid */
@@ -10997,7 +10998,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		break;
 	}
-	case 0x08: {	/*TRANS2_SET_FILE_INFORMATION*/
+	case 0x0008: {	/*TRANS2_SET_FILE_INFORMATION*/
 		guint16 fid;
 
 		/* fid */
@@ -11042,7 +11043,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		break;
 	}
-	case 0x09:	/*TRANS2_FSCTL*/
+	case 0x0009:	/*TRANS2_FSCTL*/
 		/* this call has no parameter block in the request */
 
 		/*
@@ -11053,7 +11054,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		 * we may not be able to dissect it in any case.)
 		 */
 		break;
-	case 0x0a:	/*TRANS2_IOCTL2*/
+	case 0x000a:	/*TRANS2_IOCTL2*/
 		/* this call has no parameter block in the request */
 
 		/*
@@ -11064,7 +11065,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		 * means we may not be able to dissect it in any case.)
 		 */
 		break;
-	case 0x0b: {	/*TRANS2_FIND_NOTIFY_FIRST*/
+	case 0x000b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/* Search Attributes */
 		CHECK_BYTE_COUNT_TRANS(2);
 		offset = dissect_search_attributes(tvb, tree, offset);
@@ -11101,8 +11102,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	}
-	case 0x0c: {	/*TRANS2_FIND_NOTIFY_NEXT*/
+	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/* Monitor handle */
 		CHECK_BYTE_COUNT_TRANS(2);
 		proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, TRUE);
@@ -11114,8 +11114,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(2);
 
 		break;
-	}
-	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+	case 0x000d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
 		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
@@ -11134,10 +11133,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			    format_text(fn, strlen(fn)));
 		}
 		break;
-	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/* XXX unknown structure*/
 		break;
-	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
 		/* referral level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, TRUE);
@@ -11156,7 +11155,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+	case 0x0011:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
 		/* file name */
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
 		CHECK_STRING_TRANS(fn);
@@ -12915,7 +12914,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 3:		/*Info Query EAs From List*/
@@ -13060,7 +13059,7 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 2:		/*Info Query EA Size*/
+	case 2:		/*Info Set EAs*/
 		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
@@ -13259,22 +13258,22 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	switch(subcmd){
-	case 0x00:	/*TRANS2_OPEN2*/
+	case 0x0000:	/*TRANS2_OPEN2*/
 		/* XXX dont know how to decode FEAList */
 		break;
-	case 0x01:	/*TRANS2_FIND_FIRST2*/
+	case 0x0001:	/*TRANS2_FIND_FIRST2*/
 		/* XXX dont know how to decode FEAList */
 		break;
-	case 0x02:	/*TRANS2_FIND_NEXT2*/
+	case 0x0002:	/*TRANS2_FIND_NEXT2*/
 		/* XXX dont know how to decode FEAList */
 		break;
-	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
 		break;
-	case 0x04:	/* TRANS2_SET_QUOTA */
+	case 0x0004:	/* TRANS2_SET_QUOTA */
 		offset = dissect_nt_quota(tvb, tree, offset, &dc);
 		break;
-	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* no data field in this request */
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13287,10 +13286,10 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * here.
 		 */
 		break;
-	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
 		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+	case 0x0007:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* no data field in this request */
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -13303,10 +13302,10 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * here.
 		 */
 		break;
-	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+	case 0x0008:	/*TRANS2_SET_FILE_INFORMATION*/
 		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x09:	/*TRANS2_FSCTL*/
+	case 0x0009:	/*TRANS2_FSCTL*/
 		/*XXX dont know how to decode this yet */
 
 		/*
@@ -13317,7 +13316,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * may not be able to dissect it in any case.)
 		 */
 		break;
-	case 0x0a:	/*TRANS2_IOCTL2*/
+	case 0x000a:	/*TRANS2_IOCTL2*/
 		/*XXX dont know how to decode this yet */
 
 		/*
@@ -13328,7 +13327,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * means we may not be able to dissect it in any case.)
 		 */
 		break;
-	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+	case 0x000b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/*XXX dont know how to decode this yet */
 
 		/*
@@ -13338,7 +13337,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * level dependent match data".
 		 */
 		break;
-	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/*XXX dont know how to decode this yet */
 
 		/*
@@ -13348,16 +13347,16 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * level dependent monitor information".
 		 */
 		break;
-	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+	case 0x000d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* XXX optional FEAList, unknown what FEAList looks like*/
 		break;
-	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/*XXX dont know how to decode this yet */
 		break;
-	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
 		/* no data field in this request */
 		break;
-	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+	case 0x0011:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
 		offset = dissect_dfs_inconsistency_data(tvb, pinfo, tree, offset, &dc);
 		break;
 	}
@@ -14778,7 +14777,7 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 static int
-dissect_find_file_unix_info2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_find_file_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_,
 			     proto_tree *tree, int offset, guint16 *bcp,
 			     gboolean *trunc)
 {
@@ -15462,10 +15461,10 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		return offset;
 	}
 	switch(t2i->subcmd){
-	case 0x00:	/*TRANS2_OPEN2*/
+	case 0x0000:	/*TRANS2_OPEN2*/
 		/* XXX not implemented yet. See SNIA doc */
 		break;
-	case 0x01:	/*TRANS2_FIND_FIRST2*/
+	case 0x0001:	/*TRANS2_FIND_FIRST2*/
 		/* returned data */
 		count = si->info_count;
 
@@ -15485,7 +15484,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 				break;
 		}
 		break;
-	case 0x02:	/*TRANS2_FIND_NEXT2*/
+	case 0x0002:	/*TRANS2_FIND_NEXT2*/
 		/* returned data */
 		count = si->info_count;
 
@@ -15504,23 +15503,23 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 				break;
 		}
 		break;
-	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
 		/* no data in this response */
 		break;
-	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+	case 0x0007:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* identical to QUERY_PATH_INFO */
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+	case 0x0008:	/*TRANS2_SET_FILE_INFORMATION*/
 		/* no data in this response */
 		break;
-	case 0x09:	/*TRANS2_FSCTL*/
+	case 0x0009:	/*TRANS2_FSCTL*/
 		/* XXX dont know how to dissect this one (yet)*/
 
 		/*
@@ -15532,7 +15531,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * case.)
 		 */
 		break;
-	case 0x0a:	/*TRANS2_IOCTL2*/
+	case 0x000a:	/*TRANS2_IOCTL2*/
 		/* XXX dont know how to dissect this one (yet)*/
 
 		/*
@@ -15544,7 +15543,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * case.)
 		 */
 		break;
-	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+	case 0x000b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/* XXX dont know how to dissect this one (yet)*/
 
 		/*
@@ -15555,7 +15554,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * occurred".
 		 */
 		break;
-	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/* XXX dont know how to dissect this one (yet)*/
 
 		/*
@@ -15566,16 +15565,16 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		 * occurred".
 		 */
 		break;
-	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+	case 0x000d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* no data in this response */
 		break;
-	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/* XXX dont know how to dissect this one (yet)*/
 		break;
-	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
 		offset = dissect_get_dfs_referral_data(tvb, pinfo, tree, offset, &dc);
 		break;
-	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+	case 0x0011:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
 		/* the SNIA spec appears to say the response has no data */
 		break;
 	case -1:
