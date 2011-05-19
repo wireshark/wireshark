@@ -425,6 +425,54 @@ sync_pipe_start(capture_options *capture_opts) {
       g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->autostop_duration);
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
+    if (capture_opts->ifaces->len == 0) {
+        interface_opts.name = g_strdup(capture_opts->iface);
+        if (capture_opts->iface_descr) {
+            interface_opts.descr = g_strdup(capture_opts->iface_descr);
+        } else {
+            interface_opts.descr = NULL;
+        }
+        interface_opts.cfilter = g_strdup(capture_opts->cfilter);
+        interface_opts.snaplen = capture_opts->snaplen;
+        interface_opts.linktype = capture_opts->linktype;
+        interface_opts.promisc_mode = capture_opts->promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        interface_opts.buffer_size = capture_opts->buffer_size;
+#endif
+        interface_opts.monitor_mode = capture_opts->monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+        interface_opts.src_type = capture_opts->src_type;
+        if (capture_opts->remote_host) {
+            interface_opts.remote_host = g_strdup(capture_opts->remote_host);
+        } else {
+            interface_opts.remote_host = NULL;
+        }
+        if (capture_opts->remote_port) {
+            interface_opts.remote_port = g_strdup(capture_opts->remote_port);
+        } else {
+            interface_opts.remote_port = NULL;
+        }
+        interface_opts.auth_type = capture_opts->auth_type;
+        if (capture_opts->auth_username) {
+            interface_opts.auth_username = g_strdup(capture_opts->auth_username);
+        } else {
+            interface_opts.auth_username = NULL;
+        }
+        if (capture_opts->auth_password) {
+            interface_opts.auth_password = g_strdup(capture_opts->auth_password);
+        } else {
+            interface_opts.auth_password = NULL;
+        }
+        interface_opts.datatx_udp = capture_opts->datatx_udp;
+        interface_opts.nocap_rpcap = capture_opts->nocap_rpcap;
+        interface_opts.nocap_local = capture_opts->nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = capture_opts->sampling_method;
+        interface_opts.sampling_param  = capture_opts->sampling_param;
+#endif
+        g_array_append_val(capture_opts->ifaces, interface_opts);
+    }
 
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);

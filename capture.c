@@ -145,10 +145,15 @@ capture_start(capture_options *capture_opts)
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
+  if (capture_opts->ifaces->len == 0) {
+    g_string_printf(source, "%s", get_iface_description(capture_opts));
+    if (capture_opts->cfilter && capture_opts->cfilter[0]) {
+      g_string_append_printf(source, " (%s)", capture_opts->cfilter);
+    }
 #ifdef _WIN32
-  if (capture_opts->ifaces->len < 2) {
+  } else if (capture_opts->ifaces->len < 2) {
 #else
-  if (capture_opts->ifaces->len < 4) {
+  } else if (capture_opts->ifaces->len < 4) {
 #endif
     for (i = 0; i < capture_opts->ifaces->len; i++) {
       interface_options interface_opts;
