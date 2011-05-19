@@ -688,16 +688,44 @@ statusbar_capture_prepared_cb(capture_options *capture_opts _U_)
     welcome_header_push_msg(msg);
 }
 
+static GString *
+statusbar_get_interface_names(capture_options *capture_opts)
+{
+    guint i;
+    GString *interface_names;
+
+    interface_names = g_string_new("");
+#ifdef _WIN32
+    if (capture_opts->ifaces->len < 2) {
+#else
+    if (capture_opts->ifaces->len < 4) {
+#endif
+        for (i = 0; i < capture_opts->ifaces->len; i++) {
+            if (i > 0) {
+                g_string_append_printf(interface_names, ", ");
+            }
+            g_string_append_printf(interface_names, "%s", get_iface_description_for_interface(capture_opts, i));
+        }
+    } else {
+        g_string_append_printf(interface_names, "%u interfaces", capture_opts->ifaces->len);
+    }
+    return (interface_names);
+}
+
 static void
 statusbar_capture_update_started_cb(capture_options *capture_opts)
 {
     statusbar_pop_file_msg();
     welcome_header_pop_msg();
 
-    if(capture_opts->iface) {
+    if (capture_opts->ifaces->len > 0) {
+        GString *interface_names;
+
+        interface_names = statusbar_get_interface_names(capture_opts);
         statusbar_push_file_msg(" %s: <live capture in progress> to file: %s",
-                                get_iface_description(capture_opts),
+                                interface_names->str,
                                 (capture_opts->save_file) ? capture_opts->save_file : "");
+        g_string_free(interface_names, TRUE);
     } else {
         statusbar_push_file_msg(" <live capture in progress> to file: %s",
                                 (capture_opts->save_file) ? capture_opts->save_file : "");
@@ -707,28 +735,31 @@ statusbar_capture_update_started_cb(capture_options *capture_opts)
 static void
 statusbar_capture_update_continue_cb(capture_options *capture_opts)
 {
+    GString *interface_names;
     capture_file *cf = capture_opts->cf;
 
     status_expert_update();
 
     statusbar_pop_file_msg();
 
+    interface_names = statusbar_get_interface_names(capture_opts);
     if (cf->f_datalen/1024/1024 > 10) {
         statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-                                get_iface_description(capture_opts),
+                                interface_names->str,
                                 capture_opts->save_file,
                                 cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
         statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-                                get_iface_description(capture_opts),
+                                interface_names->str,
                                 capture_opts->save_file,
                                 cf->f_datalen/1024);
     } else {
         statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-                                get_iface_description(capture_opts),
+                                interface_names->str,
                                 capture_opts->save_file,
                                 cf->f_datalen);
     }
+    g_string_free(interface_names, TRUE);
 }
 
 static void
@@ -745,13 +776,17 @@ statusbar_capture_update_finished_cb(capture_options *capture_opts)
 static void
 statusbar_capture_fixed_started_cb(capture_options *capture_opts)
 {
+    GString *interface_names;
+
     statusbar_pop_file_msg();
 
+    interface_names = statusbar_get_interface_names(capture_opts);
     statusbar_push_file_msg(" %s: <live capture in progress> to file: %s",
-                            get_iface_description(capture_opts),
+                            interface_names->str,
                             (capture_opts->save_file) ? capture_opts->save_file : "");
 
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");
+    g_string_free(interface_names, TRUE);
 }
 
 static void
