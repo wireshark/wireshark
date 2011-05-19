@@ -86,8 +86,8 @@ nameres_prefs_show(void)
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
 	GtkTooltips *tooltips = gtk_tooltips_new();
-	GtkWidget	*c_resolv_cb;
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
+	GtkWidget	*c_resolv_cb;
 	GtkWidget	*resolv_concurrency_te;
 	char		concur_str[10+1];
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
