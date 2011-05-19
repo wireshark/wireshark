@@ -161,6 +161,9 @@ static int hf_rlc_lte_sequence_analysis_skipped = -1;
 static int hf_rlc_lte_sequence_analysis_repeated_nack = -1;
 static int hf_rlc_lte_sequence_analysis_repeated_nack_original_frame = -1;
 
+static int hf_rlc_lte_sequence_analysis_ack_out_of_range = -1;
+static int hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame = -1;
+
 /* Subtrees. */
 static int ett_rlc_lte = -1;
 static int ett_rlc_lte_context = -1;
@@ -342,7 +345,7 @@ typedef struct
     guint16   lastSN;
 
     /* AM/UM */
-    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing} state;
+    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing, ACK_Out_of_Window} state;
 } state_sequence_analysis_report_in_frame;
 
 
@@ -646,9 +649,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted for %s on UE %u - due to MAC retx!",
+                                           "AM Frame retransmitted for %s on UE %u (SN=%u) - due to MAC retx!",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           p->firstSN);
                     break;
 
                 case SN_Retx:
@@ -659,9 +663,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted for %s on UE %u - most likely in response to NACK",
+                                           "AM Frame retransmitted for %s on UE %u (SN=%u) - most likely in response to NACK",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           p->firstSN);
                     proto_item_append_text(seqnum_ti, " - SN %u retransmitted", p->firstSN);
                     break;
 
@@ -708,6 +713,31 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                p->firstSN);
                         tap_info->missingSNs = 1;
                     }
+                    break;
+
+                case ACK_Out_of_Window:
+                    /* Not OK */
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                tvb, 0, 0, FALSE);
+                    /* Out of range */
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range,
+                                                tvb, 0, 0, TRUE);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    
+                    /* Link back to last seen SN in other direction */
+                    ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
+                                             tvb, 0, 0, p->previousFrameNum);
+                    PROTO_ITEM_SET_GENERATED(ti);
+
+                    /* Expert error */
+                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                                           "AM ACK for SN %u - but last received SN in other direction is %u for UE %u",
+                                           p->firstSN, p->sequenceExpected,
+                                           p_rlc_lte_info->ueid);
+                    proto_item_append_text(seqnum_ti, "- ACK SN %u Outside Rx Window - last received SN is %u",
+                                           p->firstSN, p->sequenceExpected);
+
                     break;
             }
             break;
@@ -936,6 +966,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 /* Don't get confused by MAC (HARQ) retx */
                 if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
                     p_report_in_frame->state = SN_MAC_Retx;
+                    p_report_in_frame->firstSN = sequenceNumber;
                 }
 
                 /* Frames are not missing if we get an earlier sequence number again */
@@ -1001,10 +1032,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
                 /* Just report that this is a MAC Retx */
                 p_report_in_frame->state = SN_MAC_Retx;
+                p_report_in_frame->firstSN = sequenceNumber;
 
                 /* No channel state to update */
             }
-
 
             /* Expected? */
             else if (sequenceNumber == expectedSequenceNumber) {
@@ -1240,6 +1271,73 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     /* Save frame number for next comparison */
     p_channel_status->frameNum = pinfo->fd->num;
 }
+
+/* Check that the ACK is consistent with data the expected sequence number
+   in the other direction */
+static void checkChannelACKWindow(guint16 ack_sn,
+                                  packet_info *pinfo,
+                                  rlc_lte_info *p_rlc_lte_info,
+                                  proto_tree *tree,
+                                  tvbuff_t *tvb)
+{
+    rlc_channel_hash_key   channel_key;
+    rlc_channel_sequence_analysis_status     *p_channel_status;
+    state_sequence_analysis_report_in_frame  *p_report_in_frame = NULL;
+
+    /* If find stat_report_in_frame already, use that and get out */
+    if (pinfo->fd->flags.visited) {
+        p_report_in_frame = (state_sequence_analysis_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_sequence_analysis_report_hash,
+                                                                                          &pinfo->fd->num);
+        if (p_report_in_frame != NULL) {
+            /* Add any info to tree */
+            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info,
+                                   0, FALSE,
+                                   NULL, pinfo, tree, tvb);
+            return;
+        }
+        else {
+            /* Give up - we must have tried already... */
+            return;
+        }
+    }
+
+    /*******************************************************************/
+    /* Find an entry for this channel state (in the opposite direction */
+    channel_key.ueId = p_rlc_lte_info->ueid;
+    channel_key.channelType = p_rlc_lte_info->channelType;
+    channel_key.channelId = p_rlc_lte_info->channelId;
+    channel_key.direction =
+        (p_rlc_lte_info->direction == DIRECTION_UPLINK) ? DIRECTION_DOWNLINK : DIRECTION_UPLINK;
+
+    /* Do the table lookup */
+    p_channel_status = (rlc_channel_sequence_analysis_status*)g_hash_table_lookup(rlc_lte_sequence_analysis_channel_hash, &channel_key);
+
+    /* Create table entry if necessary */
+    if (p_channel_status == NULL) {
+        return;
+    }
+
+    /* Is it in the rx window? This test will catch if its ahead, but we don't
+       really know what the back of the tx window is... */
+    if (((1024 + p_channel_status->previousSequenceNumber+1 - ack_sn) % 1024) > 512) {
+
+        /* Set result */
+        p_report_in_frame = se_alloc(sizeof(state_sequence_analysis_report_in_frame));
+        p_report_in_frame->state = ACK_Out_of_Window;
+        p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
+        p_report_in_frame->sequenceExpected = p_channel_status->previousSequenceNumber;
+        p_report_in_frame->firstSN = ack_sn;
+
+        /* Associate with this frame number */
+        g_hash_table_insert(rlc_lte_frame_sequence_analysis_report_hash,
+                            &pinfo->fd->num, p_report_in_frame);
+
+        /* Add state report for this frame into tree */
+        addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, 0,
+                               FALSE, NULL, pinfo, tree, tvb);
+    }
+}
+
 
 
 
@@ -1621,7 +1719,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     /* Set selected length of control tree */
     proto_item_set_len(status_ti, offset);
 
-    /* Repeated NACK analysis */
+    /* Repeated NACK analysis & check ACK-SN is in range */
     if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
@@ -1629,6 +1727,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
         if (!is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
             checkChannelRepeatedNACKInfo(pinfo, p_rlc_lte_info, tap_info, tree, tvb);
+            checkChannelACKWindow((guint16)ack_sn, pinfo, p_rlc_lte_info, tree, tvb);
         }
      }
 }
@@ -2471,6 +2570,19 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis_repeated_nack_original_frame,
             { "Frame with previous status PDU",
               "rlc-lte.sequence-analysis.repeated-nack.original-frame",  FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_rlc_lte_sequence_analysis_ack_out_of_range,
+            { "Out of range ACK",
+              "rlc-lte.sequence-analysis.ack-out-of-range", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
+            { "Frame with most recent SN",
+              "rlc-lte.sequence-analysis.ack-out-of-range.last-sn-frame",  FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
