@@ -162,9 +162,9 @@ extern void initialize_mate_runtime(void) {
 		dbg_gop = &(mc->dbg_gop_lvl);
 		dbg_gog = &(mc->dbg_gog_lvl);
 		dbg = &(mc->dbg_lvl);
-        dbg_facility = mc->dbg_facility;
+		dbg_facility = mc->dbg_facility;
 
-        dbg_print(dbg, 1, dbg_facility, "starting mate");
+		dbg_print(dbg, 1, dbg_facility, "starting mate");
 
 	} else {
 		rd = NULL;
@@ -415,7 +415,7 @@ static void analyze_gop(mate_gop* gop) {
 
 						gog_remove_keys(gog);
 
-						gog = new_gog(gog->cfg,gop);
+						new_gog(gog->cfg,gop);
 
 						break;
 					} else {
@@ -465,7 +465,7 @@ static void analyze_gop(mate_gop* gop) {
 
 static void analyze_pdu(mate_pdu* pdu) {
 	/* TODO:
-    return a g_boolean to tell we've destroyed the pdu when the pdu is unnassigned
+	return a g_boolean to tell we've destroyed the pdu when the pdu is unnassigned
 	destroy the unassigned pdu
 	*/
 	mate_cfg_gop* cfg = NULL;
