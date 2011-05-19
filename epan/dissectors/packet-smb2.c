@@ -1197,7 +1197,7 @@ dissect_smb2_file_allocation_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1216,7 +1216,7 @@ dissect_smb2_file_endoffile_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1235,7 +1235,7 @@ dissect_smb2_file_alternate_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1324,7 +1324,7 @@ dissect_smb2_file_mode_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qsfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }
@@ -1360,7 +1360,7 @@ dissect_smb2_file_position_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	}
 
 	bc=tvb_length_remaining(tvb, offset);
-	offset = dissect_qfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+	offset = dissect_qsfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
 
 	return offset;
 }

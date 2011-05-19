@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/expert.h>
 #include "packet-ipx.h"
 #include "packet-idp.h"
 
@@ -11702,10 +11703,93 @@ dissect_smb_standard_8byte_timestamps(tvbuff_t *tvb,
 }
 
 /* this dissects the SMB_INFO_STANDARD
-   as described in 4.2.16.1
+   as described in 4.2.16.1 of the CIFS 1.0 specification
+   or as described in 2.2.8.3.1 of the MS-CIFS specification for query
+   section 2.2.8.4.1 of the MS-CIFS specification describes it for set;
+   it says that everything past the last write time is "reserved",
+   presumably meaning that you can fetch it but not set it
+   for now we just use it for both query and set
 */
 static int
-dissect_4_2_16_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qsfi_SMB_INFO_STANDARD(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, tree, offset,
+		hf_smb_create_time, hf_smb_create_dos_date, hf_smb_create_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, tree, offset,
+		hf_smb_access_time, hf_smb_access_dos_date, hf_smb_access_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, tree, offset,
+		hf_smb_last_write_time, hf_smb_last_write_dos_date, hf_smb_last_write_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* data size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(2);
+	offset = dissect_file_attributes(tvb, tree, offset);
+	*bcp -= 2;
+
+	/*
+	 * The MS-CIFS spec says this doesn't have an EA length field;
+	 * the SNIA CIFS spec says it does, as does the 1996
+	 * "Microsoft Networks SMB FILE SHARING PROTOCOL Document
+	 * Version 6.0p" document.
+	 *
+	 * Some older SMB documents point to the documentation
+	 * for the OS/2 DosQFileInfo() API; the page at
+	 *
+	 *	http://cyberkinetica.homeunix.net/os2tk45/prcp/111_L2_DosQFileInfo.html
+	 *
+	 * says that, for level 1 (SMB_INFO_STANDARD), there is no EA
+	 * length - that's just for level 2 (SMB_INFO_QUERY_EA_SIZE).
+	 *
+	 * I've seen captures with it and without it; given the mixed
+	 * messages sent by different documents, this is not surprising.
+	 *
+	 * We display it if it's there; we don't set *trunc if it's
+	 * not.
+	 *
+	 * Note: in FIND_FIRST2/FIND_NEXT2, the EA length is *not*
+	 * present.
+	 */
+	if (*bcp != 0) {
+		CHECK_BYTE_COUNT_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset,
+		    4, TRUE);
+		COUNT_BYTES_SUBR(4);
+	}
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_INFO_QUERY_EA_SIZE
+   as described in 4.2.16.1 of the CIFS 1.0 specification
+   and as described in 2.2.8.3.2 of the MS-CIFS specification
+*/
+static int
+dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* create time */
@@ -11875,7 +11959,8 @@ dissect_4_2_16_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /* this dissects the SMB_QUERY_FILE_STANDARD_INFO
-   as described in 4.2.16.5
+   as described in 4.2.16.5 of the SNIA CIFS spec
+   and section 2.2.8.3.7 of the MS-CIFS spec
 */
 int
 dissect_qfi_SMB_FILE_STANDARD_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -11928,7 +12013,7 @@ dissect_qfi_SMB_FILE_INTERNAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /* this dissects the SMB_QUERY_FILE_POSITION_INFO
 */
 int
-dissect_qfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qsfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* file position */
@@ -11943,7 +12028,7 @@ dissect_qfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /* this dissects the SMB_QUERY_FILE_MODE_INFO
 */
 int
-dissect_qfi_SMB_FILE_MODE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qsfi_SMB_FILE_MODE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* mode */
@@ -11971,7 +12056,8 @@ dissect_qfi_SMB_FILE_ALIGNMENT_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 /* this dissects the SMB_QUERY_FILE_EA_INFO
-   as described in 4.2.16.6
+   as described in 4.2.16.6 of the SNIA CIFS spec
+   and 2.2.8.3.8 of the MS-CIFS spec
 */
 int
 dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -11986,10 +12072,14 @@ dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	return offset;
 }
 
-/* this dissects the SMB_QUERY_FILE_ALLOCATION_INFO
+/* this dissects the SMB_FILE_ALLOCATION_INFO
+   as described in 4.2.19.3 in the SNIA CIFS spec
+   and the SMB_SET_FILE_ALLOCATION_INFO
+   as described in 2.2.8.4.5 in the MS-CIFS spec for set (MS-CIFS doesn't
+   say it can be queried)
 */
 int
-dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* allocation size */
@@ -12001,10 +12091,14 @@ dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	return offset;
 }
 
-/* this dissects the SMB_QUERY_FILE_ENDOFFILE_INFO
+/* this dissects the SMB_FILE_ENDOFFILE_INFO
+   as described in 4.2.19.4 in the SNIA CIFS spec
+   and the SMB_SET_FILE_END_OF_FILE_INFO
+   as described in 2.2.8.4.6 in the MS-CIFS spec for set (MS-CIFS doesn't
+   say it can be queried)
 */
 int
-dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* offset of end of file */
@@ -12017,12 +12111,16 @@ dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 /* this dissects the SMB_QUERY_FILE_NAME_INFO
-   as described in 4.2.16.7
+   as described in 4.2.16.7 of the SNIA CIFS spec
+   and in 2.2.8.3.9 of the MS-CIFS spec
    this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
-   as described in 4.2.16.9
+   as described in 4.2.16.9 of the SNIA CIFS spec
+   and 2.2.8.3.11 of the MS-CIFS spec
+   although the latter two are used to fetch the 8.3 name
+   rather than the long name
 */
 int
-dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si = pinfo->private_data;
@@ -12048,7 +12146,8 @@ dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 /* this dissects the SMB_QUERY_FILE_ALL_INFO
-   but not as described in 4.2.16.8 since CNIA spec is wrong
+   as described in 2.2.8.3.8 of the MS-CIFS spec
+   but not as described in 4.2.16.8 since SNIA spec is wrong
 */
 static int
 dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -12134,7 +12233,8 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /* this dissects the SMB_QUERY_FILE_STREAM_INFO
-   as described in 4.2.16.10
+   as described in 4.2.16.10 of the SNIA CIFS spec
+   and 2.2.8.3.12 of the MS-CIFS spec   
 */
 int
 dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
@@ -12215,7 +12315,8 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 /* this dissects the SMB_QUERY_FILE_COMPRESSION_INFO
-   as described in 4.2.16.11
+   as described in 4.2.16.11 of the SNIA CIFS spec
+   and 2.2.8.3.13 of the MS-CIFS spec
 */
 int
 dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -12774,38 +12875,6 @@ dissect_4_2_19_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
-/* this dissects the SMB_SET_FILE_ALLOCATION_INFO
-   as described in 4.2.19.3
-*/
-static int
-dissect_4_2_19_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-    int offset, guint16 *bcp, gboolean *trunc)
-{
-	/* file allocation size */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	*trunc = FALSE;
-	return offset;
-}
-
-/* this dissects the SMB_SET_FILE_END_OF_FILE_INFO
-   as described in 4.2.19.4
-*/
-static int
-dissect_4_2_19_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-    int offset, guint16 *bcp, gboolean *trunc)
-{
-	/* file end of file offset */
-	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
-	COUNT_BYTES_SUBR(8);
-
-	*trunc = FALSE;
-	return offset;
-}
-
 /* Set File Rename Info */
 
 static const true_false_string tfs_smb_replace = {
@@ -12895,7 +12964,7 @@ dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   TRANS2_QUERY_FILE_INFORMATION*/
 static int
 dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-    int offset, guint16 *bcp)
+    proto_item *item, int offset, guint16 *bcp)
 {
 	smb_info_t *si;
 	gboolean trunc;
@@ -12909,12 +12978,12 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
-		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_INFO_STANDARD(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 3:		/*Info Query EAs From List*/
@@ -12947,15 +13016,15 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 0x0104:	/*Query File Name Info*/
 	case 1009:	/* SMB_FILE_NAME_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1014:	/* SMB_FILE_POSITION_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1016:	/* SMB_FILE_MODE_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1017:	/* SMB_FILE_ALIGNMENT_INFORMATION */
@@ -12968,16 +13037,16 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 1019:	/* SMB_FILE_ALLOCATION_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1020:	/* SMB_FILE_ENDOFFILE_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
-		offset = dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
@@ -13033,8 +13102,20 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qspi_unix_info2(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, *bcp,
+		    "Information level unknown");
+		offset += *bcp;
+		*bcp = 0;
+		trunc = FALSE;
+		break;
 	}
 
+	if (trunc) {
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+				       "Information level structure goes past the end of the transation data.");
+	}
 	return offset;
 }
 
@@ -13042,7 +13123,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   TRANS2_SET_FILE_INFORMATION*/
 static int
 dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-    int offset, guint16 *bcp)
+    proto_item *item, int offset, guint16 *bcp)
 {
 	smb_info_t *si;
 	gboolean trunc;
@@ -13056,14 +13137,14 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
-		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_qsfi_SMB_INFO_STANDARD(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 2:		/*Info Set EAs*/
 		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 4:		/*Info Query All EAs*/
+	case 4:		/*Info Query All EAs - not in [MS-CIFS]*/
 		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
@@ -13077,11 +13158,13 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 0x0103:	/*Set File Allocation Info*/
-		offset = dissect_4_2_19_3(tvb, pinfo, tree, offset, bcp,
+	case 1019:	/* Set File Allocation Information */
+		offset = dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0104:	/*Set End Of File Info*/
-		offset = dissect_4_2_19_4(tvb, pinfo, tree, offset, bcp,
+	case 1020:	/* SMB_FILE_ENDOFFILE_INFORMATION */
+		offset = dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0200:	/*Set File Unix Basic.  Same as query. */
@@ -13132,23 +13215,44 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_disposition_info(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
+	case 1014:	/* SMB_FILE_POSITION_INFORMATION */
+		offset = dissect_qsfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 1016:	/* SMB_FILE_MODE_INFORMATION */
+		offset = dissect_qsfi_SMB_FILE_MODE_INFO(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 	case 1023: /* Set Pipe Info */
 		offset = dissect_sfi_SMB_FILE_PIPE_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 1014:
-	case 1016:
-	case 1019:
-	case 1020:
 	case 1025:
 	case 1029:
 	case 1032:
 	case 1039:
 	case 1040:
 		/* XXX: TODO, extra levels discovered by tridge */
+		proto_tree_add_text(tree, tvb, offset, *bcp,
+		    "Information level not understood");
+		offset += *bcp;
+		*bcp = 0;
+		trunc = FALSE;
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, *bcp,
+		    "Information level unknown");
+		offset += *bcp;
+		*bcp = 0;
+		trunc = FALSE;
 		break;
 	}
 
+	if (trunc) {
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+				       "Information level structure goes past the end of the transation data.");
+	}
 	return offset;
 }
 
@@ -13287,7 +13391,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
-		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_spi_loi_vals(tvb, pinfo, tree, item, offset, &dc);
 		break;
 	case 0x0007:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* no data field in this request */
@@ -13303,7 +13407,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x0008:	/*TRANS2_SET_FILE_INFORMATION*/
-		offset = dissect_spi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_spi_loi_vals(tvb, pinfo, tree, item, offset, &dc);
 		break;
 	case 0x0009:	/*TRANS2_FSCTL*/
 		/*XXX dont know how to decode this yet */
@@ -15507,14 +15611,14 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
-		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, item, offset, &dc);
 		break;
 	case 0x0006:	/*TRANS2_SET_PATH_INFORMATION*/
 		/* no data in this response */
 		break;
 	case 0x0007:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* identical to QUERY_PATH_INFO */
-		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, item, offset, &dc);
 		break;
 	case 0x0008:	/*TRANS2_SET_FILE_INFORMATION*/
 		/* no data in this response */
