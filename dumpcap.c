@@ -120,7 +120,7 @@
  */
 #include "wiretap/libpcap.h"
 
-#define DEBUG_DUMPCAP
+/**#define DEBUG_DUMPCAP**/
 /**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef _WIN32
@@ -142,8 +142,8 @@ FILE *debug_log;   /* for logging debug messages to  */
 static GAsyncQueue *pcap_queue;
 static gint64 pcap_queue_bytes;
 static gint64 pcap_queue_packets;
-static gint64 pcap_queue_byte_limit = 1000000;
-static gint64 pcap_queue_packet_limit = 1;
+static gint64 pcap_queue_byte_limit = 1024 * 1024;
+static gint64 pcap_queue_packet_limit = 1000;
 
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
 #ifdef _WIN32
