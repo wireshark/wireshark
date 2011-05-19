@@ -30,9 +30,7 @@
 #endif /* HAVEHCONFIG_H */
 
 #include <string.h>
-#include <stdlib.h>
 #include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
@@ -751,8 +749,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     packet.profile = tvb_get_letohs(tvb, offset);
     profile_handle = dissector_get_uint_handle(zbee_aps_dissector_table, packet.profile);
     if (tree) {
-        ti = proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset,2,
-                packet.profile);
+        proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset,2,
+               packet.profile);
         /* Update the protocol root and info column later, after the source endpoint
          * so that the source and destination will be back-to-back in the text.
          */
