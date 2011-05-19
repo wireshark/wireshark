@@ -103,8 +103,6 @@
 #include "log.h"
 #include <epan/funnel.h>
 
-#define MSG_MAX_LENGTH 4096
-
 /*
  * This is the template for the decode as option; it is shared between the
  * various functions that output the usage for this parameter.
