@@ -4825,6 +4825,54 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 			hfinfo->name, hfinfo->abbrev,
 			val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 
+	/* TODO: This check may slow down startup, and output quite a few warnings.
+	   It would be good to be able to enable this (and possibly other checks?)
+	   in non-release builds.   */
+#if 0
+	/* Check for duplicate value_string values.
+	   There are lots that have the same value *and* string, so for now only
+	   report those that have same value but different string. */
+	if (hfinfo->strings != NULL &&
+		!(hfinfo->display & BASE_EXT_STRING) &&
+		!(hfinfo->display & BASE_RANGE_STRING) &&
+		!(hfinfo->display & BASE_CUSTOM) &&
+		(
+	    (hfinfo->type == FT_UINT8) ||
+	    (hfinfo->type == FT_UINT16) ||
+	    (hfinfo->type == FT_UINT24) ||
+	    (hfinfo->type == FT_UINT32) ||
+	    (hfinfo->type == FT_INT8) ||
+	    (hfinfo->type == FT_INT16) ||
+	    (hfinfo->type == FT_INT24) ||
+	    (hfinfo->type == FT_INT32) ||
+	    (hfinfo->type == FT_FRAMENUM) )) {
+
+		int n, m;
+		value_string *start_values = (value_string*)hfinfo->strings;
+		value_string *current = start_values;
+
+		for (n=0; current; n++, current++) {
+			/* Drop out if we reached the end. */
+			if ((current->value == 0) && (current->strptr == NULL)) {
+				break;
+			}
+
+			/* Check value against all previous */
+			for (m=0; m < n; m++) {
+				/* There are lots of duplicates with the same string,
+				   so only report if different... */
+				if ((start_values[m].value == current->value) &&
+					(strcmp(start_values[m].strptr, current->strptr) != 0)) {
+					g_warning("Field '%s' (%s) has a conflicting entry in its value_string: %u is at indices %u (%s) and %u (%s))\n",
+						hfinfo->name, hfinfo->abbrev,
+						current->value, m, start_values[m].strptr, n, current->strptr);
+				}
+			}
+		}
+	}
+#endif
+
+
 	switch (hfinfo->type) {
 
 	case FT_INT8:
