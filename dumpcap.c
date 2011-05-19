@@ -120,7 +120,7 @@
  */
 #include "wiretap/libpcap.h"
 
-/**#define DEBUG_DUMPCAP**/
+#define DEBUG_DUMPCAP
 /**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef _WIN32
@@ -140,6 +140,10 @@ FILE *debug_log;   /* for logging debug messages to  */
 #endif
 
 static GAsyncQueue *pcap_queue;
+static gint64 pcap_queue_bytes;
+static gint64 pcap_queue_packets;
+static gint64 pcap_queue_byte_limit = 1000000;
+static gint64 pcap_queue_packet_limit = 1;
 
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
 #ifdef _WIN32
@@ -3139,6 +3143,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* please fasten your seat belts, we will enter now the actual capture loop */
     if (use_threads) {
         pcap_queue = g_async_queue_new();
+        pcap_queue_bytes = 0;
+        pcap_queue_packets = 0;
         for (i = 0; i < global_ld.pcaps->len; i++) {
             gint *interface_id;
 
@@ -3158,11 +3164,17 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
             g_get_current_time(&write_thread_time);
             g_time_val_add(&write_thread_time, WRITER_THREAD_TIMEOUT);
-            queue_element = g_async_queue_timed_pop(pcap_queue, &write_thread_time);
+            g_async_queue_lock(pcap_queue);
+            queue_element = g_async_queue_timed_pop_unlocked(pcap_queue, &write_thread_time);
+            if (queue_element) {
+                pcap_queue_bytes -= queue_element->phdr.caplen;
+                pcap_queue_packets -= 1;
+            }
+            g_async_queue_unlock(pcap_queue);
             if (queue_element) {
                 g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
                       "Dequeued a packet of length %d captured on interface %d.",
-                      queue_element->phdr.caplen,queue_element->interface_id);
+                      queue_element->phdr.caplen, queue_element->interface_id);
 
                 capture_loop_write_packet_cb((u_char *)&queue_element->interface_id,
                                              &queue_element->phdr,
@@ -3273,10 +3285,20 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Thread of interface %u terminated.",
                   pcap_opts.interface_id);
         }
-        while ((queue_element = g_async_queue_try_pop(pcap_queue))) {
+        while (1) {
+            g_async_queue_lock(pcap_queue);
+            queue_element = g_async_queue_try_pop_unlocked(pcap_queue);
+            if (queue_element) {
+                pcap_queue_bytes -= queue_element->phdr.caplen;
+                pcap_queue_packets -= 1;
+            }
+            g_async_queue_unlock(pcap_queue);
+            if (queue_element == NULL) {
+                break;
+            }
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
                   "Dequeued a packet of length %d captured on interface %d.",
-                  queue_element->phdr.caplen,queue_element->interface_id);
+                  queue_element->phdr.caplen, queue_element->interface_id);
             capture_loop_write_packet_cb((u_char *)&queue_element->interface_id,
                                          &queue_element->phdr,
                                          queue_element->pd);
@@ -3552,6 +3574,7 @@ capture_loop_queue_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
 {
     pcap_queue_element *queue_element;
     guint interface_id;
+    gboolean limit_reached;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -3561,14 +3584,44 @@ capture_loop_queue_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
     interface_id = *(guint *) (void *) user;
     queue_element = (pcap_queue_element *)g_malloc(sizeof(pcap_queue_element));
+    if (queue_element == NULL) {
+        return;
+    }
     queue_element->interface_id = interface_id;
     queue_element->phdr = *phdr;
     queue_element->pd = (u_char *)g_malloc(phdr->caplen);
+    if (queue_element->pd == NULL) {
+        g_free(queue_element);
+        return;
+    }
     memcpy(queue_element->pd, pd, phdr->caplen);
-    g_async_queue_push(pcap_queue, queue_element);
+    g_async_queue_lock(pcap_queue);
+    if (((pcap_queue_byte_limit > 0) && (pcap_queue_bytes < pcap_queue_byte_limit)) &&
+        ((pcap_queue_packet_limit > 0) && (pcap_queue_packets < pcap_queue_packet_limit))) {
+        limit_reached = FALSE;
+        g_async_queue_push_unlocked(pcap_queue, queue_element);
+        pcap_queue_bytes += phdr->caplen;
+        pcap_queue_packets += 1;
+    } else {
+        limit_reached = TRUE;
+    }
+    g_async_queue_unlock(pcap_queue);
+    if (limit_reached) {
+        g_free(queue_element->pd);
+        g_free(queue_element);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+              "Dropped a packet of length %d captured on interface %u.",
+              phdr->caplen, interface_id);
+    } else {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+              "Queued a packet of length %d captured on interface %u.",
+              phdr->caplen, interface_id);
+    }
+    /* I don't want to hold the mutex over the debug output. So the
+       output may be wrong */
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-          "Queued a packet of length %d captured on interface %u.",
-          phdr->caplen, interface_id);
+          "Queue size is now %" G_GINT64_MODIFIER "d bytes (%" G_GINT64_MODIFIER "d packets)",
+          pcap_queue_bytes, pcap_queue_packets);
 }
 
 /* And now our feature presentation... [ fade to music ] */
