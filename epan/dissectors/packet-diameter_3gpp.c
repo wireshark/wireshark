@@ -570,7 +570,7 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 640 Path */
 	dissector_add_uint("diameter.3gpp", 640, new_create_dissector_handle(dissect_diameter_3gpp_path, proto_diameter_3gpp));
 
-	/* /* AVP Code: 641 Contact */
+	/* AVP Code: 641 Contact */
 	dissector_add_uint("diameter.3gpp", 641, new_create_dissector_handle(dissect_diameter_3gpp_contact, proto_diameter_3gpp));
 
 	/* AVP Code: 701 MSISDN */
