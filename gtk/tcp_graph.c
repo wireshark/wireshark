@@ -590,7 +590,7 @@ static void unset_busy_cursor(GdkWindow *w)
   	gdk_flush(); 
 }
 #ifdef MAIN_MENU_USE_UIMANAGER
-void tcp_graph_cb (GtkAction *action, gpointer user_data)
+void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 {
 	struct segment current;
 	struct graph *g;
@@ -608,6 +608,8 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data)
 		graph_type = GRAPH_RTT;
 	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph") == 0){
 		graph_type = GRAPH_WSCALE;
+	}else{
+		return;
 	}
 
 	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
