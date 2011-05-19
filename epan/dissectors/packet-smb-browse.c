@@ -798,7 +798,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	        reset_cmd = tvb_get_guint8(tvb, offset);
 		reset_item = proto_tree_add_uint(tree, hf_mb_reset_command, tvb,
 						 offset, 1, reset_cmd);
-		sub_tree = proto_item_add_subtree(item, ett_browse_reset_cmd_flags);
+		sub_tree = proto_item_add_subtree(reset_item, ett_browse_reset_cmd_flags);
 		proto_tree_add_boolean(sub_tree, hf_mb_reset_demote, tvb,
 				       offset, 1, reset_cmd);
 		proto_tree_add_boolean(sub_tree, hf_mb_reset_flush, tvb,
@@ -1188,7 +1188,7 @@ proto_register_smb_browse(void)
 		&ett_browse_reset_cmd_flags,
 	};
 
-    	proto_smb_browse = proto_register_protocol("Microsoft Windows Browser Protocol",
+	proto_smb_browse = proto_register_protocol("Microsoft Windows Browser Protocol",
 	    "BROWSER", "browser");
 
 	proto_register_field_array(proto_smb_browse, hf, array_length(hf));
