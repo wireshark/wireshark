@@ -824,16 +824,16 @@ Prepend dummy header:
                          Example: -i 46
   -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
                          dest and source ports (in DECIMAL).
-                         Automatically prepends Ethernet & IP headers as well.
+                         Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -u 1000,69 to make the packets look like
                          TFTP/UDP packets.
   -T &lt;srcp&gt;,&lt;destp&gt;      prepend dummy TCP header with specified
                          dest and source ports (in DECIMAL).
-                         Automatically prepends Ethernet & IP headers as well.
+                         Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -T 50,60
   -s &lt;srcp&gt;,&lt;dstp&gt;,&lt;tag&gt; prepend dummy SCTP header with specified
                          dest/source ports and verification tag (in DECIMAL).
-                         Automatically prepends Ethernet & IP headers as well.
+                         Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -s 30,40,34
   -S &lt;srcp&gt;,&lt;dstp&gt;,&lt;ppi&gt; prepend dummy SCTP header with specified
                          dest/source ports and verification tag 0.
