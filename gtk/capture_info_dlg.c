@@ -128,6 +128,7 @@ capture_options *capture_opts)
   gchar             *cap_w_title;
   gchar             *title_iface;
   gchar             *descr;
+  GString           *str;
 #if !GTK_CHECK_VERSION(2,14,0)
   GtkTooltips       *tooltips;
 
@@ -174,9 +175,34 @@ capture_options *capture_opts)
    * it might be less cryptic, but if a more descriptive name is
    * available, we should still use that.
    */
-  descr = get_interface_descriptive_name(capture_opts->iface);
-  title_iface = g_strdup_printf("Wireshark: Capture from %s", descr);
-  g_free(descr);
+  str = g_string_new("");
+#ifdef _WIN32
+  if (capture_opts->ifaces->len < 2) {
+#else
+  if (capture_opts->ifaces->len < 4) {
+#endif
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
+      interface_options interface_opts;
+
+      interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+      descr = get_interface_descriptive_name(interface_opts.name);
+      if (i > 0) {
+        if (capture_opts->ifaces->len > 2) {
+          g_string_append_printf(str, ",");
+        }
+        g_string_append_printf(str, " ");
+        if (i == capture_opts->ifaces->len - 1) {
+          g_string_append_printf(str, "and ");
+        }
+      }
+      g_string_append_printf(str, "%s", descr);
+      g_free(descr);
+    }
+  } else {
+    g_string_append_printf(str, "%u interfaces", capture_opts->ifaces->len);
+  }
+  title_iface = g_strdup_printf("Wireshark: Capture from %s", str->str);
+  g_string_free(str, TRUE);
   cap_w_title = create_user_window_title(title_iface);
   g_free(title_iface);
   info->cap_w = dlg_window_new(cap_w_title);
