@@ -150,6 +150,7 @@ set(WIRESHARK_TAP_SRC
 	fc_stat.c
 	flow_graph.c
 	funnel_stat.c
+	gsm_a_stat.c
 	gsm_map_stat.c
 	gsm_map_summary.c
 	gtp_stat.c
@@ -235,7 +236,6 @@ register_tap_files(wireshark-tap-register.c
 
 add_library(ui STATIC
 	${WIRESHARK_GTK_SRC}
-	gsm_a_stat.c
 	menus.c
 	${WIRESHARK_TAP_SRC}
 	wireshark-tap-register.c
