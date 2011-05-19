@@ -771,11 +771,12 @@ EXTRA_DIST = \
 	image/wslogo.svg	\
 	image/wssplash-dev.xpm	\
 	image/wssplash.xpm	\
-	ipmap.html	\
+	ipmap.html		\
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\
 	mergecap.c		\
+	pdml2html.xsl		\
 	print.ps		\
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
