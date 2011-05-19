@@ -80,7 +80,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.5">
+  <!ENTITY WiresharkCurrentVersion "1.6">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">

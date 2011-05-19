@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.5.0
+TShark 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -42,7 +42,6 @@ Capture interface:
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
-  -I                       capture in monitor mode, if available
   -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
@@ -74,6 +73,8 @@ Output:
   -F &lt;output file type&gt;    set the output file type, default is libpcap
                            an empty "-F" option will list the file types
   -V                       add output of packet tree        (Packet Details)
+  -O &lt;protocols&gt;           Only show packet details of these protocols, comma
+                           separated
   -S                       display packets even when writing to a file
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|text|fields
@@ -84,7 +85,8 @@ Output:
      header=y|n            switch headers on and off
      separator=/t|/s|&lt;char&gt; select tab, space, printable character as separator
      occurrence=f|l|a      print first, last or all occurrences of each field
-     aggregator=,|/s|&lt;char&gt; select comma, space, printable character as aggregator
+     aggregator=,|/s|&lt;char&gt; select comma, space, printable character as
+                           aggregator
      quote=d|s|n           select double, single, no quotes for values
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
@@ -164,7 +166,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.5.0
+Dumpcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
@@ -175,7 +177,6 @@ Capture interface:
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
-  -I                       capture in monitor mode, if available
   -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
@@ -184,6 +185,14 @@ Capture interface:
   -S                       print statistics for each interface once every second
   -M                       for -D, -L, and -S, produce machine-readable output
 
+
+RPCAP options:
+  -r                       don't ignore own RPCAP traffic in capture
+  -u                       use UDP for RPCAP data transfer
+  -A &lt;user&gt;:&lt;password&gt;     use RPCAP password authentication
+  -m &lt;sampling type&gt;       use packet sampling
+                           count:NUM - capture one packet of every NUM
+                           timer:NUM - capture no more than 1 packet in NUM ms
 Stop conditions:
   -c &lt;packet count&gt;        stop after n packets (def: infinite)
   -a &lt;autostop cond.&gt; ...  duration:NUM - stop after NUM seconds
@@ -222,8 +231,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-capinfos -h
-Capinfos 1.4.0
+Capinfos 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -244,7 +252,7 @@ Time infos:
   -u display the capture duration (in seconds)
   -a display the capture start time
   -e display the capture end time
-  -o display the capture file chronological (True/False)
+  -o display the capture file chronological status (True/False)
   -S display start and end times as seconds
 
 Statistic infos:
@@ -266,8 +274,8 @@ Table report options:
   -b separate infos with SPACE character
 
   -N do not quote infos (default)
-  -q quote infos with single quotes (&apos;)
-  -Q quote infos with double quotes (&quot;)
+  -q quote infos with single quotes (')
+  -Q quote infos with double quotes (")
 
 Miscellaneous:
   -h display this help and exit
@@ -295,12 +303,11 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-$ rawshark -h
-Rawshark 1.4.0
+Rawshark 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2010 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2011 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -310,22 +317,23 @@ Input file:
   -r &lt;infile&gt;              set the pipe or file name to read from
 
 Processing:
-  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
-  -F &lt;field&gt;               field to display
-  -s                       skip PCAP header on input
-  -n                       disable all name resolution (def: all enabled)
-  -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
   -d &lt;encap:dlt&gt;|&lt;proto:protoname&gt;
                            packet encapsulation or protocol
+  -F &lt;field&gt;               field to display
+  -n                       disable all name resolution (def: all enabled)
+  -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
+  -p                       use the system's packet header format (which may have 64-bit timestamps)
+  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
+  -s                       skip PCAP header on input
 Output:
+  -l                       flush output after each packet
   -S                       format string for fields (%D - name, %S - stringval, %N numval)
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
-  -l                       flush output after each packet
 
 Miscellaneous:
   -h                       display this help and exit
-  -v                       display version info and exit
   -o &lt;name&gt;:&lt;value&gt; ...    override preference setting
+  -v                       display version info and exit
       </programlisting>
     </example>
   </section>
@@ -346,8 +354,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-$ editcap -h
-Editcap 1.4.0
+Editcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -358,9 +365,9 @@ A single packet or a range of packets can be selected.
 
 Packet selection:
   -r                     keep the selected packets; default is to delete them.
-  -A &lt;start time&gt;        don't output packets whose timestamp is before the
-                         given time (format as YYYY-MM-DD hh:mm:ss).
-  -B &lt;stop time&gt;         don't output packets whose timestamp is after the
+  -A &lt;start time&gt;        only output packets whose timestamp is after (or equal
+                         to) the given time (format as YYYY-MM-DD hh:mm:ss).
+  -B &lt;stop time&gt;         only output packets whose timestamp is before the
                          given time (format as YYYY-MM-DD hh:mm:ss).
 
 Duplicate packet removal:
@@ -376,12 +383,14 @@ Duplicate packet removal:
 
            NOTE: The use of the 'Duplicate packet removal' options with
            other editcap options except -v may not always work as expected.
-           Specifically the -r and -t options will very likely NOT have the
+           Specifically the -r, -t or -S options will very likely NOT have the
            desired effect if combined with the -d, -D or -w.
 
 Packet manipulation:
   -s &lt;snaplen&gt;           truncate each packet to max. &lt;snaplen&gt; bytes of data.
-  -C &lt;choplen&gt;           chop each packet at the end by &lt;choplen&gt; bytes.
+  -C &lt;choplen&gt;           chop each packet by &lt;choplen&gt; bytes. Positive values
+                         chop at the packet beginning, negative values at the
+                         packet end.
   -t &lt;time adjustment&gt;   adjust the timestamp of each packet;
                          &lt;time adjustment&gt; is in relative seconds (e.g. -0.5).
   -S &lt;strict adjustment&gt; adjust timestamp of packets if necessary to insure
@@ -414,7 +423,6 @@ Miscellaneous:
                          If -v is used with any of the 'Duplicate Packet
                          Removal' options (-d, -D or -w) then Packet lengths
                          and MD5 hashes are printed to standard-out.
-
       </programlisting>
       </para>
     </example>
@@ -425,31 +433,32 @@ Miscellaneous:
 $ editcap -F
 editcap: option requires an argument -- F
 editcap: The available capture file types for the "-F" flag are:
-    libpcap - Wireshark/tcpdump/... - libpcap
-    nseclibpcap - Wireshark - nanosecond libpcap
-    modlibpcap - Modified tcpdump - libpcap
-    nokialibpcap - Nokia tcpdump - libpcap
-    rh6_1libpcap - RedHat 6.1 tcpdump - libpcap
-    suse6_3libpcap - SuSE 6.3 tcpdump - libpcap
     5views - Accellent 5Views capture
+    btsnoop - Symbian OS btsnoop
+    commview - TamoSoft CommView
     dct2000 - Catapult DCT2000 trace (.out format)
-    nettl - HP-UX nettl trace
+    eyesdn - EyeSDN USB S0/E1 ISDN trace format
+    k12text - K12 text file
+    lanalyzer - Novell LANalyzer
+    libpcap - Wireshark/tcpdump/... - libpcap
+    modlibpcap - Modified tcpdump - libpcap
     netmon1 - Microsoft NetMon 1.x
     netmon2 - Microsoft NetMon 2.x
+    nettl - HP-UX nettl trace
     ngsniffer - NA Sniffer (DOS)
     ngwsniffer_1_1 - NA Sniffer (Windows) 1.1
     ngwsniffer_2_0 - NA Sniffer (Windows) 2.00x
-    niobserverv9 - Network Instruments Observer (V9)
-    lanalyzer - Novell LANalyzer
-    snoop - Sun snoop
-    rf5 - Tektronix K12xx 32-bit .rf5 format
-    visual - Visual Networks traffic capture
-    k12text - K12 text file
-    commview - TamoSoft CommView
-    pcapng - Wireshark - pcapng (experimental)
-    btsnoop - Symbian OS btsnoop
+    niobserverv - Network Instruments Observer
+    nokialibpcap - Nokia tcpdump - libpcap
+    nseclibpcap - Wireshark - nanosecond libpcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
+    pcapng - Wireshark - pcapng
+    rf5 - Tektronix K12xx 32-bit .rf5 format
+    rh6_1libpcap - RedHat 6.1 tcpdump - libpcap
+    snoop - Sun snoop
+    suse6_3libpcap - SuSE 6.3 tcpdump - libpcap
+    visual - Visual Networks traffic capture
       </programlisting>
       </para>
     </example>
@@ -464,53 +473,125 @@ editcap: The available capture file types for the "-F" flag are:
 $ editcap -T
 editcap: option requires an argument -- T
 editcap: The available encapsulation types for the "-T" flag are:
-    unknown - Unknown
-    ether - Ethernet
-    tr - Token Ring
-    slip - SLIP
-    ppp - PPP
-    fddi - FDDI
-    fddi-swapped - FDDI with bit-swapped MAC addresses
-    rawip - Raw IP
+    ap1394 - Apple IP-over-IEEE 1394
     arcnet - ARCNET
     arcnet_linux - Linux ARCNET
-    atm-rfc1483 - RFC 1483 ATM
-    linux-atm-clip - Linux ATM CLIP
-    lapb - LAPB
+    ascend - Lucent/Ascend access equipment
     atm-pdus - ATM PDUs
     atm-pdus-untruncated - ATM PDUs - untruncated
-    null - NULL
-    ascend - Lucent/Ascend access equipment
-    isdn - ISDN
-    ip-over-fc - RFC 2625 IP-over-Fibre Channel
-    ppp-with-direction - PPP with Directional Info
-    ieee-802-11 - IEEE 802.11 Wireless LAN
-    prism - IEEE 802.11 plus Prism II monitor mode header
-    ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
-    ieee-802-11-radiotap - IEEE 802.11 plus radiotap WLAN header
-    ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
-    linux-sll - Linux cooked-mode capture
+    atm-rfc1483 - RFC 1483 ATM
+    bacnet-ms-tp - BACnet MS/TP
+    ber - ASN.1 Basic Encoding Rules
+    bluetooth-h4 - Bluetooth H4
+    bluetooth-h4-linux - Bluetooth H4 with linux header
+    bluetooth-hci - Bluetooth without transport layer
+    can20b - Controller Area Network 2.0B
+    chdlc - Cisco HDLC
+    chdlc-with-direction - Cisco HDLC with Directional Info
+    cosine - CoSine L2 debug log
+    dct2000 - Catapult DCT2000
+    docsis - Data Over Cable Service Interface Specification
+    dpnss_link - Digital Private Signalling System No 1 Link Layer
+    dvbci - DVB-CI (Common Interface)
+    enc - OpenBSD enc(4) encapsulating interface
+    erf - Endace Record File
+    ether - Ethernet
+    ether-nettl - Ethernet with nettl headers
+    fc2 - Fibre Channel FC-2
+    fc2sof - Fibre Channel FC-2 With Frame Delimiter
+    fddi - FDDI
+    fddi-nettl - FDDI with nettl headers
+    fddi-swapped - FDDI with bit-swapped MAC addresses
+    flexray - FlexRay
     frelay - Frame Relay
     frelay-with-direction - Frame Relay with Directional Info
-    chdlc - Cisco HDLC
-    ios - Cisco IOS internal
-    ltalk - Localtalk
-    pflog-old - OpenBSD PF Firewall logs, pre-3.4
+    gcom-serial - GCOM Serial
+    gcom-tie1 - GCOM TIE1
+    gprs-llc - GPRS LLC
+    gsm_um - GSM Um Interface
     hhdlc - HiPath HDLC
-    docsis - Data Over Cable Service Interface Specification
-    cosine - CoSine L2 debug log
-    whdlc - Wellfleet HDLC
-    sdlc - SDLC
-    tzsp - Tazmen sniffer protocol
-    enc - OpenBSD enc(4) encapsulating interface
-    pflog - OpenBSD PF Firewall logs
-    chdlc-with-direction - Cisco HDLC with Directional Info
-    bluetooth-h4 - Bluetooth H4
-    mtp2 - SS7 MTP2
-    mtp3 - SS7 MTP3
+    i2c - I2C
+    ieee-802-11 - IEEE 802.11 Wireless LAN
+    ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
+    ieee-802-11-netmon - IEEE 802.11 plus Network Monitor radio header
+    ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
+    ieee-802-11-radiotap - IEEE 802.11 plus radiotap WLAN header
+    ieee-802-16-mac-cps - IEEE 802.16 MAC Common Part Sublayer
+    ios - Cisco IOS internal
+    ip-over-fc - RFC 2625 IP-over-Fibre Channel
+    ipfix - IPFIX
+    ipmb - Intelligent Platform Management Bus
+    ipnet - Solaris IPNET
     irda - IrDA
+    isdn - ISDN
+    jfif - JPEG/JFIF
+    juniper-atm1 - Juniper ATM1
+    juniper-atm2 - Juniper ATM2
+    juniper-chdlc - Juniper C-HDLC
+    juniper-ether - Juniper Ethernet
+    juniper-frelay - Juniper Frame-Relay
+    juniper-ggsn - Juniper GGSN
+    juniper-mlfr - Juniper MLFR
+    juniper-mlppp - Juniper MLPPP
+    juniper-ppp - Juniper PPP
+    juniper-pppoe - Juniper PPPoE
+    juniper-vp - Juniper Voice PIC
+    k12 - K12 protocol analyzer
+    lapb - LAPB
+    lapd - Lapd header
+    lapd - LAPD
+    layer1-event - EyeSDN Layer 1 event
+    lin - Local Interconnect Network
+    linux-atm-clip - Linux ATM CLIP
+    linux-sll - Linux cooked-mode capture
+    ltalk - Localtalk
+    most - Media Oriented Systems Transport
+    mpeg - MPEG
+    mtp2 - SS7 MTP2
+    mtp2-with-phdr - MTP2 with pseudoheader
+    mtp3 - SS7 MTP3
+    mux27010 - MUX27010
+    nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
+    nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
+    null - NULL
+    packetlogger - PacketLogger
+    pflog - OpenBSD PF Firewall logs
+    pflog-old - OpenBSD PF Firewall logs, pre-3.4
+    ppi - Per-Packet Information header
+    ppp - PPP
+    ppp-with-direction - PPP with Directional Info
+    prism - IEEE 802.11 plus Prism II monitor mode header
+    raw-icmp-nettl - Raw ICMP with nettl headers
+    raw-icmpv6-nettl - Raw ICMPv6 with nettl headers
+    raw-telnet-nettl - Raw telnet with nettl headers
+    rawip - Raw IP
+    rawip-nettl - Raw IP with nettl headers
+    rawip4 - Raw IPv4
+    rawip6 - Raw IPv6
+    redback - Redback SmartEdge
+    sccp - SS7 SCCP
+    sdlc - SDLC
+    sita-wan - SITA WAN packets
+    slip - SLIP
+    socketcan - SocketCAN
+    symantec - Symantec Enterprise Firewall
+    tnef - Transport-Neutral Encapsulation Format
+    tr - Token Ring
+    tr-nettl - Token Ring with nettl headers
+    tzsp - Tazmen sniffer protocol
+    unknown - Unknown
+    unknown-nettl - Unknown link-layer type with nettl headers
+    usb - Raw USB packets
+    usb-linux - USB packets with Linux header
+    usb-linux-mmap - USB packets with Linux header and padding
     user0 - USER 0
     user1 - USER 1
+    user10 - USER 10
+    user11 - USER 11
+    user12 - USER 12
+    user13 - USER 13
+    user14 - USER 14
+    user15 - USER 15
     user2 - USER 2
     user3 - USER 3
     user4 - USER 4
@@ -519,76 +600,13 @@ editcap: The available encapsulation types for the "-T" flag are:
     user7 - USER 7
     user8 - USER 8
     user9 - USER 9
-    user10 - USER 10
-    user11 - USER 11
-    user12 - USER 12
-    user13 - USER 13
-    user14 - USER 14
-    user15 - USER 15
-    symantec - Symantec Enterprise Firewall
-    ap1394 - Apple IP-over-IEEE 1394
-    bacnet-ms-tp - BACnet MS/TP
-    raw-icmp-nettl - Raw ICMP with nettl headers
-    raw-icmpv6-nettl - Raw ICMPv6 with nettl headers
-    gprs-llc - GPRS LLC
-    juniper-atm1 - Juniper ATM1
-    juniper-atm2 - Juniper ATM2
-    redback - Redback SmartEdge
-    rawip-nettl - Raw IP with nettl headers
-    ether-nettl - Ethernet with nettl headers
-    tr-nettl - Token Ring with nettl headers
-    fddi-nettl - FDDI with nettl headers
-    unknown-nettl - Unknown link-layer type with nettl headers
-    mtp2-with-phdr - MTP2 with pseudoheader
-    juniper-pppoe - Juniper PPPoE
-    gcom-tie1 - GCOM TIE1
-    gcom-serial - GCOM Serial
-    x25-nettl - X25 with nettl headers
-    k12 - K12 protocol analyzer
-    juniper-mlppp - Juniper MLPPP
-    juniper-mlfr - Juniper MLFR
-    juniper-ether - Juniper Ethernet
-    juniper-ppp - Juniper PPP
-    juniper-frelay - Juniper Frame-Relay
-    juniper-chdlc - Juniper C-HDLC
-    juniper-ggsn - Juniper GGSN
-    lapd - LAPD
-    dct2000 - Catapult DCT2000
-    ber - ASN.1 Basic Encoding Rules
-    juniper-vp - Juniper Voice PIC
-    usb - Raw USB packets
-    ieee-802-16-mac-cps - IEEE 802.16 MAC Common Part Sublayer
-    raw-telnet-nettl - Raw telnet with nettl headers
-    usb-linux - USB packets with Linux header
-    mpeg - MPEG
-    ppi - Per-Packet Information header
-    erf - Endace Record File
-    bluetooth-h4 - Bluetooth H4 with linux header
-    sita-wan - SITA WAN packets
-    sccp - SS7 SCCP
-    bluetooth-hci - Bluetooth without transport layer
-    ipmb - Intelligent Platform Management Bus
+    whdlc - Wellfleet HDLC
     wpan - IEEE 802.15.4 Wireless PAN
-    x2e-xoraya - X2E Xoraya
-    flexray - FlexRay
-    lin - Local Interconnect Network
-    most - Media Oriented Systems Transport
-    can20b - Controller Area Network 2.0B
-    layer1-event - EyeSDN Layer 1 event
-    x2e-serial - X2E serial line capture
-    i2c - I2C
+    wpan-nofcs - IEEE 802.15.4 Wireless PAN with FCS not present
     wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
-    tnef - Transport-Neutral Encapsulation Format
-    usb-linux-mmap - USB packets with Linux header and padding
-    gsm_um - GSM Um Interface
-    dpnss_link - Digital Private Signalling System No 1 Link Layer
-    packetlogger - PacketLogger
-    nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
-    nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
-    fc2 - Fibre Channel FC-2
-    fc2sof - Fibre Channel FC-2 With Frame Delimiter
-    jfif - JPEG/JFIF
-    ipnet - Solaris IPNET
+    x25-nettl - X25 with nettl headers
+    x2e-serial - X2E serial line capture
+    x2e-xoraya - X2E Xoraya
       </programlisting>
       </para>
     </informalexample>
@@ -660,8 +678,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-$ mergecap -h
-Mergecap 1.4.0
+Mergecap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -765,8 +782,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available for text2pcap</title>
       <programlisting>
-$ text2pcap -h
-Text2pcap 1.1.4
+Text2pcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -776,15 +792,16 @@ where  &lt;infile&gt; specifies input  filename (use - for standard input)
       &lt;outfile&gt; specifies output filename (use - for standard output)
 
 Input:
-  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal; default is hex.
-  -t &lt;timefmt&gt;           treats the text before the packet as a date/time code;
+  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal;
+                         default is hex.
+  -t &lt;timefmt&gt;           treat the text before the packet as a date/time code;
                          the specified argument is a format string of the sort
                          supported by strptime.
                          Example: The time "10:15:14.5476" has the format code
                          "%H:%M:%S."
-                         NOTE: The subsecond component delimiter must be given
-                          (.) but no pattern is required; the remaining number
-                          is assumed to be fractions of a second.
+                         NOTE: The subsecond component delimiter, '.', must be
+                         given, but no pattern is required; the remaining
+                         number is assumed to be fractions of a second.
                          NOTE: Date/time fields from the current date/time are
                          used as the default for unspecified fields.
 
@@ -807,15 +824,16 @@ Prepend dummy header:
                          Example: -i 46
   -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
                          dest and source ports (in DECIMAL).
-                         Automatically prepends Ethernet &amp; IP headers as well.
-                         Example: -u 1000 69 to make the packets look like TFTP/UDP packets.
+                         Automatically prepends Ethernet & IP headers as well.
+                         Example: -u 1000,69 to make the packets look like
+                         TFTP/UDP packets.
   -T &lt;srcp&gt;,&lt;destp&gt;      prepend dummy TCP header with specified
                          dest and source ports (in DECIMAL).
-                         Automatically prepends Ethernet &amp; IP headers as well.
+                         Automatically prepends Ethernet & IP headers as well.
                          Example: -T 50,60
   -s &lt;srcp&gt;,&lt;dstp&gt;,&lt;tag&gt; prepend dummy SCTP header with specified
                          dest/source ports and verification tag (in DECIMAL).
-                         Automatically prepends Ethernet &amp; IP headers as well.
+                         Automatically prepends Ethernet & IP headers as well.
                          Example: -s 30,40,34
   -S &lt;srcp&gt;,&lt;dstp&gt;,&lt;ppi&gt; prepend dummy SCTP header with specified
                          dest/source ports and verification tag 0.
@@ -825,7 +843,7 @@ Prepend dummy header:
 
 Miscellaneous:
   -h                     display this help and exit.
-  -d                     detailed debug of parser states.
+  -d                     show detailed debug of parser states.
   -q                     generate no output at all (automatically turns off -d).
       </programlisting>
     </example>
