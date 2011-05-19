@@ -117,7 +117,6 @@ void proto_help_init(void)
 	const gchar *ini_name;
 	gchar *ini_path;
 	GDir *conf_dir;
-	proto_help_key_file *phkf;
 	int i;
 
 	search_dir[0] = g_strdup_printf("%s" G_DIR_SEPARATOR_S PH_CONFFILE_SUBDIR, get_datafile_dir());
@@ -152,7 +151,7 @@ void proto_help_init(void)
 			}
 			g_log(NULL, G_LOG_LEVEL_INFO, "-- Found '%s'", ini_name);
 			ini_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", search_dir[i], ini_name);
-			phkf = ph_ini_load_file(ini_path);
+			ph_ini_load_file(ini_path);
 			g_free(ini_path);
 		}
 		g_dir_close(conf_dir);
