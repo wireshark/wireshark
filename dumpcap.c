@@ -617,18 +617,6 @@ open_capture_device(interface_options *interface_opts,
                                 *open_err_str);
 #endif
     }
-
-    /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
-    /*  to remove any suid privileges.                                        */
-    /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
-    /*  (euid/egid have already previously been set to ruid/rgid.             */
-    /* (See comment in main() for details)                                    */
-#ifndef HAVE_LIBCAP
-    relinquish_special_privs_perm();
-#else
-    relinquish_all_capabilities();
-#endif
-
     return pcap_h;
 }
 
@@ -803,6 +791,16 @@ show_filter_code(capture_options *capture_opts)
         for (i = 0; i < fcode.bf_len; insn++, i++)
             printf("%s\n", bpf_image(insn, i));
     }
+    /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
+    /*  to remove any suid privileges.                                        */
+    /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
+    /*  (euid/egid have already previously been set to ruid/rgid.             */
+    /* (See comment in main() for details)                                    */
+#ifndef HAVE_LIBCAP
+    relinquish_special_privs_perm();
+#else
+    relinquish_all_capabilities();
+#endif
     if (capture_child) {
         /* Let our parent know we succeeded. */
         pipe_write_block(2, SP_SUCCESS, NULL);
@@ -2390,6 +2388,16 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         g_array_append_val(ld->pcaps, pcap_opts);
     }
 
+    /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
+    /*  to remove any suid privileges.                                        */
+    /* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
+    /*  (euid/egid have already previously been set to ruid/rgid.             */
+    /* (See comment in main() for details)                                    */
+#ifndef HAVE_LIBCAP
+    relinquish_special_privs_perm();
+#else
+    relinquish_all_capabilities();
+#endif
     return TRUE;
 }
 
