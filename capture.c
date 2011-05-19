@@ -133,6 +133,7 @@ gboolean
 capture_start(capture_options *capture_opts)
 {
   gboolean ret;
+  guint i;
   GString *source = g_string_new("");
 
   if (capture_opts->state != CAPTURE_STOPPED)
@@ -144,9 +145,32 @@ capture_start(capture_options *capture_opts)
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
-  g_string_printf(source, "%s", get_iface_description(capture_opts));
-  if(capture_opts->cfilter && capture_opts->cfilter[0]) {
-    g_string_append_printf(source, " (%s)", capture_opts->cfilter);
+#ifdef _WIN32
+  if (capture_opts->ifaces->len < 2) {
+#else
+  if (capture_opts->ifaces->len < 4) {
+#endif
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
+      interface_options interface_opts;
+
+      interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+      if (i > 0) {
+          if (capture_opts->ifaces->len > 2) {
+              g_string_append_printf(source, ",");
+          }
+          g_string_append_printf(source, " ");
+          if (i == capture_opts->ifaces->len - 1) {
+              g_string_append_printf(source, "and ");
+          }
+      }
+      g_string_append_printf(source, "%s", get_iface_description_for_interface(capture_opts, i));
+      if ((interface_opts.cfilter != NULL) &&
+          (strlen(interface_opts.cfilter) > 0)) {
+        g_string_append_printf(source, " (%s)", interface_opts.cfilter);
+      }
+    }
+  } else {
+    g_string_append_printf(source, "%u interfaces", capture_opts->ifaces->len);
   }
   cf_set_tempfile_source(capture_opts->cf, source->str);
   g_string_free(source, TRUE);

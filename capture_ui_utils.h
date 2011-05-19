@@ -97,5 +97,6 @@ char *build_capture_combo_name(GList *if_list, gchar *if_name);
  * @return A pointer to capture_ops->iface_descr
  */
 const char *get_iface_description(capture_options *capture_opts);
+const char *get_iface_description_for_interface(capture_options *capture_opts, guint i);
 
 #endif
