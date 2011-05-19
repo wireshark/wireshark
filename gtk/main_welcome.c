@@ -60,7 +60,7 @@
 #include "gtk/capture_if_dlg.h"
 #include "gtk/capture_globals.h"
 #endif
-#include "../image/wssplash-dev.xpm"
+#include "../image/wssplash.xpm"
 #include "../version_info.h"
 
 #ifdef _WIN32
@@ -871,7 +871,7 @@ welcome_new(void)
         gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
         gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
     }
-    
+
     free_interface_list(if_list);
 
     /* capture help topic */
