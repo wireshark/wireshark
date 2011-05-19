@@ -696,8 +696,7 @@ void FindFirstSets(struct lemon *lemp)
 ** can be computed later.
 */
 PRIVATE struct state *getstate(struct lemon *);  /* forward reference */
-void FindStates(lemp)
-struct lemon *lemp;
+void FindStates(struct lemon *lemp)
 {
   struct symbol *sp;
   struct rule *rp;
@@ -4158,8 +4157,7 @@ static int stateResortCompare(const void *a, const void *b){
 ** Renumber and resort states so that states with fewer choices
 ** occur at the end.  Except, keep state 0 as the first state.
 */
-void ResortStates(lemp)
-struct lemon *lemp;
+void ResortStates(struct lemon *lemp)
 {
   int i;
   struct state *stp;
