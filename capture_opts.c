@@ -658,10 +658,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
-        if ((!capture_opts->use_pcapng) && (capture_opts->has_cfilter)) {
-            cmdarg_err("More than one -f argument specified");
-            return 1;
-        }
         capture_opts->has_cfilter = TRUE;
         g_free(capture_opts->cfilter);
         capture_opts->cfilter = g_strdup(optarg_str_p);
