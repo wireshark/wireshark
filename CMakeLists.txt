@@ -113,6 +113,7 @@ set(WIRESHARK_C_FLAGS
 	-Warray-bounds
 	-Wcast-align
 	-Wformat-security
+	-Wold-style-definition
 	-fexcess-precision=fast
 )
 
@@ -140,7 +141,10 @@ set(WIRESHARK_EXTRA_C_FLAGS
 	-Wjump-misses-init
 	# packet-ncp2222.inc prevents this from going into all warnings
 	-Wwrite-strings
+	# GLib blocks this for now.
 	-Wstrict-prototypes
+	# All the registration functions block these for now.
+	-Wmissing-prototypes
 	-Wmissing-declarations
 	# Problem with packet-afs.c
 	-Wshadow
