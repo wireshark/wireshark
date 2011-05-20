@@ -410,7 +410,6 @@ static int
 dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint		offset = 0;
-	guint		rest_length;
 
 	/* First try to decode it as "normal" DTPT packets. */
 	offset = dissect_dtpt(tvb, pinfo, tree);
@@ -420,14 +419,11 @@ dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_dtpt_data(tvb, pinfo, tree);
 	}
 
-	/* Handle the rest ... */
-	rest_length = tvb_reported_length(tvb) - offset;
-	if (rest_length > 0) {
-		tvbuff_t	*next_tvb;
+	/* Handle the any remaining ... */
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* ... as data. */
 		call_dissector(data_handle,
 			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
-		next_tvb = tvb_new_subset(tvb, offset, rest_length, rest_length);
 	}
 	return tvb_reported_length(tvb);
 }
