@@ -35,6 +35,7 @@
 #define __RESOLV_H__
 
 #include <epan/address.h>
+#include <epan/tvbuff.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,7 +159,13 @@ extern const gchar *get_manuf_name(const guint8 *addr);
 /* get_manuf_name returns the vendor name or NULL if not known */
 extern const gchar *get_manuf_name_if_known(const guint8 *addr);
 
-/* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known 
+/* get_manuf_name directly from a TVB; returns the vendor name or "%02x:%02x:%02x" if not known */
+extern const gchar *tvb_get_manuf_name(tvbuff_t *tvb, gint offset);
+
+/* get_manuf_name returns the vendor name or NULL if not known */
+extern const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset);
+
+/* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
    "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" */
 extern const gchar *get_eui64_name(const guint64 addr);
 
@@ -191,7 +198,7 @@ extern gboolean read_hosts_file (const char *hostspath);
 extern gboolean add_ip_name_from_string (const char *addr, const char *name);
 
 /** Get a list of host name to address mappings we know about.
- * 
+ *
  * Each list element is an addrinfo struct with the following fields defined:
  *   - ai_family: 0, AF_INET or AF_INET6
  *   - ai_addrlen: Length of ai_addr
@@ -213,7 +220,7 @@ extern gboolean add_ip_name_from_string (const char *addr, const char *name);
  * All other fields are zero-filled.
  *
  * The list and its elements MUST NOT be modified or freed.
- * 
+ *
  * @return The first element in our list of known addresses. May be NULL.
  */
 extern struct addrinfo *get_addrinfo_list(void);

@@ -3032,6 +3032,11 @@ get_manuf_name(const guint8 *addr)
 
 } /* get_manuf_name */
 
+extern const gchar *
+tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
+{
+	return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
+}
 
 const gchar *
 get_manuf_name_if_known(const guint8 *addr)
@@ -3052,12 +3057,18 @@ get_manuf_name_if_known(const guint8 *addr)
 } /* get_manuf_name_if_known */
 
 extern const gchar *
+tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
+{
+	return get_manuf_name_if_known(tvb_get_ptr(tvb, offset, 3));
+}
+
+extern const gchar *
 get_eui64_name(const guint64 addr_eui64)
 {
   gchar *cur;
   hashmanuf_t  *mtp;
   guint8 *addr = ep_alloc(8);
-  
+
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 

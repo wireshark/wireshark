@@ -976,9 +976,9 @@ static dissector_handle_t dh_data;
     }
 
 
-#define APPEND_OUI_NAME(item, string, mac) \
+#define APPEND_OUI_NAME(item, string, tvb, offset) \
     if(item){                              \
-        string = get_manuf_name(mac);              \
+        string = tvb_get_manuf_name(tvb, offset);          \
         proto_item_append_text(item, " (");                \
         proto_item_append_text(item, "%s", string);        \
         proto_item_append_text(item, ")");                 \
@@ -1112,8 +1112,6 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8  raw_octet;
 
     guint8  flags;
-
-    const guint8 *p_sys;
 
     proto_tree *lacpdu_tree;
     proto_item *lacpdu_item;
@@ -1282,9 +1280,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Partner System */
 
-        p_sys = tvb_get_ptr(tvb, LACPDU_PARTNER_SYSTEM, 6);
-        proto_tree_add_ether(lacpdu_tree, hf_lacpdu_partner_sys, tvb,
-                LACPDU_PARTNER_SYSTEM, 6, p_sys);
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_partner_sys, tvb,
+                LACPDU_PARTNER_SYSTEM, 6, ENC_NA);
 
         /* Partner Key */
 
@@ -1539,7 +1536,6 @@ static void
 dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint          offset = 0;
-    const guint8 *oui_ptr;
     const gchar  *str;
     proto_item   *oui_item, *ossp_item;
     proto_tree   *ossp_tree;
@@ -1547,8 +1543,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guint8  itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
 
     /* OUI of the organization defining the protocol */
-    oui_ptr = tvb_get_ptr(tvb, offset+1, OUI_SIZE);
-    str = get_manuf_name(oui_ptr);
+    str = tvb_get_manuf_name(tvb, offset+1);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSSP");
     col_add_fstr(pinfo->cinfo, COL_INFO, "OUI: %s", str);
@@ -1561,8 +1556,8 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(ossp_tree, hf_slow_subtype, tvb, offset, 1, FALSE);
     offset++;
 
-    oui_item = proto_tree_add_bytes(ossp_tree, hf_ossp_oui,
-                                    tvb, offset, OUI_SIZE, oui_ptr);
+    oui_item = proto_tree_add_item(ossp_tree, hf_ossp_oui,
+                                    tvb, offset, OUI_SIZE, ENC_NA);
     proto_item_append_text(oui_item, " (%s)", str);
     offset += 3;
 
@@ -2233,7 +2228,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
                                            tvb, offset, 3, ENC_NA);
 
-            APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
+            APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
 
             offset += OAMPDU_INFO_OUI_SZ;
 
@@ -2254,7 +2249,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
                                             tvb, offset, 3, ENC_NA);
 
-            APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
+            APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
 
             offset += OAMPDU_INFO_OUI_SZ;
 
@@ -2831,7 +2826,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
         oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui,
                                         tvb, offset, 3, ENC_NA);
 
-        APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
+        APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
     }
 }
 

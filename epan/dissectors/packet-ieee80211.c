@@ -3170,13 +3170,11 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
     /* ANQP vendor-specific list */
     guint32 oui;
     guint8 subtype;
-    const guint8 *tag_data_ptr;
 
     oui = tvb_get_ntoh24(tvb, offset);
-    tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
     proto_tree_add_bytes_format(tree, hf_ieee80211_tag_oui, tvb, offset, 3,
-                                tag_data_ptr, "Vendor: %s",
-                                get_manuf_name(tag_data_ptr));
+                                NULL, "Vendor: %s",
+                                tvb_get_manuf_name(tvb, offset));
     offset += 3;
 
     switch (oui) {
@@ -3956,7 +3954,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint32 oui;
-                const guint8 *tag_data_ptr;
                 guint8 code;
                 guint8 subtype;
 
@@ -3968,9 +3965,8 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                   {
                     case PA_VENDOR_SPECIFIC:
                       oui = tvb_get_ntoh24(tvb, offset);
-                      tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
                       proto_tree_add_bytes_format(action_tree, hf_ieee80211_tag_oui, tvb, offset, 3,
-                                                  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+                                                  NULL, "Vendor: %s", tvb_get_manuf_name(tvb, offset));
                       offset += 3;
                       switch (oui)
                       {
@@ -4260,14 +4256,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint32 oui;
-                const guint8 *tag_data_ptr;
                 guint8 subtype;
 
                 offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 oui = tvb_get_ntoh24(tvb, offset);
-                tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
                 proto_tree_add_bytes_format (action_tree, hf_ieee80211_tag_oui, tvb, offset, 3,
-                                             tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+                                             NULL, "Vendor: %s", tvb_get_manuf_name(tvb, offset));
                 offset += 3;
                 switch (oui)
                   {
@@ -7527,12 +7521,12 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     case TAG_VENDOR_SPECIFIC_IE:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
       if (tag_len >= 3) {
+        const gchar *str = tvb_get_manuf_name(tvb, offset+2);
         oui = tvb_get_ntoh24(tvb, offset + 2);
         tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
-        tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
         proto_tree_add_bytes_format (tree, hf_ieee80211_tag_oui, tvb, offset + 2, 3,
-          tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
-        proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
+          NULL, "Vendor: %s", str);
+        proto_item_append_text(ti, ": %s", str);
         if (tag_len > 3) {
           proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tag_tvb,
                               3, 1, FALSE);

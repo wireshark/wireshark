@@ -1093,6 +1093,8 @@ tvb_get_letohieee_double
 tvb_get_letohieee_float
 tvb_get_letohl
 tvb_get_letohs
+tvb_get_manuf_name
+tvb_get_manuf_name_if_known
 tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24

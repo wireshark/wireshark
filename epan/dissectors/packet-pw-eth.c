@@ -58,47 +58,47 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *ti = NULL;
         tvbuff_t *next_tvb = NULL;
         guint16 sequence_number = 0;
-        
+
         if (tvb_reported_length_remaining(tvb, 0) < 4) {
                 if (tree)
-                        proto_tree_add_text(tree, tvb, 0, -1, 
+                        proto_tree_add_text(tree, tvb, 0, -1,
                                             "Error processing Message");
                 return;
         }
 
-        if (dissect_try_cw_first_nibble(tvb, pinfo, tree)) 
+        if (dissect_try_cw_first_nibble(tvb, pinfo, tree))
                 return;
 
         sequence_number = tvb_get_ntohs(tvb, 2);
         if (tree) {
-                ti = proto_tree_add_boolean(tree, hf_pw_eth_cw, 
+                ti = proto_tree_add_boolean(tree, hf_pw_eth_cw,
                                             tvb, 0, 0, TRUE);
                 PROTO_ITEM_SET_HIDDEN(ti);
-                ti = proto_tree_add_item(tree, proto_pw_eth_cw, 
+                ti = proto_tree_add_item(tree, proto_pw_eth_cw,
                                          tvb, 0, 4, FALSE);
                 pw_eth_tree = proto_item_add_subtree(ti, ett_pw_eth);
                 if (pw_eth_tree == NULL)
                         return;
-                proto_tree_add_uint_format(pw_eth_tree, 
+                proto_tree_add_uint_format(pw_eth_tree,
                                            hf_pw_eth_cw_sequence_number,
                                            tvb, 2, 2, sequence_number,
-                                           "Sequence Number: %d", 
+                                           "Sequence Number: %d",
                                            sequence_number);
         }
         next_tvb = tvb_new_subset_remaining(tvb, 4);
         {
                 /*
-                 * When Ethernet frames being decoded, pinfo->ethertype is extracted 
+                 * When Ethernet frames being decoded, pinfo->ethertype is extracted
                  * from the top-level Ethernet frame. Dissection of Ethernet PW payload
                  * overwrites this value as the same dissector is invoked again.
                  * This may lead to undesired behavior (like disappearance of "Link"
                  * tab from the "Decode as" menu).
                  *
-                 * Let's save/restore ethertype. --ATA 
+                 * Let's save/restore ethertype. --ATA
                  *
-                 * XXX it looks that more pinfo members (or even the whole pinfo) 
-                 * XXX should be saved/restored in PW cases. Multilayer encapsulations, 
-                 * XXX like ethernet/mpls/ethernet-pw/ip/vlan, may lead to undesired 
+                 * XXX it looks that more pinfo members (or even the whole pinfo)
+                 * XXX should be saved/restored in PW cases. Multilayer encapsulations,
+                 * XXX like ethernet/mpls/ethernet-pw/ip/vlan, may lead to undesired
                  * XXX changes if pinfo->ipproto, ptype etc.
                  */
                 guint32 etype_save = pinfo->ethertype;
@@ -125,11 +125,11 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 }
 
-/* 
+/*
  * FF: this function returns TRUE if the first 12 bytes in tvb looks like
- *     two valid ethernet addresses.  FALSE otherwise. 
+ *     two valid ethernet addresses.  FALSE otherwise.
  */
-static gboolean 
+static gboolean
 looks_like_plain_eth(tvbuff_t *tvb _U_)
 {
         const gchar *manuf_name_da = NULL;
@@ -139,8 +139,8 @@ looks_like_plain_eth(tvbuff_t *tvb _U_)
                 return FALSE;
         }
 
-        manuf_name_da = get_manuf_name_if_known(tvb_get_ptr(tvb, 0, 6));
-        manuf_name_sa = get_manuf_name_if_known(tvb_get_ptr(tvb, 6, 6));
+        manuf_name_da = tvb_get_manuf_name_if_known(tvb, 0);
+        manuf_name_sa = tvb_get_manuf_name_if_known(tvb, 6);
 
         if (manuf_name_da && manuf_name_sa) {
                 return TRUE;
@@ -149,7 +149,7 @@ looks_like_plain_eth(tvbuff_t *tvb _U_)
         return FALSE;
 }
 
-static void 
+static void
 dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         if (looks_like_plain_eth(tvb)) {
@@ -166,24 +166,24 @@ proto_register_pw_eth(void)
                 {
                         &hf_pw_eth,
                         {
-                                "PW (ethernet)", 
-                                "pweth", FT_BOOLEAN, 
+                                "PW (ethernet)",
+                                "pweth", FT_BOOLEAN,
                                 BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
                 {
                         &hf_pw_eth_cw,
                         {
-                                "PW Control Word (ethernet)", 
-                                "pweth.cw", FT_BOOLEAN, 
+                                "PW Control Word (ethernet)",
+                                "pweth.cw", FT_BOOLEAN,
                                 BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
                 {
                         &hf_pw_eth_cw_sequence_number,
                         {
-                                "PW sequence number (ethernet)", 
-                                "pweth.cw.sequence_number", FT_UINT16, 
+                                "PW sequence number (ethernet)",
+                                "pweth.cw.sequence_number", FT_UINT16,
                                 BASE_DEC, NULL, 0x0, NULL, HFILL
                         }
                 }
@@ -193,24 +193,24 @@ proto_register_pw_eth(void)
                 &ett_pw_eth
         };
 
-        proto_pw_eth_cw = 
+        proto_pw_eth_cw =
           proto_register_protocol("PW Ethernet Control Word",
                                   "Ethernet PW (with CW)",
                                   "pwethcw");
-        proto_pw_eth_nocw = 
+        proto_pw_eth_nocw =
           proto_register_protocol("Ethernet PW (no CW)", /* not displayed */
                                   "Ethernet PW (no CW)",
                                   "pwethnocw");
-        proto_pw_eth_heuristic = 
+        proto_pw_eth_heuristic =
           proto_register_protocol("Ethernet PW (CW heuristic)", /* not disp. */
-                                  "Ethernet PW (CW heuristic)", 
+                                  "Ethernet PW (CW heuristic)",
                                   "pwethheuristic");
         proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));   
+        proto_register_subtree_array(ett, array_length(ett));
         register_dissector("pw_eth_cw", dissect_pw_eth_cw, proto_pw_eth_cw);
-        register_dissector("pw_eth_nocw", dissect_pw_eth_nocw, 
+        register_dissector("pw_eth_nocw", dissect_pw_eth_nocw,
                            proto_pw_eth_nocw);
-        register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic, 
+        register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
                            proto_pw_eth_heuristic);
 }
 

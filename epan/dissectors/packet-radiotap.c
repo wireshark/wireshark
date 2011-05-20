@@ -1516,26 +1516,23 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE
 		    && tree) {
 			proto_tree *vt, *ven_tree = NULL;
-			const guint8 *data_ptr;
 			const gchar *manuf_name;
 			guint8 subns;
 
-			data_ptr = tvb_get_ptr(tvb, offset, 4);
-			manuf_name = get_manuf_name(data_ptr);
-			subns = data_ptr[3];
+			manuf_name = tvb_get_manuf_name(tvb, offset);
+			subns = tvb_get_guint8(tvb, offset+3);
 
 			vt = proto_tree_add_bytes_format(radiotap_tree,
 							 hf_radiotap_vendor_ns,
 							 tvb, offset,
 							 iter.this_arg_size,
-							 data_ptr,
+							 NULL,
 							 "Vendor namespace: %s-%d",
 							 manuf_name, subns);
-			ven_tree =
-			    proto_item_add_subtree(vt, ett_radiotap_vendor);
+			ven_tree = proto_item_add_subtree(vt, ett_radiotap_vendor);
 			proto_tree_add_bytes_format(ven_tree,
 						    hf_radiotap_ven_oui, tvb,
-						    offset, 3, data_ptr,
+						    offset, 3, NULL,
 						    "Vendor: %s", manuf_name);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
 					    tvb, offset + 3, 1, FALSE);
