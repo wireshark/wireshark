@@ -43,11 +43,10 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
+
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
@@ -574,7 +573,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
 
                                         iStringLength = tvb_get_ntohs(tvb, offset+2+iPropLength+1);
                                         if (remain<2+iPropLength+3+iStringLength) break;
-                                        
+
                                         return tvb_get_ephemeral_string(tvb, offset+2+iPropLength+3, iStringLength);
                                 }
 
@@ -628,7 +627,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_
                 if (tp->len>=5 && remain>=5) {
                         *deschasopcode = TRUE;
                         return ep_strdup_printf("%s %d,%s",
-                                                val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"), 
+                                                val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
                                                 tvb_get_ntohl(tvb, offset),
                                                 val_to_str(tvb_get_guint8(tvb, offset+4), rtmpt_limit_vals, "Unknown (%d)"));
                 }
@@ -945,7 +944,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                                 proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, FALSE);
                         }
                         if (iValueLength>0 && hfvalue!=-1) {
-                                ti = proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, FALSE);
+                                proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, FALSE);
                         }
                 }
 

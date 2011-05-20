@@ -31,7 +31,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -41,10 +40,10 @@
 #include "packet-tcp.h"
 
 typedef struct _fix_field {
-  int      tag;		/* FIX tag */
-  int 	   hf_id;
-  int      type;	/* */
-  const void *table;
+    int         tag;    /* FIX tag */
+    int         hf_id;
+    int         type;   /* */
+    const void *table;
 } fix_field;
 
 typedef struct _fix_parameter {
@@ -92,8 +91,8 @@ static int fix_marker(tvbuff_t *tvb, int offset)
 #include "packet-fix.h"
 
 static void dissect_fix_init(void) {
-  /* TODO load xml def for private field */
-  /* TODO check that fix_fields is really sorted */
+    /* TODO load xml def for private field */
+    /* TODO check that fix_fields is really sorted */
 }
 
 static int
@@ -101,15 +100,15 @@ tag_search(int key)
 {
     int lower = 0, upper = array_length(fix_fields) -1;
     while (lower <= upper) {
-	int middle = (lower + upper) / 2;
-	int res = fix_fields[middle].tag;
-	if (res < key) {
-	    lower = middle + 1;
-	} else if (res == key) {
-	    return middle;
-	} else {
-	    upper = middle - 1;
-	}
+        int middle = (lower + upper) / 2;
+        int res = fix_fields[middle].tag;
+        if (res < key) {
+            lower = middle + 1;
+        } else if (res == key) {
+            return middle;
+        } else {
+            upper = middle - 1;
+        }
     }
     return -1;
 }
@@ -274,8 +273,8 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)) {
         const char *msg_type;
 
-	value = tvb_get_ephemeral_string(tvb, tag->value_offset, tag->value_len);
-	msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
+        value = tvb_get_ephemeral_string(tvb, tag->value_offset, tag->value_len);
+        msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
         col_add_str(pinfo->cinfo, COL_INFO, msg_type);
     }
 
@@ -372,7 +371,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 break;
               default:
-                item = proto_tree_add_string(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value);
+                proto_tree_add_string(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len, value);
                 break;
               }
             }
@@ -397,10 +396,10 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_fix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	int fix_len;
+    int fix_len;
 
-	fix_len = fix_header_len(tvb, offset);
-	return fix_len;
+    fix_len = fix_header_len(tvb, offset);
+    return fix_len;
 }
 
 /* ------------------------------------
@@ -419,7 +418,7 @@ static void
 dissect_fix_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, fix_desegment, FIX_MIN_LEN,
-	    get_fix_pdu_len, dissect_fix_packet);
+                     get_fix_pdu_len, dissect_fix_packet);
 
 }
 
@@ -450,19 +449,19 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 static void range_delete_fix_tcp_callback(guint32 port) {
-	dissector_delete_uint("tcp.port", port, fix_handle);
+    dissector_delete_uint("tcp.port", port, fix_handle);
 }
 
 static void range_add_fix_tcp_callback(guint32 port) {
-	dissector_add_uint("tcp.port", port, fix_handle);
+    dissector_add_uint("tcp.port", port, fix_handle);
 }
 
 static void fix_prefs(void)
 {
-	range_foreach(fix_tcp_range, range_delete_fix_tcp_callback);
-	g_free(fix_tcp_range);
-	fix_tcp_range = range_copy(global_fix_tcp_range);
-	range_foreach(fix_tcp_range, range_add_fix_tcp_callback);
+    range_foreach(fix_tcp_range, range_delete_fix_tcp_callback);
+    g_free(fix_tcp_range);
+    fix_tcp_range = range_copy(global_fix_tcp_range);
+    range_foreach(fix_tcp_range, range_add_fix_tcp_callback);
 }
 
 /* this format is require because a script is used to build the C function
@@ -475,25 +474,25 @@ proto_register_fix(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fix_data,
-            { "Continuation Data", "fix.data", FT_BYTES, BASE_NONE, NULL, 0x00,
+          { "Continuation Data", "fix.data", FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 
         { &hf_fix_field_tag,
-            { "Field Tag",         "fix.field.tag", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Field Tag",         "fix.field.tag", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Field length.", HFILL }},
 
         { &hf_fix_field_value,
-            { "Field Value",       "fix.field.value", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Field Value",       "fix.field.value", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-          { &hf_fix_checksum_good,
-            { "Good Checksum",	   "fix.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+        { &hf_fix_checksum_good,
+          { "Good Checksum",       "fix.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
-          { &hf_fix_checksum_bad,
-            { "Bad Checksum",	   "fix.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+        { &hf_fix_checksum_bad,
+          { "Bad Checksum",        "fix.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
     };
 
 /* Setup protocol subtree array */
@@ -511,7 +510,7 @@ proto_register_fix(void)
 
     /* Register the protocol name and description */
     proto_fix = proto_register_protocol("Financial Information eXchange Protocol",
-        "FIX", "fix");
+                                        "FIX", "fix");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fix, hf, array_length(hf));
@@ -520,10 +519,10 @@ proto_register_fix(void)
 
     fix_module = prefs_register_protocol(proto_fix, fix_prefs);
     prefs_register_bool_preference(fix_module, "desegment",
-    "Reassemble FIX messages spanning multiple TCP segments",
-    "Whether the FIX dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &fix_desegment);
+                                   "Reassemble FIX messages spanning multiple TCP segments",
+                                   "Whether the FIX dissector should reassemble messages spanning multiple TCP segments."
+                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   &fix_desegment);
 
     prefs_register_range_preference(fix_module, "tcp.port", "TCP Ports", "TCP Ports range", &global_fix_tcp_range, 65535);
 
@@ -531,10 +530,6 @@ proto_register_fix(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fix(void)
 {

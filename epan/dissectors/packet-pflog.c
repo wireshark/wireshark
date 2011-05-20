@@ -32,8 +32,8 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
+
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include "packet-ip.h"
@@ -143,8 +143,8 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (hdrlen < MIN_PFLOG_HDRLEN) {
     if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_pflog, tvb, 0,
-               hdrlen, "PF Log invalid header length (%u)", hdrlen);
+      proto_tree_add_protocol_format(tree, proto_pflog, tvb, 0,
+          hdrlen, "PF Log invalid header length (%u)", hdrlen);
     }
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fstr(pinfo->cinfo, COL_INFO, "Invalid header length %u",
@@ -253,7 +253,7 @@ proto_register_pflog(void)
   static gint *ett[] = { &ett_pflog };
 
   proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file",
-					"PFLOG", "pflog");
+                                        "PFLOG", "pflog");
   proto_register_field_array(proto_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -373,8 +373,8 @@ proto_register_old_pflog(void)
   static gint *ett[] = { &ett_old_pflog };
 
   proto_old_pflog = proto_register_protocol(
-	  "OpenBSD Packet Filter log file, pre 3.4",
-	  "PFLOG-OLD", "pflog-old");
+          "OpenBSD Packet Filter log file, pre 3.4",
+          "PFLOG-OLD", "pflog-old");
   proto_register_field_array(proto_old_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

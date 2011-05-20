@@ -34,9 +34,8 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
+
 #include <epan/emem.h>
 #include <epan/expert.h>
 
@@ -207,8 +206,8 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
         ep_strbuf_append_printf(flags_strbuf, "%s%s",
                                 flags_strbuf->len ? ", " : "", "last message");
       }
-      ti = proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
-                                            flags, "0x%02x (%s)", flags, flags_strbuf->str);
+      proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
+                                       flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
       proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, little_endian);
       offset += 2;

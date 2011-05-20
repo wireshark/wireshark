@@ -4957,7 +4957,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			} else {
 				int fields_type_pen = pen_to_type_hf_list(pen);
 				if (fields_type_pen != TF_NO_VENDOR_INFO) {
-					ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type_pen],
+					proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type_pen],
 								 tvb, offset, 2, ENC_BIG_ENDIAN);
 					proto_item_append_text(field_item, ": %s",
 							       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type_pen], "Unknown(%d)"));

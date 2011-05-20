@@ -60,10 +60,7 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
-
-#include <stdio.h>
 
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
@@ -119,19 +116,19 @@ static gint ett_rtp_fragment = -1;
 static gint ett_rtp_fragments = -1;
 
 static const fragment_items rtp_fragment_items = {
-  &ett_rtp_fragment,
-  &ett_rtp_fragments,
-  &hf_rtp_fragments,
-  &hf_rtp_fragment,
-  &hf_rtp_fragment_overlap,
-  &hf_rtp_fragment_overlap_conflict,
-  &hf_rtp_fragment_multiple_tails,
-  &hf_rtp_fragment_too_long_fragment,
-  &hf_rtp_fragment_error,
-  &hf_rtp_fragment_count,
-  &hf_rtp_reassembled_in,
-  &hf_rtp_reassembled_length,
-  "RTP fragments"
+	&ett_rtp_fragment,
+	&ett_rtp_fragments,
+	&hf_rtp_fragments,
+	&hf_rtp_fragment,
+	&hf_rtp_fragment_overlap,
+	&hf_rtp_fragment_overlap_conflict,
+	&hf_rtp_fragment_multiple_tails,
+	&hf_rtp_fragment_too_long_fragment,
+	&hf_rtp_fragment_error,
+	&hf_rtp_fragment_count,
+	&hf_rtp_reassembled_in,
+	&hf_rtp_reassembled_length,
+	"RTP fragments"
 };
 
 static dissector_handle_t rtp_handle;
@@ -1358,7 +1355,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
 		    1, octet2 );
 
-		item = proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
+		proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet2, "Payload type: %s (%u)",
 			payload_type_str ? payload_type_str : val_to_str_ext( payload_type, &rtp_payload_type_vals_ext,"Unknown"),
 			payload_type);

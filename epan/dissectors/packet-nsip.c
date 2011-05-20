@@ -29,9 +29,8 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
+
 #include <prefs.h>
 
 #define NSIP_DEBUG 0
@@ -462,7 +461,7 @@ static proto_item *
 decode_ip_elements(nsip_ip_element_info_t *element, nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   int i;
   int num_elements = ie->value_length / element->total_length;
-  proto_item *tf, *ti = NULL;
+  proto_item *tf;
   proto_tree *field_tree;
 
   tf = proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
@@ -472,7 +471,7 @@ decode_ip_elements(nsip_ip_element_info_t *element, nsip_ie_t *ie, build_info_t 
   field_tree = proto_item_add_subtree(tf, ett_nsip_ip_element_list);
 
   for (i = 0; i < num_elements; i++) {
-    ti = decode_ip_element(element, bi, field_tree);
+    decode_ip_element(element, bi, field_tree);
   }
   return tf;
 }

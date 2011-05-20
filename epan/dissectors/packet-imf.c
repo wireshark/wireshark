@@ -29,7 +29,7 @@
 #endif
 
 #include <ctype.h>
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
@@ -561,7 +561,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         unknown_tree = proto_item_add_subtree(item, ett_imf_extension);
 
-        item = proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, FALSE);
+        proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, FALSE);
 
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
         item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, start_offset, end_offset - start_offset - 2, FALSE);
@@ -604,7 +604,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(content_type_str && media_type_dissector_table) {
     void* pd_save;
     pd_save = pinfo->private_data;
-    pinfo->private_data = parameters; 
+    pinfo->private_data = parameters;
 
     next_tvb = tvb_new_subset_remaining(tvb, end_offset);
 

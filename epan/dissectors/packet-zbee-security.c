@@ -30,14 +30,11 @@
 #endif /* HAVEHCONFIG_H */
 
 #include <string.h>
-#include <stdlib.h>
-#include <glib.h>
-#include <gmodule.h>
-#include <epan/proto.h>
+
 #include <epan/packet.h>
+
 #include <epan/prefs.h>
 #include <epan/expert.h>
-
 #include <epan/uat.h>
 
 /* We require libgcrpyt in order to decrypt ZigBee packets. Without it the best
@@ -144,7 +141,7 @@ static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     const uat_key_record_t* old_key = (uat_key_record_t *)o;
 
     if (old_key->string) {
-    new_key->string = g_strdup(old_key->string);
+        new_key->string = g_strdup(old_key->string);
     } else {
         new_key->string = NULL;
     }
@@ -214,33 +211,33 @@ static GSList *zbee_pc_keyring = NULL;
 void zbee_security_register(module_t *zbee_prefs, int proto)
 {
     static hf_register_info hf[] = {
-            { &hf_zbee_sec_key_id,
-            { "Key Id",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
-                ZBEE_SEC_CONTROL_KEY, NULL, HFILL }},
+        { &hf_zbee_sec_key_id,
+          { "Key Id",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
+            ZBEE_SEC_CONTROL_KEY, NULL, HFILL }},
 
-            { &hf_zbee_sec_nonce,
-            { "Extended Nonce",         "zbee.sec.ext_nonce", FT_BOOLEAN, 8, NULL, ZBEE_SEC_CONTROL_NONCE,
-                NULL, HFILL }},
+        { &hf_zbee_sec_nonce,
+          { "Extended Nonce",         "zbee.sec.ext_nonce", FT_BOOLEAN, 8, NULL, ZBEE_SEC_CONTROL_NONCE,
+            NULL, HFILL }},
 
-            { &hf_zbee_sec_counter,
-            { "Frame Counter",          "zbee.sec.counter", FT_UINT32, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }},
+        { &hf_zbee_sec_counter,
+          { "Frame Counter",          "zbee.sec.counter", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
-            { &hf_zbee_sec_src64,
-            { "Extended Source",                 "zbee.sec.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }},
+        { &hf_zbee_sec_src64,
+          { "Extended Source",                 "zbee.sec.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
-            { &hf_zbee_sec_key_seqno,
-            { "Key Sequence Number",    "zbee.sec.key_seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }},
+        { &hf_zbee_sec_key_seqno,
+          { "Key Sequence Number",    "zbee.sec.key_seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
-            { &hf_zbee_sec_mic,
-            { "Message Integrity Code", "zbee.sec.mic", FT_BYTES, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }},
+        { &hf_zbee_sec_mic,
+          { "Message Integrity Code", "zbee.sec.mic", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
-            { &hf_zbee_sec_key_origin,
-            { "Key Origin", "zbee.sec.key.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }}
+        { &hf_zbee_sec_key_origin,
+          { "Key Origin", "zbee.sec.key.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }}
     };
 
     static gint *ett[] = {
@@ -249,14 +246,14 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
     };
 
     static uat_field_t key_uat_fields[] = {
-             UAT_FLD_CSTRING(uat_key_records, string, "Key",
-                 "A 16-byte key in hexadecimal with optional dash-,\n"
-                 "colon-, or space-separator characters, or a\n"
-                 "a 16-character string in double-quotes."),
-             UAT_FLD_VS(uat_key_records, byte_order, "Byte Order", byte_order_vals,
-                     "Byte order of key."),
-             UAT_FLD_LSTRING(uat_key_records, label, "Label", "User label for key."),
-             UAT_END_FIELDS
+        UAT_FLD_CSTRING(uat_key_records, string, "Key",
+                        "A 16-byte key in hexadecimal with optional dash-,\n"
+                        "colon-, or space-separator characters, or a\n"
+                        "a 16-character string in double-quotes."),
+        UAT_FLD_VS(uat_key_records, byte_order, "Byte Order", byte_order_vals,
+                        "Byte order of key."),
+        UAT_FLD_LSTRING(uat_key_records, label, "Label", "User label for key."),
+        UAT_END_FIELDS
     };
 
     /* If no prefs module was supplied, register our own. */
@@ -294,7 +291,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
     proto_register_field_array(proto, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-        /* Register the init routine. */
+    /* Register the init routine. */
     register_init_routine(proto_init_zbee_security);
 } /* zbee_security_register */
 
@@ -589,7 +586,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if (mic_len) {
         /* Display the MIC. */
         if (tree) {
-           ti = proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_length(tvb)-mic_len),
+            proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_length(tvb)-mic_len),
                    mic_len, ENC_BIG_ENDIAN);
         }
     }
