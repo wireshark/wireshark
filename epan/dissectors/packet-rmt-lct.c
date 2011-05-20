@@ -261,6 +261,7 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 	guint16 buffer16;
 	gboolean is_flute_tmp =FALSE;
 	gboolean is_flute =FALSE;
+	guint8 *tmp;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -410,7 +411,9 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 				break;
 		}
 
-		l.lct->toi_extended = tvb_get_ptr(tvb, *offset, l.lct->toi_size);
+		tmp = ep_alloc(l.lct->toi_size);
+		tvb_memcpy(tvb, tmp, *offset, l.lct->toi_size);
+		l.lct->toi_extended = tmp;
 
 		if (tree)
 		{
@@ -419,7 +422,7 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 			else
 				proto_tree_add_uint64(lct_tree, l.hf->toi, tvb, *offset, l.lct->toi_size, l.lct->toi);
 
-			proto_tree_add_bytes(lct_tree, l.hf->toi_extended, tvb, *offset, l.lct->toi_size, l.lct->toi_extended);
+			proto_tree_add_item(lct_tree, l.hf->toi_extended, tvb, *offset, l.lct->toi_size, ENC_NA);
 		}
 
 		*offset += l.lct->toi_size;
