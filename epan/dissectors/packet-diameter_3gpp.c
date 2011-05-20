@@ -48,6 +48,7 @@
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1;
 
+static int hf_diameter_3gpp_visited_nw_id			= -1;
 static int hf_diameter_3gpp_msisdn					= -1;
 static int hf_diameter_3gpp_path					= -1;
 static int hf_diameter_3gpp_contact					= -1;
@@ -55,6 +56,7 @@ static int hf_diameter_3gpp_user_data				= -1;
 static int hf_diameter_3gpp_ipaddr					= -1;
 static int hf_diameter_3gpp_mbms_required_qos_prio	= -1;
 static int hf_diameter_3gpp_tmgi					= -1;
+static int hf_diameter_3gpp_service_ind				= -1;
 static int hf_diameter_mbms_service_id				= -1;
 static int hf_diameter_address_digits = -1;
 static int hf_diameter_3gpp_spare_bits = -1;
@@ -123,6 +125,32 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 static dissector_handle_t xml_handle;
 
 
+
+
+/* AVP Code: 600 Visited-Network-Identifier
+ * imscxdx.xml
+ * 6.3.1 Visited-Network-Identifier AVP
+ * The Visited-Network-Identifier AVP is of type OctetString. This AVP contains an identifier that helps the home
+ * network to identify the visited network (e.g. the visited network domain name).
+ */
+
+static int
+dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+
+	proto_item* item;
+	int offset = 0, i;
+	int length = tvb_length(tvb);
+
+	for(i = 0; i < length; i++)
+		if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+			return length;
+
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_visited_nw_id, tvb, offset, length, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_GENERATED(item);
+
+
+	return length;
+}
 /* AVP Code: 630 Feature-List
  * imscxdx.xml
  * IMS Cx Dx AVPS 3GPP TS 29.229
@@ -196,9 +224,11 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
 
+	proto_item* item;
 	int offset = 0;
 
-	proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_GENERATED(item);
 
 	return tvb_length(tvb);
 }
@@ -251,6 +281,26 @@ dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	return length;
 
+}
+
+/*
+ * AVP Code: 704 Service-Indication
+ */
+static int
+dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+
+	proto_item* item;
+	int offset = 0, i;
+	int length = tvb_length(tvb);
+
+	for(i = 0; i < length; i++)
+		if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+			return length;
+
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_service_ind, tvb, offset, length, ENC_BIG_ENDIAN);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	return length;
 }
 
 /* AVP Code: 900 TMGI */
@@ -561,6 +611,9 @@ proto_reg_handoff_diameter_3gpp(void)
 	 * Registered by packet-gtpv2.c
 	 */
 
+	/* AVP Code: 600 Visited-Network-Identifier */
+	dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
+
 	/* AVP Code: 606 User-Data */
 	dissector_add_uint("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
@@ -578,6 +631,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
 	/* AVP Code: 702 User-Data */
 	dissector_add_uint("diameter.3gpp", 702, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+
+	/* AVP Code: 704 Service-Indication  */
+	dissector_add_uint("diameter.3gpp", 704, new_create_dissector_handle(dissect_diameter_3gpp_service_ind, proto_diameter_3gpp));
 
 	/* AVP Code: 900 TMGI */
 	dissector_add_uint("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
@@ -637,6 +693,11 @@ proto_register_diameter_3gpp(void)
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_diameter_3gpp_visited_nw_id,
+			{ "Visited-Network-Identifier",           "diameter.3gpp.visited_nw_id",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_diameter_3gpp_msisdn,
 			{ "MSISDN",           "diameter.3gpp.msisdn",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -660,6 +721,11 @@ proto_register_diameter_3gpp(void)
 		{ &hf_diameter_3gpp_tmgi,
 			{ "TMGI",           "diameter.3gpp.tmgi",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_service_ind,
+			{ "Service-Indication",           "diameter.3gpp.service_ind",
+			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_mbms_service_id,
