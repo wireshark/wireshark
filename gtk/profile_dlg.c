@@ -991,9 +991,10 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
   menu = gtk_menu_new ();
 
   if (bevent->button != 1) {
-    GtkWidget *delete_menu = menus_get_profiles_delete_menu ();
     GtkWidget *change_menu = menus_get_profiles_change_menu ();
 
+#if GTK_CHECK_VERSION(2,16,0)
+    GtkWidget *delete_menu = menus_get_profiles_delete_menu ();
     if (strcmp (profile_name, DEFAULT_PROFILE) != 0) {
       gchar *label = g_strdup_printf ("Delete \"%s\"", profile_name);
       gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), label);
@@ -1001,6 +1002,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
     } else {
       gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), "Delete");
     }
+#endif
     gtk_menu_item_set_submenu (GTK_MENU_ITEM(change_menu), menu);
   }
 
