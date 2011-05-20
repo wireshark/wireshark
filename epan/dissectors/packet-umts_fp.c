@@ -2822,28 +2822,15 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
             /* MAC-is SDUs (i.e. MACd PDUs) */
             for (sdu_no=0; sdu_no < subframes[n].number_of_mac_is_sdus[pdu_no]; sdu_no++) {
-                const guint8 *pdu_data;
-                int i;
-                char buff[64];
 
                 ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
                                          offset,
                                          subframes[n].mac_is_length[pdu_no][sdu_no],
                                          FALSE);
-                proto_item_append_text(ti, " (%s Len=%u): ",
+                proto_item_append_text(ti, " (%s Len=%u): %s",
                                        val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
-                                       subframes[n].mac_is_length[pdu_no][sdu_no]);
-
-                /* Show bytes too.  There must be a nicer way of doing this! */
-                pdu_data = tvb_get_ptr(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]);
-                for (i=0; i < subframes[n].mac_is_length[pdu_no][sdu_no]; i++) {
-                    g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
-                    if (i >= 30) {
-                        g_snprintf(buff+(i*2), 4, "...");
-                        break;
-                    }
-                }
-                proto_item_append_text(ti, "%s", buff);
+                                       subframes[n].mac_is_length[pdu_no][sdu_no],
+				       tvb_bytes_to_str(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]));
 
                 offset += subframes[n].mac_is_length[pdu_no][sdu_no];
                 subframe_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
