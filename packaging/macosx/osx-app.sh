@@ -122,7 +122,7 @@ echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
 
 # Safety tests
 if [ ! -e "$LIBPREFIX" ]; then
-	echo "Cannot find the directory containing the libraires: $LIBPREFIX" >&2
+	echo "Cannot find the directory containing the libraries: $LIBPREFIX" >&2
 	exit 1
 fi
 
