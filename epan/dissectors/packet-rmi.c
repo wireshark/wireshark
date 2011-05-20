@@ -41,7 +41,7 @@ static void
 dissect_ser(tvbuff_t *tvb, proto_tree *tree);
 
 static rmi_type
-get_rmi_type(const guchar *data, int datalen);
+get_rmi_type(tvbuff_t *tvb, gint offset, int datalen);
 
 /* Initialize the protocol and registered fields */
 static int proto_rmi             = -1;
@@ -117,7 +117,6 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint       offset;
     gint       next_offset;
     int        datalen;
-    const guchar *data;
 
     guint16    version, len, port;
     guint8     message, proto;
@@ -125,7 +124,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rmi_type   rmitype;
 
     const char *epid_hostname;
-	guint epid_len;
+    guint epid_len;
 
     offset     = 0;
     rmitype    = 0;
@@ -134,9 +133,8 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
 
     datalen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-    data = tvb_get_ptr(tvb, offset, datalen);
 
-    rmitype = get_rmi_type(data, datalen);
+    rmitype = get_rmi_type(tvb, offset, datalen);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	switch(rmitype) {
@@ -268,9 +266,12 @@ dissect_ser(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static rmi_type
-get_rmi_type(const guchar *data, int datalen)
+get_rmi_type(tvbuff_t *tvb, gint offset, int datalen)
 {
     guint16 ser_magic;
+    guchar data[4];
+
+    tvb_memcpy(tvb, data, offset, (datalen > 4) ? 4 : datalen);
 
     if (datalen >= 2) {
 	ser_magic = data[0] << 8 | data[1];

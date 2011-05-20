@@ -133,12 +133,14 @@ static const value_string tapa_discover_unknown_vals[] = {
 };
 
 static gboolean
-check_ascii(const guint8 *buffer, gint length)
+check_ascii(tvbuff_t *tvb, gint offset, gint length)
 {
 	gint i;
+	guint8 buf;
 
 	for (i = 0; i < length; i++)
-		if (buffer[i] < 0x20 || buffer[i] >= 0x80)
+		buf = tvb_get_guint8(tvb, offset+i);
+		if (buf < 0x20 || buf >= 0x80)
 			return FALSE;
 	return TRUE;
 }
@@ -237,8 +239,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 		DISSECTOR_ASSERT(item_length > 0);
 
-		is_ascii = check_ascii(tvb_get_ptr(tvb, offset + 4, item_length),
-				item_length);
+		is_ascii = check_ascii(tvb, offset + 4, item_length);
 		if (is_ascii)
 			item_text = tvb_format_text(tvb, offset + 4, item_length);
 		else
