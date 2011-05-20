@@ -149,7 +149,6 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     guint64      oxid;
     guint64      oid;
     e_uuid_t     ipid;
-    dcom_interface_t *dcom_if;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
@@ -187,9 +186,9 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
         /* add interface instance to database (we currently only handle IPv4) */
         if(pinfo->net_src.type == AT_IPv4) {
-            dcom_if = dcom_interface_new(pinfo,
-                                         pinfo->net_src.data,
-                                         &iid, oxid, oid, &ipid);
+            dcom_interface_new(pinfo,
+                               pinfo->net_src.data,
+                               &iid, oxid, oid, &ipid);
         }
 
         /* update subtree */
