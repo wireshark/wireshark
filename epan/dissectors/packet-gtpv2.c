@@ -29,8 +29,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -2335,7 +2333,7 @@ dissect_gtpv2_PDN_conn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
     grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PDN_conn);
     new_tvb = tvb_new_subset(tvb, offset, length, length );
 
-    dissect_gtpv2_ie_common(tvb, pinfo, grouped_tree, offset, message_type);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type);
 }
 /*
  * 8.40 PDU Numbers
