@@ -847,7 +847,7 @@ get_sealing_rc4key(const guint8 exportedsessionkey[NTLMSSP_KEY_LEN] ,const int f
         clientsealkey[7]=0xb0;
       }
     }
-    serversealkey = memcpy(serversealkey,clientsealkey,*keylen);
+    memcpy(serversealkey,clientsealkey,*keylen);
   }
 }
 /* Create an NTLMSSP version 1 key.
