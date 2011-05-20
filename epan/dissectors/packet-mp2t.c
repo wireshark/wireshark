@@ -315,10 +315,7 @@ mp2t_depi_docsis_fragmentation_handle(tvbuff_t *tvb, guint offset,
             call_dissector(docsis_handle, next_tvb, pinfo, dmpt_tree);
         else
             call_dissector(data_handle, next_tvb, pinfo, dmpt_tree);
-    } else { /* make a new subset */
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
     }
-
     return;
 }
 
