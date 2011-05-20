@@ -177,8 +177,10 @@ utp_is_v1(tvbuff_t *tvb) {
    *  So: Also do some length checking:
    *   The length of "V1" frames should be 20, 26, 30, 34, 36, 38, ...
    *   fixed hdr len:    20
-   *   extension9s) len:  6, 10, 14, 16, 18, 20, ...
+   *   extension(s) len:  6, 10, 14, 16, 18, 20, ...
    *   XXX: this is a hack and should be replaced !!
+   *        In fact this heuristic probably fails for some SF_DATA packets since they
+   *        presumably can contain a variable number of data bytes after the header.
    */
   len = tvb_reported_length(tvb);
   if (len < V1_FIXED_HDR_SIZE) {
