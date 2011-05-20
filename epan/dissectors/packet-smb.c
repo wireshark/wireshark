@@ -7687,7 +7687,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_ptr(tvb, offset, an_len);
+	an = tvb_get_ephemeral_string(tvb, offset, an_len);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -7806,7 +7806,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = tvb_get_ptr(tvb, offset, an_len);
+	an = tvb_get_ephemeral_string(tvb, offset, an_len);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -12234,7 +12234,7 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* this dissects the SMB_QUERY_FILE_STREAM_INFO
    as described in 4.2.16.10 of the SNIA CIFS spec
-   and 2.2.8.3.12 of the MS-CIFS spec   
+   and 2.2.8.3.12 of the MS-CIFS spec
 */
 int
 dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
