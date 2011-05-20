@@ -419,7 +419,7 @@ dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_dtpt_data(tvb, pinfo, tree);
 	}
 
-	/* Handle the any remaining ... */
+	/* Handle any remaining bytes ... */
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* ... as data. */
 		call_dissector(data_handle,
