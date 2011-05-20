@@ -229,6 +229,7 @@ done
 # ChmodBPF
 mkdir -p "$chmodbpf_dir"
 cp -v ChmodBPF/* "$chmodbpf_dir"
+chmod -R g-w "$chmodbpf_dir"
 
 # The rest of the Wireshark installation (we handled bin above)
 rsync -av \
