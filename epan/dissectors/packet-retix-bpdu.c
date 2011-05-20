@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Copyright 2005 Giles Scott (gscott <AT> arubanetworks dot com> 
+ * Copyright 2005 Giles Scott (gscott <AT> arubanetworks dot com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -61,16 +61,14 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *retix_bpdu_tree;
   proto_tree *ti;
-  const guint8 *bridge_mac_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "R-STP");
   col_clear(pinfo->cinfo, COL_INFO);
-  bridge_mac_str = tvb_get_ptr(tvb, 10, 6);
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Bridge MAC %s", ether_to_str(bridge_mac_str)); 
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Bridge MAC %s", tvb_ether_to_str(tvb, 10));
   }
 
-  
+
   retix_bpdu_tree = NULL;
 
   if (tree) {
@@ -119,7 +117,7 @@ proto_register_retix_bpdu(void)
   };
 
   proto_retix_bpdu = proto_register_protocol("Retix Spanning Tree Protocol", "R-STP", "r-stp");
-  proto_register_field_array(proto_retix_bpdu, hf, array_length(hf)); 
+  proto_register_field_array(proto_retix_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("rbpdu", dissect_retix_bpdu, proto_retix_bpdu);
 }

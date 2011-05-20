@@ -671,7 +671,6 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 addr_type;
   guint32 config_length,len;
   proto_tree *ti=NULL,*rtcfg_tree=NULL;
-  const guint8 *haddr;
 
   /* Set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTcfg");
@@ -872,11 +871,9 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
          switch (pinfo->fd->lnk_t) {
            case WTAP_ENCAP_ETHERNET:
-             haddr = tvb_get_ptr(tvb, offset, 6);
              proto_tree_add_bytes_format( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
-                                          haddr, "Client Hardware Address: %02X:%02X:%02X:%02X:%02X:%02X",
-                                          *haddr, *(haddr+1), *(haddr+2),
-                                          *(haddr+3), *(haddr+4), *(haddr+5) );
+                                          NULL, "Client Hardware Address: %s",
+					  tvb_ether_to_str(tvb, offset));
              break;
 
            default:
