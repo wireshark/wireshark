@@ -74,9 +74,11 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #endif
 
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <string.h>
+
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include "packet-ipsec.h"

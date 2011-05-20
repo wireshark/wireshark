@@ -88,8 +88,11 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include <glib.h>
+
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */

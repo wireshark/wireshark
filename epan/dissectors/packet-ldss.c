@@ -40,10 +40,12 @@
 #include "config.h"
 #endif
 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 #include <glib.h>
 
-#include <math.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>

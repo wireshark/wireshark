@@ -29,29 +29,31 @@
  * http://www.iana.org/assignments/rsvp-parameters
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#include <epan/prefs.h>
-
 #include <glib.h>
-
-#include <wsutil/str_util.h>
 
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
-#include "packet-rtp.h"
-#include "packet-rtcp.h"
-#include "packet-rdt.h"
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include "packet-e164.h"
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
+#include <wsutil/str_util.h>
+
+#include "packet-rdt.h"
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
+#include "packet-e164.h"
 
 static int proto_rtsp		= -1;
 

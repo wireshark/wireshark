@@ -48,19 +48,13 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
 
-#ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
-#include <epan/strutil.h>
-#include <wsutil/file_util.h>
-#include <epan/uat.h>
-#endif
-
-#include <epan/proto.h>
 #include <epan/packet.h>
+
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
@@ -70,6 +64,12 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#include <epan/strutil.h>
+#include <wsutil/file_util.h>
+#include <epan/uat.h>
+#endif
 
 /* Struct for the byte_to_str, match_bytestr_idx, and match_bytestr functions */
 

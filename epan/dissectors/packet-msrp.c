@@ -30,17 +30,17 @@
 # include "config.h"
 #endif
 
+#include <stdlib.h>
 #include <ctype.h>
 
 #include <glib.h>
 
-#include <wsutil/str_util.h>
-
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
+#include <wsutil/str_util.h>
 
 #include "packet-msrp.h"
 

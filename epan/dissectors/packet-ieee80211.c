@@ -88,12 +88,14 @@
 # include "config.h"
 #endif
 
+#include <stdlib.h>
 #include <string.h>
-#include <glib.h>
 #include <math.h>
-#include <epan/bitswap.h>
-#include <epan/proto.h>
+
+#include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/bitswap.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>

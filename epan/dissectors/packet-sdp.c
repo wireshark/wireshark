@@ -26,8 +26,11 @@
  * Ref http://www.ietf.org/rfc/rfc4566.txt?number=4566
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
+#include <stdlib.h>
 #include <ctype.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -52,20 +55,20 @@
 #endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/base64.h>
 #include <epan/asn1.h>
-
+#include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/tap.h>
+
 #include "packet-sdp.h"
 
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
-
-#include <epan/prefs.h>
-#include <epan/expert.h>
 
 #include "packet-rtcp.h"
 #include "packet-t38.h"

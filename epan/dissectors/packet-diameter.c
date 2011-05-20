@@ -45,12 +45,15 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+
 #include <glib.h>
-#include <epan/filesystem.h>
+
 #include <epan/packet.h>
+#include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>

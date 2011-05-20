@@ -33,10 +33,11 @@
 # include "config.h"
 #endif
 
+#include <stdlib.h>
+
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/proto.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_dpnss                      = -1;
