@@ -127,8 +127,11 @@ void menus_set_column_align_default (gboolean right_justify);
 /* Update the packet list heading menu to indicate if column can be resolved. */
 void menus_set_column_resolved (gboolean resolved, gboolean can_resolve);
 
-/* Fetch the statusbar profiles submenu */
-extern GtkWidget *menus_get_profiles_menu (void);
+/* Fetch the statusbar profiles delete submenu */
+extern GtkWidget *menus_get_profiles_delete_menu (void);
+
+/* Fetch the statusbar profiles change submenu */
+extern GtkWidget *menus_get_profiles_change_menu (void);
 
 /* Enable or disable menu items based on whether a tree row is selected
    and and on whether a "Match Selected" can be done. */

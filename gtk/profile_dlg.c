@@ -991,13 +991,22 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
   menu = gtk_menu_new ();
 
   if (bevent->button != 1) {
-    GtkWidget *top_menu = menus_get_profiles_menu ();
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(top_menu), menu);
+    GtkWidget *delete_menu = menus_get_profiles_delete_menu ();
+    GtkWidget *change_menu = menus_get_profiles_change_menu ();
+
+    if (strcmp (profile_name, DEFAULT_PROFILE) != 0) {
+      gchar *label = g_strdup_printf ("Delete \"%s\"", profile_name);
+      gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), label);
+      g_free (label);
+    } else {
+      gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), "Delete");
+    }
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(change_menu), menu);
   }
 
   /* Add a menu item for the Default profile */
   menu_item = gtk_check_menu_item_new_with_label (DEFAULT_PROFILE);
-  if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
+  if (strcmp (profile_name, DEFAULT_PROFILE) == 0) {
     /* Check current profile */
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
   }
@@ -1082,7 +1091,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
   GtkTreeStore *store;
   GtkTreeIter iter;
   const gchar *new_name =  gtk_entry_get_text(GTK_ENTRY(entry));
-  const gchar *profile_name = NULL;
+  const gchar *profile_name = "";
   gboolean     from_global = FALSE;
   char        *pf_dir_path, *pf_dir_path2, *pf_filename;
 
@@ -1095,8 +1104,6 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
     if (gtk_combo_box_get_active_iter(combo_box, &iter)) {
       store = GTK_TREE_STORE(gtk_combo_box_get_model(combo_box));
       gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &profile_name, 1, &from_global, -1);
-    } else {
-      return;
     }
     break;
   case PROF_OPERATION_EDIT:
@@ -1213,7 +1220,7 @@ profile_name_edit_dlg (gint operation)
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 
   if (operation == PROF_OPERATION_NEW) {
-    label = gtk_label_new(ep_strdup_printf("Create from:"));
+    label = gtk_label_new("Create from:");
     gtk_tooltips_set_tip (tooltips, label, "All configuration files will be copied from this profile", NULL);
     gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
@@ -1269,7 +1276,7 @@ profile_name_edit_dlg (gint operation)
     g_object_unref(store);
   }
 
-  label = gtk_label_new(ep_strdup_printf("Profile name:"));
+  label = gtk_label_new("Profile name:");
   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 
