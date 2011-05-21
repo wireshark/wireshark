@@ -1853,7 +1853,7 @@ cap_pipe_open_live(char *pipename,
         }
     }
 #else /* USE_THREADS */
-    g_thread_create(&cap_pipe_read, &pcap_opts, FALSE, NULL);
+    g_thread_create(&cap_pipe_read, pcap_opts, FALSE, NULL);
 
     pcap_opts->cap_pipe_buf = (char *) &magic;
     pcap_opts->cap_pipe_bytes_read = 0;
@@ -2670,7 +2670,7 @@ capture_loop_dispatch(loop_data *ld,
                  * processing immediately, rather than processing all packets
                  * in a batch before quitting.
                  */
-                if (use_threads) { 
+                if (use_threads) {
                     inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb,
                                        (u_char *)&(pcap_opts->interface_id));
                 } else {
@@ -2708,13 +2708,13 @@ capture_loop_dispatch(loop_data *ld,
              * after processing packets.  We therefore process only one packet
              * at a time, so that we can check the pipe after every packet.
              */
-            if (use_threads) { 
+            if (use_threads) {
                 inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)&pcap_opts->interface_id);
             } else {
                 inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)&pcap_opts->interface_id);
             }
 #else
-            if (use_threads) { 
+            if (use_threads) {
                 inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_queue_packet_cb, (u_char *)&pcap_opts->interface_id);
             } else {
                 inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_write_packet_cb, (u_char *)&pcap_opts->interface_id);
