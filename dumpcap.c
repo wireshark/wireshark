@@ -2859,15 +2859,19 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         is_tempfile = FALSE;
     } else {
         /* Choose a random name for the temporary capture buffer */
+        if (global_capture_opts.ifaces->len > 1) {
+            prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
+        } else {
 #ifdef _WIN32
-        GString *iface;
+            GString *iface;
 
-        iface = isolate_uuid(g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1).name);
-        prefix = g_strconcat("wireshark_", g_basename(iface->str), NULL);
-        g_string_free(iface, TRUE);
+            iface = isolate_uuid(g_array_index(global_capture_opts.ifaces, interface_options, 0).name);
+            prefix = g_strconcat("wireshark_", g_basename(iface->str), NULL);
+            g_string_free(iface, TRUE);
 #else
-        prefix = g_strconcat("wireshark_", g_basename(g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1).name), NULL);
+            prefix = g_strconcat("wireshark_", g_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).name), NULL);
 #endif
+        }
         *save_file_fd = create_tempfile(&tmpname, prefix);
         g_free(prefix);
         capfile_name = g_strdup(tmpname);
