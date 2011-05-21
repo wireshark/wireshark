@@ -1522,9 +1522,7 @@ main_capture_set_main_window_title(capture_options *capture_opts)
     GString *title = g_string_new("");
 
     g_string_append(title, "Capturing ");
-    if (capture_opts->ifaces->len > 0) {
-        g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
-    }
+    g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
     set_main_window_name(title->str);
     g_string_free(title, TRUE);
 }

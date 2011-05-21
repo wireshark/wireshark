@@ -361,6 +361,7 @@ sync_pipe_start(capture_options *capture_opts) {
     int i;
     guint j;
     interface_options interface_opts;
+    gboolean no_ifaces;
 
     if (capture_opts->ifaces->len > 1)
         capture_opts->use_pcapng = TRUE;
@@ -426,6 +427,7 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
     if (capture_opts->ifaces->len == 0) {
+        no_ifaces = TRUE;
         interface_opts.name = g_strdup(capture_opts->iface);
         if (capture_opts->iface_descr) {
             interface_opts.descr = g_strdup(capture_opts->iface_descr);
@@ -472,6 +474,8 @@ sync_pipe_start(capture_options *capture_opts) {
         interface_opts.sampling_param  = capture_opts->sampling_param;
 #endif
         g_array_append_val(capture_opts->ifaces, interface_opts);
+    } else {
+        no_ifaces = FALSE;
     }
 
     for (j = 0; j < capture_opts->ifaces->len; j++) {
@@ -540,6 +544,9 @@ sync_pipe_start(capture_options *capture_opts) {
             argv = sync_pipe_add_arg(argv, &argc, ssampling);
         }
 #endif
+    }
+    if (no_ifaces) {
+        capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, 0);
     }
 
     /* dumpcap should be running in capture child mode (hidden feature) */
