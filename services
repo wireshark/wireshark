@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-05-13)
+(last updated 2011-05-19)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -12609,10 +12609,13 @@ opalis-rbt-ipc  5314/udp   opalis-rbt-ipc
 hacl-poll       5315/tcp   HA Cluster UDP Polling
 hacl-poll       5315/udp   HA Cluster UDP Polling
 #                          Hoa Nguyen <hoan&cup.hp.com>
-hpdevms		5316/tcp   HP Device Monitor Service
-hpdevms		5316/udp   HP Device Monitor Service
+hpbladems       5316/tcp   HPBladeSystem Monitor Service (Modified: 2011-05-16)
 #			   Masato Maeda <Masato.Maeda&hp.com> 04 October 2007
-#               5317-5319  Unassigned
+#               5316/udp   Unassigned (Removed on 2011-05-16)
+hpdevms         5317/tcp   HP Device Monitor Service
+#                          Alan Minchew <alan.minchew&hp.com> 16 May 2011
+#               5317/udp   Reserved
+#               5318-5319  Unassigned
 bsfserver-zn    5320/tcp   Webservices-based Zn interface of BSF
 #                          Bert Paul <bert.paul&apertio.com> 01 May 2008
 #               5320/udp   Reserved
@@ -13164,10 +13167,17 @@ rfb             5900/udp   Remote Framebuffer
 #               5901-5909  Unassigned
 cm              5910/tcp   Context Management
 cm              5910/udp   Context Management
+#                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
+cm              5910/sctp  Context Management 
+#                          Justin Yu <yyu&mitre.org> 19 May 2011
 cpdlc           5911/tcp   Controller Pilot Data Link Communication
 cpdlc           5911/udp   Controller Pilot Data Link Communication
+#                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
+cpdlc           5911/sctp  Controller Pilot Data Link Communication 
+#                          Justin Yu <yyu&mitre.org> 18 May 2011
 fis             5912/tcp   Flight Information Services
 fis             5912/udp   Flight Information Services
+#                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
 ads-c           5913/tcp   Automatic Dependent Surveillance
 ads-c           5913/udp   Automatic Dependent Surveillance
 #                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
@@ -13923,7 +13933,11 @@ microtalon-com  7014/udp    Microtalon Communications
 talon-webserver 7015/tcp    Talon Webserver
 talon-webserver 7015/udp    Talon Webserver
 #                           Jim Thompson <jim.thompson&powerware.com>
-#               7016-7018   Unassigned
+##### 7011 and 7012 Unauthorized Use by RZG OpenAFS+OSD system #####
+#               7016-7017   Unassigned
+fisa-svc        7018/tcp    FISA Service
+#                           FAUCONNET Ingénierie SA <dev&fisa.fr> 19 May 2011
+#               7018/udp    Reserved
 doceri-ctl      7019/tcp    doceri drawing service control
 doceri-view     7019/udp    doceri drawing service screen view
 #                           Paul Brown <pbrown&spcontrols.com> 27 April 2011
