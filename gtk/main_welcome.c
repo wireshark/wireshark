@@ -569,12 +569,28 @@ static gboolean
 welcome_if_press_cb(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer data)
 {
     cap_settings_t cap_settings;
+    interface_options interface_opts;
 
     g_free(global_capture_opts.iface);
     g_free(global_capture_opts.iface_descr);
 
     global_capture_opts.iface = g_strdup(data);
     global_capture_opts.iface_descr = NULL;
+
+    while (global_capture_opts.ifaces->len > 0) {
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+        global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+        g_free(interface_opts.name);
+        g_free(interface_opts.descr);
+        g_free(interface_opts.cfilter);
+#ifdef HAVE_PCAP_REMOTE
+        g_free(interface_opts.remote_host);
+        g_free(interface_opts.remote_port);
+        g_free(interface_opts.auth_username);
+        g_free(interface_opts.auth_password);
+#endif
+    }
+
     /* XXX - fix this */
     /*global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);*/
     cap_settings = capture_get_cap_settings (global_capture_opts.iface);;

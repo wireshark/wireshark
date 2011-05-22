@@ -2816,6 +2816,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   gpointer  dialog;
   gchar *if_name;
   cap_settings_t *cap_settings_p = NULL;
+  interface_options interface_opts;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -2861,6 +2862,20 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     if_name = g_strdup(get_if_name(prefs.capture_device));
   } else {
     if_name = g_strdup(global_capture_opts.iface);
+  }
+
+  while (global_capture_opts.ifaces->len > 0) {
+    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+    g_free(interface_opts.name);
+    g_free(interface_opts.descr);
+    g_free(interface_opts.cfilter);
+#ifdef HAVE_PCAP_REMOTE
+    g_free(interface_opts.remote_host);
+    g_free(interface_opts.remote_port);
+    g_free(interface_opts.auth_username);
+    g_free(interface_opts.auth_password);
+#endif
   }
 
   if (cap_settings_history != NULL) {

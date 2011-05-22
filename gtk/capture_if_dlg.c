@@ -138,6 +138,7 @@ typedef struct if_dlg_data_s {
 static void
 capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 {
+  interface_options interface_opts;
   if_dlg_data_t *if_dlg_data = if_data;
 
 #ifdef HAVE_AIRPCAP
@@ -150,6 +151,20 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 
   global_capture_opts.iface = g_strdup(if_dlg_data->device);
   global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
+
+  while (global_capture_opts.ifaces->len > 0) {
+    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+    g_free(interface_opts.name);
+    g_free(interface_opts.descr);
+    g_free(interface_opts.cfilter);
+#ifdef HAVE_PCAP_REMOTE
+    g_free(interface_opts.remote_host);
+    g_free(interface_opts.remote_port);
+    g_free(interface_opts.auth_username);
+    g_free(interface_opts.auth_password);
+#endif
+  }
 
   /* XXX - remove this? */
   if (global_capture_opts.save_file) {
