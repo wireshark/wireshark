@@ -4221,17 +4221,22 @@ static const fragment_items msg_frag_items = {
 /* if BACnet uses the reserved values, then patch the corresponding values here, maximum 16 values are defined */
 static const guint MaxAPDUSize [] = { 50,128,206,480,1024,1476 };
 
+#if 0
+/* FIXME: fGetMaxAPDUSize is commented out, as it is not used. It was used to set variables which were not later used. */
 static guint
 fGetMaxAPDUSize(guint8 idx)
 {
 	/* only 16 values are defined, so use & 0x0f */
 	/* check the size of the Array, deliver either the entry
 	   or the first entry if idx is outside of the array (bug 3736 comment#7) */
+
 	if ((idx & 0x0f) >= (gint)(sizeof(MaxAPDUSize)/sizeof(guint)))
 		return MaxAPDUSize[0];
 	else
 		return MaxAPDUSize[idx & 0x0f];
 }
+#endif
+
 
 /* Used when there are ranges of reserved and proprietary enumerations */
 static const char*
@@ -4498,12 +4503,11 @@ fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt = 0;
-	guint tag_len;
 	proto_item *ti;
 	proto_tree *subtree;
 	guint bool_len = 1;
 
-	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	if (tag_info && lvt == 1) {
 		lvt = tvb_get_guint8(tvb, offset+1);
 		++bool_len;
@@ -5139,7 +5143,7 @@ fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 static guint
 fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	guint lastoffset = 0, len;
+	guint lastoffset = 0;
 	guint8  tag_no, tag_info;
 	guint32 lvt;
 	proto_tree* subtree;
@@ -5149,7 +5153,7 @@ fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 		}
@@ -8660,12 +8664,11 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
 {
 	proto_item *tc;
 	proto_tree *bacapp_tree_control;
-	gint tmp, bacapp_type;
+	gint tmp;
 	guint extra = 2;
 
 	bacapp_seq = 0;
 	tmp = (gint) tvb_get_guint8(tvb, offset);
-	bacapp_type = (tmp >> 4) & 0x0f;
 	bacapp_flags = tmp & 0x0f;
 
 	if (ack == 0) {
@@ -8783,13 +8786,13 @@ fSegmentAckPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, g
 	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_NAK, tvb, offset, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_NAK, tvb, offset, 1, TRUE);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_sequence_number, tvb,
 			    offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_window_size, tvb,
 			    offset++, 1, TRUE);
 	return offset;
 }
@@ -8986,10 +8989,10 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tree, guint offs
 	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
 	tmp = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_service, tvb,
 				 offset++, 1, TRUE);
 	/* Error Handling follows... */
 	return fBACnetError (tvb, pinfo, bacapp_tree, offset, tmp);
@@ -9006,9 +9009,9 @@ fRejectPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint
 	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_BACnetRejectReason, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_BACnetRejectReason, tvb,
 			    offset++, 1, TRUE);
 	return offset;
 }
@@ -9024,10 +9027,10 @@ fAbortPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint 
 	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
 			    offset++, 1, TRUE);
-	proto_tree_add_item(bacapp_tree, hf_BACnetAbortReason, tvb,
+	proto_tree_add_item(bacapp_tree_control, hf_BACnetAbortReason, tvb,
 			    offset++, 1, TRUE);
 	return offset;
 }
@@ -9079,11 +9082,11 @@ static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 flag, bacapp_type;
-	guint save_fragmented = FALSE, data_offset = 0, bacapp_apdu_size, fragment = FALSE;
+	guint save_fragmented = FALSE, data_offset = 0, /*bacapp_apdu_size,*/ fragment = FALSE;
 	tvbuff_t* new_tvb = NULL;
 	guint offset = 0;
 	guint8 bacapp_seqno = 0;
-	guint8 bacapp_service, bacapp_reason, bacapp_prop_win_size;
+	guint8 bacapp_service, bacapp_reason/*, bacapp_prop_win_size*/;
 	guint8 bacapp_invoke_id = 0;
 	proto_item *ti;
 	proto_tree *bacapp_tree = NULL;
@@ -9123,10 +9126,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (flag & BACAPP_SEGMENTED_REQUEST) {
 				fragment = TRUE;
 				ack = 0;
-				bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_guint8(tvb, offset + 1)); /* has 16 values, reserved are 50 Bytes */
+				/* bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_guint8(tvb, offset + 1)); */ /* has 16 values, reserved are 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 3);
-				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4);
+				/* bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4); */
 				bacapp_service = tvb_get_guint8(tvb, offset + 5);
 				data_offset = 6;
 			} else {
@@ -9182,10 +9185,10 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (flag & BACAPP_SEGMENTED_REQUEST) {
 				fragment = TRUE;
 				ack = 1;
-				bacapp_apdu_size = fGetMaxAPDUSize(0); /* has minimum of 50 Bytes */
+				/* bacapp_apdu_size = fGetMaxAPDUSize(0); */ /* has minimum of 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 2);
-				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 3);
+				/* bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 3); */
 				bacapp_service = tvb_get_guint8(tvb, offset + 4);
 				data_offset = 5;
 			} else {
