@@ -2272,6 +2272,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *pdu_header_tree;
 
     gboolean   have_seen_data_header = FALSE;
+    gboolean   have_seen_non_padding_control = FALSE;
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
     volatile   guint32    is_truncated = FALSE;
@@ -2414,6 +2415,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             have_seen_bsr = TRUE;
         }
+
+        /* Should not see padding after non-padding control... */
+        if ((lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] == PADDING_LCID) &&
+            extension &&
+            have_seen_non_padding_control) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
+                                      "Padding should come before other control subheaders!");
+        }
+
+        /* Remember that we've seen non-padding control */
+        if ((lcids[number_of_headers] > 10) &&
+            (lcids[number_of_headers] != PADDING_LCID)) {
+            have_seen_non_padding_control = TRUE;
+        }
+
 
 
         /********************************************************************/
