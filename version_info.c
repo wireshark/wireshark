@@ -543,21 +543,23 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #endif /* __INTEL_COMPILER_BUILD_DATE */
 	g_string_append_printf(str, "\n");
 #elif defined(_MSC_FULL_VER)
-	if (_MSC_FULL_VER > 99999999) {
-		g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
-		    (_MSC_FULL_VER / 10000000) - 6,
-		    (_MSC_FULL_VER / 100000) % 100);
-		if ((_MSC_FULL_VER % 100000) != 0)
-			g_string_append_printf(str, " build %d",
-			    _MSC_FULL_VER % 100000);
-	} else {
-		g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
-		    (_MSC_FULL_VER / 1000000) - 6,
-		    (_MSC_FULL_VER / 10000) % 100);
-		if ((_MSC_FULL_VER % 10000) != 0)
-			g_string_append_printf(str, " build %d",
-			    _MSC_FULL_VER % 10000);
-	}
+# if _MSC_FULL_VER > 99999999
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+			       (_MSC_FULL_VER / 10000000) - 6,
+			       (_MSC_FULL_VER / 100000) % 100);
+#  if (_MSC_FULL_VER % 100000) != 0
+	g_string_append_printf(str, " build %d",
+			       _MSC_FULL_VER % 100000);
+#  endif
+# else
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+			       (_MSC_FULL_VER / 1000000) - 6,
+			       (_MSC_FULL_VER / 10000) % 100);
+#  if (_MSC_FULL_VER % 10000) != 0
+	g_string_append_printf(str, " build %d",
+			       _MSC_FULL_VER % 10000);
+#  endif
+# endif
 	g_string_append_printf(str, "\n");
 #elif defined(_MSC_VER)
 	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
