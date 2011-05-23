@@ -1103,12 +1103,12 @@ ssi_10_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		off_vals = ssi_10_saveptr->offsets ? ssi_10_saveptr->offsets : et_empty;
 		ti = proto_tree_add_text(tree, tvb, 0, 1, "Logging details/Offset");
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
-		proto_tree_add_text(tree, tvb, 0, 1, "%sLogging disable for all events of given type: %s",
+		proto_tree_add_text(s_tree, tvb, 0, 1, "%sLogging disable for all events of given type: %s",
 				ipmi_dcd8(d, 0x20), (d & 0x20) ? "True" : "False");
-		proto_tree_add_text(tree, tvb, 0, 1, "%s%s event",
+		proto_tree_add_text(s_tree, tvb, 0, 1, "%s%s event",
 				ipmi_dcd8(d, 0x10), (d & 0x10) ? "Deassertion" : "Assertion");
 		d &= 0x0f;
-		proto_tree_add_text(tree, tvb, 0, 1, "%sEvent Offset: %s (0x%02x)",
+		proto_tree_add_text(s_tree, tvb, 0, 1, "%sEvent Offset: %s (0x%02x)",
 				ipmi_dcd8(d, 0x0f), val_to_str(d, off_vals, "Unknown"), d);
 		return TRUE;
 	}
