@@ -130,14 +130,14 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_str(pinfo->cinfo, COL_INFO, "MAC CLASS BASED FLOW CONTROL PAUSE");
       if (tree) {
         int i;
-        proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv, 
+        proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv,
                                ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, FALSE);
 
         ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
         pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
 
         for (i=0; i<8; i++) {
-          proto_tree_add_item(ti, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, FALSE);
+          proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, FALSE);
         }
       }
       break;
