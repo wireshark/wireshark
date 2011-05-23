@@ -305,7 +305,6 @@ static int hf_xtp_diag_msg = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_xtp = -1;
-static gint ett_xtp_key = -1;
 static gint ett_xtp_cmd = -1;
 static gint ett_xtp_cmd_options = -1;
 static gint ett_xtp_cmd_ptype = -1;
@@ -1007,7 +1006,6 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset = 0;
 		ti = proto_tree_add_uint64(xtp_tree, hf_xtp_key,
 					tvb, offset, 8, xtph->key);
-		xtp_subtree = proto_item_add_subtree(ti, ett_xtp_key);
 		offset += 8;
 		/* cmd(4) */
 		ti = proto_tree_add_uint(xtp_tree, hf_xtp_cmd,
@@ -1411,7 +1409,6 @@ proto_register_xtp(void)
 
 	static gint *ett[] = {
 		&ett_xtp,
-		&ett_xtp_key,
 		&ett_xtp_cmd,
 		&ett_xtp_cmd_options,
 		&ett_xtp_cmd_ptype,

@@ -50,7 +50,6 @@ static int hf_fcgi_end_request_protocol_status = -1;
 
 static int ett_fcgi = -1;
 static int ett_fcgi_begin_request = -1;
-static int ett_fcgi_abort_request = -1;
 static int ett_fcgi_end_request = -1;
 static int ett_fcgi_params = -1;
 
@@ -166,11 +165,7 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 static void
 dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
-   proto_item *ar;
-   proto_tree *ar_tree;
-
-   ar = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Abort Request:");
-   ar_tree = proto_item_add_subtree(ar, ett_fcgi_abort_request);
+   proto_tree_add_text(fcgi_tree, tvb, offset, len, "Abort Request:");
 
    return;
 }
@@ -384,7 +379,6 @@ proto_register_fcgi(void)
    static gint *ett[] = {
       &ett_fcgi,
       &ett_fcgi_begin_request,
-      &ett_fcgi_abort_request,
       &ett_fcgi_end_request,
       &ett_fcgi_params
    };

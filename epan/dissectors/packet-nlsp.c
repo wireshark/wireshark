@@ -160,6 +160,12 @@ nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	a matching code.  If found, we add to the display tree and
  *	then call the dissector.  If it is not, we just post an
  *	"unknown" clv entry using the passed in unknown clv tree id.
+ *      XXX: The "unknown tree id" is an 'ett' index for use
+ *           when creating a subtree;
+ *           Since the 'unknown' subtree was not actually used in the
+ *           code below, what was the intention for this ?
+ *           For now: code related to creating an 'unknown' subtrree
+ *            disabled.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -175,7 +181,7 @@ nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static void
 nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
-	const nlsp_clv_handle_t *opts, int len, int unknown_tree_id)
+	const nlsp_clv_handle_t *opts, int len, int unknown_tree_id _U_)
 {
 	guint8 code;
 	guint8 length;
@@ -221,10 +227,12 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, "Unknown code %u (%u)",
 					code, length);
+#if 0  /* XXX: ?? */
 				clv_tree = proto_item_add_subtree(ti,
 					unknown_tree_id );
 			} else {
 				clv_tree = NULL;
+#endif
 			}
 		}
 		offset += length;

@@ -165,12 +165,12 @@ static const value_string format_vals[] = {
 static void
 dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    conversation_t *cv;
+    /* conversation_t *cv; */
 
     first_message = TRUE;
 
     /* We don't use conversation data yet, but... */
-    cv = find_or_create_conversation(pinfo);
+    /* cv = find_or_create_conversation(pinfo); */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     if (check_col(pinfo->cinfo, COL_INFO))

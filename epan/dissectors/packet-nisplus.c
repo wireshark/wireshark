@@ -1877,13 +1877,13 @@ static int
 dissect_cb_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item* lock_item = NULL;
-	proto_tree* lock_tree = NULL;
+	/* proto_tree* lock_tree = NULL; */
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nispluscb_entry,
 			tvb, offset, -1, FALSE);
 
-	lock_tree = proto_item_add_subtree(lock_item, ett_nispluscb_entry);
+	/* lock_tree = proto_item_add_subtree(lock_item, ett_nispluscb_entry); */
 
 /*XXXXX Not implemented yet*/
 

@@ -28,7 +28,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <stdlib.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
@@ -53,7 +53,6 @@ static gint ett_lrh = -1;
 static gint ett_grh = -1;
 static gint ett_bth = -1;
 static gint ett_rwh = -1;
-static gint ett_rawdata = -1;
 static gint ett_rdeth = -1;
 static gint ett_deth = -1;
 static gint ett_reth = -1;
@@ -1608,7 +1607,6 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_item *base_transport_header_item = NULL;
 
     /* Raw Data */
-    proto_tree *RAWDATA_header_tree;
     proto_item *RAWDATA_header_item;
     guint8 lnh_val = 0;             /* Link Next Header Value */
     gint offset = 0;                /* Current Offset */
@@ -1823,7 +1821,6 @@ skip_lrh:
             /* Unknown Packet */
             RAWDATA_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_raw_data, tvb, offset, -1, FALSE);
             proto_item_set_text(RAWDATA_header_item, "%s", "Unknown Raw Data - IB Encapsulated");
-            RAWDATA_header_tree = proto_item_add_subtree(RAWDATA_header_item, ett_rawdata);
             break;
     }
 
@@ -7319,7 +7316,6 @@ void proto_register_infiniband(void)
         &ett_grh,
         &ett_bth,
         &ett_rwh,
-        &ett_rawdata,
         &ett_rdeth,
         &ett_deth,
         &ett_reth,

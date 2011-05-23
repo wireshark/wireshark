@@ -301,7 +301,6 @@ static gint hf_krb_midl_hdr_len = -1;
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
 static gint ett_krb_PAC_LOGON_INFO = -1;
-static gint ett_krb_PAC_CREDENTIAL_TYPE = -1;
 static gint ett_krb_PAC_SERVER_CHECKSUM = -1;
 static gint ett_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint ett_krb_PAC_CLIENT_INFO_TYPE = -1;
@@ -2749,13 +2748,7 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static int
 dissect_krb5_PAC_CREDENTIAL_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CREDENTIAL_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
-    if(parent_tree){
-        tree=proto_item_add_subtree(item, ett_krb_PAC_CREDENTIAL_TYPE);
-    }
+    proto_tree_add_item(parent_tree, hf_krb_PAC_CREDENTIAL_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
 
 /*qqq*/
     return offset;
@@ -5407,7 +5400,6 @@ proto_register_kerberos(void)
         &ett_krb_TransitedEncoding,
         &ett_krb_PAC,
         &ett_krb_PAC_LOGON_INFO,
-        &ett_krb_PAC_CREDENTIAL_TYPE,
         &ett_krb_PAC_SERVER_CHECKSUM,
         &ett_krb_PAC_PRIVSVR_CHECKSUM,
         &ett_krb_PAC_CLIENT_INFO_TYPE,
