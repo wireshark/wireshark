@@ -2312,12 +2312,12 @@ void proto_register_batadv(void)
 		    NULL, HFILL }
 		},
 		{ &hf_msg_reassembled_in,
-		  {"Reassembled in", "msg.reassembled.in",
+		  {"Reassembled in", "batadv.msg.reassembled.in",
 		    FT_FRAMENUM, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_msg_reassembled_length,
-		  {"Reassembled length", "msg.reassembled.length",
+		  {"Reassembled length", "batadv.msg.reassembled.length",
 		    FT_UINT32, BASE_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		}

@@ -136,7 +136,7 @@ proto_register_rs_acct (void)
 	{ &hf_rs_acct_lookup_rqst_key_size,
 		{ "Key Size", "rs_acct.lookup_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_lookup_rqst_key_t,
-		{ "Key", "rs_lookup.get_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ "Key", "rs_acct.lookup_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_var1,
 		{ "Var1", "rs_acct.get_projlist_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_key_size,

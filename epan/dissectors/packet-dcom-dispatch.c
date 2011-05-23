@@ -539,7 +539,7 @@ proto_register_dcom_dispatch(void)
 
     static hf_register_info hf_dispatch_array[] = {
         { &hf_dispatch_opnum,
-          { "Operation", "dispatch_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "Operation", "dispatch.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_dispatch_riid,
           { "RIID", "dispatch.riid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},

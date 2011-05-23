@@ -75,7 +75,7 @@ proto_register_rs_repadm (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_repadm_opnum,
-		{ "Operation", "rs_repadmin.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+		{ "Operation", "rs_repadm.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

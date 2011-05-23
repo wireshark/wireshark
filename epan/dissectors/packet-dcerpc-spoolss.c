@@ -8356,25 +8356,25 @@ proto_register_dcerpc_spoolss(void)
 		/* Security descriptor buffer */
 
 		{ &hf_secdescbuf_maxlen,
-		  { "Max len", "secdescbuf.max_len",
+		  { "Max len", "spoolss.secdescbuf.max_len",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_secdescbuf_undoc,
-		  { "Undocumented", "secdescbuf.undoc",
+		  { "Undocumented", "spoolss.secdescbuf.undoc",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_secdescbuf_len,
-		  { "Length", "secdescbuf.len",
+		  { "Length", "spoolss.secdescbuf.len",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* Spool printer info */
 
 		{ &hf_spool_printer_info_devmode_ptr,
-		  { "Devmode pointer", "spoolprinterinfo.devmode_ptr",
+		  { "Devmode pointer", "spoolss.spoolprinterinfo.devmode_ptr",
 		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_spool_printer_info_secdesc_ptr,
-		  { "Secdesc pointer", "spoolprinterinfo.secdesc_ptr",
+		  { "Secdesc pointer", "spoolss.spoolprinterinfo.secdesc_ptr",
 		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		/* WritePrinter RPC */
@@ -8387,15 +8387,15 @@ proto_register_dcerpc_spoolss(void)
 		/* Setprinterdataex RPC */
 
 		{ &hf_setprinterdataex_max_len,
-		  { "Max len", "setprinterdataex.max_len",
+		  { "Max len", "spoolss.setprinterdataex.max_len",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_setprinterdataex_real_len,
-		  { "Real len", "setprinterdataex.real_len",
+		  { "Real len", "spoolss.setprinterdataex.real_len",
 		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_setprinterdataex_data,
-		  { "Data", "setprinterdataex.data",
+		  { "Data", "spoolss.setprinterdataex.data",
 		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* Specific access rights */

@@ -886,7 +886,7 @@ proto_register_jfif(void)
 		/* Marker segment */
 		{ &hf_marker_segment,
 			{	"Marker segment",
-				IMG_JFIF "marker_segment",
+				IMG_JFIF ".marker_segment",
 				FT_NONE, BASE_NONE, NULL, 0x00,
 				NULL,
 				HFILL

@@ -150,79 +150,79 @@ proto_register_macctrl(void)
 {
   static hf_register_info hf[] = {
     { &hf_macctrl_opcode,
-      { "Opcode", "macctrl.opcode", FT_UINT16, BASE_HEX,
+      { "Opcode", "macc.opcode", FT_UINT16, BASE_HEX,
         VALS(opcode_vals), 0x0, "MAC Control opcode", HFILL}},
 
     { &hf_macctrl_pause_time,
-      { "pause_time", "macctrl.pause_time", FT_UINT16, BASE_DEC,
+      { "pause_time", "macc.pause_time", FT_UINT16, BASE_DEC,
         NULL, 0x0, "MAC control PAUSE frame pause_time", HFILL }},
 
     { &hf_macctrl_cbfc_enbv,
-      { "CBFC Class Enable Vector", "macctrl.cbfc.enbv", FT_UINT16, BASE_HEX,
+      { "CBFC Class Enable Vector", "macc.cbfc.enbv", FT_UINT16, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c0,
-      { "C0", "macctrl.cbfc.enbv.c0", FT_BOOLEAN, 16,
+      { "C0", "macc.cbfc.enbv.c0", FT_BOOLEAN, 16,
         NULL, 0x01, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c1,
-      { "C1", "macctrl.cbfc.enbv.c1", FT_BOOLEAN, 16,
+      { "C1", "macc.cbfc.enbv.c1", FT_BOOLEAN, 16,
         NULL, 0x02, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c2,
-      { "C2", "macctrl.cbfc.enbv.c2", FT_BOOLEAN, 16,
+      { "C2", "macc.cbfc.enbv.c2", FT_BOOLEAN, 16,
         NULL, 0x04, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c3,
-      { "C3", "macctrl.cbfc.enbv.c3", FT_BOOLEAN, 16,
+      { "C3", "macc.cbfc.enbv.c3", FT_BOOLEAN, 16,
         NULL, 0x08, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c4,
-      { "C4", "macctrl.cbfc.enbv.c4", FT_BOOLEAN, 16,
+      { "C4", "macc.cbfc.enbv.c4", FT_BOOLEAN, 16,
         NULL, 0x10, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c5,
-      { "C5", "macctrl.cbfc.enbv.c5", FT_BOOLEAN, 16,
+      { "C5", "macc.cbfc.enbv.c5", FT_BOOLEAN, 16,
         NULL, 0x20, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c6,
-      { "C6", "macctrl.cbfc.enbv.c6", FT_BOOLEAN, 16,
+      { "C6", "macc.cbfc.enbv.c6", FT_BOOLEAN, 16,
         NULL, 0x40, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_enbv_c7,
-      { "C7", "macctrl.cbfc.enbv.c7", FT_BOOLEAN, 16,
+      { "C7", "macc.cbfc.enbv.c7", FT_BOOLEAN, 16,
         NULL, 0x80, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c0,
-      { "C0", "macctrl.cbfc.pause_time.c0", FT_UINT16, BASE_DEC,
+      { "C0", "macc.cbfc.pause_time.c0", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c1,
-      { "C1", "macctrl.cbfc.pause_time.c1", FT_UINT16, BASE_DEC,
+      { "C1", "macc.cbfc.pause_time.c1", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c2,
-      { "C2", "macctrl.cbfc.pause_time.c2", FT_UINT16, BASE_DEC,
+      { "C2", "macc.cbfc.pause_time.c2", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c3,
-      { "C3", "macctrl.cbfc.pause_time.c3", FT_UINT16, BASE_DEC,
+      { "C3", "macc.cbfc.pause_time.c3", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c4,
-      { "C4", "macctrl.cbfc.pause_time.c4", FT_UINT16, BASE_DEC,
+      { "C4", "macc.cbfc.pause_time.c4", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c5,
-      { "C5", "macctrl.cbfc.pause_time.c5", FT_UINT16, BASE_DEC,
+      { "C5", "macc.cbfc.pause_time.c5", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c6,
-      { "C6", "macctrl.cbfc.pause_time.c6", FT_UINT16, BASE_DEC,
+      { "C6", "macc.cbfc.pause_time.c6", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
     { &hf_macctrl_cbfc_pause_time_c7,
-      { "C7", "macctrl.cbfc.pause_time.c7", FT_UINT16, BASE_DEC,
+      { "C7", "macc.cbfc.pause_time.c7", FT_UINT16, BASE_DEC,
         NULL, 0x00, NULL, HFILL }}
 
   };

@@ -560,7 +560,7 @@ void proto_register_erldp(void) {
                         "Message Length", HFILL}},
 
     /*--- ETF  ---*/
-    { &hf_etf_tag,    { "Tag", "etf.tag",
+    { &hf_etf_tag,    { "Tag", "erldp.etf_tag",
                         FT_UINT8, BASE_DEC, VALS(etf_tag_vals), 0x0,
                         NULL, HFILL}},
   };
