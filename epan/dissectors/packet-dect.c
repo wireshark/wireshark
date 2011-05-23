@@ -2463,7 +2463,7 @@ proto_register_dect(void)
 
 		{ &hf_dect_A_Tail_Mt_Mh_fmid,
 		{"Mh/FMID", "dect.afield.tail.Mt.Mh.fmid", FT_UINT16, BASE_HEX, NULL,
-			0x0FF0, NULL, HFILL}},
+			0xFFF0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Mt_Mh_pmid,
 		{"Mh/PMID", "dect.afield.tail.Mt.Mh.pmid", FT_UINT24, BASE_HEX, NULL,
