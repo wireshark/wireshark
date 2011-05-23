@@ -1277,6 +1277,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 static void checkChannelACKWindow(guint16 ack_sn,
                                   packet_info *pinfo,
                                   rlc_lte_info *p_rlc_lte_info,
+                                  rlc_lte_tap_info *tap_info,
                                   proto_tree *tree,
                                   tvbuff_t *tvb)
 {
@@ -1292,7 +1293,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
             /* Add any info to tree */
             addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info,
                                    0, FALSE,
-                                   NULL, pinfo, tree, tvb);
+                                   tap_info, pinfo, tree, tvb);
             return;
         }
         else {
@@ -1334,7 +1335,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
 
         /* Add state report for this frame into tree */
         addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, 0,
-                               FALSE, NULL, pinfo, tree, tvb);
+                               FALSE, tap_info, pinfo, tree, tvb);
     }
 }
 
@@ -1727,7 +1728,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
         if (!is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
             checkChannelRepeatedNACKInfo(pinfo, p_rlc_lte_info, tap_info, tree, tvb);
-            checkChannelACKWindow((guint16)ack_sn, pinfo, p_rlc_lte_info, tree, tvb);
+            checkChannelACKWindow((guint16)ack_sn, pinfo, p_rlc_lte_info, tap_info, tree, tvb);
         }
      }
 }
