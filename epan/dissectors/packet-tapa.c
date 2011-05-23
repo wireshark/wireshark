@@ -138,10 +138,12 @@ check_ascii(tvbuff_t *tvb, gint offset, gint length)
 	gint i;
 	guint8 buf;
 
-	for (i = 0; i < length; i++)
+	for (i = 0; i < length; i++) {
 		buf = tvb_get_guint8(tvb, offset+i);
-		if (buf < 0x20 || buf >= 0x80)
+		if (buf < 0x20 || buf >= 0x80) {
 			return FALSE;
+		}
+	}
 	return TRUE;
 }
 
