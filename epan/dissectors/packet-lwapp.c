@@ -341,7 +341,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Dissect as Ethernet */
     next_client	= tvb_new_subset_remaining(tvb, 0);
-    call_dissector(eth_withoutfcs_handle, next_client, pinfo, tree);
+    call_dissector(eth_withoutfcs_handle, next_client, pinfo, lwapp_tree);
     return;
 
 } /* dissect_lwapp_l3*/
