@@ -126,7 +126,6 @@ int proto_erldp = -1;
 static int hf_erldp_length_2 = -1;
 static int hf_erldp_length_4 = -1;
 static int hf_erldp_tag = -1;
-static int hf_erldp_tagd = -1;
 static int hf_erldp_type = -1;
 static int hf_erldp_version = -1;
 static int hf_erldp_flags = -1;
@@ -529,9 +528,6 @@ void proto_register_erldp(void) {
                         "Message Length", HFILL}},
     { &hf_erldp_tag,  { "Tag", "erldp.tag",
                         FT_STRING, BASE_NONE, NULL, 0x0,
-                        NULL, HFILL}},
-    { &hf_erldp_tagd, { "Tag", "erldp.tagd",
-                        FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_type, { "Type", "erldp.type",
                         FT_UINT8, BASE_DEC, NULL, 0x0,

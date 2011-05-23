@@ -122,10 +122,6 @@ static int hf_fileexp_afsFid_volume_high = -1;
 static int hf_fileexp_afsFid_volume_low = -1;
 static int hf_fileexp_afsFid_Vnode = -1;
 static int hf_fileexp_afsFid_Unique = -1;
-static int hf_fileexp_volume_high = -1;
-static int hf_fileexp_volume_low = -1;
-static int hf_fileexp_vnode = -1;
-static int hf_fileexp_unique = -1;
 static int hf_fileexp_interfaceversion = -1;
 static int hf_fileexp_filetype = -1;
 static int hf_fileexp_linkcount = -1;
@@ -218,10 +214,7 @@ static int hf_fileexp_l_sysid = -1;
 static int hf_fileexp_l_type = -1;
 static int hf_fileexp_l_whence = -1;
 static int hf_fileexp_acl_len = -1;
-static int hf_fileexp_st = -1;
-static int hf_fileexp_uint = -1;
 static int hf_fileexp_setcontext_rqst_epochtime = -1;
-static int hf_fileexp_setcontext_rqst_secobjectid = -1;
 static int hf_fileexp_setcontext_rqst_clientsizesattrs = -1;
 static int hf_fileexp_setcontext_rqst_parm7 = -1;
 static int hf_fileexp_afsNetAddr_type = -1;
@@ -252,7 +245,6 @@ static int hf_fileexp_offsetp_low = -1;
 static int hf_fileexp_nextoffsetp_high = -1;
 static int hf_fileexp_cellidp_low = -1;
 static int hf_fileexp_tn_tag = -1;
-static int hf_fileexp_tn_size = -1;
 static int hf_fileexp_tn_string = -1;
 static int hf_fileexp_bulkfetchvv_numvols = -1;
 static int hf_fileexp_bulkfetchvv_spare1 = -1;
@@ -267,7 +259,6 @@ static int hf_fileexp_gettime_syncdistance = -1;
 static int hf_fileexp_gettime_usecondsp = -1;
 static int hf_fileexp_readdir_size = -1;
 static int hf_fileexp_afsNameString_t_principalName_size = -1;
-static int hf_fileexp_afsNameString_t_principalName_size2 = -1;
 static int hf_fileexp_afsTaggedPath_tp_length = -1;
 static int hf_fileexp_fstype = -1;
 static int hf_fileexp_gettime_secondsp = -1;
@@ -4286,20 +4277,14 @@ proto_register_fileexp (void)
     { &hf_error_st, {"AFS4Int Error Status Code", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_flags, {"DFS Flags", "fileexp.flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_tn_string, {"String", "fileexp.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_tn_size, {"String Size", "fileexp.tn_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_opnum, {"Operation", "fileexp.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_setcontext_rqst_epochtime, {"EpochTime:", "fileexp.setcontext_rqst_epochtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_setcontext_rqst_secobjectid, { "SetObjectid:", "fileexp.setcontext_secobjextid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
     { &hf_fileexp_setcontext_rqst_clientsizesattrs, { "ClientSizeAttrs:", "fileexp.setcontext_clientsizesattrs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_setcontext_rqst_parm7, { "Parm7:", "fileexp.setcontext.parm7", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_acl_len, {"Acl Length", "fileexp.acl_len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_acltype, {"Acl type", "fileexp.acltype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_minvvp_high, {"minVVp high", "fileexp.minvvp_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_minvvp_low, {"minVVp low", "fileexp.minvvp_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_volume_low, { "Volume low", "fileexp.volume_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_volume_high, { "Volume high", "fileexp.volume_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vnode, { "Vnode", "fileexp.vnode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_unique, { "Unique", "fileexp.unique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_accesstime_msec, { "Access time (msec)", "fileexp.accesstime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_accesstime_sec, { "Access time (sec)", "fileexp.accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_aclexpirationtime, { "Acl expiration time", "fileexp.aclexpirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
@@ -4382,8 +4367,6 @@ proto_register_fileexp (void)
     { &hf_fileexp_storestatus_trunc_high, { "Store status trunc high", "fileexp.storestatus_trunc_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_storestatus_trunc_low, { "Store status trunc low", "fileexp.storestatus_trunc_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_storestatus_typeuuid, { "Store status type uuid", "fileexp.storestatus_typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_fileexp_st, { "st", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_uint, {"uint", "fileexp.uint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_l_end_pos, { "l_end_pos", "fileexp.l_end_pos", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_l_end_pos_ext, { "l_end_pos_ext", "fileexp.l_end_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_l_fstype, { "l_fstype", "fileexp.l_fstype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
@@ -4437,7 +4420,6 @@ proto_register_fileexp (void)
     {&hf_fileexp_gettime_usecondsp, {"GetTime usecondsp", "fileexp.gettime_usecondsp", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_readdir_size, {"Readdir Size", "fileexp.readdir.size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_afsNameString_t_principalName_size, {"Principal Name Size", "fileexp.principalName_size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsNameString_t_principalName_size2, {"Principal Name Size2", "fileexp.principalName_size2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_afsTaggedPath_tp_length, {"Tagged Path Length", "fileexp.afsTaggedPath_length", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_fstype, {"Filetype", "fileexp.fstype", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_gettime_secondsp, {"GetTime secondsp", "fileexp.gettime_secondsp", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},

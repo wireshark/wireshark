@@ -242,11 +242,9 @@ static int hf_batadv_batman_seqno32 = -1;
 static int hf_batadv_batman_orig = -1;
 static int hf_batadv_batman_prev_sender = -1;
 static int hf_batadv_batman_num_hna = -1;
-static int hf_batadv_batman_pad = -1;
 static int hf_batadv_batman_hna = -1;
 
 static int hf_batadv_bcast_version = -1;
-static int hf_batadv_bcast_pad = -1;
 static int hf_batadv_bcast_orig = -1;
 static int hf_batadv_bcast_seqno = -1;
 static int hf_batadv_bcast_seqno32 = -1;
@@ -586,7 +584,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	/* Hidden: proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_pad, tvb, offset, 1, FALSE); */
+	/* Skip 1 byte of padding. */
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
@@ -797,7 +795,7 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	dissect_batadv_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
 	offset += 1;
 
-	/* Hidden: proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_pad, tvb, offset, 1, FALSE); */
+	/* Skip 1 byte of padding. */
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
@@ -907,7 +905,7 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	dissect_batadv_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
 	offset += 1;
 
-	/* Hidden: proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_pad, tvb, offset, 1, FALSE); */
+	/* Skip 1 byte of padding. */
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
@@ -2064,11 +2062,6 @@ void proto_register_batadv(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_batadv_batman_pad,
-		  { "Padding", "batadv.batman.pad",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }
-		},
 		{ &hf_batadv_batman_flags_directlink,
 		  { "DirectLink", "batadv.batman.flags.directlink",
 		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
@@ -2091,11 +2084,6 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_bcast_version,
 		  { "Version", "batadv.bcast.version",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }
-		},
-		{ &hf_batadv_bcast_pad,
-		  { "Padding", "batadv.bcast.pad",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},

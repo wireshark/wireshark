@@ -6567,7 +6567,6 @@ SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int hf_keybuffer_size = -1;
-static int hf_keybuffer_data = -1;
 
 static int
 dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6655,16 +6654,12 @@ SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int hf_enumprinterdataex_num_values = -1;
 static int hf_enumprinterdataex_name_offset = -1;
 static int hf_enumprinterdataex_name_len = -1;
-static int hf_enumprinterdataex_name = -1;
-static int hf_enumprinterdataex_val_type = -1;
 static int hf_enumprinterdataex_val_offset = -1;
 static int hf_enumprinterdataex_val_len = -1;
 static int hf_enumprinterdataex_val_dword_low = -1;
 static int hf_enumprinterdataex_val_dword_high = -1;
-static int hf_enumprinterdataex_val_sz = -1;
 
 static int
 SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
@@ -8261,11 +8256,6 @@ proto_register_dcerpc_spoolss(void)
 
 		/* EnumprinterdataEx RPC */
 
-		{ &hf_enumprinterdataex_num_values,
-		  { "Num values", "spoolss.enumprinterdataex.num_values",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Number of values returned", HFILL }},
-
 		{ &hf_enumprinterdataex_name_offset,
 		  { "Name offset", "spoolss.enumprinterdataex.name_offset",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8273,15 +8263,6 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_enumprinterdataex_name_len,
 		  { "Name len", "spoolss.enumprinterdataex.name_len",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_enumprinterdataex_name,
-		  { "Name", "spoolss.enumprinterdataex.name",
-		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-		{ &hf_enumprinterdataex_val_type,
-		  { "Value type", "spoolss.enumprinterdataex.value_type",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
@@ -8307,10 +8288,6 @@ proto_register_dcerpc_spoolss(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
-		{ &hf_enumprinterdataex_val_sz,
-		  { "SZ value", "spoolss.printerdata.val_sz",
-		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-
 		/* RouterReplyPrinter RPC */
 
 		{ &hf_routerreplyprinter_condition,
@@ -8330,10 +8307,6 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_keybuffer_size,
 		  { "Key Buffer size", "spoolss.keybuffer.size", FT_UINT32,
 		    BASE_DEC, NULL, 0x0, "Size of buffer", HFILL }},
-
-		{ &hf_keybuffer_data,
-		  { "Key Buffer data", "spoolss.keybuffer.data", FT_BYTES,
-		    BASE_NONE, NULL, 0x0, "Contents of buffer", HFILL }},
 
 		/* SetJob RPC */
 

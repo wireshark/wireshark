@@ -483,7 +483,6 @@ static int hf_dcerpc_cn_rts_flags_recycle_channel = -1;
 static int hf_dcerpc_cn_rts_flags_in_channel = -1;
 static int hf_dcerpc_cn_rts_flags_out_channel = -1;
 static int hf_dcerpc_cn_rts_flags_eof = -1;
-static int hf_dcerpc_cn_rts_flags_echo = -1;
 static int hf_dcerpc_cn_rts_commands_nb = -1;
 static int hf_dcerpc_cn_rts_command = -1;
 static int hf_dcerpc_cn_rts_command_receivewindowsize = -1;
@@ -5813,8 +5812,6 @@ proto_register_dcerpc (void)
           { "Out Channel", "dcerpc.cn_rts_flags.out_channel", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_OUT_CHANNEL, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_flags_eof,
           { "EOF", "dcerpc.cn_rts_flags.eof", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_EOF, NULL, HFILL }},
-        { &hf_dcerpc_cn_rts_flags_echo,
-          { "Echo", "dcerpc.cn_rts_flags.echo", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_ECHO, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_commands_nb,
           { "RTS Number of Commands", "dcerpc.cn_rts_commands_nb", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_command,
