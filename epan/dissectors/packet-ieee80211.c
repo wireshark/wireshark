@@ -7373,9 +7373,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
 
     case TAG_RSN_IE: /* 7.3.2.25 RSN information element (48) */
-      if (tag_len < 24)
+      if (tag_len < 20)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 24", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 20", tag_len);
         break;
       }
       offset += 2;
