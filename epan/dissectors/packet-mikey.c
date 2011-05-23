@@ -852,6 +852,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	if (tree) {
 		parent = proto_tree_get_parent(tree);
+		proto_item_append_text(parent, " Type: %s", val_to_str(ts_type, ts_type_vals, "Unknown"));
 		proto_tree_add_item(tree, hf_mikey[POS_TS_TYPE], tvb, offset+1, 1, FALSE);
 	}
 
