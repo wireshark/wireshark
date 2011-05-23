@@ -882,6 +882,8 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (tree && table_count) {
         ti = proto_tree_add_text(tree, tvb, offset, table_count*(sizeof(guint16)+sizeof(guint64)), "Discovery Cache");
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_cache);
+    } else {
+        field_tree = NULL;
     }
     for (i=0; i<table_count; i++) {
         guint64 addr64 = tvb_get_letoh64(tvb, offset);
