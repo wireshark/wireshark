@@ -337,8 +337,9 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_item(tree, proto_lwapp_l3, tvb, offset,
 				 -1, FALSE);
 	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp_l3);
+    } else {
+        lwapp_tree = NULL;
     }
-
     /* Dissect as Ethernet */
     next_client	= tvb_new_subset_remaining(tvb, 0);
     call_dissector(eth_withoutfcs_handle, next_client, pinfo, lwapp_tree);
