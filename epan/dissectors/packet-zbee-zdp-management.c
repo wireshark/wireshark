@@ -29,9 +29,8 @@
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
 
-#include <stdlib.h>
 #include <glib.h>
-#include <gmodule.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 
@@ -888,8 +887,8 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         guint64 addr64 = tvb_get_letoh64(tvb, offset);
         guint16 addr16 = tvb_get_letohs(tvb, offset+sizeof(guint64));
 
-        if (tree) {
-            proto_tree_add_text(tree, tvb, offset, sizeof(guint16)+sizeof(guint64), "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
+        if (field_tree) {
+            proto_tree_add_text(field_tree, tvb, offset, sizeof(guint16)+sizeof(guint64), "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
         }
         offset += sizeof(guint16)+sizeof(guint64);
     } /* for */

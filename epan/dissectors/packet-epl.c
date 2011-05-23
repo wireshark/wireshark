@@ -41,7 +41,8 @@
     #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
@@ -859,8 +860,8 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 
     if (show_soc_flags && check_col(pinfo->cinfo, COL_INFO))
     {
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MC = %d   PS = %d",
-			((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "MC = %d   PS = %d",
+                        ((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
     }
 
     if (epl_tree)
@@ -1042,8 +1043,8 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 
     if (svid != EPL_SOA_NOSERVICE && check_col(pinfo->cinfo, COL_INFO))
     {
-	col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
-			target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
+                        target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
     }
 
     if (epl_tree)
@@ -1191,7 +1192,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree  *epl_feat_tree;
 
     device_type = tvb_get_letohl(tvb, offset + 22);
-	profile    = tvb_get_letohs(tvb, offset + 22);
+    profile    = tvb_get_letohs(tvb, offset + 22);
 
     if (epl_tree)
     {
@@ -1383,7 +1384,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         /*Dissect the whole Error List (display each entry)*/
         for (cnt = 0; cnt<number_of_entries; cnt++)
         {
-            ti_el_entry = proto_tree_add_text(ti_el, tvb, offset, 20, "Entry %d", cnt+1);
+            ti_el_entry = proto_tree_add_text(epl_el_tree, tvb, offset, 20, "Entry %d", cnt+1);
 
             epl_el_entry_tree = proto_item_add_subtree(ti_el_entry, ett_epl_el_entry);
 

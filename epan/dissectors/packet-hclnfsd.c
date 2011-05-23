@@ -614,19 +614,19 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
 		jobtree = proto_item_add_subtree(jobitem, ett_hclnfsd_printjob);
 
-		offset = dissect_rpc_string(tvb, tree,
+		offset = dissect_rpc_string(tvb, jobtree,
 			hf_hclnfsd_username, offset, NULL);
 
-		offset = dissect_rpc_string(tvb, tree,
+		offset = dissect_rpc_string(tvb, jobtree,
 			hf_hclnfsd_printparams, offset, NULL);
 
-		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_queuestatus, offset);
+		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_queuestatus, offset);
 
-		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_jobstatus, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_timesubmitted, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_size, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_copies, offset);
-		offset = dissect_rpc_string(tvb, tree,
+		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_jobstatus, offset);
+		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_timesubmitted, offset);
+		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_size, offset);
+		offset = dissect_rpc_uint32(tvb, jobtree, hf_hclnfsd_copies, offset);
+		offset = dissect_rpc_string(tvb, jobtree,
 			hf_hclnfsd_queuecomment, offset, NULL);
 
 		datafollows = tvb_get_ntohl(tvb, offset);

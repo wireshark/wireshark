@@ -40,9 +40,12 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
+#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <string.h>
 
 #define ETHERTYPE_DECT 0x2323
 
@@ -214,7 +217,7 @@ static int hf_dect_A_Tail_Mt_Encr_Cmd2		= -1;
 static int hf_dect_A_Tail_Pt_ExtFlag		= -1;
 static int hf_dect_A_Tail_Pt_SDU		= -1;
 static int hf_dect_A_Tail_Pt_RFPI		= -1;
-static int hf_dect_A_Tail_Pt_BsData		= -1; 
+static int hf_dect_A_Tail_Pt_BsData		= -1;
 static int hf_dect_A_Tail_Pt_InfoType		= -1;
 static int hf_dect_A_Tail_Pt_SlotPairs		= -1;
 static int hf_dect_A_Tail_Pt_Fillbits		= -1;
@@ -1440,7 +1443,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	AField		= proto_item_add_subtree(afieldti, ett_afield);
 
 	/* Header */
-	aheadti		= proto_tree_add_item(afieldti, hf_dect_A_Head, tvb, offset, 1, FALSE);
+	aheadti		= proto_tree_add_item(AField, hf_dect_A_Head, tvb, offset, 1, FALSE);
 	AHead		= proto_item_add_subtree(aheadti, ett_ahead);
 
 	if(dect_packet_type==DECT_PACKET_FP)
@@ -1456,12 +1459,12 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	/* Tail */
 	if(dect_packet_type==DECT_PACKET_FP)
 	{
-		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 
+		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5,
 			"FP-Tail: %s", val_to_str(ta, TA_vals_FP, "Error, please report: %d"));
 	}
 	else
 	{
-		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 
+		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5,
 			"PP-Tail: %s", val_to_str(ta, TA_vals_PP, "Error, please report: %d"));
 	}
 
@@ -1806,7 +1809,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 
 		if(((tail_0&0x70)>>4)&0xfe)
 			ep_strbuf_append_printf(afield_str,"%s, ",val_to_str((tail_0&0x70)>>4, PTSDU_vals, "Error, please report: %d"));
-	
+
 		switch((tail_0&0x70)>>4)
 		{
 		case 0:		/* Zero Length Page */
@@ -2135,7 +2138,7 @@ proto_register_dect(void)
 		{ &hf_dect_A_Tail_Qt_0_CA,
 		{"CA", "dect.afield.tail.Qt.CA", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
-			
+
 	/* Byte 3 */
 		{ &hf_dect_A_Tail_Qt_0_Spr1,
 		{"Spr1", "dect.afield.tail.Qt.Spr1", FT_UINT8, BASE_DEC, VALS(QTSpr_vals),
