@@ -14,6 +14,7 @@ VENDOR		FreeRADIUS			11344
 BEGIN-VENDOR	FreeRADIUS
 
 ATTRIBUTE	FreeRADIUS-Proxied-To			1	ipaddr
+ATTRIBUTE	FreeRADIUS-Acct-Session-Start-Time	2	date
 
 
 #

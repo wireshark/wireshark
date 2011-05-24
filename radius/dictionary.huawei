@@ -11,10 +11,10 @@ VENDOR		Huawei				2011
 
 BEGIN-VENDOR	Huawei
 
-# 1 - Unused
+ATTRIBUTE	Huawei-Input-Burst-Size			1	integer
 ATTRIBUTE	Huawei-Input-Average-Rate		2	integer
 ATTRIBUTE	Huawei-Input-Peak-Rate			3	integer
-# 4 - Unused
+ATTRIBUTE	Huawei-Output-Burst-Size		4	integer
 ATTRIBUTE	Huawei-Output-Average-Rate		5	integer
 ATTRIBUTE	Huawei-Output-Peak-Rate			6	integer
 ATTRIBUTE	Huawei-In-Kb-Before-T-Switch		7	integer
@@ -43,13 +43,42 @@ ATTRIBUTE	Huawei-Destnation-IP-Addr		39	string
 ATTRIBUTE	Huawei-Destnation-Volume		40	string
 ATTRIBUTE	Huawei-Startup-Stamp			59	integer
 ATTRIBUTE	Huawei-IPHost-Addr			60	string
+ATTRIBUTE	Huawei-VT-Name				64	integer
+ATTRIBUTE	Huawei-PPP-NCP-Type			70	integer
+ATTRIBUTE	Huawei-VSI-Name				71	string
+ATTRIBUTE	Huawei-Subnet-Mask			72	ipaddr
+ATTRIBUTE	Huawei-Gateway-Address			73	ipaddr
+ATTRIBUTE	Huawei-Lease-Time			74	integer
+ATTRIBUTE	Huawei-Primary-WINS			75	ipaddr
+ATTRIBUTE	Huawei-Secondary-WINS			76	ipaddr
+ATTRIBUTE	Huawei-Input-Peak-Burst-Size		77	integer
+ATTRIBUTE	Huawei-Output-Peak-Burst-Size		78	integer
+ATTRIBUTE	Huawei-Reduced-CIR			79	integer
+ATTRIBUTE	Huawei-Tunnel-Session-Limit		80	integer
+ATTRIBUTE	Huawei-Zone-Name			81	string
+ATTRIBUTE	Huawei-Data-Filter			82	string
+ATTRIBUTE	Huawei-Access-Service			83	string
+ATTRIBUTE	Huawei-HW-Accounting-Level		84	integer
 ATTRIBUTE	Huawei-HW-Portal-Mode			85	integer
+ATTRIBUTE	Huawei-HW-DPI-Policy-Name		86	string
+ATTRIBUTE	huawei-Policy-Route			87	ipaddr
+ATTRIBUTE	Huawei-Framed-Pool			88	string
+ATTRIBUTE	Huawei-HW-L2TP-Terminate-Cause		89	string
+ATTRIBUTE	Huawei-HW-Multi-Account-Mode		90	integer
+ATTRIBUTE	Huawei-Queue-Profile			91	string
+ATTRIBUTE	Huawei-Layer4-Session-Limit		92	integer
+ATTRIBUTE	Huawei-Multicast-Profile		93	string
 ATTRIBUTE	Huawei-VPN-Instance			94	string
 ATTRIBUTE	Huawei-Policy-Name			95	string
 ATTRIBUTE	Huawei-Tunnel-Group-Name		96	string
 ATTRIBUTE	Huawei-Multicast-Source-Group		97	string
 ATTRIBUTE	Huawei-Multicast-Receive-Group		98	ipaddr
 ATTRIBUTE	Huawei-User-Multicast-Type		99	integer
+ATTRIBUTE	Huawei-Reduced-PIR			100	integer
+ATTRIBUTE	Huawei-LI-ID				101	string
+ATTRIBUTE	Huawei-LI-Md-Address			102	ipaddr
+ATTRIBUTE	Huawei-LI-Md-Port			103	integer
+ATTRIBUTE	Huawei-LI-Md-VpnInstance		104	string
 ATTRIBUTE	Huawei-Service-Chg-Cmd			105	integer
 ATTRIBUTE	Huawei-Acct-Packet-Type			106	integer
 ATTRIBUTE	Huawei-Call-Reference			107	integer
@@ -72,6 +101,11 @@ ATTRIBUTE	Huawei-Primary-DNS			135	ipaddr
 ATTRIBUTE	Huawei-Secondary-DNS			136	ipaddr
 ATTRIBUTE	Huawei-ONLY-Account-Type		137	integer
 ATTRIBUTE	Huawei-Domain-Name			138	string
+ATTRIBUTE	Huawei-ANCP-Profile			139	string
+ATTRIBUTE	Huawei-HTTP-Redirect-URL		140	string
+ATTRIBUTE	Huawei-Loopback-Address			141	string
+ATTRIBUTE	Huawei-QoS-Profile-Type			142	integer
+ATTRIBUTE	Huawei-HW-Max-List-Num			143	integer
 ATTRIBUTE	Huawei-Version				254	string
 ATTRIBUTE	Huawei-Product-ID			255	string
 

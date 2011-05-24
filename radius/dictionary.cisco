@@ -125,6 +125,7 @@ ATTRIBUTE	Cisco-Maximum-Channels			235	integer
 ATTRIBUTE	Cisco-Data-Filter			242	integer
 ATTRIBUTE	Cisco-Call-Filter			243	integer
 ATTRIBUTE	Cisco-Idle-Limit			244	integer
+ATTRIBUTE	Cisco-Subscriber-Password		249	string
 ATTRIBUTE	Cisco-Account-Info			250	string
 ATTRIBUTE	Cisco-Service-Info			251	string
 ATTRIBUTE	Cisco-Command-Code			252	string

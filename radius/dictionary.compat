@@ -26,6 +26,7 @@ VALUE	Service-Type			Shell-User		6
 VALUE	Auth-Type			Unix			1
 VALUE	Service-Type			Dialback-Login-User	3
 VALUE	Service-Type			Dialback-Framed-User	4
+VALUE	Service-Type			Dialout-Framed-User	5
 
 #
 #	For compatibility with MERIT users files.
