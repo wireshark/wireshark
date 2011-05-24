@@ -1,0 +1,19 @@
+# -*- text -*-
+# IEA Software, Inc.
+# RADIUS VSA Dictionary
+# http://www.iea-software.com
+#
+# $Id$
+#
+
+VENDOR		IEA-Software			24023
+BEGIN-VENDOR	IEA-Software
+
+# AirMarshal Attributes [1-30]
+ATTRIBUTE	AM-Interrupt-HTMLFile			1	string
+ATTRIBUTE	AM-Interrupt-Interval			2	integer
+ATTRIBUTE	AM-Interrupt-Timeout			3	integer
+ATTRIBUTE	AM-Status-HTMLFile			4	string
+ATTRIBUTE	AM-HTTP-Proxy-Port			5	integer
+
+END-VENDOR IEA-Software
