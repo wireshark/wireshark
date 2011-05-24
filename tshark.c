@@ -3056,6 +3056,9 @@ print_columns(capture_file *cf)
   buf_offset = 0;
   *line_bufp = '\0';
   for (i = 0; i < cf->cinfo.num_cols; i++) {
+    /* Skip columns not marked as visible. */
+    if (!get_column_visible(i))
+      continue;
     switch (cf->cinfo.col_fmt[i]) {
     case COL_NUMBER:
 #ifdef HAVE_LIBPCAP
