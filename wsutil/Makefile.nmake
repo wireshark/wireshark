@@ -35,7 +35,7 @@ libwsutil.lib: libwsutil.dll
 libwsutil.exp: libwsutil.dll
 
 libwsutil.dll : $(OBJECTS) libwsutil.def ..\image\libwsutil.res
-	$(link) $(dlllflags) $(conlibsdll) \
+	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/DEF:libwsutil.def /OUT:libwsutil.dll \
 		/IMPLIB:libwsutil.lib \

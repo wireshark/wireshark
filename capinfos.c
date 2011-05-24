@@ -95,7 +95,7 @@
 #endif
 
 #ifdef _WIN32
-#include <shellapi.h>
+#include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
 #include "svnversion.h"
@@ -847,11 +847,6 @@ main(int argc, char *argv[])
   int    opt;
   int    overall_error_status;
 
-#ifdef _WIN32
-  LPWSTR              *wc_argv;
-  int                  wc_argc, i;
-#endif  /* _WIN32 */
-
   int status = 0;
 #ifdef HAVE_PLUGINS
   char  *init_progfile_dir_error;
@@ -864,13 +859,7 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
-  /* Convert our arg list to UTF-8. */
-  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-  if (wc_argv && wc_argc == argc) {
-    for (i = 0; i < argc; i++) {
-      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
-    }
-  } /* XXX else bail because something is horribly, horribly wrong? */
+  arg_list_utf_16to8(argc, argv);
 #endif /* _WIN32 */
 
   /*
@@ -1114,4 +1103,3 @@ main(int argc, char *argv[])
   }
   return overall_error_status;
 }
-

@@ -51,8 +51,7 @@
 #include "wiretap/wtap.h"
 
 #ifdef _WIN32
-#include <windows.h>
-#include <shellapi.h>
+#include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
 #define array_length(x)	(sizeof x / sizeof x[0])
@@ -508,12 +507,6 @@ main(int argc, char **argv)
 
 	int			opt;
 
-#ifdef _WIN32
-	LPWSTR              *wc_argv;
-	int                  wc_argc;
-#endif  /* _WIN32 */
-	
-
 	int			produce_count = 1000; /* number of pkts to produce */
 	int			produce_type = PKT_ETHERNET;
 	char			*produce_filename = NULL;
@@ -521,13 +514,7 @@ main(int argc, char **argv)
 	pkt_example		*example;
 
 #ifdef _WIN32
-	/* Convert our arg list to UTF-8. */
-	wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-	if (wc_argv && wc_argc == argc) {
-		for (i = 0; i < argc; i++) {
-			argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
-		}
-	} /* XXX else bail because something is horribly, horribly wrong? */
+	arg_list_utf_16to8(argc, argv);
 #endif /* _WIN32 */
 
 	while ((opt = getopt(argc, argv, "b:c:ht:")) != -1) {
