@@ -4316,10 +4316,16 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="PoC-Change-Time" code="1262" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Time"/>
 		</avp>
-		<avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
+    <!-- The Access-Network-Information AVP (AVP code 1263) is of type OctetString and indicates the SIP P-header
+        "P-Access-Network-Information".
+        As it's a SIP Header the actual content will be text so for Wireshark displays sake we treat this as
+        an UTF8String
+        -->
+    <avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP">
+      <!-- <type type-name="OctetString"/>  -->
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					<gavp name="Trigger-Type"/>
 					</grouped>
