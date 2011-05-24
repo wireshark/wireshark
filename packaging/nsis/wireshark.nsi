@@ -507,7 +507,6 @@ SetOutPath $INSTDIR
 ; of the installation directory.
 ;
 SetOutPath $INSTDIR\radius
-
 File "..\..\radius\README.radius_dictionary"
 File "..\..\radius\dictionary"
 File "..\..\radius\dictionary.3com"
