@@ -602,7 +602,7 @@ new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 	new_packet_list_recreate();
 }
 
-void
+static void
 new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
 {
 	/* We have to check for skip-update because we get an emit in menus_set_column_resolved() */
@@ -1516,7 +1516,7 @@ new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _
 }
 
 static void
-toggle_mark_all_displayed_frames()
+toggle_mark_all_displayed_frames(void)
 {
 	/* XXX: we might need a progressbar here */
 	guint32 framenum;
@@ -1617,7 +1617,7 @@ new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
 static void
-untime_reference_all_frames()
+untime_reference_all_frames(void)
 {
 	/* XXX: we might need a progressbar here */
 	guint32 framenum;

@@ -82,6 +82,6 @@ typedef struct
 } text_import_info_t;
 
 void text_import_setup(text_import_info_t *info);
-void text_import_cleanup();
+void text_import_cleanup(void);
 
 #endif

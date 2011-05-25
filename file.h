@@ -478,14 +478,14 @@ gboolean cf_find_packet_time_reference(capture_file *cf, search_direction dir);
  *
  * @return TRUE if the first row exists, FALSE otherwise
  */
-gboolean cf_goto_top_frame();
+gboolean cf_goto_top_frame(void);
 
 /**
  * GoTo Packet in last row.
  *
  * @return TRUE if last row exists, FALSE otherwise
  */
-gboolean cf_goto_bottom_frame();
+gboolean cf_goto_bottom_frame(void);
 
 /**
  * GoTo Packet with the given row.

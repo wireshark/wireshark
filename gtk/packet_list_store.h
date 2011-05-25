@@ -37,6 +37,7 @@
  *  The packet list store
  *  @ingroup main_window_group
  */
+extern GType packet_list_get_type(void);
 #define PACKETLIST_TYPE_LIST (packet_list_get_type())
 #define PACKET_LIST(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), PACKETLIST_TYPE_LIST, PacketList))
 #define PACKETLIST_LIST_CLASS(klass) (G_TYPE_CHECK_CLASS_CART((klass), PACKETLIST_TYPE_LIST))

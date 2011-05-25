@@ -801,7 +801,7 @@ const char* oid_subid2string(guint32* subids, guint len) {
 	return s;
 }
 
-guint check_num_oid(const char* str) {
+static guint check_num_oid(const char* str) {
 	const char* r = str;
 	char c = '\0';
 	guint n = 0;
@@ -1055,14 +1055,6 @@ guint oid_string2encoded(const char *oid_str, guint8 **bytes) {
 			return byteslen;
 		}
 	return 0;
-}
-
-char* oid2str(oid_info_t* oid, guint32* subids, guint len, guint left) {
-	if (left == 0) {
-		return oid->name;
-	} else {
-		return ep_strdup_printf("%s.%s",oid->name,oid_subid2string(subids+(len-left),left));
-	}
 }
 
 const gchar *oid_resolved_from_string(const gchar *oid_str) {

@@ -679,9 +679,8 @@ wtap_close(wtap *wth)
 }
 
 void
-wtap_cleareof(wtap *wth _U_) {
+wtap_cleareof(wtap *wth) {
 	/* Reset EOF */
-	if (file_eof(wth->fh))
 		file_clearerr(wth->fh);
 }
 

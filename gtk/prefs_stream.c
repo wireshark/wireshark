@@ -65,7 +65,7 @@ static void update_current_color(GtkWidget *, gpointer);
 static GdkColor tcolors[MAX_IDX], *curcolor = NULL;
 
 GtkWidget *
-stream_prefs_show()
+stream_prefs_show(void)
 {
   GtkWidget *main_vb, *main_tb, *label, *combo_box;
   GtkWidget *sample, *colorsel;

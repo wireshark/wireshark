@@ -207,7 +207,7 @@ geoip_db_type(guint dbnum) {
 	return -1;
 }
 
-int
+static int
 geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
 	GeoIP *gi;
 	GeoIPRecord *gir;

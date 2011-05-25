@@ -598,7 +598,7 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
 
    if (tag==T_PROFILE) {
        if (len_field % RES_ID_LEN) {
-           tag_str = match_strval(tag, dvbci_apdu_tag);
+           tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
            pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
                    "Invalid APDU length field");
            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
@@ -669,7 +669,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 
     if (tag==T_CA_INFO) {
         if (len_field % 2) {
-            tag_str = match_strval(tag, dvbci_apdu_tag);
+            tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
             pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
                     "Invalid APDU length field");
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,

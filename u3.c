@@ -61,7 +61,7 @@ static gchar *newpath = NULL;
 
 static char *u3_change_path(char *path, const char *old, const char *new);
 
-gboolean u3_active()
+gboolean u3_active(void)
 {
 
   return (
@@ -108,7 +108,7 @@ void u3_runtime_info(GString *str)
 
 }
 
-void u3_register_pid()
+void u3_register_pid(void)
 {
   int	pid;
   int   pid_fd;
@@ -142,7 +142,7 @@ void u3_register_pid()
 }
 
 
-void u3_deregister_pid()
+void u3_deregister_pid(void)
 {
   if(pid_file) {
     /* we don't care if we succeed or fail - u3utils may have deleted the file */

@@ -308,7 +308,7 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
  * Frees all memory allocated by the ringbuffer
  */
 void
-ringbuf_free()
+ringbuf_free(void)
 {
   unsigned int i;
 

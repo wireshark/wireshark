@@ -132,7 +132,7 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
 }
 
 /* Remove any %<interface_name> from an IP address. */
-char *sanitize_filter_ip(char *hostname) {
+static char *sanitize_filter_ip(char *hostname) {
     gchar *end;
     gchar *ret;
 

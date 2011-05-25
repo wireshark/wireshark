@@ -44,7 +44,7 @@ typedef struct _funnel_menu_t {
 static const funnel_ops_t* ops = NULL;
 static funnel_menu_t* menus = NULL;
 
-const funnel_ops_t* funnel_get_funnel_ops() { return ops;  }
+const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
 
 void funnel_register_menu(const char *name,

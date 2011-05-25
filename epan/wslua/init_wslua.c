@@ -436,5 +436,5 @@ int wslua_init(lua_State* LS) {
     return 0;
 }
 
-lua_State* wslua_state() { return L; }
+lua_State* wslua_state(void) { return L; }
 

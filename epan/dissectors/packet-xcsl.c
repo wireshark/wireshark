@@ -67,7 +67,7 @@ static gint ett_xcsl = -1;
 #define XCSL_PROTSEQERR   8
 #define XCSL_NONE         9
 
-/* Result code meanings. See function match_strval() for usage */
+/* Result code meanings. */
 static const value_string xcsl_action_vals[] = {
    { XCSL_SUCCESS,    "Success" },
    { XCSL_UNKNOWN,    "Unknown" },
@@ -218,7 +218,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                       if ( result >= XCSL_NONE ) {
                          result = XCSL_UNDEFINED;
                       }
-                      code = match_strval(result, xcsl_action_vals);
+                      code = val_to_str(result, xcsl_action_vals, "Unknown: %d");
 
                       /* Print result code and description */
                       xcsl_item = proto_tree_add_item(tree, hf_xcsl_result, tvb, offset, len, FALSE);

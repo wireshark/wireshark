@@ -1297,11 +1297,8 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
   }
   else {
-    msg_class_str = match_strval(MSGCODE_TO_CLASS(message_code), classes);
-    msg_method_str = match_strval(MSGCODE_TO_METHOD(message_code), methods);
-
-    if (msg_method_str == NULL)
-      msg_method_str = "Unknown";
+    msg_class_str = val_to_str(MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
+    msg_method_str = val_to_str(MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                  msg_method_str, msg_class_str);

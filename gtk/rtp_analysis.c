@@ -3029,7 +3029,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 
 
 /* Present boolean value */
-void
+static void
 rtp_boolean_data_func (GtkTreeViewColumn *column _U_,
 		       GtkCellRenderer   *renderer,
 		       GtkTreeModel      *model,

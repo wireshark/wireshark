@@ -42,6 +42,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/main.h"
 #include "gtk/menus.h"
+#include "gtk/manual_addr_resolv.h"
 
 GtkWidget *man_addr_resolv_dlg = NULL;
 

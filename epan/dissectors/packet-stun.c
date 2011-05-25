@@ -543,11 +543,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	msg_class_str = match_strval(msg_type_class, classes);
-	msg_method_str = match_strval(msg_type_method, methods);
-
-	if (msg_method_str == NULL)
-		msg_method_str = "Unknown";
+	msg_class_str = val_to_str_const(msg_type_class, classes, "Unknown");
+	msg_method_str = val_to_str_const(msg_type_method, methods, "Unknown");
 
 	if(check_col(pinfo->cinfo,COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -641,13 +638,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(att_type_tree, stun_att_type_comprehension, tvb, offset, 2, att_type);
 			ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
 						 "%s (%d)",
-						 match_strval((att_type & 0x8000) >> 15, comprehensions),
+						 val_to_str((att_type & 0x8000) >> 15, comprehensions, "Unknown: %d"),
 						 (att_type & 0x8000) >> 15);
 			PROTO_ITEM_SET_GENERATED(ti);
 			proto_tree_add_uint(att_type_tree, stun_att_type_assignment, tvb, offset, 2, att_type);
 			ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
 						 "%s (%d)",
-						 match_strval((att_type & 0x4000) >> 14, assignments),
+						 val_to_str((att_type & 0x4000) >> 14, assignments, "Unknown: %d"),
 						 (att_type & 0x4000) >> 14);
 			PROTO_ITEM_SET_GENERATED(ti);
 

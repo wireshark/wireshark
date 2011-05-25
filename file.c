@@ -3379,7 +3379,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 }
 
 gboolean
-cf_goto_top_frame()
+cf_goto_top_frame(void)
 {
   /* Find and select */
   new_packet_list_select_first_row();
@@ -3387,7 +3387,7 @@ cf_goto_top_frame()
 }
 
 gboolean
-cf_goto_bottom_frame()
+cf_goto_bottom_frame(void)
 {
   /* Find and select */
   new_packet_list_select_last_row();

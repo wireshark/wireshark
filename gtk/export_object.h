@@ -53,7 +53,7 @@ export objects, then it must specifiy a function that cleans up all
 those data structures. This function is passed to export_object_window
 and called when tap reset or windows closes occurs. If no function is needed
 a NULL value should be passed instead */
-typedef void (*eo_protocoldata_reset_cb)();
+typedef void (*eo_protocoldata_reset_cb)(void);
 
 
 void export_object_window(const gchar *tapname, const gchar *name,
