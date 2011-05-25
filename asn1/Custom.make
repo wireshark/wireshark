@@ -23,4 +23,4 @@
 # Add custom asn1 directories here, the file is included by Makefile.am
 # Note you need to add a Cutom.m4 file too.
 #
-CUSTOM_SUBDIRS = \
+CUSTOM_SUBDIRS = 
