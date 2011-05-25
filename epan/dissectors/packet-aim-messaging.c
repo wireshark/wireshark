@@ -302,10 +302,10 @@ dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *
 {
 	int offset = 0;
 	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_rendezvous_data);
-	proto_tree_add_item(entry, hf_aim_rendezvous_msg_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(entry, hf_aim_rendezvous_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
-	proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+    proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	offset = dissect_aim_capability(entry, tvb, offset);
@@ -324,13 +324,13 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	int buddyname_length;
 
 	/* ICBM Cookie */
-	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+    proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* Message Channel ID */
 	channel_id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
-						FALSE);
+                        ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Add the outgoing username to the info column */
@@ -359,12 +359,12 @@ dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	guint16 channel_id;
 
 	/* ICBM Cookie */
-	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+    proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* Message Channel ID */
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
-						FALSE);
+                        ENC_BIG_ENDIAN);
 	channel_id = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
@@ -383,12 +383,12 @@ static int
 dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_msg_flags, tvb, offset, 4, tvb_get_ntoh24(tvb, offset)); offset+=4;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); offset+=4;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_msg_flags, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	return offset;
 }
 
@@ -396,7 +396,7 @@ static int
 dissect_aim_msg_evil_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_evil, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_evil, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	return dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 }
 
@@ -405,8 +405,8 @@ static int
 dissect_aim_msg_evil_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(msg_tree, hf_aim_evil_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_evil_new_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_evil_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	return offset;
 }
 
@@ -414,10 +414,10 @@ static int
 dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, FALSE); offset+=8;
-	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_notification_channel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
-	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_type, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_notification_type, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	return offset;
 }
 
@@ -493,7 +493,7 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 
 	/* TODO: parse and present message_type */
 	/* message_type = tvb_get_guint8(tvb, offset); */
-	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, FALSE); offset+=1;
+    proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
 	message_flags = tvb_get_guint8(tvb, offset);
 	ti_flags = proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags);
 	flags_entry = proto_item_add_subtree(ti_flags, ett_aim_extended_data_message_flags);
@@ -501,10 +501,10 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_auto, tvb, offset, 1, message_flags);
 	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_multi, tvb, offset, 1, message_flags);
 	offset+=1;
-	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, TRUE); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, TRUE); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	text_length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, TRUE); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	text = tvb_get_ephemeral_string(tvb, offset, text_length);
 	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); offset+=text_length;
 	offset = tvb->length;
@@ -543,11 +543,11 @@ dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_
 	start_offset = offset;
 	/* TODO: parse and present protocol version */
 	/* protocol_version = tvb_get_ntohs(tvb, offset); */
-	proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, TRUE); offset+=2;
+    proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
 	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
-	proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, TRUE); offset+=4;
+    proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	proto_tree_add_text(entry, tvb, offset, 1, "Unknown");	offset += 1;
 	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
 
@@ -581,10 +581,10 @@ dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 
-	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, FALSE); offset+=8;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
 
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
-						FALSE); offset += 2;
+                        ENC_BIG_ENDIAN); offset += 2;
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
@@ -597,20 +597,20 @@ dissect_aim_msg_client_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tr
 	int offset = 0;
 	guint16 channel, reason;
 
-	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, FALSE); offset+=8;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
 	channel = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(msg_tree,hf_aim_icbm_channel, tvb, offset, 2, FALSE); offset+=2;
+    proto_tree_add_item(msg_tree,hf_aim_icbm_channel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 	reason = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(msg_tree, hf_aim_icbm_client_err_reason, tvb, offset, 2, FALSE); offset+=2;
+    proto_tree_add_item(msg_tree, hf_aim_icbm_client_err_reason, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	if (reason == CLIENT_ERR__REASON_CHANNEL_SPECIFIC && tvb_length_remaining(tvb, offset) > 0)
 	{
 		switch (channel)
 		{
 		case ICBM_CHANNEL_RENDEZVOUS:
-			proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak_length, tvb, offset, 2, FALSE); offset+=2;
-			proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak, tvb, offset, 2, FALSE); offset+=2;
+            proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+            proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 			break;
 
 		default:

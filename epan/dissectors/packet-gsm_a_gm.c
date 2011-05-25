@@ -6216,12 +6216,12 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_qos_del_order,
 	  	{ "Delivery order", "gsm_a.qos.del_order",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_order_vals), 0x18,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_del_of_err_sdu,
 	  	{ "Delivery of erroneous SDUs", "gsm_a.qos.del_of_err_sdu",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x07,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_ber,

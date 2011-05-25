@@ -155,6 +155,9 @@ void gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
 
+void tcp_graph_cb (GtkAction *action, gpointer user_data);
+gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);
+
 extern void register_stat_menu_item_stock(
     register_stat_group_t group,
     const char   *gui_path,
