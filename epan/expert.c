@@ -228,7 +228,7 @@ expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	expert_item = proto_tree_add_text(tree, tvb, offset, length, "Not dissected yet");
 
-	expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, severity, "Not dissected yet(report to wireshark.org)"); \
+	expert_add_info_format(pinfo, expert_item, PI_UNDECODED, severity, "Not dissected yet(report to wireshark.org)"); \
 	PROTO_ITEM_SET_GENERATED(expert_item); \
 
 }
