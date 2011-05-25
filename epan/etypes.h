@@ -413,6 +413,10 @@
 #define ETHERTYPE_VMLAB			0x88DE  /* VMware LabManager (used to be Akimbi Systems) */
 #endif
 
+#ifndef ETHERTYPE_HOMEPLUG_AV
+#define ETHERTYPE_HOMEPLUG_AV		0x88E1	/* HomePlug AV */
+#endif
+
 #ifndef ETHERTYPE_MRP
 #define ETHERTYPE_MRP	        	0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
