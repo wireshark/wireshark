@@ -236,6 +236,7 @@ radius_DATA = \
 	radius/dictionary.telkom \
 	radius/dictionary.trapeze  \
 	radius/dictionary.tropos \
+	radius/dictionary.ukerna  \
 	radius/dictionary.unix  \
 	radius/dictionary.usr  \
 	radius/dictionary.utstarcom \
