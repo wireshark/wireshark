@@ -133,7 +133,7 @@ extern gboolean proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
      print_stream_t *stream);
 extern gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
-extern void write_pdml_preamble(FILE *fh);
+extern void write_pdml_preamble(FILE *fh, const gchar* filename);
 extern void proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh);
 extern void write_pdml_finale(FILE *fh);
 

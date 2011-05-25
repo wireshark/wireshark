@@ -656,8 +656,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
-    if (base < BASE_DEC || base > BASE_HEX_DEC) {
-        luaL_argerror(L,2,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
+    if (type == FT_FRAMENUM) {
+	if (base != BASE_NONE)
+	    luaL_argerror(L, 3, "FT_FRAMENUMs must use BASE_NONE");
+    } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
+        luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
         return 0;
     }

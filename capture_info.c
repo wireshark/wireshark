@@ -246,7 +246,9 @@ void capture_info_new_packets(int to_read)
 
     /*g_warning("new packets: %u", to_read);*/
 
-    while (to_read != 0 && (wtap_read(info_data.wtap, &err, &err_info, &data_offset))) {
+    while (to_read > 0) {
+        wtap_cleareof(info_data.wtap);
+        if (wtap_read(info_data.wtap, &err, &err_info, &data_offset)) {
         phdr = wtap_phdr(info_data.wtap);
         pseudo_header = wtap_pseudoheader(info_data.wtap);
         wtap_linktype = phdr->pkt_encap;
@@ -256,6 +258,7 @@ void capture_info_new_packets(int to_read)
 
         /*g_warning("new packet");*/
         to_read--;
+    }
     }
 
     capture_info_ui_update(&info_data.ui);

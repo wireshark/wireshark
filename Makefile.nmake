@@ -960,6 +960,7 @@ install-generated-files:
 	xcopy "doc\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\services" $(INSTALL_DIR) /d
+	xcopy ".\pdml2html.xsl" $(INSTALL_DIR) /d
 	$(TEXTIFY) "./COPYING" $(INSTALL_DIR)
 	$(TEXTIFY) "./NEWS" $(INSTALL_DIR)
 	$(TEXTIFY) "./README" $(INSTALL_DIR)

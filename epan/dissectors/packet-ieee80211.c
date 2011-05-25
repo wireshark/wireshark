@@ -627,6 +627,8 @@ static const range_string tag_num_vals[] = {
   { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" },
   { TAG_SUPPORTED_REGULATORY_CLASSES, TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
+  { TAG_HT_INFO, TAG_HT_INFO, "HT Information (802.11n D1.10)" },
+  { TAG_SECONDARY_CHANNEL_OFFSET, TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)" },
 #ifndef MESH_OVERRIDES
   { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
 #endif
@@ -7377,9 +7379,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
 
     case TAG_RSN_IE: /* 7.3.2.25 RSN information element (48) */
-      if (tag_len < 24)
+      if (tag_len < 20)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 24", tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 20", tag_len);
         break;
       }
       offset += 2;
