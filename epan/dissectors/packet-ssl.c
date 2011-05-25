@@ -4842,8 +4842,20 @@ proto_register_ssl(void)
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
              (const gchar **)&ssl_psk);
 
-        prefs_register_string_preference(ssl_module, "keylog_file", "SSL key log filename",
-             "The filename of a file which contains a log of pre-master secrets",
+        prefs_register_string_preference(ssl_module, "keylog_file", "(Pre)-Master-Secret log filename",
+             "The filename of a file which contains a list of \n"
+             "(pre-)master secrets in one of the following formats:\n"
+             "\n"
+             "RSA <EPMS> <PMS>\n"
+             "RSA Session-ID:<SSLID> Master-Key:<MS>\n"
+             "\n"
+             "Where:\n"
+             "<EPMS> = First 8 bytes of the Encrypted PMS\n"
+             "<PMS> = The Pre-Master-Secret (PMS)\n"
+             "<SSLID> = The SSL Session ID\n"
+             "<MS> = The Master-Secret (MS)\n"
+             "\n"
+             "(All fields are in hex notation)",
              (const gchar **)&ssl_keylog_filename);
 #endif
     }
