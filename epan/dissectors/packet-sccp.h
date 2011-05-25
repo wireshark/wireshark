@@ -43,8 +43,6 @@
 #define SCCP_MSG_TYPE_IT    0x10
 #define SCCP_MSG_TYPE_XUDT  0x11
 #define SCCP_MSG_TYPE_XUDTS 0x12
-
-/* The below 2 are ITU only */
 #define SCCP_MSG_TYPE_LUDT  0x13
 #define SCCP_MSG_TYPE_LUDTS 0x14
 
