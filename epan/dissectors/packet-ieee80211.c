@@ -629,6 +629,8 @@ static const range_string tag_num_vals[] = {
   { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" },
   { TAG_SUPPORTED_REGULATORY_CLASSES, TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
+  { TAG_HT_INFO, TAG_HT_INFO, "HT Information (802.11n D1.10)" },
+  { TAG_SECONDARY_CHANNEL_OFFSET, TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)" },
 #ifndef MESH_OVERRIDES
   { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
 #endif
