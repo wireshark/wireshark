@@ -69,6 +69,18 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 	int severity, const char *format, ...)
 	G_GNUC_PRINTF(5, 6);
 
+/** Add an expert info about not dissected "item"
+ Add an expert info tree to a not dissected protocol item.
+ @patam tvb the tvb with the item.
+ @param pinfo packet info of the currently processed packet
+ @param tree tree to add the item to
+ @param offset in tvb
+ @param length the length of the item.
+ @param severity the expert severity (like PI_WARN - see: proto.h)
+  */
+
+extern void
+expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -428,6 +428,7 @@ except_throwd
 except_throwf
 except_unhandled_catcher
 expert_add_info_format
+expert_add_undecoded_item
 expert_get_highest_severity
 expert_group_vals               DATA
 expert_severity_vals            DATA
