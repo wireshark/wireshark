@@ -1380,17 +1380,13 @@ capture_cleanup_handler(int signum _U_)
 
 
 static void
-report_capture_count(void)
+report_capture_count(gboolean reportit)
 {
     /* Don't print this if we're a capture child. */
-    if (!capture_child) {
-        if (quiet) {
-            /* Report the count only if we aren't printing a packet count
-               as packets arrive. */
-            fprintf(stderr, "Packets captured: %u\n", global_ld.packet_count);
-            /* stderr could be line buffered */
-            fflush(stderr);
-        }
+    if (!capture_child && reportit) {
+        fprintf(stderr, "\rPackets captured: %u\n", global_ld.packet_count);
+        /* stderr could be line buffered */
+        fflush(stderr);
     }
 }
 
@@ -1399,7 +1395,7 @@ report_capture_count(void)
 static void
 report_counts_for_siginfo(void)
 {
-    report_capture_count();
+    report_capture_count(quiet);
     infoprint = FALSE; /* we just reported it */
 }
 
@@ -3333,7 +3329,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     if (cnd_autostop_duration != NULL)
         cnd_delete(cnd_autostop_duration);
 
-    /* did we had a pcap (input) error? */
+    /* did we have a pcap (input) error? */
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         pcap_opts = g_array_index(global_ld.pcaps, pcap_options, i);
         if (pcap_opts.pcap_err) {
@@ -3413,7 +3409,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      * mode, cap_pipe_open_live() will say "End of file on pipe during open".
      */
 
-    report_capture_count();  /* print final capture count only if (quiet && !capture_child) */
+    report_capture_count(TRUE);
 
     /* get packet drop statistics from pcap */
     for (i = 0; i < capture_opts->ifaces->len; i++) {
@@ -4361,7 +4357,7 @@ report_packet_count(int packet_count)
     }
 }
 
-void
+static void
 report_new_capture_file(const char *filename)
 {
     if(capture_child) {
@@ -4395,7 +4391,7 @@ report_new_capture_file(const char *filename)
     }
 }
 
-void
+static void
 report_cfilter_error(const char *cfilter, const char *errmsg)
 {
     if (capture_child) {
@@ -4411,7 +4407,7 @@ report_cfilter_error(const char *cfilter, const char *errmsg)
     }
 }
 
-void
+static void
 report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
     if(capture_child) {
@@ -4427,7 +4423,7 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
     }
 }
 
-void
+static void
 report_packet_drops(guint32 received, guint32 drops, gchar *name)
 {
     char tmp1[SP_DECISIZE+1+1];
@@ -4437,11 +4433,11 @@ report_packet_drops(guint32 received, guint32 drops, gchar *name)
     g_snprintf(tmp2, sizeof(tmp2), "%u", drops);
 
     if(capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets captured/dropped on interface %s: %s/%s", name, tmp1, tmp2);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets received/dropped on interface %s: %s/%s", name, tmp1, tmp2);
         /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp2);
     } else {
-        fprintf(stderr, "Packets captured/dropped on interface %s: %s/%s\n", name, tmp1, tmp2);
+        fprintf(stderr, "Packets received/dropped on interface %s: %s/%s\n", name, tmp1, tmp2);
         /* stderr could be line buffered */
         fflush(stderr);
     }
