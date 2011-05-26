@@ -4436,18 +4436,21 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 static void
 report_packet_drops(guint32 received, guint32 drops, gchar *name)
 {
-    char tmp1[SP_DECISIZE+1+1];
-    char tmp2[SP_DECISIZE+1+1];
+    char tmp[SP_DECISIZE+1+1];
 
-    g_snprintf(tmp1, sizeof(tmp1), "%u", received);
-    g_snprintf(tmp2, sizeof(tmp2), "%u", drops);
+    g_snprintf(tmp, sizeof(tmp), "%u", drops);
 
     if(capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets received/dropped on interface %s: %s/%s", name, tmp1, tmp2);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+            "Packets received/dropped on interface %s: %u/%u",
+            name, received, drops);
         /* XXX: Need to provide interface id, changes to consumers required. */
-        pipe_write_block(2, SP_DROPS, tmp2);
+        pipe_write_block(2, SP_DROPS, tmp);
     } else {
-        fprintf(stderr, "Packets received/dropped on interface %s: %s/%s\n", name, tmp1, tmp2);
+        fprintf(stderr,
+            "Packets received/dropped on interface %s: %u/%u (%.1f%%)\n",
+            name, received, drops,
+            received ? 100.0 * received / (received + drops) : 0.0);
         /* stderr could be line buffered */
         fflush(stderr);
     }
