@@ -2414,7 +2414,7 @@ proto_register_mip6(void)
                     FT_IPv4, BASE_NONE, NULL, 0x0,
                     NULL, HFILL }},
 
-    { &hf_mip6_mobility_opt,    { "Mobility Options", "mip6..mobility_opt",
+    { &hf_mip6_mobility_opt,    { "Mobility Options", "mip6.mobility_opt",
                       FT_UINT8, BASE_DEC, VALS(mip6_mobility_options), 0,
                       NULL, HFILL }},
     { &hf_pmip6_bri_brtype,     { "B.R. Type",  "mip6.bri_br.type",

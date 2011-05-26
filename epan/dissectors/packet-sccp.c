@@ -865,9 +865,9 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
             /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
             emem_tree_key_t bw_key[] = {
                 {1, &dpck}, 
-				{1, &opck}, 
-				{1, &src_lr}, 
-				{0, NULL}
+		{1, &opck}, 
+		{1, &src_lr}, 
+		{0, NULL}
             };
 
             if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {

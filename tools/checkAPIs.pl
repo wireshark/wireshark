@@ -1158,6 +1158,10 @@ sub check_hf_entries($$)
 			print STDERR "Error: field $name does not have an abbreviation in $filename\n";
 			$errorCount++;
 		}
+		if ($abbrev =~ m/\.\.+/) {
+			print STDERR "Error: the abbreviation for field $name ($abbrev) contains two or more sequential periods in $filename\n";
+			$errorCount++;
+		}
 		if ($name eq $abbrev) {
 			print STDERR "Error: the abbreviation for field $name matches the field name in $filename\n";
 			$errorCount++;
