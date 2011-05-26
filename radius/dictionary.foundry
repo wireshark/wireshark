@@ -16,10 +16,8 @@ ATTRIBUTE	Foundry-Command-String			2	string
 ATTRIBUTE	Foundry-Command-Exception-Flag		3	integer
 ATTRIBUTE	Foundry-INM-Privilege			4	integer
 ATTRIBUTE	Foundry-Access-List			5	string
-##ATTRIBUTE	Foundry-MAC-Authent-needs-802.1x	6	integer ## 802.1x causes access violation ??
-##ATTRIBUTE	Foundry-802.1x-Valid-Lookup		7	integer ## 802.1x causes access violation ??
-ATTRIBUTE	Foundry-MAC-Authent-needs-802-1x	6	integer ## use 802-1x until issue resolved
-ATTRIBUTE	Foundry-802-1x-Valid-Lookup		7	integer ## use 802-1x until issue resolved
+ATTRIBUTE	Foundry-MAC-Authent-needs-802.1x	6	integer
+ATTRIBUTE	Foundry-802.1x-Valid-Lookup		7	integer
 ATTRIBUTE	Foundry-MAC-Based-Vlan-QoS		8	integer
 ATTRIBUTE	Foundry-INM-Role-Aor-List		9	string
 
