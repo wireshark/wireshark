@@ -1365,7 +1365,7 @@ capture_cleanup_handler(DWORD dwCtrlType)
 }
 #else
 static void
-capture_cleanup_handler(int signum _U_)
+capture_cleanup_handler(int signum)
 {
     /* On UN*X, we cleanly shut down the capture on SIGINT, SIGHUP, and
        SIGTERM.  We assume that if the user wanted it to keep running
@@ -1375,6 +1375,11 @@ capture_cleanup_handler(int signum _U_)
      * g_log() in process context when the signal came in, g_log will detect
      * the "recursion" and abort.
      */
+
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+        "Console: Control signal");
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+        "Console: Control signal %d", signum);
 
     capture_loop_stop();
 }
@@ -3482,10 +3487,12 @@ static void capture_loop_stop(void)
     guint i;
     pcap_options *pcap_opts;
 
-    for (i = 0; i < global_ld.pcaps->len; i++) {
-        pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
-        if (pcap_opts->pcap_h != NULL)
-            pcap_breakloop(pcap_opts->pcap_h);
+    if (global_ld.pcaps) {
+        for (i = 0; i < global_ld.pcaps->len; i++) {
+            pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
+            if (pcap_opts->pcap_h != NULL)
+                pcap_breakloop(pcap_opts->pcap_h);
+        }
     }
 #endif
     global_ld.go = FALSE;
