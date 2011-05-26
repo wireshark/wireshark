@@ -43,7 +43,7 @@ capture_test_output_print() {
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-	
+
 	# the following will run in the background and return immediately
 	{
 	date
@@ -176,6 +176,37 @@ capture_step_fifo() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	rm 'fifo'
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# we should have an output file now
+	if [ ! -f "./testout.pcap" ]; then
+		test_step_failed "No output file!"
+		return
+	fi
+
+	# ok, we got a capture file, does it contain exactly 8 packets?
+	$CAPINFOS ./testout.pcap > ./testout.txt
+	grep -Ei 'Number of packets:[[:blank:]]+8' ./testout.txt > /dev/null
+	if [ $? -eq 0 ]; then
+		test_step_ok
+	else
+		echo
+		cat ./testout.txt
+		test_step_failed "No or not enough traffic captured."
+	fi
+}
+
+# capture packets via a fifo
+capture_step_stdin() {
+	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) | \
+	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		> ./testout.txt 2>&1
+	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
@@ -356,6 +387,7 @@ wireshark_capture_suite() {
 	# read filter doesn't work with Wireshark and capturing!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
+	test_step_add "Capture via stdin" capture_step_stdin
 }
 
 tshark_capture_suite() {
@@ -365,6 +397,7 @@ tshark_capture_suite() {
 	if [ $TEST_FIFO ]; then
 		test_step_add "Capture via fifo" capture_step_fifo
 	fi
+	test_step_add "Capture via stdin" capture_step_stdin
 	# tshark now using dumpcap for capturing, read filters won't work by definition
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
@@ -378,6 +411,7 @@ dumpcap_capture_suite() {
 	if [ $TEST_FIFO ]; then
 		test_step_add "Capture via fifo" capture_step_fifo
 	fi
+	test_step_add "Capture via stdin" capture_step_stdin
 	# read (display) filters intentionally doesn't work with dumpcap!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
