@@ -225,6 +225,8 @@ typedef struct _pcap_queue_element {
 } pcap_queue_element;
 
 typedef struct _pcap_options {
+    guint32        received;
+    guint32        dropped;
     pcap_t         *pcap_h;
 #ifdef MUST_DO_SELECT
     int            pcap_fd;               /* pcap file descriptor */
@@ -2127,9 +2129,9 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         phdr.len = pcap_opts->cap_pipe_rechdr.hdr.orig_len;
 
         if (use_threads) {
-            capture_loop_queue_packet_cb((u_char *)&pcap_opts->interface_id, &phdr, data);
+            capture_loop_queue_packet_cb((u_char *)pcap_opts, &phdr, data);
         } else {
-            capture_loop_write_packet_cb((u_char *)&pcap_opts->interface_id, &phdr, data);
+            capture_loop_write_packet_cb((u_char *)pcap_opts, &phdr, data);
         }
         pcap_opts->cap_pipe_state = STATE_EXPECT_REC_HDR;
         return 1;
@@ -2242,6 +2244,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                    "Could not allocate memory.");
             return FALSE;
         }
+        pcap_opts->received = 0;
+        pcap_opts->dropped = 0;
         pcap_opts->pcap_h = NULL;
 #ifdef MUST_DO_SELECT
         pcap_opts->pcap_fd = -1;
@@ -2670,11 +2674,9 @@ capture_loop_dispatch(loop_data *ld,
                  * in a batch before quitting.
                  */
                 if (use_threads) {
-                    inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb,
-                                       (u_char *)&(pcap_opts->interface_id));
+                    inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)pcap_opts);
                 } else {
-                    inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_write_packet_cb,
-                                       (u_char *)&(pcap_opts->interface_id));
+                    inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)pcap_opts);
                 }
                 if (inpkts < 0) {
                     if (inpkts == -1) {
@@ -2708,15 +2710,15 @@ capture_loop_dispatch(loop_data *ld,
              * at a time, so that we can check the pipe after every packet.
              */
             if (use_threads) {
-                inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)&pcap_opts->interface_id);
+                inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_queue_packet_cb, (u_char *)pcap_opts);
             } else {
-                inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)&pcap_opts->interface_id);
+                inpkts = pcap_dispatch(pcap_opts->pcap_h, 1, capture_loop_write_packet_cb, (u_char *)pcap_opts);
             }
 #else
             if (use_threads) {
-                inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_queue_packet_cb, (u_char *)&pcap_opts->interface_id);
+                inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_queue_packet_cb, (u_char *)pcap_opts);
             } else {
-                inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_write_packet_cb, (u_char *)&pcap_opts->interface_id);
+                inpkts = pcap_dispatch(pcap_opts->pcap_h, -1, capture_loop_write_packet_cb, (u_char *)pcap_opts);
             }
 #endif
             if (inpkts < 0) {
@@ -2751,9 +2753,9 @@ capture_loop_dispatch(loop_data *ld,
                 while(ld->go &&
                       (in = pcap_next_ex(pcap_opts->pcap_h, &pkt_header, &pkt_data)) == 1) {
                     if (use_threads) {
-                        capture_loop_queue_packet_cb((u_char *)&pcap_opts->interface_id, pkt_header, pkt_data);
+                        capture_loop_queue_packet_cb((u_char *)pcap_opts, pkt_header, pkt_data);
                     } else {
-                        capture_loop_write_packet_cb((u_char *)&pcap_opts->interface_id, pkt_header, pkt_data);
+                        capture_loop_write_packet_cb((u_char *)pcap_opts, pkt_header, pkt_data);
                     }
                 }
 
@@ -3409,15 +3411,20 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     /* get packet drop statistics from pcap */
     for (i = 0; i < capture_opts->ifaces->len; i++) {
+        guint32 received;
+        guint32 dropped;
+
         pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+        received = pcap_opts->received;
+        dropped = pcap_opts->dropped;
         if (pcap_opts->pcap_h != NULL) {
             g_assert(!pcap_opts->from_cap_pipe);
             /* Get the capture statistics, so we know how many packets were dropped. */
             if (pcap_stats(pcap_opts->pcap_h, stats) >= 0) {
                 *stats_known = TRUE;
                 /* Let the parent process know. */
-                report_packet_drops(stats->ps_recv, stats->ps_drop, interface_opts.name);
+                dropped += stats->ps_drop;
             } else {
                 g_snprintf(errmsg, sizeof(errmsg),
                            "Can't get packet-drop statistics: %s",
@@ -3425,6 +3432,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(errmsg, please_report);
             }
         }
+        report_packet_drops(received, dropped, interface_opts.name);
     }
 
     /* close the input file (pcap or capture pipe) */
@@ -3534,7 +3542,7 @@ static void
 capture_loop_write_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
 {
-    guint interface_id = *(guint *) (void *) user;
+    pcap_options *pcap_opts;
     int err;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
@@ -3543,6 +3551,7 @@ capture_loop_write_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     if (!global_ld.go)
         return;
 
+    pcap_opts = (pcap_options *) (void *) user;
     if (global_ld.pdh) {
         gboolean successful;
 
@@ -3550,7 +3559,7 @@ capture_loop_write_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
            If this fails, set "ld->go" to FALSE, to stop the capture, and set
            "ld->err" to the error. */
         if (global_capture_opts.use_pcapng) {
-            successful = libpcap_write_enhanced_packet_block(global_ld.pdh, phdr, interface_id, pd, &global_ld.bytes_written, &err);
+            successful = libpcap_write_enhanced_packet_block(global_ld.pdh, phdr, pcap_opts->interface_id, pd, &global_ld.bytes_written, &err);
         } else {
             successful = libpcap_write_packet(global_ld.pdh, phdr, pd, &global_ld.bytes_written, &err);
         }
@@ -3560,8 +3569,9 @@ capture_loop_write_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
         } else {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
                   "Wrote a packet of length %d captured on interface %u.",
-                   phdr->caplen, interface_id);
+                   phdr->caplen, pcap_opts->interface_id);
             global_ld.packet_count++;
+            pcap_opts->received++;
             /* if the user told us to stop after x packets, do we already have enough? */
             if ((global_ld.packet_max > 0) && (global_ld.packet_count >= global_ld.packet_max)) {
                 global_ld.go = FALSE;
@@ -3575,8 +3585,8 @@ static void
 capture_loop_queue_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
 {
+    pcap_options *pcap_opts;
     pcap_queue_element *queue_element;
-    guint interface_id;
     gboolean limit_reached;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
@@ -3585,15 +3595,17 @@ capture_loop_queue_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     if (!global_ld.go)
         return;
 
-    interface_id = *(guint *) (void *) user;
+    pcap_opts = (pcap_options *) (void *) user;
     queue_element = (pcap_queue_element *)g_malloc(sizeof(pcap_queue_element));
     if (queue_element == NULL) {
-        return;
+       pcap_opts->dropped++;
+       return;
     }
-    queue_element->interface_id = interface_id;
+    queue_element->interface_id = pcap_opts->interface_id;
     queue_element->phdr = *phdr;
     queue_element->pd = (u_char *)g_malloc(phdr->caplen);
     if (queue_element->pd == NULL) {
+        pcap_opts->dropped++;
         g_free(queue_element);
         return;
     }
@@ -3610,15 +3622,17 @@ capture_loop_queue_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     }
     g_async_queue_unlock(pcap_queue);
     if (limit_reached) {
+        pcap_opts->dropped++;
         g_free(queue_element->pd);
         g_free(queue_element);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
               "Dropped a packet of length %d captured on interface %u.",
-              phdr->caplen, interface_id);
+              phdr->caplen, pcap_opts->interface_id);
     } else {
+        pcap_opts->received++;
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
               "Queued a packet of length %d captured on interface %u.",
-              phdr->caplen, interface_id);
+              phdr->caplen, pcap_opts->interface_id);
     }
     /* I don't want to hold the mutex over the debug output. So the
        output may be wrong */
