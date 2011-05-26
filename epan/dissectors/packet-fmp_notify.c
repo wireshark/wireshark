@@ -496,7 +496,7 @@ proto_register_fmp_notify(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_fmp_notify_procedure, {
-                        "Procedure", "fmp_notify.fmp_notify_procedure", FT_UINT32, BASE_DEC,
+                        "Procedure", "fmp_notify.notify_procedure", FT_UINT32, BASE_DEC,
                         VALS(fmp_notify_proc_vals) , 0, NULL, HFILL }},        /* New addition */
 
 		{ &hf_fmp_status, {

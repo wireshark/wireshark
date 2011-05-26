@@ -265,7 +265,7 @@ proto_register_who(void)
 			NULL, HFILL }},
 
 		{ &hf_who_whoent,
-		{ "Who utmp Entry", "who.whoent", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Who utmp Entry", "who.entry", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_who_tty,

@@ -4818,7 +4818,7 @@ proto_register_afp(void)
 		    "The response to this packet is in this packet", HFILL }},
 
 		{ &hf_afp_login_flags,
-		  { "Flags",         "afp.afp_login_flags",
+		  { "Flags",         "afp.login_flags",
 		    FT_UINT16, BASE_HEX, NULL, 0 /* 0x0FFF*/,
 		    "Login flags", HFILL }},
 

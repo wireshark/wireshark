@@ -361,7 +361,7 @@ proto_register_ib_sdp(void)
             FT_UINT8, BASE_HEX, NULL, 0x2, "Out-Of-Band Data is pending", HFILL}
         },
         {&hf_ib_sdp_flags_reqpipe, {
-            "REQ_PIPE", "infiniband.infiniband.sdp.bsdh.reqpipe",
+            "REQ_PIPE", "infiniband.sdp.bsdh.reqpipe",
             FT_UINT8, BASE_HEX, NULL, 0x4, "Request change to Pipelined Mode", HFILL}
         },
         {&hf_ib_sdp_bufs, {

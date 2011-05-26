@@ -6613,7 +6613,7 @@ proto_register_tn3270(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_tn3270e_header_data,
-        {  "TN3270E Header Data", "tn3270..tn3270e_header_data",
+        {  "TN3270E Header Data", "tn3270.tn3270e_header_data",
             FT_EBCDIC, BASE_NONE, NULL, 0x0,
             NULL, HFILL }}
   };

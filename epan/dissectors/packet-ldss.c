@@ -830,7 +830,7 @@ proto_register_ldss (void) {
 	static hf_register_info hf[] =	{
 		{   &hf_ldss_message_id,
 		    {	"LDSS Message ID",
-			"ldss.ldss_message_id",
+			"ldss.message_id",
 			FT_UINT16, BASE_DEC, ldss_message_id_value, 0x0,
 			NULL, HFILL
 		    }

@@ -5924,115 +5924,115 @@ proto_register_smb2(void)
 		NULL, 0, "Time when this object was last changed", HFILL }},
 
 	{ &hf_smb2_file_all_info,
-		{ "SMB2_FILE_ALL_INFO", "smb2.smb2_file_all_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ALL_INFO", "smb2.file_all_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ALL_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_allocation_info,
-		{ "SMB2_FILE_ALLOCATION_INFO", "smb2.smb2_file_allocation_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ALLOCATION_INFO", "smb2.file_allocation_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ALLOCATION_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_endoffile_info,
-		{ "SMB2_FILE_ENDOFFILE_INFO", "smb2.smb2_file_endoffile_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ENDOFFILE_INFO", "smb2.file_endoffile_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ENDOFFILE_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_alternate_name_info,
-		{ "SMB2_FILE_ALTERNATE_NAME_INFO", "smb2.smb2_file_alternate_name_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ALTERNATE_NAME_INFO", "smb2.file_alternate_name_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ALTERNATE_NAME_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_stream_info,
-		{ "SMB2_FILE_STREAM_INFO", "smb2.smb2_file_stream_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_STREAM_INFO", "smb2.file_stream_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_STREAM_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_pipe_info,
-		{ "SMB2_FILE_PIPE_INFO", "smb2.smb2_file_pipe_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_PIPE_INFO", "smb2.file_pipe_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_PIPE_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_compression_info,
-		{ "SMB2_FILE_COMPRESSION_INFO", "smb2.smb2_file_compression_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_COMPRESSION_INFO", "smb2.file_compression_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_COMPRESSION_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_basic_info,
-		{ "SMB2_FILE_BASIC_INFO", "smb2.smb2_file_basic_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_BASIC_INFO", "smb2.file_basic_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_BASIC_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_standard_info,
-		{ "SMB2_FILE_STANDARD_INFO", "smb2.smb2_file_standard_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_STANDARD_INFO", "smb2.file_standard_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_STANDARD_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_internal_info,
-		{ "SMB2_FILE_INTERNAL_INFO", "smb2.smb2_file_internal_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_INTERNAL_INFO", "smb2.file_internal_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INTERNAL_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_mode_info,
-		{ "SMB2_FILE_MODE_INFO", "smb2.smb2_file_mode_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_MODE_INFO", "smb2.file_mode_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_MODE_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_alignment_info,
-		{ "SMB2_FILE_ALIGNMENT_INFO", "smb2.smb2_file_alignment_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ALIGNMENT_INFO", "smb2.file_alignment_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ALIGNMENT_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_position_info,
-		{ "SMB2_FILE_POSITION_INFO", "smb2.smb2_file_position_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_POSITION_INFO", "smb2.file_position_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_POSITION_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_access_info,
-		{ "SMB2_FILE_ACCESS_INFO", "smb2.smb2_file_access_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ACCESS_INFO", "smb2.file_access_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ACCESS_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_ea_info,
-		{ "SMB2_FILE_EA_INFO", "smb2.smb2_file_ea_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_EA_INFO", "smb2.file_ea_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_EA_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_network_open_info,
-		{ "SMB2_FILE_NETWORK_OPEN_INFO", "smb2.smb2_file_network_open_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_NETWORK_OPEN_INFO", "smb2.file_network_open_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_NETWORK_OPEN_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_attribute_tag_info,
-		{ "SMB2_FILE_ATTRIBUTE_TAG_INFO", "smb2.smb2_file_attribute_tag_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_ATTRIBUTE_TAG_INFO", "smb2.file_attribute_tag_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_ATTRIBUTE_TAG_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_disposition_info,
-		{ "SMB2_FILE_DISPOSITION_INFO", "smb2.smb2_file_disposition_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_DISPOSITION_INFO", "smb2.file_disposition_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_DISPOSITION_INFO structure", HFILL }},
 
 	{ &hf_smb2_file_info_0f,
-		{ "SMB2_FILE_INFO_0f", "smb2.smb2_file_info_0f", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_INFO_0f", "smb2.file_info_0f", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_INFO_0f structure", HFILL }},
 
 	{ &hf_smb2_file_rename_info,
-		{ "SMB2_FILE_RENAME_INFO", "smb2.smb2_file_rename_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FILE_RENAME_INFO", "smb2.file_rename_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FILE_RENAME_INFO structure", HFILL }},
 
 	{ &hf_smb2_fs_info_01,
-		{ "SMB2_FS_INFO_01", "smb2.smb2_fs_info_01", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_01", "smb2.fs_info_01", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_01 structure", HFILL }},
 
 	{ &hf_smb2_fs_info_03,
-		{ "SMB2_FS_INFO_03", "smb2.smb2_fs_info_03", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_03", "smb2.fs_info_03", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_03 structure", HFILL }},
 
 	{ &hf_smb2_fs_info_04,
-		{ "SMB2_FS_INFO_04", "smb2.smb2_fs_info_04", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_04", "smb2.fs_info_04", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_04 structure", HFILL }},
 
 	{ &hf_smb2_fs_info_05,
-		{ "SMB2_FS_INFO_05", "smb2.smb2_fs_info_05", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_05", "smb2.fs_info_05", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_05 structure", HFILL }},
 
 	{ &hf_smb2_fs_info_06,
-		{ "SMB2_FS_INFO_06", "smb2.smb2_fs_info_06", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_06", "smb2.fs_info_06", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_06 structure", HFILL }},
 
 	{ &hf_smb2_fs_info_07,
-		{ "SMB2_FS_INFO_07", "smb2.smb2_fs_info_07", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_INFO_07", "smb2.fs_info_07", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_INFO_07 structure", HFILL }},
 
 	{ &hf_smb2_fs_objectid_info,
-		{ "SMB2_FS_OBJECTID_INFO", "smb2.smb2_fs_objectid_info", FT_NONE, BASE_NONE,
+		{ "SMB2_FS_OBJECTID_INFO", "smb2.fs_objectid_info", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_FS_OBJECTID_INFO structure", HFILL }},
 
 	{ &hf_smb2_sec_info_00,
-		{ "SMB2_SEC_INFO_00", "smb2.smb2_sec_info_00", FT_NONE, BASE_NONE,
+		{ "SMB2_SEC_INFO_00", "smb2.sec_info_00", FT_NONE, BASE_NONE,
 		NULL, 0, "SMB2_SEC_INFO_00 structure", HFILL }},
 
 	{ &hf_smb2_disposition_delete_on_close,

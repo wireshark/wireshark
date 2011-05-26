@@ -3600,56 +3600,56 @@ proto_register_wlccp(void)
 		},
 
 		{ &hf_wlccp_null_tlv,
-		  { "NULL TLV", "wlccp.wlccp_null_tlv",
+		  { "NULL TLV", "wlccp.null_tlv",
 		    FT_BYTES, BASE_NONE, NULL ,
 		    0, NULL, HFILL }
 		},
 
 
 		{ &hf_wlccp_tlv_type,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, NULL ,
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type0,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_0),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type1,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_1),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type2,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_2),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type3,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_3),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type4,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_4),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_type5,
-		  { "TLV Type", "wlccp.wlccp_tlv_type",
+		  { "TLV Type", "wlccp.tlv_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_typeID_5),
 		    TLV_TYPE_ID, "TLV Type ID", HFILL }
 		},
 
 		{ &hf_wlccp_tlv_group,
-		  { "TLV Group", "wlccp.wlccp_tlv_group",
+		  { "TLV Group", "wlccp.tlv_group",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_tlv_group_vs) ,
 		    TLV_GROUP_ID, "TLV Group ID", HFILL }
 		},

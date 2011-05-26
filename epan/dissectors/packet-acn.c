@@ -2897,13 +2897,13 @@ void proto_register_acn(void)
     },
     /* Reciprocal Channel */
     { &hf_acn_reciprocal_channel,
-      { "Reciprocal Channel Number", "acn.acn_reciprocal_channel",
+      { "Reciprocal Channel Number", "acn.reciprocal_channel",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "Reciprocal Channel", HFILL }
     },
     /* Refuse Code */
     { &hf_acn_refuse_code,
-      { "Refuse Code", "acn.acn_refuse_code",
+      { "Refuse Code", "acn.refuse_code",
         FT_UINT8, BASE_DEC, VALS(acn_refuse_code_vals), 0x0,
         NULL, HFILL }
     },

@@ -120,8 +120,8 @@ static int hf_oid_struct_size = -1;
 static int hf_object_name = -1;
 static int hf_ndps_document_number = -1;
 static int hf_ndps_nameorid = -1;
-static int hf_local_object_name = -1;
-static int hf_printer_name = -1;
+static int hf_ndps_local_object_name = -1;
+static int hf_ndps_printer_name = -1;
 static int hf_ndps_qualified_name = -1;
 static int hf_ndps_item_count = -1;
 static int hf_ndps_num_passwords = -1;
@@ -146,7 +146,7 @@ static int hf_ndps_other_error = -1;
 static int hf_ndps_other_error_2 = -1;
 static int hf_ndps_session = -1;
 static int hf_ndps_abort_flag = -1;
-static int hf_obj_attribute_type = -1;
+static int hf_ndps_obj_attribute_type = -1;
 static int hf_ndps_attribute_value = -1;
 static int hf_ndps_lower_range = -1;
 static int hf_ndps_upper_range = -1;
@@ -200,7 +200,7 @@ static int hf_answer_time = -1;
 static int hf_oid_asn1_type = -1;
 static int hf_ndps_item_ptr = -1;
 static int hf_ndps_len = -1;
-static int hf_limit_enc = -1;
+static int hf_ndps_limit_enc = -1;
 static int hf_ndps_delivery_add_count = -1;
 static int hf_ndps_qualified_name2 = -1;
 static int hf_ndps_delivery_add_type = -1;
@@ -2236,7 +2236,7 @@ name_or_id(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             break;
 
         case 2: /* Local */
-            foffset = ndps_string(tvb, hf_local_object_name, ndps_tree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_local_object_name, ndps_tree, foffset, NULL);
             break;
     }
     foffset += align_4(tvb, foffset);
@@ -2253,7 +2253,7 @@ qualifiedname(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     foffset += 4;
     if (qualified_name_type != 0) {
         if (qualified_name_type == 1) {
-            foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_printer_name, ndps_tree, foffset, NULL);
         }
         else
         {
@@ -2278,13 +2278,13 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     switch(object_type)
     {
         case 0:         /* Printer Contained Object ID */
-            foffset = ndps_string(tvb, hf_printer_name, atree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_printer_name, atree, foffset, NULL);
             proto_tree_add_item(atree, hf_ndps_object, tvb, foffset,
             4, FALSE);
             foffset += 4;
             break;
         case 1:         /* Document Identifier */
-            foffset = ndps_string(tvb, hf_printer_name, atree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_printer_name, atree, foffset, NULL);
             proto_tree_add_item(atree, hf_ndps_document_number, tvb, foffset,
             4, FALSE);
             foffset += 4;
@@ -2306,7 +2306,7 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset = ndps_string(tvb, hf_object_name, atree, foffset, NULL);
             break;
         case 6:         /* Printer Configuration Object ID */
-            foffset = ndps_string(tvb, hf_printer_name, atree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_printer_name, atree, foffset, NULL);
             break;
         case 7:         /* Qualified Name */
             foffset = qualifiedname(tvb, ndps_tree, foffset);
@@ -2715,7 +2715,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     attribute_type = tvb_get_ntohl(tvb, foffset);
     if (ndps_show_oids)
     {
-        proto_tree_add_item(ndps_tree, hf_obj_attribute_type, tvb, foffset, 4, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_obj_attribute_type, tvb, foffset, 4, FALSE);
     }
     foffset += 4;
     switch(attribute_type)
@@ -5576,7 +5576,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_ds_info_type, tvb, foffset, 4, FALSE);
             foffset += 4;
-            foffset = ndps_string(tvb, hf_printer_name, ndps_tree, foffset, NULL);
+            foffset = ndps_string(tvb, hf_ndps_printer_name, ndps_tree, foffset, NULL);
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "DS Object Name");
             atree = proto_item_add_subtree(aitem, ett_ndps);
             foffset = qualifiedname(tvb, atree, foffset);
@@ -7148,7 +7148,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             atree = proto_item_add_subtree(aitem, ett_ndps);
             proto_tree_add_item(atree, hf_ndps_len, tvb, foffset, 4, FALSE);
             foffset += 4;
-            proto_tree_add_item(atree, hf_limit_enc, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_ndps_limit_enc, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_item_set_end(aitem, tvb, foffset);
             /* Object Results Set */
@@ -8563,47 +8563,47 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_object_name,
-          { "Object Name",    "ndps.ndps_object_name",
+          { "Object Name",    "ndps.object_name",
             FT_STRING,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_document_number,
-          { "Document Number",    "ndps.ndps_doc_num",
+          { "Document Number",    "ndps.doc_num",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_doc_content,
-          { "Document Content",    "ndps.ndps_doc_content",
+          { "Document Content",    "ndps.doc_content",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_nameorid,
-          { "Name or ID Type",    "ndps.ndps_nameorid",
+          { "Name or ID Type",    "ndps.nameorid",
             FT_UINT32,    BASE_HEX,   VALS(nameorid_enum),   0x0,
             NULL, HFILL }},
 
-        { &hf_local_object_name,
-          { "Local Object Name",    "ndps.ndps_loc_object_name",
+        { &hf_ndps_local_object_name,
+          { "Local Object Name",    "ndps.loc_object_name",
             FT_STRING,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
-        { &hf_printer_name,
-          { "Printer Name",    "ndps.ndps_printer_name",
+        { &hf_ndps_printer_name,
+          { "Printer Name",    "ndps.printer_name",
             FT_STRING,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_qualified_name,
-          { "Qualified Name Type",    "ndps.ndps_qual_name_type",
+          { "Qualified Name Type",    "ndps.qual_name_type",
             FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_qualified_name2,
-          { "Qualified Name Type",    "ndps.ndps_qual_name_type2",
+          { "Qualified Name Type",    "ndps.qual_name_type2",
             FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum2),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_item_count,
-          { "Number of Items",    "ndps.ndps_item_count",
+          { "Number of Items",    "ndps.item_count",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
@@ -8688,37 +8688,37 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_qualifier,
-          { "Qualifier",    "ndps.ndps_qual",
+          { "Qualifier",    "ndps.qual",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_lib_error,
-          { "Library Error",    "ndps.ndps_lib_error",
+          { "Library Error",    "ndps.lib_error",
             FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_other_error,
-          { "Other Error",    "ndps.ndps_other_error",
+          { "Other Error",    "ndps.other_error",
             FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_other_error_2,
-          { "Other Error 2",    "ndps.ndps_other_error_2",
+          { "Other Error 2",    "ndps.other_error_2",
             FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_session,
-          { "Session Handle",    "ndps.ndps_session",
+          { "Session Handle",    "ndps.session",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_abort_flag,
-          { "Abort?",    "ndps.ndps_abort",
+          { "Abort?",    "ndps.abort",
             FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
-        { &hf_obj_attribute_type,
-          { "Value Syntax",    "ndps.ndps_attrib_type",
+        { &hf_ndps_obj_attribute_type,
+          { "Value Syntax",    "ndps.attrib_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
             NULL, HFILL }},
 
@@ -8753,12 +8753,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_attrib_boolean,
-          { "Value?",    "ndps.ndps_attrib_boolean",
+          { "Value?",    "ndps.attrib_boolean",
             FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_realization,
-          { "Realization Type",    "ndps.ndps_realization",
+          { "Realization Type",    "ndps.realization",
             FT_UINT32,    BASE_HEX,   VALS(ndps_realization_enum),   0x0,
             NULL, HFILL }},
 
@@ -8773,22 +8773,22 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_dim_value,
-          { "Dimension Value Type",    "ndps.ndps_dim_value",
+          { "Dimension Value Type",    "ndps.dim_value",
             FT_UINT32,    BASE_HEX,   VALS(ndps_dim_value_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_dim_flag,
-          { "Dimension Flag",    "ndps.ndps_dim_falg",
+          { "Dimension Flag",    "ndps.dim_falg",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_xydim_value,
-          { "XY Dimension Value Type",    "ndps.ndps_xydim_value",
+          { "XY Dimension Value Type",    "ndps.xydim_value",
             FT_UINT32,    BASE_HEX,   VALS(ndps_xydim_value_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_location_value,
-          { "Location Value Type",    "ndps.ndps_location_value",
+          { "Location Value Type",    "ndps.location_value",
             FT_UINT32,    BASE_HEX,   VALS(ndps_location_value_enum),   0x0,
             NULL, HFILL }},
 
@@ -8813,52 +8813,52 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_edge_value,
-          { "Edge Value",    "ndps.ndps_edge_value",
+          { "Edge Value",    "ndps.edge_value",
             FT_UINT32,    BASE_HEX,   VALS(ndps_edge_value_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_cardinal_or_oid,
-          { "Cardinal or OID",    "ndps.ndps_car_or_oid",
+          { "Cardinal or OID",    "ndps.car_or_oid",
             FT_UINT32,    BASE_HEX,   VALS(ndps_card_or_oid_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_cardinal_name_or_oid,
-          { "Cardinal Name or OID",    "ndps.ndps_car_name_or_oid",
+          { "Cardinal Name or OID",    "ndps.car_name_or_oid",
             FT_UINT32,    BASE_HEX,   VALS(ndps_card_name_or_oid_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_integer_or_oid,
-          { "Integer or OID",    "ndps.ndps_integer_or_oid",
+          { "Integer or OID",    "ndps.integer_or_oid",
             FT_UINT32,    BASE_HEX,   VALS(ndps_integer_or_oid_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_profile_id,
-          { "Profile ID",    "ndps.ndps_profile_id",
+          { "Profile ID",    "ndps.profile_id",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_persistence,
-          { "Persistence",    "ndps.ndps_persistence",
+          { "Persistence",    "ndps.persistence",
             FT_UINT32,    BASE_HEX,   VALS(ndps_persistence_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_language_count,
-          { "Number of Languages",    "ndps.ndps_language_count",
+          { "Number of Languages",    "ndps.language_count",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_language_id,
-          { "Language ID",    "ndps.ndps_lang_id",
+          { "Language ID",    "ndps.lang_id",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_address_type,
-          { "Address Type",    "ndps.ndps_address_type",
+          { "Address Type",    "ndps.address_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_address_type_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_address,
-          { "Address",    "ndps.ndps_address",
+          { "Address",    "ndps.address",
             FT_UINT32,    BASE_HEX,   VALS(ndps_address_enum),   0x0,
             NULL, HFILL }},
 
@@ -8868,12 +8868,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_event_type,
-          { "Event Type",    "ndps.ndps_event_type",
+          { "Event Type",    "ndps.event_type",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_event_object_identifier,
-          { "Event Object Type",    "ndps.ndps_event_object_identifier",
+          { "Event Object Type",    "ndps.event_object_identifier",
             FT_UINT32,    BASE_HEX,   VALS(ndps_event_object_enum),   0x0,
             NULL, HFILL }},
 
@@ -8918,22 +8918,22 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_server_type,
-          { "NDPS Server Type",    "ndps.ndps_server_type",
+          { "NDPS Server Type",    "ndps.server_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_server_type_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_num_services,
-          { "Number of Services",    "ndps.ndps_num_services",
+          { "Number of Services",    "ndps.num_services",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_service_type,
-          { "NDPS Service Type",    "ndps.ndps_service_type",
+          { "NDPS Service Type",    "ndps.service_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_service_type_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_service_enabled,
-          { "Service Enabled?",    "ndps.ndps_service_enabled",
+          { "Service Enabled?",    "ndps.service_enabled",
             FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
@@ -8963,7 +8963,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_object_op,
-          { "Operation",    "ndps.ndps_object_op",
+          { "Operation",    "ndps.object_op",
             FT_UINT32,    BASE_HEX,   VALS(ndps_object_op_enum),   0x0,
             NULL, HFILL }},
 
@@ -8983,12 +8983,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_len,
-          { "Length",    "ndps.ndps_len",
+          { "Length",    "ndps.len",
             FT_UINT16,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
-        { &hf_limit_enc,
-          { "Limit Encountered",    "ndps.ndps_limit_enc",
+        { &hf_ndps_limit_enc,
+          { "Limit Encountered",    "ndps.limit_enc",
             FT_UINT32,    BASE_HEX,   VALS(ndps_limit_enc_enum),   0x0,
             NULL, HFILL }},
 
@@ -8998,12 +8998,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_delivery_add_type,
-          { "Delivery Address Type",    "ndps.ndps_delivery_add_type",
+          { "Delivery Address Type",    "ndps.delivery_add_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_delivery_add_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_criterion_type,
-          { "Criterion Type",    "ndps.ndps_criterion_type",
+          { "Criterion Type",    "ndps.criterion_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
             NULL, HFILL }},
 
@@ -9013,57 +9013,57 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_ignored_type,
-          { "Ignored Type",    "ndps.ndps_ignored_type",
+          { "Ignored Type",    "ndps.ignored_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_attribute_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_num_resources,
-          { "Number of Resources",    "ndps.ndps_num_resources",
+          { "Number of Resources",    "ndps.num_resources",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_resource_type,
-          { "Resource Type",    "ndps.ndps_resource_type",
+          { "Resource Type",    "ndps.resource_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_resource_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_identifier_type,
-          { "Identifier Type",    "ndps.ndps_identifier_type",
+          { "Identifier Type",    "ndps.identifier_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_identifier_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_page_flag,
-          { "Page Flag",    "ndps.ndps_page_flag",
+          { "Page Flag",    "ndps.page_flag",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_media_type,
-          { "Media Type",    "ndps.ndps_media_type",
+          { "Media Type",    "ndps.media_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_media_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_page_size,
-          { "Page Size",    "ndps.ndps_page_size",
+          { "Page Size",    "ndps.page_size",
             FT_UINT32,    BASE_HEX,   VALS(ndps_page_size_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_direction,
-          { "Direction",    "ndps.ndps_direction",
+          { "Direction",    "ndps.direction",
             FT_UINT32,    BASE_HEX,   VALS(ndps_pres_direction_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_page_order,
-          { "Page Order",    "ndps.ndps_page_order",
+          { "Page Order",    "ndps.page_order",
             FT_UINT32,    BASE_HEX,   VALS(ndps_page_order_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_medium_size,
-          { "Medium Size",    "ndps.ndps_medium_size",
+          { "Medium Size",    "ndps.medium_size",
             FT_UINT32,    BASE_HEX,   VALS(ndps_medium_size_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_long_edge_feeds,
-          { "Long Edge Feeds?",    "ndps.ndps_long_edge_feeds",
+          { "Long Edge Feeds?",    "ndps.long_edge_feeds",
             FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
@@ -9078,47 +9078,47 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_page_orientation,
-          { "Page Orientation",    "ndps.ndps_page_orientation",
+          { "Page Orientation",    "ndps.page_orientation",
             FT_UINT32,    BASE_HEX,   VALS(ndps_page_orientation_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_numbers_up,
-          { "Numbers Up",    "ndps.ndps_numbers_up",
+          { "Numbers Up",    "ndps.numbers_up",
             FT_UINT32,    BASE_HEX,   VALS(ndps_numbers_up_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_xdimension,
-          { "X Dimension",    "ndps.ndps_xdimension",
+          { "X Dimension",    "ndps.xdimension",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_ydimension,
-          { "Y Dimension",    "ndps.ndps_ydimension",
+          { "Y Dimension",    "ndps.ydimension",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_state_severity,
-          { "State Severity",    "ndps.ndps_state_severity",
+          { "State Severity",    "ndps.state_severity",
             FT_UINT32,    BASE_HEX,   VALS(ndps_state_severity_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_training,
-          { "Training",    "ndps.ndps_training",
+          { "Training",    "ndps.training",
             FT_UINT32,    BASE_HEX,   VALS(ndps_training_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_colorant_set,
-          { "Colorant Set",    "ndps.ndps_colorant_set",
+          { "Colorant Set",    "ndps.colorant_set",
             FT_UINT32,    BASE_HEX,   VALS(ndps_colorant_set_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_card_enum_time,
-          { "Cardinal, Enum, or Time",    "ndps.ndps_card_enum_time",
+          { "Cardinal, Enum, or Time",    "ndps.card_enum_time",
             FT_UINT32,    BASE_HEX,   VALS(ndps_card_enum_time_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_attrs_arg,
-          { "List Attribute Operation",    "ndps.ndps_attrs_arg",
+          { "List Attribute Operation",    "ndps.attrs_arg",
             FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
             NULL, HFILL }},
 
@@ -9133,32 +9133,32 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_filter,
-          { "Filter Type",    "ndps.ndps_filter",
+          { "Filter Type",    "ndps.filter",
             FT_UINT32,    BASE_HEX,   VALS(ndps_filter_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_item_filter,
-          { "Filter Item Operation",    "ndps.ndps_filter_item",
+          { "Filter Item Operation",    "ndps.filter_item",
             FT_UINT32,    BASE_HEX,   VALS(ndps_filter_item_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_substring_match,
-          { "Substring Match",    "ndps.ndps_substring_match",
+          { "Substring Match",    "ndps.substring_match",
             FT_UINT32,    BASE_HEX,   VALS(ndps_match_criteria_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_time_limit,
-          { "Time Limit",    "ndps.ndps_time_limit",
+          { "Time Limit",    "ndps.time_limit",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_count_limit,
-          { "Count Limit",    "ndps.ndps_count_limit",
+          { "Count Limit",    "ndps.count_limit",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_operator,
-          { "Operator Type",    "ndps.ndps_operator",
+          { "Operator Type",    "ndps.operator",
             FT_UINT32,    BASE_DEC,   VALS(ndps_operator_enum),   0x0,
             NULL, HFILL }},
 
@@ -9168,32 +9168,32 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_retrieve_restrictions,
-          { "Retrieve Restrictions",    "ndps.ndps_ret_restrict",
+          { "Retrieve Restrictions",    "ndps.ret_restrict",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_bind_security_option_count,
-          { "Number of Bind Security Options",    "ndps.ndps_bind_security_count",
+          { "Number of Bind Security Options",    "ndps.bind_security_count",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_bind_security,
-          { "Bind Security Options",    "ndps.ndps_bind_security",
+          { "Bind Security Options",    "ndps.bind_security",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_max_items,
-          { "Maximum Items in List",    "ndps.ndps_max_items",
+          { "Maximum Items in List",    "ndps.max_items",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_status_flags,
-          { "Status Flag",    "ndps.ndps_status_flags",
+          { "Status Flag",    "ndps.status_flags",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_resource_list_type,
-          { "Resource Type",    "ndps.ndps_resource_type",
+          { "Resource Type",    "ndps.resource_type",
             FT_UINT32,    BASE_DEC,   VALS(ndps_resource_type_enum),   0x0,
             NULL, HFILL }},
 
@@ -9444,7 +9444,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_force,
-          { "Force?",    "ndps.ndps_force",
+          { "Force?",    "ndps.force",
             FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
@@ -9479,37 +9479,37 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_list_profiles_type,
-          { "List Profiles Type",    "ndps.ndps_list_profiles_type",
+          { "List Profiles Type",    "ndps.list_profiles_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_attrs_arg_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_list_profiles_choice_type,
-          { "List Profiles Choice Type",    "ndps.ndps_list_profiles_choice_type",
+          { "List Profiles Choice Type",    "ndps.list_profiles_choice_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_choice_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_list_profiles_result_type,
-          { "List Profiles Result Type",    "ndps.ndps_list_profiles_result_type",
+          { "List Profiles Result Type",    "ndps.list_profiles_result_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_list_profiles_result_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_integer_type_flag,
-          { "Integer Type Flag",    "ndps.ndps_integer_type_flag",
+          { "Integer Type Flag",    "ndps.integer_type_flag",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_integer_type_value,
-          { "Integer Type Value",    "ndps.ndps_integer_type_value",
+          { "Integer Type Value",    "ndps.integer_type_value",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_continuation_option,
-          { "Continuation Option",    "ndps.ndps_continuation_option",
+          { "Continuation Option",    "ndps.continuation_option",
             FT_BYTES,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_ds_info_type,
-          { "DS Info Type",    "ndps.ndps_ds_info_type",
+          { "DS Info Type",    "ndps.ds_info_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_ds_info_enum),   0x0,
             NULL, HFILL }},
 
@@ -9519,7 +9519,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_list_services_type,
-          { "Services Type",    "ndps.ndps_list_services_type",
+          { "Services Type",    "ndps.list_services_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_list_services_enum),   0x0,
             NULL, HFILL }},
 
@@ -9539,7 +9539,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_data_item_type,
-          { "Item Type",    "ndps.ndps_data_item_type",
+          { "Item Type",    "ndps.data_item_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_data_item_enum),   0x0,
             NULL, HFILL }},
 
@@ -9574,7 +9574,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_list_local_servers_type,
-          { "Server Type",    "ndps.ndps_list_local_server_type",
+          { "Server Type",    "ndps.list_local_server_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_list_local_servers_enum),   0x0,
             NULL, HFILL }},
 
@@ -9584,12 +9584,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_client_server_type,
-          { "Client/Server Type",    "ndps.ndps_client_server_type",
+          { "Client/Server Type",    "ndps.client_server_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_client_server_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_session_type,
-          { "Session Type",    "ndps.ndps_session_type",
+          { "Session Type",    "ndps.session_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_session_type_enum),   0x0,
             NULL, HFILL }},
 
@@ -9619,7 +9619,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_get_session_type,
-          { "Session Type",    "ndps.ndps_get_session_type",
+          { "Session Type",    "ndps.get_session_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_get_session_type_enum),   0x0,
             NULL, HFILL }},
 
@@ -9634,12 +9634,12 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_get_resman_session_type,
-          { "Session Type",    "ndps.ndps_get_resman_session_type",
+          { "Session Type",    "ndps.get_resman_session_type",
             FT_UINT32,    BASE_HEX,   VALS(ndps_get_resman_session_type_enum),   0x0,
             NULL, HFILL }},
 
         { &hf_problem_type,
-          { "Problem Type",    "ndps.ndps_get_resman_session_type",
+          { "Problem Type",    "ndps.get_resman_session_type",
             FT_UINT32,    BASE_HEX,   VALS(problem_type_enum),   0x0,
             NULL, HFILL }},
 

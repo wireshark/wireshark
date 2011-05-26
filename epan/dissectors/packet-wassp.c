@@ -1240,11 +1240,11 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_wassp_vlan_tag,
-		{ "WASSP-VLAN-TAG", "wassp.wassp.vlan.tag", FT_INT32, BASE_DEC, NULL,
+		{ "WASSP-VLAN-TAG", "wassp.vlan.tag", FT_INT32, BASE_DEC, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_wassp_tunnel_type,
-		{ "WASSP-TUNNEL-TYPE", "wassp.wassp.tunnel.type", FT_UINT32, BASE_DEC, NULL,
+		{ "WASSP-TUNNEL-TYPE", "wassp.tunnel.type", FT_UINT32, BASE_DEC, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ap_dhcp_mode,
