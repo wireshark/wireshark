@@ -43,6 +43,7 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 plugindir = @plugindir@
 
 EXTRA_DIST = \
+	$(_CUSTOM_EXTRA_DIST_) \
 	plugins.vcproj	\
 	Makefile.nmake
 
