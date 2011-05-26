@@ -58,6 +58,9 @@
 #define SC_CM_FWD_CLOSE             0x4E
 #define SC_CM_UNCON_SEND            0x52
 #define SC_CM_FWD_OPEN              0x54
+#define SC_CM_LARGE_FWD_OPEN        0x5B
+#define SC_CM_GET_CONN_OWNER        0x5A
+
 /* Connection Configuration Object services */
 #define SC_CCO_KICK_TIMER            0x4B
 #define SC_CCO_OPEN_CONN             0x4C
@@ -68,7 +71,7 @@
 #define SC_CCO_CHANGE_COMPLETE       0x51
 #define SC_CCO_AUDIT_CHANGE          0x52
 
-/* CIP Genral status codes */
+/* CIP General status codes */
 #define CI_GRC_SUCCESS              0x00
 #define CI_GRC_FAILURE              0x01
 #define CI_GRC_NO_RESOURCE          0x02
@@ -173,7 +176,7 @@
 #define DP_PNEUM_VALVE                       0x1B
 #define DP_VACUUM_PRES_GAUGE                 0x1C
 
-/* Define vendor IDs (ControlNet + DeviceNet + EtherNet/IP) */
+/* Define common services */
 #define GENERIC_SC_LIST \
    { SC_GET_ATT_ALL,          "Get Attribute All" }, \
    { SC_SET_ATT_ALL,          "Set Attribute All" }, \
