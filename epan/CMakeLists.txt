@@ -625,6 +625,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hilscher.c
 	dissectors/packet-hip.c
 	dissectors/packet-homeplug.c
+	dissectors/packet-homeplug-av.c
 	dissectors/packet-hp-erm.c
 	dissectors/packet-hpext.c
 	dissectors/packet-hpsw.c

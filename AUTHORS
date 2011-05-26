@@ -3272,6 +3272,9 @@ Johannes Jochen		<johannes.jochen [AT] belden.com> {
 	Multiple MAC Registration Protocol dissector
 }
 
+Florian Fainelli	<florian [AT] openwrt.org> {
+	HomePlug AV protocol dissector
+}
 
 and by:
 
