@@ -835,6 +835,8 @@ EXTRA_DIST = \
 	cmake/modules/FindXMLLINT.cmake		\
 	cmake/modules/FindSED.cmake		\
 	cmake/modules/FindGLIB2.cmake		\
+	cmake/modules/FindGMODULE2.cmake		\
+	cmake/modules/FindGTHREAD2.cmake		\
 	cmake/modules/FindHtmlViewer.cmake	\
 	cmake/modules/FindGTK2.cmake		\
 	cmake/modules/FindFOP.cmake		\
