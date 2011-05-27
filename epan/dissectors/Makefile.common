@@ -130,14 +130,12 @@ ASN1_DISSECTOR_SRC = \
 	packet-mndp.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
-	packet-nbap.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
 	packet-opsi.c \
 	packet-p22.c \
 	packet-p7.c \
 	packet-p772.c \
-	packet-pcap.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
 	packet-pkix1explicit.c \
@@ -179,7 +177,9 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-gsm_map.c \
 	packet-ldap.c \
 	packet-lte-rrc.c \
+	packet-nbap.c \
 	packet-p1.c \
+	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
 	packet-rnsap.c \
