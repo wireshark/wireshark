@@ -104,8 +104,9 @@
 %}
 
 /* Note: FreeRadius allows VENDOR, ATTRIBUTE and VALUE names to contain any non-blank character.
- *       Using ... below for those names fails for some reason so for now the patterns for each
- *       include those characters found in the the corresponding names in the FreeRadius dictionaries.
+ *       Using a negated "blank character class" pattern below for those names fails for some reason
+ *       so for now the patterns for each name type include those characters found for the corresponding
+ *       name types in the FreeRadius dictionaries.
  */
 
 %START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR VENDOR_W_ID VENDOR_W_FORMAT VENDOR_W_TYPE_OCTETS VENDOR_W_LENGTH_OCTETS VENDOR_W_CONTINUATION BEGIN_TLV END_TLV
