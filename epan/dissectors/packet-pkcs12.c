@@ -299,7 +299,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 
 #endif
 
-void PBE_reset_parameters()
+void PBE_reset_parameters(void)
 {
 	iteration_count = 0;
 	salt = NULL;
