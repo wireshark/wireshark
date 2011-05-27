@@ -8305,7 +8305,10 @@ void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_co
 	report_unknown_content_type = report_unknown_cont_type;
 }
 
-char* p1_get_last_oraddress() { return oraddress; }
+char* p1_get_last_oraddress (void) 
+{ 
+	return oraddress;
+}
 
 /*
  * Dissect P1 MTS APDU
@@ -10697,7 +10700,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 256 "../../asn1/p1/packet-p1-template.c"
+#line 259 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10896,7 +10899,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 269 "../../asn1/p1/packet-p1-template.c"
+#line 272 "../../asn1/p1/packet-p1-template.c"
   };
 
   module_t *p1_module;
@@ -11089,7 +11092,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 305 "../../asn1/p1/packet-p1-template.c"
+#line 308 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
