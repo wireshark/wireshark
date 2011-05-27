@@ -29,6 +29,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-bytes-pane.png			\
 	wsug_graphics/ws-capture-info.png		\
 	wsug_graphics/ws-capture-interfaces.png		\
+	wsug_graphics/ws-capture-interface-details.png		\
 	wsug_graphics/ws-capture-interfaces-win32.png	\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
@@ -57,6 +58,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-export-ps.png			\
 	wsug_graphics/ws-export-psml.png		\
 	wsug_graphics/ws-export-selected.png		\
+	wsug_graphics/ws-file-import.png			\
 	wsug_graphics/ws-file-menu.png			\
 	wsug_graphics/ws-file-set-dialog.png		\
 	wsug_graphics/ws-filter-add-expression.png	\
@@ -70,9 +72,11 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-gui-columns-preferences.png	\
 	wsug_graphics/ws-gui-config-profiles.png	\
 	wsug_graphics/ws-gui-font-preferences.png	\
+	wsug_graphics/ws-gui-interface-options.png	\
 	wsug_graphics/ws-gui-layout-preferences.png	\
 	wsug_graphics/ws-gui-preferences.png		\
 	wsug_graphics/ws-help-menu.png			\
+	wsug_graphics/ws-internals-menu.png			\
 	wsug_graphics/ws-list-pane.png			\
 	wsug_graphics/ws-logo.png			\
 	wsug_graphics/ws-main-toolbar.png		\
@@ -96,6 +100,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-save-as-gtk24.png		\
 	wsug_graphics/ws-save-as-win32.png		\
 	wsug_graphics/ws-statistics-menu.png		\
+	wsug_graphics/ws-stats-compare.png		\
 	wsug_graphics/ws-stats-conversations.png	\
 	wsug_graphics/ws-stats-endpoints.png		\
 	wsug_graphics/ws-stats-hierarchy.png		\
@@ -107,8 +112,11 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-stats-lte-rlc-traffic.png		\
 	wsug_graphics/ws-stats-wlan-traffic.png		\
 	wsug_graphics/ws-statusbar-empty.png		\
+	wsug_graphics/ws-statusbar-filter.png		\
 	wsug_graphics/ws-statusbar-loaded.png		\
+	wsug_graphics/ws-statusbar-profile.png		\
 	wsug_graphics/ws-statusbar-selected.png		\
+	wsug_graphics/ws-tel-rtpstream-analysis.png		\
 	wsug_graphics/ws-telephony-menu.png		\
 	wsug_graphics/ws-tools-menu.png	\
 	wsug_graphics/ws-time-reference.png		\
@@ -151,6 +159,7 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/toolbar/stock_zoom_out_24.png
 
 WSDG_FILES =	\
+	wsdg_src/catalog.xml	\
 	wsdg_src/WSDG_chapter_build_intro.xml	\
 	wsdg_src/WSDG_chapter_capture.xml	\
 	wsdg_src/WSDG_chapter_dissection.xml	\

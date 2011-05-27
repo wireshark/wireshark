@@ -625,6 +625,7 @@ EXTRA_DIST = \
 	fix/hfDecl.xsl		\
 	fix/hfField.xsl		\
 	fix/hfList.xsl		\
+	idl/coseventcomm.idl	\
 	idl/cosnaming.idl	\
 	idl/tango.idl	\
 	idl/parlay/am.idl	\
@@ -712,6 +713,12 @@ EXTRA_DIST = \
 	image/toolbar/decode_as_16.xpm	\
 	image/toolbar/display_filter_24.xpm	\
 	image/toolbar/endpoints_16.xpm	\
+	image/toolbar/expert_chat.png	\
+	image/toolbar/expert_error.png	\
+	image/toolbar/expert_indicators.svg	\
+	image/toolbar/expert_none.png	\
+	image/toolbar/expert_note.png	\
+	image/toolbar/expert_warn.png	\
 	image/toolbar/expert_info_16.xpm	\
 	image/toolbar/file_set_list_16.xpm	\
 	image/toolbar/file_set_next_16.xpm	\
@@ -729,6 +736,7 @@ EXTRA_DIST = \
 	image/toolbar/icon_color_8.xpm	\
 	image/toolbar/icon_color_9.xpm	\
 	image/toolbar/internet_24.xpm	\
+	image/toolbar/make-icons	\
 	image/toolbar/modem_16.png	\
 	image/toolbar/modem_16.xpm	\
 	image/toolbar/network_bluetooth_16.png	\
@@ -843,6 +851,7 @@ EXTRA_DIST = \
 	cmake/modules/LICENSE.txt		\
 	cmake/modules/CMakeInstallDirs.cmake	\
 	cmake/modules/CheckCLinkerFlag.cmake	\
+	cmake/modules/COPYING-CMAKE-SCRIPTS	\
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindKERBEROS.cmake	\

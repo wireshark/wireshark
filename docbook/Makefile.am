@@ -252,9 +252,12 @@ EXTRA_DIST = \
 	$(RELEASE_NOTES_SOURCE)	\
 	check_svn_version.sh	\
 	docbook.vcproj		\
+	dfilter2xml.pl		\
 	make-wsluarm.pl		\
+	README.txt		\
 	Makefile.nmake		\
-	CMakeLists.txt
+	CMakeLists.txt	\
+	examples\test.cap
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
