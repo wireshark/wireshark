@@ -4757,12 +4757,18 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               break;
 
                         case 1:
+                        {
+                              /* To avoid an "assert w/side-effect" warning,
+                               * use a non-volatile temp variable instead. */
+                              int tmp_plen;
+
                               /* replylength is in units of four. */
-                              plen = 32 + VALUE32(tvb, offset + 4) * 4;
-                              DISSECTOR_ASSERT(plen >= 32);
+                              tmp_plen = plen = 32 + VALUE32(tvb, offset + 4) * 4;
+                              DISSECTOR_ASSERT(tmp_plen >= 32);
                               HANDLE_REPLY(plen, length_remaining,
                                            "Reply", dissect_x11_reply);
                               break;
+                        }
 
                         default:
                               /* Event */
