@@ -4653,7 +4653,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvbuff_t * volatile next_tvb;
       conversation_t *conversation;
       x11_conv_data_t *volatile state;
-      gboolean little_endian;
+      volatile gboolean little_endian;
       int length_remaining;
       const char *volatile sep = NULL;
 
