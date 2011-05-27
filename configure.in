@@ -1693,7 +1693,7 @@ AC_DEFINE(WS_MSVC_NORETURN,, [Define as the string to precede declarations of ro
 
 AC_ARG_ENABLE(airpcap,
   AC_HELP_STRING( [--enable-airpcap],
-                  [use airpcap in wireshark.  @<:@default=yes@:>@]),
+                  [use airpcap in wireshark.  @<:@default=no@:>@]),
   enable_airpcap=$enableval
   if test x$enable_airpcap != xno; then
 	AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
@@ -1910,7 +1910,7 @@ AC_OUTPUT(
   Makefile
   doxygen.cfg
   asn1/Makefile
-  _CUSTOM_ASN1_AC_OUTPUT_  
+  _CUSTOM_ASN1_AC_OUTPUT_
   asn1/acp133/Makefile
   asn1/acse/Makefile
   asn1/ansi_map/Makefile
