@@ -3273,6 +3273,7 @@ Chuck Kristofek		<chuck.kristofek [AT] ngc.com>
 Markus Renz		<Markus.Renz [AT] hirschmann.de>
 Petr Lautrbach		<plautrba [AT] redhat.com>
 Toshihiro Kataoka	<kataoka.toshihiro [AT] gmail.com>
+Romain Fliedel		<romain.fliedel+wireshark [AT] gmail.com>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.

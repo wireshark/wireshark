@@ -115,6 +115,8 @@ Wireshark Info
             <!-- Fixed in trunk: r37128 -->
             <!-- Fixed in trunk-1.4: r37258 -->
             <!-- Fixed in trunk-1.2: r37213 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5934">Bug
+            5934</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
 <!--
@@ -189,6 +191,18 @@ Wireshark Info
           Wireshark crashes when creating ProtoField.framenum in Lua.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5930">Bug
           5930</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fix a wrong mask to extract FMID from DECT packets dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5947">Bug
+          5947</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect DHCPv6 remote identifier option parsing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5962">Bug
+          5962</ulink>)
         </para></listitem>
 
       </itemizedlist>
