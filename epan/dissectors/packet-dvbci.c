@@ -182,7 +182,7 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
-dissect_dvbci_payload_ap(guint32 tag, gint len_field,
+dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
@@ -616,15 +616,12 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
 }
 
 static void
-dissect_dvbci_payload_ap(guint32 tag, gint len_field,
+dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
 {
     guint8 menu_str_len;
     guint8 *menu_string;
-
-    /* this parameter is unused, silence the compiler */
-    if (len_field==0) return;
 
     if (tag==T_APP_INFO) {
         proto_tree_add_item(tree, hf_dvbci_app_type, tvb, offset, 1, ENC_NA);
