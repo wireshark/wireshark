@@ -986,7 +986,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 }
                 sub_off += field_len;
                 break;
-                
+
             case CL_OPTION_CORRELATION_ID :
                 opt_len = tlv_len;
                  if (tlv_len != 4) {
@@ -1602,9 +1602,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, FALSE);
         off += 4;
-        optlen -= 4;
-        buf = tvb_bytes_to_str(tvb, off, optlen);
-        proto_tree_add_text(subtree, tvb, off, optlen, "Remote-ID: %s", buf);
+        buf = tvb_bytes_to_str(tvb, off, optlen - 4);
+        proto_tree_add_text(subtree, tvb, off, optlen - 4, "Remote-ID: %s", buf);
         break;
     case OPTION_SUBSCRIBER_ID:
         if (optlen == 0) {
