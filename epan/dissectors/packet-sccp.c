@@ -211,6 +211,7 @@ static const value_string sccp_national_indicator_values[] = {
 
 #define ROUTE_ON_GT  0x0
 #define ROUTE_ON_SSN 0x1
+#define ROUTING_INDICATOR_SHIFT	6
 static const value_string sccp_routing_indicator_values[] = {
   { ROUTE_ON_GT,  "Route on GT" },
   { ROUTE_ON_SSN, "Route on SSN" },
@@ -401,6 +402,7 @@ static const value_string sccp_es_values[] = {
 
 #define CLASS_CLASS_MASK 0xf
 #define CLASS_SPARE_HANDLING_MASK 0xf0
+#define CLASS_SPARE_HANDLING_SHIFT	4
 static const value_string sccp_class_handling_values [] = {
   { 0x0,  "No special options" },
   { 0x8,  "Return message on error" },
@@ -1077,8 +1079,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 
   gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
 
-  while(offset < length)
-  {
+  while(offset < length) {
     odd_signal = tvb_get_guint8(tvb, offset) & GT_ODD_SIGNAL_MASK;
     even_signal = tvb_get_guint8(tvb, offset) & GT_EVEN_SIGNAL_MASK;
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
@@ -1319,6 +1320,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
   proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_routing_indicator
 					   : hf_sccp_calling_routing_indicator,
 		      tvb, 0, ADDRESS_INDICATOR_LENGTH, routing_ind);
+  /* Only shift off the other bits after adding the item */
+  routing_ind >>= ROUTING_INDICATOR_SHIFT;
 
   gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
 
@@ -1332,9 +1335,13 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 			tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
 
     ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator
+    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator
 					     : hf_sccp_calling_itu_ssn_indicator,
 			tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+    if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+      expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+			     "Message is routed on SSN, but SSN is not present");
+    }
 
     pci = tvb_get_guint8(tvb, 0) & ITU_PC_INDICATOR_MASK;
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_point_code_indicator
@@ -1387,6 +1394,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
+
+      if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+	expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+			       "Message is routed on SSN, but SSN is zero (unspecified)");
+      }
 
       if (called && assoc)
 	assoc->called_ssn = ssn;
@@ -1455,15 +1467,24 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 			tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
 
     ssni = tvb_get_guint8(tvb, 0) & ANSI_SSN_INDICATOR_MASK;
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
+    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
 					     : hf_sccp_calling_ansi_ssn_indicator,
 			tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+    if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+      expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+			     "Message is routed on SSN, but SSN is not present");
+    }
 
     offset = ADDRESS_INDICATOR_LENGTH;
 
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
+
+      if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+	expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+			       "Message is routed on SSN, but SSN is zero (unspecified)");
+      }
 
       if (called && assoc){
 	assoc->called_ssn = ssn;
@@ -1522,21 +1543,67 @@ static void
 dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 class;
+  proto_item *pi;
+  gboolean invalid_class = FALSE;
 
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    pi = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(pi);
     return;
   }
 
   class = tvb_get_guint8(tvb, 0) & CLASS_CLASS_MASK;
+  pi = proto_tree_add_uint(tree, hf_sccp_class, tvb, 0, length, class);
 
-  proto_tree_add_uint(tree, hf_sccp_class, tvb, 0, length, class);
+  switch(message_type) {
+  case SCCP_MSG_TYPE_DT1:
+    if (class != 2)
+      invalid_class = TRUE;
+    break;
+  case SCCP_MSG_TYPE_DT2:
+  case SCCP_MSG_TYPE_AK:
+  case SCCP_MSG_TYPE_ED:
+  case SCCP_MSG_TYPE_EA:
+  case SCCP_MSG_TYPE_RSR:
+  case SCCP_MSG_TYPE_RSC:
+    if (class != 3)
+      invalid_class = TRUE;
+    break;
+  case SCCP_MSG_TYPE_CR:
+  case SCCP_MSG_TYPE_CC:
+  case SCCP_MSG_TYPE_CREF:
+  case SCCP_MSG_TYPE_RLSD:
+  case SCCP_MSG_TYPE_RLC:
+  case SCCP_MSG_TYPE_ERR:
+  case SCCP_MSG_TYPE_IT:
+    if (class != 2 && class != 3)
+      invalid_class = TRUE;
+    break;
+  case SCCP_MSG_TYPE_UDT:
+  case SCCP_MSG_TYPE_UDTS:
+  case SCCP_MSG_TYPE_XUDT:
+  case SCCP_MSG_TYPE_XUDTS:
+  case SCCP_MSG_TYPE_LUDT:
+  case SCCP_MSG_TYPE_LUDTS:
+    if (class != 0 && class != 1)
+      invalid_class = TRUE;
+    break;
+  }
 
-  if (class == 0 || class == 1)
-    proto_tree_add_item(tree, hf_sccp_handling, tvb, 0, length, ENC_NA);
+  if (invalid_class)
+    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unexpected message class for this message type");
+
+  if (class == 0 || class == 1) {
+    guint8 handling = tvb_get_guint8(tvb, 0) & CLASS_SPARE_HANDLING_MASK;
+
+    pi = proto_tree_add_item(tree, hf_sccp_handling, tvb, 0, length, ENC_NA);
+    handling >>= CLASS_SPARE_HANDLING_SHIFT;
+
+    if (match_strval(handling, sccp_class_handling_values) == NULL) {
+      expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Invalid message handling");
+    }
+  }
 }
 
 static void
@@ -2114,7 +2181,9 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
-static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type _U_) {
+static sccp_msg_info_t *
+new_ud_msg(packet_info* pinfo, guint32 msg_type _U_)
+{
 	sccp_msg_info_t* m = ep_alloc0(sizeof(sccp_msg_info_t));
 	m->framenum = pinfo->fd->num;
 	m->data.ud.calling_gt = NULL;
@@ -2776,8 +2845,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const mtp3_addr_pc_t *mtp3_addr_p;
 
   if ((pinfo->src.type == AT_SS7PC) &&
-    ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data)->type <= CHINESE_ITU_STANDARD))
-  {
+      ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data)->type <= CHINESE_ITU_STANDARD)) {
     /*
      *  Allow a protocol beneath to specify how the SCCP layer should be
      *  dissected.
@@ -2788,9 +2856,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *  and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
      */
     decode_mtp3_standard = mtp3_addr_p->type;
-  }
-  else
-  {
+  } else {
     decode_mtp3_standard = mtp3_standard;
   }
 
@@ -2821,8 +2887,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Set whether message is UPLINK, DOWNLINK, or of UNKNOWN direction */
 
-  if (pinfo->src.type == AT_SS7PC)
-  {
+  if (pinfo->src.type == AT_SS7PC) {
     /*
      * XXX - we assume that the "data" pointers of the source and destination
      * addresses are set to point to "mtp3_addr_pc_t" structures, so that
@@ -2830,21 +2895,16 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data;
 
-    if (sccp_source_pc_global == mtp3_addr_p->pc)
-    {
+    if (sccp_source_pc_global == mtp3_addr_p->pc) {
        pinfo->p2p_dir = P2P_DIR_SENT;
-    }
-    else
-    {
+    } else {
       /* assuming if src was SS7 PC then dst will be too */
       mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->dst.data;
 
       if (sccp_source_pc_global == mtp3_addr_p->pc)
       {
 	 pinfo->p2p_dir = P2P_DIR_RECV;
-      }
-      else
-      {
+      } else {
 	 pinfo->p2p_dir = P2P_DIR_UNKNOWN;
       }
     }
@@ -2872,7 +2932,9 @@ static struct _sccp_ul {
 	{0,FALSE,NULL}
 };
 
-static void sccp_users_update_cb(void* r, const char** err _U_) {
+static void
+sccp_users_update_cb(void* r, const char** err _U_)
+{
 	sccp_user_t* u = r;
 	struct _sccp_ul* c;
 
@@ -2888,7 +2950,9 @@ static void sccp_users_update_cb(void* r, const char** err _U_) {
 	u->handlep = &data_handle;
 }
 
-static void* sccp_users_copy_cb(void* n, const void* o, size_t siz _U_) {
+static void *
+sccp_users_copy_cb(void* n, const void* o, size_t siz _U_)
+{
 	const sccp_user_t* u = o;
 	sccp_user_t* un = n;
 
@@ -2902,7 +2966,9 @@ static void* sccp_users_copy_cb(void* n, const void* o, size_t siz _U_) {
 	return n;
 }
 
-static void sccp_users_free_cb(void*r) {
+static void
+sccp_users_free_cb(void*r)
+{
 	sccp_user_t* u = r;
 	if (u->called_pc) g_free(u->called_pc);
 	if (u->called_ssn) g_free(u->called_ssn);
@@ -2917,7 +2983,9 @@ UAT_VS_DEF(sccp_users, user, sccp_user_t, SCCP_USER_DATA, "Data")
 /** End SccpUsersTable **/
 
 
-static void init_sccp(void) {
+static void
+init_sccp(void)
+{
     next_assoc_id = 1;
     fragment_table_init (&sccp_xudt_msg_fragment_table);
     reassembled_table_init(&sccp_xudt_msg_reassembled_table);
@@ -3348,19 +3416,11 @@ proto_register_sccp(void)
   };
 
 
-  uat_t* users_uat = uat_new("SCCP Users Table",
-	sizeof(sccp_user_t),
-	"sccp_users",
-	TRUE,
-	(void*) &sccp_users,
-	&num_sccp_users,
-	UAT_CAT_PORTS,
-	"ChSccpUsers",
-	sccp_users_copy_cb,
-	sccp_users_update_cb,
-	sccp_users_free_cb,
-	NULL,
-	users_flds );
+  uat_t* users_uat = uat_new("SCCP Users Table", sizeof(sccp_user_t),
+			     "sccp_users", TRUE, (void*) &sccp_users,
+			     &num_sccp_users, UAT_CAT_PORTS, "ChSccpUsers",
+			     sccp_users_copy_cb, sccp_users_update_cb,
+			     sccp_users_free_cb, NULL, users_flds );
 
  /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
