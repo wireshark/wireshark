@@ -2035,6 +2035,11 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return NULL;
     }
 
+    /* Check call to dissect_6lowpan_xxx was successful */
+    if (frag_tvb == NULL) {
+        return NULL;
+    }
+
     /* Add this datagram to the fragment table. */
     frag_size = tvb_length(frag_tvb);
     tvb_set_reported_length(frag_tvb, frag_size);
