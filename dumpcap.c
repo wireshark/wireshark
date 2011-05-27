@@ -3817,6 +3817,9 @@ main(int argc, char *argv[])
                       log_flags,
                       console_log_handler, NULL /* user_data */);
 
+    /* Initialize the pcaps list */
+    global_ld.pcaps = NULL;
+
     /* Initialize the thread system */
     if (!g_thread_supported())
         g_thread_init(NULL);
