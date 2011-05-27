@@ -1220,6 +1220,7 @@ profile_name_edit_dlg (gint operation)
   main_tb = gtk_table_new(2, 2, FALSE);
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
 
   if (operation == PROF_OPERATION_NEW) {
     label = gtk_label_new("Create from:");
