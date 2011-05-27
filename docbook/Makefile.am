@@ -256,8 +256,7 @@ EXTRA_DIST = \
 	make-wsluarm.pl		\
 	README.txt		\
 	Makefile.nmake		\
-	CMakeLists.txt	\
-	examples\test.cap
+	CMakeLists.txt	
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

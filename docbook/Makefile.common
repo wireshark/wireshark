@@ -159,7 +159,6 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/toolbar/stock_zoom_out_24.png
 
 WSDG_FILES =	\
-	wsdg_src/catalog.xml	\
 	wsdg_src/WSDG_chapter_build_intro.xml	\
 	wsdg_src/WSDG_chapter_capture.xml	\
 	wsdg_src/WSDG_chapter_dissection.xml	\
