@@ -126,7 +126,7 @@ LIBWIRESHARK_GENERATED_SRC = 	\
 LIBWIRESHARK_ALL_SRC = \
 	$(LIBWIRESHARK_SRC) 	\
 	$(LIBWIRESHARK_GENERATED_SRC)
-	
+
 LIBWIRESHARK_INCLUDES = 	\
 	addr_and_mask.h		\
 	addr_resolv.h		\
@@ -233,6 +233,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	to_str.h		\
 	tvbparse.h		\
 	tvbuff.h		\
+	tvbuff-int.h		\
 	uat.h			\
 	uat-int.h		\
 	value_string.h		\
