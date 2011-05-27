@@ -58,71 +58,8 @@ typedef enum {
 	TVBUFF_COMPOSITE
 } tvbuff_type;
 
-typedef struct {
-	/** The backing tvbuff_t */
-	struct tvbuff	*tvb;
-
-	/** The offset of 'tvb' to which I'm privy */
-	guint		offset;
-	/** The length of 'tvb' to which I'm privy */
-	guint		length;
-
-} tvb_backing_t;
-
-typedef struct {
-	GSList		*tvbs;
-
-	/* Used for quick testing to see if this
-	 * is the tvbuff that a COMPOSITE is
-	 * interested in. */
-	guint		*start_offsets;
-	guint		*end_offsets;
-
-} tvb_comp_t;
-
-typedef void (*tvbuff_free_cb_t)(void*);
-
-typedef struct tvbuff {
-	/* Record-keeping */
-	tvbuff_type		type;
-	gboolean		initialized;
-	guint			usage_count;
-	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */
-
-	/** The tvbuffs in which this tvbuff is a member
-	 * (that is, a backing tvbuff for a TVBUFF_SUBSET
-	 * or a member for a TVB_COMPOSITE) */
-	GSList			*used_in;
-
-	/** TVBUFF_SUBSET and TVBUFF_COMPOSITE keep track
-	 * of the other tvbuff's they use */
-	union {
-		tvb_backing_t	subset;
-		tvb_comp_t	composite;
-	} tvbuffs;
-
-	/** We're either a TVBUFF_REAL_DATA or a
-	 * TVBUFF_SUBSET that has a backing buffer that
-	 * has real_data != NULL, or a TVBUFF_COMPOSITE
-	 * which has flattened its data due to a call
-	 * to tvb_get_ptr().
-	 */
-	const guint8		*real_data;
-
-	/** Length of virtual buffer (and/or real_data). */
-	guint			length;
-
-	/** Reported length. */
-	guint			reported_length;
-
-	/* Offset from beginning of first TVBUFF_REAL. */
-	gint			raw_offset;
-
-	/** Func to call when actually freed */
-	tvbuff_free_cb_t	free_cb;
-} tvbuff_t;
-
-
+struct tvbuff;
+typedef struct tvbuff tvbuff_t;
 
 /** TVBUFF_REAL_DATA contains a guint8* that points to real data.
  * The data is allocated and contiguous.
@@ -141,6 +78,8 @@ typedef struct tvbuff {
  * That is, it cannot point to any other data. A new tvbuff must be created if
  * you want a tvbuff that points to other data.
  */
+
+typedef void (*tvbuff_free_cb_t)(void*);
 
 
 /** "class" initialization. Called once during execution of program
@@ -308,8 +247,7 @@ extern void tvb_set_reported_length(tvbuff_t*, const guint);
 extern guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 
 /* Returns the offset from the first byte of real data. */
-#define TVB_RAW_OFFSET(tvb)			\
-	((tvb->raw_offset==-1)?(tvb->raw_offset = tvb_offset_from_real_beginning(tvb)):tvb->raw_offset)
+extern gint tvb_raw_offset(tvbuff_t *tvb);
 
 /************** START OF ACCESSORS ****************/
 /* All accessors will throw an exception if appropriate */
@@ -691,8 +629,7 @@ dgt_set_t;
 
 extern gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
-#define TVB_GET_DS_TVB(tvb)		\
-	(tvb->ds_tvb)
+struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within

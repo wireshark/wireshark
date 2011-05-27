@@ -367,7 +367,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    msg = gcp_msg(pinfo, TVB_RAW_OFFSET(tvb), keep_persistent_data);
+    msg = gcp_msg(pinfo, tvb_raw_offset(tvb), keep_persistent_data);
 
     /*
      * Check to see whether we're really dealing with MEGACO by looking

@@ -65,7 +65,7 @@ static int wslua_not_register_menu(lua_State* LS) {
 }
 
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
-    int consumed_bytes = tvb->length;
+    int consumed_bytes = tvb_length(tvb);
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 

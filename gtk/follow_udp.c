@@ -36,6 +36,7 @@
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
+#include <epan/tvbuff-int.h>
 
 #include <../simple_dialog.h>
 

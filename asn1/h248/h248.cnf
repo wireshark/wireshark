@@ -83,17 +83,17 @@ TransactionReply/transactionId		trep_transactionId
 TransactionPending/transactionId	tpend_transactionId
 
 #.FN_HDR Message
-    curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
+    curr_info.msg = gcp_msg(actx->pinfo,tvb_raw_offset(tvb),keep_persistent_data);
 #.END
 
 #.FN_FTR Message
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
-        
+
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
 #.END
 
-#.FN_BODY Message/version VAL_PTR = &h248_version 
+#.FN_BODY Message/version VAL_PTR = &h248_version
 	%(DEFAULT_BODY)s
 #.END
 
@@ -110,7 +110,7 @@ TransactionPending/transactionId	tpend_transactionId
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_PENDING, keep_persistent_data);
     error_code = 0;
 
-#.FN_BODY TransactionReply/transactionId		
+#.FN_BODY TransactionReply/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REPLY, keep_persistent_data);
@@ -290,13 +290,13 @@ TransactionPending/transactionId	tpend_transactionId
 #.FN_BODY ErrorDescriptor/errorCode
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
     expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
-    
+
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
     } else if (curr_info.trx) {
         gcp_trx_set_error(curr_info.trx,error_code);
     }
-    
+
     return offset;
 #.END
 
@@ -316,13 +316,13 @@ TransactionPending/transactionId	tpend_transactionId
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
     wild_card = tvb_get_guint8(new_tvb,0);
-    
+
 #.END
 
 #.FN_BODY TerminationID/id
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
-	
+
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
@@ -335,9 +335,9 @@ TransactionPending/transactionId	tpend_transactionId
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-		    actx->pinfo->private_data = &wild_card;		    
+		    actx->pinfo->private_data = &wild_card;
 			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
-			wild_card = 0xFF;		
+			wild_card = 0xFF;
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -348,14 +348,14 @@ TransactionPending/transactionId	tpend_transactionId
 
 #.FN_BODY SCreasonValue
 /* H248 v1 support */
-	if ( h248_version >1 ) {	
+	if ( h248_version >1 ) {
 		/* Not V1, so call "standard" function */
-%(DEFAULT_BODY)s	
+%(DEFAULT_BODY)s
 } else {
 			/* V1 so Value == octet string */
 		offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
 };
-	
+
 #.END
 
 #.FN_BODY SCreasonValueOctetStr VAL_PTR = &parameter_tvb
@@ -380,14 +380,14 @@ TransactionPending/transactionId	tpend_transactionId
 	for( i=0;i<len;i++) {
 		if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
 			/* not ascii or NULL character so do string as hex string */
-			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
+			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 				(proto_registrar_get_nth(hf_index))->name,
 				tvb_bytes_to_str(tvb, 0, len));
 			return len;
 		};
 	};
 	/* if here, then string is ascii */
-	proto_tree_add_text(tree, tvb, offset, len,"%s: %s", 
+	proto_tree_add_text(tree, tvb, offset, len,"%s: %s",
 				(proto_registrar_get_nth(hf_index))->name,
 				tvb_format_text(tvb, 0, len));
 	offset = len;

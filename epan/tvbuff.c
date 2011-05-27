@@ -47,6 +47,7 @@
 
 #include "pint.h"
 #include "tvbuff.h"
+#include "tvbuff-int.h"
 #include "strutil.h"
 #include "emem.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
@@ -3544,7 +3545,8 @@ tvb_uncompress(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
 }
 #endif
 
-tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvbuff_t *
+tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
 {
 	tvbuff_t *new_tvb = tvb_uncompress(tvb, offset, comprlen);
 	if (new_tvb)
@@ -3552,3 +3554,14 @@ tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset
 	return new_tvb;
 }
 
+gint
+tvb_raw_offset(tvbuff_t *tvb)
+{
+	return ((tvb->raw_offset==-1)?(tvb->raw_offset = tvb_offset_from_real_beginning(tvb)):tvb->raw_offset);
+}
+
+struct tvbuff *
+tvb_get_ds_tvb(tvbuff_t *tvb)
+{
+	return(tvb->ds_tvb);
+}

@@ -788,7 +788,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
     }
     if (ret && save_plaintext) {
-      ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, decoder->flow);
+      ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  tvb_raw_offset(tvb)+offset, decoder->flow);
     }
     return ret;
 }
@@ -1234,7 +1234,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     save_can_desegment = pinfo->can_desegment;
 
     /* show decrypted data info, if available */
-    appl_data = ssl_get_data_info(proto_ssl, pinfo, TVB_RAW_OFFSET(tvb)+offset);
+    appl_data = ssl_get_data_info(proto_ssl, pinfo, tvb_raw_offset(tvb)+offset);
     if (!appl_data || !appl_data->plain_data.data_len) return;
 
     /* try to dissect decrypted data*/
@@ -1559,7 +1559,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
-                 decrypted->length, conv_version, ssl, content_type);
+                 tvb_length(decrypted), conv_version, ssl, content_type);
         } else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
                                record_length, conv_version, ssl, content_type);

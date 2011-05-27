@@ -1077,6 +1077,7 @@ tvb_get_bits16
 tvb_get_bits32
 tvb_get_bits64
 tvb_get_const_stringz
+tvb_get_ds_tvb
 tvb_get_ephemeral_faked_unicode
 tvb_get_ephemeral_string
 tvb_get_ephemeral_stringz
@@ -1126,6 +1127,7 @@ tvb_new_subset_remaining
 tvb_offset_exists
 tvb_offset_from_real_beginning
 tvb_pbrk_guint8
+tvb_raw_offset
 tvb_reported_length
 tvb_reported_length_remaining
 tvb_set_child_real_data_tvbuff

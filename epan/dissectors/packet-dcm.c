@@ -5150,7 +5150,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        we need both values to uniquely identify a PDV
     */
 
-    *pdv = dcm_state_pdv_get(pctx, pinfo->fd->num, TVB_RAW_OFFSET(tvb)+offset, TRUE);
+    *pdv = dcm_state_pdv_get(pctx, pinfo->fd->num, tvb_raw_offset(tvb)+offset, TRUE);
     if (*pdv == NULL) {
 	return 0;		    /* Failed to allocate memory */
     }

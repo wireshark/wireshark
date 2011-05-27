@@ -560,7 +560,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
 
   if (ret && save_plaintext) {
-    ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, 0);
+    ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,  tvb_raw_offset(tvb)+offset, 0);
   }
 
   return ret;
@@ -791,7 +791,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       decrypted = ssl_get_record_info(proto_dtls, pinfo, offset);
       if (decrypted)
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-                               decrypted->length, conv_version, ssl, content_type);
+                               tvb_length(decrypted), conv_version, ssl, content_type);
       else
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
                                record_length, conv_version, ssl, content_type);
@@ -821,7 +821,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         association?association->info:"Application Data");
 
     /* show decrypted data info, if available */
-    appl_data = ssl_get_data_info(proto_dtls, pinfo, TVB_RAW_OFFSET(tvb)+offset);
+    appl_data = ssl_get_data_info(proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
     if (appl_data && (appl_data->plain_data.data_len > 0))
       {
         tvbuff_t *next_tvb;

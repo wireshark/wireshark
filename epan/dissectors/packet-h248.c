@@ -2014,13 +2014,13 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 291 "../../asn1/h248/h248.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
     expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
-    
+
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
     } else if (curr_info.trx) {
         gcp_trx_set_error(curr_info.trx,error_code);
     }
-    
+
     return offset;
 
 
@@ -2127,7 +2127,7 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
     wild_card = tvb_get_guint8(new_tvb,0);
-    
+
 
 
   return offset;
@@ -2153,7 +2153,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 323 "../../asn1/h248/h248.cnf"
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
-	
+
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
@@ -2166,9 +2166,9 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-		    actx->pinfo->private_data = &wild_card;		    
+		    actx->pinfo->private_data = &wild_card;
 			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
-			wild_card = 0xFF;		
+			wild_card = 0xFF;
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -4331,16 +4331,16 @@ static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 350 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
-	if ( h248_version >1 ) {	
+	if ( h248_version >1 ) {
 		/* Not V1, so call "standard" function */
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SCreasonValue_sequence_of, hf_index, ett_h248_SCreasonValue);
-	
+
 } else {
 			/* V1 so Value == octet string */
 		offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
 };
-	
+
 
 
   return offset;
@@ -5157,14 +5157,14 @@ static const ber_sequence_t Message_sequence[] = {
 static int
 dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 86 "../../asn1/h248/h248.cnf"
-    curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
+    curr_info.msg = gcp_msg(actx->pinfo,tvb_raw_offset(tvb),keep_persistent_data);
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Message_sequence, hf_index, ett_h248_Message);
 
 #line 90 "../../asn1/h248/h248.cnf"
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
-        
+
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
 
@@ -5251,14 +5251,14 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	for( i=0;i<len;i++) {
 		if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
 			/* not ascii or NULL character so do string as hex string */
-			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
+			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 				(proto_registrar_get_nth(hf_index))->name,
 				tvb_bytes_to_str(tvb, 0, len));
 			return len;
 		};
 	};
 	/* if here, then string is ascii */
-	proto_tree_add_text(tree, tvb, offset, len,"%s: %s", 
+	proto_tree_add_text(tree, tvb, offset, len,"%s: %s",
 				(proto_registrar_get_nth(hf_index))->name,
 				tvb_format_text(tvb, 0, len));
 	offset = len;

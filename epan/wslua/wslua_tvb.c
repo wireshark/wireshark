@@ -475,7 +475,7 @@ WSLUA_METHOD Tvb_offset(lua_State* L) {
         return 0;
     }
 
-    lua_pushnumber(L,TVB_RAW_OFFSET(tvb->ws_tvb));
+    lua_pushnumber(L,tvb_raw_offset(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The raw offset of the Tvb. */
 }
 

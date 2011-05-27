@@ -53,6 +53,7 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/strutil.h>
+#include <epan/tvbuff-int.h>
 
 #include "../file.h"
 #include "../print.h"
@@ -838,7 +839,7 @@ edit_pkt_destroy_new_window(GtkObject *object _U_, gpointer user_data)
 	/* XXX, notify main packet list that packet should be redisplayed */
 }
 
-static gint g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_) { 
+static gint g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_) {
 	if (a > b)
 		return 1;
 	else if (a < b)

@@ -273,7 +273,7 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-static struct ws_memory_slab field_info_slab = 
+static struct ws_memory_slab field_info_slab =
 	WS_MEMORY_SLAB_INIT(field_info, 128);
 
 static field_info *field_info_tmp=NULL;
@@ -283,7 +283,7 @@ static field_info *field_info_tmp=NULL;
 	sl_free(&field_info_slab, fi)
 
 /* Contains the space for proto_nodes. */
-static struct ws_memory_slab proto_node_slab = 
+static struct ws_memory_slab proto_node_slab =
 	WS_MEMORY_SLAB_INIT(proto_node, 128);
 
 #define PROTO_NODE_NEW(node)				\
@@ -296,7 +296,7 @@ static struct ws_memory_slab proto_node_slab =
 	sl_free(&proto_node_slab, node)
 
 /* String space for protocol and field items for the GUI */
-static struct ws_memory_slab item_label_slab = 
+static struct ws_memory_slab item_label_slab =
 	WS_MEMORY_SLAB_INIT(item_label_t, 128);
 
 #define ITEM_LABEL_NEW(il)				\
@@ -3582,7 +3582,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 
 	fi->hfinfo = hfinfo;
 	fi->start = start;
-	fi->start+=(tvb)?TVB_RAW_OFFSET(tvb):0;
+	fi->start+=(tvb)?tvb_raw_offset(tvb):0;
 	fi->length = item_length;
 	fi->tree_type = -1;
 	fi->flags = 0;
@@ -3592,7 +3592,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->rep = NULL;
 
 	/* add the data source tvbuff */
-	fi->ds_tvb=tvb?TVB_GET_DS_TVB(tvb):NULL;
+	fi->ds_tvb=tvb?tvb_get_ds_tvb(tvb):NULL;
 
 	fi->appendix_start = 0;
 	fi->appendix_length = 0;
@@ -4124,7 +4124,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 	if (fi == NULL)
 		return;
 
-	end += TVB_RAW_OFFSET(tvb);
+	end += tvb_raw_offset(tvb);
 	DISSECTOR_ASSERT(end >= fi->start);
 	fi->length = end - fi->start;
 }
@@ -4349,7 +4349,7 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
 	if (fi == NULL)
 		return;
 
-	start += TVB_RAW_OFFSET(tvb);
+	start += tvb_raw_offset(tvb);
 	DISSECTOR_ASSERT(start >= 0);
 	DISSECTOR_ASSERT(length >= 0);
 
@@ -5263,9 +5263,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name, 
-				   get_eui64_name(integer64), 
-				   eui64_to_str(integer64)); 
+				   "%s: %s (%s)", hfinfo->name,
+				   get_eui64_name(integer64),
+				   eui64_to_str(integer64));
 			break;
 		case FT_STRING:
 		case FT_STRINGZ:
