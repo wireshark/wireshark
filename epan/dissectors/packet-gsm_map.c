@@ -2856,7 +2856,7 @@ dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
 	 offset = tvb_length_remaining(tvb,offset);
-  }	
+  }
 
 
 
@@ -3104,11 +3104,11 @@ MAP interfaces
  guint8		length;
  tvbuff_t	*next_tvb;
  proto_tree *subtree;
- 
+
  ProtocolId = 0xffffffff;
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_map_ExternalSignalInfo_sequence, hf_index, ett_gsm_map_ExternalSignalInfo);
- 
+
 if (!actx->value_ptr)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
@@ -3128,7 +3128,7 @@ if (!actx->value_ptr)
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
-			/* Dissect the data part */			
+			/* Dissect the data part */
 			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
@@ -3151,8 +3151,8 @@ if (!actx->value_ptr)
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
@@ -3246,7 +3246,7 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
  if (!parameter_tvb)
 	return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo); 
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo);
 
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
@@ -3265,12 +3265,12 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
 			length = tvb_get_guint8(parameter_tvb,0);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
  	/* ts3G-25413 */
 	case 2:
-		call_dissector(ranap_handle, parameter_tvb, actx->pinfo, tree); 
+		call_dissector(ranap_handle, parameter_tvb, actx->pinfo, tree);
 		break;
 	default:
 		break;
@@ -3453,17 +3453,17 @@ dissect_gsm_map_HLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 int
 dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 798 "../../asn1/gsm_map/gsm_map.cnf"
-    tvbuff_t	*parameter_tvb; 
+    tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
-                return offset; 
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId); 
+	if (!parameter_tvb)
+                return offset;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId);
 	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
 
 
@@ -3721,17 +3721,17 @@ int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 577 "../../asn1/gsm_map/gsm_map.cnf"
 
-        tvbuff_t        *parameter_tvb; 
-        proto_tree *subtree; 
+        tvbuff_t        *parameter_tvb;
+        proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-         if (!parameter_tvb) 
-                return offset; 
-        subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
-        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE); 
+
+         if (!parameter_tvb)
+                return offset;
+        subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength);
+        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
 
 
 
@@ -3861,12 +3861,12 @@ dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
  octet = tvb_get_guint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
+ if ((octet & 0x01)== 1)
 	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);
 
 
 
@@ -3993,12 +3993,12 @@ dissect_gsm_map_ss_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
  octet = tvb_get_guint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
+ if ((octet & 0x01)== 1)
 	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);
 
 
 
@@ -4362,12 +4362,12 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   tvbuff_t	*parameter_tvb;
   int			length;
   guint8		out_len;
-  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
+  /* XXX - The maximum item label length is 240.  Does this really need to be 1024?
    * use ep_alloc ?
    */
   static unsigned char msgbuf[1024];
   gchar *utf8_text = NULL;
-  GIConv cd;	
+  GIConv cd;
   GError *l_conv_error = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4395,21 +4395,21 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     case SMS_ENCODING_UCS2_LANG:
 	if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
 	{
-	    utf8_text = g_convert_with_iconv(parameter_tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
+	    utf8_text = g_convert_with_iconv(tvb_get_ptr(parameter_tvb, 0, length), length, cd, NULL, NULL, &l_conv_error);
 	    if(!l_conv_error)
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: %s", utf8_text);
 	    else
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_convert_with_iconv FAILED");
 
 	    g_free(utf8_text);
-	    g_iconv_close(cd);				
+	    g_iconv_close(cd);
 	}
 	else
 	    proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_iconv_open FAILED contact wireshark");
 
 	break;
     default:
-	break;	
+	break;
   }
 
 
@@ -7723,9 +7723,9 @@ dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvb
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
+
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -7746,9 +7746,9 @@ dissect_gsm_map_ms_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tv
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
+
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -7826,17 +7826,17 @@ dissect_gsm_map_ms_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 589 "../../asn1/gsm_map/gsm_map.cnf"
-    tvbuff_t        *parameter_tvb; 
+    tvbuff_t        *parameter_tvb;
 	proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
-                return offset; 
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
+	if (!parameter_tvb)
+                return offset;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation);
 	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 
@@ -7902,9 +7902,9 @@ dissect_gsm_map_ms_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tv
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
+
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -13934,18 +13934,18 @@ dissect_gsm_map_lcs_ProvideSubscriberLocation_Arg(gboolean implicit_tag _U_, tvb
 int
 dissect_gsm_map_lcs_Ext_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 810 "../../asn1/gsm_map/gsm_map.cnf"
-    tvbuff_t	*parameter_tvb; 
+    tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
- 
 
-	if (!parameter_tvb) 
-                return offset; 
+
+	if (!parameter_tvb)
+                return offset;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeographicalInformation);
-	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree); 
+	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree);
 
 
 
@@ -14895,7 +14895,7 @@ dissect_gsm_old_GSMMAPOperationLocalvalue(gboolean implicit_tag _U_, tvbuff_t *t
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
- 
+
   col_append_str(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -15348,7 +15348,7 @@ For the coding of the messages see GSM 08.06 and GSM 08.08.
  ProtocolId = 0xffffffff;
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_old_Bss_APDU_sequence, hf_index, ett_gsm_old_Bss_APDU);
- 
+
 if (!actx->value_ptr)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
@@ -15368,7 +15368,7 @@ if (!actx->value_ptr)
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
-			/* Dissect the data part */			
+			/* Dissect the data part */
 			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
@@ -15391,8 +15391,8 @@ if (!actx->value_ptr)
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/

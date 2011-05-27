@@ -1618,7 +1618,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint16 payloadLength = 0;      /* Payload Length should it exist */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
-    guint16 packetLength = 0;       /* Packet Length.  We track this as tvb->length - offset.   */
+    guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
                                     /*  It provides the parsing methods a known size            */
                                     /*   that must be available for that header.                */
     struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
@@ -2479,7 +2479,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     {
 
         /* Calculation for Payload:
-        * (tvb->length) Length of entire packet - (local_offset) Starting byte of Payload Data
+        * (tvb_length) Length of entire packet - (local_offset) Starting byte of Payload Data
         * offset addition is more complex for the payload.
         * We need the total length of the packet, - length of previous headers, + offset where payload started.
         * We also need  to reserve 6 bytes for the CRCs which are not actually part of the payload.  */

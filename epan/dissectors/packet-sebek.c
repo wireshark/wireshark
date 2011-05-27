@@ -136,7 +136,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "SEBEK - ");
 
-		if (tvb->length<6)
+		if (tvb_length(tvb)<6)
 			sebek_ver = 0;
                 else
 			sebek_ver = tvb_get_ntohs(tvb, 4);
@@ -167,7 +167,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sebek_tree = proto_item_add_subtree(ti, ett_sebek);
 
 		/* check for minimum length before deciding where to go*/
-		if (tvb->length<6)
+		if (tvb_length(tvb)<6)
 			sebek_ver = 0;
 		else
 			sebek_ver = tvb_get_ntohs(tvb, 4);

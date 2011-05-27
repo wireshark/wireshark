@@ -6575,22 +6575,29 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                 if (fid_info->fsi->filename)
                                         eo_info->filename = (gchar *) fid_info->fsi->filename;
                         if(!eo_info->filename) eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
-                        eo_info->fid_type = fid_info->type;                                             eo_info->end_of_file = fid_info->end_of_file;
-                } else {                                                                                eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
-                        eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);                        eo_info->end_of_file = 0;
-                }                                                                               eo_info->fid=fid;
-                eo_info->tid=si->tid;                                                           eo_info->uid=si->uid;
-                eo_info->payload_len = datalen;                                                 eo_info->payload_data = data_tvb->real_data;
-                eo_info->smb_file_offset=rwi->offset;                                           eo_info->smb_chunk_len=rwi->len;
+                        eo_info->fid_type = fid_info->type;
+                        eo_info->end_of_file = fid_info->end_of_file;
+                } else {
+                        eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
+                        eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
+                        eo_info->end_of_file = 0;
+                }
+                eo_info->fid=fid;
+                eo_info->tid=si->tid;
+                eo_info->uid=si->uid;
+                eo_info->payload_len = datalen;
+                eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
+                eo_info->smb_file_offset=rwi->offset;
+                eo_info->smb_chunk_len=rwi->len;
                 eo_info->cmd=SMB_COM_READ_ANDX;
                 /* Queue data to the listener */
 
                 tap_queue_packet(smb_eo_tap, pinfo, eo_info);
         }
 
-	END_OF_SMB
+        END_OF_SMB
 
-	if (cmd != 0xff) { 	/* there is an andX command */
+        if (cmd != 0xff) {   /* there is an andX command */
 		if (andxoffset < offset)
 			THROW(ReportedBoundsError);
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -6815,7 +6822,7 @@ d);) */
                 eo_info->tid=si->tid;
                 eo_info->uid=si->uid;
                 eo_info->payload_len = datalen;
-                eo_info->payload_data = data_tvb->real_data;
+                eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
                 eo_info->smb_file_offset=rwi->offset;
                 eo_info->smb_chunk_len=rwi->len;
                 eo_info->cmd=SMB_COM_WRITE_ANDX;

@@ -2695,7 +2695,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		 */
 		out_len = 0;
 
-		total_sms_len = sm_tvb->length;
+		total_sms_len = tvb_length(sm_tvb);
 		for(i = 0 ; i < g_frags; i++)
 		{
 		    /* maximum len msg in 7 bit with csm8 header*/
@@ -2739,10 +2739,12 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	{
 	    if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
 	    {
+		guint8 rep_len = tvb_reported_length(sm_tvb);
+
 		if(!(reassembled && g_pinfo->fd->num == reassembled_in))
 		{
 		    /* Show unreassembled SMS */
-		    utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+		    utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
 		    if(!l_conv_error) {
 			/* XXX - using proto_tree_add_string() doesn't work */
 			ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, tvb,
@@ -2756,7 +2758,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		     *  so that the text doesn't get truncated when we add it to
 		     *  the tree.
 		     */
-		    utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
+		    utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
 		    if(!l_conv_error)
 		    {
 			len_sms = (int)strlen(utf8_text);

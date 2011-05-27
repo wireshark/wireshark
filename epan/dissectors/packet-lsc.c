@@ -152,7 +152,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Too little data? */
-  if (tvb->length < LSC_MIN_LEN)
+  if (tvb_length(tvb) < LSC_MIN_LEN)
   {
     col_set_str(pinfo->cinfo, COL_INFO, "[Too short]");
     return;
@@ -205,9 +205,9 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  val_to_str(op_code, op_code_vals, "Unknown op code (0x%x)"),
                  stream);
 
-    if (tvb->length < expected_len)
+    if (tvb_length(tvb) < expected_len)
       col_append_str(pinfo->cinfo, COL_INFO, " [Too short]");
-    else if (tvb->length > expected_len)
+    else if (tvb_length(tvb) > expected_len)
       col_append_str(pinfo->cinfo, COL_INFO, " [Too long]");
   }
 
@@ -346,64 +346,64 @@ dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_lsc(void)
-{                 
+{
   module_t *lsc_module;
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_lsc_version,
       { "Version", "lsc.version",
-        FT_UINT8, BASE_DEC, NULL, 0,          
+        FT_UINT8, BASE_DEC, NULL, 0,
         "Version of the Pegasus LSC protocol", HFILL }
     },
     { &hf_lsc_trans_id,
       { "Transaction ID", "lsc.trans_id",
-        FT_UINT8, BASE_DEC, NULL, 0,          
+        FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_lsc_op_code,
       { "Op Code", "lsc.op_code",
-        FT_UINT8, BASE_HEX, VALS(op_code_vals), 0,          
+        FT_UINT8, BASE_HEX, VALS(op_code_vals), 0,
         "Operation Code", HFILL }
     },
     { &hf_lsc_status_code,
       { "Status Code", "lsc.status_code",
-        FT_UINT8, BASE_HEX, VALS(status_code_vals), 0,          
+        FT_UINT8, BASE_HEX, VALS(status_code_vals), 0,
         NULL, HFILL }
     },
     { &hf_lsc_stream_handle,
       { "Stream Handle", "lsc.stream_handle",
-        FT_UINT32, BASE_DEC, NULL, 0,          
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Stream identification handle", HFILL }
     },
     { &hf_lsc_start_npt,
       { "Start NPT", "lsc.start_npt",
-        FT_INT32, BASE_DEC, NULL, 0,          
+        FT_INT32, BASE_DEC, NULL, 0,
         "Start Time (milliseconds)", HFILL }
     },
     { &hf_lsc_stop_npt,
       { "Stop NPT", "lsc.stop_npt",
-        FT_INT32, BASE_DEC, NULL, 0,          
+        FT_INT32, BASE_DEC, NULL, 0,
         "Stop Time (milliseconds)", HFILL }
     },
     { &hf_lsc_current_npt,
       { "Current NPT", "lsc.current_npt",
-        FT_INT32, BASE_DEC, NULL, 0,          
+        FT_INT32, BASE_DEC, NULL, 0,
         "Current Time (milliseconds)", HFILL }
     },
     { &hf_lsc_scale_num,
       { "Scale Numerator", "lsc.scale_num",
-        FT_INT16, BASE_DEC, NULL, 0,          
+        FT_INT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_lsc_scale_denom,
       { "Scale Denominator", "lsc.scale_denum",
-        FT_UINT16, BASE_DEC, NULL, 0,          
+        FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_lsc_mode,
       { "Server Mode", "lsc.mode",
-        FT_UINT8, BASE_HEX, VALS(mode_vals), 0,          
+        FT_UINT8, BASE_HEX, VALS(mode_vals), 0,
         "Current Server Mode", HFILL }
     }
   };
@@ -421,10 +421,10 @@ proto_register_lsc(void)
   proto_register_field_array(proto_lsc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  /* Register preferences module */       
+  /* Register preferences module */
   lsc_module = prefs_register_protocol(proto_lsc, proto_reg_handoff_lsc);
-     
-  /* Register preferences */        
+
+  /* Register preferences */
   prefs_register_uint_preference(lsc_module, "port",
 		            "LSC Port",
 		            "Set the TCP or UDP port for Pegasus LSC messages",
