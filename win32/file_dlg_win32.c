@@ -44,6 +44,8 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
+#include "epan/dissectors/packet-ssl.h"
+#include "epan/dissectors/packet-ssl-utils.h"
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
@@ -63,6 +65,7 @@
 #include "gtk/capture_dlg.h"
 #include "win32/file_dlg_win32.h"
 #include "gtk/help_dlg.h"
+#include "gtk/export_sslkeys.h"
 
 typedef enum {
     merge_append,
@@ -90,6 +93,12 @@ typedef enum {
 
 #define FILE_RAW_DEFAULT 1
 
+#define FILE_TYPES_SSLKEYS \
+    _T("SSL Session Keys (*.keys)\0")                    _T("*.keys\0") \
+    _T("All Files (*.*)\0")                              _T("*.*\0")
+
+#define FILE_SSLKEYS_DEFAULT 1
+
 #define FILE_TYPES_COLOR \
     _T("Text Files (*.txt)\0")                           _T("*.txt\0")   \
     _T("All Files (*.*)\0")                              _T("*.*\0")
@@ -106,12 +115,14 @@ static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_
 static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK export_sslkeys_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 #else
 static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK export_sslkeys_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 #endif /* (_MSC_VER <= 1200) */
 
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
@@ -720,6 +731,98 @@ win32_export_raw_file(HWND h_wnd) {
     } else {
         g_free( (void *) ofn);
     }
+}
+
+void
+win32_export_sslkeys_file(HWND h_wnd) {
+    OPENFILENAME *ofn;
+    TCHAR         file_name[MAX_PATH] = _T("");
+    char         *dirname;
+    StringInfo   *keylist;
+    char         *file_name8;
+    int           fd;
+    int           ofnsize;
+    int           keylist_size;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
+
+    keylist_size = g_hash_table_size(ssl_session_hash);
+    if (keylist_size==0) {
+        /* This shouldn't happen */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No SSL Session Keys to export.");
+        return;
+    }
+
+    /* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
+    ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
+    ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
+    ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
+    ofn->lpstrFilter = FILE_TYPES_SSLKEYS;
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_SSLKEYS_DEFAULT;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrTitle = _T("Wireshark: Export SSL Session Keys");
+    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
+    ofn->lpstrDefExt = NULL;
+    ofn->lCustData = keylist_size;
+    ofn->lpfnHook = export_sslkeys_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_EXPORTSSLKEYSFILENAME_TEMPLATE");
+
+    if (GetSaveFileName(ofn)) {
+        g_free( (void *) ofn);
+        file_name8 = utf_16to8(file_name);
+        keylist = ssl_export_sessions(ssl_session_hash);
+        fd = ws_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        if (fd == -1) {
+            open_failure_alert_box(file_name8, errno, TRUE);
+            g_free(keylist);
+            return;
+        }
+        if (write(fd, keylist->data, strlen(keylist->data)) < 0) {
+            write_failure_alert_box(file_name8, errno);
+            close(fd);
+            g_free(keylist);
+            return;
+        }
+        if (close(fd) < 0) {
+            write_failure_alert_box(file_name8, errno);
+            g_free(keylist);
+            return;
+        }
+
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(file_name8);  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
+    } else {
+        g_free( (void *) ofn);
+    }
+    g_free(keylist);
 }
 
 void
@@ -1943,6 +2046,38 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
                     ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
             cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
             SetWindowText(cur_ctrl, raw_msg);
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
+                case CDN_HELP:
+                    topic_cb(NULL, HELP_EXPORT_BYTES_WIN32_DIALOG);
+                    break;
+                default:
+                    break;
+            }
+        default:
+            break;
+    }
+    return 0;
+}
+
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
+static UINT_PTR CALLBACK
+#endif
+export_sslkeys_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+    HWND          cur_ctrl;
+    OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
+    TCHAR         sslkeys_msg[STATIC_LABEL_CHARS];
+    OFNOTIFY      *notify = (OFNOTIFY *) l_param;
+
+    switch(msg) {
+        case WM_INITDIALOG:
+            _snwprintf(sslkeys_msg, STATIC_LABEL_CHARS, _T("%d SSL Session Key%s will be written"),
+                    ofnp->lCustData, utf_8to16(plurality(ofnp->lCustData, "", "s")));
+            cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTSSLKEYS_ST);
+            SetWindowText(cur_ctrl, sslkeys_msg);
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {

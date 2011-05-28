@@ -67,6 +67,12 @@ void win32_export_file (HWND h_wnd, export_type_e export_type);
  */
 void win32_export_raw_file (HWND h_wnd);
 
+/** Open the "Export SSL Session Keys" dialog box.
+ *
+ * @param h_wnd HWND of the parent window.
+ */
+void win32_export_sslkeys_file (HWND h_wnd);
+
 /** Open the "Export Color Filters" dialog box
  *
  * @param h_wnd HWND of the parent window
@@ -137,6 +143,9 @@ void file_set_save_marked_sensitive();
 
 /* Export raw dialog defines. */
 #define EWFD_EXPORTRAW_ST 1000
+
+/* Export SSL Session Keys dialog defines. */
+#define EWFD_EXPORTSSLKEYS_ST 1000
 
 /* Merge dialog defines.  Overlays Open dialog defines above. */
 #define EWFD_MERGE_PREPEND_BTN 1050

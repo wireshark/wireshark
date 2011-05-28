@@ -974,6 +974,7 @@ srtp_add_address
 ssl_dissector_add
 ssl_dissector_delete
 ssl_set_master_secret
+ssl_session_hash                DATA
 start_requested_stats
 stats_tree_branch_max_namelen
 stats_tree_branch_to_str

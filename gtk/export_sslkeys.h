@@ -1,11 +1,13 @@
-/* packet-ssl.h
+/* export_sslkeys.h
  *
  * $Id$
+ *
+ * Export SSL Session Keys dialog
+ * by Sake Blok <sake@euronet.nl> (20110526)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,18 +24,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_SSL_H__
-#define __PACKET_SSL_H__
+#ifndef __EXPORT_SSLKEYS_H__
+#define __EXPORT_SSLKEYS_H__
 
-WS_VAR_IMPORT GHashTable *ssl_session_hash;
+/** Callback for "Export SSL Session Keys" operation.
+ *
+ * @param w unused
+ * @param data unused
+ */
+extern void savesslkeys_cb(GtkWidget * w, gpointer data);
 
-extern void ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp);
-extern void ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp);
+/** Dump the SSL Session Keys to a StringInfo string 
+ *
+ * @param session_hash contains all the SSL Session Keys
+ */
+extern StringInfo* ssl_export_sessions(GHashTable *session_hash);
 
-extern void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli, 
-                                  port_type ptype, guint32 port_srv, guint32 port_cli,
-                                  guint32 version, gint cipher, const guchar *_master_secret,
-                                  const guchar *_client_random, const guchar *_server_random,
-                                  guint32 client_seq, guint32 server_seq);
-
-#endif  /* __PACKET_SSL_H__ */
+#endif /* __MAIN_PROTO_DRAW_H__ */

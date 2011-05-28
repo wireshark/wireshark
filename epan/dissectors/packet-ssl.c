@@ -289,7 +289,9 @@ static const fragment_items ssl_segment_items = {
     "Segments"
 };
 
-static GHashTable *ssl_session_hash   = NULL;
+/* ssl_session_hash is used by "Export SSL Session Keys" */
+GHashTable *ssl_session_hash   = NULL;
+
 static GHashTable *ssl_key_hash       = NULL;
 static GTree* ssl_associations        = NULL;
 static dissector_handle_t ssl_handle  = NULL;

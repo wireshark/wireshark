@@ -3349,7 +3349,7 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
         
         offset = 4;
 
-        if ( memcmp(line+4,"Session-ID:",11) == 0 ) {
+        if ( ssl_session->session_id.data_len>0 && memcmp(line+offset,"Session-ID:",11) == 0 ) {
             offset += 11;
             for (i = 0; i < ssl_session->session_id.data_len; i++) {
                 if (from_hex_char(line[offset + i*2]) != (ssl_session->session_id.data[i] >> 4) ||

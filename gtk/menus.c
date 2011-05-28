@@ -88,6 +88,8 @@
 #include "gtk/firewall_dlg.h"
 #include "gtk/macros_dlg.h"
 #include "gtk/export_object.h"
+#include "epan/dissectors/packet-ssl-utils.h"
+#include "gtk/export_sslkeys.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/main.h"
 #include "gtk/menus.h"
@@ -1434,6 +1436,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
 #endif /* _WIN32 */
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
+  { "/File/Export/SslSessionKeys",	NULL,		"SSL Session Keys...",	NULL,			NULL,			G_CALLBACK(savesslkeys_cb) },
   { "/File/Export/Objects",				NULL,		"Objects",						NULL,					NULL,			NULL },
   { "/File/Export/Objects/HTTP",		NULL,		"_HTTP",						NULL,					NULL,			G_CALLBACK(eo_http_cb) },
   { "/File/Export/Objects/DICOM",		NULL,		"_DICOM",						NULL,					NULL,			G_CALLBACK(eo_dicom_cb) },
@@ -1875,6 +1878,8 @@ static GtkItemFactoryEntry menu_items[] =
     {"/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 #endif
     {"/File/Export/Selected Packet _Bytes...", "<control>H", GTK_MENU_FUNC(savehex_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/SSL Session Keys...", NULL, GTK_MENU_FUNC(savesslkeys_cb),
                              0, NULL, NULL,},
     {"/File/Export/_Objects/_HTTP", NULL, GTK_MENU_FUNC(eo_http_cb), 0, NULL, NULL,},
     {"/File/Export/_Objects/_DICOM", NULL, GTK_MENU_FUNC(eo_dicom_cb), 0, NULL, NULL,},
