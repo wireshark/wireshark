@@ -92,23 +92,27 @@ ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
 
     offset = strlen(keylist->data);
     
-    g_snprintf(keylist->data+offset,keylist->data_len-offset,"RSA Session-ID:");
+    /*
+     * XXX - should this be a string that grows as necessary to hold
+     * everything in it?
+     */
+    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"RSA Session-ID:");
     offset += 15;
 
     for( i=0; i<sslid->data_len; i++) {
-        g_snprintf(keylist->data+offset,keylist->data_len-offset,"%.2x",sslid->data[i]&255);
+        g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"%.2x",sslid->data[i]&255);
         offset += 2;
     }
 
-    g_snprintf(keylist->data+offset,keylist->data_len-offset," Master-Key:");
+    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset)," Master-Key:");
     offset += 12;
 
     for( i=0; i<mastersecret->data_len; i++) {
-        g_snprintf(keylist->data+offset,keylist->data_len-offset,"%.2x",mastersecret->data[i]&255);
+        g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"%.2x",mastersecret->data[i]&255);
         offset += 2;
     }
 
-    g_snprintf(keylist->data+offset,keylist->data_len-offset,"\n");
+    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"\n");
 }
 
 StringInfo*
