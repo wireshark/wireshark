@@ -84,7 +84,8 @@
 void
 ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
 {
-    guint i,offset;
+    guint i;
+    size_t offset;
     StringInfo* sslid = (StringInfo*)key;
     StringInfo* mastersecret = (StringInfo*)value;
     StringInfo* keylist = (StringInfo*)user_data;
@@ -179,7 +180,11 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
         g_free(file);
         return TRUE;
     }
-    if (ws_write(fd, keylist->data, strlen(keylist->data)) < 0) {
+    /*
+     * Thanks, Microsoft, for not using size_t for the third argument to
+     * _write().  Presumably this string will be <= 4GiB long....
+     */
+    if (ws_write(fd, keylist->data, (unsigned int)strlen(keylist->data)) < 0) {
         write_failure_alert_box(file, errno);
         ws_close(fd);
         g_free(keylist);
