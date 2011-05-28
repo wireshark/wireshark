@@ -804,13 +804,17 @@ win32_export_sslkeys_file(HWND h_wnd) {
             g_free(keylist);
             return;
         }
-        if (write(fd, keylist->data, strlen(keylist->data)) < 0) {
+        /*
+         * Thanks, Microsoft, for not using size_t for the third argument to
+         * _write().  Presumably this string will be <= 4GiB long....
+         */
+        if (ws_write(fd, keylist->data, (unsigned int)strlen(keylist->data)) < 0) {
             write_failure_alert_box(file_name8, errno);
-            close(fd);
+            ws_close(fd);
             g_free(keylist);
             return;
         }
-        if (close(fd) < 0) {
+        if (ws_close(fd) < 0) {
             write_failure_alert_box(file_name8, errno);
             g_free(keylist);
             return;
