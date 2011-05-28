@@ -3043,7 +3043,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef SIGINFO
     global_ld.report_packet_count = FALSE;
 #endif
-    global_ld.pcaps               = g_array_new(FALSE, FALSE, sizeof(pcap_options *));
     if (capture_opts->has_autostop_packets)
         global_ld.packet_max      = capture_opts->autostop_packets;
     else
@@ -3482,12 +3481,10 @@ static void capture_loop_stop(void)
     guint i;
     pcap_options *pcap_opts;
 
-    if (global_ld.pcaps) {
-        for (i = 0; i < global_ld.pcaps->len; i++) {
-            pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
-            if (pcap_opts->pcap_h != NULL)
-                pcap_breakloop(pcap_opts->pcap_h);
-        }
+    for (i = 0; i < global_ld.pcaps->len; i++) {
+        pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
+        if (pcap_opts->pcap_h != NULL)
+            pcap_breakloop(pcap_opts->pcap_h);
     }
 #endif
     global_ld.go = FALSE;
@@ -3818,7 +3815,7 @@ main(int argc, char *argv[])
                       console_log_handler, NULL /* user_data */);
 
     /* Initialize the pcaps list */
-    global_ld.pcaps = NULL;
+    global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(pcap_options *));
 
     /* Initialize the thread system */
     if (!g_thread_supported())
