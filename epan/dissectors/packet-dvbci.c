@@ -1025,7 +1025,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case T_CLOSE_SESSION_REQUEST:
             proto_tree_add_item(
                     sess_tree, hf_dvbci_sess_nb, tvb,
-                    offset+4, 2, ENC_BIG_ENDIAN);
+                    offset, 2, ENC_BIG_ENDIAN);
             break;
         case T_CLOSE_SESSION_RESPONSE:
             sess_stat = tvb_get_guint8(tvb, offset);
