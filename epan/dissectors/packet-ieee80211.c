@@ -4498,7 +4498,7 @@ rsn_gcs_base_custom(gchar *result, guint32 gcs)
   gchar *oui_result=NULL;
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
-  oui_base_custom(oui_result, gcs >>8);
+  oui_base_custom(oui_result, gcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( gcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
 }
 
@@ -4508,7 +4508,7 @@ rsn_pcs_base_custom(gchar *result, guint32 pcs)
   gchar *oui_result=NULL;
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
-  oui_base_custom(oui_result, pcs >>8);
+  oui_base_custom(oui_result, pcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( pcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
 
 }
@@ -4518,7 +4518,7 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
   gchar *oui_result=NULL;
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
-  oui_base_custom(oui_result, akms >>8);
+  oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d") );
 }
 
@@ -4550,7 +4550,7 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
   gchar *oui_result=NULL;
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
-  oui_base_custom(oui_result, gmcs >>8);
+  oui_base_custom(oui_result, gmcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
 }
 
@@ -5094,10 +5094,11 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   proto_tree_add_item(tree, hf_ieee80211_rsn_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  /* 7.3.2.25.1 Cipher suites */
+  /* 7.3.2.25.1 Group Cipher suites */
   rsn_gcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gcs, tvb, offset, 4, FALSE);
   rsn_gcs_tree = proto_item_add_subtree(rsn_gcs_item, ett_rsn_gcs_tree);
   proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_oui, tvb, offset, 3, FALSE);
+
     /* Check if OUI is 00:0F:AC (ieee80211) */
   if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
   {
@@ -5107,9 +5108,11 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   }
   offset += 4;
 
+  /* 7.3.2.25.2 Pairwise Cipher suites */
   proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   pcs_count = tvb_get_letohs(tvb, offset);
   offset += 2;
+
 
   rsn_pcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_list, tvb, offset, pcs_count * 4, FALSE);
   rsn_pcs_tree = proto_item_add_subtree(rsn_pcs_item, ett_rsn_pcs_tree);
@@ -5118,6 +5121,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     rsn_sub_pcs_item = proto_tree_add_item(rsn_pcs_tree, hf_ieee80211_rsn_pcs, tvb, offset, 4, FALSE);
     rsn_sub_pcs_tree = proto_item_add_subtree(rsn_sub_pcs_item, ett_rsn_sub_pcs_tree);
     proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_oui, tvb, offset, 3, FALSE);
+
     /* Check if OUI is 00:0F:AC (ieee80211) */
     if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
     {
@@ -6830,12 +6834,10 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       {
         guint8 request_type;
-        guint tag_offset;
         proto_item *parent_item;
         proto_tree *sub_tree;
 
         offset += 2;
-        tag_offset = offset;
 
         proto_tree_add_item(tree, hf_ieee80211_tag_measure_request_token, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -7882,7 +7884,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     }
     case TAG_SUPPORTED_REGULATORY_CLASSES:
     {
-      guint tag_offset;
       guint8 current_field;
       guint i;
 
@@ -7897,7 +7898,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
 
       offset+=2;
-      tag_offset = offset;
 
       current_field = tvb_get_guint8 (tvb, offset);
       proto_tree_add_uint(tree, hf_ieee80211_tag_supported_reg_classes_current, tvb, offset, 1, current_field);
@@ -7924,7 +7924,10 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
       break;
   }
-
+  if(offset < tag_end){
+    /* TODO: add Expert info to indicate there is unknown data ! but all tagged option don't yet return offset.
+      For the moment, this code only remove Clang Warnings about not used offset... */
+  }
   return tag_len + 1 + tag_len_len;
 }
 
