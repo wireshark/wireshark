@@ -910,6 +910,13 @@ const value_string tls_signature_algorithm[] = {
     { 0, NULL }
 };
 
+/* RFC 6091 3.1 */
+const value_string tls_certificate_type[] = {
+    { 0, "X.509" },
+    { 1, "OpenPGP" },
+    { 0, NULL }
+};
+
 const value_string tls_cert_status_type[] = {
     { SSL_HND_CERT_STATUS_TYPE_OCSP, "OCSP" },
     { 0, NULL }

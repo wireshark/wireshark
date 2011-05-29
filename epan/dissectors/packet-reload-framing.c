@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-13
+ * - draft-ietf-p2psip-base-15
  */
 
 #ifdef HAVE_CONFIG_H

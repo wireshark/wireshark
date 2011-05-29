@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-13
+ * - draft-ietf-p2psip-base-15
  */
 
 #ifdef HAVE_CONFIG_H
@@ -84,7 +84,6 @@ static int hf_reload_forwarding_option_flag_destination_critical = -1;
 static int hf_reload_forwarding_option_flag_forward_critical = -1;
 static int hf_reload_forwarding_option_length = -1;
 static int hf_reload_forwarding_option_data = -1;
-static int hf_reload_forwarding_option_directresponseforwarding = -1;
 static int hf_reload_attachreqans = -1;
 static int hf_reload_ufrag = -1;
 static int hf_reload_password = -1;
@@ -238,7 +237,7 @@ typedef struct _reload_conv_info_t {
 #define DESTINATIONTYPE_COMPRESSED          3
 
 /* RELOAD forwarding option type */
-#define OPTIONTYPE_DIRECTRESPONSEFORWARDING  1
+#define OPTIONTYPE_RESERVED                  0
 
 /* RELOAD CandTypes */
 #define CANDTYPE_RESERVED        0
@@ -276,11 +275,10 @@ typedef struct _reload_conv_info_t {
 #define ERRORCODE_CONFIGTOOOLD                                          15
 #define ERRORCODE_CONFIGTOONEW                                          16
 
-/* Certificate types */
-#define CERTIFICATETYPE_X509                                            0
-
 #define SIGNATUREIDENTITYTYPE_RESERVED                                  0
 #define SIGNATUREIDENTITYTYPE_CERTHASH                                  1
+#define SIGNATUREIDENTITYTYPE_CERTHASHNODEID                            2
+#define SIGNATUREIDENTITYTYPE_NONE                                      3
 
 /* Probe information type */
 #define PROBEINFORMATIONTYPE_RESERVED                                   0
@@ -291,8 +289,8 @@ typedef struct _reload_conv_info_t {
 /* Data Kind ID */
 #define DATAKINDID_INVALID                                              0
 #define DATAKINDID_TURNSERVICE                                          2
-#define DATAKINDID_CERTIFICATE_BY_NODE                                  4
-#define DATAKINDID_CERTIFICATE_BY_USER                                  6
+#define DATAKINDID_CERTIFICATE_BY_NODE                                  3
+#define DATAKINDID_CERTIFICATE_BY_USER                                  16
 
 /* Message Extension Type */
 #define MESSAGEEXTENSIONTYPE_RESERVED                                   0
@@ -409,7 +407,7 @@ static const value_string destinationtypes[] = {
 };
 
 static const value_string forwardingoptiontypes[] = {
-  {OPTIONTYPE_DIRECTRESPONSEFORWARDING,         "directResponseForwarding"},
+  {OPTIONTYPE_RESERVED,                         "reserved"},
   {0x00, NULL}
 };
 
@@ -458,14 +456,11 @@ static const value_string errorcodes [] ={
   {0x00, NULL}
 };
 
-static const value_string certificatetypes[] = {
-  {CERTIFICATETYPE_X509,                        "X509"},
-  {0x00, NULL}
-};
-
 static const value_string signatureidentitytypes[] = {
   {SIGNATUREIDENTITYTYPE_RESERVED,              "reserved"},
   {SIGNATUREIDENTITYTYPE_CERTHASH,              "CERT_HASH"},
+  {SIGNATUREIDENTITYTYPE_CERTHASHNODEID,        "CERT_HASH_NODE_ID"},
+  {SIGNATUREIDENTITYTYPE_NONE,                  "NONE"},
   {0x00, NULL}
 };
 
@@ -1466,33 +1461,6 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       switch (option_type) {
-      case OPTIONTYPE_DIRECTRESPONSEFORWARDING:
-        {
-          proto_item *ti_directresponseforwarding;
-          proto_tree *directresponseforwarding_tree;
-          guint16 option_offset = 0;
-          ti_directresponseforwarding = proto_tree_add_item(option_tree, hf_reload_forwarding_option_directresponseforwarding, tvb, offset+local_offset, option_length, FALSE);
-          directresponseforwarding_tree = proto_item_add_subtree(ti_directresponseforwarding, ett_reload_forwarding_option_directresponseforwarding);
-          /* Connection_information handling */
-          option_offset += dissect_attachreqans(tvb, pinfo, directresponseforwarding_tree, offset + local_offset + option_offset, option_length);
-          /* requesting node */
-          {
-            guint nodeid_length = (guint) (option_length - option_offset);
-            proto_item *ti_nodeid;
-            if (reload_nodeid_length > nodeid_length) {
-              expert_add_info_format(pinfo, ti_directresponseforwarding, PI_PROTOCOL, PI_ERROR, "Node ID length truncated");
-            }
-            else {
-              nodeid_length = reload_nodeid_length;
-            }
-            ti_nodeid = proto_tree_add_item(option_tree, hf_reload_nodeid, tvb, offset+local_offset+option_offset, nodeid_length, FALSE);
-            if ((nodeid_length < 16) || (nodeid_length > 20)) {
-              expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "Node ID length is not in the correct range");
-            }
-          }
-        }
-        break;
-
       default:
         proto_tree_add_item(option_tree, hf_reload_forwarding_option_data, tvb, offset+local_offset, option_length, FALSE);
         break;
@@ -1999,7 +1967,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(certificate_tree, hf_reload_certificate_type, tvb,
                             offset + security_block_offset + certificate_offset, 1, FALSE);
         switch (tvb_get_guint8(tvb, offset + security_block_offset + certificate_offset)) {
-          case CERTIFICATETYPE_X509: {
+          case 0: {
             asn1_ctx_t asn1_ctx;
 
             asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -2269,10 +2237,6 @@ proto_register_reload(void)
       { "Forward critical", "reload.forwarding.option.flags.forward_critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL }
     },
-    { &hf_reload_forwarding_option_directresponseforwarding,
-      { "Direct response forwarding", "reload.forwarding.option.direct_response_forwarding",  FT_NONE,
-        BASE_NONE,  NULL,   0x0,  NULL, HFILL }
-    },
     { &hf_reload_attachreqans,
       { "AttachReqAns", "reload.attachreqans",  FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
@@ -2431,7 +2395,7 @@ proto_register_reload(void)
     },
     { &hf_reload_certificate_type,
       { "Certificate type", "reload.certificate.type",  FT_UINT8,
-        BASE_DEC, VALS(certificatetypes), 0x0,  NULL, HFILL }
+        BASE_DEC, VALS(tls_certificate_type), 0x0,  NULL, HFILL }
     },
     { &hf_reload_certificate,
       { "Certificate", "reload.certificate",  FT_NONE,
