@@ -130,7 +130,13 @@
 #define RES_CLASS_HC  0x20
 #define RES_CLASS_DT  0x24
 #define RES_CLASS_MMI 0x40
+#define RES_CLASS_AMI 0x41
 #define RES_CLASS_LSC 0x60
+#define RES_CLASS_CC  0x8C
+#define RES_CLASS_HLC 0x8D
+#define RES_CLASS_CUP 0x8E
+#define RES_CLASS_OPP 0x8F
+#define RES_CLASS_SAS 0x96
 
 #define RES_ID_LEN 4 /* bytes */
 #define RES_CLASS(_res_id) (_res_id & RES_CLASS_MASK) >> 16
@@ -279,6 +285,7 @@ void proto_reg_handoff_dvbci(void);
 static int proto_dvbci = -1;
 
 static gint ett_dvbci = -1;
+static gint ett_dvbci_hdr = -1;
 static gint ett_dvbci_link = -1;
 static gint ett_dvbci_transport = -1;
 static gint ett_dvbci_session = -1;
@@ -287,6 +294,7 @@ static gint ett_dvbci_application = -1;
 static gint ett_dvbci_es = -1;
 static gint ett_dvbci_ca_desc = -1;
 
+static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
 static int hf_dvbci_buf_size = -1;
 static int hf_dvbci_tcid = -1;
@@ -307,7 +315,6 @@ static int hf_dvbci_menu_str_len = -1;
 static int hf_dvbci_ca_sys_id = -1;
 static int hf_dvbci_ca_pmt_list_mgmt = -1;
 static int hf_dvbci_prog_num = -1;
-static int hf_dvbci_ver_cn_ind = -1;
 static int hf_dvbci_prog_info_len = -1;
 static int hf_dvbci_stream_type = -1;
 static int hf_dvbci_es_pid = -1;
@@ -421,7 +428,13 @@ static const value_string dvbci_res_class[] = {
     { RES_CLASS_HC,  "Host Control" },
     { RES_CLASS_DT,  "Date-Time" },
     { RES_CLASS_MMI, "Man-machine interface (MMI)" },
-    { RES_CLASS_LSC, "Low-Speed Communications" },
+    { RES_CLASS_AMI, "Application MMI" },
+    { RES_CLASS_LSC, "Low-Speed Communication" },
+    { RES_CLASS_CC,  "Content Control" },
+    { RES_CLASS_HLC, "Host Language & Country" },
+    { RES_CLASS_CUP, "CAM Upgrade" },
+    { RES_CLASS_OPP, "Operator Profile" },
+    { RES_CLASS_SAS, "Specific Application Support" },
     { 0, NULL }
 };
 static const value_string dvbci_app_type[] = {
@@ -715,8 +728,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                 tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         byte = tvb_get_guint8(tvb,offset);
-        proto_tree_add_uint_format(tree, hf_dvbci_ver_cn_ind, tvb,
-                offset, 1, byte,
+        proto_tree_add_text(tree, tvb, offset, 1, 
                 "Version number: 0x%x, Current-next indicator: 0x%x",
                 (byte&0x3E) >> 1, byte&0x01);
         offset++;
@@ -1404,12 +1416,12 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint packet_len, offset = 0;
+    gint packet_len, offset = 0, offset_ver, offset_evt, offset_len_field;
     guint8 version, event;
     const gchar *event_str;
     guint16 len_field;
-    proto_item *ti;
-    proto_tree *dvbci_tree = NULL;
+    proto_item *ti, *ti_hdr;
+    proto_tree *dvbci_tree = NULL, *hdr_tree = NULL;
     tvbuff_t *payload_tvb;
     guint16 cor_addr;
     guint8 cor_value;
@@ -1419,21 +1431,22 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length(tvb) < 4)
         return 0;
 
+    offset_ver = offset;
     version = tvb_get_guint8(tvb, offset++);
     if (version != 0)
         return 0;
 
+    offset_evt = offset;
     event = tvb_get_guint8(tvb, offset++);
     event_str = match_strval(event, dvbci_event);
     if (!event_str)
         return 0;
 
     packet_len = tvb_reported_length(tvb);
+    offset_len_field = offset;
     len_field = tvb_get_ntohs(tvb, offset);
-
     if (len_field != (packet_len-4))
         return 0;
-
     offset += 2;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-CI");
@@ -1443,9 +1456,12 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_protocol_format(tree, proto_dvbci,
                 tvb, 0, packet_len, "DVB Common Interface: %s", event_str);
         dvbci_tree = proto_item_add_subtree(ti, ett_dvbci);
-        proto_tree_add_text(dvbci_tree, tvb, 0, offset,
-                            "version: %d, event: 0x%x (%s), length field: %d",
-                            version, event, event_str, len_field);
+        ti_hdr = proto_tree_add_text(dvbci_tree, tvb, 0, offset, "Pseudo header");
+        hdr_tree = proto_item_add_subtree(ti_hdr, ett_dvbci_hdr);
+        proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
+        proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_NA);
+        proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,
+                "Length field: %d", len_field);
     }
 
     if (IS_DATA_TRANSFER(event)) {
@@ -1514,6 +1530,7 @@ proto_register_dvbci(void)
 
     static gint *ett[] = {
         &ett_dvbci,
+        &ett_dvbci_hdr,
         &ett_dvbci_link,
         &ett_dvbci_transport,
         &ett_dvbci_session,
@@ -1524,6 +1541,9 @@ proto_register_dvbci(void)
     };
 
     static hf_register_info hf[] = {
+        { &hf_dvbci_event,
+            { "Event", "dvbci.event", FT_UINT8, BASE_HEX,
+                VALS(dvbci_event), 0, NULL, HFILL } },
         { &hf_dvbci_hw_event,
             { "Hardware event", "dvbci.hw_event", FT_UINT8, BASE_HEX,
                 VALS(dvbci_hw_event), 0, NULL, HFILL } },
@@ -1585,9 +1605,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_prog_num,
             { "Program number", "dvbci.program_number", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
-        { &hf_dvbci_ver_cn_ind,
-            { "Version, current next indicator", "dvbci.ver_cn_ind", FT_UINT8,
-                BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_prog_info_len,
             { "Program info length", "dvbci.program_info_length", FT_UINT16,
                 BASE_HEX, NULL, 0x0FFF, NULL, HFILL } },
