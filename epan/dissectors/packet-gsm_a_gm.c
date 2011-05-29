@@ -316,9 +316,20 @@ static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
 static int hf_gsm_a_sm_notif_ind = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
+static int hf_gsm_a_gm_rac_pseudo_sync = -1;
+static int hf_gsm_a_gm_rac_vgcs = -1;
+static int hf_gsm_a_gm_rac_vbs = -1;
 static int hf_gsm_a_gm_rac_multislot_capability = -1;
+static int hf_gsm_a_gm_rac_hscsd_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_gprs_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_gprs_ext_dyn_alloc_cap = -1;
+static int hf_gsm_a_gm_rac_ecsd_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_egprs_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_egprs_ext_dyn_alloc_cap = -1;
+static int hf_gsm_a_gm_rac_dtm_gprs_multi_slot_class = -1;
 static int hf_gsm_a_gm_rac_single_slt_dtm = -1;
 static int hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres = -1;
+static int hf_gsm_a_gm_rac_dtm_egprs_multi_slot_class = -1;
 static int hf_gsm_a_gm_rac_8psk_pow_cap_pres = -1;
 static int hf_gsm_a_gm_rac_comp_int_meas_cap = -1;
 static int hf_gsm_a_gm_rel_lev_ind = -1;
@@ -327,6 +338,36 @@ static int hf_gsm_a_gm_rac_umts_fdd_cap = -1;
 static int hf_gsm_a_gm_rac_umts_384_tdd_ra_cap = -1;
 static int hf_gsm_a_gm_rac_cdma2000_cap = -1;
 static int hf_gsm_a_gm_rac_umts_128_tdd_ra_cap = -1;
+static int hf_gsm_a_gm_rac_mod_based_multi_slot_class_support = -1;
+static int hf_gsm_a_gm_rac_geran_iu_mode_cap = -1;
+static int hf_gsm_a_gm_rac_flo_iu_cap = -1;
+static int hf_gsm_a_gm_rac_mult_tbf_cap = -1;
+static int hf_gsm_a_gm_rac_down_adv_rec_perf = -1;
+static int hf_gsm_a_gm_rac_ext_rlc_mac_ctrl_msg_seg_cap = -1;
+static int hf_gsm_a_gm_rac_dtm_enh_cap = -1;
+static int hf_gsm_a_gm_rac_dtm_gprs_high_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_dtm_egprs_high_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_ps_ho_cap = -1;
+static int hf_gsm_a_gm_rac_dtm_ho_cap = -1;
+static int hf_gsm_a_gm_rac_multi_slot_cap_red_down_dual_carrier = -1;
+static int hf_gsm_a_gm_rac_down_dual_carrier_dtm_cap = -1;
+static int hf_gsm_a_gm_rac_flex_ts_assign = -1;
+static int hf_gsm_a_gm_rac_gan_ps_ho_cap = -1;
+static int hf_gsm_a_gm_rac_rlc_non_pers_mode = -1;
+static int hf_gsm_a_gm_rac_reduced_lat_cap = -1;
+static int hf_gsm_a_gm_rac_ul_egprs2 = -1;
+static int hf_gsm_a_gm_rac_dl_egprs2 = -1;
+static int hf_gsm_a_gm_rac_eutra_fdd_support = -1;
+static int hf_gsm_a_gm_rac_eutra_tdd_support = -1;
+static int hf_gsm_a_gm_rac_geran_to_eutra_support_in_geran_ptm = -1;
+static int hf_gsm_a_gm_rac_prio_based_resel_support = -1;
+static int hf_gsm_a_gm_rac_alt_efta_multi_slot_class = -1;
+static int hf_gsm_a_gm_rac_efta_multi_slot_cap_red_down_dual_carrier = -1;
+static int hf_gsm_a_gm_rac_ind_up_layer_pdu_start_cap_for_rlc_um = -1;
+static int hf_gsm_a_gm_rac_emst_cap = -1;
+static int hf_gsm_a_gm_rac_mtti_cap = -1;
+static int hf_gsm_a_gm_rac_utra_csg_cell_report = -1;
+static int hf_gsm_a_gm_rac_eutra_csg_cell_report = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -397,8 +438,8 @@ static const value_string gsm_a_gm_res_of_attach_vals[] = {
 static guint16
 de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_item(tree, hf_gsm_a_gm_fop, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_res_of_attach, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_fop, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_res_of_attach, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -420,7 +461,7 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
 
 	tf = proto_tree_add_text(tree,
 		tvb, offset, 1,
@@ -428,8 +469,8 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 	tf_tree = proto_item_add_subtree(tf, ett_gmm_attach_type );
 
-	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gm_type_of_attach, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_type_of_attach, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -453,8 +494,8 @@ const value_string gsm_a_gm_type_of_ciph_alg_vals[] = {
 static guint16
 de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_ciph_alg, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_ciph_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -471,8 +512,8 @@ const true_false_string gsm_a_gm_tmsi_flag_value = {
 static guint16
 de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_tmsi_flag, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_tmsi_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -652,9 +693,9 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 		oct);
 
 	curr_offset++;
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_split_on_ccch, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_non_drx_timer, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_split_on_ccch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_non_drx_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -680,8 +721,8 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE LOWER NIBBLE */
 	bit_offset = (offset << 3) + 4;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -697,8 +738,8 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
 	bit_offset = offset << 3;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -715,7 +756,7 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	curr_offset = offset;
 
-	curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig,tvb,curr_offset,3,FALSE);
+	curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig,tvb,curr_offset,3,ENC_BIG_ENDIAN);
 	proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 
 	curr_offset+=3;
@@ -736,7 +777,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	curr_offset = offset;
 
-	curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig2,tvb,curr_offset,3,FALSE);
+	curr_item= proto_tree_add_item(tree,hf_gsm_a_ptmsi_sig2,tvb,curr_offset,3,ENC_BIG_ENDIAN);
 	proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 	curr_offset+=3;
 
@@ -759,8 +800,8 @@ static const value_string gsm_a_gm_type_of_identity_vals[] = {
 static guint16
 de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_identity, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_identity, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -783,8 +824,8 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
 	bit_offset = offset << 3;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_imeisv_req, tvb, bit_offset + 1, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_imeisv_req, tvb, bit_offset + 1, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -939,71 +980,71 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	curr_offset = offset;
 
 	/* bit 8: GEA1 */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_gea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_gea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 7: SM capabilities via dedicated channels */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smdch, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smdch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 6: SM capabilities via GPRS channels */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smgprs, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smgprs, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 5: UCS2 support */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ucs2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ucs2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bits 4 3: SS Screening Indicator */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ss_scr_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ss_scr_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 2: SoLSA Capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_solsa, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_solsa, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 1 */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_rev, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_rev, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	NO_MORE_DATA_CHECK(len);
 
 	/* bit 8: PFC feature mode */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_pfc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_pfc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bits 7 6 5 4 3 2: Extended GEA bits */
-	item = proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ext_gea_bits, tvb, curr_offset, 1, FALSE);
+	item = proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ext_gea_bits, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	subtree = proto_item_add_subtree(item, ett_gmm_network_cap);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea2, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea3, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea4, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea5, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea6, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 1: LCS VA capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_lcs, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_lcs, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	NO_MORE_DATA_CHECK(len);
 
 	/* bit 8: PS inter-RAT HO to UTRAN Iu mode capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_iu, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_iu, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 7: PS inter-RAT HO to E-UTRAN S1 mode capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_s1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_s1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 6: EMM Combined procedures capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_comb_proc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_comb_proc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 5: ISR support */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_isr, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_isr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 4: SRVCC to GERAN/UTRAN capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_srvcc_to_geran, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_srvcc_to_geran, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 3: EPC capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_epc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_epc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bit 3: NF capability */
-	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_nf, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_nf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* bits 1: Spare bit */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
@@ -1061,12 +1102,159 @@ static const value_string gsm_a_gm_acc_tech_type_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string gsm_a_gm_revision_level_indicator_vals[] = {
-	{ 0x00, "The ME is Release '98 or older" },
-	{ 0x01, "The ME is Release '99 onwards" },
+static const true_false_string gsm_a_gm_vgcs = {
+	"VGCS capability and notifications wanted",
+	"no VGCS capability or no notifications wanted"
+};
 
+static const true_false_string gsm_a_gm_vbs = {
+	"VBS capability and notifications wanted",
+	"no VBS capability or no notifications wanted"
+};
+
+static const value_string gsm_a_gm_multi_slot_vals[] = {
+	{ 0x00,	"Not specified" },
+	{ 0x01, "Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1" },
+	{ 0x02, "Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1" },
+	{ 0x03, "Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1" },
+	{ 0x04, "Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1" },
+	{ 0x05, "Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1" },
+	{ 0x06, "Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1" },
+	{ 0x07, "Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1" },
+	{ 0x08, "Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1" },
+	{ 0x09, "Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1" },
+	{ 0x0a, "Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1" },
+	{ 0x0b, "Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1" },
+	{ 0x0c, "Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:5 Tta:2 Ttb:1 Tra:2 Trb:1 Type:1" },
+	{ 0x0d, "Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)" },
+	{ 0x0e, "Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)" },
+	{ 0x0f, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)" },
+	{ 0x10, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:2 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)" },
+	{ 0x11, "Max Rx-Slot/TDMA:7 Max Tx-Slot/TDMA:7 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:1 Trb:0 Type:2 (a: 1 with frequency hopping, 0 otherwise)" },
+	{ 0x12, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:0 Tra:0 Trb:0 Type:2" },
+	{ 0x13, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x14, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x15, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x16, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x17, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x18, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x19, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x1a, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x1b, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x1c, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x1d, "Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise" },
+	{ 0x1e, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1" },
+	{ 0x1f, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1" },
+	{ 0x20, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1" },
+	{ 0x21, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1" },
+	{ 0x22, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1" },
+	{ 0x23, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x24, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x25, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x26, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x27, "Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x28, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x29, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x2a, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x2b, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x2c, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
+	{ 0x2d, "Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))" },
 	{ 0, NULL }
 };
+
+static const value_string gsm_a_gm_dtm_gprs_multi_slot_class_vals[] = {
+	{ 0x00, "Unused. If received, the network shall interpret this as Multislot class 5" },
+	{ 0x01, "Multislot class 5 supported" },
+	{ 0x02, "Multislot class 9 supported" },
+	{ 0x03, "Multislot class 11 supported" },
+	{ 0, NULL }
+};
+
+static const true_false_string gsm_a_gm_revision_level_indicator = {
+	"The ME is Release '99 onwards",
+	"The ME is Release '98 or older"
+};
+
+static const value_string gsm_a_gm_down_adv_rec_perf_vals[] = {
+	{ 0x00, "Downlink Advanced Receiver Performance not supported" },
+	{ 0x01, "Downlink Advanced Receiver Performance - phase I supported" },
+	{ 0x02, "Downlink Advanced Receiver Performance - phase II supported" },
+	{ 0, NULL }
+};
+
+static const true_false_string gsm_a_gm_dtm_enh_cap = {
+	"The mobile station supports enhanced DTM CS establishment and enhanced DTM CS release procedures",
+	"The mobile station does not support enhanced DTM CS establishment and enhanced DTM CS release procedures"
+};
+
+static const value_string gsm_a_gm_dtm_gprs_high_multi_slot_class_vals[] = {
+	{ 0x00, "Unused. If received, the network shall interpret this as 'Multislot class 31 or 36 supported'" },
+	{ 0x01, "Multislot class 31 or 36 supported" },
+	{ 0x02, "Multislot class 32 or 37 supported" },
+	{ 0x03, "Multislot class 33 or 38 supported" },
+	{ 0x04, "Multislot class 41 supported" },
+	{ 0x05, "Multislot class 42 supported" },
+	{ 0x06, "Multislot class 43 supported" },
+	{ 0x07, "Multislot class 44 supported" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_multi_slot_cap_red_down_dual_carrier_vals[] = {
+	{ 0x00, "No reduction" },
+	{ 0x01, "The MS supports 1 timeslot fewer than the maximum number of receive timeslots" },
+	{ 0x02, "The MS supports 2 timeslots fewer than the maximum number of receive timeslots" },
+	{ 0x03, "The MS supports 3 timeslots fewer than the maximum number of receive timeslots" },
+	{ 0x04, "The MS supports 4 timeslots fewer than the maximum number of receive timeslots" },
+	{ 0x05, "The MS supports 5 timeslots fewer than the maximum number of receive timeslots" },
+	{ 0x06, "The MS supports 6 timeslots fewer than the maximum number of receive timeslots" },
+	{ 0x07, "Reserved for future use" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_ul_egprs2_vals[] = {
+	{ 0x00, "The mobile station does not support either EGPRS2-A or EGPRS2-B in the uplink" },
+	{ 0x01, "The mobile station supports EGPRS2-A in the uplink" },
+	{ 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B in the uplink" },
+	{ 0x03, "This value is not used in this release/version of the specifications. If received it shall be interpreted as 'The mobile station supports both EGPRS2-A and EGPRS2-B in the uplink'" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_dl_egprs2_vals[] = {
+	{ 0x00, "The mobile station does not support either EGPRS2-A or EGPRS2-B in the downlink" },
+	{ 0x01, "The mobile station supports EGPRS2-A in the downlink" },
+	{ 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B in the downlink" },
+	{ 0x03, "This value is not used in this release/version of the specifications. If received it shall be interpreted as 'The mobile station supports both EGPRS2-A and EGPRS2-B in the downlink'" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_geran_to_eutra_support_in_geran_ptm_vals[] = {
+	{ 0x00, "None" },
+	{ 0x01, "E-UTRAN Neighbour Cell measurements and MS autonomous cell reselection to E-UTRAN supported" },
+	{ 0x02, "CCN towards E-UTRAN, E-UTRAN Neighbour Cell measurement reporting and Network controlled cell reselection to E-UTRAN supported in addition to capabilities indicated by '01'" },
+	{ 0x03, "PS Handover to E-UTRAN supported in addition to capabilities indicated by '01' and '10'" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_alt_efta_multi_slot_class_vals[] = {
+	{ 0x00, "No Alternative EFTA multislot class is indicated. Use (DTM) EGPRS (high) multislot class only" },
+	{ 0x01, "Alternative EFTA multislot class is Multislot class 19" },
+	{ 0x02, "Alternative EFTA multislot class is Multislot class 20" },
+	{ 0x03, "Alternative EFTA multislot class is Multislot class 21" },
+	{ 0x04, "Alternative EFTA multislot class is Multislot class 22" },
+	{ 0x05, "Alternative EFTA multislot class is Multislot class 23" },
+	{ 0x06, "Alternative EFTA multislot class is Multislot class 24" },
+	{ 0x07, "Alternative EFTA multislot class is Multislot class 25" },
+	{ 0x08, "Alternative EFTA multislot class is Multislot class 26" },
+	{ 0x09, "Alternative EFTA multislot class is Multislot class 27" },
+	{ 0x0a, "Alternative EFTA multislot class is Multislot class 28" },
+	{ 0x0b, "Alternative EFTA multislot class is Multislot class 29" },
+	{ 0x0c, "Unused" },
+	{ 0x0d, "Unused" },
+	{ 0x0e, "Unused" },
+	{ 0x0f, "Unused" },
+	{ 0, NULL }
+};
+
 guint16
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -1084,73 +1272,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	guchar       acc_type;
 	guint        value;
 	const gchar *str;
-	/** XXX: AFAIT only the first 32 entries of the following are actually used. Is this a bug someplace ?? */
-	static const gchar *multi_slot_str[64] = {
-		"Not specified", /* 00 */
-		"Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1", /* 01 */
-		"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 02 */
-		"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 03 */
-		"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 04 */
-		"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 05 */
-		"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 06 */
-		"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:4 Tta:3 Ttb:1 Tra:3 Trb:1 Type:1", /* 07 */
-		"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 08 */
-		"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 09 */
-		"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 10 */
-		"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:5 Tta:3 Ttb:1 Tra:2 Trb:1 Type:1", /* 11 */
-		"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:5 Tta:2 Ttb:1 Tra:2 Trb:1 Type:1", /* 12 */
-		"Max Rx-Slot/TDMA:3 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 13 */
-		"Max Rx-Slot/TDMA:4 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 14 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:3 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 15 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:2 Trb:a) Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 16 */
-		"Max Rx-Slot/TDMA:7 Max Tx-Slot/TDMA:7 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:a) Tra:1 Trb:0 Type:2 (a: 1 with frequency hopping, 0 otherwise)", /* 17 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:NA Ttb:0 Tra:0 Trb:0 Type:2", /* 18 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 19 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 20 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 21 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 22 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 23 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 24 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 25 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 26 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 27 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 28 */
-		"Max Rx-Slot/TDMA:8 Max Tx-Slot/TDMA:8 Max-Sum-Slot/TDMA:NA Tta:3 Ttb:b) Tra:2 Trb:c) Type:1 (b: 1 with frequency hopping or change from Rx to Tx, 0 otherwise; c: 1 with frequency hopping or change from Tx to Rx, 0 otherwise", /* 29 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 30 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 31 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 32 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 33 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1 Trb:1 Type:1", /* 34 */
-	   	"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 35 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 36 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 37 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 38 */
-		"Max Rx-Slot/TDMA:5 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:6 Tta:2 Ttb:1 Tra:1+to Trb:1 Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 39 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 40 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:2 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 41 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:3 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 42 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:4 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 43 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:5 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 44 */
-		"Max Rx-Slot/TDMA:6 Max Tx-Slot/TDMA:6 Max-Sum-Slot/TDMA:7 Tta:1 Ttb:1 Tra:1 Trb:to Type:1 (to: to = 31 symbol periods (this can be provided by a TA offset, i.e. a minimum TA value))", /* 45 */
-		"Not specified", /* 46 */
-		"Not specified", /* 47 */
-		"Not specified", /* 48 */
-		"Not specified", /* 49 */
-		"Not specified", /* 50 */
-		"Not specified", /* 51 */
-		"Not specified", /* 52 */
-		"Not specified", /* 53 */
-		"Not specified", /* 54 */
-		"Not specified", /* 55 */
-		"Not specified", /* 56 */
-		"Not specified", /* 57 */
-		"Not specified", /* 58 */
-		"Not specified", /* 59 */
-		"Not specified", /* 60 */
-		"Not specified", /* 61 */
-		"Not specified", /* 62 */
-		"Not specified", /* 63 */
-	};
 	guint indx = 0;
 	guchar dtm_gprs_mslot = 0;
 	guchar dtm_egprs_mslot = 4;
@@ -1216,7 +1337,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 		acc_type = oct>>(32-bits_needed);
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_tech_type, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_tech_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset+=4;
 
 		curr_bits_length -= bits_needed;
@@ -1232,7 +1353,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 		bits_length = curr_bits_length = oct>>(32-bits_needed);
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
 		proto_item_set_len(tf, (bits_length>>3)+1);
 		/* This is already done - length doesn't contain this field
 		 curr_bits_length -= bits_needed;
@@ -1300,7 +1421,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 				acc_type = oct>>(32-bits_needed);
 
-				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
 				bit_offset+=4;
 
 				curr_bits_length -= bits_needed;
@@ -1512,7 +1633,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ctrled_early_cm_sending, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ctrled_early_cm_sending, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1524,17 +1645,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="PS capability not present"; break;
-			case 0x01: str="PS capability present";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Pseudo Synchronisation: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_pseudo_sync, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1546,17 +1657,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="no VGCS capability or no notifications wanted"; break;
-			case 0x01: str="VGCS capability and notifications wanted";      break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Voice Group Call Service: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_vgcs, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1568,17 +1669,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="no VBS capability or no notifications wanted"; break;
-			case 0x01: str="VBS capability and notifications wanted";      break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Voice Broadcast Service: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_vbs, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1592,7 +1683,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 		value = oct>>(32-bits_needed);
 
-		mc_item = proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_multislot_capability, tvb, bit_offset, 1, FALSE);
+		mc_item = proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_multislot_capability, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
 		curr_bits_length -= bits_needed;
@@ -1633,10 +1724,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 5;
 				GET_DATA;
 
-				/* analyse bits */
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"HSCSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_hscsd_multi_slot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1673,10 +1761,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 5;
 				GET_DATA;
 
-				/* analyse bits */
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"GPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_gprs_multi_slot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1688,16 +1773,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 1;
 				GET_DATA;
 
-				/* analyse bits */
-				switch ( oct>>(32-bits_needed) )
-				{
-					case 0x00: str="Extended Dynamic Allocation Capability for GPRS is not implemented"; break;
-					case 0x01: str="Extended Dynamic Allocation Capability for GPRS is implemented";     break;
-					default:   str="This should not happen";
-				}
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"GPRS Extended Dynamic Allocation Capability: %s (%u)",str,oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_gprs_ext_dyn_alloc_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1735,7 +1811,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sms_value, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sms_value, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 				bit_offset+=4;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1748,7 +1824,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sm_value, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sm_value, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 				bit_offset+=4;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1785,10 +1861,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 5;
 				GET_DATA;
 
-				/* analyse bits */
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"ECSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ecsd_multi_slot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1825,10 +1898,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 5;
 				GET_DATA;
 
-				/* analyse bits */
-				proto_tree_add_text(mc_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"EGPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_egprs_multi_slot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1840,16 +1910,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 1;
 				GET_DATA;
 
-				/* analyse bits */
-				switch ( oct>>(32-bits_needed) )
-				{
-					case 0x00: str="Extended Dynamic Allocation Capability for EGPRS is not implemented"; break;
-					case 0x01: str="Extended Dynamic Allocation Capability for EGPRS is implemented";     break;
-					default:   str="This should not happen";
-				}
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"EGPRS Extended Dynamic Allocation Capability: %s (%u)",str, oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_egprs_ext_dyn_alloc_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1889,18 +1950,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				/* analyse bits */
 				dtm_gprs_mslot = oct>>(32-bits_needed);
 
-				switch ( oct>>(32-bits_needed) )
-				{
-					case 0:  str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
-					case 1:  str="Multislot class 5 supported";  break;
-					case 2:  str="Multislot class 9 supported";  break;
-					case 3:  str="Multislot class 11 supported"; break;
-					default: str="This should not happen";
-				}
-
-				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"DTM GPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 				bit_offset+=2;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1912,7 +1962,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				bits_needed = 1;
 				GET_DATA;
 
-				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_single_slt_dtm, tvb, bit_offset, 1, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_single_slt_dtm, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1926,7 +1976,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 				/* analyse bits */
 				dtm_egprs_mslot = oct>>(32-bits_needed);
-				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres, tvb, bit_offset, 1, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1940,19 +1990,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 					bits_needed = 2;
 					GET_DATA;
 
-					/* analyse bits */
-					switch ( oct>>(32-bits_needed) )
-					{
-						case 0: str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
-						case 1:  str="Multislot class 5 supported";  break;
-						case 2:  str="Multislot class 9 supported";  break;
-						case 3:  str="Multislot class 11 supported"; break;
-						default: str="This should not happen";
-					}
-
-					proto_tree_add_text(mc_tree,
-						tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-						"DTM EGPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
+					proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 					bit_offset+=2;
 					curr_bits_length -= bits_needed;
 					oct <<= bits_needed;
@@ -1967,7 +2005,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_8psk_pow_cap_pres, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_8psk_pow_cap_pres, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2007,7 +2045,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_comp_int_meas_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_comp_int_meas_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2019,7 +2057,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rel_lev_ind, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rel_lev_ind, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2031,7 +2069,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_fdd_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_fdd_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2043,7 +2081,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_384_tdd_ra_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_384_tdd_ra_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2055,7 +2093,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_cdma2000_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_cdma2000_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2067,7 +2105,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_128_tdd_ra_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_128_tdd_ra_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2079,7 +2117,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_feat_pkg, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_feat_pkg, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2108,6 +2146,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
+			bit_offset++;
 
 			/*
 			 * Extended DTM GPRS Multi Slot Class
@@ -2191,17 +2230,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="Modulation based multislot class not supported"; break;
-			case 0x01: str="Modulation based multislot class supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Modulation based multislot class support: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_mod_based_multi_slot_class_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2258,95 +2287,481 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 
+		value = tvb_get_bits8(tvb, bit_offset, 1);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_iu_mode_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+		if (value)
+		{
+			/* GERAN Iu Mode Capabilities struct present */
+			bits_needed = 4;
+			GET_DATA;
+			value = tvb_get_bits8(tvb, bit_offset, 4);
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+			if (value)
+			{
+				/*
+				 * FLO Iu Capability
+				 */
+				bits_needed = 1;
+				GET_DATA;
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_flo_iu_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+				bit_offset+=bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+				value--;
+				
+				/* skip spare bits */
+				bit_offset+=value;
+				curr_bits_length -= value;
+				oct <<= value;
+				bits_in_oct -= value;
+			}
+		}
+
+		/*
+		 * GMSK Multislot Power Profile
+		 */
+		bits_needed = 2;
+		GET_DATA;
+
 		/* analyse bits */
 		switch ( oct>>(32-bits_needed) )
 		{
-			case 0x00: str="GERAN Iu mode not supported"; break;
-			case 0x01: str="GERAN Iu mode supported";     break;
+			case 0x00: str="GMSK_MULTISLOT_POWER_PROFILE 0"; break;
+			case 0x01: str="GMSK_MULTISLOT_POWER_PROFILE 1"; break;
+			case 0x02: str="GMSK_MULTISLOT_POWER_PROFILE 2"; break;
+			case 0x03: str="GMSK_MULTISLOT_POWER_PROFILE 3"; break;
 			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"GERAN Iu Mode Capability: %s (%u)",str,oct>>(32-bits_needed));
-		bit_offset++;
+			"GMSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
+		bit_offset+=2;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
 		bits_in_oct -= bits_needed;
 
 		/*
-		 * GMSK/8-PSK Multislot Power Profile
+		 * 8-PSK Multislot Power Profile
 		 */
-		bits_needed = 1;
+		bits_needed = 2;
 		GET_DATA;
 
 		/* analyse bits */
+		switch ( oct>>(32-bits_needed) )
+		{
+			case 0x00: str="8-PSK_MULTISLOT_POWER_PROFILE 0"; break;
+			case 0x01: str="8-PSK_MULTISLOT_POWER_PROFILE 1"; break;
+			case 0x02: str="8-PSK_MULTISLOT_POWER_PROFILE 2"; break;
+			case 0x03: str="8-PSK_MULTISLOT_POWER_PROFILE 3"; break;
+			default:   str="This should not happen";
+		}
+
+		proto_tree_add_text(tf_tree,
+		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		"8-PSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
+		bit_offset+=2;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 6
+		 */
+		 
+		/*
+		 * Multiple TBF Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_mult_tbf_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+		
+		/*
+		 * Downlink Advanced Receiver Performance
+		 */
+		bits_needed = 2;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_down_adv_rec_perf, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+		
+		/*
+		 * Extended RLC/MAC Control Message Segmentation Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_rlc_mac_ctrl_msg_seg_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * DTM Enhancements Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_enh_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * DTM GPRS High Multi Slot Class & DTM EGPRS High Multi Slot Class
+		 */
+		bits_needed = 1;
+		GET_DATA;
 		if ((oct>>(32-bits_needed))==0)
 		{
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"GMSK/8-PSK Multislot Power Profile: Bits are not available (%u)",oct>>(32-bits_needed));
-			bit_offset++;
+			bit_offset+=bits_needed;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
-   		 	bits_in_oct -= bits_needed;
+			bits_in_oct -= bits_needed;
 		}
 		else
 		{
-			curr_bits_length -= bits_needed;
-			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-			bit_offset++;
-
-			/*
-			 * GMSK Multislot Power Profile
-			 */
-			bits_needed = 2;
-			GET_DATA;
-
-			/* analyse bits */
-			switch ( oct>>(32-bits_needed) )
-			{
-				case 0x00: str="GMSK_MULTISLOT_POWER_PROFILE 0"; break;
-				case 0x01: str="GMSK_MULTISLOT_POWER_PROFILE 1"; break;
-				case 0x02: str="GMSK_MULTISLOT_POWER_PROFILE 2"; break;
-				case 0x03: str="GMSK_MULTISLOT_POWER_PROFILE 3"; break;
-				default:   str="This should not happen";
-			}
-
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"GMSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
-			bit_offset+=2;
+			bit_offset+=bits_needed;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
 
 			/*
-			 * 8-PSK Multislot Power Profile
+			 * DTM GPRS High Multi Slot Class
 			 */
-			bits_needed = 2;
+			bits_needed = 3;
 			GET_DATA;
-
-			/* analyse bits */
-			switch ( oct>>(32-bits_needed) )
-			{
-				case 0x00: str="8-PSK_MULTISLOT_POWER_PROFILE 0"; break;
-				case 0x01: str="8-PSK_MULTISLOT_POWER_PROFILE 1"; break;
-				case 0x02: str="8-PSK_MULTISLOT_POWER_PROFILE 2"; break;
-				case 0x03: str="8-PSK_MULTISLOT_POWER_PROFILE 3"; break;
-				default:   str="This should not happen";
-			}
-
-			proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"8-PSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
-			bit_offset+=2;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_gprs_high_multi_slot_class, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+			bit_offset+=bits_needed;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
 
+			bits_needed = 1;
+			GET_DATA;
+			if ((oct>>(32-bits_needed))==0)
+			{
+				bit_offset+=bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+			}
+			else
+			{
+				bit_offset+=bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+
+				/*
+				 * DTM EGPRS High Multi Slot Class
+				 */
+				bits_needed = 3;
+				GET_DATA;
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_egprs_high_multi_slot_class, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+				bit_offset+=bits_needed;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+				bits_in_oct -= bits_needed;
+			}
 		}
+		
+		/*
+		 * PS Handover Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ps_ho_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+			
+		/*
+		 * Release 7
+		 */
+ 
+		/*
+		 * DTM Handover Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dtm_ho_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Multislot Capability Reduction for Downlink Dual Carrier & Downlink Dual Carrier for DTM Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		if ((oct>>(32-bits_needed))==0)
+		{
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+		else
+		{
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			/*
+			 * Multislot Capability Reduction for Downlink Dual Carrier
+			 */
+			bits_needed = 3;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_multi_slot_cap_red_down_dual_carrier, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			/*
+			 * Downlink Dual Carrier for DTM Capability
+			 */
+			bits_needed = 1;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_down_dual_carrier_dtm_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+
+		/*
+		 * Flexible Timeslot Assignment
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_flex_ts_assign, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * GAN PS Handover Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_gan_ps_ho_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * RLC Non-persistent Mode
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_rlc_non_pers_mode, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Reduced Latency Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_reduced_lat_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Uplink EGPRS2
+		 */
+		bits_needed = 2;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ul_egprs2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Downlink EGPRS2
+		 */
+		bits_needed = 2;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_dl_egprs2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Release 8
+		 */
+ 
+		/*
+		 * E-UTRA FDD support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_eutra_fdd_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * E-UTRA TDD support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_eutra_tdd_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * GERAN to E-UTRA support in GERAN packet transfer mode
+		 */
+		bits_needed = 2;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_to_eutra_support_in_geran_ptm, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Priority-based reselection support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_prio_based_resel_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+ 
+		/*
+		 * Release 9
+		 */
+
+		/*
+		 * Enhanced Flexible Timeslot Assignment
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		if ((oct>>(32-bits_needed))==0)
+		{
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+		else
+		{
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+
+			/*
+			 * Alternative EFTA Multislot Class
+			 */
+			bits_needed = 4;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_alt_efta_multi_slot_class, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+ 
+			/*
+			 * EFTA Multislot Capability Reduction for Downlink Dual Carrier
+			 */
+			bits_needed = 3;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_efta_multi_slot_cap_red_down_dual_carrier, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+			bit_offset+=bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+ 
+		/*
+		 * Indication of Upper Layer PDU Start Capability for RLC UM
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ind_up_layer_pdu_start_cap_for_rlc_um, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * EMST Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_emst_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * MTTI Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_mtti_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * UTRA CSG Cells Reporting
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_utra_csg_cell_report, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * E-UTRA CSG Cells Reporting
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_eutra_csg_cell_report, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset+=bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
 
 		/*
 		 * we are too long ... so jump over it
@@ -2444,7 +2859,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_gm_cause, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -2489,8 +2904,8 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	subtree = proto_item_add_subtree(item, ett_gmm_rai);
 	dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
 
-	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, ENC_BIG_ENDIAN);
 
 	curr_offset+=6;
     if (add_string)
@@ -2571,7 +2986,7 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
 
 	tf = proto_tree_add_text(tree,
 		tvb, offset, 1,
@@ -2579,8 +2994,8 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 	tf_tree = proto_item_add_subtree(tf, ett_gmm_update_type );
 
-	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gm_update_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_update_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -2593,7 +3008,7 @@ static guint16
 de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE LOWER NIBBLE */
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, (offset << 3) + 4, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, (offset << 3) + 4, 4, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -2606,7 +3021,7 @@ static guint16
 de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, offset << 3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -2630,13 +3045,13 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	guint32	bit_offset;
 
 	bit_offset = offset << 3;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset += 1;
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_serv_type, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_serv_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset += 3;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset += 1;
-	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -2686,13 +3101,13 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_apc, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_otd_a, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_otd_b, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_gps_a, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_gps_b, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_gm_gps_c, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_apc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_otd_a, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_otd_b, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_a, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_b, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -2965,8 +3380,8 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 		str);
 
 	subtree = proto_item_add_subtree(item, ett_gmm_gprs_timer);
-	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_unit, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_value, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -3264,7 +3679,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 
 	/* 1 ext 0 0 0 0 Spare  Configuration protocol */
-	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* Configuration protocol (octet 3)
 	 * Bits
 	 * 3 2 1
@@ -3386,8 +3801,8 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	curr_len = len;
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	pdp_type_org = tvb_get_guint8(tvb, curr_offset) & 0x0f;
 	curr_offset += 1;
@@ -3445,19 +3860,19 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	switch (pdp_type_num)
 	{
 		case 0x57:
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
 			curr_offset+=16;
 			break;
 
 		case 0x8d:
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 			curr_offset+=4;
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
 			curr_offset+=16;
 			break;
 
 		default:
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 			curr_offset+=4;
 	}
 
@@ -3649,29 +4064,29 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	curr_offset = offset;
 
 	/* Octet 3 */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 2, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_delay_cls, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_reliability_cls, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_delay_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_reliability_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+= 1;
 
 	/* Octet 4 */
 	oct = tvb_get_guint8(tvb, curr_offset);
-	proto_tree_add_item(tree, hf_gsm_a_qos_peak_thr, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 4, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_prec_class, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_peak_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_prec_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+= 1;
 
 	/* Octet 5 */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_mean_thr, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_mean_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+= 1;
 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 6 */
-	proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+= 1;
 
 	NO_MORE_DATA_CHECK(len);
@@ -3735,8 +4150,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 10 */
-	proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset+= 1;
 	NO_MORE_DATA_CHECK(len);
@@ -3808,8 +4223,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	/* Ocet 14 */
 	oct = tvb_get_guint8(tvb, curr_offset);
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_signalling_ind, tvb , curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_qos_signalling_ind, tvb , curr_offset, 1, ENC_BIG_ENDIAN);
 
 	tmp_oct = oct & 7;
 	if (tmp_oct == 0x01)
@@ -4056,8 +4471,8 @@ static const value_string gsm_a_sm_llc_sapi_vals[] = {
 static guint16
 de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 4, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_llc_sapi, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_llc_sapi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -4074,8 +4489,8 @@ const true_false_string gsm_a_sm_tdi_value = {
 static guint16
 de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_tdi, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tdi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -4102,8 +4517,8 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	curr_offset = offset;
 	value = tvb_get_guint8(tvb,curr_offset);
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
     if (add_string)
@@ -4181,9 +4596,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	pkt_fil_count = oct&0x0f;
 	e_bit = (oct>>4)&1;
 
-	proto_tree_add_item(tree,hf_gsm_a_tft_op_code,tvb,curr_offset,1,FALSE);
-	proto_tree_add_item(tree,hf_gsm_a_tft_e_bit,tvb,curr_offset,1,FALSE);
-	proto_tree_add_item(tree,hf_gsm_a_tft_pkt_flt,tvb,curr_offset,1,FALSE);
+	proto_tree_add_item(tree,hf_gsm_a_tft_op_code,tvb,curr_offset,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree,hf_gsm_a_tft_e_bit,tvb,curr_offset,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree,hf_gsm_a_tft_pkt_flt,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	curr_len--;
@@ -4207,8 +4622,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 				return(len);
 			}
-			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, FALSE);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			curr_len--;
 			count++;
@@ -4220,9 +4635,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 				return(len);
 			}
-			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, FALSE);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_dir, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			curr_len--;
 
@@ -4269,10 +4684,10 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x10:
 					str="IPv4 remote address type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 					curr_offset+=4;
 					curr_len-=4;
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_mask,tvb,curr_offset,4,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_mask,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 					curr_offset+=4;
 					curr_len-=4;
 					pf_length-=8;
@@ -4280,10 +4695,10 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x20:
 					str="IPv6 remote address type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
 					curr_offset+=16;
 					curr_len-=16;
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,ENC_BIG_ENDIAN);
 					curr_offset+=16;
 					curr_len-=16;
 					pf_length-=32;
@@ -4291,7 +4706,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x30:
 					str="Protocol identifier/Next header type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_protocol_header,tvb,curr_offset,1,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_protocol_header,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 					curr_offset+=1;
 					curr_len-=1;
 					pf_length-=1;
@@ -4299,7 +4714,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x40:
 					str="Single local port type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
 					curr_len-=2;
 					pf_length-=2;
@@ -4307,9 +4722,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x41:
 					str="Local port range type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
 					curr_len-=4;
 					pf_length-=4;
@@ -4317,7 +4732,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x50:
 					str="Single remote port type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
 					curr_len-=2;
 					pf_length-=2;
@@ -4325,9 +4740,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x51:
 					str="Remote port range type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,ENC_BIG_ENDIAN);
 					curr_offset+=2;
 					curr_len-=4;
 					pf_length-=4;
@@ -4335,7 +4750,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x60:
 					str="Security parameter index type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_security,tvb,curr_offset,4,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_security,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 					curr_offset+=4;
 					curr_len-=4;
 					pf_length-=4;
@@ -4344,9 +4759,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x70:
 					str="Type of service/Traffic class type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_qos_traffic_cls,tvb,curr_offset,1,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_qos_traffic_cls,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 					curr_offset++;
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 					curr_offset++;
 					curr_len-=2;
 					pf_length-=2;
@@ -4354,8 +4769,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x80:
 					str="Flow label type";
-					proto_tree_add_bits_item(comp_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, FALSE);
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_flow_label_type,tvb,curr_offset,3,FALSE);
+					proto_tree_add_bits_item(comp_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_flow_label_type,tvb,curr_offset,3,ENC_BIG_ENDIAN);
 					curr_offset+=3;
 					curr_len-=3;
 					pf_length-=3;
@@ -4384,7 +4799,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			tf = proto_tree_add_text(tree, tvb, curr_offset, pf_length+2, "Parameter %d" ,count);
 			tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
 			param = tvb_get_guint8(tvb, curr_offset);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_param_id, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(tf_tree, hf_gsm_a_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset += 2;
 			curr_len -= 2;
 			switch (param) {
@@ -4433,7 +4848,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_sm_tmgi, tvb, curr_offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tmgi, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 	curr_offset += 3;
 
 	NO_MORE_DATA_CHECK(len);
@@ -4502,7 +4917,7 @@ de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
@@ -4549,8 +4964,8 @@ static const value_string gsm_a_sm_req_type_vals[] = {
 static guint16
 de_sm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3) + 4, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_req_type, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3) + 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return(1);
@@ -6817,12 +7232,61 @@ proto_register_gsm_a_gm(void)
 		   FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x0,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_rac_pseudo_sync,
+		{ "Pseudo Synchronisation", "gsm_a.gm.rac.pseudo_sync",
+		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_vgcs,
+		{ "Voice Group Call Service", "gsm_a.gm.rac.vgcs",
+		   FT_BOOLEAN, 8, TFS(&gsm_a_gm_vgcs), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_vbs,
+		{ "Voice Broadcast Service", "gsm_a.gm.rac.vbs",
+		   FT_BOOLEAN, 8, TFS(&gsm_a_gm_vbs), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_rac_multislot_capability,
 		{ "Multislot capability struct", "gsm_a.gm.rac.multislot_capability",
 		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
 		NULL, HFILL }
 	},
-
+	{ &hf_gsm_a_gm_rac_hscsd_multi_slot_class,
+		{ "HSCSD multislot class", "gsm_a.gm.rac.hscsd_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_gprs_multi_slot_class,
+		{ "GPRS multislot class", "gsm_a.gm.rac.gprs_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_gprs_ext_dyn_alloc_cap,
+		{ "GPRS Extended Dynamic Allocation Capability", "gsm_a.gm.rac.gprs_ext_dyn_alloc_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_ecsd_multi_slot_class,
+		{ "ECSD multislot class", "gsm_a.gm.rac.ecsd_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_egprs_multi_slot_class,
+		{ "EGPRS multislot class", "gsm_a.gm.rac.egprs_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_egprs_ext_dyn_alloc_cap,
+		{ "EGPRS Extended Dynamic Allocation Capability", "gsm_a.gm.rac.egprs_ext_dyn_alloc_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_gprs_multi_slot_class,
+		{ "DTM GPRS Multi Slot Class", "gsm_a.gm.rac.dtm_gprs_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_multi_slot_class_vals), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_rac_single_slt_dtm,
 		{ "Single Slot DTM", "gsm_a.gm.rac.single_slt_dtm",
 		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
@@ -6831,6 +7295,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres,
 		{ "DTM EGPRS Multi Slot Class", "gsm_a.gm.rac.dtm_egprs_multi_slot_cls_pres",
 		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_egprs_multi_slot_class,
+		{ "DTM EGPRS Multi Slot Class", "gsm_a.gm.rac.dtm_egprs_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_multi_slot_class_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_rac_8psk_pow_cap_pres,
@@ -6845,7 +7314,7 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_gm_rel_lev_ind,
 		{ "Revision Level Indicator", "gsm_a.gm.rel_lev_ind",
-		   FT_UINT8, BASE_HEX, VALS(gsm_a_gm_revision_level_indicator_vals), 0x0,
+		   FT_BOOLEAN, 8, TFS(&gsm_a_gm_revision_level_indicator), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_rac_umts_fdd_cap,
@@ -6870,6 +7339,156 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_gm_rac_geran_feat_pkg,
 		{ "GERAN Feature Package 1", "gsm_a.gm.rac.geran_feat_pkg",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_mod_based_multi_slot_class_support,
+		{ "Modulation based multislot class support", "gsm_a.gm.rac.mod_based_multi_slot_class_support",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_geran_iu_mode_cap,
+		{ "GERAN Iu mode", "gsm_a.gm.rac.geran_iu_mode_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_flo_iu_cap,
+		{ "FLO Iu Capability", "gsm_a.gm.rac.flo_iu_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_mult_tbf_cap,
+		{ "Multiple TBF Capability", "gsm_a.gm.rac.mult_tbf_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_down_adv_rec_perf,
+		{ "Downlink Advanced Receiver Performance", "gsm_a.gm.rac.down_adv_rec_perf",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_down_adv_rec_perf_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_ext_rlc_mac_ctrl_msg_seg_cap,
+		{ "Extended RLC/MAC Control Message Segmentation Capability", "gsm_a.gm.rac.ext_rlc_mac_ctrl_msg_seg_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_enh_cap,
+		{ "DTM Enhancements Capability", "gsm_a.gm.rac.dtm_enh_cap",
+		   FT_BOOLEAN, 8, TFS(&gsm_a_gm_dtm_enh_cap), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_gprs_high_multi_slot_class,
+		{ "DTM GPRS High Multi Slot Class", "gsm_a.gm.rac.dtm_gprs_high_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_high_multi_slot_class_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_egprs_high_multi_slot_class,
+		{ "DTM EGPRS High Multi Slot Class", "gsm_a.gm.rac.dtm_egprs_high_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_high_multi_slot_class_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_ps_ho_cap,
+		{ "PS Handover Capability", "gsm_a.gm.rac.ps_ho_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_ho_cap,
+		{ "DTM Handover Capability", "gsm_a.gm.rac.dtm_ho_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_multi_slot_cap_red_down_dual_carrier,
+		{ "Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a.gm.rac.multi_slot_cap_red_down_dual_carrier",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_cap_red_down_dual_carrier_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_down_dual_carrier_dtm_cap,
+		{ "Downlink Dual Carrier for DTM Capability", "gsm_a.gm.rac.down_dual_carrier_dtm_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_flex_ts_assign,
+		{ "Flexible Timeslot Assignment", "gsm_a.gm.rac.flex_ts_assign",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_gan_ps_ho_cap,
+		{ "GAN PS Handover Capability", "gsm_a.gm.rac.gan_ps_ho_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_rlc_non_pers_mode,
+		{ "RLC Non-persistent Mode", "gsm_a.gm.rac.rlc_non_pers_mode",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_reduced_lat_cap,
+		{ "Reduced Latency Capability", "gsm_a.gm.rac.reduced_lat_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_ul_egprs2,
+		{ "Uplink EGPRS2", "gsm_a.gm.rac.ul_egprs2",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_ul_egprs2_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dl_egprs2,
+		{ "Downlink EGPRS2", "gsm_a.gm.rac.dl_egprs2",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dl_egprs2_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_eutra_fdd_support,
+		{ "E-UTRA FDD support", "gsm_a.gm.rac.eutra_fdd_support",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_eutra_tdd_support,
+		{ "E-UTRA TDD support", "gsm_a.gm.rac.eutra_tdd_support",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_geran_to_eutra_support_in_geran_ptm,
+		{ "GERAN to E-UTRA support in GERAN packet transfer mode", "gsm_a.gm.rac.geran_to_eutra_support_in_geran_ptm",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_geran_to_eutra_support_in_geran_ptm_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_prio_based_resel_support,
+		{ "Priority-based reselection support", "gsm_a.gm.rac.prio_based_resel_support",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_alt_efta_multi_slot_class,
+		{ "Alternative EFTA Multislot Class", "gsm_a.gm.rac.alt_efta_multi_slot_class",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_alt_efta_multi_slot_class_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_efta_multi_slot_cap_red_down_dual_carrier,
+		{ "EFTA Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a.gm.rac.efta_multi_slot_cap_red_down_dual_carrier",
+		   FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_cap_red_down_dual_carrier_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_ind_up_layer_pdu_start_cap_for_rlc_um,
+		{ "Indication of Upper Layer PDU Start Capability for RLC UM", "gsm_a.gm.rac.ind_up_layer_pdu_start_cap_for_rlc_um",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_emst_cap,
+		{ "Enhanced Multiplexing for Single TBF Capability", "gsm_a.gm.rac.emst_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_mtti_cap,
+		{ "Multiple TTI Capability", "gsm_a.gm.rac.mtti_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_utra_csg_cell_report,
+		{ "UTRA CSG Cells Reporting", "gsm_a.gm.rac.utra_csg_cell_report",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_eutra_csg_cell_report,
+		{ "E-UTRA CSG Cells Reporting", "gsm_a.gm.rac.mtti_cap",
 		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
 		NULL, HFILL }
 	},
