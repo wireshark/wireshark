@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-05-19)
+(last updated 2011-05-27)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -10197,9 +10197,10 @@ acp-policy      3824/udp   Compute Pool Policy
 ffserver	3825/tcp   Antera FlowFusion Process Simulation
 ffserver	3825/udp   Antera FlowFusion Process Simulation
 #			   Armin Liebchen <armin&anteradesign.com> June 2007
-wormux		3826/tcp   Wormux server
-wormux		3826/udp   Wormux server
-#			   DEFERT-SIMONNEAU <laurent_defert&yahoo.fr> June 2007
+warmux          3826/tcp   WarMUX game server (Modified: 2011-05-26)
+warmux          3826/udp   WarMUX game server (Modified: 2011-05-26)
+#			   Previous contact: DEFERT-SIMONNEAU <laurent_defert&yahoo.fr> June 2007
+#                          Current contact: Christophe Gisquet <christophe.gisquet&gmail.com> 26 May 2011
 netmpi		3827/tcp   Netadmin Systems MPI service
 netmpi		3827/udp   Netadmin Systems MPI service
 #			   Göran Runfeldt <goran&netadmin.se> 10 July 2007
@@ -11908,7 +11909,10 @@ smart-install   4786/tcp   Smart Install Service
 sia-ctrl-plane  4787/tcp   Service Insertion Architecture (SIA) Control-Plane
 #                          Shree Murthy <shree&cisco.com> 29 October 2009
 #               4787/udp   Reserved
-#               4788-4799  Unassigned
+xmcp            4788/tcp   eXtensible Messaging Client Protocol
+#                          Glenn Matthews <glenn.matthews&cisco.com> 23 May 2011
+#               4788/udp   Reserved
+#               4789-4799  Unassigned
 iims            4800/tcp   Icona Instant Messenging System
 iims            4800/udp   Icona Instant Messenging System
 iwec            4801/tcp   Icona Web Embedded Chat
@@ -12610,7 +12614,8 @@ hacl-poll       5315/tcp   HA Cluster UDP Polling
 hacl-poll       5315/udp   HA Cluster UDP Polling
 #                          Hoa Nguyen <hoan&cup.hp.com>
 hpbladems       5316/tcp   HPBladeSystem Monitor Service (Modified: 2011-05-16)
-#			   Masato Maeda <Masato.Maeda&hp.com> 04 October 2007
+#			   Previous contact: Masato Maeda <Masato.Maeda&hp.com> 04 October 2007
+#                          Current contact: Alan Minchew <alan.minchew&hp.com> 23 May 2011
 #               5316/udp   Unassigned (Removed on 2011-05-16)
 hpdevms         5317/tcp   HP Device Monitor Service
 #                          Alan Minchew <alan.minchew&hp.com> 16 May 2011
@@ -13178,9 +13183,13 @@ cpdlc           5911/sctp  Controller Pilot Data Link Communication
 fis             5912/tcp   Flight Information Services
 fis             5912/udp   Flight Information Services
 #                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
+fis             5912/sctp  Flight Information Services
+#                          Justin Yu <yyu&mitre.org> 25 May 2011
 ads-c           5913/tcp   Automatic Dependent Surveillance
 ads-c           5913/udp   Automatic Dependent Surveillance
 #                          Eivan Cerasi <eivan.cerasi&eurocontrol.int> 10 October 2008
+ads-c           5913/sctp  Automatic Dependent Surveillance
+#                          Justin Yu <yyu&mitre.org> 25 May 2011
 #               5914-5962  Unassigned
 indy            5963/tcp   Indy Application Server
 indy            5963/udp   Indy Application Server
@@ -14173,7 +14182,10 @@ silhouette      7500/udp    Silhouette User
 ovbus           7501/tcp    HP OpenView Bus Daemon
 ovbus           7501/udp    HP OpenView Bus Daemon
 #                           David M. Rhodes <davidrho&cnd.hp.com>
-#               7502-7508   Unassigned
+#               7502-7507   Unassigned
+adcp            7508/tcp    Automation Device Configuration Protocol
+#                           Holger Sachs <hlsa&de.festo.com 27 May 2011
+#               7508/udp    Reserved
 acplt           7509/tcp    ACPLT - process automation service
 #                           Henning Mersch <h.mersch&plt.rwth-aachen.de> 07 December 2010
 #               7509/udp    Reserved
@@ -14523,7 +14535,10 @@ fs-server       8043/tcp    FireScope Server
 fs-mgmt         8044/tcp    FireScope Management Interface
 #                           Matt Rogers <mrogers&firescope.com> 16 October 2008
 #               8044/udp    Reserved
-#               8045-8051   Unassigned
+#               8045-8050   Unassigned
+rocrail         8051/tcp    Rocrail Client Service
+#                           Rob Versluis <r.j.versluis&rocrail.net> 23 May 2011
+#               8051/udp    Reserved
 senomix01	8052/tcp    Senomix Timesheets Server
 senomix01	8052/udp    Senomix Timesheets Server
 senomix02	8053/tcp    Senomix Timesheets Client [1 year assignment]
