@@ -7427,24 +7427,24 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;
 
       /* Extended Capability octet 1 */
-      if (offset > tag_end) {
-        return offset;
+      if (offset >= tag_end) {
+        break;
       }
       ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
       proto_item_append_text(ti_ex_cap, " (octet 1)");
       offset += 1;
 
       /* Extended Capability octet 2 */
-      if (offset > tag_end) {
-        return offset;
+      if (offset >= tag_end) {
+        break;
       }
       ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
       proto_item_append_text(ti_ex_cap, " (octet 2)");
       offset += 1;
 
       /* Extended Capability octet 3 */
-      if (offset > tag_end) {
-        return offset;
+      if (offset >= tag_end) {
+        break;
       }
       ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
       proto_item_append_text(ti_ex_cap, " (octet 3)");
@@ -7455,8 +7455,8 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;
 
       /* Extended Capability octet 4 */
-      if (offset > tag_end) {
-        return offset;
+      if (offset >= tag_end) {
+        break;
       }
       ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
       proto_item_append_text(ti_ex_cap, " (octet 4)");
@@ -7467,8 +7467,8 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       offset += 1;
 
       /* Extended Capability octet 5 */
-      if (offset > tag_end) {
-        return offset;
+      if (offset >= tag_end) {
+        break;
       }
       ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
       proto_item_append_text(ti_ex_cap, " (octet 5)");
