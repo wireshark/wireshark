@@ -81,7 +81,7 @@
 #include "win32/file_dlg_win32.h"
 #endif
 
-void
+static void
 ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
 {
     guint i;
