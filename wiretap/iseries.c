@@ -3,7 +3,7 @@
  * $Id$
  *
  * Wiretap Library
- * Copyright (c) 2005 by Martin Warnes <Martin_Warnes@Stercomm.com>
+ * Copyright (c) 2011 by Martin Warnes <Martin_Warnes@uk.ibm.com>
  *
  * Based on toshiba.c and vms.c
  *
@@ -68,7 +68,7 @@
    Format Broadcast data  . . . :   Y            Y=Yes, N=No
 */
 
-/* iSeries formatted packet records consist of a header line identifying the packet number,direction,size,
+/* iSeries IPv4 formatted packet records consist of a header line identifying the packet number,direction,size,
  * timestamp,source/destination MAC addresses and packet type.
  *
  * Thereafter there will be a formated display of the IP and TCP headers as well as a hex string dump
@@ -98,6 +98,28 @@
                            FC276228786B3EB0 EF34F5F1D27EF8DF  20926820E7B322AA 739F1FB20D         **'B(XK>**4***.** *H **"*S*.*.   *
 */
 
+/* iSeries IPv6 formatted traces are similar to the IPv4 version above but data is no longer output as 4 hex sections
+*
+
+Record       Data      Record                       Destination   Source        Frame
+Number  S/R  Length    Timer                        MAC Address   MAC Address   Format
+------  ---  ------    ------------                 ------------  ------------  ------
+   218   S     1488    15:01:14.389                 0011BC358680  00096B6BD918   ETHV2  Type: 86DD
+                      IPv6   Data:  Ver: 06                      Traffic Class: 00            Flow Label: 000000
+                                    Payload Length:  1448        Next Header: 06,TCP          Hop Limit:    64
+                                    Src Addr:   fd00:0:0:20f2::122
+                                    Dest Addr:  fd00:0:0:20a0::155
+                      IPv6 Header:  6000000005A80640FD000000000020F20000000000000122FD000000000020A0
+                                    0000000000000155
+                      TCP  . . . :  Src Port: 21246,Unassigned    Dest Port: 13601,Unassigned
+                                    SEQ Number:  2282300877 ('880925CD'X)  ACK Number: 3259003715 ('C2407343'X)
+                                    Code Bits: ACK                      Window: 65535  TCP Option: NO OP
+                      TCP Header :  52FE3521880925CDC24073438010FFFFCFBB00000101080A0E15127000237A08
+         Data . . . . . :  54435032000200140000061880000000ECBEB867F0000000004CE640E6C1D9D5       *TCP2........*...***g*....L*@*****
+                           C9D5C740E3C8C9E240C9E240E3C8C540E6C1D9D5C9D5C740C6C9C5D3C4404040       ****@****@**@***@*******@*****@@@*
+                           4040404040404040404040404040404040404040404040404040404040404040       *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*
+*/
+
 /* iSeries unformatted packet record consist of the same header record as the formatted trace but all
  * other records are simply unformatted data containing IP, TCP and packet data combined.
  *
@@ -125,12 +147,13 @@
 
 #include <wsutil/str_util.h>
 
-#define ISERIES_HDR_MAGIC_STR	" COMMUNICATIONS TRACE"
-#define ISERIES_HDR_MAGIC_LEN   21
+#define ISERIES_HDR_MAGIC_STR	"COMMUNICATIONS TRACE"
+#define ISERIES_HDR_MAGIC_LEN   20
+#define ISERIES_UNICODE_HDR_MAGIC_LEN 17
 #define ISERIES_PKT_MAGIC_STR   "ETHV2"
 #define ISERIES_PKT_MAGIC_LEN   5
 #define ISERIES_LINE_LENGTH     270
-#define ISERIES_HDR_LINES_TO_CHECK  50
+#define ISERIES_HDR_LINES_TO_CHECK  100
 #define ISERIES_PKT_LINES_TO_CHECK  4
 #define ISERIES_MAX_PACKET_LEN  16384
 #define ISERIES_MAX_TRACE_LEN   99999999
@@ -142,6 +165,7 @@ typedef struct {
   gboolean have_date;     /* TRUE if we found a capture start date */
   int year, month, day;   /* The start date */
   gboolean tcp_formatted; /* TCP/IP data formated Y/N */
+  gboolean ipv6_trace;    /* IPv4 or IPv6  */   
   int format;             /* Trace format type        */
 } iseries_t;
 
@@ -165,16 +189,17 @@ int
 iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
   int bytes_read;
-  char magic[ISERIES_HDR_MAGIC_LEN];
-  /* UNICODE identification */
-  char unicodemagic[ISERIES_HDR_MAGIC_LEN] =
-    { '\xFF', '\xFE', '\x20', '\x00', '\x43', '\x00', '\x4F', '\x00', '\x4D',
+  gint offset;
+  char magic[ISERIES_LINE_LENGTH];
+  char unicodemagic[ISERIES_UNICODE_HDR_MAGIC_LEN] =
+    { '\x43', '\x00', '\x4F', '\x00', '\x4D',
     '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00',
     '\x43', '\x00', '\x41'
   };
 
   /*
    * Check that file starts with a valid iSeries COMMS TRACE header
+   * by scanning for it in the first line
    */
   errno = WTAP_ERR_CANT_READ;
   bytes_read = file_read (&magic, sizeof magic, wth->fh);
@@ -186,69 +211,82 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
       return 0;
     }
 
-  /* Check if this is an ASCII formatted file */
-  if (memcmp (magic, ISERIES_HDR_MAGIC_STR, ISERIES_HDR_MAGIC_LEN) == 0)
-    {
-      if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
-	{
-	  return 0;
-	}
-      /*
-       * Do some basic sanity checking to ensure we can handle the
-       * contents of this trace
-       */
-      if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_ASCII))
-	{
-	  if (*err == 0)
-	    return 0;
-	  else
-	    return -1;
-	}
-      wth->data_offset = 0;
-      wth->file_encap = WTAP_ENCAP_ETHERNET;
-      wth->file_type = WTAP_FILE_ISERIES;
-      wth->snapshot_length = 0;
-      wth->subtype_read = iseries_read;
-      wth->subtype_seek_read = iseries_seek_read;
-      wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-      if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
-	{
-	  return 0;
-	}
-      return 1;
-    }
+  /* 
+   * Check if this is a UNICODE formatted file by scanning for the magic string
+   */
+  offset=0;
+  while (offset < ISERIES_LINE_LENGTH - ISERIES_UNICODE_HDR_MAGIC_LEN)
+  {
+	  if (memcmp (magic + offset, unicodemagic, ISERIES_UNICODE_HDR_MAGIC_LEN) == 0) {
+		  if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
+		  {
+			  return 0;
+		  }
+		  /*
+		  * Do some basic sanity checking to ensure we can handle the
+		  * contents of this trace
+		  */
+		  if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_UNICODE))
+		  {
+			  if (*err == 0)
+				  return 0;
+			  else
+				  return -1;
+		  }
+		  wth->data_offset = 0;
+		  wth->file_encap = WTAP_ENCAP_ETHERNET;
+		  wth->file_type = WTAP_FILE_ISERIES;
+		  wth->snapshot_length = 0;
+		  wth->subtype_read = iseries_read;
+		  wth->subtype_seek_read = iseries_seek_read;
+		  wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		  if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
+		  {
+			  return 0;
+		  }
+		  return 1;
+	  }
+	  offset += 1;
+  }
 
-  /* Check if this is a UNICODE formatted file */
-  if (memcmp (magic, unicodemagic, ISERIES_HDR_MAGIC_LEN) == 0)
-    {
-      if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
-	{
-	  return 0;
-	}
-      /*
-       * Do some basic sanity checking to ensure we can handle the
-       * contents of this trace
-       */
-      if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_UNICODE))
-	{
-	  if (*err == 0)
-	    return 0;
-	  else
-	    return -1;
-	}
-      wth->data_offset = 0;
-      wth->file_encap = WTAP_ENCAP_ETHERNET;
-      wth->file_type = WTAP_FILE_ISERIES_UNICODE;
-      wth->snapshot_length = 0;
-      wth->subtype_read = iseries_read;
-      wth->subtype_seek_read = iseries_seek_read;
-      wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-      if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
-	{
-	  return 0;
-	}
-      return 1;
-    }
+    /* 
+   * Check if this is a ASCII formatted file by scanning for the magic string
+   */
+  offset=0;
+  while (offset < ISERIES_LINE_LENGTH - ISERIES_HDR_MAGIC_LEN)
+  {
+	  if (memcmp (magic + offset, ISERIES_HDR_MAGIC_STR, ISERIES_HDR_MAGIC_LEN) == 0) {
+
+		  if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
+		  {
+			  return 0;
+		  }
+		  /*
+		  * Do some basic sanity checking to ensure we can handle the
+		  * contents of this trace
+		  */
+		  if (!iseries_check_file_type (wth, err, err_info, ISERIES_FORMAT_ASCII))
+		  {
+			  if (*err == 0)
+				  return 0;
+			  else
+				  return -1;
+		  }
+		  wth->data_offset = 0;
+		  wth->file_encap = WTAP_ENCAP_ETHERNET;
+		  wth->file_type = WTAP_FILE_ISERIES;
+		  wth->snapshot_length = 0;
+		  wth->subtype_read = iseries_read;
+		  wth->subtype_seek_read = iseries_seek_read;
+		  wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+		  if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
+		  {
+			  return 0;
+		  }
+		  return 1;
+	  }
+	  offset += 1;
+  }
 
   /* Neither ASCII or UNICODE so not supported */
   return 0;
@@ -264,7 +302,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 {
   guint line;
   int num_items_scanned;
-  char buf[ISERIES_LINE_LENGTH], protocol[9], tcpformat[2] = "";
+  char buf[ISERIES_LINE_LENGTH], protocol[9], type[5], work[2], tcpformat[2] = "";
   iseries_t *iseries;
 
   /* Save trace format for passing between packets */
@@ -273,6 +311,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
   iseries->have_date = FALSE;
   iseries->format = format;
   iseries->tcp_formatted = FALSE;
+  iseries->ipv6_trace = FALSE;
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
     {
@@ -282,12 +321,12 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 	   * Check that we are dealing with an ETHERNET trace
 	   */
 	  if (iseries->format == ISERIES_FORMAT_UNICODE)
-	    {
-             iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
+	    {	
+            iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
 	  ascii_strup_inplace(buf);
 	  num_items_scanned = sscanf (buf,
-				      "   OBJECT PROTOCOL  . . . . . . :  %8s",
+		  "%*[ \n\t]OBJECT PROTOCOL%*[ .:\n\t]%8s",
 				      protocol);
 	  if (num_items_scanned == 1)
 	    {
@@ -296,29 +335,11 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 	    }
 
 	  /*
-	   * Determine if the data has been formatted or not
-	   */
-	  num_items_scanned = sscanf (buf,
-				      "   FORMAT TCP/IP DATA ONLY  . . :  %1s",
-				      tcpformat);
-	  if (num_items_scanned == 1)
-	    {
-	      if (strncmp (tcpformat, "Y", 1) == 0)
-		{
-		  iseries->tcp_formatted = TRUE;
-		}
-	      else
-		{
-		  iseries->tcp_formatted = FALSE;
-		}
-	    }
-
-	  /*
 	   * The header is the only place where the date part of the timestamp is held, so
 	   * extract it here and store for all packets to access
 	   */
 	  num_items_scanned = sscanf (buf,
-				      "   START DATE/TIME  . . . . . . :  %2d/%2d/%4d",
+				      "%*[ \n\t]START DATE/TIME%*[ .:\n\t]%2d/%2d/%2d",
 				      &iseries->month, &iseries->day,
 				      &iseries->year);
 	  if (num_items_scanned == 3)
@@ -326,13 +347,54 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 	      iseries->have_date = TRUE;
 	    }
 
-	}
+
+	 /*
+	  * Determine if this is a IPv4 or IPv6 trace
+	  */
+	  num_items_scanned =
+		  sscanf (buf+78,
+		  "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
+	  if (num_items_scanned == 1)
+	  {
+		  if (strncmp (type, "0800", 1) == 0) 
+		  {
+			iseries->ipv6_trace = FALSE;
+		  }
+		  if (strncmp (type, "86DD", 1) == 0) 
+		  {
+			iseries->ipv6_trace = TRUE;
+		  }
+	  }
+
+	  /*
+	  * Determine if the data has been formatted
+	  */
+	  /* IPv6 formatted */ 
+	  num_items_scanned = sscanf (buf,
+		  "%*[ \n\t]IPV6 HEADER%1s",
+		  work);
+	  if (num_items_scanned == 1)
+	  {
+		  iseries->tcp_formatted = TRUE;
+		  return TRUE;
+	  }	
+	  /* IPv4 formatted */
+	  num_items_scanned = sscanf (buf,
+		  "%*[ \n\t]IP HEADER  %1s",
+		  work);
+	  if (num_items_scanned == 1)
+	  {
+		  iseries->tcp_formatted = TRUE;
+		  return TRUE;
+	  }
+
+}
       else
 	{
 	  /* EOF or error. */
 	  if (file_eof (wth->fh))
 	    *err = 0;
-	  else
+	  else 
 	    *err = file_error (wth->fh, err_info);
 	  return FALSE;
 	}
@@ -380,8 +442,8 @@ static gint64
 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
-  char buf[ISERIES_LINE_LENGTH];
-  int line;
+  char buf[ISERIES_LINE_LENGTH],type[5];
+  int line, num_items_scanned;
   gint64 cur_off;
   long buflen;
 
@@ -407,9 +469,12 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
 	      /* Else buflen is just length of the ASCII string */
 	      buflen = (long) strlen (buf);
 	    }
+	  ascii_strup_inplace(buf);
 	  /* If packet header found return the offset */
-	  if (strncmp (buf + 80, ISERIES_PKT_MAGIC_STR, ISERIES_PKT_MAGIC_LEN)
-	      == 0)
+	  num_items_scanned =
+		  sscanf (buf+78,
+		  "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
+	  if (num_items_scanned == 1)
 	    {
 	      /* Rewind to beginning of line */
 	      cur_off = file_tell (wth->fh);
@@ -488,8 +553,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
   gint64 cur_off;
-  gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
-  int num_items_scanned, line, pktline, buflen, i;
+  gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA, isDataFormatted, isDataHandled;
+  int num_items_scanned, line, pktline, buflen;
   guint32 pkt_len;
   int cap_len, pktnum, hr, min, sec, csec;
   char direction[2], destmac[13], srcmac[13], type[5], ipheader[41],
@@ -523,14 +588,10 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	{
          iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
-      /* look for packet header */
-      for (i=0; i<8; i++) {
-		  if (strncmp(data+i,"*",1) == 0)
-			  g_strlcpy(data+i," ",(ISERIES_LINE_LENGTH * 2));
-      }
+	  ascii_strup_inplace(data);
       num_items_scanned =
 	sscanf (data,
-		"%6d   %1s   %6d  %2d:%2d:%2d.%9d               %12s  %12s  ETHV2   Type: %4s",
+		"%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9d%*[ \n\t]%12s%*[ \n\t]%12s%*[ \n\t]ETHV2%*[ \n\t]TYPE:%*[ \n\t]%4s",
 		&pktnum, direction, &cap_len, &hr, &min, &sec, &csec, destmac,
 		srcmac, type);
       if (num_items_scanned == 10)
@@ -596,6 +657,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   IPread = FALSE;
   TCPread = FALSE;
   isDATA = FALSE;
+  isDataFormatted = TRUE;
   /*
    * Allocate 2 work buffers to handle concatentation of the hex data block
    */
@@ -637,64 +699,186 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  buflen = (int) strlen (data);
 	}
 
-      /* If this is a IP header hex string then set flag */
-      num_items_scanned = sscanf (data + 22, "IP Header  : %40s", ipheader);
-      if (num_items_scanned == 1)
-	{
-	  IPread = TRUE;
-	}
+	  /*                      
+	  * Decode data for IPv4 traces and unformatted IPv6 traces 
+	  */
+	  if ((!iseries->ipv6_trace) || ((iseries->ipv6_trace) && (!iseries->tcp_formatted)))
+	  {
+		  /* If this is a IP header hex string then set flag */
+		  num_items_scanned = sscanf (data + 22, "IP Header%*[ .:\n\t]%40s", ipheader);
+		  if (num_items_scanned == 1)
+		  {
+			  IPread = TRUE;
+		  }
 
-      /* If this is TCP header hex string then set flag */
-      num_items_scanned = sscanf (data + 22, "TCP Header : %80s", tcpheader);
-      if (num_items_scanned == 1)
-	{
-	  TCPread = TRUE;
-	}
+		  /* If this is TCP header hex string then set flag */
+		  num_items_scanned = sscanf (data + 22, "TCP Header%*[ .:\n\t]%80s", tcpheader);
+		  if (num_items_scanned == 1)
+		  {
+			  TCPread = TRUE;
+		  }
 
-      /*
-       * If there is data in the packet handle it here.
-       *
-       * The data header line will have the "Data . . " identifier, subsequent lines don't
-       */
-      num_items_scanned =
-	sscanf (data + 27, "%16[A-Z0-9] %16[A-Z0-9] %16[A-Z0-9] %16[A-Z0-9]",
-		hex1, hex2, hex3, hex4);
-      if (num_items_scanned > 0)
-	{
-	  isDATA = TRUE;
+		  /*
+		  * If there is data in the packet handle it here.
+		  *
+		  * The data header line will have the "Data . . " identifier, subsequent lines don't
+		  */
+		  num_items_scanned =
+			  sscanf (data + 27, "%16[A-F0-9] %16[A-F0-9] %16[A-F0-9] %16[A-F0-9]",
+			  hex1, hex2, hex3, hex4);
+		  if (num_items_scanned > 0)
+		  {
+			  isDATA = TRUE;
+			  /*
+			  * Scan the data line for data blocks, depending on the number of blocks scanned
+			  * add them along with current tcpdata buffer to the work buffer and then copy
+			  * work buffer to tcpdata buffer to continue building up tcpdata buffer to contain
+			  * a single hex string.
+			  */
+			  switch (num_items_scanned)
+			  {
+			  case 1:
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
+					  hex1);
+				  break;
+			  case 2:
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
+					  tcpdatabuf, hex1, hex2);
+				  break;
+			  case 3:
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3);
+				  break;
+			  default:
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3, hex4);
+			  }
+			  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
+		  }
+	  }
+      
 	  /*
-	   * Scan the data line for data blocks, depending on the number of blocks scanned
-	   * add them along with current tcpdata buffer to the work buffer and then copy
-	   * work buffer to tcpdata buffer to continue building up tcpdata buffer to contain
-	   * a single hex string.
+	   * Decode data for IPv6 formatted traces
 	   */
-	  switch (num_items_scanned)
-	    {
-	    case 1:
-	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
-			  hex1);
-	      break;
-	    case 2:
-	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
-			  tcpdatabuf, hex1, hex2);
-	      break;
-	    case 3:
-	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
-			  tcpdatabuf, hex1, hex2, hex3);
-	      break;
-	    default:
-	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
-			  tcpdatabuf, hex1, hex2, hex3, hex4);
-	    }
-	  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
-	}
+	  if ((iseries->ipv6_trace) && (iseries->tcp_formatted))
+	  {
+		  /*
+		  * If there are IPv6 headers in the packet handle it here.
+		  *
+		  * iSeries IPv6 headers are aligned after column 36 and appears as a single hex string  
+		  * of 16,32,48 or 64 bytes
+		  */
+		  isDataHandled=FALSE;
+		  num_items_scanned =
+			  sscanf (data + 35, "%*[ \n\t]%16[A-F0-9]%16[A-F0-9]%16[A-F0-9]%16[A-F0-9]",
+			  hex1, hex2, hex3, hex4);
+		  if (num_items_scanned > 0)
+		  {
+			  isDATA = TRUE;
+			  /*
+			  * Scan the data line for data blocks, depending on the number of blocks scanned
+			  * add them along with current tcpdata buffer to the work buffer and then copy
+			  * work buffer to tcpdata buffer to continue building up tcpdata buffer to contain
+			  * a single hex string.
+			  */
+			  switch (num_items_scanned)
+			  {
+			  case 1:
+				  if (strlen(hex1)==16) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
+					  hex1);
+					isDataHandled=TRUE;
+				  }
+				  break;
+			  case 2:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
+					  tcpdatabuf, hex1, hex2);
+				    isDataHandled=TRUE;
+				  }
+				  break;
+			  case 3:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16) && (strlen(hex3)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3);
+			        isDataHandled=TRUE;
+				  }
+				  break;
+			  default:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16) && (strlen(hex3)==16) && (strlen(hex4)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3, hex4);
+			        isDataHandled=TRUE;
+				  }
+			  }
+			  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
+		  }
+		  /*
+		  * If there is data in the packet handle it here.
+		  *
+		  * The data header line will have the "Data . . " identifier, subsequent lines don't
+		  * Check to ensure we haven't already captured and used this data block already above
+		  */
+		  num_items_scanned =
+			  sscanf (data + 26, "%*[ \n\t]%16[A-F0-9]%16[A-F0-9]%16[A-F0-9]%16[A-F0-9]",
+			  hex1, hex2, hex3, hex4);
+		  if ((num_items_scanned > 0) && (isDataHandled==FALSE))
+		  {
+			  isDATA = TRUE;
+			  /*
+			  * Scan the data line for data blocks, depending on the number of blocks scanned
+			  * add them along with current tcpdata buffer to the work buffer and then copy
+			  * work buffer to tcpdata buffer to continue building up tcpdata buffer to contain
+			  * a single hex string.
+			  */
+			  switch (num_items_scanned)
+			  {
+			  case 1:
+				  if (strlen(hex1)==16)
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
+					  hex1);
+				  }
+				  break;
+			  case 2:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
+					  tcpdatabuf, hex1, hex2);
+				  }
+				  break;
+			  case 3:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16) && (strlen(hex3)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3);
+				  }	
+				  break;
+			  default:
+				  if ((strlen(hex1)==16) && (strlen(hex2)==16) && (strlen(hex3)==16) && (strlen(hex4)==16)) 
+				  {
+				  g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
+					  tcpdatabuf, hex1, hex2, hex3, hex4);
+				  }
+			  }
+			  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
+		  }
+	  }
 
       /*
        * If we see the identifier for the next packet then rewind and set
        * isCurrentPacket FALSE
        */
-      if ((strncmp (data + 80, ISERIES_PKT_MAGIC_STR, ISERIES_PKT_MAGIC_LEN)
-	   == 0) && pktline > 1)
+	  ascii_strup_inplace(data);
+	  /* If packet header found return the offset */
+	  num_items_scanned =
+		  sscanf (data+78,
+		  "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
+      if ((num_items_scanned == 1) && pktline > 1)
 	{
 	  isCurrentPacket = FALSE;
 	  cur_off = file_tell (fh);
@@ -711,25 +895,25 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
     }
 
-  /*
-   * For a formated trace ensure we have read at least the IP and TCP headers otherwise
-   * exit and pass error message to user.
-   */
-  if (iseries->tcp_formatted)
-    {
-      if (!IPread)
+	/*
+	* For a IPV4 formated trace ensure we have read at least the IP and TCP headers otherwise
+	* exit and pass error message to user.
+	*/
+	if ((iseries->tcp_formatted) && (iseries->ipv6_trace == FALSE))
 	{
-	  *err = WTAP_ERR_BAD_RECORD;
-	  *err_info = g_strdup ("iseries: IP header isn't valid");
-	  return -1;
+		if (!IPread)
+		{
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup ("iseries: IP header isn't valid");
+			return -1;
+		}
+		if (!TCPread)
+		{
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup ("iseries: TCP header isn't valid");
+			return -1;
+		}
 	}
-      if (!TCPread)
-	{
-	  *err = WTAP_ERR_BAD_RECORD;
-	  *err_info = g_strdup ("iseries: TCP header isn't valid");
-	  return -1;
-	}
-    }
 
   /*
    * Create a buffer to hold all the ASCII Hex data and populate with all the
@@ -739,7 +923,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   if (isDATA)
     {
       /* packet contained data */
-      if (iseries->tcp_formatted)
+      if ((iseries->tcp_formatted) && (iseries->ipv6_trace == FALSE))
 	{
 	  /* build string for formatted fields */
 	  g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s%s",
@@ -747,7 +931,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
       else
 	{
-	  /* build string for unformatted data fields */
+	  /* build string for unformatted data fields and IPV6 data*/
 	  g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s", destmac,
 		      srcmac, type, tcpdatabuf);
 	}
@@ -760,16 +944,22 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     }
 
   /*
+   * Note: iSeries comms traces pad data blocks out with zeros
    * Extract the packet length from the actual IP header; this may
    * differ from the capture length reported by the formatted trace.
-   * Note: if the entire Ethernet packet is present, but the IP
-   * packet is less than 46 bytes long, there will be padding, and
-   * the length in the IP header won't include the padding; if
-   * the packet length is less than the captured length, set the
-   * packet length to the captured length.
+   * IPv4 and IPv6 headers contain the length at different offsets so
+   * read from the correct location.
    */
+  if (!iseries->ipv6_trace) 
+  {
   num_items_scanned = sscanf (asciibuf + 32, "%4x", &pkt_len);
   wth->phdr.len = pkt_len + 14;
+  }
+  else
+  {
+  num_items_scanned = sscanf (asciibuf + 36, "%4x", &pkt_len);
+    wth->phdr.len = pkt_len + 14;
+  }
   if (wth->phdr.caplen > wth->phdr.len)
     wth->phdr.len = wth->phdr.caplen;
 
