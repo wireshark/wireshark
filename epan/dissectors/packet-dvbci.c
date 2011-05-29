@@ -189,6 +189,11 @@ static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
+static void
+dissect_dvbci_payload_dt(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
+
 
 /* apdu defines */
 #define T_PROFILE_ENQ     0x9F8010
@@ -200,6 +205,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 #define T_CA_INFO_ENQ     0x9F8030
 #define T_CA_INFO         0x9F8031
 #define T_CA_PMT          0x9F8032
+#define T_DATE_TIME_ENQ   0x9F8440
+#define T_DATE_TIME       0x9F8441
 
 /* the following apdus are recognized but not dissected in the 1st release */
 #define T_CA_PMT_REPLY    0x9F8033
@@ -227,7 +234,10 @@ static const apdu_info_t apdu_info[] = {
 
     {T_CA_INFO_ENQ,    0, 0,             DATA_HOST_TO_CAM, NULL},
     {T_CA_INFO,        0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
-    {T_CA_PMT,         6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca}
+    {T_CA_PMT,         6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
+
+    {T_DATE_TIME_ENQ,  0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
+    {T_DATE_TIME,      5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt}
 
 };
 
@@ -241,6 +251,8 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CA_INFO_ENQ,     "CA info enquiry" },
     { T_CA_INFO,         "CA info" },
     { T_CA_PMT,          "CA PMT" },
+    { T_DATE_TIME_ENQ,   "Date-Time enquiry" },
+    { T_DATE_TIME,       "Date-Time" },
     { T_CA_PMT_REPLY,    "CA PMT reply" },
     { T_CLOSE_MMI,       "Close MMI" },
     { T_DISPLAY_CONTROL, "Display control" },
@@ -256,6 +268,9 @@ static const value_string dvbci_apdu_tag[] = {
     { T_LIST_MORE,       "List more" },
     { 0, NULL }
 };
+
+/* convert a byte that contains two 4bit BCD digits into a decimal value */
+#define BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
 
 
 void proto_reg_handoff_dvbci(void);
@@ -300,7 +315,9 @@ static int hf_dvbci_es_info_len = -1;
 static int hf_dvbci_ca_pmt_cmd_id = -1;
 static int hf_dvbci_descr_len = -1;
 static int hf_dvbci_ca_pid = -1;
-
+static int hf_dvbci_resp_intv = -1;
+static int hf_dvbci_utc_time = -1;
+static int hf_dvbci_local_offset = -1;
 
 typedef struct _spdu_info_t {
     guint8 tag;
@@ -434,6 +451,12 @@ static guint16 buf_size_cam;    /* buffer size proposal by the CAM */
 /* buffer size proposal by the host == negotiated buffer size */
 static guint16 buf_size_host;
 
+/* this must be a function, not a macro,
+   so that we can enforce the return type */
+static inline gint16 two_comp_to_int16(guint16 x)
+{
+   return (x&0x8000) ? -~(x-1) : x;
+}   
 
 
 /* initialize/reset per capture state data */
@@ -729,6 +752,84 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     }
 }
 
+
+static void
+dissect_dvbci_payload_dt(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree)
+{
+    nstime_t resp_intv;
+    proto_item *pi = NULL;
+    const gchar *tag_str;
+    nstime_t utc_time;
+    gint16 local_offset;  /* field in the apdu */
+    gint bcd_time_offset; /* start offset of the bcd time in the tvbuff */
+    guint8 hour, min, sec;
+
+
+    if (tag==T_DATE_TIME_ENQ) {
+        nstime_set_zero(&resp_intv);
+        resp_intv.secs = tvb_get_guint8(tvb, offset);
+        pi = proto_tree_add_time_format(tree, hf_dvbci_resp_intv,
+                tvb, offset, 1, &resp_intv, "Response interval is %s",
+                rel_time_to_str(&resp_intv));
+        if (resp_intv.secs==0) {
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "individual query");
+            if (pi)
+                proto_item_append_text(pi, " (individual query)");
+        }
+        else {
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "update every %s", rel_time_to_str(&resp_intv));
+        }
+    }
+    else if (tag==T_DATE_TIME) {
+        if (len_field!=5 && len_field!=7) {
+            tag_str = match_strval(tag, dvbci_apdu_tag);
+            pi = proto_tree_add_text(tree, tvb, APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
+                    "Invalid APDU length field");
+            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                    "Length field for %s must be 5 or 7 bytes", tag_str);
+            return;
+        }
+        /* the 40bit utc_time field is encoded according to DVB-SI spec,
+         * section 5.2.5:
+         * 16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss */
+        nstime_set_zero(&utc_time);
+        utc_time.secs = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
+        bcd_time_offset = offset+2;
+        hour = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
+        min = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
+        sec = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
+        if (hour>23 || min>59 || sec>59) {
+            pi = proto_tree_add_text(
+                tree, tvb, bcd_time_offset, 3, "Invalid BCD time");
+            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                "BCD time must be hhmmss");
+            return;
+        }
+        utc_time.secs += hour*3600 + min*60 + sec;
+
+        proto_tree_add_time_format(tree, hf_dvbci_utc_time, tvb, offset, 5,
+            &utc_time, "%s UTC",
+            abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+            "%s UTC", abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+        offset += 5;
+
+        if (len_field==7) {
+            local_offset = two_comp_to_int16(tvb_get_ntohs(tvb, offset));
+            proto_tree_add_int_format(tree, hf_dvbci_local_offset,
+                    tvb, offset, 2, local_offset,
+                    "offset between UTC and local time is %d minutes",
+                    local_offset);
+        }
+        else {
+            proto_tree_add_text(tree, tvb, 0, 0,
+                    "Offset between UTC and local time is unknown");
+        }
+    }
+}
 
 static void
 dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1492,8 +1593,19 @@ proto_register_dvbci(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_dvbci_ca_pid,
             { "CA PID", "dvbci.ca_pid", FT_UINT16, BASE_HEX,
-                NULL, 0x1FFF, NULL, HFILL } }
-    };
+                NULL, 0x1FFF, NULL, HFILL } },
+        { &hf_dvbci_resp_intv,
+            { "Response interval", "dvbci.dt.resp_interval",
+                FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_utc_time,
+            { "UTC time", "dvbci.dt.utc_time",
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL } },
+        /* we have to use FT_INT16 instead of FT_RELATIVE_TIME,
+           local offset can be negative */
+        { &hf_dvbci_local_offset,
+            { "Local time offset", "dvbci.dt.local_offset", FT_INT16, BASE_DEC,
+                NULL, 0, NULL, HFILL } }
+   };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     if (!spdu_table)
