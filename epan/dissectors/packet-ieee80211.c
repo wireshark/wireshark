@@ -5000,7 +5000,7 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
     }
   }
   if(offset < tag_end){
-   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, FALSE);
+   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_end - offset, FALSE);
    expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
   }
 
