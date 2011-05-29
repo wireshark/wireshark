@@ -47,6 +47,7 @@ set(WIRESHARK_GTK_SRC
 	export_object_dicom.c
 	export_object_http.c
 	export_object_smb.c
+	export_sslkeys.c
 	filter_autocomplete.c
 	file_dlg.c
 	file_import_dlg.c
