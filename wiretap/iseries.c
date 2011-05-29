@@ -302,7 +302,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 {
   guint line;
   int num_items_scanned;
-  char buf[ISERIES_LINE_LENGTH], protocol[9], type[5], work[2], tcpformat[2] = "";
+  char buf[ISERIES_LINE_LENGTH], protocol[9], type[5], work[2] = "";
   iseries_t *iseries;
 
   /* Save trace format for passing between packets */
