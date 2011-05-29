@@ -98,9 +98,6 @@ fields might be displayed.
 Specify how the packet data should be dissected. The encapsulation is of the
 form I<type>B<:>I<value>, where I<type> is one of:
 
-B<encap>:I<name> Packet data should be dissected using the libpcap data
-link type I<name>, e.g. B<encap:EN10MB> for Ethernet.
-
 B<encap>:I<name> Packet data should be dissected using the libpcap data link
 type (DLT) I<name>, e.g. B<encap:EN10MB> for Ethernet. Names are converted
 using pcap_datalink_name_to_val().
