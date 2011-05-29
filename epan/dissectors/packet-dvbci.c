@@ -1413,6 +1413,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *payload_tvb;
     guint16 cor_addr;
     guint8 cor_value;
+    proto_item *pi;
     guint8 hw_event;
 
     if (tvb_length(tvb) < 4)
@@ -1469,15 +1470,29 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* I did not assign hf_... values for cor_addr and cor_value
            there's no need to filter against them */
         cor_addr = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(dvbci_tree, tvb, offset, 2,
+        if (cor_addr == 0xffff) {
+            proto_tree_add_text(dvbci_tree, tvb, offset, 2,
+                "COR address is unknown");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", "unknown address");
+        }
+        else if (cor_addr > 0xFFE) {
+            pi = proto_tree_add_text(tree, tvb, offset, 2, "Invalid COR address");
+            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)");
+        }
+        else {
+            proto_tree_add_text(dvbci_tree, tvb, offset, 2,
                 "COR address: 0x%x", cor_addr);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                "address 0x%x", cor_addr);
+        }
         offset += 2;
         cor_value = tvb_get_guint8(tvb, offset);
         proto_tree_add_text(dvbci_tree, tvb, offset, 1,
                 "COR value: 0x%x", cor_value);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+            "value 0x%x", cor_value);
         offset++;
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
-                "address 0x%x, value 0x%x", cor_addr, cor_value);
     }
     else if (event==HW_EVT) {
         hw_event = tvb_get_guint8(tvb, offset);
