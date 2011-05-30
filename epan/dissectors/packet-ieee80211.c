@@ -54,6 +54,9 @@
  * 04/21/2008 - Added dissection for 802.11p
  * Arada Systems <http://www.aradasystems.com>
  *
+ * 05/29/2011 - UATification of decryption keys
+ * Michael Mann <mmann78@netscape.net>
+ *
  * Enhance 802.11 dissector by Alexis La Goutte
  */
 
@@ -111,9 +114,16 @@
 #include <epan/emem.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 
 #include "packet-wps.h"
 #include "packet-wifi-p2p.h"
+
+/*     Davide Schiera (2006-11-22): including AirPDcap project                */
+#ifdef HAVE_AIRPDCAP
+#include <epan/crypt/airpdcap_ws.h>
+#endif
+/* Davide Schiera (2006-11-22) ---------------------------------------------- */
 
 #ifndef roundup2
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
@@ -144,12 +154,120 @@ static GHashTable *wlan_reassembled_table = NULL;
 /* Statistical data */
 static struct _wlan_stats wlan_stats;
 
+/*-------------------------------------
+ * UAT for WEP decoder
+ *-------------------------------------
+ */
+/* UAT entry structure. */
+typedef struct {
+    guint8    key;
+    gchar    *string;
+} uat_wep_key_record_t;
+
+static uat_wep_key_record_t *uat_wep_key_records = NULL;
+static uat_t * wep_uat = NULL;
+static guint num_wepkeys_uat = 0;
+
+/*
+ * Convert a raw WEP key or one prefixed with "wep:" to a byte array.
+ * Separators are allowed.
+ */
+/* XXX This is duplicated in epan/airpdcap.c:parse_key_string() */
+static gboolean
+wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
+  char *first_nibble = (char *) hex_str;
+
+  if (g_ascii_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+    first_nibble += 4;
+  }
+
+  return hex_str_to_bytes(first_nibble, bytes, FALSE);
+}
+
+static void* uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
+    uat_wep_key_record_t* new_key = (uat_wep_key_record_t *)n;
+    const uat_wep_key_record_t* old_key = (uat_wep_key_record_t *)o;
+
+    if (old_key->string) {
+        new_key->string = g_strdup(old_key->string);
+    } else {
+        new_key->string = NULL;
+    }
+
+    return new_key;
+}
+
+static void uat_wep_key_record_update_cb(void* r, const char** err) {
+    uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
+#ifdef HAVE_AIRPDCAP
+    decryption_key_t* dk;
+    gchar* tmpk;
+#else
+    GByteArray *bytes;
+#endif
+
+    if (rec->string == NULL) {
+         *err = ep_strdup_printf("Key can't be blank");
+    } else {
+        g_strstrip(rec->string);
+#ifdef HAVE_AIRPDCAP
+        tmpk = g_strdup(rec->string);
+        dk = parse_key_string(tmpk);
+
+        if(dk != NULL) {
+           switch(dk->type) {
+              case AIRPDCAP_KEY_TYPE_WEP:
+              case AIRPDCAP_KEY_TYPE_WEP_40:
+              case AIRPDCAP_KEY_TYPE_WEP_104:
+                 if (rec->key != 0) {
+                    *err = ep_strdup_printf("Invalid key format");
+                 }
+                 break;
+              case AIRPDCAP_KEY_TYPE_WPA_PWD:
+                 if (rec->key != 1) {
+                    *err = ep_strdup_printf("Invalid key format");
+                 }
+                 break;
+              case AIRPDCAP_KEY_TYPE_WPA_PSK:
+                 if (rec->key != 2) {
+                    *err = ep_strdup_printf("Invalid key format");
+                 }
+                 break;
+              default:
+                 *err = ep_strdup_printf("Invalid key format");
+                 break;
+           }
+        } else {
+           *err = ep_strdup_printf("Invalid key format");
+        }
+#else
+        /* Figure out how many valid keys we have */
+        bytes = g_byte_array_new();
+        if ((wep_str_to_bytes(rec->string, bytes) == 0) ||
+            (bytes->len == 0) ||
+            (bytes->len > 32)) {
+           *err = ep_strdup_printf("Invalid key format");
+        }
+
+        g_byte_array_free(bytes, TRUE);
+#endif
+    }
+}
+
+static void uat_wep_key_record_free_cb(void*r) {
+    uat_wep_key_record_t* key = (uat_wep_key_record_t *)r;
+
+    if (key->string) g_free(key->string);
+}
+
+UAT_VS_DEF(uat_wep_key_records, key, uat_wep_key_record_t, 0, STRING_KEY_TYPE_WEP)
+UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
+
 /* Stuff for the WEP decoder */
 static gboolean enable_decryption = FALSE;
 static void init_wepkeys(void);
 
 #ifndef HAVE_AIRPDCAP
-static gint num_wepkeys = 0;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
@@ -161,23 +279,6 @@ static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 
 
 static int weak_iv(guchar *iv);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
-
-/* #define USE_ENV */
-/* When this is set, an unlimited number of WEP keys can be set in the
-   environment:
-
-   WIRESHARK_WEPKEYNUM=##
-   WIRESHARK_WEPKEY1=aa:bb:cc:dd:...
-   WIRESHARK_WEPKEY2=aa:bab:cc:dd:ee:...
-
-   ... you get the idea.
-
-   otherwise you're limited to specifying four keys in the preference system.
- */
-
-#ifndef USE_ENV
-static char *wep_keystr[MAX_ENCRYPTION_KEYS];
-#endif
 
 typedef struct mimo_control
   {
@@ -2265,6 +2366,12 @@ static const value_string tdls_action_codes[] ={
   {0, NULL}
 };
 
+#ifdef HAVE_AIRPDCAP
+AIRPDCAP_CONTEXT airpdcap_ctx;
+#else
+int airpdcap_ctx;
+#endif
+
 #define PSMP_STA_INFO_BROADCAST 0
 #define PSMP_STA_INFO_MULTICAST 1
 #define PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED 2
@@ -2294,16 +2401,6 @@ beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
    temp_double = (double)beacon_interval;
    g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000) );
 }
-
-/*     Davide Schiera (2006-11-22): including AirPDcap project                */
-#ifdef HAVE_AIRPDCAP
-#include <epan/crypt/airpdcap_ws.h>
-AIRPDCAP_CONTEXT airpdcap_ctx;
-#else
-int airpdcap_ctx;
-#endif
-/* Davide Schiera (2006-11-22) ---------------------------------------------- */
-
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -9257,9 +9354,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
     /* Davide Schiera (2006-11-27): define algorithms constants and macros  */
 #ifdef HAVE_AIRPDCAP
+#define PROTECTION_ALG_WEP  AIRPDCAP_KEY_TYPE_WEP
 #define PROTECTION_ALG_TKIP  AIRPDCAP_KEY_TYPE_TKIP
 #define PROTECTION_ALG_CCMP  AIRPDCAP_KEY_TYPE_CCMP
-#define PROTECTION_ALG_WEP  AIRPDCAP_KEY_TYPE_WEP
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
 #else
 #define PROTECTION_ALG_WEP  0
@@ -10516,9 +10613,6 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ieee80211 (void)
 {
-  int i;
-  GString *key_name, *key_title, *key_desc;
-
   static const value_string frame_type[] = {
     {MGT_FRAME,     "Management frame"},
     {CONTROL_FRAME, "Control frame"},
@@ -12261,6 +12355,15 @@ proto_register_ieee80211 (void)
     { 5, "30 ms" },
     { 6, "35 ms" },
     { 7, "40 ms" },
+    { 0x00, NULL }
+  };
+
+  static const value_string wep_type_vals[] = {
+    { 0, STRING_KEY_TYPE_WEP },
+#ifdef HAVE_AIRPDCAP
+    { 1, STRING_KEY_TYPE_WPA_PWD },
+    { 2, STRING_KEY_TYPE_WPA_PSK },
+#endif
     { 0x00, NULL }
   };
 
@@ -15050,6 +15153,22 @@ proto_register_ieee80211 (void)
       BASE_DEC, 0, 0x0000, NULL, HFILL }}
   };
 
+  static uat_field_t wep_uat_flds[] = {
+
+      UAT_FLD_VS(uat_wep_key_records, key, "Key type", wep_type_vals,
+                        "Decryption key type used"), 
+#ifdef HAVE_AIRPDCAP
+      UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
+                        "wep:<wep hexadecimal key>\n"
+                        "wpa-pwd:<passphrase>[:<ssid>]\n"
+                        "wpa-psk:<wpa hexadecimal key>"),
+#else
+      UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
+                        "wep:<wep hexadecimal key>\n"),
+#endif
+      UAT_END_FIELDS
+    };
+
   static gint *tree_array[] = {
     &ett_80211,
     &ett_fc_tree,
@@ -15205,8 +15324,6 @@ proto_register_ieee80211 (void)
     "and some also leave the IV (initialization vector).",
     &wlan_ignore_wep, wlan_ignore_wep_options, TRUE);
 
-#ifndef USE_ENV
-
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
 #ifdef HAVE_AIRPDCAP
@@ -15235,40 +15352,25 @@ proto_register_ieee80211 (void)
     "Valid key formats");
 #endif
 
-  for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
-    key_name = g_string_new("");
-    key_title = g_string_new("");
-    key_desc = g_string_new("");
-    wep_keystr[i] = NULL;
-    /* prefs_register_*_preference() expects unique strings, so
-     * we build them using g_string_printf and just leave them
-     * allocated. */
-#ifdef HAVE_AIRPDCAP
-    g_string_printf(key_name, "wep_key%d", i + 1);
-    g_string_printf(key_title, "Key #%d", i + 1);
-    /* Davide Schiera (2006-11-26): modified keys input tooltip          */
-    g_string_printf(key_desc,
-      "Key #%d string can be:"
-      "   <wep hexadecimal key>;"
-      "   wep:<wep hexadecimal key>;"
-      "   wpa-pwd:<passphrase>[:<ssid>];"
-      "   wpa-psk:<wpa hexadecimal key>", i + 1);
-#else
-    g_string_printf(key_name, "wep_key%d", i + 1);
-    g_string_printf(key_title, "WEP key #%d", i + 1);
-    g_string_printf(key_desc, "WEP key #%d can be:"
-                    "   <wep hexadecimal key>;"
-                    "   wep:<wep hexadecimal key>", i + 1);
-#endif
+    wep_uat = uat_new("WEP Keys",
+            sizeof(uat_wep_key_record_t),  /* record size */
+            "80211_keys",               /* filename */
+            TRUE,                       /* from_profile */
+            (void*) &uat_wep_key_records,  /* data_ptr */
+            &num_wepkeys_uat,           /* numitems_ptr */
+            UAT_CAT_CRYPTO,             /* category */
+            NULL,                       /* help */
+            uat_wep_key_record_copy_cb,        /* copy callback */
+            uat_wep_key_record_update_cb,      /* update callback */
+            uat_wep_key_record_free_cb,        /* free callback */
+            NULL,                       /* post update callback */
+            wep_uat_flds);             /* UAT field definitions */
 
-    prefs_register_string_preference(wlan_module, key_name->str,
-                                     key_title->str, key_desc->str, (const char **) &wep_keystr[i]);
-
-    g_string_free(key_name, FALSE);
-    g_string_free(key_title, FALSE);
-    g_string_free(key_desc, FALSE);
-  }
-#endif
+    prefs_register_uat_preference(wlan_module, 
+                                   "wep_key_table",
+                                   "WEP Keys",
+                                   "Preconfigured WEP keys",
+                                   wep_uat);
 }
 
 static void
@@ -15464,22 +15566,6 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 }
 #endif
 
-/*
- * Convert a raw WEP key or one prefixed with "wep:" to a byte array.
- * Separators are allowed.
- */
-/* XXX This is duplicated in epan/airpdcap.c:parse_key_string() */
-static gboolean
-wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
-  char *first_nibble = (char *) hex_str;
-
-  if (g_ascii_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
-    first_nibble += 4;
-  }
-
-  return hex_str_to_bytes(first_nibble, bytes, FALSE);
-}
-
 /* Collect our WEP and WPA keys */
 #ifdef HAVE_AIRPDCAP
 static
@@ -15496,9 +15582,9 @@ void set_airpdcap_keys(void)
   keys=(PAIRPDCAP_KEYS_COLLECTION)g_malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
-  for(i = 0; i < MAX_ENCRYPTION_KEYS; i++)
+  for(i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
   {
-    tmpk = g_strdup(wep_keystr[i]);
+    tmpk = g_strdup(uat_wep_key_records[i].string);
 
     dk = parse_key_string(tmpk);
 
@@ -15657,91 +15743,32 @@ static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
 
 static void init_wepkeys(void) {
 #ifndef  HAVE_AIRPDCAP
-  const char *tmp;
-  int i, keyidx;
   GByteArray *bytes;
   gboolean res;
 
-  if (wep_keys) {
-    for (i = 0; i < num_wepkeys; i++)
-      g_free(wep_keys[i]);
-    g_free(wep_keys);
-  }
-  g_free(wep_keylens);
+  if (num_wepkeys_uat < 1)
+     return;
 
-#ifdef USE_ENV
-  guint8 *buf;
-
-  tmp = getenv("WIRESHARK_WEPKEYNUM");
-  if (!tmp) {
-    num_wepkeys = 0;
-    return;
-  }
-  num_wepkeys = atoi(tmp);
-
-  if (num_wepkeys < 1)
-    return;
-#endif
-
-  /* Figure out how many valid keys we have */
   bytes = g_byte_array_new();
-  num_wepkeys = 0;
-  for ( i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
-    g_strstrip(wep_keystr[i]);
-    res = wep_str_to_bytes(wep_keystr[i], bytes);
-    if (wep_keystr[i] && res && bytes-> len > 0) {
-      num_wepkeys++;
-    }
-  }
+  wep_keys = g_malloc0(num_wepkeys_uat * sizeof(guint8*));
+  wep_keylens = g_malloc(num_wepkeys_uat * sizeof(int));
 
-  wep_keys = g_malloc0(num_wepkeys * sizeof(guint8*));
-  wep_keylens = g_malloc(num_wepkeys * sizeof(int));
-
-  for (i = 0, keyidx = 0; i < MAX_ENCRYPTION_KEYS && keyidx < num_wepkeys; i++) {
+  for (i = 0, keyidx = 0; keyidx < num_wepkeys_uat && i < MAX_ENCRYPTION_KEYS; i++) {
     wep_keys[keyidx] = NULL;
     wep_keylens[keyidx] = 0;
 
-#ifdef USE_ENV
-    buf = ep_strdup_printf("WIRESHARK_WEPKEY%d", i+1);
-    tmp = getenv(buf);
-#else
-    tmp = wep_keystr[i];
-#endif
-
-    if (tmp) {
-#if 0
-#ifdef USE_ENV
-      printf("%s -- %s\n", buf, tmp);
-#else
-      printf("%d -- %s\n", i+1, tmp);
-#endif
-#endif
-
-      g_free(wep_keys[keyidx]);
-
-      res = wep_str_to_bytes(tmp, bytes);
-      if (tmp && res && bytes->len > 0) {
-        if (bytes->len > 32) {
-          bytes->len = 32;
-        }
-        wep_keys[keyidx] = g_malloc0(32 * sizeof(guint8));
-        memcpy(wep_keys[keyidx], bytes->data, bytes->len * sizeof(guint8));
-        wep_keylens[keyidx] = bytes->len;
-        keyidx++;
-#if 0
-        printf("%d: %d bytes\n", i, bytes->len);
-        printf("%d: %s\n", i, bytes_to_str(bytes->data, bytes->len));
-#endif
-      } else {
-#if 0
-        printf("res: %d  bytes->len: %d\n", res, bytes->len);
-#endif
-        if (tmp[0] != 'w') /* Assume it begins with "wep:" or "wpa-*:" */
-          g_warning("Could not parse WEP key %d: %s", i + 1, tmp);
+   if ((uat_wep_key_records[i].string) && (wep_str_to_bytes(uat_wep_key_records[i].string, bytes) != 0) && (bytes->len > 0)) {
+      if (bytes->len > 32) {
+        bytes->len = 32;
       }
+
+      wep_keys[keyidx] = g_malloc0(32 * sizeof(guint8));
+      memcpy(wep_keys[keyidx], bytes->data, bytes->len * sizeof(guint8));
+      wep_keylens[keyidx] = bytes->len;
+      keyidx++;
     }
-  }
-  g_byte_array_free(bytes, TRUE);
+
+   g_byte_array_free(bytes, TRUE);
 
 #else /* HAVE_AIRPDCAP defined */
 
