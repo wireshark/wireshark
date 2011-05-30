@@ -2298,7 +2298,7 @@ packet_list_heading_resize_col_cb(GtkAction *action _U_, gpointer user_data)
 static void
 packet_list_heading_change_col_cb(GtkAction *action _U_, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RenameColumnTitle");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/EditColumnDetails");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_CHANGE);
 }
 
@@ -2311,7 +2311,7 @@ packet_list_heading_activate_all_columns_cb(GtkAction *action _U_, gpointer user
 static void
 packet_list_heading_hide_col_cb(GtkAction *action _U_, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RenameColumnTitle");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/HideColumn");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_HIDE);
 }
 
@@ -3380,8 +3380,8 @@ static const char *ui_statusbar_profiles_menu_popup =
 "     <menuitem name='Profiles' action='/Profiles'/>\n"
 "     <separator/>\n"
 "     <menuitem name='New' action='/New'/>\n"
+"     <menuitem name='Edit' action='/Edit'/>\n"
 "     <menuitem name='Delete' action='/Delete'/>\n"
-"     <menuitem name='Rename' action='/Rename'/>\n"
 "     <separator/>\n"
 "     <menu name='Change' action='/Change'>\n"
 "        <menuitem name='Default' action='/Change/Default'/>\n"
@@ -3392,12 +3392,12 @@ static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 {
 	{ "/Profiles",	NULL,	"Configuration Profiles...",	NULL,	NULL,	  G_CALLBACK(profile_dialog_cb) },
 	{ "/New",	GTK_STOCK_NEW,	"New...",	NULL,	NULL,	  G_CALLBACK(profile_new_cb) },
-	{ "/Delete",	GTK_STOCK_DELETE,	"Delete",	NULL,	NULL,	  G_CALLBACK(profile_delete_cb) },
 #if GLIB_CHECK_VERSION(2,6,0)
-	{ "/Rename",	GTK_STOCK_EDIT,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },
+	{ "/Edit",	GTK_STOCK_EDIT,	"Edit...",	NULL,	NULL,	  G_CALLBACK(profile_edit_cb) },
 #else
-	{ "/Rename",	NULL,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },
+	{ "/Edit",	NULL,	"Edit...",	NULL,	NULL,	  G_CALLBACK(profile_edit_cb) },
 #endif
+	{ "/Delete",	GTK_STOCK_DELETE,	"Delete",	NULL,	NULL,	  G_CALLBACK(profile_delete_cb) },
 	{ "/Change",	NULL,		"Change",	NULL,	NULL,	NULL },
 	{ "/Change/Default",	NULL,	"Default",	NULL,	NULL,	  NULL },
 };
@@ -7082,8 +7082,8 @@ GtkWidget *menus_get_profiles_change_menu (void)
 
 void set_menus_for_profiles(gboolean default_profile)
 {
+    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Edit", !default_profile);
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
-    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename", !default_profile);
 }
 
 /*

@@ -1201,7 +1201,7 @@ profile_name_edit_dlg (gint operation)
     window_title = g_strdup ("Create New Profile");
     break;
   case PROF_OPERATION_EDIT:
-    window_title = g_strdup_printf ("Rename: %s", profile_name);
+    window_title = g_strdup_printf ("Edit: %s", profile_name);
     break;
   default:
     g_assert_not_reached();
@@ -1349,7 +1349,7 @@ profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
 }
 
 void
-profile_rename_cb (GtkWidget *w _U_, gpointer data _U_)
+profile_edit_cb (GtkWidget *w _U_, gpointer data _U_)
 {
   profile_name_edit_dlg (PROF_OPERATION_EDIT);
 }

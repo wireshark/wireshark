@@ -53,12 +53,12 @@ void profile_new_cb (GtkWidget *w _U_, gpointer data _U_);
  */
 void profile_delete_cb (GtkWidget *w _U_, gpointer data _U_);
 
-/** User requested to rename the current profile.
+/** User requested to edit the current profile.
  *
  * @param w parent widget (unused)
  * @param data pointer to user_data (unused)
  */
-void profile_rename_cb (GtkWidget *w _U_, gpointer data _U_);
+void profile_edit_cb (GtkWidget *w _U_, gpointer data _U_);
 
 /** User requested the "Configuration Profiles" dialog box by menu or toolbar.
  *
