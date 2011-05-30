@@ -127,6 +127,9 @@ void menus_set_column_align_default (gboolean right_justify);
 /* Update the packet list heading menu to indicate if column can be resolved. */
 void menus_set_column_resolved (gboolean resolved, gboolean can_resolve);
 
+/* Fetch the statusbar profiles edit submenu */
+extern GtkWidget *menus_get_profiles_edit_menu (void);
+
 /* Fetch the statusbar profiles delete submenu */
 extern GtkWidget *menus_get_profiles_delete_menu (void);
 

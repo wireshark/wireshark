@@ -994,12 +994,18 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
     GtkWidget *change_menu = menus_get_profiles_change_menu ();
 
 #if GTK_CHECK_VERSION(2,16,0)
+    GtkWidget *edit_menu = menus_get_profiles_edit_menu ();
     GtkWidget *delete_menu = menus_get_profiles_delete_menu ();
     if (strcmp (profile_name, DEFAULT_PROFILE) != 0) {
-      gchar *label = g_strdup_printf ("Delete \"%s\"", profile_name);
+      gchar *label;
+      label = g_strdup_printf ("Edit \"%s\"...", profile_name);
+      gtk_menu_item_set_label (GTK_MENU_ITEM(edit_menu), label);
+      g_free (label);
+      label = g_strdup_printf ("Delete \"%s\"", profile_name);
       gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), label);
       g_free (label);
     } else {
+      gtk_menu_item_set_label (GTK_MENU_ITEM(edit_menu), "Edit...");
       gtk_menu_item_set_label (GTK_MENU_ITEM(delete_menu), "Delete");
     }
 #endif

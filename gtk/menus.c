@@ -7070,6 +7070,11 @@ void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean 
 #endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
+GtkWidget *menus_get_profiles_edit_menu (void)
+{
+    return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Edit");
+}
+
 GtkWidget *menus_get_profiles_delete_menu (void)
 {
     return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete");
