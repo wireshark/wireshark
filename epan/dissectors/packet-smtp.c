@@ -742,7 +742,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (smtp_data_desegment) {
-      next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled DATA",
+      next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SMTP",
                                           frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
       if (next_tvb) {
         /* XXX: this is presumptious - we may have negotiated something else */
