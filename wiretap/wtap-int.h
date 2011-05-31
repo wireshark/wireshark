@@ -54,7 +54,7 @@ struct wtap {
 	FILE_T			fh;
 	FILE_T			random_fh;    /* Secondary FILE_T for random access */
 	int			file_type;
-	int			snapshot_length;
+	guint			snapshot_length;
 	struct Buffer		*frame_buffer;
 	struct wtap_pkthdr	phdr;
 	union wtap_pseudo_header pseudo_header;

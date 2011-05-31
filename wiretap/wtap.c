@@ -78,7 +78,7 @@ wtap_file_type(wtap *wth)
 	return wth->file_type;
 }
 
-int
+guint
 wtap_snapshot_length(wtap *wth)
 {
 	return wth->snapshot_length;
