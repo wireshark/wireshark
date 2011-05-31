@@ -3255,6 +3255,7 @@ Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
 
 Roland Knall		<rknall [AT] gmail.com> {
 	Support for heuristic subdissectors for SERCOS III
+	openSAFETY dissector
 }
 
 Xiao Xiangquan		<xiaoxiangquan [AT] gmail.com> {

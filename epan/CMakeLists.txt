@@ -830,6 +830,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-olsr.c
 	dissectors/packet-omapi.c
 	dissectors/packet-omron-fins.c
+	dissectors/packet-opensafety.c
 	dissectors/packet-osi-options.c
 	dissectors/packet-osi.c
 	dissectors/packet-ositp.c

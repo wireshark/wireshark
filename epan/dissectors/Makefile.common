@@ -744,6 +744,7 @@ DISSECTOR_SRC = \
 	packet-olsr.c		\
 	packet-omapi.c		\
 	packet-omron-fins.c	\
+	packet-opensafety.c	\
 	packet-osi-options.c	\
 	packet-osi.c		\
 	packet-ositp.c		\
