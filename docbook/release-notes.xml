@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.7">
+  <!ENTITY WiresharkCurrentVersion "1.4.8">
 
 ]>
 
@@ -32,95 +32,21 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-08.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-10.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Large/infinite loop in the DICOM dissector.
-            <!-- Fixed in trunk: r36958 -->
-            <!-- Fixed in trunk-1.4: r37222 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5876">Bug
-            5876</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
+          <para>Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.</para>
 
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted Diameter dictionary file could crash Wireshark.
-            <!-- Fixed in trunk: r37011 -->
-            <!-- Fixed in trunk-1.4: r37221 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted snoop file could crash Wireshark.
-            <!-- Fixed in trunk: r37068 -->
-            <!-- Fixed in trunk-1.4: r37252 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5912">Bug
-            5912</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            David Maciejak of Fortinet's FortiGuard Labs discovered that
-            malformed compressed capture data could crash Wireshark.
-            <!-- Fixed in trunk: r37081 -->
-            <!-- Fixed in trunk-1.4: r37257 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5908">Bug
-            5908</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted Visual Networks file could crash Wireshark.
-            <!-- Fixed in trunk: r37128 -->
-            <!-- Fixed in trunk-1.4: r37258 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5934">Bug
-            5934</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
         </listitem>
 
       </itemizedlist>
@@ -142,65 +68,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          AIM dissector has some endian issues.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5464">Bug
-          5464</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Telephony→MTP3→MSUS doesn't display window.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5605">Bug
-          5605</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Support for MS NetMon 3.x traces containing raw IPv6 ("Type 7") packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5817">Bug
-          5817</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Service Indicator in M3UA protocol data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5834">Bug
-          5834</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IEC60870-5-104 protocol, incorrect decoding of timestamp type CP56Time2a.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5889">Bug
-          5889</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DNP3 dissector incorrect constants AL_OBJ_FCTR_16NF _FDCTR_32NF _FDCTR_16NF.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5920">Bug
-          5920</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          3GPP QoS: Traffic class is not decoded properly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5928">Bug
-          5928</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when creating ProtoField.framenum in Lua.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5930">Bug
-          5930</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fix a wrong mask to extract FMID from DECT packets dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5947">Bug
-          5947</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect DHCPv6 remote identifier option parsing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5962">Bug
-          5962</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -229,10 +96,6 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-DICOM,
-IEC104,
-M3UA,
-TCP,
 
     </para>
     </section>
