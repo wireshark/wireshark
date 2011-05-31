@@ -56,13 +56,13 @@ void
 capture_opts_init(capture_options *capture_opts, void *cf)
 {
   capture_opts->cf                              = cf;
-  capture_opts->cfilter                         = g_strdup("");     /* No capture filter string specified */
+  capture_opts->cfilter                         = NULL;            /* No capture filter string specified */
   capture_opts->iface                           = NULL;             /* Default is "pick the first interface" */
   capture_opts->iface_descr                     = NULL;
   capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
   capture_opts->default_options.name            = NULL;
   capture_opts->default_options.descr           = NULL;
-  capture_opts->default_options.cfilter         = g_strdup("");
+  capture_opts->default_options.cfilter         = NULL;
   capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE;
   capture_opts->default_options.linktype        = -1;
   capture_opts->default_options.promisc_mode    = TRUE;
@@ -658,7 +658,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
-        capture_opts->has_cfilter = TRUE;
         g_free(capture_opts->cfilter);
         capture_opts->cfilter = g_strdup(optarg_str_p);
         if (capture_opts->ifaces->len > 0) {

@@ -105,7 +105,6 @@ typedef struct interface_options_tag {
 typedef struct capture_options_tag {
     /* general */
     void     *cf;                   /**< handle to cfile (note: untyped handle) */
-    gboolean has_cfilter;           /**< TRUE if capture filter specified on command line */
     gchar    *cfilter;              /**< Capture filter string
                                       *< XXX: Can finally be be removed.
                                       *<      Replaced by interface_options.cfilter */

@@ -2518,7 +2518,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 }
                 successful = libpcap_write_interface_description_block(ld->pdh,
                                                                        interface_opts.name,
-                                                                       interface_opts.cfilter,
+                                                                       interface_opts.cfilter?interface_opts.cfilter:"",
                                                                        pcap_opts->linktype,
                                                                        pcap_opts->snaplen,
                                                                        &ld->bytes_written,
@@ -2947,7 +2947,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                     successful = libpcap_write_interface_description_block(global_ld.pdh,
                                                                            interface_opts.name,
-                                                                           interface_opts.cfilter,
+                                                                           interface_opts.cfilter?interface_opts.cfilter:"",
                                                                            pcap_opts->linktype,
                                                                            pcap_opts->snaplen,
                                                                            &(global_ld.bytes_written),

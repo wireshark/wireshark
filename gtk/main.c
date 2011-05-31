@@ -2956,8 +2956,7 @@ main(int argc, char *argv[])
     }
 
     /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
-    if (!start_capture && strlen(global_capture_opts.cfilter) == 0) {
-      g_free(global_capture_opts.cfilter);
+    if (!start_capture && !global_capture_opts.cfilter) {
       global_capture_opts.cfilter = g_strdup(get_conn_cfilter());
     }
 #else /* HAVE_LIBPCAP */

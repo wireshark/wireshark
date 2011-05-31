@@ -1386,12 +1386,11 @@ main(int argc, char *argv[])
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
-      if (global_capture_opts.has_cfilter) {
+      if (global_capture_opts.cfilter) {
         cmdarg_err("Capture filters were specified both with \"-f\""
             " and with additional command-line arguments");
         return 1;
       }
-      global_capture_opts.has_cfilter = TRUE;
       global_capture_opts.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
@@ -1438,7 +1437,7 @@ main(int argc, char *argv[])
      support in capture files we read). */
 #ifdef HAVE_LIBPCAP
   if (cf_name != NULL) {
-    if (global_capture_opts.has_cfilter) {
+    if (global_capture_opts.cfilter) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
       return 1;
