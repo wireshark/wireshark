@@ -566,6 +566,7 @@ EXTRA_DIST = \
 	README.tru64		\
 	README.vmware		\
 	README.windows		\
+	abi-descriptor.template	\
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-flags		\
