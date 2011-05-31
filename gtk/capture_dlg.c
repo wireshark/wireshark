@@ -3155,6 +3155,8 @@ capture_dlg_prep(gpointer parent_w) {
       global_capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
     else if (global_capture_opts.snaplen < MIN_PACKET_SIZE)
       global_capture_opts.snaplen = MIN_PACKET_SIZE;
+  } else {
+    global_capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
   }
 
   global_capture_opts.promisc_mode =

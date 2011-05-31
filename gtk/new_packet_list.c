@@ -339,6 +339,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	main_tb = gtk_table_new(2, 4, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
 
 	label = gtk_label_new(ep_strdup_printf("Title:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);

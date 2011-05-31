@@ -26,3 +26,8 @@
 
 .def.sym:
 	$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
+
+# abi-compliance-checker descriptor
+INCLUDE_DIRS = $(subst -I,NEWLINE,$(filter -I%, $(CFLAGS)))
+abi-descriptor.xml: ../abi-descriptor.template
+	sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@

@@ -303,5 +303,15 @@ if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
+# ABI compliance checker can be obtained from
+# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
+# Checked using version 1.21.12
+dumpabi: all abi-descriptor.xml
+	mkdir abi-check-headers; cp *.h abi-check-headers/; \
+	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.?.?.?|sed 's/.*\.so\.//'` \
+		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
+	cp -f abi_dumps/libwireshark/libwireshark_* .libs/; (cd .libs; ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz); \
+	rm -r abi-check-headers abi_dumps
+
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC)

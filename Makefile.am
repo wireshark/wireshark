@@ -555,6 +555,7 @@ EXTRA_DIST = \
 	README.tru64		\
 	README.vmware		\
 	README.windows		\
+	abi-descriptor.template	\
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-flags		\
@@ -968,6 +969,11 @@ osx-install: osx-app
 
 clean-local:
 	rm -rf $(top_stagedir)
+
+dumpabi:
+	$(MAKE) -C wiretap dumpabi
+	$(MAKE) -C epan dumpabi
+	$(MAKE) -C wsutil dumpabi
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \
