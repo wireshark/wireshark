@@ -662,9 +662,9 @@ usage(gboolean is_error)
 
   fprintf(output, "Editcap %s"
 #ifdef SVNVERSION
-	  " (" SVNVERSION " from " SVNPATH ")"
+    " (" SVNVERSION " from " SVNPATH ")"
 #endif
-	  "\n", VERSION);
+    "\n", VERSION);
   fprintf(output, "Edit and/or translate the format of capture files.\n");
   fprintf(output, "See http://www.wireshark.org for more information.\n");
   fprintf(output, "\n");
@@ -805,7 +805,7 @@ list_encap_types(void) {
 static void
 failure_message(const char *msg_format _U_, va_list ap _U_)
 {
-	return;
+    return;
 }
 #endif
 
@@ -818,7 +818,7 @@ main(int argc, char *argv[])
   int opt;
 
   char *p;
-  unsigned int snaplen = 0;             /* No limit               */
+  guint32 snaplen = 0;                  /* No limit               */
   int choplen = 0;                      /* No chop                */
   wtap_dumper *pdh = NULL;
   int count = 1;
@@ -902,7 +902,7 @@ main(int argc, char *argv[])
       break;
 
     case 'C':
-	  choplen = strtol(optarg, &p, 10);
+      choplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
             optarg);
@@ -983,10 +983,10 @@ main(int argc, char *argv[])
     case 'T':
       out_frame_type = wtap_short_string_to_encap(optarg);
       if (out_frame_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
-      	    optarg);
+        fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
+          optarg);
         list_encap_types();
-      	exit(1);
+        exit(1);
       }
       break;
 
@@ -1135,9 +1135,9 @@ main(int argc, char *argv[])
         } else
           filename = g_strdup(argv[optind+1]);
 
-        pdh = wtap_dump_open(filename, out_file_type,
-            out_frame_type, wtap_snapshot_length(wth),
-            FALSE /* compressed */, &err);
+        pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+          snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+          FALSE /* compressed */, &err);
         if (pdh == NULL) {
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
@@ -1166,8 +1166,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type,
-             out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+            FALSE /* compressed */, &err);
 
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
@@ -1196,8 +1197,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type,
-              out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+            FALSE /* compressed */, &err);
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                 wtap_strerror(err));
@@ -1229,7 +1231,7 @@ main(int argc, char *argv[])
           snap_phdr = *phdr;
           snap_phdr.caplen -= choplen;
           snap_phdr.len -= choplen;
-		  buf += choplen;
+          buf += choplen;
           phdr = &snap_phdr;
         }
 
@@ -1469,12 +1471,13 @@ main(int argc, char *argv[])
       g_free (filename);
       filename = g_strdup(argv[optind+1]);
 
-      pdh = wtap_dump_open(filename, out_file_type,
-			   out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+      pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+        snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
+        FALSE /* compressed */, &err);
       if (pdh == NULL) {
-	fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
-		wtap_strerror(err));
-	exit(2);
+        fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+        wtap_strerror(err));
+        exit(2);
       }
     }
 
