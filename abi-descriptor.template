@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<descriptor>
+<version>
+    0.0.0
+</version>
+<headers>
+    {RELPATH}/abi-check-headers
+</headers>
+<libs>
+    {RELPATH}/.libs
+</libs>
+<include_paths>INCLUDE_DIRS
+</include_paths>
+</descriptor>
