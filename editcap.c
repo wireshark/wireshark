@@ -1221,23 +1221,26 @@ main(int argc, char *argv[])
 
         phdr = wtap_phdr(wth);
 
-        if (choplen < 0 && (phdr->caplen + choplen) > 0) {
-          snap_phdr = *phdr;
-          snap_phdr.caplen += choplen;
-          phdr = &snap_phdr;
-        }
-
-        if (choplen > 0 && phdr->caplen > (unsigned int) choplen) {
-          snap_phdr = *phdr;
-          snap_phdr.caplen -= choplen;
-          snap_phdr.len -= choplen;
-          buf += choplen;
-          phdr = &snap_phdr;
-        }
-
         if (snaplen != 0 && phdr->caplen > snaplen) {
           snap_phdr = *phdr;
           snap_phdr.caplen = snaplen;
+          phdr = &snap_phdr;
+        }
+
+        if (choplen < 0) {
+          snap_phdr = *phdr;
+          if (((signed int) phdr->caplen + choplen) > 0)
+            snap_phdr.caplen += choplen;
+          else
+            snap_phdr.caplen = 0;
+          phdr = &snap_phdr;
+        } else if (choplen > 0) {
+          snap_phdr = *phdr;
+          if (phdr->caplen > (unsigned int) choplen) {
+            snap_phdr.caplen -= choplen;
+            buf += choplen;
+          } else
+            snap_phdr.caplen = 0;
           phdr = &snap_phdr;
         }
 
