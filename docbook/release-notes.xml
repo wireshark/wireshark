@@ -111,6 +111,8 @@ Wireshark Info
             <!-- Fixed in trunk: r37128 -->
             <!-- Fixed in trunk-1.4: r????? -->
             <!-- Fixed in trunk-1.2: r37213 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5934">Bug
+            5934</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
 <!--
