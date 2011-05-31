@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.17">
+  <!ENTITY WiresharkCurrentVersion "1.2.18">
 
 ]>
 
@@ -32,90 +32,20 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-07.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-09.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Large/infinite loop in the DICOM dissector.
-            <!-- Fixed in trunk: r36958 -->
+            .
+            <!-- Fixed in trunk: r????? -->
             <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5876">Bug
-            5876</ulink>)
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted Diameter dictionary file could crash Wireshark.
-            <!-- Fixed in trunk: r37011 -->
-            <!-- Fixed in trunk-1.4: r37221 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted snoop file could crash Wireshark.
-            <!-- Fixed in trunk: r37068 -->
-            <!-- Fixed in trunk-1.4: r37252 -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5912">Bug
-            5912</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            David Maciejak of Fortinet's FortiGuard Labs discovered that
-            malformed compressed capture data could crash Wireshark.
-            <!-- Fixed in trunk: r37081 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5908">Bug
-            5908</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
-            that a corrupted Visual Networks file could crash Wireshark.
-            <!-- Fixed in trunk: r37128 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r37213 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5934">Bug
-            5934</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
+          <para>Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
