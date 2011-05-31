@@ -27,6 +27,7 @@ What's New
 
      o Huzaifa Sidhpurwala of the Red Hat Security Response Team
        discovered that a corrupted snoop file could crash Wireshark.
+       (Bug 5912)
 
        Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
 

@@ -12,7 +12,6 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-
   <!ENTITY WiresharkCurrentVersion "1.2.17">
 
 ]>
@@ -59,7 +58,7 @@ Wireshark Info
             Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
             that a corrupted Diameter dictionary file could crash Wireshark.
             <!-- Fixed in trunk: r37011 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r37221 -->
             <!-- Fixed in trunk-1.2: r37213 -->
           </para>
           <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
@@ -75,8 +74,10 @@ Wireshark Info
             Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
             that a corrupted snoop file could crash Wireshark.
             <!-- Fixed in trunk: r37068 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r37252 -->
             <!-- Fixed in trunk-1.2: r37213 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5912">Bug
+            5912</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.</para>
 <!--
@@ -127,10 +128,12 @@ Wireshark Info
     </para>
 
     <para>
+
     The following bugs have been fixed:
 
       <itemizedlist>
 
+<!-- Sort by bug # -->
 <!--
         <listitem><para>
           Wireshark will go all Weezer on you and destroy your sweater.
