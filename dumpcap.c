@@ -4065,28 +4065,29 @@ main(int argc, char *argv[])
             machine_readable = TRUE;
             break;
         default:
-        case '?':        /* Bad flag - print usage message */
             cmdarg_err("Invalid Option: %s", argv[optind-1]);
+        case '?':        /* Bad flag - print usage message */
             arg_error = TRUE;
             break;
         }
     }
-    argc -= optind;
-    argv += optind;
-    if (argc >= 1) {
-        /* user specified file name as regular command-line argument */
-        /* XXX - use it as the capture file name (or something else)? */
-        argc--;
-        argv++;
-    }
-
-    if (argc != 0) {
-        /*
-         * Extra command line arguments were specified; complain.
-         * XXX - interpret as capture filter, as tcpdump and tshark do?
-         */
-        cmdarg_err("Invalid argument: %s", argv[0]);
-        arg_error = TRUE;
+    if (!arg_error) {
+        argc -= optind;
+        argv += optind;
+        if (argc >= 1) {
+            /* user specified file name as regular command-line argument */
+            /* XXX - use it as the capture file name (or something else)? */
+            argc--;
+            argv++;
+        }
+        if (argc != 0) {
+            /*
+             * Extra command line arguments were specified; complain.
+             * XXX - interpret as capture filter, as tcpdump and tshark do?
+             */
+            cmdarg_err("Invalid argument: %s", argv[0]);
+            arg_error = TRUE;
+        }
     }
 
     if (arg_error) {
