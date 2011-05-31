@@ -1,4 +1,4 @@
-Wireshark 1.4.6 Release Notes
+Wireshark 1.4.7 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,10 +12,63 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o Large/infinite loop in the DICOM dissector. (Bug 5876)
+
+       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+
+     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
+       discovered that a corrupted Diameter dictionary file could
+       crash Wireshark.
+
+       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+
+     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
+       discovered that a corrupted snoop file could crash Wireshark.
+       (Bug 5912)
+
+       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+
+     o David Maciejak of Fortinet's FortiGuard Labs discovered that
+       malformed compressed capture data could crash Wireshark. (Bug
+       5908)
+
+       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+
+     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
+       discovered that a corrupted Visual Networks file could crash
+       Wireshark. (Bug 5934)
+
+       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+
    The following bugs have been fixed:
 
-     o Wireshark and TShark can crash while analyzing TCP packets.
-       (Bug 5837)
+     o AIM dissector has some endian issues. (Bug 5464)
+
+     o Telephony→MTP3→MSUS doesn't display window. (Bug 5605)
+
+     o Support for MS NetMon 3.x traces containing raw IPv6 ("Type
+       7") packets. (Bug 5817)
+
+     o Service Indicator in M3UA protocol data. (Bug 5834)
+
+     o IEC60870-5-104 protocol, incorrect decoding of timestamp type
+       CP56Time2a. (Bug 5889)
+
+     o DNP3 dissector incorrect constants AL_OBJ_FCTR_16NF
+       _FDCTR_32NF _FDCTR_16NF. (Bug 5920)
+
+     o 3GPP QoS: Traffic class is not decoded properly. (Bug 5928)
+
+     o Wireshark crashes when creating ProtoField.framenum in Lua.
+       (Bug 5930)
+
+     o Fix a wrong mask to extract FMID from DECT packets dissector.
+       (Bug 5947)
+
+     o Incorrect DHCPv6 remote identifier option parsing. (Bug 5962)
 
   New and Updated Features
 
@@ -27,11 +80,11 @@ What's New
 
   Updated Protocol Support
 
-   TCP
+   DICOM, IEC104, M3UA, TCP,
 
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   Network Monitor.
 
 Getting Wireshark
 
