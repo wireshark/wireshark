@@ -384,10 +384,13 @@ wireshark_capture_suite() {
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
+	if [ $TEST_FIFO ]; then
+		test_step_add "Capture via fifo" capture_step_fifo
+	fi
+	test_step_add "Capture via stdin" capture_step_stdin
 	# read filter doesn't work with Wireshark and capturing!
 	#test_step_add "Capture read filter (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_read_filter
 	test_step_add "Capture snapshot length 68 bytes (${TRAFFIC_CAPTURE_DURATION}s)" capture_step_snapshot
-	test_step_add "Capture via stdin" capture_step_stdin
 }
 
 tshark_capture_suite() {
