@@ -250,11 +250,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid
-#ifndef HAVE_AIRPDCAP
-                        _U_
-#endif
-                        )
+airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid)
 {
     GtkTreeIter iter;
 
@@ -266,9 +262,7 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
 #endif
         KL_COL_TYPE, type,
         KL_COL_KEY, key,
-#ifdef HAVE_AIRPDCAP
         KL_COL_SSID, ssid,
-#endif
         -1);
 }
 
@@ -310,9 +304,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
 #endif
                 KL_COL_TYPE, AIRPCAP_WEP_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
-#ifdef HAVE_AIRPDCAP
                 KL_COL_SSID, "",
-#endif
                 -1);
         }
         else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
@@ -330,9 +322,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
 #endif
                 KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
-#ifdef HAVE_AIRPDCAP
                 KL_COL_SSID, s,
-#endif
                 -1);
 
         }
@@ -346,9 +336,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
 #endif
                 KL_COL_TYPE, AIRPCAP_WPA_BIN_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
-#ifdef HAVE_AIRPDCAP
                 KL_COL_SSID, "",
-#endif
                 -1);
 
         }
@@ -855,9 +843,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
         gtk_tree_model_get(model, &iter,
                            KL_COL_TYPE, &tmp_type,
                            KL_COL_KEY, &tmp_key,
-#ifdef HAVE_AIRPDCAP
                            KL_COL_SSID, &tmp_ssid,
-#endif
                            -1);
 
         if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WEP_KEY_STRING) == 0)
@@ -889,9 +875,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             key_list = g_list_append(key_list,tmp_dk);
         }
         g_free(tmp_type);
-#ifdef HAVE_AIRPDCAP
         g_free(tmp_ssid);
-#endif
     }
 
     r = save_wlan_wireshark_wep_keys(key_list);

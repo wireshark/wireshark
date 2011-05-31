@@ -178,9 +178,7 @@
 #include "airpcap_gui_utils.h"
 #endif
 
-#ifdef	HAVE_AIRPDCAP
 #include <epan/crypt/airpdcap_ws.h>
-#endif
 
 
 #ifdef HAVE_GTKOSXAPPLICATION
@@ -2083,9 +2081,7 @@ main(int argc, char *argv[])
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 
-#ifdef	HAVE_AIRPDCAP
   AirPDcapInitContext(&airpdcap_ctx);
-#endif
 
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
@@ -2989,9 +2985,7 @@ main(int argc, char *argv[])
 
   epan_cleanup();
 
-#ifdef	HAVE_AIRPDCAP
-	AirPDcapDestroyContext(&airpdcap_ctx);
-#endif
+  AirPDcapDestroyContext(&airpdcap_ctx);
 
 #ifdef _WIN32
   /* hide the (unresponsive) main window, while asking the user to close the console window */

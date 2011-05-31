@@ -52,9 +52,7 @@
 enum {
   KL_COL_TYPE,
   KL_COL_KEY,
-#ifdef HAVE_AIRPDCAP
   KL_COL_SSID,
-#endif
   KL_NUM_COLS
 };
 

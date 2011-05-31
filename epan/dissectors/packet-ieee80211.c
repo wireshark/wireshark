@@ -120,9 +120,7 @@
 #include "packet-wifi-p2p.h"
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
-#ifdef HAVE_AIRPDCAP
 #include <epan/crypt/airpdcap_ws.h>
-#endif
 /* Davide Schiera (2006-11-22) ---------------------------------------------- */
 
 #ifndef roundup2
@@ -199,18 +197,13 @@ static void* uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_) 
 
 static void uat_wep_key_record_update_cb(void* r, const char** err) {
     uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
-#ifdef HAVE_AIRPDCAP
     decryption_key_t* dk;
     gchar* tmpk;
-#else
-    GByteArray *bytes;
-#endif
 
     if (rec->string == NULL) {
          *err = ep_strdup_printf("Key can't be blank");
     } else {
         g_strstrip(rec->string);
-#ifdef HAVE_AIRPDCAP
         tmpk = g_strdup(rec->string);
         dk = parse_key_string(tmpk);
 
@@ -240,17 +233,6 @@ static void uat_wep_key_record_update_cb(void* r, const char** err) {
         } else {
            *err = ep_strdup_printf("Invalid key format");
         }
-#else
-        /* Figure out how many valid keys we have */
-        bytes = g_byte_array_new();
-        if ((wep_str_to_bytes(rec->string, bytes) == 0) ||
-            (bytes->len == 0) ||
-            (bytes->len > 32)) {
-           *err = ep_strdup_printf("Invalid key format");
-        }
-
-        g_byte_array_free(bytes, TRUE);
-#endif
     }
 }
 
@@ -267,15 +249,8 @@ UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 static gboolean enable_decryption = FALSE;
 static void init_wepkeys(void);
 
-#ifndef HAVE_AIRPDCAP
-static guint8 **wep_keys = NULL;
-static int *wep_keylens = NULL;
-static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
-static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
-#else
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2  */
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
-#endif
 
 static int weak_iv(guchar *iv);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
@@ -2429,11 +2404,7 @@ static const value_string tdls_action_codes[] ={
   {0, NULL}
 };
 
-#ifdef HAVE_AIRPDCAP
 AIRPDCAP_CONTEXT airpdcap_ctx;
-#else
-int airpdcap_ctx;
-#endif
 
 #define PSMP_STA_INFO_BROADCAST 0
 #define PSMP_STA_INFO_MULTICAST 1
@@ -6567,9 +6538,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         }
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
-#ifdef HAVE_AIRPDCAP
         AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
-#endif
         proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len, FALSE);
         if (tag_len > 0) {
           proto_item_append_text(ti, ": %s", ssid);
@@ -9460,7 +9429,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         }
       } /* end of qos control field */
 
-#ifdef HAVE_AIRPDCAP
       /* Davide Schiera (2006-11-21): process handshake packet with AirPDcap    */
       /* the processing will take care of 4-way handshake sessions for WPA    */
       /* and WPA2 decryption                                  */
@@ -9469,7 +9437,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE, FALSE);
       }
       /* Davide Schiera --------------------------------------------------------  */
-#endif
 
       /*
        * No-data frames don't have a body.
@@ -9550,17 +9517,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     guint8 key, keybyte;
 
     /* Davide Schiera (2006-11-27): define algorithms constants and macros  */
-#ifdef HAVE_AIRPDCAP
 #define PROTECTION_ALG_WEP  AIRPDCAP_KEY_TYPE_WEP
 #define PROTECTION_ALG_TKIP  AIRPDCAP_KEY_TYPE_TKIP
 #define PROTECTION_ALG_CCMP  AIRPDCAP_KEY_TYPE_CCMP
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
-#else
-#define PROTECTION_ALG_WEP  0
-#define PROTECTION_ALG_TKIP  1
-#define PROTECTION_ALG_CCMP  2
-#define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
-#endif
     guint8 algorithm=G_MAXUINT8;
     /* Davide Schiera (2006-11-27): added macros to check the algorithm    */
     /* used could be TKIP or CCMP                            */
@@ -9568,14 +9528,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 #define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
     /* Davide Schiera -----------------------------------------------------  */
 
-#ifdef  HAVE_AIRPDCAP
     /* Davide Schiera (2006-11-21): recorded original lengths to pass them  */
     /* to the packets process function                        */
     guint32 sec_header=0;
     guint32 sec_trailer=0;
 
     next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer);
-#endif
     /* Davide Schiera -----------------------------------------------------  */
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
@@ -9587,7 +9545,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (tree) {
         proto_item *extiv_fields;
 
-#ifdef HAVE_AIRPDCAP
         /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if  */
         /* it's possible                                */
         if (algorithm==PROTECTION_ALG_TKIP)
@@ -9598,7 +9555,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             "CCMP parameters");
         else {
           /* Davide Schiera --------------------------------------------  */
-#endif
           /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
           /* it's possible                              */
           if (IS_TKIP(tvb, hdr_len)) {
@@ -9612,9 +9568,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           } else
             extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
                 "TKIP/CCMP parameters");
-#ifdef HAVE_AIRPDCAP
         }
-#endif
         proto_item_set_len (ti, hdr_len + 8);
 
         wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
@@ -9645,7 +9599,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       /* It is unknown whether this is TKIP or CCMP, so let's not even try to
        * parse TKIP Michael MIC+ICV or CCMP MIC. */
 
-#ifdef HAVE_AIRPDCAP
       /* Davide Schiera (2006-11-21): enable TKIP and CCMP decryption      */
       /* checking for the trailer                            */
       if (next_tvb!=NULL) {
@@ -9668,7 +9621,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         }
       }
       /* Davide Schiera --------------------------------------------------  */
-#endif
     } else {
       /* No Ext. IV - WEP packet */
       /*
@@ -9759,13 +9711,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       g_strlcpy (wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
     }
 
-#ifndef HAVE_AIRPDCAP
-    if (can_decrypt)
-      next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8);
-#else
     /* Davide Schiera (2006-11-26): decrypted before parsing header and    */
     /* protection header                                  */
-#endif
     if (!can_decrypt || next_tvb == NULL) {
       /*
        * WEP decode impossible or failed, treat payload as raw data
@@ -12557,10 +12504,8 @@ proto_register_ieee80211 (void)
 
   static const value_string wep_type_vals[] = {
     { 0, STRING_KEY_TYPE_WEP },
-#ifdef HAVE_AIRPDCAP
     { 1, STRING_KEY_TYPE_WPA_PWD },
     { 2, STRING_KEY_TYPE_WPA_PSK },
-#endif
     { 0x00, NULL }
   };
 
@@ -15566,15 +15511,10 @@ proto_register_ieee80211 (void)
 
       UAT_FLD_VS(uat_wep_key_records, key, "Key type", wep_type_vals,
                         "Decryption key type used"), 
-#ifdef HAVE_AIRPDCAP
       UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
                         "wep:<wep hexadecimal key>\n"
                         "wpa-pwd:<passphrase>[:<ssid>]\n"
                         "wpa-psk:<wpa hexadecimal key>"),
-#else
-      UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
-                        "wep:<wep hexadecimal key>\n"),
-#endif
       UAT_END_FIELDS
     };
 
@@ -15743,18 +15683,11 @@ proto_register_ieee80211 (void)
 
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
-#ifdef HAVE_AIRPDCAP
   /* Davide Schiera (2006-11-26): added reference to WPA/WPA2 decryption    */
   prefs_register_bool_preference(wlan_module, "enable_decryption",
     "Enable decryption", "Enable WEP and WPA/WPA2 decryption",
     &enable_decryption);
-#else
-  prefs_register_bool_preference(wlan_module, "enable_decryption",
-    "Enable decryption", "Enable WEP decryption",
-    &enable_decryption);
-#endif
 
-#ifdef HAVE_AIRPDCAP
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
     "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
     "010203040506070809101111213 (104/128-bit WEP),\n"
@@ -15762,12 +15695,6 @@ proto_register_ieee80211 (void)
     "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
     "Invalid keys will be ignored.",
     "Valid key formats");
-#else
-  prefs_register_static_text_preference(wlan_module, "info_decryption_key",
-    "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
-    "010203040506070809101111213 (104/128-bit WEP)",
-    "Valid key formats");
-#endif
 
     wep_uat = uat_new("WEP Keys",
             sizeof(uat_wep_key_record_t),  /* record size */
@@ -15884,7 +15811,6 @@ proto_reg_handoff_ieee80211(void)
                 data_encap_handle);
 }
 
-#ifdef HAVE_AIRPDCAP
 /* Davide Schiera (2006-11-26): this function will try to decrypt with WEP or  */
 /* WPA and return a tvb to the caller to add a new tab. It returns the    */
 /* algorithm used for decryption (WEP, TKIP, CCMP) and the header and    */
@@ -15939,52 +15865,9 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
   return decr_tvb;
 }
 /*  Davide Schiera -----------------------------------------------------------  */
-#else
 
-static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
-  const guint8 *enc_data;
-  guint8 *tmp = NULL;
-  int i;
-  tvbuff_t *decr_tvb = NULL;
-
-  if (! enable_decryption)
-    return NULL;
-
-  enc_data = tvb_get_ptr(tvb, offset, len);
-
-  if ((tmp = g_malloc(len)) == NULL)
-    return NULL;  /* krap! */
-
-  /* try once with the key index in the packet, then look through our list. */
-  for (i = 0; i < num_wepkeys; i++) {
-    /* copy the encrypted data over to the tmp buffer */
-#if 0
-    printf("trying %d\n", i);
-#endif
-    memcpy(tmp, enc_data, len);
-    if (wep_decrypt(tmp, len, i) == 0) {
-
-      /* decrypt successful, let's set up a new data tvb. */
-      decr_tvb = tvb_new_child_real_data(tvb, tmp, len-8, len-8);
-      tvb_set_free_cb(decr_tvb, g_free);
-
-      break;
-    }
-  }
-
-  if (!decr_tvb)
-    g_free(tmp);
-
-#if 0
-  printf("de-wep %p\n", decr_tvb);
-#endif
-
-  return decr_tvb;
-}
-#endif
 
 /* Collect our WEP and WPA keys */
-#ifdef HAVE_AIRPDCAP
 static
 void set_airpdcap_keys(void)
 {
@@ -16071,123 +15954,8 @@ void set_airpdcap_keys(void)
     g_byte_array_free(bytes, TRUE);
 
 }
-#endif
-
-#ifndef HAVE_AIRPDCAP
-/* de-weps the block.  if successful, buf* will point to the data start. */
-static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
-  guint32 i, j, k, crc, keylen;
-  guint8 s[256], key[128], c_crc[4];
-  guint8 *dpos, *cpos;
-
-  /* Needs to be at least 8 bytes of payload */
-  if (len < 8)
-    return -1;
-
-  /* initialize the first bytes of the key from the IV */
-  key[0] = buf[0];
-  key[1] = buf[1];
-  key[2] = buf[2];
-
-  if (keyidx < 0 || keyidx >= num_wepkeys)
-    return -1;
-
-  keylen = wep_keylens[keyidx];
-
-  if (keylen == 0)
-    return -1;
-  if (wep_keys[keyidx] == NULL)
-    return -1;
-
-  keylen+=3;  /* add in ICV bytes */
-
-  /* copy the rest of the key over from the designated key */
-  memcpy(key+3, wep_keys[keyidx], wep_keylens[keyidx]);
-
-#if 0
-  printf("%d: %02x %02x %02x (%d %d) %02x:%02x:%02x:%02x:%02x\n", len, key[0], key[1], key[2], keyidx, keylen, key[3], key[4], key[5], key[6], key[7]);
-#endif
-
-  /* set up the RC4 state */
-  for (i = 0; i < 256; i++)
-    s[i] = i;
-  j = 0;
-  for (i = 0; i < 256; i++) {
-    j = (j + s[i] + key[i % keylen]) & 0xff;
-    SSWAP(i,j);
-  }
-
-  /* Apply the RC4 to the data, update the CRC32 */
-  cpos = buf+4;
-  dpos = buf;
-  crc = ~0;
-  i = j = 0;
-  for (k = 0; k < (len -8); k++) {
-    i = (i+1) & 0xff;
-    j = (j+s[i]) & 0xff;
-    SSWAP(i,j);
-#if 0
-    printf("%d -- %02x ", k, *dpos);
-#endif
-    *dpos = *cpos++ ^ s[(s[i] + s[j]) & 0xff];
-#if 0
-    printf("%02x\n", *dpos);
-#endif
-    crc = crc32_ccitt_table[(crc ^ *dpos++) & 0xff] ^ (crc >> 8);
-  }
-  crc = ~crc;
-
-  /* now let's check the crc */
-  c_crc[0] = crc;
-  c_crc[1] = crc >> 8;
-  c_crc[2] = crc >> 16;
-  c_crc[3] = crc >> 24;
-
-  for (k = 0; k < 4; k++) {
-    i = (i + 1) & 0xff;
-    j = (j+s[i]) & 0xff;
-    SSWAP(i,j);
-#if 0
-    printf("-- %02x %02x\n", *dpos, c_crc[k]);
-#endif
-    if ((*cpos++ ^ s[(s[i] + s[j]) & 0xff]) != c_crc[k])
-      return -1; /* ICV mismatch */
-  }
-
-  return 0;
-}
-#endif
 
 static void init_wepkeys(void) {
-#ifndef  HAVE_AIRPDCAP
-  GByteArray *bytes;
-  gboolean res;
-
-  if (num_wepkeys_uat < 1)
-     return;
-
-  bytes = g_byte_array_new();
-  wep_keys = g_malloc0(num_wepkeys_uat * sizeof(guint8*));
-  wep_keylens = g_malloc(num_wepkeys_uat * sizeof(int));
-
-  for (i = 0, keyidx = 0; keyidx < num_wepkeys_uat && i < MAX_ENCRYPTION_KEYS; i++) {
-    wep_keys[keyidx] = NULL;
-    wep_keylens[keyidx] = 0;
-
-   if ((uat_wep_key_records[i].string) && (wep_str_to_bytes(uat_wep_key_records[i].string, bytes) != 0) && (bytes->len > 0)) {
-      if (bytes->len > 32) {
-        bytes->len = 32;
-      }
-
-      wep_keys[keyidx] = g_malloc0(32 * sizeof(guint8));
-      memcpy(wep_keys[keyidx], bytes->data, bytes->len * sizeof(guint8));
-      wep_keylens[keyidx] = bytes->len;
-      keyidx++;
-    }
-
-   g_byte_array_free(bytes, TRUE);
-
-#else /* HAVE_AIRPDCAP defined */
 
   /*
    * XXX - AirPDcap - That God sends it to us beautiful (che dio ce la mandi bona)
@@ -16196,7 +15964,6 @@ static void init_wepkeys(void) {
    * already decrypted... One of these days we will fix this too
    */
   set_airpdcap_keys();
-#endif /* HAVE_AIRPDCAP */
 }
 /*
  * This code had been taken from AirSnort crack.c function classify()

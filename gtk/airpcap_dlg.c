@@ -844,9 +844,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         gtk_list_store_set(key_list_store, &iter,
             KL_COL_TYPE, new_type_string->str,
             KL_COL_KEY, new_key_string->str,
-#ifdef HAVE_AIRPDCAP
             KL_COL_SSID, new_ssid_string->str,
-#endif
             -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
@@ -885,9 +883,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         gtk_list_store_set(key_list_store, &iter,
             KL_COL_TYPE, new_type_string->str,
             KL_COL_KEY, new_key_string->str,
-#ifdef HAVE_AIRPDCAP
             KL_COL_SSID, new_ssid_string->str,
-#endif
             -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
@@ -926,9 +922,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         gtk_list_store_set(key_list_store, &iter,
             KL_COL_TYPE, new_type_string->str,
             KL_COL_KEY, new_key_string->str,
-#ifdef HAVE_AIRPDCAP
             KL_COL_SSID, new_ssid_string->str,
-#endif
             -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
@@ -1031,10 +1025,8 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     add_type_cb = gtk_combo_box_new_text();
     gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WEP_KEY_STRING);
 
-#ifdef HAVE_AIRPDCAP
     gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
     gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
-#endif
     gtk_combo_box_set_active(GTK_COMBO_BOX(add_type_cb), 0);
     gtk_widget_set_name (add_type_cb, "add_type_cb");
     gtk_widget_show (add_type_cb);
@@ -1216,9 +1208,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_tree_model_get(model, &iter,
                        KL_COL_TYPE, &row_type,
                        KL_COL_KEY, &row_key,
-#ifdef HAVE_AIRPDCAP
                        KL_COL_SSID, &row_ssid,
-#endif
                        -1);
 
     /* Gray out the Advanced Wireless Setting window */
@@ -1255,19 +1245,15 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     edit_type_cb = gtk_combo_box_new_text();
     gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WEP_KEY_STRING);
 
-#ifdef HAVE_AIRPDCAP
     gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
     gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
-#endif
     /* Set current type */
     gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 0);
-#ifdef HAVE_AIRPDCAP
     if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 1);
     } else if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 2);
     }
-#endif
     gtk_widget_set_name (edit_type_cb, "edit_type_cb");
     gtk_widget_show (edit_type_cb);
     gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
@@ -1299,9 +1285,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     }
 
     /* XXX - Decomment only when WPA and WPA@ will be ready */
-#ifdef HAVE_AIRPDCAP
     gtk_widget_show (edit_ssid_te);
-#endif
     gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
                       (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
 
@@ -1375,9 +1359,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     g_free(row_type);
     g_free(row_key);
-#ifdef HAVE_AIRPDCAP
     g_free(row_ssid);
-#endif
     gtk_widget_show(edit_key_window);
 }
 
@@ -2214,9 +2196,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     key_list_store = gtk_list_store_new(KL_NUM_COLS,
                                         G_TYPE_STRING, /* Type */
                                         G_TYPE_STRING /* Key */
-#ifdef HAVE_AIRPDCAP
                                         , G_TYPE_STRING /* SSID */
-#endif
                                        );
 
     /* Create a view */
@@ -2261,7 +2241,6 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_tree_view_column_set_fixed_width(column, 200);
     gtk_tree_view_append_column(GTK_TREE_VIEW(key_list), column);
 
-#ifdef HAVE_AIRPDCAP
     /* SSID */
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("SSID", renderer,
@@ -2273,7 +2252,6 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_column_set_fixed_width(column, 150);
     gtk_tree_view_append_column(GTK_TREE_VIEW(key_list), column);
-#endif
 
     /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(key_list), TRUE);

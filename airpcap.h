@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-/*!
+/*
 	\mainpage AirPcap interface documentation
 
 	\section Introduction
