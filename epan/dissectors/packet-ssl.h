@@ -25,6 +25,8 @@
 #ifndef __PACKET_SSL_H__
 #define __PACKET_SSL_H__
 
+WS_VAR_IMPORT GHashTable *ssl_session_hash;
+
 extern void ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp);
 extern void ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp);
 

@@ -104,6 +104,13 @@ Wireshark Info
 
         <listitem>
           <para>
+	    Wireshark can export SSL session keys via
+	    <guimenu>File</guimenu>→<guisubmenu>Export</guisubmenu>→<guimenuitem>SSL Session Keys...</guimenuitem>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
            TShark can show a specific occurrence of a field when using '-T fields'.
           </para>
         </listitem>
