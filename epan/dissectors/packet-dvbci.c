@@ -25,11 +25,10 @@
 
 /* The dissector supports DVB-CI as defined in EN50221.
  * Reassembly of fragmented data is not implemented yet.
- * Only resource manager, app info and ca resources are
- *  supported at the moment.
+ * Some resources are incomplete, most notably MMI.
  *
- * Further resources and CI+ (www.ci-plus.com) will be added in
- *  future versions.
+ * Missing functionality and CI+ support (www.ci-plus.com) will be
+ *  added in future versions.
  *
  * The pcap input format for this dissector is documented at
  * http://www.kaiser.cx/pcap-dvbci.html.
@@ -196,6 +195,10 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
+dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
+static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
@@ -211,6 +214,10 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
 #define T_CA_INFO_ENQ     0x9F8030
 #define T_CA_INFO         0x9F8031
 #define T_CA_PMT          0x9F8032
+#define T_TUNE            0x9F8400
+#define T_REPLACE         0x9F8401
+#define T_CLEAR_REPLACE   0x9F8402
+#define T_ASK_RELEASE     0x9F8403
 #define T_DATE_TIME_ENQ   0x9F8440
 #define T_DATE_TIME       0x9F8441
 
@@ -242,9 +249,13 @@ static const apdu_info_t apdu_info[] = {
     {T_CA_INFO,        0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
     {T_CA_PMT,         6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
 
+    { T_TUNE,          0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    { T_REPLACE,       0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    { T_CLEAR_REPLACE, 0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    { T_ASK_RELEASE,   0, 0,             DATA_HOST_TO_CAM, NULL},
+ 
     {T_DATE_TIME_ENQ,  0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
     {T_DATE_TIME,      5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt}
-
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -260,6 +271,10 @@ static const value_string dvbci_apdu_tag[] = {
     { T_DATE_TIME_ENQ,   "Date-Time enquiry" },
     { T_DATE_TIME,       "Date-Time" },
     { T_CA_PMT_REPLY,    "CA PMT reply" },
+    { T_TUNE,            "Tune" },
+    { T_REPLACE,         "Replace" },
+    { T_CLEAR_REPLACE,   "Clear replace" },
+    { T_ASK_RELEASE,     "Ask release" },
     { T_CLOSE_MMI,       "Close MMI" },
     { T_DISPLAY_CONTROL, "Display control" },
     { T_DISPLAY_REPLY,   "Display reply" },
@@ -322,6 +337,13 @@ static int hf_dvbci_es_info_len = -1;
 static int hf_dvbci_ca_pmt_cmd_id = -1;
 static int hf_dvbci_descr_len = -1;
 static int hf_dvbci_ca_pid = -1;
+static int hf_dvbci_network_id = -1;
+static int hf_dvbci_original_network_id = -1;
+static int hf_dvbci_transport_stream_id = -1;
+static int hf_dvbci_service_id = -1;
+static int hf_dvbci_replacement_ref = -1;
+static int hf_dvbci_replaced_pid = -1;
+static int hf_dvbci_replacement_pid = -1;
 static int hf_dvbci_resp_intv = -1;
 static int hf_dvbci_utc_time = -1;
 static int hf_dvbci_local_offset = -1;
@@ -766,6 +788,65 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 
 
 static void
+dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree)
+{
+    proto_item *pi;
+    guint16 nid, onid, tsid, svcid;
+    guint8 ref;
+    guint16 old_pid, new_pid;
+
+
+    if (tag==T_TUNE) {
+        nid = tvb_get_ntohs(tvb, offset);
+        pi = proto_tree_add_item(
+            tree, hf_dvbci_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        if (nid) {
+            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_NOTE,
+                    "Network ID is usually ignored by hosts");
+        }
+        offset += 2;
+        onid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(
+            tree, hf_dvbci_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        tsid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(
+            tree, hf_dvbci_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        svcid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(
+            tree, hf_dvbci_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                "nid 0x%x, onid 0x%x, tsid 0x%x, svcid 0x%x",
+                nid, onid, tsid, svcid);
+    }
+    else if (tag==T_REPLACE) {
+        ref = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(
+            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_NA);
+        offset++;
+        old_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
+        proto_tree_add_item(
+            tree, hf_dvbci_replaced_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        new_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
+        proto_tree_add_item(
+            tree, hf_dvbci_replacement_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                "ref 0x%x, 0x%x -> 0x%x", ref, old_pid, new_pid);
+     }
+    else if (tag==T_CLEAR_REPLACE) {
+        ref = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(
+            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_NA);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "ref 0x%x", ref);
+    }
+}
+
+
+static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
@@ -842,6 +923,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         }
     }
 }
+
 
 static void
 dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1626,6 +1708,27 @@ proto_register_dvbci(void)
         { &hf_dvbci_ca_pid,
             { "CA PID", "dvbci.ca_pid", FT_UINT16, BASE_HEX,
                 NULL, 0x1FFF, NULL, HFILL } },
+        { &hf_dvbci_network_id,
+           { "Network ID", "dvbci.hc.nid", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_original_network_id,
+           { "Original network ID", "dvbci.hc.onid", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_transport_stream_id,
+           { "Transport stream ID", "dvbci.hc.tsid", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_service_id,
+           { "Service ID", "dvbci.hc.svcid", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_replacement_ref,
+           { "Replacement reference", "dvbci.hc.replacement_ref",
+              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_replaced_pid,
+           { "Replaced PID", "dvbci.hc.replaced_pid", FT_UINT16,
+              BASE_HEX, NULL, 0x1FFF, NULL, HFILL } },
+        { &hf_dvbci_replacement_pid,
+           { "Replacement PID", "dvbci.hc.replacement_pid", FT_UINT16,
+              BASE_HEX, NULL, 0x1FFF, NULL, HFILL } },
         { &hf_dvbci_resp_intv,
             { "Response interval", "dvbci.dt.resp_interval",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL } },
