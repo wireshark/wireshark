@@ -506,4 +506,56 @@ register_all_codecs(void)
               (pt_plug->register_codec_module)();
     }
 }
+
+/*
+ * Dump plugin info to stdout. Copied from gtk/plugins_dlg.c:plugins_scan.
+ */
+void
+plugins_dump_all(void)
+{
+#ifdef HAVE_PLUGINS
+    plugin     *pt_plug;
+    const char *sep;
+#endif
+#ifdef HAVE_LUA_5_1
+    wslua_plugin  *lua_plug;
+#endif
+
+#ifdef HAVE_PLUGINS
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+        sep = "";
+
+	printf("%s\t%s\t", pt_plug->name, pt_plug->version);
+        if (pt_plug->register_protoinfo)
+        {
+            printf("dissector");
+            sep = ", ";
+        }
+        if (pt_plug->register_tap_listener)
+        {
+            printf("%stap", sep);
+            sep = ", ";
+        }
+        if (pt_plug->register_wtap_module)
+        {
+            printf("%sfile format", sep);
+            sep = ", ";
+        }
+        if (pt_plug->register_codec_module)
+        {
+            printf("%scodec", sep);
+        }
+	printf("\t%s\n", g_module_name(pt_plug->handle));
+    }
+#endif
+
+#ifdef HAVE_LUA_5_1
+    for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
+    {
+        printf("%s\t%s\tlua script\t%s\n", lua_plug->name, lua_plug->version, lua_plug->filename);
+    }
+#endif
+}
+
 #endif

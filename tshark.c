@@ -987,6 +987,8 @@ main(int argc, char *argv[])
         dissector_dump_decodes();
       else if (strcmp(argv[2], "defaultprefs") == 0)
         write_prefs(NULL);
+      else if (strcmp(argv[2], "plugins") == 0)
+        plugins_dump_all();
       else if (strcmp(argv[2], "?") == 0)
         glossary_option_help();
       else if (strcmp(argv[2], "-?") == 0)

@@ -54,10 +54,12 @@ extern void register_all_plugin_handoffs(void);
 extern void register_all_plugin_tap_listeners(void);
 extern void register_all_wiretap_modules(void);
 extern void register_all_codecs(void);
+extern void plugins_dump_all(void);
 
 typedef struct _wslua_plugin {
     gchar       *name;            /**< plugin name */
     gchar       *version;         /**< plugin version */
+    gchar       *filename;        /**< plugin filename */
     struct _wslua_plugin *next;
 } wslua_plugin;
 

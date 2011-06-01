@@ -39,6 +39,7 @@
 
 /*
  * Fill the list widget with a list of the plugin modules.
+ * XXX - We might want to combine this with plugins_dump_all().
  */
 static void
 plugins_scan(GtkWidget *list)
@@ -80,7 +81,7 @@ plugins_scan(GtkWidget *list)
             type = g_string_append(type, "codec");
         }
         simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version,
-                           2, type->str, -1);
+                           2, type->str, 3, g_module_name(pt_plug->handle), -1);
         g_string_free(type, TRUE);
     }
 #endif
@@ -91,7 +92,7 @@ plugins_scan(GtkWidget *list)
         type = g_string_new("");
         type = g_string_append(type, "lua script");
 
-        simple_list_append(list, 0, lua_plug->name, 1, lua_plug->version, 2, type->str, -1);
+        simple_list_append(list, 0, lua_plug->name, 1, lua_plug->version, 2, type->str, 3, lua_plug->filename, -1);
         g_string_free(type, TRUE);
     }
 #endif
@@ -103,14 +104,14 @@ about_plugins_page_new(void)
 {
     GtkWidget *scrolledwindow;
     GtkWidget *plugins_list;
-    const gchar     *titles[] = {"Name", "Version", "Type"};
+    const gchar     *titles[] = {"Name", "Version", "Type", "Path"};
 
 
     scrolledwindow = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_SHADOW_IN);
 
-    plugins_list = simple_list_new(3 , titles);
+    plugins_list = simple_list_new(4, titles);
     plugins_scan(plugins_list);
 
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);

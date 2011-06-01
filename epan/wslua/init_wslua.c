@@ -202,7 +202,7 @@ static int lua_main_error_handler(lua_State* LS) {
     return 0;
 }
 
-static void wslua_add_plugin(gchar *name, gchar *version)
+static void wslua_add_plugin(gchar *name, gchar *version, gchar *filename)
 {
     wslua_plugin *new_plug, *lua_plug;
 
@@ -220,6 +220,7 @@ static void wslua_add_plugin(gchar *name, gchar *version)
 
     new_plug->name = name;
     new_plug->version = version;
+    new_plug->filename = filename;
     new_plug->next = NULL;
 }
 
@@ -309,7 +310,7 @@ static void lua_load_plugins (const char *dirname)
 
             if (file_exists(filename)) {
                 if (lua_load_script(filename)) {
-                    wslua_add_plugin(g_strdup(name), g_strdup(""));
+                    wslua_add_plugin(g_strdup(name), g_strdup(""), g_strdup(filename));
                 }
             }
             g_free(filename);
@@ -437,4 +438,3 @@ int wslua_init(lua_State* LS) {
 }
 
 lua_State* wslua_state(void) { return L; }
-

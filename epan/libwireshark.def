@@ -698,6 +698,7 @@ p_get_proto_data
 parse_key_string
 pe_tree_create
 plugin_list                     DATA
+plugins_dump_all
 postseq_cleanup_all_protocols
 prefs                           DATA
 prefs_apply
