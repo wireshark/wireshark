@@ -122,6 +122,13 @@ FIN
     exit 1
 fi
 
+DISSECTOR_PLUGINS=`$TSHARK -G plugins | grep dissector | wc -l`
+# 10 is an arbritary value.
+if [ $DISSECTOR_PLUGINS -lt 10 ] ; then
+    echo "Error: Found fewer plugins than expected."
+    exit 1
+fi
+
 HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
         HOWMANY="$MAX_PASSES passes"
@@ -236,4 +243,3 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	    rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
-
