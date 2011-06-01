@@ -715,8 +715,21 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 	dtbl_entry_t *dtbl_entry;
 
 	sub_dissectors = find_dissector_table(name);
+
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
+
 	/* sanity checks */
-	g_assert(sub_dissectors);
 	g_assert(handle!=NULL);
 	switch (sub_dissectors->type) {
 
@@ -973,9 +986,21 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
-	g_assert( sub_dissectors);
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 
+	/* sanity checks */
+	g_assert(handle!=NULL);
 	switch (sub_dissectors->type) {
 
 	case FT_STRING:
@@ -1198,8 +1223,18 @@ dissector_add_handle(const char *name, dissector_handle_t handle)
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	GSList *entry;
 
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 
 	/* Is it already in this list? */
 	entry = g_slist_find(sub_dissectors->dissector_handles, (gpointer)handle);
@@ -1525,10 +1560,24 @@ void
 heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
 {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+	const char *proto_name;
 	heur_dtbl_entry_t *dtbl_entry;
 
-	/* sanity check */
-	g_assert(sub_dissectors != NULL);
+	/*
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		proto_name = proto_get_protocol_name(proto);
+		if (proto_name != NULL) {
+			fprintf(stderr, "Protocol being registered is \"%s\"\n",
+			    proto_name);
+		}
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
 	dtbl_entry->dissector = dissector;
