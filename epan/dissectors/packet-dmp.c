@@ -2772,12 +2772,12 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_INT (g_hash_table_lookup (dmp_long_id_hash_table, mts_id));
+    dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, mts_id));
   } else {
     proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Insert into hash, for analysis */
-    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (mts_id), GINT_TO_POINTER (dmp.msg_id));
+    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (mts_id), GUINT_TO_POINTER (dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += dmp.mts_id_length;
@@ -2823,12 +2823,12 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_INT (g_hash_table_lookup (dmp_long_id_hash_table, ipm_id));
+    dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, ipm_id));
   } else {
     proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Insert into hash, for analysis */
-    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GINT_TO_POINTER (dmp.msg_id));
+    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GUINT_TO_POINTER (dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += ipm_id_length;
