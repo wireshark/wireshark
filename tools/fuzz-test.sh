@@ -216,6 +216,14 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	    fi
 	fi
 
+#
+# Temporary debugging stuff
+#
+echo "BIN_DIR = $BIN_DIR"
+echo "WIRESHARK_RUN_FROM_BUILD_DIRECTORY:"
+env | egrep WIRESHARK_RUN_FROM_BUILD_DIRECTORY
+echo "TSHARK is:"
+file "$TSHARK"
 	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
 	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
 	RETVAL=$?
