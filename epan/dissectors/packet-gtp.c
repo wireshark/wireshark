@@ -1752,12 +1752,6 @@ id_to_str(tvbuff_t *tvb, gint offset)
 }
 
 static gchar *
-imsi_to_str(tvbuff_t *tvb, gint offset)
-{
-    return id_to_str(tvb, offset);
-}
-
-static gchar *
 msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
 {
     static gchar str[18] = "+                ";
@@ -2996,11 +2990,12 @@ static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-    gchar *imsi_str;
+    const gchar *imsi_str;
 
-    imsi_str = imsi_to_str(tvb, offset + 1);
+	/* Octets 2 - 9 IMSI */
+    imsi_str =  tvb_bcd_dig_to_ep_str( tvb, offset+1, 8, NULL, FALSE);
 
-    proto_tree_add_string(tree, hf_gtp_imsi, tvb, offset, 9, imsi_str);
+    proto_tree_add_string(tree, hf_gtp_imsi, tvb, offset+1, 8, imsi_str);
 
     return 9;
 }
