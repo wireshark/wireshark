@@ -2399,6 +2399,61 @@ proto_register_dtls(void)
   register_heur_dissector_list("dtls", &heur_subdissector_list);
 }
 
+static gboolean
+dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  /* Stronger confirmation of DTLS packet is provided by verifying the
+   * payload length against the remainder of the UDP packet size. */
+  guint length = tvb_length(tvb);
+  guint offset = 0;
+
+  if (tvb_reported_length(tvb) == length) {
+    while (offset + 13 <= length && looks_like_dtls(tvb, offset)) {
+      /* Advance offset to the end of the current DTLS record */
+      offset += tvb_get_ntohs(tvb, offset + 11) + 13;
+      if (offset == length) {
+        dissect_dtls(tvb, pinfo, tree);
+        return TRUE;
+      }
+    }
+
+    if (pinfo->fragmented && offset >= 13) {
+      dissect_dtls(tvb, pinfo, tree);
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /* We've got a truncated packet - do our best with what we've got. */
+  while (tvb_length_remaining(tvb, offset) >= 3) {
+    if (!looks_like_dtls(tvb, offset))
+      return FALSE;
+
+    offset += 3;
+    if (tvb_length_remaining(tvb, offset) >= 10 ) {
+      offset += tvb_get_ntohs(tvb, offset + 8) + 10;
+    } else {
+      /* Dissect what we've got, which might be as little as 3 bytes. */
+      dissect_dtls(tvb, pinfo, tree);
+      return TRUE;
+    }
+    if (offset == length) {
+      /* Can this ever happen?  Well, just in case ... */
+      dissect_dtls(tvb, pinfo, tree);
+      return TRUE;
+    }
+  }
+
+  /* One last check to see if the current offset is at least less than the
+   * original number of bytes present before truncation or we're dealing with
+   * a packet fragment that's also been truncated. */
+  if ((length >= 3) && (offset <= tvb_reported_length(tvb) || pinfo->fragmented)) {
+    dissect_dtls(tvb, pinfo, tree);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 /* If this dissector uses sub-dissector registration add a registration
  * routine.  This format is required because a script is used to find
  * these routines and create the code that calls these routines.
@@ -2409,4 +2464,6 @@ proto_reg_handoff_dtls(void)
 
   /* add now dissector to default ports.*/
   dtls_parse();
+
+  heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
 }

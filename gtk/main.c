@@ -2619,6 +2619,7 @@ main(int argc, char *argv[])
         break;
     }
   }
+  if (!arg_error) {
   argc -= optind;
   argv += optind;
   if (argc >= 1) {
@@ -2653,7 +2654,7 @@ main(int argc, char *argv[])
     cmdarg_err("Invalid argument: %s", argv[0]);
     arg_error = TRUE;
   }
-
+  }
   if (arg_error) {
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {

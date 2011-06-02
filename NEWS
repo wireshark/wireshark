@@ -1,4 +1,4 @@
-Wireshark 1.6.0rc1 Release Notes
+Wireshark 1.6.0rc2 Release Notes
 
    ------------------------------------------------------------------
 
@@ -17,6 +17,8 @@ What's New
      o Wireshark is unresponsive when capturing from named pipes on
        Windows. (Bug 1759)
 
+     o Crash when sorting column while capturing. (Bug 4273)
+
      o Ring buffers are no longer turned on by default when using
        multiple capture files.
 
@@ -25,10 +27,20 @@ What's New
    The following features are new (or have been significantly
    updated) since version 1.4:
 
-     o Wireshark can import text dumps, similar to text2pcap.
+     o Wireshark is now distributed as an installation package rather
+       than a drag-installer on OS X. The installer adds a startup
+       item that should make it easier to capture packets.
+
+     o Large file (greater than 2 GB) support has been improved.
+
+     o Wireshark and TShark can import text dumps, similar to
+       text2pcap.
 
      o You can now view Wireshark's dissector tables (for example the
        TCP port to dissector mappings) from the main window.
+
+     o Wireshark can export SSL session keys via File→Export→SSL
+       Session Keys...
 
      o TShark can show a specific occurrence of a field when using
        '-T fields'.
@@ -59,7 +71,8 @@ What's New
      o TCP window size is now avaiable both scaled and unscaled. A
        TCP window scaling graph is available in the GUI.
 
-     o 802.1q VLAN tags are now shown by the Ethernet II dissector.
+     o 802.1q VLAN tags are now shown in the Ethernet II protocol
+       tree instead of a separate tree.
 
      o Various dissectors now display some UTF-16 strings as proper
        Unicode including the DCE/RPC and SMB dissectors.
@@ -80,7 +93,7 @@ What's New
 
        .
 
-     o The tshark -z option now uses the
+     o TShark's -z option now uses the
 
        [-z <proto>,srt]
 
@@ -89,8 +102,10 @@ What's New
        [-z <proto>,rtt]
 
        for all protocols that support service response time
-       statistics. This syntax now matches Wireshark's syntax for
-       this option.
+       statistics. This matches Wireshark's syntax for this option.
+
+     o Wireshark and TShark can now read compressed Windows Sniffer
+       files.
 
   New Protocol Support
 
@@ -102,10 +117,10 @@ What's New
    (SDP), JSON, LISP Control, LISP Data, LISP, MikroTik MAC-Telnet,
    MRP Multiple Mac Registration Protocol (MMRP) Mongo Wire Protocol,
    MUX27010, Network Monitor 802.11 radio header, OPC UA
-   ExtensionObjects, GPPI-GEOLOCATION-GPS, ReLOAD, ReLOAD Framing,
-   RObust Header Compression (ROHC), RSIP, SAMETIME, SCoP, SGSAP,
-   Tektronix Teklink, USB/AT Commands, uTorrent Transport Protocol,
-   WAI authentication, Wi-Fi P2P (Wi-Fi Direct)
+   ExtensionObjects, openSAFETY, PPI-GEOLOCATION-GPS, ReLOAD, ReLOAD
+   Framing, RObust Header Compression (ROHC), RSIP, SAMETIME, SCoP,
+   SGSAP, Tektronix Teklink, USB/AT Commands, uTorrent Transport
+   Protocol, WAI authentication, Wi-Fi P2P (Wi-Fi Direct)
 
   Updated Protocol Support
 
@@ -158,12 +173,13 @@ Known Problems
 
    Hex pane display issue after startup. (Bug 4056)
 
-   Crash when sorting column while capturing. (Bug 4273)
-
    Packet list rows are oversized. (Bug 4357)
 
    Summary pane selected frame highlighting not maintained. (Bug
    4445)
+
+   Wireshark and TShark will display incorrect delta times in some
+   cases. (Bug 4985 and bug 5580)
 
    Character echo pauses in Capture Filter field in Capture Options.
    (Bug 5356)

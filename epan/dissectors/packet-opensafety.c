@@ -400,7 +400,7 @@ static guint16 crc16_opensafety(guint32 len, guint8 * pBuffer, guint16 initCRC);
 
 static guint stringToBytes( const char * string, guint8 * pBuffer, guint32 length );
 
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint8 u_Offset, guint *u_frameOffset, guint *u_frameLength );
+static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, guint *u_frameOffset, guint *u_frameLength );
 
 static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint32 length )
 {
@@ -613,7 +613,7 @@ static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC)
     return crc;
 }
 
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint8 u_Offset, guint *u_frameOffset, guint *u_frameLength )
+static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, guint *u_frameOffset, guint *u_frameLength )
 {
     guint n;
     guint16 crc, calcCrc;

@@ -36,7 +36,7 @@ void capture_prism(const guchar *, int, int, packet_counts *);
 void capture_wlancap(const guchar *, int, int, packet_counts *);
 
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
-       packet_info * pinfo, proto_tree * tree, int tagged_parameters_len);
+       packet_info * pinfo, proto_tree * tree, int tagged_parameters_len, int ftype);
 
 #define MAX_SSID_LEN    32
 #define MAX_PROTECT_LEN 10
