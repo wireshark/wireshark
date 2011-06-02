@@ -102,6 +102,25 @@ ATTRIBUTE	sip-hdr					150	string
 #	Extra attributes sent by the Cisco, if you configure
 #	"radius-server vsa accounting" (requires IOS11.2+).
 #
+#	According to
+#
+#		http://www.cisco.com/en/US/products/hw/iad/ps4349/products_installation_guide_chapter09186a008007e511.html
+#
+#	the first byte Command-Code value is a binary command code
+#	and the other bytes after it are an string argument to the
+#	command:
+#
+#		Command code	Command			Argument
+#
+#		\001		Account Logon		Account name
+#		\002		Account Logoff		Account name
+#		\004		Account PING		Service name
+#		\013		Service Logon		Service name
+#		\014		Service Logoff		Service name
+#		\016		Service Access Order	DNS server search order
+#							separated by semicolons
+#		\017		Service Message		Message text
+#
 ATTRIBUTE	Cisco-Multilink-ID			187	integer
 ATTRIBUTE	Cisco-Num-In-Multilink			188	integer
 ATTRIBUTE	Cisco-Pre-Input-Octets			190	integer
