@@ -3100,9 +3100,10 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->cinfo, COL_INFO)) {
     bufpos=0;
     bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s",
+		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s 0x%04x",
 		val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
-		(flags&F_RESPONSE)?" response":""));
+		(flags&F_RESPONSE)?" response":"",
+		id));
 
     if (flags & F_RESPONSE) {
       if (rcode != RCODE_NOERROR) {
