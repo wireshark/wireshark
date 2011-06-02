@@ -234,10 +234,12 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     return new_rec;
 }
 
+#if 0
 static int get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr);
 static int get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr);
+#endif
 
-static void uat_esp_sa_record_update_cb(void* r, const char** err) {
+static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
     uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
 
     /* Generate the real filter strings that will be used for decryption*/
@@ -303,6 +305,7 @@ static gboolean g_ah_payload_in_subtree = FALSE;
 
 
 #ifdef HAVE_LIBGCRYPT
+#if 0
 /*
    Name : static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
    Description : Get the extended IPv6 Suffix of an IPv6 Address
@@ -575,6 +578,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 
   return done_flag;
 }
+#endif
 
 /*
    Name : static goolean filter_address_match(gchar *addr, gchar *filter, gint len, gint typ)
@@ -1185,8 +1189,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
          get_address_ok = TRUE;
          break;
+      default:
+	/* Probably some error display should go in here??? */
+	;
       }
-	}
+      }
 
    /* The packet cannot be decoded using the SAD */
    if(g_esp_enable_null_encryption_decode_heuristic && !get_address_ok)
@@ -2058,11 +2065,6 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ipsec(void)
 {
-
-#ifdef HAVE_LIBGCRYPT
-  guint i=0;
-#endif
-
   static hf_register_info hf_ah[] = {
     { &hf_ah_spi,
       { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
