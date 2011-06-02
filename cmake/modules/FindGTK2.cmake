@@ -181,6 +181,7 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
 
     find_path(${_var} ${_hdr}
         PATHS
+            /usr/lib/x86_64-linux-gnu
             /usr/local/lib64
             /usr/local/lib
             /usr/lib64
