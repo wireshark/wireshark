@@ -100272,3 +100272,903 @@ Changed paths:
 
 [Automatic manuf, services and enterprise-numbers update for 2011-05-15]
 ------------------------------------------------------------------------
+r37182 | gerald | 2011-05-16 11:27:27 -0700 (Mon, 16 May 2011) | 32 lines
+Changed paths:
+   M /trunk-1.6/ChangeLog
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-icmpv6.c
+   M /trunk-1.6/epan/dissectors/packet-netflow.c
+   M /trunk-1.6/packaging/macosx/Scripts/chmodbpf-postinstall.sh
+   M /trunk-1.6/version.conf
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37162 | alagoutte | 2011-05-15 10:47:56 -0700 (Sun, 15 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-icmpv6.c
+
+  From Colin O'Flynn via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5921
+  Fix for RPL DAO-ACK Processing when DODAG ID present
+
+  Reported and fixed by Jakob Ruhe
+  ------------------------------------------------------------------------
+  r37167 | gerald | 2011-05-15 12:25:50 -0700 (Sun, 15 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/packaging/macosx/Scripts/chmodbpf-postinstall.sh
+
+  Fix the ChmodBPF startup item permissions. Handling this within
+  PackageMaker would be a more correct fix. Replacing PackageMaker with
+  something that fits our development and deployment model would be an
+  even more correct fix.
+  ------------------------------------------------------------------------
+  r37181 | morriss | 2011-05-16 10:02:22 -0700 (Mon, 16 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-netflow.c
+
+  Avoid passing a NULL string pointer to format routines: some libc's (e.g.,
+  Solaris') will seg-fault on that.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+
+------------------------------------------------------------------------
+r37184 | gerald | 2011-05-16 11:33:34 -0700 (Mon, 16 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/configure.in
+
+Disable warnings-as-errors by default.
+
+------------------------------------------------------------------------
+r37185 | gerald | 2011-05-16 11:40:15 -0700 (Mon, 16 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/NEWS
+   M /trunk-1.6/docbook/Makefile.am
+   M /trunk-1.6/version.conf
+
+Build 1.6.0rc1.
+
+------------------------------------------------------------------------
+r37186 | gerald | 2011-05-16 11:49:28 -0700 (Mon, 16 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/CMakeOptions.txt
+
+Set DISABLE_WERROR on by default.
+
+------------------------------------------------------------------------
+r37193 | gerald | 2011-05-16 16:00:49 -0700 (Mon, 16 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/version.conf
+
+Prerelease / rc2.
+
+------------------------------------------------------------------------
+r37205 | gerald | 2011-05-17 12:24:55 -0700 (Tue, 17 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r37299 | gerald | 2011-05-19 11:41:39 -0700 (Thu, 19 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/config.nmake
+
+Add a version to the Windows library directory.
+
+------------------------------------------------------------------------
+r37310 | gerald | 2011-05-19 13:38:00 -0700 (Thu, 19 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/user-guide.xml
+   M /trunk-1.6/docbook/wsug_src/WSUG_app_tools.xml
+
+Copy over 1.6 updates from the trunk.
+
+------------------------------------------------------------------------
+r37313 | gerald | 2011-05-19 14:10:26 -0700 (Thu, 19 May 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/Makefile.nmake
+   M /trunk-1.6/tools/win32-setup.sh
+   M /trunk-1.6/tools/win64-setup.sh
+
+Update the User's Guide.
+------------------------------------------------------------------------
+r37315 | gerald | 2011-05-19 15:58:19 -0700 (Thu, 19 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/gtk/about_dlg.c
+   M /trunk-1.6/gtk/main_welcome.c
+
+Use the stable release splash image.
+
+------------------------------------------------------------------------
+r37332 | gerald | 2011-05-20 10:01:20 -0700 (Fri, 20 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+
+Add bugs 4985 and 5580 to the list of known problems.
+
+------------------------------------------------------------------------
+r37347 | gerald | 2011-05-22 09:05:11 -0700 (Sun, 22 May 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-05-22]
+------------------------------------------------------------------------
+r37373 | etxrab | 2011-05-23 22:38:15 -0700 (Mon, 23 May 2011) | 4 lines
+Changed paths:
+   M /trunk-1.6/diameter/dictionary.xml
+   M /trunk-1.6/epan/dissectors/packet-diameter_3gpp.c
+
+Copy over:
+r37292 Subdissect 2 3GPP AVP:s that are actually text.
+r37294 Fix a typo.
+r37236 Prettify som 3GPP AVP:s
+------------------------------------------------------------------------
+r37397 | gerald | 2011-05-25 14:06:08 -0700 (Wed, 25 May 2011) | 98 lines
+Changed paths:
+   M /trunk-1.6/epan/dissectors/packet-aim-messaging.c
+   M /trunk-1.6/epan/dissectors/packet-gsm_a_gm.c
+   M /trunk-1.6/epan/dissectors/packet-ncp2222.inc
+   M /trunk-1.6/epan/dissectors/packet-ntlmssp.c
+   M /trunk-1.6/epan/dissectors/packet-smb.c
+   M /trunk-1.6/gtk/gui_stat_menu.h
+   M /trunk-1.6/gtk/menus.c
+   M /trunk-1.6/gtk/tcp_graph.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37154 | etxrab | 2011-05-15 07:18:22 -0700 (Sun, 15 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/gtk/gui_stat_menu.h
+     M /trunk/gtk/menus.c
+     M /trunk/gtk/tcp_graph.c
+
+  Add the TCPGraph for UIManager.
+  Note sensitivity remains to be fixed.
+  ------------------------------------------------------------------------
+  r37156 | etxrab | 2011-05-15 08:08:47 -0700 (Sun, 15 May 2011) | 1 line
+  Changed paths:
+     M /trunk/gtk/gui_stat_menu.h
+     M /trunk/gtk/menus.c
+     M /trunk/gtk/tcp_graph.c
+
+  Set menu sensitivity.
+  ------------------------------------------------------------------------
+  r37157 | etxrab | 2011-05-15 08:09:44 -0700 (Sun, 15 May 2011) | 1 line
+  Changed paths:
+     M /trunk/gtk/menus.c
+
+  Remove debug code.
+  ------------------------------------------------------------------------
+  r37183 | guy | 2011-05-16 11:32:35 -0700 (Mon, 16 May 2011) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-smb.c
+
+  Fix some comments.
+
+  Get rid of null-pointer tests for t2i in the "not null" branch of an
+  earlier test whether it's null, as those tests are redundant.
+
+  Use a switch statement to check the subcommand for Trans2.
+
+  If t2i->info_level is -1, it means we don't know the info level, for
+  whatever reason (e.g., the request was cut short by the snapshot length
+  before the info level).  Report it as such.
+  ------------------------------------------------------------------------
+  r37188 | cmaynard | 2011-05-16 13:02:14 -0700 (Mon, 16 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-aim-messaging.c
+
+  Fix endian issues, especially w/endian arg to proto_tree_add_item().
+  Should fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5464.
+
+  ------------------------------------------------------------------------
+  r37192 | guy | 2011-05-16 15:55:22 -0700 (Mon, 16 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-smb.c
+
+  Give the UNIX-extension routines used for info levels that appear both
+  in set and get names beginning with dissect_qspi_.
+  ------------------------------------------------------------------------
+  r37196 | guy | 2011-05-16 18:38:28 -0700 (Mon, 16 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ntlmssp.c
+
+  Fix cut-and-pasteo.
+  ------------------------------------------------------------------------
+  r37197 | guy | 2011-05-16 19:29:43 -0700 (Mon, 16 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ntlmssp.c
+
+  According to MS-NLMP, the "version" field in the NTLMSSP blobs is
+  present only if the NTLMSSP_NEGOTIATE_VERSION flag is set in the flags
+  field, and that appears to be true in at least one capture I've seen.
+  ------------------------------------------------------------------------
+  r37199 | etxrab | 2011-05-17 01:23:30 -0700 (Tue, 17 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_gm.c
+
+  Use the correct value string and bitmasks.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5928
+  ------------------------------------------------------------------------
+  r37201 | morriss | 2011-05-17 09:07:24 -0700 (Tue, 17 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ncp2222.inc
+
+  Avoid passing a NULL string pointer to format routines: some libc's (e.g.,
+  Solaris') will seg-fault on that.
+  ------------------------------------------------------------------------
+  r37202 | morriss | 2011-05-17 10:40:26 -0700 (Tue, 17 May 2011) | 9 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ncp2222.inc
+
+  As suggested by Chris: use val_to_str_const() instead of match_strval() plus a
+  NULL-return check.
+
+  Use val_to_str_const instead of val_to_str() in a couple places where the string
+  is constant.
+
+  Use val_to_str() instead of blindly passing the return value from match_strval()
+  into a format routine (to ensure a non-NULL string pointer).
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r37398 | gerald | 2011-05-25 14:19:56 -0700 (Wed, 25 May 2011) | 114 lines
+Changed paths:
+   M /trunk-1.6/color_filters.c
+   M /trunk-1.6/epan/dissectors/packet-dvbci.c
+   M /trunk-1.6/epan/dissectors/packet-reload.c
+   M /trunk-1.6/epan/dissectors/packet-stun.c
+   M /trunk-1.6/epan/dissectors/packet-xcsl.c
+   M /trunk-1.6/epan/funnel.c
+   M /trunk-1.6/epan/geoip_db.c
+   M /trunk-1.6/epan/oids.c
+   M /trunk-1.6/epan/packet.c
+   M /trunk-1.6/epan/proto.c
+   M /trunk-1.6/epan/wslua/init_wslua.c
+   M /trunk-1.6/file.c
+   M /trunk-1.6/file.h
+   M /trunk-1.6/gtk/export_object.h
+   M /trunk-1.6/gtk/export_object_smb.c
+   M /trunk-1.6/gtk/file_import_dlg.c
+   M /trunk-1.6/gtk/iax2_analysis.c
+   M /trunk-1.6/gtk/main_welcome.c
+   M /trunk-1.6/gtk/manual_addr_resolv.c
+   M /trunk-1.6/gtk/menus.c
+   M /trunk-1.6/gtk/new_packet_list.c
+   M /trunk-1.6/gtk/packet_list_store.h
+   M /trunk-1.6/gtk/prefs_stream.c
+   M /trunk-1.6/gtk/proto_help.c
+   M /trunk-1.6/gtk/rtp_analysis.c
+   M /trunk-1.6/gtk/sctp_stat_dlg.c
+   M /trunk-1.6/gtk/text_import.h
+   M /trunk-1.6/gtk/voip_calls.c
+   M /trunk-1.6/print.c
+   M /trunk-1.6/ringbuffer.c
+   M /trunk-1.6/u3.c
+   M /trunk-1.6/util.c
+   M /trunk-1.6/wiretap/wtap.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37203 | morriss | 2011-05-17 11:53:35 -0700 (Tue, 17 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dvbci.c
+     M /trunk/epan/dissectors/packet-reload.c
+     M /trunk/epan/dissectors/packet-stun.c
+     M /trunk/epan/dissectors/packet-xcsl.c
+
+  Use val_to_str() instead of blindly passing the return value from match_strval()
+  into a format routine (to ensure a non-NULL string pointer).
+  ------------------------------------------------------------------------
+  r37207 | tuexen | 2011-05-17 12:51:55 -0700 (Tue, 17 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/wiretap/wtap.c
+
+  * Don't declare a used arg as unused.
+  * Really clear the EOF flag. This fixes a bug where
+    tshark is not able to do a live capture from a pcapng
+    file.
+  ------------------------------------------------------------------------
+  r37211 | guy | 2011-05-17 14:26:25 -0700 (Tue, 17 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/file.h
+     M /trunk/gtk/export_object.h
+     M /trunk/gtk/export_object_smb.c
+     M /trunk/gtk/file_import_dlg.c
+     M /trunk/gtk/main_welcome.c
+     M /trunk/gtk/new_packet_list.c
+     M /trunk/gtk/text_import.h
+
+  This ain't C++; you have to put "void" in as the argument list of
+  functions that take no arguments, otherwise the function is treated as a
+  crufty old C function with undeclared arguments.
+  ------------------------------------------------------------------------
+  r37212 | guy | 2011-05-17 14:28:07 -0700 (Tue, 17 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/oids.c
+
+  This ain't C++; you have to put "void" in as the argument list of
+  functions that take no arguments, otherwise the function is treated as a
+  crufty old C function with undeclared arguments.
+  ------------------------------------------------------------------------
+  r37216 | guy | 2011-05-17 15:18:32 -0700 (Tue, 17 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/color_filters.c
+     M /trunk/epan/funnel.c
+     M /trunk/epan/packet.c
+     M /trunk/epan/wslua/init_wslua.c
+     M /trunk/file.c
+     M /trunk/gtk/prefs_stream.c
+     M /trunk/gtk/sctp_stat_dlg.c
+     M /trunk/print.c
+     M /trunk/u3.c
+
+  More eradication of old-style function definitions.
+  ------------------------------------------------------------------------
+  r37224 | guy | 2011-05-17 16:35:12 -0700 (Tue, 17 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/ringbuffer.c
+
+  Fix another old-style function definition.
+  ------------------------------------------------------------------------
+  r37235 | guy | 2011-05-17 20:28:26 -0700 (Tue, 17 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Make some more routines not used outside epan/proto.c static.
+  ------------------------------------------------------------------------
+  r37223 | guy | 2011-05-17 16:33:23 -0700 (Tue, 17 May 2011) | 9 lines
+  Changed paths:
+     M /trunk/epan/oids.c
+     M /trunk/gtk/export_object_smb.c
+     M /trunk/gtk/iax2_analysis.c
+     M /trunk/gtk/manual_addr_resolv.c
+     M /trunk/gtk/menus.c
+     M /trunk/gtk/new_packet_list.c
+     M /trunk/gtk/packet_list_store.h
+     M /trunk/gtk/proto_help.c
+     M /trunk/gtk/rtp_analysis.c
+     M /trunk/gtk/voip_calls.c
+     M /trunk/util.c
+
+  Make some routines static that aren't used outside the source file in
+  which they're defined.
+
+  Include some header files that declare functions in the source files
+  that define the functions.
+
+  Declare packet_list_get_type() in gtk/packet_list_store.h, as it defines
+  a macro that uses that function.
+  ------------------------------------------------------------------------
+  r37226 | guy | 2011-05-17 16:36:25 -0700 (Tue, 17 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/geoip_db.c
+
+  Make some routines static that aren't used outside the source file in
+  which they're defined.
+  ------------------------------------------------------------------------
+  r37230 | guy | 2011-05-17 17:29:48 -0700 (Tue, 17 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/oids.c
+
+  Get rid of unused function.
+  ------------------------------------------------------------------------
+  r37236 | guy | 2011-05-18 00:20:45 -0700 (Wed, 18 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  You cannot just make the "len" field of a GByteArray larger, if there's
+  no data to back that length; you can only make it smaller.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r37399 | gerald | 2011-05-25 14:32:13 -0700 (Wed, 25 May 2011) | 137 lines
+Changed paths:
+   M /trunk-1.6/AUTHORS
+   M /trunk-1.6/CMakeLists.txt
+   M /trunk-1.6/Makefile.am
+   M /trunk-1.6/Makefile.nmake
+   M /trunk-1.6/capture_info.c
+   M /trunk-1.6/epan/dissectors/packet-dect.c
+   M /trunk-1.6/epan/dissectors/packet-gsm_a_bssmap.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/epan/dissectors/packet-smb.c
+   M /trunk-1.6/epan/wslua/wslua_proto.c
+   M /trunk-1.6/file.c
+   M /trunk-1.6/packaging/macosx/osx-app.sh
+   M /trunk-1.6/packaging/nsis/wireshark.nsi
+   M /trunk-1.6/print.c
+   M /trunk-1.6/print.h
+   M /trunk-1.6/tshark.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37239 | morriss | 2011-05-18 08:33:07 -0700 (Wed, 18 May 2011) | 7 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_proto.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5930 :
+
+  with a variant of the patch submitted by Alexander Stein on the -dev list:
+
+  Allow FT_FRAMENUMs to be added (as base BASE_NONE).  My change from Alexander's
+  patch is to disallow BASE_NONE for non-framenum integers.
+  ------------------------------------------------------------------------
+  r37244 | morriss | 2011-05-18 10:09:55 -0700 (Wed, 18 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+
+  Add a default (else) case in the default case for cause values to avoid passing
+  a NULL string pointer to format routines.
+
+  While we're there, update the cause list from 48.008 v10.1.0.
+  ------------------------------------------------------------------------
+  r37247 | morriss | 2011-05-18 10:31:48 -0700 (Wed, 18 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+
+  Finish removing tabs and fix up some indentation.
+
+  Add a break after decoding CSData Codec Type.
+  ------------------------------------------------------------------------
+  r37279 | tuexen | 2011-05-18 21:56:04 -0700 (Wed, 18 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/capture_info.c
+
+  Fix the capture info dialog. Reset the EOF state such that the
+  number get actually updated.
+  ------------------------------------------------------------------------
+  r37286 | guy | 2011-05-19 02:47:03 -0700 (Thu, 19 May 2011) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-smb.c
+
+  The routines declared in packet-smb.h are defined in packet-smb.c;
+  include packet-smb.h in packet-smb.c so that we check the declarations
+  against the definitions.
+
+  In query ops, info level 2 is Query EA Size, not Query EAs From List.
+  In set ops, info level 2 is Set EAs, not Query EA Size.
+
+  Expand the constants for the Trans2 subcodes to 16 bits.
+
+  The tvb argument to dissect_find_file_unix_info2() is used.
+  ------------------------------------------------------------------------
+  r37298 | gerald | 2011-05-19 11:10:21 -0700 (Thu, 19 May 2011) | 26 lines
+  Changed paths:
+     M /trunk/CMakeLists.txt
+     M /trunk/Makefile.am
+     M /trunk/Makefile.nmake
+     M /trunk/file.c
+     M /trunk/packaging/nsis/wireshark.nsi
+     A /trunk/pdml2html.xsl
+     M /trunk/print.c
+     M /trunk/print.h
+     A /trunk/tools/colorfilters2js.pl
+     M /trunk/tshark.c
+
+  From Dirk Jagdmann via bug 5875:
+
+  My attachment adds a link to a XSLT file to the preamble of the PDML.
+  The XSLT will transform the PDML to a HTML page, and the HTML page
+  features a look similar to Wireshark. See
+  http://cubic.org/~doj/ebay/a.pdml for an example.
+
+  The patch also contains a small perl program which converts the
+  Wireshark colortable into javascript code which is used in the XSLT
+  file. If you want to use a different color scheme you would execute the
+  perl program and insert the generated javascript function into your XSLT
+  file.
+
+  To view the HTML you could either place the PDML and XSLT file on your
+  webserver and verify that your webserver sends the PDML file as
+  "text/xml".  Then your webbrowser will find the linked XSLT file,
+  download that as well and convert the PDML to HTML on the fly.
+
+  You could also use an XSLT processor like xsltproc to convert the PDML
+  and XSLT into a static HTML file.
+
+  From me:
+
+  Minor fixups.
+  ------------------------------------------------------------------------
+  r37314 | guy | 2011-05-19 14:11:44 -0700 (Thu, 19 May 2011) | 6 lines
+  Changed paths:
+     M /trunk/Makefile.am
+
+  Add pdml2html.xsl to the source tarball.
+
+  (Can we have a macro that has everything in pkgdata_DATA except for
+  COPYING, and use that macro in both the definition of pkgdata_DATA and
+  EXTRA_DIST?)
+  ------------------------------------------------------------------------
+  r37316 | guy | 2011-05-19 19:35:05 -0700 (Thu, 19 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/packaging/macosx/osx-app.sh
+
+  In at least some versions of OS X SystemStarter gets cranky if the
+  startup item is group-writable.
+  ------------------------------------------------------------------------
+  r37355 | jmayer | 2011-05-23 01:54:47 -0700 (Mon, 23 May 2011) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  7.3.2.25 or 802.11-2007 gives an example of length 20, so it is unclear where the 24 came from (unintentionally fixes bug 5942)
+  ------------------------------------------------------------------------
+  r37370 | cmaynard | 2011-05-23 10:53:51 -0700 (Mon, 23 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/AUTHORS
+     M /trunk/epan/dissectors/packet-dect.c
+
+  From Romain Fliedel via bug 5947: Fix the mask for extracting FMID.
+  ------------------------------------------------------------------------
+  r37374 | guy | 2011-05-24 09:17:43 -0700 (Tue, 24 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/tshark.c
+
+  Don't print hidden columns.
+  ------------------------------------------------------------------------
+  r37389 | alagoutte | 2011-05-25 00:15:05 -0700 (Wed, 25 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  From tschardt via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5949
+  802.11 IE tag number 61/62 still decoded to "Unknown"/Reserved tag Number
+
+  Remove inadvertently by me in rev36120
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r37402 | gerald | 2011-05-25 14:51:00 -0700 (Wed, 25 May 2011) | 2 lines
+Changed paths:
+   A /trunk-1.6/pdml2html.xsl
+
+Add pdml2html.xsl.
+
+------------------------------------------------------------------------
+r37444 | gerald | 2011-05-27 13:46:49 -0700 (Fri, 27 May 2011) | 38 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-6lowpan.c
+   M /trunk-1.6/epan/dissectors/packet-dhcpv6.c
+   M /trunk-1.6/epan/dissectors/packet-sccp.c
+   M /trunk-1.6/epan/dissectors/packet-sccp.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37426 | jake | 2011-05-27 00:02:26 -0700 (Fri, 27 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-6lowpan.c
+
+  From Colin O'Flynn:
+  Avoid processing tvb when fragment dissection didn't create one.
+  ------------------------------------------------------------------------
+  r37439 | cmaynard | 2011-05-27 07:38:42 -0700 (Fri, 27 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dhcpv6.c
+
+  When parsing OPTION_REMOTE_ID, don't modify optlen or we'll return the wrong
+  number of bytes consumed.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5962
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r37400 | morriss | 2011-05-25 14:47:35 -0700 (Wed, 25 May 2011) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sccp.c
+     M /trunk/epan/dissectors/packet-sccp.h
+
+  Add some expert infos for unusual messages:
+   - routing on SSN but the SSN is not present or is unspecified (zero)
+   - message handling has an unexpected value
+   - message class is incorrect for the message type
+
+  Also clean up some indentation and other white space.
+  ------------------------------------------------------------------------
+
+Fix a typo in the release notes.
+
+------------------------------------------------------------------------
+r37463 | gerald | 2011-05-29 09:04:52 -0700 (Sun, 29 May 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-05-29]
+------------------------------------------------------------------------
+r37489 | gerald | 2011-05-31 13:35:06 -0700 (Tue, 31 May 2011) | 73 lines
+Changed paths:
+   M /trunk-1.6/AUTHORS
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.6/epan/dissectors/packet-ssl.c
+   M /trunk-1.6/epan/dissectors/packet-ssl.h
+   M /trunk-1.6/epan/libwireshark.def
+   M /trunk-1.6/gtk/CMakeLists.txt
+   M /trunk-1.6/gtk/Makefile.common
+   M /trunk-1.6/gtk/menus.c
+   M /trunk-1.6/image/file_dlg_win32.rc
+   M /trunk-1.6/win32/file_dlg_win32.c
+   M /trunk-1.6/win32/file_dlg_win32.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37401 | sake | 2011-05-25 14:49:29 -0700 (Wed, 25 May 2011) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+     M /trunk/epan/dissectors/packet-ssl.c
+
+  Extended the SSL key log import routine to be able to read the following format:
+
+  RSA Session-ID:xxxx Master-Key:xxxx
+
+  This makes it easy to use the "openssl s_client" output for decryption
+  (see: http://ask.wireshark.org/questions/4229/follow-ssl-stream-using-master-key-and-session-id)
+
+  It also paves the way for exporting SSL keyring material. See also the enhancement request in:
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3444
+  ------------------------------------------------------------------------
+  r37446 | sake | 2011-05-28 11:17:50 -0700 (Sat, 28 May 2011) | 5 lines
+  Changed paths:
+     M /trunk/AUTHORS
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+     M /trunk/epan/dissectors/packet-ssl.c
+     M /trunk/epan/dissectors/packet-ssl.h
+     M /trunk/epan/libwireshark.def
+     M /trunk/gtk/Makefile.common
+     A /trunk/gtk/export_sslkeys.c
+     A /trunk/gtk/export_sslkeys.h
+     M /trunk/gtk/menus.c
+     M /trunk/image/file_dlg_win32.rc
+     M /trunk/win32/file_dlg_win32.c
+     M /trunk/win32/file_dlg_win32.h
+
+  Add "File -> Export -> SSL Session Keys..." to be able to save the keyring info for each session in the trace file. This makes it possible to give someone the trace and the exported keys so that they can decrypt the traffic in the trace, but not new sessions to the same server.
+
+  (See also: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3444)
+  ------------------------------------------------------------------------
+  r37447 | guy | 2011-05-28 13:55:21 -0700 (Sat, 28 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/gtk/export_sslkeys.c
+
+  Get rid of some warnings on Win64.
+  ------------------------------------------------------------------------
+  r37448 | guy | 2011-05-28 15:17:22 -0700 (Sat, 28 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/gtk/export_sslkeys.c
+
+  More warning squelching.  (Thank you, GLib developers, for using gulong
+  rather than gsize as the second argument to the GLib snprintf routines.)
+  ------------------------------------------------------------------------
+  r37449 | guy | 2011-05-28 15:52:00 -0700 (Sat, 28 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/win32/file_dlg_win32.c
+
+  Squelch yet another warning.
+
+  Use the ws_ "routines" (really #defines) for consistency.
+  ------------------------------------------------------------------------
+  r37450 | guy | 2011-05-28 17:08:27 -0700 (Sat, 28 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/gtk/export_sslkeys.c
+
+  Make a routine not used outside this file static.
+  ------------------------------------------------------------------------
+  r37457 | jmayer | 2011-05-29 01:51:04 -0700 (Sun, 29 May 2011) | 1 line
+  Changed paths:
+     M /trunk/gtk/CMakeLists.txt
+
+  Rev 37446 added export_sslkeys.c
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r37491 | gerald | 2011-05-31 14:18:46 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   A /trunk-1.6/gtk/export_sslkeys.c
+   A /trunk-1.6/gtk/export_sslkeys.h
+
+Add missing files.
+
+------------------------------------------------------------------------
+r37492 | gerald | 2011-05-31 14:19:48 -0700 (Tue, 31 May 2011) | 67 lines
+Changed paths:
+   M /trunk-1.6/Makefile.am
+   M /trunk-1.6/Makefile.am.inc
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/epan/dissectors/packet-dvbci.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/gtk/capture_dlg.c
+   M /trunk-1.6/gtk/new_packet_list.c
+   M /trunk-1.6/wiretap/Makefile.am
+   M /trunk-1.6/wsutil/Makefile.am
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37427 | stig | 2011-05-27 00:38:08 -0700 (Fri, 27 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/gtk/new_packet_list.c
+
+  Added some row space to "Edit Column Details".
+  ------------------------------------------------------------------------
+  r37455 | etxrab | 2011-05-28 23:43:27 -0700 (Sat, 28 May 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dvbci.c
+
+  From Martin Kaiser:
+  DVB-CI dissector: exception in close_session_request apdus (wrong offset)
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5955
+  ------------------------------------------------------------------------
+  r37458 | alagoutte | 2011-05-29 05:16:53 -0700 (Sun, 29 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  Fix a wrong length when there is unknown Atheros IE Data
+  ------------------------------------------------------------------------
+  r37459 | alagoutte | 2011-05-29 05:51:10 -0700 (Sun, 29 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  Don't return offset when it is the end of Extended Capability IE (Only use break)
+  ------------------------------------------------------------------------
+  r37473 | tuexen | 2011-05-31 00:30:38 -0700 (Tue, 31 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/gtk/capture_dlg.c
+
+  Don't limit the snaplen if not reqested.
+  Found by Irene Ruengeler.
+  ------------------------------------------------------------------------
+  r37474 | rbalint | 2011-05-31 05:07:25 -0700 (Tue, 31 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/Makefile.am.inc
+     A /trunk/abi-descriptor.template
+     M /trunk/epan/Makefile.am
+     M /trunk/wiretap/Makefile.am
+     M /trunk/wsutil/Makefile.am
+
+  Add dumpabi target to Makefiles in wsutil, epan and wiretap directories.
+  We can use the dumped ABI description for comparing ABI changes between revisions.
+  ------------------------------------------------------------------------
+  r37475 | rbalint | 2011-05-31 05:09:47 -0700 (Tue, 31 May 2011) | 1 line
+  Changed paths:
+     M /trunk/wsutil/Makefile.am
+
+  Fixing wrong library names in r37474
+  ------------------------------------------------------------------------
+  r37476 | rbalint | 2011-05-31 07:33:49 -0700 (Tue, 31 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/Makefile.am
+
+  Add top-level dumpabi target.
+  ------------------------------------------------------------------------
+  r37490 | gerald | 2011-05-31 13:45:28 -0700 (Tue, 31 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/Makefile.am
+
+  Add abi-descriptor.template to the distribution.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r37493 | gerald | 2011-05-31 14:21:41 -0700 (Tue, 31 May 2011) | 15 lines
+Changed paths:
+   M /trunk-1.6/AUTHORS
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/CMakeLists.txt
+   M /trunk-1.6/epan/dissectors/Makefile.common
+
+Copy over r37487 from the trunk:
+
+  ------------------------------------------------------------------------
+  r37487 | guy | 2011-05-31 12:31:45 -0700 (Tue, 31 May 2011) | 2 lines
+  Changed paths:
+     M /trunk/AUTHORS
+     M /trunk/epan/CMakeLists.txt
+     M /trunk/epan/dissectors/Makefile.common
+     A /trunk/epan/dissectors/packet-opensafety.c
+
+  From Roland Knall: openSAFETY dissector.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r37498 | gerald | 2011-05-31 14:49:02 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   A /trunk-1.6/epan/dissectors/packet-opensafety.c
+
+Add the openSAFETY dissector.
+
+------------------------------------------------------------------------
+r37499 | gerald | 2011-05-31 15:03:21 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   A /trunk-1.6/abi-descriptor.template
+
+Add abi-descriptor.template.
+
+------------------------------------------------------------------------
+r37520 | etxrab | 2011-06-02 04:11:22 -0700 (Thu, 02 Jun 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/dissectors/packet-gtp.c
+
+Copy over rev 37519  Remove extra space at end of IMSI.
+------------------------------------------------------------------------
+r37522 | gerald | 2011-06-02 09:59:26 -0700 (Thu, 02 Jun 2011) | 55 lines
+Changed paths:
+   M /trunk-1.6/NEWS
+   M /trunk-1.6/epan/dissectors/packet-dtls.c
+   M /trunk-1.6/epan/dissectors/packet-eapol.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.h
+   M /trunk-1.6/epan/dissectors/packet-opensafety.c
+   M /trunk-1.6/gtk/main.c
+
+Copy over r37497 from the trunk:
+
+  ------------------------------------------------------------------------
+  r37497 | alagoutte | 2011-05-31 14:41:43 -0700 (Tue, 31 May 2011) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-eapol.c
+     M /trunk/epan/dissectors/packet-ieee80211.c
+     M /trunk/epan/dissectors/packet-ieee80211.h
+
+  From Mark Phillips via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5830
+  802.11 Tag WME Qos Info field is not decoded
+
+  From me :
+  * Update from Trunk
+  * Make item fiterable
+  ------------------------------------------------------------------------
+  r37505 | tuexen | 2011-06-01 02:26:33 -0700 (Wed, 01 Jun 2011) | 3 lines
+  Changed paths:
+     M /trunk/gtk/main.c
+
+  Improve handling of command line arg errors (for example "wireshark -f").
+  From Irene Ruengeler.
+  ------------------------------------------------------------------------
+  r37511 | cmaynard | 2011-06-01 11:34:41 -0700 (Wed, 01 Jun 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dtls.c
+
+  From Michael Chen via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5863, with some additional enhancements by me:  Add dtls heuristics.
+  ------------------------------------------------------------------------
+  r37521 | wmeier | 2011-06-02 07:22:19 -0700 (Thu, 02 Jun 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-opensafety.c
+
+  Fix Bug #5984: Infinite loop caused by fcn call arg conversion: guint->guint8
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5984
+  ------------------------------------------------------------------------
+
+
+Copy over r37486 with the help of Alexis:
+
+  ------------------------------------------------------------------------
+  r37486 | alagoutte | 2011-05-31 12:30:53 -0700 (Tue, 31 May 2011) | 9 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  Enhance Vendor Specific IE (227)
+  Specifically WPA/WME sub dissector
+  * Rework from scratch VS WPA/WME dissector
+  * Replace proto_tree_add_text/string (ugly hf_ieee80211_tag_interpretation header field...) by proto_tree_add_item
+  * Make item filterable
+  * and other stuff...
+
+  Based on WMM_Specification_1-1
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
