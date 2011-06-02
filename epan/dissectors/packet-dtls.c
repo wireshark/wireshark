@@ -1080,8 +1080,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* Fragmented handshake message */
             pinfo->fragmented = TRUE;
 
-	    /* Don't pass the reassembly code data that doesn't exist */
-	    tvb_ensure_bytes_exist(tvb, fragment_offset, fragment_length);
+            /* Don't pass the reassembly code data that doesn't exist */
+            tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
             frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
                                     dtls_fragment_table,
