@@ -139,8 +139,7 @@
 #include "svnversion.h"
 
 #ifdef _WIN32
-#include <windows.h>
-#include <shellapi.h>
+#include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
 /*--- Options --------------------------------------------------------------------*/
@@ -1131,19 +1130,9 @@ parse_options (int argc, char *argv[])
 {
     int c;
     char *p;
-#ifdef _WIN32
-    LPWSTR *wc_argv;
-    int wc_argc, i;
-#endif  /* _WIN32 */
 
 #ifdef _WIN32
-    /* Convert our arg list to UTF-8. */
-    wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-    if (wc_argv && wc_argc == argc) {
-	for (i = 0; i < argc; i++) {
-	    argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
-	}
-    } /* XXX else bail because something is horribly, horribly wrong? */
+    arg_list_utf_16to8(argc, argv);
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */

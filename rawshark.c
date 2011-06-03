@@ -118,7 +118,7 @@
 #include "log.h"
 
 #ifdef _WIN32
-#include <shellapi.h>
+#include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
 /*
@@ -435,8 +435,6 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     WSADATA              wsaData;
-    LPWSTR              *wc_argv;
-    int                  wc_argc;
 #endif  /* _WIN32 */
 
     char                *gpf_path, *pf_path;
@@ -460,13 +458,7 @@ main(int argc, char *argv[])
     static const char    optstring[] = OPTSTRING_INIT;
 
 #ifdef _WIN32
-    /* Convert our arg list to UTF-8. */
-    wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-    if (wc_argv && wc_argc == argc) {
-        for (i = 0; i < argc; i++) {
-            argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
-        }
-    } /* XXX else bail because something is horribly, horribly wrong? */
+    arg_list_utf_16to8(argc, argv);
 #endif /* _WIN32 */
 
     /*

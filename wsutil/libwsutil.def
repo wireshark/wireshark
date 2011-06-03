@@ -66,6 +66,7 @@ type_util_guint64_to_gdouble
 utf_16to8
 utf_8to16
 utf_8to16_snprintf
+arg_list_utf_16to8
 
 ; wsgetopt.c
 getopt
