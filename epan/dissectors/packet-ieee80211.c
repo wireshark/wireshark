@@ -14894,7 +14894,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_wfa_ie_wme_qos_info_sta_reserved,
      {"Reserved", "wlan_mgt.wfa.ie.wme.qos_info.sta.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0x48, "Must Be Zero", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x90, "Must Be Zero", HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_qos_info_ap_u_apsd,
      {"U-APSD", "wlan_mgt.wfa.ie.wme.qos_info.ap.u_apsd",
