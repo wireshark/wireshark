@@ -28,7 +28,7 @@ wsutil_optional_objects =
 
 # filters for symbols to be omitted from libwsutil.sym
 # symbols defined only on windows
-def_sym_filter_symbols = /^getenv_utf8/ || /^ws_stdio/ || /^ws_init_dll_search_path/ || /^ws_load_library/ || /^ws_module_open/ || /^utf_[168]*to[168]/ || /^npf_sys_is_running/
+def_sym_filter_symbols = /^getenv_utf8/ || /^ws_stdio/ || /^ws_init_dll_search_path/ || /^ws_load_library/ || /^ws_module_open/ || /^utf_[168]*to[168]/ || /^arg_list_utf_16to8/ || /^npf_sys_is_running/
 
 if NEED_GETOPT_LO
 wsutil_optional_objects += @GETOPT_LO@
