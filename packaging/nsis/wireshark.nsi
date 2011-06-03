@@ -298,7 +298,7 @@ Function .onInit
       IDYES prep_uninstaller \
       IDNO done
   Abort
- 
+
 ; Copy the uninstaller to $TEMP and run it.
 ; The uninstaller normally does this by itself, but doesn't wait around
 ; for the executable to finish, which means ExecWait won't work correctly.
@@ -319,7 +319,7 @@ silent_uninstall:
 
 cleanup:
   Delete "$TMP_UNINSTALLER"
-  
+
 done:
   ;Extract InstallOptions INI files
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
@@ -395,7 +395,7 @@ File "${GNUTLS_DIR}\bin\libgnutls-openssl-26.dll"
 File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
 File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
 StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
-File "${GNUTLS_DIR}\bin\libintl-8.dll"
+File /oname=libintl-8.dll "${GTK_DIR}\bin\${INTL_DLL}"
 SkipLibIntl8:
 !endif
 !ifdef LUA_DIR
@@ -449,7 +449,7 @@ File "${MSVCR_DLL}"
 
 !ifdef WIN2K_XP_DIR
 ; ============================================================================
-; Windows 2000 support 
+; Windows 2000 support
 ; ============================================================================
 ; Get the Windows version
 Call GetWindowsVersion

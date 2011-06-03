@@ -246,7 +246,7 @@ C_ARES_PKG=1.7.0
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-GNUTLS_PKG=2.10.3-1.11
+GNUTLS_PKG=2.8.5-4.12
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.

@@ -653,7 +653,7 @@ doxygen-run:
 !ENDIF
 
 doxygen: doxygen.cfg doxygen-run
-	
+
 
 ################################################################################
 # Prepare build environment by downloading and installing required libraries
@@ -703,7 +703,7 @@ check_libs:
 # (To disable library verification when Makefile.nmake changes,
 #  comment out the commands for the following target).
 # touch is only called if libverify succeeds.
-#  (One microsec is added to the makefile.nmake time since the time set by [cygwin ?] 'touch --reference' 
+#  (One microsec is added to the makefile.nmake time since the time set by [cygwin ?] 'touch --reference'
 #   apparently has the nanosecs truncated from the reference file time [at least on Windows Vista]).
 $(LIBS_CHECK): Makefile.nmake
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
@@ -919,7 +919,7 @@ install-generated-files:
 # you can't reliably use xcopy to rename files "on the fly" (so copy first, then rename)
 	xcopy ".\help\faq.txt" $(INSTALL_DIR) /d
 	if exist $(INSTALL_DIR)\FAQ del $(INSTALL_DIR)\FAQ
-    ren $(INSTALL_DIR)\faq.txt FAQ 
+    ren $(INSTALL_DIR)\faq.txt FAQ
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
@@ -935,9 +935,9 @@ install-generated-files:
 	xcopy ".\wimaxasncp\*.*" $(INSTALL_DIR)\wimaxasncp /d
 	if not exist $(INSTALL_DIR)\plugins mkdir $(INSTALL_DIR)\plugins
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
-	cd plugins 
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins 
-	cd .. 
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
+	cd ..
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
@@ -1021,9 +1021,8 @@ install-all: install-generated-files
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 ! IF "$(INTL_DLL)" != "libintl-8.dll"
-# The gtk+ bundle doesn't provide libintl-8.dll (which is the case
-# with the 32-bit package); use the GNUTLS version.
-	xcopy $(GNUTLS_DIR)\bin\libintl-8.dll $(INSTALL_DIR) /d
+# GTK+ on Win32 provides intl.dll. GNUTLS wants libintl-8.dll.
+	copy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR)\libintl-8.dll
 ! ENDIF
 !ENDIF
 !IFDEF LUA_DIR
