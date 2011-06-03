@@ -717,6 +717,9 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 	proto_item_append_text(avp_item, "%s", abs_time_to_str(&time_ptr, ABSOLUTE_TIME_LOCAL, TRUE));
 }
 
+/*
+ * "abinary" is Ascend's binary format for filters.  See dissect_ascend_data_filter().
+ */
 void radius_abinary(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(tvb, offset, len));
@@ -1966,13 +1969,27 @@ static void register_radius_fields(const char* unused _U_) {
 
 	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 
+	/*
+	 * Handle attributes that have a special format.
+	 */
 	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
 	radius_register_avp_dissector(0,14,dissect_login_ip_host);
 	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
 	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);
+	/*
+	 * XXX - should we just call dissect_ascend_data_filter()
+	 * in radius_abinary()?
+	 *
+	 * Note that there is no attribute 242 in dictionary.redback.
+	 */
 	radius_register_avp_dissector(VENDOR_ASCEND,242,dissect_ascend_data_filter);
 	radius_register_avp_dissector(VENDOR_REDBACK,242,dissect_ascend_data_filter);
 	radius_register_avp_dissector(0,242,dissect_ascend_data_filter);
+
+	/*
+	 * XXX - we should special-case Cisco attribute 252; see the comment in
+	 * dictionary.cisco.
+	 */
 }
 
 
