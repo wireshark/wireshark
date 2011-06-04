@@ -221,21 +221,20 @@ static const value_string conformity_level_vals[] = {
 };
 
 /* Code to actually dissect the packets */
-static int
+static void
 dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item	*mi;
 	proto_tree	*mbtcp_tree;
 	int		offset, packet_type;
-   tvbuff_t *next_tvb;
+	tvbuff_t *next_tvb;
 	const char	*func_string = "";
-	const char	*subfunc_string = "";
 	const char	*pkt_type_str = "";
 	const char	*err_str = "";
 	guint16		transaction_id, protocol_id, len;
 	guint8		unit_id, function_code, exception_code, subfunction_code;
-   void *p_save_proto_data;
+	void *p_save_proto_data;
 
 	/* Make entries in Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP");
@@ -354,8 +353,6 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       p_remove_proto_data(pinfo->fd, proto_mbtcp);
       p_add_proto_data(pinfo->fd, proto_mbtcp, p_save_proto_data);
 	}
-
-   return tvb_length(tvb);
 }
 
 static guint
@@ -936,7 +933,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      proto_tree_add_uint(device_objects_item_tree, hf_modbus_list_object_len, tvb, payload_start+6+object_index, 1, object_len);
                      object_index++;
 
-                     if ((object_type >= 0) && (object_type < 7))
+                     if (object_type < 7)
                      {
                         object_str = tvb_get_string(tvb, payload_start+6+object_index, object_len);
                         proto_tree_add_string(device_objects_item_tree, hf_modbus_object_str_value, tvb, payload_start+6+object_index, object_len, object_str);
@@ -1242,5 +1239,5 @@ proto_reg_handoff_mbtcp(void)
 	dissector_add_uint("tcp.port", PORT_MBTCP, mbtcp_handle);
 
 	modbus_handle = new_create_dissector_handle(dissect_modbus, proto_modbus);
-	dissector_add("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
+	dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 }
