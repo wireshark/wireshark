@@ -47,10 +47,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -67,7 +63,6 @@
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #include <epan/strutil.h>
-#include <wsutil/file_util.h>
 #include <epan/uat.h>
 #endif
 
@@ -1480,10 +1475,12 @@ static const value_string rohc_attr_type[] = {
 #define MAX_DIGEST_SIZE     64
 #define MAX_OAKLEY_KEY_LEN  32
 
-typedef struct decrypt_key {
-  guchar        secret[MAX_KEY_SIZE];
-  guint         secret_len;
-} decrypt_key_t;
+typedef struct _ikev1_uat_data_key {
+  guchar *icookie;
+  guint icookie_len;
+  guchar *key;
+  guint key_len;
+} ikev1_uat_data_key_t;
 
 typedef struct iv_data {
   guchar  iv[MAX_DIGEST_SIZE];
@@ -1517,8 +1514,10 @@ static GHashTable *isakmp_hash = NULL;
 static GMemChunk *isakmp_key_data = NULL;
 static GMemChunk *isakmp_decrypt_data = NULL;
 #endif
-static FILE *log_f = NULL;
-static const char *pluto_log_path = "insert pluto log path here";
+
+static ikev1_uat_data_key_t* ikev1_uat_data = NULL;
+static uat_t * ikev1_uat = NULL;
+static guint num_ikev1_uat_data = 0;
 
 /* Specifications of encryption algorithms for IKEv2 decryption */
 typedef struct _ikev2_encr_alg_spec {
@@ -1669,72 +1668,6 @@ static ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
   }
   return NULL;
 }
-
-static void
-scan_pluto_log(void) {
-#define MAX_PLUTO_LINE 500
-  decrypt_data_t *decr;
-  gchar    line[MAX_PLUTO_LINE];
-  guint8   i_cookie[COOKIE_SIZE], *ic_key;
-  gboolean got_cookie = FALSE;
-  guchar   secret[MAX_KEY_SIZE];
-  guint    secret_len = 0;
-  static const gchar icookie_pfx[] = "| ICOOKIE: ";
-  static const gchar enc_key_pfx[] = "| enc key: ";
-  gchar   *pos, *endpos;
-  gint     i;
-  address  null_addr;
-  unsigned long hexval;
-
-  SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
-
-  if (log_f) {
-    while (fgets(line, MAX_PLUTO_LINE, log_f)) {
-      if (strncmp(line, icookie_pfx, sizeof icookie_pfx - 1) == 0) {
-        secret_len = 0;
-	pos = line + sizeof icookie_pfx - 1;
-	for (i = 0; i < COOKIE_SIZE; i++) {
-	  hexval = strtoul(pos, &endpos, 16);
-	  if (endpos == pos)
-	    break;
-	  i_cookie[i] = (guint8) hexval;
-	  pos = endpos;
-        }
-        if (i == COOKIE_SIZE)
-          got_cookie = TRUE;
-      } else if (strncmp(line, enc_key_pfx, sizeof enc_key_pfx  - 1) == 0) {
-	pos = line + sizeof enc_key_pfx - 1;
-	for (; secret_len < MAX_KEY_SIZE; secret_len++) {
-	  hexval = strtoul(pos, &endpos, 16);
-	  if (endpos == pos)
-	    break;
-	  secret[secret_len] = (guint8) hexval;
-	  pos = endpos;
-        }
-      } else if (got_cookie && secret_len > 1) {
-        decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
-
-        if (! decr) {
-#if GLIB_CHECK_VERSION(2,10,0)
-          ic_key = g_slice_alloc(COOKIE_SIZE);
-          decr   = g_slice_alloc(sizeof(decrypt_data_t));
-#else
-	  ic_key = g_mem_chunk_alloc(isakmp_key_data);
-          decr   = g_mem_chunk_alloc(isakmp_decrypt_data);
-#endif
-	  memcpy(ic_key, i_cookie, COOKIE_SIZE);
-          memset(decr, 0, sizeof(decrypt_data_t));
-
-          g_hash_table_insert(isakmp_hash, ic_key, decr);
-        }
-
-        memcpy(decr->secret, secret, secret_len);
-        decr->secret_len = secret_len;
-      }
-    }
-  }
-}
-
 
 static tvbuff_t *
 decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr) {
@@ -4773,6 +4706,8 @@ static void
 isakmp_init_protocol(void) {
 #ifdef HAVE_LIBGCRYPT
   guint i;
+  decrypt_data_t *decr;
+  guint8   *ic_key;
 #endif /* HAVE_LIBGCRYPT */
   fragment_table_init(&isakmp_fragment_table);
   reassembled_table_init(&isakmp_reassembled_table);
@@ -4799,11 +4734,23 @@ isakmp_init_protocol(void) {
 	G_ALLOC_AND_FREE);
 #endif
   isakmp_hash = g_hash_table_new(isakmp_hash_func, isakmp_equal_func);
-  if (log_f)
-    fclose(log_f);
-  log_f = ws_fopen(pluto_log_path, "r");
 
-  scan_pluto_log();
+  for (i = 0; i < num_ikev1_uat_data; i++) {
+#if GLIB_CHECK_VERSION(2,10,0)
+      ic_key = g_slice_alloc(COOKIE_SIZE);
+      decr   = g_slice_alloc(sizeof(decrypt_data_t));
+#else
+      ic_key = g_mem_chunk_alloc(isakmp_key_data);
+      decr   = g_mem_chunk_alloc(isakmp_decrypt_data);
+#endif
+      memcpy(ic_key, ikev1_uat_data[i].icookie, COOKIE_SIZE);
+      memset(decr, 0, sizeof(decrypt_data_t));
+
+      memcpy(decr->secret, ikev1_uat_data[i].key, ikev1_uat_data[i].key_len);
+      decr->secret_len = ikev1_uat_data[i].key_len;
+
+      g_hash_table_insert(isakmp_hash, ic_key, decr);
+  }
 
   if (ikev2_key_hash) {
     g_hash_table_destroy(ikev2_key_hash);
@@ -4824,6 +4771,30 @@ isakmp_prefs_apply_cb(void) {
 }
 
 #ifdef HAVE_LIBGCRYPT
+
+UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_len)
+UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
+
+static void ikev1_uat_data_update_cb(void* p, const char** err) {
+  ikev1_uat_data_key_t *ud = p;
+
+  if (ud->icookie_len != COOKIE_SIZE) {
+    *err = ep_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    return;
+  }
+
+  if (ud->key_len == 0) {
+    *err = ep_strdup_printf("Must have Encryption key.");
+    return;
+  }
+
+  if (ud->key_len > MAX_KEY_SIZE) {
+    *err = ep_strdup_printf("Length of Encryption key limited to %d octets (%d hex characters).", MAX_KEY_SIZE, MAX_KEY_SIZE * 2);
+    return;
+  }
+
+}
+
 UAT_BUFFER_CB_DEF(ikev2_users, spii, ikev2_uat_data_t, key.spii, key.spii_len)
 UAT_BUFFER_CB_DEF(ikev2_users, spir, ikev2_uat_data_t, key.spir, key.spir_len)
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ei, ikev2_uat_data_t, sk_ei, sk_ei_len)
@@ -5921,6 +5892,12 @@ proto_register_isakmp(void)
 #endif /* HAVE_LIBGCRYPT */
   };
 #ifdef HAVE_LIBGCRYPT
+  static uat_field_t ikev1_uat_flds[] = {
+    UAT_FLD_BUFFER(ikev1_users, icookie, "Initiator's COOKIE", "Initiator's COOKIE"),
+    UAT_FLD_BUFFER(ikev1_users, key, "Encryption Key", "Encryption Key"),
+    UAT_END_FIELDS
+  };
+
   static uat_field_t ikev2_uat_flds[] = {
     UAT_FLD_BUFFER(ikev2_users, spii, "Initiator's SPI", "Initiator's SPI value of the IKE_SA"),
     UAT_FLD_BUFFER(ikev2_users, spir, "Responder's SPI", "Responder's SPI value of the IKE_SA"),
@@ -5943,10 +5920,25 @@ proto_register_isakmp(void)
 
   isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
 #ifdef HAVE_LIBGCRYPT
-  prefs_register_string_preference(isakmp_module, "log",
-    "Log Filename",
-    "Path to a pluto log file containing DH secret information",
-    &pluto_log_path);
+  ikev1_uat = uat_new("IKEv1 Decryption Table",
+      sizeof(ikev1_uat_data_key_t),
+      "ikev1_decryption_table",
+      TRUE,
+      (void*)&ikev1_uat_data,
+      &num_ikev1_uat_data,
+      UAT_CAT_CRYPTO,
+      "ChIKEv1DecryptionSection",
+      NULL,
+      ikev1_uat_data_update_cb,
+      NULL,
+      NULL,
+      ikev1_uat_flds);
+
+  prefs_register_uat_preference(isakmp_module,
+      "ikev1_decryption_table",
+      "IKEv1 Decryption Table",
+      "Table of IKE_SA security parameters for decryption of IKEv1 packets",
+      ikev1_uat);
 
   ikev2_uat = uat_new("IKEv2 Decryption Table",
       sizeof(ikev2_uat_data_t),
