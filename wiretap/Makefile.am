@@ -90,11 +90,12 @@ ascend.c ascend.h: ascend.y
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
 dumpabi: all abi-descriptor.xml
+	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz; \
 	mkdir abi-check-headers; cp *.h abi-check-headers/; \
 	abi-compliance-checker -l libwiretap -v1 `ls  .libs/libwiretap.so.?.?.?|sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
-	cp -f abi_dumps/libwiretap/libwiretap_* .libs/; (cd .libs; ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz); \
-	rm -r abi-check-headers abi_dumps
+	cp -f abi_dumps/libwiretap/libwiretap_* .libs/; \
+	cd .libs; ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
 
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
