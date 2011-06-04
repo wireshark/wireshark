@@ -24,6 +24,9 @@
 #ifndef __LANALYZER_H__
 #define __LANALYZER_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 /*    Record type codes:                */
 
 #define     RT_HeaderRegular       0x1001

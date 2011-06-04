@@ -24,6 +24,9 @@
 #ifndef __IPTRACE_H__
 #define __IPTRACE_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int iptrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

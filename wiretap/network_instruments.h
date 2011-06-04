@@ -22,6 +22,9 @@
 #ifndef __NETWORK_INSTRUMENTS_H__
 #define __NETWORK_INSTRUMENTS_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int network_instruments_open(wtap *wth, int *err, gchar **err_info);
 int network_instruments_dump_can_write_encap(int encap);
 gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err);

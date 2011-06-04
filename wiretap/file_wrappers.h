@@ -23,6 +23,10 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include <glib.h>
+#include <wtap.h>
+#include <wsutil/file_util.h>
+
 extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
 extern gint64 file_tell(FILE_T stream);
 extern gint64 file_tell_raw(FILE_T stream);

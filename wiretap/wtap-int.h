@@ -41,8 +41,6 @@
 
 #include <wsutil/file_util.h>
 
-typedef struct wtap_reader *FILE_T;
-
 #include "wtap.h"
 
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);

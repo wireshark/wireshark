@@ -24,6 +24,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __W_PCAP_COMMON_H__
+#define __W_PCAP_COMMON_H__
+
+#include <glib.h>
+#include <wtap.h>
+
 extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
     guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -36,3 +42,5 @@ extern int pcap_get_phdr_size(int encap,
 
 extern gboolean pcap_write_phdr(wtap_dumper *wdh, int wtap_encap,
     const union wtap_pseudo_header *pseudo_header, int *err);
+
+#endif

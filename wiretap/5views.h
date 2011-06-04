@@ -22,6 +22,8 @@
 
 #ifndef __5VIEWS_H__
 #define __5VIEWS_H__
+#include <glib.h>
+#include <wtap.h>
 
 int _5views_open(wtap *wth, int *err, gchar **err_info);
 gboolean _5views_dump_open(wtap_dumper *wdh, int *err);

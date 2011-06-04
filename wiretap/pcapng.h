@@ -23,6 +23,9 @@
 #ifndef __W_PCAPNG_H__
 #define __W_PCAPNG_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int pcapng_open(wtap *wth, int *err, gchar **err_info);
 gboolean pcapng_dump_open(wtap_dumper *wdh, int *err);
 int pcapng_dump_can_write_encap(int encap);

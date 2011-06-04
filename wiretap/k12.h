@@ -20,9 +20,18 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef __W_K12_H__
+#define __W_K12_H__
+
+#include <glib.h>
+#include <wtap.h>
+
 int k12_open(wtap *wth, int *err, gchar **err_info);
 int k12_dump_can_write_encap(int encap);
 gboolean k12_dump_open(wtap_dumper *wdh, int *err);
 int k12text_open(wtap *wth, int *err, gchar **err_info _U_);
 int k12text_dump_can_write_encap(int encap);
 gboolean k12text_dump_open(wtap_dumper *wdh, int *err);
+
+#endif
+

@@ -23,6 +23,9 @@
 #ifndef __TNEF_H__
 #define __TNEF_H__
 
+#include <glib.h>
+#include <wiretap/wtap.h>
+
 #define TNEF_SIGNATURE 0x223E9F78
 
 int tnef_open(wtap *wth, int *err, gchar **err_info);

@@ -25,6 +25,8 @@
 
 #ifndef __DAINTREE_SNA_H__
 #define __DAINTREE_SNA_H__
+#include <glib.h>
+#include <wtap.h>
 
 int daintree_sna_open(wtap *wth, int *err, gchar **err_info _U_);
 

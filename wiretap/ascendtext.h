@@ -23,6 +23,7 @@
 
 #ifndef __ASCENDTEXT_H__
 #define __ASCENDTEXT_H__
+#include <glib.h>
 
 #define ASCEND_MAX_DATA_ROWS 8
 #define ASCEND_MAX_DATA_COLS 16

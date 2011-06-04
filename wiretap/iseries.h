@@ -23,6 +23,9 @@
 #ifndef __W_ISERIES_H__
 #define __W_ISERIES_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int iseries_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

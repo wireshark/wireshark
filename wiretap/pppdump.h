@@ -23,6 +23,9 @@
 #ifndef __PPPDUMP_H__
 #define __PPPDUMP_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int pppdump_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

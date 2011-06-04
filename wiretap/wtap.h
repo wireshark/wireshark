@@ -823,6 +823,8 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
+typedef struct wtap_reader *FILE_T;
+
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */

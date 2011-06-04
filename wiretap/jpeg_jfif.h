@@ -25,7 +25,8 @@
 #ifndef __W_JPEG_JFIF_H__
 #define __W_JPEG_JFIF_H__
 
-#include "wtap-int.h"
+#include <glib.h>
+#include <wtap.h>
 
 int jpeg_jfif_open(wtap *wth, int *err, gchar **err_info);
 

@@ -38,6 +38,9 @@
 #ifndef __W_ERF_H__
 #define __W_ERF_H__
 
+#include <glib.h>
+#include <wiretap/wtap.h>
+
 /* Record type defines */
 #define ERF_TYPE_LEGACY             0
 #define ERF_TYPE_HDLC_POS           1
