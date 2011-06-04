@@ -307,7 +307,12 @@ endif		# HAVE_DOXYGEN
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
 dumpabi: all abi-descriptor.xml
-	mkdir abi-check-headers; cp *.h abi-check-headers/; \
+	mkdir abi-check-headers; cp ../color.h ../config.h ../register.h abi-check-headers/; \
+	mkdir abi-check-headers/epan; cp *.h abi-check-headers/epan; \
+	mkdir abi-check-headers/crypt; cp crypt/*.h abi-check-headers/crypt; \
+	mkdir abi-check-headers/dfilter; cp dfilter/*.h abi-check-headers/dfilter; \
+	mkdir abi-check-headers/dissectors; cp dissectors/*.h abi-check-headers/dissectors; \
+	mkdir abi-check-headers/ftypes; cp ftypes/*.h abi-check-headers/ftypes; \
 	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.?.?.?|sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/; (cd .libs; ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz); \
