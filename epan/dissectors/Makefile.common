@@ -1195,6 +1195,7 @@ DISSECTOR_INCLUDES =	\
 	packet-logotypecertextn.h	\
 	packet-lte-rrc.h	\
 	packet-mac-lte.h		\
+	packet-mbtcp.h	\
 	packet-meta.h	\
 	packet-mgcp.h		\
 	packet-mms.h	\
