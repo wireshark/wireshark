@@ -28,14 +28,10 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/filesystem.h>
-#include <wsutil/file_util.h>
+#include <epan/prefs.h>
+#include <epan/uat.h>
 
 
 /* Initialize the protocol and registered fields */
@@ -147,8 +143,56 @@ static const value_string smex_data_class[] = {
   { 0, NULL }
 };
 
+/* default bitstream channel assignments:
+* the audio channels 4-6 are designated as bitstream channels
+* the standard bitstream channels are 12 through 19
+* the video channels 28-30 are designated as bitstream channels
+* the fill channel 63 is designated as bitstream
+*/
+static int bitstream_channels[] =
+{
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 0-9 */
+ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,  /* channels 10-19 */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 20-29 */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 30-39 */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 40-49 */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 50-59 */
+ 0, 0, 0, 1                     /* channels 60-63 */
+};
 
+typedef struct {
+   guint channel;
+} uat_channel_t;
 
+static uat_channel_t *uat_bitchannels = NULL;
+static uat_t * vcdu_uat = NULL;
+static guint num_channels_uat = 0;
+
+UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
+
+static void vcdu_uat_data_update_cb(void* p, const char** err) {
+  uat_channel_t *ud = p;
+
+  if (ud->channel >= 64) {
+    *err = ep_strdup_printf("Channel must be between 0-63.");
+    return;
+  }
+}
+
+static void vcdu_prefs_apply_cb(void)
+{
+   guint i;
+
+   if (num_channels_uat > 0)
+   {
+      memset ( bitstream_channels, 0, sizeof(bitstream_channels) );
+
+      for (i = 0; i < num_channels_uat; i++)
+      {
+         bitstream_channels[uat_bitchannels[i].channel] = 1;
+      }
+   }
+}
 
 /* convert smex PB5 header time to a human readable string - NOT THREAD SAFE
  *
@@ -203,29 +247,10 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
 static void
 dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        static int bitstream_channels_file_read = 0;
-
-        /* default bitstream channel assignments:
-         * the audio channels 4-6 are designated as bitstream channels
-         * the standard bitstream channels are 12 through 19
-         * the video channels 28-30 are designated as bitstream channels
-         * the fill channel 63 is designated as bitstream
-         */
-        static int bitstream_channels[] =
-        {
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 0-9 */
-          0, 0, 1, 1, 1, 1, 1, 1, 1, 1,  /* channels 10-19 */
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 20-29 */
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 30-39 */
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 40-49 */
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* channels 50-59 */
-          0, 0, 0, 1                     /* channels 60-63 */
-        };
-
-        int packet_boundary = 0;
+   int packet_boundary = 0;
 	int offset = 0;
 	int new_offset=0;
-        int ccsds_tree_added = 0;
+   int ccsds_tree_added = 0;
 
 	int ccsds_len = 0;
 
@@ -241,52 +266,9 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tvbuff_t *new_tvb = NULL;
 
-        int channel = 0, vcid = 0;
-        char *filename = NULL;
-        char *endptr = NULL, *cptr = NULL;
-        FILE* fp = NULL;
-        char readbuf[1024];
+   int vcid = 0, pb5_days = 0, pb5_seconds = 0, pb5_milliseconds = 0;
+   const char* time_string = NULL;
 
-        int pb5_days = 0, pb5_seconds = 0, pb5_milliseconds = 0;
-        const char* time_string = NULL;
-
-
-        /* if the bitstream channels file has not been read attempt to do so now.
-         * this file potentially contains a modified list of the channels that
-         * should be processed as bitstream instead of ccsds.
-         */
-        if ( ! bitstream_channels_file_read )
-        {
-                bitstream_channels_file_read = 1;
-                filename = get_persconffile_path ( ".bitstream_channels", FALSE, FALSE );
-                fp = ws_fopen ( filename, "r" );
-
-                if ( NULL != fp )
-                {
-                  if ( fgets ( readbuf, sizeof(readbuf), fp ) == readbuf )
-                  {
-                    memset ( bitstream_channels, 0, sizeof(bitstream_channels) );
-                    cptr = readbuf;
-
-                    while ( TRUE )
-                    {
-                      channel = strtoul ( cptr, &endptr, 0 );
-                      if ( cptr == endptr ) break;
-
-                      if ( channel >= 0  &&  channel < 64 )
-                      {
-                        bitstream_channels[channel] = 1;
-                      }
-
-                      cptr = endptr;
-                    }
-                  }
-
-                  fclose(fp);
-                  g_free(filename);
-                }
-        }
-	
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VCDU");
 	col_set_str(pinfo->cinfo, COL_INFO, "Virtual Channel Data Unit");
 
@@ -463,6 +445,8 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_vcdu(void)
 {                 
+  module_t *vcdu_module;
+
         /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_smex_gsc,
@@ -602,6 +586,11 @@ proto_register_vcdu(void)
 		}
 	};
 
+  static uat_field_t vcdu_uat_flds[] = {
+    UAT_FLD_DEC(uat_bitchannels, channel, "Bitstream Channel", "Bitstream Channel"),
+    UAT_END_FIELDS
+  };
+
         /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_vcdu,
@@ -618,6 +607,29 @@ proto_register_vcdu(void)
 
 	/* XX: Does this dissector need to be publicly registered ?? */
 	register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
+
+   vcdu_module = prefs_register_protocol(proto_vcdu, vcdu_prefs_apply_cb);
+
+   vcdu_uat = uat_new("Bitstream Channel Table",
+      sizeof(uat_channel_t),
+      "vcdu_bitstream_channels",
+      TRUE,
+      (void*)&uat_bitchannels,
+      &num_channels_uat,
+      UAT_CAT_GENERAL,
+      NULL,
+      NULL,
+      vcdu_uat_data_update_cb,
+      NULL,
+      NULL,
+      vcdu_uat_flds);
+
+  prefs_register_uat_preference(vcdu_module,
+      "bitstream_channels",
+      "Bitstream Channel Table",
+      "Bitstream Channel Table",
+      vcdu_uat);
+
 }
 
 
