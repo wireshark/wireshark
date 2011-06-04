@@ -344,7 +344,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* keep packet context */
       p_save_proto_data = p_get_proto_data( pinfo->fd, proto_mbtcp );
       p_remove_proto_data(pinfo->fd, proto_mbtcp);
-      p_add_proto_data(pinfo->fd, proto_mbtcp, (void*)packet_type);
+      p_add_proto_data(pinfo->fd, proto_mbtcp, GINT_TO_POINTER(packet_type));
 
       /* Show the undissected payload */
        if( tvb_length_remaining(tvb, offset) > 0 )
@@ -454,7 +454,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
    /* "Request" or "Response" */
-   packet_type = (int)p_get_proto_data( pinfo->fd, proto_mbtcp );
+   packet_type = GPOINTER_TO_INT(p_get_proto_data( pinfo->fd, proto_mbtcp ));
 
 	/* Make entries in Info column on summary display */
 	offset = 0;
