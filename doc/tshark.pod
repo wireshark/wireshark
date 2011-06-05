@@ -749,7 +749,7 @@ This option can be used multiple times on the command line.
 
 Collect packet/bytes statistics for the capture in intervals of
 I<interval> seconds.  I<Interval> can be specified either as a whole or
-fractional second and can be specified with ms resolution.
+fractional second and can be specified with microsecond (us) resolution.
 If I<interval> is 0, the statistics will be calculated over all packets.
 
 If no I<filter> is specified the statistics will be calculated for all packets.
@@ -770,7 +770,7 @@ which only calculates the number of packets and bytes in each interval.
 B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
 MIN(), MAX(), and AVG() using a slightly different filter syntax:
 
-  [COUNT|SUM|MIN|MAX|AVG](<field>)<filter>
+=item -z io,stat,E<34>[COUNT|SUM|MIN|MAX|AVG](I<field>)I<field> [and I<filter>]E<34>
 
 NOTE: One important thing to note here is that the field that the
 calculation is based on MUST also be part of the filter string or
@@ -785,35 +785,97 @@ NOTE: A second important thing to note is that the system setting for
 decimal separator is set to "."! If it is set to "," the statistics
 will not be displayed per filter.
 
-COUNT(<field>) can be used on any type which has a display filter name.
-It will count how many times this particular field is encountered in the
-filtered packet list.
+B<COUNT(I<field>)I<field> [and I<filter>]> - Calculates the number of times that the
+field I<name> (not its value) appears per interval in the filtered packet list.
+''I<field>'' can be any display filter name.
 
-Example: B<-z io,stat,0.010,COUNT(smb.sid)smb.sid>
+Example: B<-z io,stat,0.010,E<34>COUNT(smb.sid)smb.sidE<34>>
 
 This will count the total number of SIDs seen in each 10ms interval.
 
-SUM(<field>) can only be used on named fields of integer type.
-This will sum together every occurrence of this field's value for each interval.
+B<SUM(I<field>)I<field> [and I<filter>]> - Unlike COUNT, the I<values> of the
+specified field are summed per time interval. 
+''I<field>'' can only be a named integer or relative time field.
 
-Example: B<-z io,stat,0.010,SUM(frame.pkt_len)frame.pkt_len>
+Example: B<-z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
 
-This will report the total number of bytes seen in all the packets within
-an interval.
+Reports the total number of bytes that were transmitted bidirectionally in
+all the packets within a 10 millisecond interval.
 
-MIN/MAX/AVG(<field>) can only be used on named fields that are either
-integers or relative time fields.  This will calculate maximum/minimum
-or average seen in each interval.  If the field is a relative time field
-the output will be presented in seconds and three digits after the
-decimal point.  The resolution for time calculations is 1ms and anything
-smaller will be truncated.
+B<MIN/MAX/AVG(I<field>)I<field> [and I<filter>]> - The minimum, maximum, or average field value
+in each interval is calculated.  The specified field must be a named integer
+or relative time field. For relative time fields, the output is presented in
+seconds with six decimal digits of precision rounded to the nearest microsecond.
 
-Example:  B<-z "io,stat,0.010,smb.time&&ip.addr==1.1.1.1,MIN(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1">
+In the following example, The time of the first Read_AndX call, the last Read_AndX
+response values are displayed and the minimum, maximum, and average Read response times
+(SRTs) are calculated.  NOTE: If the DOS command shell line continuation character, ''^''
+is used, each line cannot end in a comma so it is placed at the beginning of each
+continuation line:
 
-This will calculate statistics for all smb response times we see to/from
-host 1.1.1.1 in 10ms intervals.  The output will be displayed in 4
-columns; number of packets/bytes, minimum response time, maximum response
-time and average response time.
+  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,
+  "MIN(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==0",
+  "MAX(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==1",
+  "MIN(smb.time)smb.time and smb.cmd==0x2e",
+  "MAX(smb.time)smb.time and smb.cmd==0x2e",
+  "AVG(smb.time)smb.time and smb.cmd==0x2e"
+
+
+  ======================================================================================================
+  IO Statistics
+  Column #0: MIN(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==0
+  Column #1: MAX(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==1
+  Column #2: MIN(smb.time)smb.time and smb.cmd==0x2e
+  Column #3: MAX(smb.time)smb.time and smb.cmd==0x2e
+  Column #4: AVG(smb.time)smb.time and smb.cmd==0x2e
+                  |    Column #0   |    Column #1   |    Column #2   |    Column #3   |    Column #4   |
+  Time            |       MIN      |       MAX      |       MIN      |       MAX      |       AVG      |
+  000.000-                 0.000000         7.704054         0.000072         0.005539         0.000295
+  ======================================================================================================
+
+The following command displays the average SMB Read response PDU size, the
+total number of read PDU bytes, the average SMB Write request PDU size, and
+the total number of bytes transferred in SMB Write PDUs:
+
+  tshark -n -q -r smb_reads_writes.cap -z io,stat,0,
+  "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
+  "SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
+  "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to",
+  "SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to"
+
+  =====================================================================================
+  IO Statistics
+  Column #0: AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to
+  Column #1: SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to
+  Column #2: AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to
+  Column #3: SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to
+                  |    Column #0   |    Column #1   |    Column #2   |    Column #3   |
+  Time            |       AVG      |       SUM      |       AVG      |       SUM      |
+  000.000-                    30018         28067522               72             3240
+  =====================================================================================
+
+B<FRAMES | BYTES[()I<filter>]> - Displays the total number of frames or bytes.
+The filter field is optional but if included it must be prepended with ''()''.  
+
+The following command displays five columns: the total number of frames and bytes
+(transferred bidirectionally) using a single comma, the same two stats using the FRAMES and BYTES
+subcommands, the total number of frames containing at least one SMB Read response, and
+the total number of bytes transmitted to the client (unidirectionally) at IP address 10.1.0.64.
+
+  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,,FRAMES,BYTES,
+  "FRAMES()smb.cmd==0x2e and smb.response_to","BYTES()ip.dst==10.1.0.64"
+
+  =======================================================================================================================
+  IO Statistics
+  Column #0:
+  Column #1: FRAMES
+  Column #2: BYTES
+  Column #3: FRAMES()smb.cmd==0x2e and smb.response_to
+  Column #4: BYTES()ip.dst==10.1.0.64
+                  |            Column #0            |    Column #1   |    Column #2   |    Column #3   |    Column #4   |
+  Time            |     Frames     |      Bytes     |     FRAMES     |     BYTES      |     FRAMES     |     BYTES      |
+  000.000-                    33576         29721685            33576         29721685              870         29004801
+  =======================================================================================================================
 
 =item B<-z> conv,I<type>[,I<filter>]
 

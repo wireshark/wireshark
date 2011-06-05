@@ -41,24 +41,26 @@
 
 
 typedef struct _io_stat_t {
-	gint32 interval;	/* unit is ms */
+	gint64 interval;	/* unit is us */
 	guint32 num_items;
 	struct _io_stat_item_t *items;
 	const char **filters;
 } io_stat_t;
 
-#define CALC_TYPE_BYTES	0
-#define CALC_TYPE_COUNT	1
-#define CALC_TYPE_SUM	2
-#define CALC_TYPE_MIN	3
-#define CALC_TYPE_MAX	4
-#define CALC_TYPE_AVG	5
+#define CALC_TYPE_FRAMES 0
+#define CALC_TYPE_BYTES	 1
+#define CALC_TYPE_FRAMES_AND_BYTES	 2
+#define CALC_TYPE_COUNT	 3
+#define CALC_TYPE_SUM	 4
+#define CALC_TYPE_MIN	 5
+#define CALC_TYPE_MAX	 6
+#define CALC_TYPE_AVG	 7
 
 typedef struct _io_stat_item_t {
 	io_stat_t *parent;
 	struct _io_stat_item_t *next;
 	struct _io_stat_item_t *prev;
-	gint32 time;		/* unit is ms since start of capture */
+	gint64 time;		/* unit is us since start of capture */
 	int calc_type;
 	int hf_index;
 	guint64 frames;
@@ -66,17 +68,18 @@ typedef struct _io_stat_item_t {
 	guint64 counter;
 } io_stat_item_t;
 
+#define NANOSECS_PER_SEC 1000000000
 
 static int
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	io_stat_item_t *mit = arg;
 	io_stat_item_t *it;
-	gint32 current_time;
+	gint64 current_time;
 	GPtrArray *gp;
 	guint i;
 
-	current_time=(gint32) ((pinfo->fd->rel_ts.secs*1000)+(pinfo->fd->rel_ts.nsecs/1000000));
+	current_time = (gint64)(pinfo->fd->rel_ts.secs*1000000) + (pinfo->fd->rel_ts.nsecs+500)/1000;
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=mit->prev;
@@ -108,6 +111,8 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
 	switch(it->calc_type){
 	case CALC_TYPE_BYTES:
+	case CALC_TYPE_FRAMES: 
+	case CALC_TYPE_FRAMES_AND_BYTES:
 		it->counter+=pinfo->fd->pkt_len;
 		break;
 	case CALC_TYPE_COUNT:
@@ -119,6 +124,9 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	case CALC_TYPE_SUM:
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
+			guint64 val;
+			nstime_t *new_time;
+
 			for(i=0;i<gp->len;i++){
 				switch(proto_registrar_get_ftype(it->hf_index)){
 				case FT_UINT8:
@@ -138,6 +146,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_INT64:
 					it->counter+=(gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+					break;
+				case FT_RELATIVE_TIME:
+					new_time = fvalue_get(&((field_info *)gp->pdata[i])->value);
+					val=(guint64)(new_time->secs) * NANOSECS_PER_SEC + new_time->nsecs;
+					it->counter += val;
 					break;
 				}
 			}
@@ -193,7 +206,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64)(new_time->secs) * NANOSECS_PER_SEC + new_time->nsecs;
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -254,7 +267,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64)(new_time->secs) * NANOSECS_PER_SEC + new_time->nsecs;
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -297,7 +310,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=(guint64) (new_time->secs*1000+new_time->nsecs/1000000);
+					val=(guint64)(new_time->secs) * NANOSECS_PER_SEC + new_time->nsecs;
 					it->counter+=val;
 					break;
 				}
@@ -319,44 +332,81 @@ iostat_draw(void *arg)
 	guint64 *counters;
 	guint64 *num;
 	guint32 i;
+	guint32 borderLen=68;
 	gboolean more_items;
-	gint t;
+	gint64 t;
 
 	iot=mit->parent;
 
 	printf("\n");
-	printf("===================================================================\n");
+	
+	/* Display the table border */
+	for(i=0;i<iot->num_items;i++){
+		if(iot->items[i].calc_type==CALC_TYPE_FRAMES_AND_BYTES)
+			borderLen+=17;
+	}
+	if(iot->interval!=G_MAXINT32)
+		borderLen+=8;
+	if(iot->num_items>3)
+		borderLen+=(iot->num_items-3)*17;
+	for(i=0;i<borderLen;i++){
+		printf("=");
+	}
+	printf("\n");
+	
+	
 	printf("IO Statistics\n");
 	if(iot->interval!=G_MAXINT32)
-		printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
+		printf("Interval: %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u secs\n", 
+				iot->interval/1000000, iot->interval%1000000);						
+
 	for(i=0;i<iot->num_items;i++){
 		printf("Column #%u: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
-	printf("                ");
+	if(iot->interval==G_MAXINT32){
+		printf("                |");
+	} else {
+		printf("                        |");
+	}
 	for(i=0;i<iot->num_items;i++){
-		printf("|   Column #%-2u   ",i);
+		if(iot->items[i].calc_type==CALC_TYPE_FRAMES_AND_BYTES){
+			printf("            Column #%-2u           |",i);
+		} else {	
+			printf("    Column #%-2u  |",i);
+		}
 	}
 	printf("\n");
-	printf("Time            ");
+
+	if(iot->interval==G_MAXINT32) {
+		printf("Time            |");
+	} else {
+		printf("Time                    |");
+	}
 	for(i=0;i<iot->num_items;i++){
 		switch(iot->items[i].calc_type){
+		case CALC_TYPE_FRAMES:
+			printf("     FRAMES     |");
+			break;
 		case CALC_TYPE_BYTES:
-			printf("|frames|  bytes  ");
+			printf("     BYTES      |");
+			break;
+		case CALC_TYPE_FRAMES_AND_BYTES:
+			printf("     Frames     |      Bytes     |");
 			break;
 		case CALC_TYPE_COUNT:
-			printf("|          COUNT ");
+			printf("      COUNT     |");
 			break;
 		case CALC_TYPE_SUM:
-			printf("|            SUM ");
+			printf("       SUM      |");
 			break;
 		case CALC_TYPE_MIN:
-			printf("|            MIN ");
+			printf("       MIN      |");
 			break;
 		case CALC_TYPE_MAX:
-			printf("|            MAX ");
+			printf("       MAX      |");
 			break;
 		case CALC_TYPE_AVG:
-			printf("|            AVG ");
+			printf("       AVG      |");
 			break;
 		}
 	}
@@ -400,21 +450,36 @@ iostat_draw(void *arg)
 			if(iot->interval==G_MAXINT32) {
 				printf("000.000-         ");
 			} else {
-				printf("%03d.%03d-%03d.%03d  ",
-					t/1000,t%1000,
-					(t+iot->interval)/1000,
-					(t+iot->interval)%1000);
+				printf("%04u.%06u-%04u.%06u  ",
+						(int)(t/1000000),(int)(t%1000000),
+						(int)((t+iot->interval)/1000000),
+						(int)((t+iot->interval)%1000000));
 			}
 			for(i=0;i<iot->num_items;i++){
 				switch(iot->items[i].calc_type){
+				case CALC_TYPE_FRAMES:
+					printf(" %15" G_GINT64_MODIFIER "u ", frames[i]);
+					break;
 				case CALC_TYPE_BYTES:
-					printf("%6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u ",frames[i], counters[i]);
+					printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
+					break;
+				case CALC_TYPE_FRAMES_AND_BYTES:
+					printf(" %15" G_GINT64_MODIFIER "u  %15" G_GINT64_MODIFIER "u ", frames[i], counters[i]);
 					break;
 				case CALC_TYPE_COUNT:
 					printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
 					break;
 				case CALC_TYPE_SUM:
-					printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
+					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
+					case FT_RELATIVE_TIME:
+						counters[i] = (counters[i]+500)/1000;
+						printf(" %8u.%06u ",
+								(int)(counters[i]/1000000), (int)(counters[i]%1000000));
+						break;
+					default:
+						printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
+	 					break;
+					}
 					break;
 				case CALC_TYPE_MIN:
 					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
@@ -433,7 +498,9 @@ iostat_draw(void *arg)
 						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						counters[i]=(counters[i]+500)/1000;
+						printf(" %8u.%06u ",
+								(int)(counters[i]/1000000), (int)(counters[i]%1000000));
 						break;
 					}
 					break;
@@ -444,7 +511,7 @@ iostat_draw(void *arg)
 					case FT_UINT24:
 					case FT_UINT32:
 					case FT_UINT64:
-						printf(" %15" G_GINT64_MODIFIER "u ", counters[i]);
+						printf(" %15u ", (int)(counters[i]));
 						break;
 					case FT_INT8:
 					case FT_INT16:
@@ -454,7 +521,9 @@ iostat_draw(void *arg)
 						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						counters[i]=(counters[i]+500)/1000;
+						printf(" %8u.%06u ",
+								(int)(counters[i]/1000000), (int)(counters[i]%1000000));
 						break;
 					}
 					break;
@@ -478,8 +547,9 @@ iostat_draw(void *arg)
 						printf(" %15" G_GINT64_MODIFIER "d ", counters[i]/num[i]);
 						break;
 					case FT_RELATIVE_TIME:
-						counters[i]/=num[i];
-						printf(" %11" G_GINT64_MODIFIER "d.%03d ", counters[i]/1000, (gint)counters[i]%1000);
+						counters[i]=((counters[i]/num[i])+500)/1000;
+						printf(" %8u.%06u ",
+								(int)(counters[i]/1000000), (int)(counters[i]%1000000));
 						break;
 					}
 					break;
@@ -492,7 +562,10 @@ iostat_draw(void *arg)
 		t+=iot->interval;
 	} while(more_items);
 
-	printf("===================================================================\n");
+	for(i=0;i<borderLen;i++){
+		printf("=");
+	}
+	printf("\n");
 
 	g_free(items);
 	g_free(frames);
@@ -507,6 +580,8 @@ typedef struct {
 } calc_type_ent_t;
 
 static calc_type_ent_t calc_type_table[] = {
+	{ "FRAMES", CALC_TYPE_FRAMES },
+	{ "BYTES", CALC_TYPE_BYTES },
 	{ "COUNT", CALC_TYPE_COUNT },
 	{ "SUM", CALC_TYPE_SUM },
 	{ "MIN", CALC_TYPE_MIN },
@@ -530,7 +605,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 	io->items[i].next=NULL;
 	io->items[i].parent=io;
 	io->items[i].time=0;
-	io->items[i].calc_type=CALC_TYPE_BYTES;
+	io->items[i].calc_type=CALC_TYPE_FRAMES_AND_BYTES;
 	io->items[i].frames=0;
 	io->items[i].counter=0;
 	io->items[i].num=0;
@@ -541,41 +616,57 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 	hfi=NULL;
 	for(j=0; calc_type_table[j].func_name; j++){
 		namelen=strlen(calc_type_table[j].func_name);
-		if(filter
-		    && strncmp(filter, calc_type_table[j].func_name, namelen) == 0
-		    && *(filter+namelen)=='('){
+		if(filter && strncmp(filter, calc_type_table[j].func_name, namelen) == 0) {
 			io->items[i].calc_type=calc_type_table[j].calc_type;
+			if(*(filter+namelen)=='(') {
+				p=filter+namelen+1;
+				parenp=strchr(p, ')');
+				if(!parenp){
+					fprintf(stderr, "\ntshark: Closing parenthesis missing from calculated expression.\n");
+					exit(10);
+				}
+				
+				
+				if(io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES){
+					if(parenp!=p) { 
+						fprintf(stderr, "\ntshark: %s does require or allow a field name within the parens.\n", 
+							calc_type_table[j].func_name);
+						exit(10);
+					}
+				} else {
+					if(parenp==p) { 
+							/* bail out if a field name was not specified */
+							fprintf(stderr, "\ntshark: You didn't specify a field name for %s(*).\n", 
+								calc_type_table[j].func_name);
+							exit(10);
+					}
+				}				
 
-			p=filter+namelen+1;
-			parenp=strchr(p, ')');
-			if(!parenp){
-				fprintf(stderr, "tshark: Closing parenthesis missing from calculated expression.\n");
-				exit(10);
-			}
-			/* bail out if there was no field specified */
-			if(parenp==p){
-				fprintf(stderr, "tshark: You didn't specify a field name for %s(*).\n",
-				    calc_type_table[j].func_name);
-				exit(10);
-			}
-			field=g_malloc(parenp-p+1);
-			memcpy(field, p, parenp-p);
-			field[parenp-p] = '\0';
-			flt=parenp + 1;
+				field=g_malloc(parenp-p+1);
+				memcpy(field, p, parenp-p);
+				field[parenp-p] = '\0';
+				flt=parenp + 1;
+				if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
+					break;
+				hfi=proto_registrar_get_byname(field);
+				if(!hfi){
+					fprintf(stderr, "\ntshark: There is no field named '%s'.\n",
+						field);
+					g_free(field);
+					exit(10);
+				}
 
-			hfi=proto_registrar_get_byname(field);
-			if(!hfi){
-				fprintf(stderr, "tshark: There is no field named '%s'.\n",
-				    field);
-				g_free(field);
-				exit(10);
+				io->items[i].hf_index=hfi->id;
+				break;
 			}
-
-			io->items[i].hf_index=hfi->id;
-			break;
+		} else {
+			if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
+				flt="";
 		}
 	}
-	if(hfi && io->items[i].calc_type!=CALC_TYPE_BYTES){
+	if(hfi && !(io->items[i].calc_type==CALC_TYPE_BYTES || 
+			    io->items[i].calc_type==CALC_TYPE_FRAMES || 
+			    io->items[i].calc_type==CALC_TYPE_FRAMES_AND_BYTES)){
 		/* check that the type is compatible */
 		switch(hfi->type){
 		case FT_UINT8:
@@ -601,7 +692,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				break;
 			default:
 				fprintf(stderr,
-				    "tshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
+					"\ntshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
@@ -614,7 +705,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			 */
 			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
 				fprintf(stderr,
-				    "tshark: %s doesn't have integral values, so %s(*) calculations are not supported on it.\n",
+					"\ntshark: %s doesn't have integral values, so %s(*) calculations are not supported on it.\n",
 				    field,
 				    calc_type_table[j].func_name);
 				exit(10);
@@ -635,7 +726,7 @@ CALC_TYPE_AVG	5
 	if(error_string){
 		g_free(io->items);
 		g_free(io);
-		fprintf(stderr, "tshark: Couldn't register io,stat tap: %s\n",
+		fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -645,13 +736,13 @@ CALC_TYPE_AVG	5
 static void
 iostat_init(const char *optarg, void* userdata _U_)
 {
-	float interval_float;
-	gint32 interval;
+	gdouble interval_float;
+	gint64 interval;
 	int idx=0;
 	io_stat_t *io;
 	const char *filter=NULL;
 
-	if(sscanf(optarg,"io,stat,%f%n",&interval_float,&idx)==1){
+	if(sscanf(optarg,"io,stat,%lf,%n",&interval_float,&idx)==1){
 		if(idx){
 			if(*(optarg+idx)==',')
 				filter=optarg+idx+1;
@@ -661,7 +752,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
+		fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -671,12 +762,13 @@ iostat_init(const char *optarg, void* userdata _U_)
 	if(interval_float==0) {
 		interval=G_MAXINT32;
 	} else {
-		/* make interval be number of ms */
-		interval=(gint32)(interval_float*1000.0+0.9);
+		/* make interval be number of us rounded to the nearest integer*/
+		interval=(gint64)(interval_float*1000000.0+0.5); 
 	}
 
 	if(interval<1){
-		fprintf(stderr, "tshark: \"-z\" interval must be >=0.001 seconds or 0.\n");
+		fprintf(stderr, 
+			"\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
 		exit(10);
 	}
 
