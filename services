@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-05-27)
+(last updated 2011-06-02)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -14225,8 +14225,8 @@ sncp            7560/udp    Sniffer Command Protocol
 #                           Dominick Cafarelli <dominick.cafarelli&networkgeneral.com> August 2005
 #               7561-7562   Unassigned
 cfw             7563/tcp    Control Framework
+#                           [RFC6230]
 #               7563/udp    Reserved
-#                           [RFC-ietf-mediactrl-sip-control-framework-12.txt]
 #               7564-7565   Unassigned
 vsi-omega       7566/tcp    VSI Omega	
 vsi-omega       7566/udp    VSI Omega
@@ -17234,19 +17234,17 @@ References
 
 [RFC6120]  P. Saint-Andre, "Extensible Messaging and Presence Protocol (XMPP): Core", 
            RFC 6120, March 2011.
-            
+
+[RFC6126]  J. Chroboczek, "The Babel Routing Protocol", RFC 6126, April 2011.
+           
 [RFC6142]   A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
             RFC 6142, March 2011.
 
 [RFC6143]  T. Richardson, J. Levine, "The Remote Framebuffer Protocol", RFC 6143, 
            March 2011.
 
-[RFC6126]  J. Chroboczek, "The Babel Routing Protocol", RFC 6126, April 2011.
-
-
-[RFC-ietf-mediactrl-sip-control-framework-12.txt]
-            C. Boulton, T. Melanchuk, S. McGlashan, "Media Control Channel Framework", 
-            RFC XXXX, Month Year.
+[RFC6230]  C. Boulton, T. Melanchuk, S. McGlashan, "Media Control Channel Framework", 
+           RFC 6230, May 2011.
 
 [RFC-ietf-netconf-rfc4742bis-08.txt]
             M. Wasserman, T. Goddard, "Using the NETCONF Configuration Protocol over 
