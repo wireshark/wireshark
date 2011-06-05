@@ -1531,11 +1531,17 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 }
 
 
-static tap_dfilter_dlg rlc_lte_stat_dlg = {
+static tap_param rlc_lte_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg rlc_lte_stat_dlg = {
     "LTE RLC Stats",
     "rlc-lte,stat",
     gtk_rlc_lte_stat_init,
-    -1
+    -1,
+    G_N_ELEMENTS(rlc_lte_stat_params),
+    rlc_lte_stat_params
 };
 
 

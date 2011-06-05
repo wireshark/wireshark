@@ -213,11 +213,17 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   gdk_window_raise(p_camelcounter->win->window);
 }
 
-static tap_dfilter_dlg camel_counter_dlg = {
+static tap_param camel_counter_params[] = {
+  { PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg camel_counter_dlg = {
   "CAMEL Messages and Response Status",
   "camel,counter",
   gtk_camelcounter_init,
-  -1
+  -1,
+  G_N_ELEMENTS(camel_counter_params),
+  camel_counter_params
 };
 
 void  /* Next line mandatory */

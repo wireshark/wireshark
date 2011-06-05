@@ -230,11 +230,17 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
 
 }
 
-static tap_dfilter_dlg camel_srt_dlg = {
+static tap_param camel_srt_params[] = {
+  { PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg camel_srt_dlg = {
   "CAMEL Service Response Time",
   "camel,srt",
   gtk_camelsrt_init,
-  -1
+  -1,
+  G_N_ELEMENTS(camel_srt_params),
+  camel_srt_params
 };
 
 void /* Next line mandatory */

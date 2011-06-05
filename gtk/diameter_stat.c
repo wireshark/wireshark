@@ -218,11 +218,17 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(diameter->win->window);
 }
 
-static tap_dfilter_dlg diameter_stat_dlg = {
+static tap_param diameter_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg diameter_stat_dlg = {
 	"Diameter Service Response Time Statistics",
 	"diameter",
 	gtk_diameterstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(diameter_stat_params),
+	diameter_stat_params
 };
 
 void

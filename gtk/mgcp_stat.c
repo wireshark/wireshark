@@ -302,11 +302,17 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(ms->win->window);
 }
 
-static tap_dfilter_dlg mgcp_srt_dlg = {
+static tap_param mgcp_srt_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg mgcp_srt_dlg = {
 	"MGCP Service Response Time (SRT) Statistics",
 	"mgcp,srt",
 	gtk_mgcpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(mgcp_srt_params),
+	mgcp_srt_params
 };
 
 void

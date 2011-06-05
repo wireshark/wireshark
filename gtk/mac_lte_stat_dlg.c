@@ -1302,11 +1302,17 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
 }
 
 
-static tap_dfilter_dlg mac_lte_stat_dlg = {
+static tap_param mac_lte_stat_params[] = {
+    { PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg mac_lte_stat_dlg = {
     "LTE MAC Stats",
     "mac-lte,stat",
     gtk_mac_lte_stat_init,
-    -1
+    -1,
+    G_N_ELEMENTS(mac_lte_stat_params),
+    mac_lte_stat_params
 };
 
 

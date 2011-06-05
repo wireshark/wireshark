@@ -204,11 +204,17 @@ gtk_fcstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(fc->win->window);
 }
 
-static tap_dfilter_dlg fc_stat_dlg = {
+static tap_param fc_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg fc_stat_dlg = {
 	"Fibre Channel Service Response Time statistics",
 	"fc,srt",
 	gtk_fcstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(fc_stat_params),
+	fc_stat_params
 };
 
 void

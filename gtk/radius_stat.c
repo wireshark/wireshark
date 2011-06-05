@@ -353,11 +353,17 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(rs->win->window);
 }
 
-static tap_dfilter_dlg radius_srt_dlg = {
+static tap_param radius_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg radius_srt_dlg = {
 	"RADIUS Service Response Time (SRT) Statistics",
 	"radius,srt",
 	gtk_radiusstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(radius_stat_params),
+	radius_stat_params
 };
 
 void

@@ -236,11 +236,17 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(ldap->win->window);
 }
 
-static tap_dfilter_dlg ldap_stat_dlg = {
+static tap_param ldap_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg ldap_stat_dlg = {
 	"LDAP Service Response Time Statistics",
 	"ldap,srt",
 	gtk_ldapstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(ldap_stat_params),
+	ldap_stat_params
 };
 
 void

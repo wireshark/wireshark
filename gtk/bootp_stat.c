@@ -271,11 +271,17 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(sp->win->window);
 }
 
-static tap_dfilter_dlg dhcp_stat_dlg = {
+static tap_param bootp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg dhcp_stat_dlg = {
 	"BOOTP-DHCP Packet Counter",
 	"bootp,stat",
 	dhcpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(bootp_stat_params),
+	bootp_stat_params
 };
 
 void

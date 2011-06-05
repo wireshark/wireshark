@@ -48,7 +48,7 @@ struct _st_node_pres {
 };
 
 struct _tree_cfg_pres {
-	tap_dfilter_dlg* stat_dlg;
+	tap_param_dlg* stat_dlg;
 };
 
 struct _tree_pres {
@@ -339,7 +339,7 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 
 	cfg->pr = g_malloc(sizeof(tree_pres));
 
-	cfg->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
+	cfg->pr->stat_dlg = g_malloc(sizeof(tap_param_dlg));
 
 	cfg->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",cfg->name);
 	cfg->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",cfg->abbr);

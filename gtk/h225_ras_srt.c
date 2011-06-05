@@ -56,11 +56,17 @@
 
 static void gtk_h225rassrt_init(const char *optarg, void *userdata);
 
-static tap_dfilter_dlg h225_rassrt_dlg = {
+static tap_param h225_rassrt_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg h225_rassrt_dlg = {
 	"H.225 RAS Service Response Time",
 	"h225,srt",
 	gtk_h225rassrt_init,
-	-1
+	-1,
+	G_N_ELEMENTS(h225_rassrt_params),
+	h225_rassrt_params
 };
 
 /* following values represent the size of their valuestring arrays */

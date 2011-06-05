@@ -216,11 +216,17 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(ms->win->window);
 }
 
-static tap_dfilter_dlg megaco_srt_dlg = {
+static tap_param megaco_srt_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg megaco_srt_dlg = {
 	"MEGACO Service Response Time (SRT) Statistics",
 	"megaco,srt",
 	gtk_megacostat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(megaco_srt_params),
+	megaco_srt_params
 };
 
 void

@@ -419,11 +419,17 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(sp->win->window);
 }
 
-static tap_dfilter_dlg wsp_stat_dlg = {
+static tap_param wsp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg wsp_stat_dlg = {
 	"WAP-WSP Packet Counter",
 	"wsp,stat",
 	gtk_wspstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(wsp_stat_params),
+	wsp_stat_params
 };
 
 void

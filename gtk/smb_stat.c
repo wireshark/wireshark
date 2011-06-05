@@ -239,11 +239,17 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(ss->win->window);
 }
 
-static tap_dfilter_dlg smb_stat_dlg = {
+static tap_param smb_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg smb_stat_dlg = {
 	"SMB SRT Statistics",
 	"smb,srt",
 	gtk_smbstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(smb_stat_params),
+	smb_stat_params
 };
 
 void

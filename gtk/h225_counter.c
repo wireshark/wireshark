@@ -55,11 +55,17 @@
 
 static void gtk_h225counter_init(const char *optarg, void *userdata);
 
-static tap_dfilter_dlg h225_counter_dlg = {
+static tap_param h225_counter_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg h225_counter_dlg = {
 	"H.225 Messages and Message Reasons",
 	"h225,counter",
 	gtk_h225counter_init,
-	-1
+	-1,
+	G_N_ELEMENTS(h225_counter_params),
+	h225_counter_params
 };
 
 /* following values represent the size of their valuestring arrays */

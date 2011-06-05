@@ -1,5 +1,5 @@
 /* tap_dfilter_dlg.h
- * Header file for display filter dialog used by gui taps
+ * Header file for parameter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
  * $Id$
@@ -27,10 +27,10 @@
 #define __TAP_DFILTER_DLG_H__
 
 /*
- * You can easily add a display filter dialog for your gui tap by using 
+ * You can easily add a parameter dialog for your gui tap by using 
  * the following infrastructure:
  *
- * Define a global structure of tap_dfilter_dlg within your tap source file.
+ * Define a global structure of tap_param_dlg within your stat source file.
  * Initiate it with:
  * 1) a title string for the Dialog Window
  * 2) the init string, which is the same as the string after "-z" option without 
@@ -40,17 +40,22 @@
  * 4) the index with "-1"
  *
  * Within register_tap_menu_yourtap(void), call register_dfilter_stat()
- * with a pointer to the tap_dfilter_dlg structure, a string for the
+ * with a pointer to the tap_param_dlg structure, a string for the
  * menu item (don't put "..." at the end, register_dfilter_stat() will
  * add it for you), and the REGISTER_STAT_GROUP_ value for the stat
  * group to which your stat should belong.
  *
  * Usage:
  *
- * tap_dfilter_dlg my_tap_dfilter_dlg = {"My Title", "myproto,mytap", gtk_mytap_init, -1};
+ * tap_param_dlg my_tap_param_dlg = {
+ *	"My Title",
+ *	"myproto,mytap",
+ *	gtk_mytap_init,
+ *	-1
+ * };
  *
  * register_tap_menu_mytap(void) {
- *   register_dfilter_stat(&my_tap_dfilter_dlg, "My Menu Item",
+ *   register_dfilter_stat(&my_tap_param_dlg, "My Menu Item",
  *       REGISTER_STAT_GROUP_my_group);
  * }
  *
@@ -58,21 +63,38 @@
  *
  */
 
-typedef struct _tap_dfilter_dlg {
+#include <epan/params.h>
+
+typedef enum {
+	PARAM_UINT,
+	PARAM_STRING,
+	PARAM_ENUM,
+	PARAM_FILTER
+} param_type;
+
+typedef struct _tap_param {
+	param_type type;
+	const char *title;
+	enum_val_t *enum_vals;
+} tap_param;
+
+typedef struct _tap_param_dlg {
 	const char *win_title;		/* title */
 	const char *init_string;	/* the string to call the tap without a filter via "-z" option */
 	void (* tap_init_cb)(const char *,void*);	/* callback to init function of the tap */
 	gint index;			/* initiate this value always with "-1" */
-} tap_dfilter_dlg;
+	size_t nparams;			/* number of parameters */
+	tap_param *params;		/* pointer to table of parameter info */
+} tap_param_dlg;
 
 /*
  * Register a stat that has a display filter dialog.
  * We register it both as a command-line stat and a menu item stat.
  */
-void register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
+void register_dfilter_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group);
 
 /* This will update the titles of the dialog windows when we load a new capture file. */
-void tap_dfilter_dlg_update (void);
+void tap_param_dlg_update (void);
 
 #endif /* __TAP_DFILTER_DLG_H__ */

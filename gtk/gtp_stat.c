@@ -221,11 +221,17 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(gtp->win->window);
 }
 
-static tap_dfilter_dlg gtp_stat_dlg = {
+static tap_param gtp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg gtp_stat_dlg = {
 	"GTP Control Plane Response Time Statistics",
 	"gtp",
 	gtk_gtpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(gtp_stat_params),
+	gtp_stat_params
 };
 
 void

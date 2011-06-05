@@ -721,11 +721,17 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     cf_redissect_packets(&cfile);
 }
 
-static tap_dfilter_dlg ncp_stat_dlg = {
+static tap_param ncp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg ncp_stat_dlg = {
 	"NCP SRT Statistics",
 	"ncp,srt",
 	gtk_ncpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(ncp_stat_params),
+	ncp_stat_params
 };
 
 void

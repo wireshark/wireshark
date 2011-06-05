@@ -29,6 +29,7 @@
 
 #include "color.h"
 
+#include <epan/params.h>
 #include <epan/range.h>
 
 #define PR_DEST_CMD  0
@@ -328,12 +329,6 @@ extern void prefs_register_bool_preference(module_t *module, const char *name,
 /*
  * Register a preference with an enumerated value.
  */
-typedef struct {
-	const char	*name;
-	const char	*description;
-	gint		value;
-} enum_val_t;
-
 extern void prefs_register_enum_preference(module_t *module, const char *name,
     const char *title, const char *description, gint *var,
     const enum_val_t *enumvals, gboolean radio_buttons);

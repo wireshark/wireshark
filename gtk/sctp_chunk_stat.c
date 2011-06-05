@@ -57,11 +57,17 @@
 
 static void sctpstat_init(const char *optarg, void *userdata);
 
-static tap_dfilter_dlg sctp_stat_dlg = {
+static tap_param sctp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg sctp_stat_dlg = {
 	"SCTP Statistics",
 	"sctp,stat",
 	sctpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(sctp_stat_params),
+	sctp_stat_params
 };
 
 typedef struct sctp_ep {

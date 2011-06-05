@@ -711,11 +711,17 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     gdk_window_raise(sp->win->window);
 }
 
-static tap_dfilter_dlg sip_stat_dlg = {
+static tap_param sip_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg sip_stat_dlg = {
 	"SIP Packet Counter",
 	"sip,stat",
 	gtk_sipstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(sip_stat_params),
+	sip_stat_params
 };
 
 /* Register this tap listener and add menu item. */

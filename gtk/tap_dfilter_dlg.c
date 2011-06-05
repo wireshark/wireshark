@@ -1,5 +1,5 @@
 /* tap_dfilter_dlg.c
- * Routines for display filter dialog used by gui taps
+ * Routines for parameter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
  * $Id$
@@ -53,27 +53,27 @@
 #include "gtk/filter_autocomplete.h"
 
 
-typedef struct _tap_dfilter_dlg_list_item {
+typedef struct _tap_param_dlg_list_item {
 	GtkWidget *dlg;
-	GtkWidget *filter_entry;
-	tap_dfilter_dlg cont;
+	tap_param_dlg cont;
 	construct_args_t args;
-	struct _tap_dfilter_dlg_list_item *next;
-} tap_dfilter_dlg_list_item;
+	GtkWidget **param_entries;	/* items for params */
+	struct _tap_param_dlg_list_item *next;
+} tap_param_dlg_list_item;
 
-static tap_dfilter_dlg_list_item *start_dlg_list=NULL;
-static tap_dfilter_dlg_list_item *end_dlg_list=NULL;
-static tap_dfilter_dlg_list_item *current_dlg = NULL;
+static tap_param_dlg_list_item *start_dlg_list=NULL;
+static tap_param_dlg_list_item *end_dlg_list=NULL;
+static tap_param_dlg_list_item *current_dlg = NULL;
 
 static void
-tap_dfilter_dlg_cb(GtkWidget *w, gpointer data);
+tap_param_dlg_cb(GtkWidget *w, gpointer data);
 
 /*
- * Register a stat that has a display filter dialog.
+ * Register a stat that has a parameter dialog.
  * We register it both as a command-line stat and a menu item stat.
  */
 void
-register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
+register_dfilter_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group)
 {
 	char *full_name;
@@ -85,14 +85,14 @@ register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
 	 * to it.
 	 */
 	full_name = g_strdup_printf("%s...", name);
-	register_stat_menu_item(full_name, group, tap_dfilter_dlg_cb, NULL,
+	register_stat_menu_item(full_name, group, tap_param_dlg_cb, NULL,
 	    NULL, info);
 	g_free(full_name);
 }              
 
-void tap_dfilter_dlg_update (void)
+void tap_param_dlg_update (void)
 {
-	tap_dfilter_dlg_list_item *dialog = start_dlg_list;
+	tap_param_dlg_list_item *dialog = start_dlg_list;
 	char *title;
 	
 	while(dialog != NULL) {
@@ -108,41 +108,41 @@ void tap_dfilter_dlg_update (void)
 static void
 dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
 {	
-	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
+	tap_param_dlg_list_item *dlg_data = (tap_param_dlg_list_item *) dialog_data;
 	dlg_data->dlg = NULL;
 }
 
 static void
-tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
+tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
-	const char *filter;
-	char *str;
+	const char *value;
+	GString *params;
+	size_t i;
 	
-	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
+	tap_param_dlg_list_item *dlg_data = (tap_param_dlg_list_item *) dialog_data;
 
-	filter=gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
-	if(filter[0]==0){
-		str = g_strdup_printf("%s", dlg_data->cont.init_string);
-	} else {
-		str = g_strdup_printf("%s,%s", dlg_data->cont.init_string,
-				      filter);
+	params = g_string_new(dlg_data->cont.init_string);
+	for(i=0;i<dlg_data->cont.nparams;i++) {
+		value=gtk_entry_get_text(GTK_ENTRY(dlg_data->param_entries[i]));
+		params=g_string_append_c(params, ',');
+		params=g_string_append(params, value);
 	}
-	(dlg_data->cont.tap_init_cb)(str,NULL);
-
-	g_free(str);
+	(dlg_data->cont.tap_init_cb)(params->str,NULL);
+	g_string_free(params, TRUE);
 }
 
 
 static void
-tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
+tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
 {
 	const char *filter;
 	char *title;
 	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_bt;
+	GtkWidget *item_box, *item_entry, *label, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
+	size_t i;
 	
-	tap_dfilter_dlg *dlg_data = (tap_dfilter_dlg *) data;	
+	tap_param_dlg *dlg_data = (tap_param_dlg *) data;	
 
 	if(dlg_data==NULL)
 		return;
@@ -150,19 +150,21 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	if(dlg_data->index==-1) {
 		/* Dialog is not registered */
 		if(start_dlg_list==NULL) {
-			start_dlg_list = (tap_dfilter_dlg_list_item *) g_malloc(sizeof (tap_dfilter_dlg_list_item));
+			start_dlg_list = (tap_param_dlg_list_item *) g_malloc(sizeof (tap_param_dlg_list_item));
 			end_dlg_list = start_dlg_list;
 			end_dlg_list->cont.index = 0; /* first entry in list -> index = 0 */
 		} else {
-			end_dlg_list->next = (tap_dfilter_dlg_list_item *) g_malloc(sizeof (tap_dfilter_dlg_list_item));
+			end_dlg_list->next = (tap_param_dlg_list_item *) g_malloc(sizeof (tap_param_dlg_list_item));
 			end_dlg_list->next->cont.index = end_dlg_list->cont.index + 1;
 			end_dlg_list = end_dlg_list->next;
 		}
 		end_dlg_list->dlg = NULL;
-		end_dlg_list->filter_entry = NULL;
+		end_dlg_list->param_entries = g_malloc(dlg_data->nparams * sizeof (GtkWidget *));
 		end_dlg_list->cont.win_title = dlg_data->win_title;
 		end_dlg_list->cont.init_string = dlg_data->init_string;
 		end_dlg_list->cont.tap_init_cb = dlg_data->tap_init_cb;
+		end_dlg_list->cont.nparams = dlg_data->nparams;
+		end_dlg_list->cont.params = dlg_data->params;
 		end_dlg_list->args.title = g_strdup_printf("%s Filter", dlg_data->win_title);
 		end_dlg_list->args.wants_apply_button = TRUE;
 		end_dlg_list->args.activate_on_ok = FALSE;
@@ -200,37 +202,68 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	gtk_container_add(GTK_CONTAINER(current_dlg->dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
-	/* Filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
+	/* Parameter items */
+	for(i=0;i<current_dlg->cont.nparams;i++) {
+		/* Item box */
+		item_box=gtk_hbox_new(FALSE, 3);
 
-	/* Filter button */
-	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &(current_dlg->args));
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, TRUE, 0);
-	gtk_widget_show(filter_bt);
+		/* Item entry */
+		item_entry=gtk_entry_new();
+		current_dlg->param_entries[i] = item_entry;
 
-	/* Filter entry */
-	current_dlg->filter_entry=gtk_entry_new();
-        g_signal_connect(current_dlg->filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-	g_signal_connect(current_dlg->filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-	g_signal_connect(current_dlg->dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+		switch (current_dlg->cont.params[i].type) {
 
-	/* filter prefs dialog */
-        g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
-	/* filter prefs dialog */
+		case PARAM_UINT:
+		case PARAM_STRING:
+			/* Label */
+			label=gtk_label_new(current_dlg->cont.params[i].title);
+			gtk_box_pack_start(GTK_BOX(item_box), label, FALSE, TRUE, 0);
+			gtk_widget_show(label);
+			break;
+
+		case PARAM_FILTER:
+			/* Filter button */
+			filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+			g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &(current_dlg->args));
+			gtk_box_pack_start(GTK_BOX(item_box), filter_bt, FALSE, TRUE, 0);
+			gtk_widget_show(filter_bt);
+			g_signal_connect(item_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+			g_object_set_data(G_OBJECT(item_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+			g_signal_connect(item_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+			g_signal_connect(current_dlg->dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+
+			/* prefs dialog */
+			g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, item_entry);
+			/* prefs dialog */
+			break;
+
+		default:
+			/* XXX - fill me in */
+			break;
+		}
 	
-	gtk_box_pack_start(GTK_BOX(filter_box), current_dlg->filter_entry, TRUE, TRUE, 0);
-	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	if(filter){
-		gtk_entry_set_text(GTK_ENTRY(current_dlg->filter_entry), filter);
-	} else {
-		colorize_filter_te_as_empty(current_dlg->filter_entry);
-	}
-	gtk_widget_show(current_dlg->filter_entry);
+		gtk_box_pack_start(GTK_BOX(item_box), item_entry, TRUE, TRUE, 0);
 
-	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
-	gtk_widget_show(filter_box);
+		switch(current_dlg->cont.params[i].type){
+
+		case PARAM_FILTER:
+			filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+			if(filter){
+				gtk_entry_set_text(GTK_ENTRY(item_entry), filter);
+			} else {
+				colorize_filter_te_as_empty(item_entry);
+			}
+			break;
+
+		default:
+			/* XXX - anything to do here? */
+			break;
+		}
+		gtk_widget_show(item_entry);
+
+		gtk_box_pack_start(GTK_BOX(dlg_box), item_box, TRUE, TRUE, 0);
+		gtk_widget_show(item_box);
+	}
 
 	/* button box */
         bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
@@ -239,20 +272,24 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 
         start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
         g_signal_connect(start_button, "clicked",
-                              G_CALLBACK(tap_dfilter_dlg_start_button_clicked), current_dlg);
+                              G_CALLBACK(tap_param_dlg_start_button_clicked), current_dlg);
 
         cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
         window_set_cancel_button(current_dlg->dlg, cancel_button, window_cancel_button_cb);
 
-	/* Catch the "activate" signal on the filter text entry, so that
+	/* Catch the "activate" signal on all the text entries, so that
 	   if the user types Return there, we act as if the "Create Stat"
 	   button had been selected, as happens if Return is typed if
 	   some widget that *doesn't* handle the Return key has the input
 	   focus. */
-	dlg_set_activate(current_dlg->filter_entry, start_button);
+	for(i=0;i<current_dlg->cont.nparams;i++){
+		dlg_set_activate(current_dlg->param_entries[i], start_button);
+	}
 
-	/* Give the initial focus to the "Filter" entry box. */
-	gtk_widget_grab_focus(current_dlg->filter_entry);
+	/* Give the initial focus to the first entry box. */
+	if(current_dlg->cont.nparams>0){
+		gtk_widget_grab_focus(current_dlg->param_entries[0]);
+	}
 
         gtk_widget_grab_default(start_button );
 

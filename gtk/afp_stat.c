@@ -197,11 +197,17 @@ gtk_afpstat_init(const char *optarg, void *userdata _U_)
 	gdk_window_raise(ss->win->window);
 }
 
-static tap_dfilter_dlg afp_stat_dlg = {
+static tap_param afp_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
+
+static tap_param_dlg afp_stat_dlg = {
 	"AFP SRT Statistics",
 	"afp,srt",
 	gtk_afpstat_init,
-	-1
+	-1,
+	G_N_ELEMENTS(afp_stat_params),
+	afp_stat_params
 };
 
 void
