@@ -51,7 +51,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gui_stat_util.h"
-#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/tap_param_dlg.h"
 #include "gtk/service_response_time_table.h"
 
 

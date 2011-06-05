@@ -1,4 +1,4 @@
-/* tap_dfilter_dlg.c
+/* tap_param_dlg.c
  * Routines for parameter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
@@ -47,7 +47,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/gui_stat_menu.h"
-#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/tap_param_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/filter_autocomplete.h"

@@ -155,7 +155,7 @@
 #include "gtk/webbrowser.h"
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"
-#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/tap_param_dlg.h"
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/proto_help.h"

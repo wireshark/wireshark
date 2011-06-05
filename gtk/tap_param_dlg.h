@@ -1,4 +1,4 @@
-/* tap_dfilter_dlg.h
+/* tap_param_dlg.h
  * Header file for parameter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *

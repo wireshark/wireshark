@@ -135,7 +135,7 @@ WIRESHARK_GTK_SRC = \
 	stock_icons.c	\
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
-	tap_dfilter_dlg.c	\
+	tap_param_dlg.c	\
 	text_import.c	\
 	text_page_utils.c	\
 	uat_gui.c	\
@@ -322,7 +322,7 @@ noinst_HEADERS = \
 	stock_icons.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
-	tap_dfilter_dlg.h	\
+	tap_param_dlg.h	\
 	text_import.h	\
 	text_import_scanner.h	\
 	text_page_utils.h	\

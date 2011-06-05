@@ -41,7 +41,7 @@
 
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
-#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/tap_param_dlg.h"
 #include "gtk/main.h"
 
 

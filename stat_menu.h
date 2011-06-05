@@ -35,7 +35,7 @@ extern "C" {
 
 /*
  * XXX - defines stuff usable regardless of the GUI toolkit.  Right now,
- * that's only the menu group, which is used by tap_dfilter_dlg.h.
+ * that's only the menu group, which is used by tap_param_dlg.h.
  *
  * XXX - stats should be able to register additional menu groups, although
  * the question then would be "in what order should they appear in the menu?"
