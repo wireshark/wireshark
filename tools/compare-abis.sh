@@ -3,8 +3,6 @@
 # Compare ABIs of two Wireshark working copies
 # $Id: $
 
-set -e
-
 function acc () {
 	LIBNAME=$1
 	DIR=$2
@@ -29,7 +27,10 @@ V2_PATH=$2
 #make -C $V1_PATH all dumpabi
 #make -C $V2_PATH all dumpabi
 
-acc libwiretap wiretap $V1_PATH $V2_PATH 
+acc libwiretap wiretap $V1_PATH $V2_PATH
+RET=$?
 acc libwsutil wsutil $V1_PATH $V2_PATH 
+RET=$(($RET + $?))
 acc libwireshark epan $V1_PATH $V2_PATH 
+exit $(($RET + $?))
 
