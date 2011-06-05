@@ -601,6 +601,25 @@ static const value_string v9_v10_template_types[] = {
 	{ 33000, "INGRESS_ACL_ID" },
 	{ 33001, "EGRESS_ACL_ID" },
 	{ 33002, "FW_EXT_EVENT" },
+	/* medianet performance monitor */ 
+	{ 37000, "PACKETS_DROPPED" },
+	{ 37003, "BYTE_RATE" },
+	{ 37004, "APPLICATION_MEDIA_BYTES" },
+	{ 37006, "APPLICATION_MEDIA_BYTE_RATE" },
+	{ 37007, "APPLICATION_MEDIA_PACKETS" },
+	{ 37009, "APPLICATION_MEDIA_PACKET_RATE" },
+	{ 37011, "APPLICATION_MEDIA_EVENT" },
+	{ 37012, "MONITOR_EVENT" },
+	{ 37013, "TIMESTAMP_INTERVAL" },
+	{ 37014, "TRANSPORT_PACKETS_EXPECTED" },
+	{ 37016, "TRANSPORT_ROUND_TRIP_TIME" },
+	{ 37017, "TRANSPORT_EVENT_PACKET_LOSS" },
+	{ 37019, "TRANSPORT_PACKETS_LOST" },
+	{ 37021, "TRANSPORT_PACKETS_LOST_RATE" },
+	{ 37022, "TRANSPORT_RTP_SSRC" },
+	{ 37023, "TRANSPORT_RTP_JITTER_MEAN" },
+	{ 37024, "TRANSPORT_RTP_JITTER_MIN" },
+	{ 37025, "TRANSPORT_RTP_JITTER_MAX" },
 	{ 40000, "AAA_USERNAME" },
 	{ 40001, "XLATE_SRC_ADDR_IPV4" },
 	{ 40002, "XLATE_DST_ADDR_IPV4" },
@@ -913,6 +932,11 @@ static const value_string selector_algorithm[] = {
 };
 static value_string_ext selector_algorithm_ext = VALUE_STRING_EXT_INIT(selector_algorithm);
 
+static const value_string performance_monitor_specials[] = {
+	{ 0xFFFFFFFF, "Not Measured"},
+	{ 0xFFFF, "Not Measured"},
+	{ 0, NULL }
+};
 
 
 /*
@@ -1275,6 +1299,31 @@ static int	hf_cflow_information_element_range_end	     = -1;	/* ID: 343 */
 static int	hf_cflow_information_element_semantics	     = -1;	/* ID: 344 */
 static int	hf_cflow_information_element_units	     = -1;	/* ID: 345 */
 static int	hf_cflow_private_enterprise_number	     = -1;	/* ID: 346 */
+static int	hf_cflow_packets_dropped                     = -1;	/* ID: 37000 */
+static int	hf_cflow_byte_rate                           = -1;	/* ID: 37003 */
+static int	hf_cflow_application_media_bytes             = -1;	/* ID: 37004 */
+static int	hf_cflow_application_media_byte_rate         = -1;	/* ID: 37006 */
+static int	hf_cflow_application_media_packets           = -1;	/* ID: 37007 */
+static int	hf_cflow_application_media_packet_rate        = -1;	/* ID: 37009 */
+static int	hf_cflow_application_media_event             = -1;	/* ID: 37011 */
+static int	hf_cflow_monitor_event                       = -1;	/* ID: 37012 */
+static int	hf_cflow_timestamp_interval                  = -1;	/* ID: 37013 */
+static int	hf_cflow_transport_packets_expected          = -1;	/* ID: 37014 */
+static int	hf_cflow_transport_round_trip_time           = -1;	/* ID: 37016 */
+static int	hf_cflow_transport_round_trip_time_string    = -1;	/* ID: 37016 */
+static int	hf_cflow_transport_event_packet_loss         = -1;	/* ID: 37017 */
+static int	hf_cflow_transport_packets_lost              = -1;	/* ID: 37019 */
+static int	hf_cflow_transport_packets_lost_string       = -1;	/* ID: 37019 */
+static int	hf_cflow_transport_packets_lost_rate         = -1;	/* ID: 37021 */
+static int	hf_cflow_transport_packets_lost_rate_string  = -1;	/* ID: 37021 */
+static int	hf_cflow_transport_rtp_ssrc	             = -1;	/* ID: 37022 */
+static int	hf_cflow_transport_rtp_jitter_mean           = -1;	/* ID: 37023 */
+static int	hf_cflow_transport_rtp_jitter_mean_string    = -1;	/* ID: 37023 */
+static int	hf_cflow_transport_rtp_jitter_min            = -1;	/* ID: 37024 */
+static int	hf_cflow_transport_rtp_jitter_min_string     = -1;	/* ID: 37024 */
+static int	hf_cflow_transport_rtp_jitter_max            = -1;	/* ID: 37025 */
+static int	hf_cflow_transport_rtp_jitter_max_string     = -1;	/* ID: 37025 */
+
 
 /* Cisco ASA 5500 Series */
 static int	hf_cflow_ingress_acl_id	= -1; /* NF_F_INGRESS_ACL_ID (33000) */
@@ -4236,6 +4285,127 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 				tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 
+		case 37000: /* packets_dropped */
+			ti = proto_tree_add_item(pdutree, hf_cflow_packets_dropped,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37003: /* byte_rate */
+			ti = proto_tree_add_item(pdutree, hf_cflow_byte_rate,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37004: /* application_media_bytes */
+			ti = proto_tree_add_item(pdutree, hf_cflow_application_media_bytes,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37006: /* application_media_byte_rate */
+			ti = proto_tree_add_item(pdutree, hf_cflow_application_media_byte_rate,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37007: /* application_media_packets */
+			ti = proto_tree_add_item(pdutree, hf_cflow_application_media_packets,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37009: /* application_media_packet_rate */
+			ti = proto_tree_add_item(pdutree, hf_cflow_application_media_packet_rate,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37011: /* application_media_event */
+			ti = proto_tree_add_item(pdutree, hf_cflow_application_media_event,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+
+		case 37012: /* monitor_event */
+			ti = proto_tree_add_item(pdutree, hf_cflow_monitor_event,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+
+		case 37013: /* timestamp_interval */
+			ti = proto_tree_add_item(pdutree, hf_cflow_timestamp_interval,
+				tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+			break;
+		case 37014: /* transport_packets_expected */
+			ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_expected,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37016: /* transport_round_trip_time */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_round_trip_time_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				/* value is in microseconds, adjust to nanoseconds*/
+				ts.secs =0;
+				ts.nsecs= tvb_get_ntohl(tvb,offset) * 1000;
+				ti = proto_tree_add_time(pdutree, hf_cflow_transport_round_trip_time,
+							 tvb, offset, length, &ts);
+			}
+			break;
+		case 37017: /* transport_event_packet_loss */
+			ti = proto_tree_add_item(pdutree, hf_cflow_transport_event_packet_loss,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37019: /* transport_packets_lost */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_lost_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_lost,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			}
+			break;
+		case 37021: /* transport_packets_lost_rate */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_lost_rate_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_lost_rate,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			}
+			break;
+		case 37022: /* transport_rtp_ssrc */
+			ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_ssrc,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 37023: /* transport_rtp_jitter_mean */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_jitter_mean_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				/* value is in microseconds, adjust to nanoseconds*/
+				ts.secs =0;
+				ts.nsecs= tvb_get_ntohl(tvb,offset) * 1000;
+					
+				ti = proto_tree_add_time(pdutree, hf_cflow_transport_rtp_jitter_mean,
+							 tvb, offset, length, &ts);
+			}
+			break;
+		case 37024: /* transport_rtp_jitter_min */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_jitter_min_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				/* value is in microseconds, adjust to nanoseconds*/
+				ts.secs =0;
+				ts.nsecs= tvb_get_ntohl(tvb,offset) * 1000;
+				ti = proto_tree_add_time(pdutree, hf_cflow_transport_rtp_jitter_min,
+							 tvb, offset, length, &ts);
+			}
+			break;
+		case 37025: /* transport_rtp_jitter_max */
+			if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF ) {
+				ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_jitter_max_string,
+							 tvb, offset, length, ENC_BIG_ENDIAN);
+			} else {
+				/* value is in microseconds, adjust to nanoseconds*/
+				ts.secs =0;
+				ts.nsecs= tvb_get_ntohl(tvb,offset) * 1000;
+				ti = proto_tree_add_time(pdutree, hf_cflow_transport_rtp_jitter_max,
+							 tvb, offset, length, &ts);
+			}
+			break;
+
+
+
+
 		/* Cisco ASA 5500 Series */
 		case 33000: /* NF_F_INGRESS_ACL_ID */
 			proto_tree_add_item(pdutree, hf_cflow_ingress_acl_id,
@@ -7043,7 +7213,150 @@ proto_register_netflow(void)
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "IPFIX Private Enterprise Number", HFILL}
 		},
-
+		{&hf_cflow_packets_dropped,
+		 {"Packets Dropped",
+		  "cflow.packets_dropped",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_byte_rate,
+		 {"Byte Rate",
+		  "cflow.byte_rate",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_application_media_bytes,
+		 {"Media Bytes",
+		  "cflow.application_media_bytes",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_application_media_byte_rate,
+		 {"Media Byte Rate",
+		  "cflow.media_byte_rate",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_application_media_packets,
+		 {"Media Packets",
+		  "cflow.application_media_packets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_application_media_packet_rate,
+		 {"Media Packet Rate",
+		  "cflow.media_packet_rate",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_application_media_event,
+		 {"Media Event",
+		  "cflow.application_media_event",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_monitor_event,
+		 {"Monitor Event",
+		  "cflow.monitor_event",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_timestamp_interval,
+		 {"Timestamp Interval",
+		  "cflow.timestamp_interval",
+		   FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_packets_expected,
+		 {"Transport Packets Expected",
+		  "cflow.transport_packets_expected",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_round_trip_time_string,
+		 {"Transport Round-Trip-Time",
+		  "cflow.transport_rtt",
+		  FT_UINT32, BASE_DEC, VALS(performance_monitor_specials), 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_round_trip_time,
+		 {"Transport Round-Trip-Time",
+		  "cflow.transport_rtt",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_event_packet_loss,
+		 {"Transport Packet Loss Events",
+		  "cflow.transport_packet_loss_event",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_packets_lost,
+		 {"Transport Packets Lost",
+		  "cflow.transport_packets_lost",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_packets_lost_string,
+		 {"Transport Packets Lost",
+		  "cflow.transport_packets_lost",
+		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_packets_lost_rate,
+		 {"Transport Packet Loss Rate",
+		  "cflow.transport_packet_loss_rate",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_packets_lost_rate_string,
+		 {"Transport Packet Loss Rate",
+		  "cflow.transport_packet_loss_rate",
+		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials) , 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_ssrc,
+		 {"RTP SSRC",
+		  "cflow.transport_rtp_ssrc",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_mean,
+		 {"RTP Mean Jitter",
+		  "cflow.transport_jitter_mean",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_mean_string,
+		 {"RTP Mean Jitter",
+		  "cflow.transport_jitter_mean",
+		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_min,
+		 {"RTP Min Jitter",
+		  "cflow.transport_jitter_min",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_min_string,
+		 {"RTP Min Jitter",
+		  "cflow.transport_jitter_min",
+		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_max,
+		 {"RTP Max Jitter",
+		  "cflow.transport_jitter_max",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_cflow_transport_rtp_jitter_max_string,
+		 {"RTP Max Jitter",
+		  "cflow.transport_jitter_max",
+		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+		  NULL, HFILL}
+		},
 		/* Cisco ASA 5500 Series */
 		{&hf_cflow_ingress_acl_id,
 		 {"Ingress ACL ID", "cflow.ingress_acl_id",
