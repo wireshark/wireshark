@@ -456,6 +456,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	GtkTreeIter       iter;
 	guint             i,j;
 	gchar             *table_entry;
+	guint             table_entry_uint;
 
 	GString           *CSV_str;
 	GtkClipboard      *cb;
@@ -474,8 +475,14 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter)) {
 		for (i=0; i<streams_nb; i++) {
 			for (j=0; j<NUM_COLS-1; j++) {
-				gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry, -1);
-				g_string_append_printf(CSV_str, "\"%s\"", table_entry);
+				if (j == RTP_COL_SRC_PORT || j == RTP_COL_DST_PORT || j == RTP_COL_PACKETS) {
+					gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry_uint, -1);
+					g_string_append_printf(CSV_str, "\"%u\"", table_entry_uint);
+				} else {
+					gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry, -1);
+					g_string_append_printf(CSV_str, "\"%s\"", table_entry);
+					g_free(table_entry);
+				}
 				if (j<NUM_COLS-2) g_string_append(CSV_str,",");
 			}
 			g_string_append(CSV_str,"\n");
