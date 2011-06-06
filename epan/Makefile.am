@@ -54,7 +54,7 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
-libwireshark_la_LDFLAGS = -version-info 0:1:0 -export-symbols libwireshark.sym @LDFLAGS_SHAREDLIB@
+libwireshark_la_LDFLAGS = -version-info 1:0:0 -export-symbols libwireshark.sym @LDFLAGS_SHAREDLIB@
 
 include Makefile.common
 

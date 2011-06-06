@@ -35,19 +35,19 @@ wsutil_optional_objects += @GETOPT_LO@
 else
 def_sym_filter_symbols += || /^getopt/ || /^optarg/ || /^optind/ || /^opterr/ || /^optopt/
 endif
- 
+
 if NEED_INET_ATON_LO
 wsutil_optional_objects += @INET_ATON_LO@
 else
 def_sym_filter_symbols += || /^inet_aton/
 endif
- 
+
 if NEED_INET_NTOP_LO
 wsutil_optional_objects += @INET_NTOP_LO@
 else
 def_sym_filter_symbols += || /^ws_inet_ntop/
 endif
- 
+
 if NEED_INET_PTON_LO
 wsutil_optional_objects += @INET_PTON_LO@
 else
@@ -83,7 +83,7 @@ AM_CFLAGS = -Werror
 endif
 
 lib_LTLIBRARIES = libwsutil.la
-libwsutil_la_LDFLAGS = -version-info 0:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 1:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
 
 INCLUDES = -I$(srcdir)/..
 
