@@ -32,17 +32,15 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
 #include "packet-rrc.h"
 
 /* TODO:
- * 	- 15 bit Length Identifiers
  * 	- AM SEQ wrap case
  * 	- UM/AM 'real' reordering (final packet must appear in-order right now)
- * 	- decode CW values in RLIST SUFI
- * 	- decode RESET & RESET ACK
  * 	- use sub_num in fragment identification?
  */
 
@@ -52,6 +50,15 @@ int proto_rlc = -1;
 
 extern int proto_fp;
 extern int proto_malformed;
+
+/* Preference to perform reassembly */
+static gboolean global_rlc_perform_reassemby = TRUE;
+
+/* Preference to expect RLC headers without payloads */
+static gboolean global_rlc_headers_expected = FALSE;
+
+/* Heuristic dissection */
+static gboolean global_rlc_heur = FALSE;
 
 /* fields */
 static int hf_rlc_seq = -1;
@@ -70,6 +77,9 @@ static int hf_rlc_li_ext = -1;
 static int hf_rlc_li_data = -1;
 static int hf_rlc_data = -1;
 static int hf_rlc_ctrl_type = -1;
+static int hf_rlc_r1 = -1;
+static int hf_rlc_rsn = -1;
+static int hf_rlc_hfni = -1;
 static int hf_rlc_sufi = -1;
 static int hf_rlc_sufi_type = -1;
 static int hf_rlc_sufi_lsn = -1;
@@ -83,6 +93,8 @@ static int hf_rlc_sufi_cw = -1;
 static int hf_rlc_sufi_n = -1;
 static int hf_rlc_sufi_sn_ack = -1;
 static int hf_rlc_sufi_sn_mrw = -1;
+static int hf_rlc_sufi_poll_sn = -1;
+static int hf_rlc_header_only = -1;
 
 /* subtrees */
 static int ett_rlc = -1;
@@ -90,6 +102,8 @@ static int ett_rlc_frag = -1;
 static int ett_rlc_fragments = -1;
 static int ett_rlc_sdu = -1;
 static int ett_rlc_sufi = -1;
+static int ett_rlc_bitmap = -1;
+static int ett_rlc_rlist = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -103,7 +117,13 @@ enum channel_type {
 	DL_DCCH,
 	PS_DTCH,
 	DL_CTCH,
+	UNKNOWN
 };
+
+static const true_false_string rlc_header_only_val = {
+	"RLC PDU header only", "RLC PDU header and body present"
+};
+
 
 static const true_false_string rlc_ext_val = {
 	"Next field is Length Indicator and E Bit", "Next field is data, piggybacked STATUS PDU or padding"
@@ -128,9 +148,9 @@ static const value_string rlc_he_vals[] = {
 #define RLC_RESET		0x1
 #define RLC_RESET_ACK	0x2
 static const value_string rlc_ctrl_vals[] = {
-	{ RLC_STATUS,		"STATUS" },
-	{ RLC_RESET,		"RESET" },
-	{ RLC_RESET_ACK,	"RESET ACK" },
+	{ RLC_STATUS,		"Status" },
+	{ RLC_RESET,		"Reset" },
+	{ RLC_RESET_ACK,	"Reset Ack" },
 	{ 0, NULL }
 };
 
@@ -142,6 +162,7 @@ static const value_string rlc_ctrl_vals[] = {
 #define RLC_SUFI_RLIST		0x5
 #define RLC_SUFI_MRW		0x6
 #define RLC_SUFI_MRW_ACK	0x7
+#define RLC_SUFI_POLL       0x8
 static const value_string rlc_sufi_vals[] = {
 	{ RLC_SUFI_NOMORE,	"No more data" },
 	{ RLC_SUFI_WINDOW,	"Window size" },
@@ -151,6 +172,7 @@ static const value_string rlc_sufi_vals[] = {
 	{ RLC_SUFI_RLIST,	"Relative list" },
 	{ RLC_SUFI_MRW,		"Move receiving window" },
 	{ RLC_SUFI_MRW_ACK,	"Move receiving window acknowledgement" },
+	{ RLC_SUFI_POLL,	"Poll" },
 	{ 0, NULL }
 };
 
@@ -171,7 +193,7 @@ struct rlc_channel {
 	guint16 link; /* link number */
 	guint8 rbid; /* radio bearer ID */
 	guint8 dir; /* direction */
-
+	enum rlc_li_size li_size;
 	enum rlc_mode mode;
 };
 
@@ -276,6 +298,7 @@ static int rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet
 	ch->rbid = rlcinf->rbid[fpinf->cur_tb];
 	ch->dir = pinfo->p2p_dir;
 	ch->mode = mode;
+	ch->li_size = rlcinf->li_size[fpinf->cur_tb];
 	
 	return 0;
 }
@@ -451,7 +474,7 @@ static void tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tre
 	proto_tree *frag_tree;
 	guint16 offset;
 	struct rlc_frag *sdufrag;
-	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, -1, ENC_BIG_ENDIAN);
 	frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
 	proto_item_append_text(ti, " (%u bytes, %u fragments): ",
 		sdu->len, sdu->fragcnt);
@@ -473,7 +496,7 @@ static void tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb
 	proto_tree *frag_tree;
 	guint16 offset;
 	struct rlc_frag *sdufrag;
-	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, 0, FALSE);
+	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, 0, ENC_BIG_ENDIAN);
 	frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
 	proto_item_append_text(ti, " (%u bytes, %u fragments): ",
 		sdu->len, sdu->fragcnt);
@@ -489,7 +512,8 @@ static void tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb
 }
 
 /* add information for an LI to 'tree' */
-static proto_tree *tree_add_li(struct rlc_li *li, guint8 li_idx, guint8 hdr_offs, tvbuff_t *tvb, proto_tree *tree)
+static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
+                               gboolean li_is_on_2_bytes, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *li_tree;
@@ -497,17 +521,101 @@ static proto_tree *tree_add_li(struct rlc_li *li, guint8 li_idx, guint8 hdr_offs
 	
 	if (!tree) return NULL;
 
-	li_offs = hdr_offs + li_idx;
-
-	ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, FALSE);
-	li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
-	proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, FALSE);
-	proto_tree_add_item(li_tree, hf_rlc_li_ext, tvb, li_offs, 1, FALSE);
+	if (li_is_on_2_bytes) {
+		li_offs = hdr_offs + li_idx*2;
+		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_BIG_ENDIAN);
+		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
+		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 15, ENC_BIG_ENDIAN);
+		switch (li->li) {
+			case 0x0000:
+				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
+				break;
+			case 0x7ffa:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the second last octet in this RLC PDU is the last octet of the same RLC SDU. The remaining octet in the RLC PDU is ignored)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7ffb:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The second last octet in the previous RLC PDU is the last octet of an RLC SDU and there is no LI to indicate the end of SDU. The remaining octet in the previous RLC PDU is ignored)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7ffc:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7ffd:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7ffe:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU)");
+				} else {
+					proto_item_append_text(ti, " (The rest of the RLC PDU includes a piggybacked STATUS PDU)");
+				}
+				break;
+			case 0x7fff:
+				proto_item_append_text(ti, " (The rest of the RLC PDU is padding)");
+				break;
+			default:
+				break;
+		}
+		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+15, 1, ENC_BIG_ENDIAN);
+	} else {
+		li_offs = hdr_offs + li_idx;
+		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_BIG_ENDIAN);
+		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
+		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, ENC_BIG_ENDIAN);
+		switch (li->li) {
+			case 0x00:
+				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
+				break;
+			case 0x7c:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7d:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU)");
+				} else {
+					proto_item_append_text(ti, " (Reserved)");
+				}
+				break;
+			case 0x7e:
+				if (mode == RLC_UM) {
+					proto_item_append_text(ti, " (The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU)");
+				} else {
+					proto_item_append_text(ti, " (The rest of the RLC PDU includes a piggybacked STATUS PDU)");
+				}
+				break;
+			case 0x7f:
+				proto_item_append_text(ti, " (The rest of the RLC PDU is padding)");
+				break;
+			default:
+				break;
+		}
+		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+7, 1, ENC_BIG_ENDIAN);
+	}
 
 	if (li->len > 0) {
 		if (li->li > tvb_length_remaining(tvb, hdr_offs)) return li_tree;
 		if (li->len > li->li) return li_tree; 
-		proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, FALSE);
+		ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_HIDDEN(ti);
 	}
 
 	return li_tree;
@@ -794,32 +902,60 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 }
 
 static void dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *top_level, proto_tree *tree _U_)
+	proto_tree *top_level, proto_tree *tree)
 {
+	if (tree) {
+		proto_tree_add_item(tree, hf_rlc_data, tvb, 0, -1, ENC_BIG_ENDIAN);
+	}
 	rlc_call_subdissector(channel, tvb, pinfo, top_level);
 }
 
 
 static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
-	proto_tree *top_level, enum channel_type channel, guint16 seq, struct rlc_li *li, guint16 num_li)
+                              proto_tree *top_level, enum channel_type channel, guint16 seq,
+                              struct rlc_li *li, guint16 num_li, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
 	gboolean dissected = FALSE;
+	gint length;
 	tvbuff_t *next_tvb = NULL;
 	/* perform reassembly now */
 	for (i = 0; i < num_li; i++) {
-		switch (li[i].li) {
-			case 0x7f: /* padding, must be last LI */
-				if (tree)
-					proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, FALSE);
-				offs += tvb_length_remaining(tvb, offs);
-				break;
-			case 0x7c: /* a new SDU starts here */
-				break; /* nothing to do, really */
-			case 0x00: /* previous segment was the last of an SDU */
-			default:
+		if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
+			/* padding, must be last LI */
+			if (tree) {
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_BIG_ENDIAN);
+			}
+			offs += tvb_length_remaining(tvb, offs);
+		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {
+			/* a new SDU starts here, nothing to do */
+		} else if (li[i].li == 0x7ffa) {
+			/* the first data octet in this RLC PDU is the first octet of an RLC SDU
+			   and the second last octet in this RLC PDU is the last octet of the same RLC SDU */
+			length = tvb_length_remaining(tvb, offs);
+			if (length > 1) {
+				length--;
+				if (tree && length) {
+					proto_tree_add_item(tree, hf_rlc_data, tvb, offs, length, ENC_BIG_ENDIAN);
+				}
+				if (global_rlc_perform_reassemby) {
+					add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, length, TRUE);
+					next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, li[i].tree, seq, i);
+				}
+				offs += length;
+			}
+			if (tree) {
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, 1, ENC_BIG_ENDIAN);
+			}
+			offs += 1;
+		} else {
+			if (tree && li[i].len) {
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_BIG_ENDIAN);
+			}
+			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, li[i].len, TRUE);
 				next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, li[i].tree, seq, i);
+			}
 		}
 		if (next_tvb) {
 			dissected = TRUE;
@@ -832,20 +968,22 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 	/* is there data left? */
 	if (tvb_length_remaining(tvb, offs) > 0) {
 		if (tree) {
-			proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
+			proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_BIG_ENDIAN);
 		}
-		/* add remaining data as fragment */
-		add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_length_remaining(tvb, offs), FALSE);
-		if (dissected == FALSE)
-			col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment]");
+		if (global_rlc_perform_reassemby) {
+			/* add remaining data as fragment */
+			add_fragment(RLC_UM, tvb, pinfo, tree, offs, seq, i, tvb_length_remaining(tvb, offs), FALSE);
+			if (dissected == FALSE)
+				col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment]");
+		}
 	}
 }
 
 static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	struct rlc_li *li, guint8 max_li)
+	                        struct rlc_li *li, guint8 max_li, gboolean li_on_2_bytes)
 {
-	guint8 ext, next_byte, hdr_len, offs = 0, num_li = 0, li_offs;
-	guint16 prev_li = 0;
+	guint8 ext, hdr_len, offs = 0, num_li = 0, li_offs;
+	guint16 next_bytes, prev_li = 0;
 	proto_item *malformed;
 	guint16 total_len;
 
@@ -856,11 +994,11 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 	}
 	hdr_len = offs;
 	/* calculate header length */
-	ext = tvb_get_guint8(tvb, offs) & 0x01;
+	ext = tvb_get_guint8(tvb, hdr_len++) & 0x01;
 	while (ext) {
-		next_byte = tvb_get_guint8(tvb, hdr_len);
-		ext = next_byte & 0x01;
-		hdr_len++;
+		next_bytes = li_on_2_bytes ? tvb_get_ntohs(tvb, hdr_len) : tvb_get_guint8(tvb, hdr_len);
+		ext = next_bytes & 0x01;
+		hdr_len += li_on_2_bytes ? 2 : 1;
 	}
 	total_len = tvb_length_remaining(tvb, hdr_len);
 	
@@ -868,52 +1006,104 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 	ext = tvb_get_guint8(tvb, offs++) & 0x01;
 	li_offs = offs;
 	while (ext) {
-		next_byte = tvb_get_guint8(tvb, offs++);
-		ext = next_byte & 0x01;
+		if (li_on_2_bytes) {
+			next_bytes = tvb_get_ntohs(tvb, offs);
+			offs += 2;
+		} else {
+			next_bytes = tvb_get_guint8(tvb, offs++);
+		}
+		ext = next_bytes & 0x01;
 		li[num_li].ext = ext;
-		li[num_li].li = next_byte >> 1;
+		li[num_li].li = next_bytes >> 1;
 
-		switch (li[num_li].li) {
-			case 0x00: /* previous segment was the last one */
-			case 0x7e: /* contains piggybacked STATUS */
-			case 0x7f: /* padding */
-				li[num_li].len = 0;
-				break;
-			case 0x7c: /* start of a new PDU, UM only */
-			case 0x7d: /* contains exactly one PDU, UM only */
-				if (mode == RLC_UM) {
-					/* valid for UM */
+		if (li_on_2_bytes) {
+			switch (li[num_li].li) {
+				case 0x0000: /* previous segment was the last one */
+				case 0x7ffe: /* contains piggybacked STATUS in AM or segment in UM */
+				case 0x7fff: /* padding */
 					li[num_li].len = 0;
 					break;
-				}
-				/*invalid for AM */
-				/* add malformed LI for investigation */
-				tree_add_li(&li[num_li], num_li, li_offs, tvb, tree);
-				malformed = proto_tree_add_protocol_format(tree,
-					proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-				expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-					"Malformed Packet (Uses reserved LI)");
-				col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
-				return -1; /* just give up on this */
-			default:
-				/* since the LI is an offset (from the end of the header), it
- 				* may not be larger than the total remaining length and no
- 				* LI may be smaller than its preceding one
- 				*/
-				if (li[num_li].li > total_len || li[num_li].li < prev_li) {
+				case 0x7ffa: /* contains exactly one SDU (minus last byte), UM only */
+				case 0x7ffb: /* previous PDU contains last segment of SDU (minus last byte), UM only */
+				case 0x7ffc: /* start of a new SDU, UM only */
+				case 0x7ffd: /* contains exactly one SDU, UM only */
+					if (mode == RLC_UM) {
+						/* valid for UM */
+						li[num_li].len = 0;
+						break;
+					}
+					/*invalid for AM */
 					/* add malformed LI for investigation */
-					tree_add_li(&li[num_li], num_li, li_offs, tvb, tree);
+					tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
 					malformed = proto_tree_add_protocol_format(tree,
 						proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 					expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-						"Malformed Packet (incorrect LI value)");
+						"Malformed Packet (Uses reserved LI)");
 					col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 					return -1; /* just give up on this */
-				}
-				li[num_li].len = li[num_li].li - prev_li;
-				prev_li = li[num_li].li;
+				default:
+					/* since the LI is an offset (from the end of the header), it
+					* may not be larger than the total remaining length and no
+					* LI may be smaller than its preceding one
+					*/
+					if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
+						|| (li[num_li].li < prev_li)) {
+						/* add malformed LI for investigation */
+						tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+						malformed = proto_tree_add_protocol_format(tree,
+							proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+						expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+							"Malformed Packet (incorrect LI value)");
+						col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+						return -1; /* just give up on this */
+					}
+					li[num_li].len = li[num_li].li - prev_li;
+					prev_li = li[num_li].li;
+			}
+		} else {
+			switch (li[num_li].li) {
+				case 0x00: /* previous segment was the last one */
+				case 0x7e: /* contains piggybacked STATUS in AM or segment in UM */
+				case 0x7f: /* padding */
+					li[num_li].len = 0;
+					break;
+				case 0x7c: /* start of a new SDU, UM only */
+				case 0x7d: /* contains exactly one SDU, UM only */
+					if (mode == RLC_UM) {
+						/* valid for UM */
+						li[num_li].len = 0;
+						break;
+					}
+					/*invalid for AM */
+					/* add malformed LI for investigation */
+					tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+					malformed = proto_tree_add_protocol_format(tree,
+						proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+					expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+						"Malformed Packet (Uses reserved LI)");
+					col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+					return -1; /* just give up on this */
+				default:
+					/* since the LI is an offset (from the end of the header), it
+					* may not be larger than the total remaining length and no
+					* LI may be smaller than its preceding one
+					*/
+					if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
+						|| (li[num_li].li < prev_li)) {
+						/* add malformed LI for investigation */
+						tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+						malformed = proto_tree_add_protocol_format(tree,
+							proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+						expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+							"Malformed Packet (incorrect LI value)");
+						col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+						return -1; /* just give up on this */
+					}
+					li[num_li].len = li[num_li].li - prev_li;
+					prev_li = li[num_li].li;
+			}
 		}
-		li[num_li].tree = tree_add_li(&li[num_li], num_li, li_offs, tvb, tree);
+		li[num_li].tree = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
 		num_li++;
 
 		if (num_li > max_li) {
@@ -940,6 +1130,8 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 	guint8 seq, ext;
 	guint8 next_byte, offs = 0;
 	gint16 pos, num_li = 0;
+	gboolean is_truncated, li_is_on_2_bytes;
+	proto_item *truncated_ti;
 
 	next_byte = tvb_get_guint8(tvb, offs++);
 	seq = next_byte >> 1;
@@ -947,8 +1139,8 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 
 	/* show sequence number and extension bit */
 	if (tree) {
-		proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 0, 7, FALSE);
-		proto_tree_add_item(tree, hf_rlc_ext, tvb, 0, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 0, 7, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tree, hf_rlc_ext, tvb, 7, 1, ENC_BIG_ENDIAN);
 	}
 
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
@@ -965,10 +1157,30 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 		return;
 	}
 
-	num_li = rlc_decode_li(RLC_UM, tvb, pinfo, tree, li, MAX_LI);
-	if (num_li == -1) return; /* something went wrong */
-	offs += num_li;
+	if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+		li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
+	} else {
+		li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+	}
 
+	num_li = rlc_decode_li(RLC_UM, tvb, pinfo, tree, li, MAX_LI, li_is_on_2_bytes);
+	if (num_li == -1) return; /* something went wrong */
+	offs += ((li_is_on_2_bytes) ? 2 : 1) * num_li;
+
+	if (global_rlc_headers_expected) {
+		/* There might not be any data, if only headerwas logged */
+		is_truncated = (tvb_length_remaining(tvb, offs) == 0);
+		truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
+		                                      is_truncated);
+		if (is_truncated) {
+			PROTO_ITEM_SET_GENERATED(truncated_ti);
+			expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+			                       "RLC PDU SDUs have been omitted");
+			return;
+		} else {
+			PROTO_ITEM_SET_HIDDEN(truncated_ti);
+		}
+	}
 
 	/* do not detect duplicates or reassemble, if prefiltering is done */
 	if (pinfo->fd->num == 0) return;
@@ -978,87 +1190,163 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
-	rlc_um_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li);
+	rlc_um_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li, li_is_on_2_bytes);
 }
 
 static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 offset)
 {
-	guint8 sufi_type, len;
-	gint bit_offset;
-	proto_tree *sufi_tree;
-	proto_item *sufi_item, *malformed;
+	guint8 sufi_type, bits;
+	guint64 len, sn, l;
+	guint16 value, previous_sn;
+	gboolean isErrorBurstInd;
+	gint bit_offset, previous_bit_offset;
+	guint i, j;
+	proto_tree *sufi_tree, *bitmap_tree, *rlist_tree;
+	proto_item *sufi_item, *malformed, *ti;
+	#define BUFF_SIZE 40
+	gchar *buff = NULL;
+	guint8 cw[15];
 
 	bit_offset = offset*8 + 4; /* first SUFI type is always 4 bit shifted */
 
 	while (tvb_length_remaining(tvb, bit_offset/8) > 0) {
 		sufi_type = tvb_get_bits8(tvb, bit_offset, 4);
-		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, 0, 0, FALSE);
+		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, 0, 0, ENC_BIG_ENDIAN);
 		sufi_tree = proto_item_add_subtree(sufi_item, ett_rlc_sufi);
-		proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_type, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset += 4;
 		switch (sufi_type) {
 			case RLC_SUFI_NOMORE:
 				return; /* must be last SUFI */
 			case RLC_SUFI_ACK:
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, FALSE);
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 				return; /* must be last SUFI */
 			case RLC_SUFI_WINDOW:
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_wsn, tvb, bit_offset, 12, FALSE);
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_wsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 				bit_offset += 12;
 				break;
 			case RLC_SUFI_LIST:
-				len = tvb_get_bits8(tvb, bit_offset, 4);
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-				while (len) {
-					proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn, tvb, bit_offset, 12, FALSE);
-					bit_offset += 12;
-					proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_l, tvb, bit_offset, 4, FALSE);
-					bit_offset += 4;
-					len--;
+				if (len) {
+					while (len) {
+						ti = proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_sn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
+						proto_item_append_text(ti, " (AMD PDU not correctly received)");
+						bit_offset += 12;
+						ti = proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_l, tvb, bit_offset, 4, &l, ENC_BIG_ENDIAN);
+						if (l) {
+							proto_item_append_text(ti, " (all consecutive AMD PDUs up to SN %u not correctly received)", (unsigned)(sn+l)&0xfff);
+						}
+						bit_offset += 4;
+						len--;
+					}
+				} else {
+					malformed = proto_tree_add_protocol_format(tree,
+						proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+					expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+						"Malformed Packet (invalid length)");
+					col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
 				}
 				break;
 			case RLC_SUFI_BITMAP:
-				len = tvb_get_bits8(tvb, bit_offset, 4);
-				len++; /* bitmap is len + 1 */
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, FALSE);
+				len++; /* bitmap is len + 1 */
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
 				bit_offset += 12;
-				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, len, FALSE);
-				bit_offset += len*8;
+				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_BIG_ENDIAN);
+				ti = proto_tree_add_text(sufi_tree, tvb, bit_offset/8, (gint)len, "Decoded bitmap:");
+				bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
+				buff = ep_alloc(BUFF_SIZE);
+				for (i=0; i<len; i++) {
+					bits = tvb_get_bits8(tvb, bit_offset, 8);
+					for (l=0, j=0; l<8; l++) {
+						if ((bits << l) & 0x80) {
+							j += g_snprintf(&buff[j], BUFF_SIZE, "%04u,", (unsigned)(sn+(8*i)+l)&0xfff);
+						} else {
+							j += g_snprintf(&buff[j], BUFF_SIZE, "    ,");
+						}
+					}
+					proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
+					bit_offset += 8;
+				}
 				break;
 			case RLC_SUFI_RLIST:
-				len = tvb_get_bits8(tvb, bit_offset, 4);
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, FALSE);
+				previous_bit_offset = bit_offset;
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, FALSE);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
 				bit_offset += 12;
-				while (len) {
-					/* TODO: decode CW values */
-					proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_cw, tvb, bit_offset, 4, FALSE);
+				for (i=0; i<len; i++) {
+					ti = proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_cw, tvb, bit_offset, 4, &l, ENC_BIG_ENDIAN);
+					if (l == 0x01) {
+						proto_item_append_text(ti, " (Error burst indication)");
+					}
 					bit_offset += 4;
-					len--;
+					cw[i] = (guint8)l;
+				}
+				if (len && (((cw[len-1] & 0x01) == 0) || (cw[len-1] == 0x01))) {
+					malformed = proto_tree_add_protocol_format(tree,
+						proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+					expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+						"Malformed Packet (invalid last codeword)");
+					col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+				} else {
+					ti = proto_tree_add_text(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, "Decoded list:");
+					rlist_tree = proto_item_add_subtree(ti, ett_rlc_rlist);
+					proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+4)/8, 12/8, "Sequence Number = %u (AMD PDU not correctly received)",(unsigned)sn);
+					for (i=0, isErrorBurstInd=FALSE, j=0, previous_sn=(guint16)sn, value=0; i<len; i++) {
+						if (cw[i] == 0x01) {
+							isErrorBurstInd = TRUE;
+						} else {
+							value |= (cw[i] >> 1) << j;
+							j += 3;
+							if (cw[i] & 0x01) {
+								if (isErrorBurstInd) {
+									previous_sn = (previous_sn + value) & 0xfff;
+									ti = proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Length: %u", value);
+									if (value) {
+										proto_item_append_text(ti, "  (all consecutive AMD PDUs up to SN %u not correctly received)", previous_sn);
+									}
+									isErrorBurstInd = FALSE;
+								} else {
+									value = (value + previous_sn) & 0xfff;
+									proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Sequence Number = %u (AMD PDU not correctly received)",value);
+									previous_sn = value;
+								}
+								value = j = 0;
+							}
+						}
+					}
 				}
 				break;
 			case RLC_SUFI_MRW_ACK:
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_n, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_n, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_ack, tvb, bit_offset, 12, FALSE);
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_ack, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 				bit_offset += 12;
 				break;
 			case RLC_SUFI_MRW:
-				len = tvb_get_bits8(tvb, bit_offset, 4);
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-
-				while (len) {
-					proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_mrw, tvb, bit_offset, 12, FALSE);
+				if (len) {
+					while (len) {
+						proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_mrw, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+						bit_offset += 12;
+						len--;
+					}
+				} else {
+					/* only one SN_MRW field is present */
+					ti = proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_mrw, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+					proto_item_append_text(ti, " (RLC SDU to be discarded in the Receiver extends above the configured transmission window in the Sender)");
 					bit_offset += 12;
-					len--;
 				}
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_n, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_n, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 				bit_offset += 4;
+				break;
+			case RLC_SUFI_POLL:
+				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_poll_sn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+				bit_offset += 12;
 				break;
 			default:
 				malformed = proto_tree_add_protocol_format(tree,
@@ -1075,18 +1363,30 @@ static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	guint8 type, next_byte;
 	proto_item *malformed;
+	guint64 r1;
 
 	next_byte = tvb_get_guint8(tvb, 0);
 	type = (next_byte >> 4) & 0x07;
 
-	proto_tree_add_uint(tree, hf_rlc_ctrl_type, tvb, 0, 1, next_byte);
+	proto_tree_add_bits_item(tree, hf_rlc_ctrl_type, tvb, 1, 3, ENC_BIG_ENDIAN);
 	switch (type) {
 		case RLC_STATUS:
 			dissect_rlc_status(tvb, pinfo, tree, 0);
 			break;
 		case RLC_RESET:
 		case RLC_RESET_ACK:
-			/* TODO */
+			proto_tree_add_bits_item(tree, hf_rlc_rsn, tvb, 4, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_ret_val(tree, hf_rlc_r1, tvb, 5, 3, &r1, ENC_BIG_ENDIAN);
+			if (r1) {
+				proto_item *malformed;
+				malformed = proto_tree_add_protocol_format(tree,
+				proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+				expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+					"Malformed Packet (reserved bits not zero)");
+				col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+				return;
+			}
+			proto_tree_add_bits_item(tree, hf_rlc_hfni, tvb, 8, 20, ENC_BIG_ENDIAN);
 			break;
 		default:
 			malformed = proto_tree_add_protocol_format(tree,
@@ -1100,26 +1400,30 @@ static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
 	proto_tree *top_level, enum channel_type channel, guint16 seq, struct rlc_li *li, guint16 num_li,
-	gboolean final)
+	gboolean final, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
 	gboolean piggyback = FALSE, dissected = FALSE;
 	tvbuff_t *next_tvb = NULL;
 	/* perform reassembly now */
 	for (i = 0; i < num_li; i++) {
-		switch (li[i].li) {
-			case 0x7e: /* piggybacked status */
-				piggyback = TRUE;
-				break;
-			case 0x7f: /* padding, must be last LI */
-				if (tree && tvb_length_remaining(tvb, offs) > 0)
-					proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, FALSE);
-				offs += tvb_length_remaining(tvb, offs);
-				break;
-			case 0x0: /* previous segment was the last one */
-			default:
+		if ((!li_is_on_2_bytes && (li[i].li == 0x7e)) || (li[i].li == 0x7ffe)) {
+			/* piggybacked status */
+			piggyback = TRUE;
+		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
+			/* padding, must be last LI */
+			if (tree && tvb_length_remaining(tvb, offs) > 0) {
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_BIG_ENDIAN);
+			}
+			offs += tvb_length_remaining(tvb, offs);
+		} else {
+			if (tree && li[i].len) {
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_BIG_ENDIAN);
+			}
+			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_AM, tvb, pinfo, li[i].tree, offs, seq, i, li[i].len, TRUE);
 				next_tvb = get_reassembled_data(RLC_AM, tvb, pinfo, li[i].tree, seq, i);
+			}
 		}
 		if (next_tvb) {
 			dissected = TRUE;
@@ -1135,12 +1439,14 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		if (tvb_length_remaining(tvb, offs) > 0) {
 			/* we have remaining data, which we need to mark in the tree */
 			if (tree) {
-				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_BIG_ENDIAN);
 			}
-			add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,
-				tvb_length_remaining(tvb,offs), final);
-			if (final) {
-				next_tvb = get_reassembled_data(RLC_AM, tvb, pinfo, NULL, seq, i);
+			if (global_rlc_perform_reassemby) {
+				add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,
+					tvb_length_remaining(tvb,offs), final);
+				if (final) {
+					next_tvb = get_reassembled_data(RLC_AM, tvb, pinfo, NULL, seq, i);
+				}
 			}
 		}
 		if (next_tvb) {
@@ -1164,11 +1470,13 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 	guint8 next_byte, offs = 0;
 	guint32 orig_num = 0;
 	gint16 num_li = 0, seq, pos;
+	gboolean is_truncated, li_is_on_2_bytes;
+	proto_item *truncated_ti;
 
 	next_byte = tvb_get_guint8(tvb, offs++);
 	dc = next_byte >> 7;
 	if (tree)
-		proto_tree_add_item(tree, hf_rlc_dc, tvb, 0, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_rlc_dc, tvb, 0, 1, ENC_BIG_ENDIAN);
 	if (dc == 0) {
 		col_set_str(pinfo->cinfo, COL_INFO, "RLC Control Frame");
 		dissect_rlc_control(tvb, pinfo, tree);
@@ -1183,12 +1491,12 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 	ext = next_byte & 0x03;
 	/* show header fields */
 	if (tree) {
-		proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, FALSE);
-		proto_tree_add_item(tree, hf_rlc_p, tvb, 1, 1, FALSE);
-		proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tree, hf_rlc_p, tvb, 13, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
 	}
 
-	/* header extension may only be 00 or 01 */
+	/* header extension may only be 00, 01 or 10 */
 	if (ext > 2) {
 		proto_item *malformed;
 		malformed = proto_tree_add_protocol_format(tree,
@@ -1213,9 +1521,30 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 		return;
 	}
 
-	num_li = rlc_decode_li(RLC_AM, tvb, pinfo, tree, li, MAX_LI);
+	if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+		li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
+	} else {
+		li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+	}
+
+	num_li = rlc_decode_li(RLC_AM, tvb, pinfo, tree, li, MAX_LI, li_is_on_2_bytes);
 	if (num_li == -1) return; /* something went wrong */
-	offs += num_li;
+	offs += ((li_is_on_2_bytes) ? 2 : 1) * num_li;
+
+	if (global_rlc_headers_expected) {
+		/* There might not be any data, if only header was logged */
+		is_truncated = (tvb_length_remaining(tvb, offs) == 0);
+		truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
+		                                      is_truncated);
+		if (is_truncated) {
+			PROTO_ITEM_SET_GENERATED(truncated_ti);
+			expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+			                       "RLC PDU SDUs have been omitted");
+			return;
+		} else {
+			PROTO_ITEM_SET_HIDDEN(truncated_ti);
+		}
+	}
 
 	/* do not detect duplicates or reassemble, if prefiltering is done */
 	if (pinfo->fd->num == 0) return;
@@ -1226,7 +1555,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 		return;
 	}
 	rlc_am_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li,
-		ext == 2);
+		ext == 2, li_is_on_2_bytes);
 }
 
 /* dissect entry functions */
@@ -1236,10 +1565,10 @@ static void dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	/* PCCH is always RLC UM */
+	/* PCCH is always RLC TM */
 	if (tree) {
 		proto_item *ti;
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 		proto_item_append_text(ti, " TM (PCCH)");
 	}
@@ -1259,7 +1588,7 @@ static void dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (!fpi) return; /* dissection failure */
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 
@@ -1288,7 +1617,7 @@ static void dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -1314,7 +1643,7 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (!fpi || !rlci) return;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 	
@@ -1348,7 +1677,7 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (!fpi || !rlci) return;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 	
@@ -1368,48 +1697,219 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 }
 
+/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
+static gboolean dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree)
+{
+	gint                 offset = 0;
+	fp_info              *fpi;
+	rlc_info             *rlci;
+	tvbuff_t             *rlc_tvb;
+	guint8               tag = 0;
+	guint                channelType = CHANNEL_TYPE_UNSPECIFIED;
+	gboolean             fpInfoAlreadySet = FALSE;
+	gboolean             rlcInfoAlreadySet = FALSE;
+	gboolean             channelTypePresent = FALSE;
+	gboolean             rlcModePresent = FALSE;
+	proto_item           *ti = NULL;
+	proto_tree           *subtree = NULL;
+
+	/* This is a heuristic dissector, which means we get all the UDP
+	 * traffic not sent to a known dissector and not claimed by
+	 * a heuristic dissector called before us!
+	 */
+	if (!global_rlc_heur) {
+		return FALSE;
+	}
+
+	/* Do this again on re-dissection to re-discover offset of actual PDU */
+
+	/* Needs to be at least as long as:
+	   - the signature string
+	   - conditional header bytes
+	   - tag for data
+	   - at least one byte of RLC PDU payload */
+	if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(RLC_START_STRING)+2+2)) {
+		return FALSE;
+	}
+
+	/* OK, compare with signature string */
+	if (tvb_strneql(tvb, offset, RLC_START_STRING, (gint)strlen(RLC_START_STRING)) != 0) {
+		return FALSE;
+	}
+	offset += (gint)strlen(RLC_START_STRING);
+
+	/* If redissecting, use previous info struct (if available) */
+	fpi = p_get_proto_data(pinfo->fd, proto_fp);
+	if (fpi == NULL) {
+		/* Allocate new info struct for this frame */
+		fpi = se_alloc0(sizeof(fp_info));
+	} else {
+		fpInfoAlreadySet = TRUE;
+	}
+	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+	if (rlci == NULL) {
+		/* Allocate new info struct for this frame */
+		rlci = se_alloc0(sizeof(rlc_info));
+	} else {
+		rlcInfoAlreadySet = TRUE;
+	}
+
+	/* Read conditional/optional fields */
+	while (tag != RLC_PAYLOAD_TAG) {
+		/* Process next tag */
+		tag = tvb_get_guint8(tvb, offset++);
+		switch (tag) {
+			case RLC_CHANNEL_TYPE_TAG:
+				channelType = tvb_get_guint8(tvb, offset);
+				offset++;
+				channelTypePresent = TRUE;
+				break;
+			case RLC_MODE_TAG:
+				rlci->mode[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
+				offset++;
+				rlcModePresent = TRUE;
+				break;
+			case RLC_DIRECTION_TAG:
+				fpi->is_uplink = (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) ? TRUE : FALSE;
+				offset++;
+				break;
+			case RLC_URNTI_TAG:
+				rlci->urnti[fpi->cur_tb] = tvb_get_ntohl(tvb, offset);
+				offset += 4;
+				break;
+			case RLC_RADIO_BEARER_ID_TAG:
+				rlci->rbid[fpi->cur_tb] = tvb_get_guint8(tvb, offset);
+				offset++;
+				break;
+			case RLC_LI_SIZE_TAG:
+				rlci->li_size[fpi->cur_tb] = (enum rlc_li_size) tvb_get_guint8(tvb, offset);
+				offset++;
+				break;
+			case RLC_PAYLOAD_TAG:
+				/* Have reached data, so get out of loop */
+				continue;
+			default:
+				/* It must be a recognised tag */
+				return FALSE;
+		}
+	}
+
+	if ((channelTypePresent == FALSE) && (rlcModePresent == FALSE)) {
+		/* Conditional fields are missing */
+		return FALSE;
+	}
+
+	/* Store info in packet if needed */
+	if (!fpInfoAlreadySet) {
+		p_add_proto_data(pinfo->fd, proto_fp, fpi);
+	}
+	if (!rlcInfoAlreadySet) {
+		p_add_proto_data(pinfo->fd, proto_rlc, rlci);
+	}
+
+    /**************************************/
+    /* OK, now dissect as RLC             */
+
+    /* Create tvb that starts at actual RLC PDU */
+    rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+	switch (channelType) {
+		case CHANNEL_TYPE_UNSPECIFIED:
+			/* Call relevant dissector according to RLC mode */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+			col_clear(pinfo->cinfo, COL_INFO);
+
+			if (tree) {
+				ti = proto_tree_add_item(tree, proto_rlc, rlc_tvb, 0, -1, ENC_BIG_ENDIAN);
+				subtree = proto_item_add_subtree(ti, ett_rlc);
+			}
+
+			if (rlci->mode[fpi->cur_tb] == RLC_AM) {
+				proto_item_append_text(ti, " AM");
+				dissect_rlc_am(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+			} else if (rlci->mode[fpi->cur_tb] == RLC_UM) {
+				proto_item_append_text(ti, " UM");
+				dissect_rlc_um(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+			} else {
+				proto_item_append_text(ti, " TM");
+				dissect_rlc_tm(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+			}
+			break;
+		case CHANNEL_TYPE_PCCH:
+			dissect_rlc_pcch(rlc_tvb, pinfo, tree);
+			break;
+		case CHANNEL_TYPE_CCCH:
+			dissect_rlc_ccch(rlc_tvb, pinfo, tree);
+			break;
+		case CHANNEL_TYPE_DCCH:
+			dissect_rlc_dcch(rlc_tvb, pinfo, tree);
+			break;
+		case CHANNEL_TYPE_PS_DTCH:
+			dissect_rlc_ps_dtch(rlc_tvb, pinfo, tree);
+			break;
+		case CHANNEL_TYPE_CTCH:
+			dissect_rlc_ctch(rlc_tvb, pinfo, tree);
+			break;
+		default:
+			/* Unknown channel type */
+			return FALSE;
+	}
+
+    return TRUE;
+}
+
 void
 proto_register_rlc(void)
 {
+	module_t *rlc_module;
+
 	static hf_register_info hf[] = {
-		{ &hf_rlc_dc, { "D/C Bit", "rlc.dc", FT_BOOLEAN, 8, TFS(&rlc_dc_val), 0x80, NULL, HFILL } },
-		{ &hf_rlc_ctrl_type, { "Control PDU Type", "rlc.ctrl_pdu_type", FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0x70, "PDU Type", HFILL } },
-		{ &hf_rlc_seq, { "Sequence Number", "rlc.seq", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_ext, { "Extension Bit", "rlc.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, NULL, HFILL } },
+		{ &hf_rlc_dc, { "D/C Bit", "rlc.dc", FT_BOOLEAN, 8, TFS(&rlc_dc_val), 0, NULL, HFILL } },
+		{ &hf_rlc_ctrl_type, { "Control PDU Type", "rlc.ctrl_pdu_type", FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0, "PDU Type", HFILL } },
+		{ &hf_rlc_r1, { "Reserved 1", "rlc.r1", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_rsn, { "Reset Sequence Number", "rlc.rsn", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_hfni, { "Hyper Frame Number Indicator", "rlc.hfni", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_seq, { "Sequence Number", "rlc.seq", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_ext, { "Extension Bit", "rlc.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0, NULL, HFILL } },
 		{ &hf_rlc_he, { "Header Extension Type", "rlc.he", FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, NULL, HFILL } },
-		{ &hf_rlc_p, { "Polling Bit", "rlc.p", FT_BOOLEAN, 8, TFS(&rlc_p_val), 0x04, NULL, HFILL } },
-		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_rlc_p, { "Polling Bit", "rlc.p", FT_BOOLEAN, 8, TFS(&rlc_p_val), 0, NULL, HFILL } },
+		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_frags, { "Reassembled Fragments", "rlc.fragments", FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL } },
 		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } }, 
-		{ &hf_rlc_data, { "Data", "rlc.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_data, { "Data", "rlc.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* LI information */
 		{ &hf_rlc_li, { "LI", "rlc.li", FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL } },
 		{ &hf_rlc_li_value, { "LI value", "rlc.li.value", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_li_ext, { "LI extension bit", "rlc.li.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, NULL, HFILL } },
-		{ &hf_rlc_li_data, { "LI Data", "rlc.li.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_rlc_li_ext, { "LI extension bit", "rlc.li.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0, NULL, HFILL } },
+		{ &hf_rlc_li_data, { "LI Data", "rlc.li.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* SUFI information */
 		{ &hf_rlc_sufi, { "SUFI", "rlc.sufi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_type, { "SUFI Type", "rlc.sufi.type", FT_UINT8, BASE_DEC, VALS(rlc_sufi_vals), 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_lsn, { "LSN", "rlc.sufi.lsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_wsn, { "WSN", "rlc.sufi.wsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_sn, { "SN", "rlc.sufi.sn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_l, { "L", "rlc.sufi.l", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_lsn, { "Last Sequence Number", "rlc.sufi.lsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_wsn, { "Window Size Number", "rlc.sufi.wsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_sn, { "Sequence Number", "rlc.sufi.sn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_l, { "Length", "rlc.sufi.l", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_len, { "Length", "rlc.sufi.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_fsn, { "FSN", "rlc.sufi.fsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-		{ &hf_rlc_sufi_cw, { "CW", "rlc.sufi.cw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_n, { "N", "rlc.sufi.n", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_fsn, { "First Sequence Number", "rlc.sufi.fsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_cw, { "Codeword", "rlc.sufi.cw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_n, { "Nlength", "rlc.sufi.n", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_sn_ack, { "SN ACK", "rlc.sufi.sn_ack", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_sn_mrw, { "SN MRW", "rlc.sufi.sn_mrw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-	};
+		{ &hf_rlc_sufi_poll_sn, { "Poll SN", "rlc.sufi.poll_sn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		/* Other information */
+		{ &hf_rlc_header_only, { "RLC PDU header only", "rlc.header_only", FT_BOOLEAN, BASE_DEC, TFS(&rlc_header_only_val), 0 ,NULL, HFILL } },
+ 	};
 	static gint *ett[] = {
 		&ett_rlc,
 		&ett_rlc_frag,
 		&ett_rlc_fragments,
 		&ett_rlc_sdu,
 		&ett_rlc_sufi,
+		&ett_rlc_bitmap,
+		&ett_rlc_rlist
 	};
 	proto_rlc = proto_register_protocol("RLC", "RLC", "rlc");
 	register_dissector("rlc.pcch", dissect_rlc_pcch, proto_rlc);
@@ -1421,6 +1921,26 @@ proto_register_rlc(void)
 	proto_register_field_array(proto_rlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Preferences */
+	rlc_module = prefs_register_protocol(proto_rlc, NULL);
+
+	prefs_register_bool_preference(rlc_module, "heuristic_rlc_over_udp",
+		"Try Heuristic RLC over UDP framing",
+		"When enabled, use heuristic dissector to find RLC frames sent with "
+		"UDP framing",
+		&global_rlc_heur);
+
+	prefs_register_bool_preference(rlc_module, "perform_reassembly",
+		"Try to reassemble SDUs",
+		"When enabled, try to reassemble SDUs from the various PDUs received",
+		&global_rlc_perform_reassemby);
+
+	prefs_register_bool_preference(rlc_module, "header_only_mode",
+		"May see RLC headers only",
+		"When enabled, if data is not present, don't report as an error, but instead "
+		"add expert info to indicate that headers were omitted",
+		&global_rlc_headers_expected);
+
 	register_init_routine(fragment_table_init);
 }
 
@@ -1430,4 +1950,6 @@ proto_reg_handoff_rlc(void)
 	rrc_handle = find_dissector("rrc");
 	ip_handle = find_dissector("ip");
 	bmc_handle = find_dissector("bmc");
+	/* Add as a heuristic UDP dissector */
+	heur_dissector_add("udp", dissect_rlc_heur, proto_rlc);
 }

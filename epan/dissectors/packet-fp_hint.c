@@ -189,6 +189,7 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 		rlcinf->urnti[i] = urnti;
 		rlcinf->ciphered[i] = ciphered;
 		rlcinf->deciphered[i] = deciphered;
+		rlcinf->li_size[i] = RLC_LI_VARIABLE;
 
 		macinf->ctmux[i] = ctmux ? TRUE : FALSE;
 		switch (content) {
