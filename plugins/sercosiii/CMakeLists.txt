@@ -22,23 +22,12 @@
 #
 
 set(DISSECTOR_SRC
-	packet-sercosiii_1v1.c
-)
-
-set(DISSECTOR_SUPPORT_SRC
-	packet-sercosiii_1v1_svc.c
-	packet-sercosiii_1v1_mdt_devctrl.c
-	packet-sercosiii_1v1_at_devstat.c
-	packet-sercosiii_1v1_mdt.c
-	packet-sercosiii_1v1_at.c
-	packet-sercosiii_1v1_mst.c
-	packet-sercosiii_1v1_hp.c
+	packet-sercosiii.c
 )
 
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
 )
 
 set(CLEAN_FILES

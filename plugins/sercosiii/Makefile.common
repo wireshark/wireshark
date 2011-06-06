@@ -29,20 +29,12 @@ PLUGIN_NAME = sercosiii
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-sercosiii_1v1.c
+	packet-sercosiii.c
 
 # corresponding headers
-DISSECTOR_INCLUDES =  \
-	packet-sercosiii.h
+DISSECTOR_INCLUDES =
 
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not
 # used to generate "register.c").
-DISSECTOR_SUPPORT_SRC = \
-	packet-sercosiii_1v1_svc.c  \
-	packet-sercosiii_1v1_mdt_devctrl.c  \
-	packet-sercosiii_1v1_at_devstat.c  \
-	packet-sercosiii_1v1_mdt.c  \
-	packet-sercosiii_1v1_at.c  \
-	packet-sercosiii_1v1_mst.c  \
-	packet-sercosiii_1v1_hp.c
+DISSECTOR_SUPPORT_SRC =

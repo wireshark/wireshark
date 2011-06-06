@@ -235,14 +235,7 @@ plugin_src = \
 	../plugins/m2m/wimax_tlv.c \
 	../plugins/mgcp/packet-mgcp.c \
 	../plugins/rdm/packet-rdm.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_at.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_at_devstat.c \
-	../plugins/sercosiii/packet-sercosiii_1v1.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_hp.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_mdt.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_mdt_devctrl.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_mst.c \
-	../plugins/sercosiii/packet-sercosiii_1v1_svc.c \
+	../plugins/sercosiii/packet-sercosiii.c \
         ../plugins/wimax/crc.c \
         ../plugins/wimax/crc_data.c \
         ../plugins/wimax/mac_hd_generic_decoder.c \
