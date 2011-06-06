@@ -20,6 +20,10 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef __W_CAT_DCT2K_H__
+#define __W_CAT_DCT2K_H__
+
+#include <glib.h>
 int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info);
 gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err);
 int catapult_dct2000_dump_can_write_encap(int encap);
@@ -28,3 +32,6 @@ int catapult_dct2000_dump_can_write_encap(int encap);
 #define DCT2000_ENCAP_SSCOP     101
 #define DCT2000_ENCAP_MTP2      102
 #define DCT2000_ENCAP_NBAP      103
+
+#endif
+

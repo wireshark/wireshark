@@ -23,6 +23,9 @@
 #ifndef __W_TOSHIBA_H__
 #define __W_TOSHIBA_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int toshiba_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

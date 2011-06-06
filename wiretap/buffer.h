@@ -23,6 +23,7 @@
 
 #ifndef __W_BUFFER_H__
 #define __W_BUFFER_H__
+#include <glib.h>
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 

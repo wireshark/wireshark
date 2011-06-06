@@ -23,6 +23,7 @@
 
 #ifndef __W_AIROPEEK9_H__
 #define __W_AIROPEEK9_H__
+#include <glib.h>
 
 int airopeek9_open(wtap *wth, int *err, gchar **err_info);
 

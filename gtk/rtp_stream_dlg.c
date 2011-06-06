@@ -456,6 +456,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	GtkTreeIter       iter;
 	guint             i,j;
 	gchar             *table_entry;
+	guint             table_entry_uint;
 
 	GString           *CSV_str;
 	GtkClipboard      *cb;
@@ -474,8 +475,14 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter)) {
 		for (i=0; i<streams_nb; i++) {
 			for (j=0; j<NUM_COLS-1; j++) {
+				if (j == RTP_COL_SRC_PORT || j == RTP_COL_DST_PORT || j == RTP_COL_PACKETS) {
+					gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry_uint, -1);
+					g_string_append_printf(CSV_str, "\"%u\"", table_entry_uint);
+				} else {
 				gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry, -1);
 				g_string_append_printf(CSV_str, "\"%s\"", table_entry);
+					g_free(table_entry);
+				}
 				if (j<NUM_COLS-2) g_string_append(CSV_str,",");
 			}
 			g_string_append(CSV_str,"\n");
@@ -679,9 +686,9 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 	setlocale(LC_NUMERIC, "C");
 
 	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
-	data[1] = g_strdup_printf("%u", strinfo->src_port);
+	data[1] = NULL;
 	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
-	data[3] = g_strdup_printf("%u", strinfo->dest_port);
+	data[3] = NULL;
 	data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
 	if ((strinfo->pt > 95) && (strinfo->info_payload_type_str != NULL)) {
 		data[5] = g_strdup(strinfo->info_payload_type_str);
@@ -689,7 +696,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 		data[5] = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext,
 			"Unknown (%u)"));
 	}
-	data[6] = g_strdup_printf("%u", strinfo->npackets);
+	data[6] = NULL;
 
 	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
 		- strinfo->rtp_stats.start_seq_nr + 1;
@@ -717,12 +724,12 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 	/* Fill the new row */
 	gtk_list_store_set(list_store, &list_iter,
 			    RTP_COL_SRC_ADDR, data[0],
-			    RTP_COL_SRC_PORT, data[1],
+			    RTP_COL_SRC_PORT, strinfo->src_port,
 			    RTP_COL_DST_ADDR, data[2],
-			    RTP_COL_DST_PORT, data[3],
+			    RTP_COL_DST_PORT, strinfo->dest_port,
 			    RTP_COL_SSRC, data[4],
 			    RTP_COL_PAYLOAD, data[5],
-			    RTP_COL_PACKETS, data[6],
+			    RTP_COL_PACKETS, strinfo->npackets,
 			    RTP_COL_LOST, data[7],
 			    RTP_COL_MAX_DELTA, data[8],
 			    RTP_COL_MAX_JITTER, data[9],
@@ -755,12 +762,12 @@ create_list_view(void)
 	/* Create the store */
 	list_store = gtk_list_store_new(NUM_COLS,       /* Total number of columns */
 					G_TYPE_STRING,  /* Source address */
-					G_TYPE_STRING,  /* Source port */
+					G_TYPE_UINT,    /* Source port */
 					G_TYPE_STRING,  /* Destination address */
-					G_TYPE_STRING,  /* Destination port */
+					G_TYPE_UINT,    /* Destination port */
 					G_TYPE_STRING,  /* SSRC */
 					G_TYPE_STRING,  /* Payload */
-					G_TYPE_STRING,  /* Packets */
+					G_TYPE_UINT,    /* Packets */
 					G_TYPE_STRING,  /* Lost */
 					G_TYPE_STRING,  /* Max. delta */
 					G_TYPE_STRING,  /* Max. jitter */

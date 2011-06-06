@@ -22,6 +22,8 @@
 
 #ifndef __W_DCT3TRACE_H__
 #define __W_DCT3TRACE_H__
+#include <glib.h>
+#include <wtap.h>
 
 int dct3trace_open(wtap *wth, int *err, gchar **err_info);
 

@@ -818,7 +818,7 @@ main(int argc, char *argv[])
   int opt;
 
   char *p;
-  unsigned int snaplen = 0;             /* No limit               */
+  guint32 snaplen = 0;                  /* No limit               */
   int choplen = 0;                      /* No chop                */
   wtap_dumper *pdh = NULL;
   int count = 1;
@@ -1135,8 +1135,8 @@ main(int argc, char *argv[])
         } else
           filename = g_strdup(argv[optind+1]);
 
-        pdh = wtap_dump_open(filename, out_file_type,
-            out_frame_type, wtap_snapshot_length(wth),
+        pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+          snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
             FALSE /* compressed */, &err);
         if (pdh == NULL) {
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
@@ -1166,8 +1166,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type,
-             out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+            FALSE /* compressed */, &err);
 
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
@@ -1196,8 +1197,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type,
-              out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+            FALSE /* compressed */, &err);
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                 wtap_strerror(err));
@@ -1219,23 +1221,26 @@ main(int argc, char *argv[])
 
         phdr = wtap_phdr(wth);
 
-        if (choplen < 0 && (phdr->caplen + choplen) > 0) {
-          snap_phdr = *phdr;
-          snap_phdr.caplen += choplen;
-          phdr = &snap_phdr;
-        }
-
-        if (choplen > 0 && phdr->caplen > (unsigned int) choplen) {
-          snap_phdr = *phdr;
-          snap_phdr.caplen -= choplen;
-          snap_phdr.len -= choplen;
-		  buf += choplen;
-          phdr = &snap_phdr;
-        }
-
         if (snaplen != 0 && phdr->caplen > snaplen) {
           snap_phdr = *phdr;
           snap_phdr.caplen = snaplen;
+          phdr = &snap_phdr;
+        }
+
+        if (choplen < 0) {
+          snap_phdr = *phdr;
+          if (((signed int) phdr->caplen + choplen) > 0)
+            snap_phdr.caplen += choplen;
+          else
+            snap_phdr.caplen = 0;
+          phdr = &snap_phdr;
+        } else if (choplen > 0) {
+          snap_phdr = *phdr;
+          if (phdr->caplen > (unsigned int) choplen) {
+            snap_phdr.caplen -= choplen;
+            buf += choplen;
+          } else
+            snap_phdr.caplen = 0;
           phdr = &snap_phdr;
         }
 
@@ -1469,8 +1474,9 @@ main(int argc, char *argv[])
       g_free (filename);
       filename = g_strdup(argv[optind+1]);
 
-      pdh = wtap_dump_open(filename, out_file_type,
-			   out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+      pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+        snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
+        FALSE /* compressed */, &err);
       if (pdh == NULL) {
 	fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
 		wtap_strerror(err));

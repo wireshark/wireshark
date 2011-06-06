@@ -41,8 +41,6 @@
 
 #include <wsutil/file_util.h>
 
-typedef struct wtap_reader *FILE_T;
-
 #include "wtap.h"
 
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
@@ -54,7 +52,7 @@ struct wtap {
 	FILE_T			fh;
 	FILE_T			random_fh;    /* Secondary FILE_T for random access */
 	int			file_type;
-	int			snapshot_length;
+	guint			snapshot_length;
 	struct Buffer		*frame_buffer;
 	struct wtap_pkthdr	phdr;
 	union wtap_pseudo_header pseudo_header;

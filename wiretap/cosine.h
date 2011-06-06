@@ -26,6 +26,8 @@
 
 #ifndef __W_COSINE_H__
 #define __W_COSINE_H__
+#include <glib.h>
+#include <wtap.h>
 
 int cosine_open(wtap *wth, int *err, gchar **err_info);
 

@@ -23,6 +23,8 @@
 
 #ifndef __CSIDS_H__
 #define __CSIDS_H__
+#include <glib.h>
+#include <wtap.h>
 
 int csids_open(wtap *wth, int *err, gchar **err_info);
 

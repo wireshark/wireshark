@@ -24,5 +24,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __W_PCAP_ENCAP_H__
+#define __W_PCAP_ENCAP_H__
+
+#include <glib.h>
+#include <wiretap/wtap.h>
+
 extern int wtap_pcap_encap_to_wtap_encap(int encap);
 extern int wtap_wtap_encap_to_pcap_encap(int encap);
+
+#endif

@@ -23,6 +23,9 @@
 #ifndef __W_LIBPCAP_H__
 #define __W_LIBPCAP_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 /* Magic numbers in "libpcap" files.
 
    "libpcap" file records are written in the byte order of the host that

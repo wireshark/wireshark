@@ -26,6 +26,9 @@
 #ifndef __PACKETLOGGER_H__
 #define __PACKETLOGGER_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_);
 
 #endif /* __PACKETLOGGER_H__ */

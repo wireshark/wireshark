@@ -26,6 +26,9 @@
 #ifndef __NETTL_H__
 #define __NETTL_H__
 
+#include <glib.h>
+#include <wiretap/wtap.h>
+
 /* nettl subsystems are defined in /etc/nettlgen.conf */
 
 #define NETTL_SUBSYS_NS_LS_LOGGING	0

@@ -24,6 +24,9 @@
 #ifndef __W_ETHERPEEK_H__
 #define __W_ETHERPEEK_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int etherpeek_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

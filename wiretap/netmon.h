@@ -23,6 +23,9 @@
 #ifndef __NETMON_H__
 #define __NETMON_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int netmon_open(wtap *wth, int *err, gchar **err_info);
 gboolean netmon_dump_open(wtap_dumper *wdh, int *err);
 int netmon_dump_can_write_encap(int encap);

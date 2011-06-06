@@ -823,6 +823,8 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
+typedef struct wtap_reader *FILE_T;
+
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
@@ -912,7 +914,7 @@ guint8 *wtap_buf_ptr(wtap *wth);
  * from the file so far. */
 gint64 wtap_read_so_far(wtap *wth);
 gint64 wtap_file_size(wtap *wth, int *err);
-int wtap_snapshot_length(wtap *wth); /* per file */
+guint wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);

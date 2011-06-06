@@ -24,6 +24,9 @@
 #ifndef __I4BTRACE_H__
 #define __I4BTRACE_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int i4btrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

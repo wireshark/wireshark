@@ -24,6 +24,9 @@
 #ifndef __RADCOM_H__
 #define __RADCOM_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int radcom_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

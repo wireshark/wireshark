@@ -3463,6 +3463,7 @@ Peter Paluch 		<peter.paluch [AT] fri.uniza.sk>
 Tom Brezinski		<tombr [AT] netinst.com>
 Nick Glass		<nick.glass [AT] lycos.com>
 Romain Fliedel		<romain.fliedel+wireshark [AT] gmail.com>
+Michael Chen		<michaelc [AT] idssoftware.com>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.

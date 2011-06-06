@@ -25,7 +25,8 @@
 #ifndef __W_MPEG_H__
 #define __W_MPEG_H__
 
-#include "wtap-int.h"
+#include <glib.h>
+#include <wtap.h>
 
 int mpeg_open(wtap *wth, int *err, gchar **err_info);
 

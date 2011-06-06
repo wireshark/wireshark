@@ -24,6 +24,9 @@
 #ifndef __W_EYESDN_H__
 #define __W_EYESDN_H__
 
+#include <glib.h>
+#include <wtap.h>
+
 int eyesdn_open(wtap *wth, int *err, gchar **err_info);
 
 enum EyeSDN_TYPES {
