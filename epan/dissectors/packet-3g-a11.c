@@ -132,7 +132,6 @@ static int hf_a11_fqi_qos_granted_attribute_setid = -1;
 static int hf_a11_fqi_verbose = -1;
 static int hf_a11_fqi_flow_profileid = -1;
 static int hf_a11_fqi_granted_qoslen = -1;
-static int hf_a11_fqi_granted_qos = -1;
 
 /* Reverse QoS Information */
 static int hf_a11_rqi_srid = -1;
