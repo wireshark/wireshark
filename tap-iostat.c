@@ -55,6 +55,7 @@ typedef struct _io_stat_t {
 #define CALC_TYPE_MIN	 5
 #define CALC_TYPE_MAX	 6
 #define CALC_TYPE_AVG	 7
+#define CALC_TYPE_LOAD	 8
 
 typedef struct _io_stat_item_t {
 	io_stat_t *parent;
@@ -75,7 +76,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 {
 	io_stat_item_t *mit = arg;
 	io_stat_item_t *it;
-	gint64 current_time;
+	gint64 current_time, ct;
 	GPtrArray *gp;
 	guint i;
 
@@ -91,17 +92,18 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	}
 
 	/* we have moved into a new interval, we need to create a new struct */
-	if(current_time>=(it->time+mit->parent->interval)){
+	ct = current_time;
+	while(ct >= (it->time + mit->parent->interval)){
 		it->next=g_malloc(sizeof(io_stat_item_t));
 		it->next->prev=it;
 		it->next->next=NULL;
 		it=it->next;
 		mit->prev=it;
 
-		it->time=(current_time / mit->parent->interval) * mit->parent->interval;
-		it->frames=0;
-		it->counter=0;
-		it->num=0;
+		it->time    = it->prev->time + mit->parent->interval;
+		it->frames  = 0;
+		it->counter = 0;
+		it->num     = 0;
 		it->calc_type=it->prev->calc_type;
 		it->hf_index=it->prev->hf_index;
 	}
@@ -317,6 +319,45 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 			}
 		}
 		break;
+	case CALC_TYPE_LOAD:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			int type;
+
+			type=proto_registrar_get_ftype(it->hf_index);
+			if (type != FT_RELATIVE_TIME) {
+				fprintf(stderr,
+					"\ntshark: LOAD() is only supported for relative-time fiels such as smb.time\n"
+					);
+				exit(10);
+			}
+			for(i=0;i<gp->len;i++){
+				guint64 val;
+				int tival;
+				nstime_t *new_time;
+				io_stat_item_t *pit;
+
+				new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
+				val=(guint64)(new_time->secs)*1000000 + new_time->nsecs/1000;
+				tival = val % mit->parent->interval;
+				it->counter += tival;
+				val -= tival;
+				pit = it->prev;
+				while (val > 0) {
+					if (val < (guint64)mit->parent->interval) {
+						pit->counter += val;
+						val = 0;
+						break;
+					}
+
+					pit->counter += mit->parent->interval;
+					val -= mit->parent->interval;
+					pit = pit->prev;
+					
+				}
+			}
+		}
+		break;
 	}
 
 	return TRUE;
@@ -407,6 +448,9 @@ iostat_draw(void *arg)
 			break;
 		case CALC_TYPE_AVG:
 			printf("       AVG      |");
+			break;
+		case CALC_TYPE_LOAD:
+			printf("       LOAD     |");
 			break;
 		}
 	}
@@ -554,6 +598,15 @@ iostat_draw(void *arg)
 					}
 					break;
 
+				case CALC_TYPE_LOAD:
+					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
+					case FT_RELATIVE_TIME:
+						printf("%8u.%06u ",
+								(int)(counters[i]/iot->interval), (int)((counters[i]%iot->interval)*1000000/iot->interval));
+						break;
+					}
+					break;
+
 				}
 			}
 			printf("\n");
@@ -587,6 +640,7 @@ static calc_type_ent_t calc_type_table[] = {
 	{ "MIN", CALC_TYPE_MIN },
 	{ "MAX", CALC_TYPE_MAX },
 	{ "AVG", CALC_TYPE_AVG },
+	{ "LOAD", CALC_TYPE_LOAD },
 	{ NULL, 0 }
 };
 
@@ -689,6 +743,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			case CALC_TYPE_MAX:
 			case CALC_TYPE_MIN:
 			case CALC_TYPE_AVG:
+			case CALC_TYPE_LOAD:
 				break;
 			default:
 				fprintf(stderr,
@@ -714,13 +769,6 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 		}
 		g_free(field);
 	}
-
-/*
-CALC_TYPE_SUM	2
-CALC_TYPE_MIN	3
-CALC_TYPE_MAX	4
-CALC_TYPE_AVG	5
-*/
 
 	error_string=register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL, iostat_packet, i?NULL:iostat_draw);
 	if(error_string){
