@@ -403,7 +403,10 @@ dissect_mbtcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 f
 
     reported_len = tvb_reported_length_remaining(tvb, payload_start);
 
-    if ( ( payload_start + payload_len ) > reported_len ) {
+	if ( payload_start < 0 || ( payload_len + payload_start ) == 0 )
+		return;
+
+	if ( payload_len != reported_len ) {
         proto_tree_add_bytes_format(tree, hf_modbus_data, tvb, payload_start, payload_len, NULL, "Data");
         return;
     }
