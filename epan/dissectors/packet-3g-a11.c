@@ -124,7 +124,13 @@ static int hf_a11_fqi_entrylen = -1;
 static int hf_a11_fqi_dscp = -1;
 static int hf_a11_fqi_flowstate = -1;
 static int hf_a11_fqi_requested_qoslen = -1;
-static int hf_a11_fqi_requested_qos = -1;
+static int hf_a11_fqi_flow_priority = -1;
+static int hf_a11_fqi_num_qos_attribute_set = -1;
+static int hf_a11_fqi_qos_attribute_setlen = -1;
+static int hf_a11_fqi_qos_attribute_setid = -1;
+static int hf_a11_fqi_qos_granted_attribute_setid = -1;
+static int hf_a11_fqi_verbose = -1;
+static int hf_a11_fqi_flow_profileid = -1;
 static int hf_a11_fqi_granted_qoslen = -1;
 static int hf_a11_fqi_granted_qos = -1;
 
@@ -135,6 +141,13 @@ static int hf_a11_rqi_flowid = -1;
 static int hf_a11_rqi_entrylen = -1;
 static int hf_a11_rqi_flowstate = -1;
 static int hf_a11_rqi_requested_qoslen = -1;
+static int hf_a11_rqi_flow_priority = -1;
+static int hf_a11_rqi_num_qos_attribute_set = -1;
+static int hf_a11_rqi_qos_attribute_setlen = -1;
+static int hf_a11_rqi_qos_attribute_setid = -1;
+static int hf_a11_rqi_qos_granted_attribute_setid = -1;
+static int hf_a11_rqi_verbose = -1;
+static int hf_a11_rqi_flow_profileid = -1;
 static int hf_a11_rqi_requested_qos = -1;
 static int hf_a11_rqi_granted_qoslen = -1;
 static int hf_a11_rqi_granted_qos = -1;
@@ -158,7 +171,13 @@ static gint ett_a11_radius = -1;
 static gint ett_a11_radiuses = -1;
 static gint ett_a11_ase = -1;
 static gint ett_a11_fqi_flowentry = -1;
+static gint ett_a11_fqi_requestedqos = -1;
+static gint ett_a11_fqi_qos_attribute_set = -1;
+static gint ett_a11_fqi_grantedqos = -1;
 static gint ett_a11_rqi_flowentry = -1;
+static gint ett_a11_rqi_requestedqos = -1;
+static gint ett_a11_rqi_qos_attribute_set = -1;
+static gint ett_a11_rqi_grantedqos = -1;
 static gint ett_a11_fqi_flags = -1;
 static gint ett_a11_fqi_entry_flags = -1;
 static gint ett_a11_rqi_entry_flags = -1;
@@ -312,7 +331,8 @@ static const value_string a11_ext_nvose_srvopt[]= {
     {0x003B, "HRPD Main Service Connection"},
     {0x003C, "Link Layer Assisted Header Removal"},
     {0x003D, "Link Layer Assisted Robust Header Compression"},
-    {0x0040, "HRPD Auxiliary Service Connection"},
+    {0x0040, "HRPD Auxiliary Service Connection with higher layer framing for packet synchronization"},
+    {0x0043, "HRPD Auxiliary Service Connection without higher layer framing for packet synchronization"},
     {0, NULL},
 };
 
@@ -621,8 +641,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
         if (radius_len < 2)
         {
             proto_tree_add_text(radius_tree, tvb, offset, 2,
-                                "Bogus RADIUS length %u, should be >= 2",
-                                radius_len);
+                "Bogus RADIUS length %u, should be >= 2",
+                radius_len);
             break;
         }
 
@@ -631,8 +651,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
             if (radius_len < SKIP_HDR_LEN)
             {
                 proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                    "Bogus RADIUS length %u, should be >= %u",
-                                    radius_len, SKIP_HDR_LEN);
+                    "Bogus RADIUS length %u, should be >= %u",
+                     radius_len, SKIP_HDR_LEN);
                 offset += radius_len;
                 continue;
             }
@@ -795,7 +815,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 
       if(registration_request_msg && (service_option==64 || service_option==67)){
           if(service_option == 67){
-	          guint8 profile_count=tvb_get_guint8(tvb, offset+clen+20);
+              guint8 profile_count=tvb_get_guint8(tvb, offset+clen+20);
               guint8 reverse_profile_count=tvb_get_guint8(tvb, offset+clen+20+(profile_count*2)+1+6);
 
       	      ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+6+(profile_count*2)+1+6+(reverse_profile_count*2)+1,
@@ -1052,17 +1072,45 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 
         /* Requested QoS Length */
         requested_qos_len = tvb_get_guint8(tvb, offset+clen);
-        proto_tree_add_item
-            (exts_tree, hf_a11_fqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(exts_tree, hf_a11_fqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
         clen++;
 
         /* Requested QoS Blob */
         if(requested_qos_len)
         {
-            proto_tree_add_item
-                (exts_tree, hf_a11_fqi_requested_qos, tvb, offset+clen,
-                 requested_qos_len, ENC_NA);
-            clen += requested_qos_len;
+            proto_item* ti2;
+            proto_tree* exts_tree2;
+
+      	    proto_item* ti1 = proto_tree_add_text(ext_tree, tvb, offset+clen,requested_qos_len, "Forward Requested QoS ");
+      	    proto_tree* exts_tree1 = proto_item_add_subtree(ti1, ett_a11_fqi_requestedqos);
+
+            proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Forward Requested QoS Sub Blob");
+
+            /* Flow Priority */
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_flow_priority, tvb,offset+clen , 1, FALSE);
+			
+            /*  Num of QoS attribute sets */
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_num_qos_attribute_set, tvb, offset+clen, 1, FALSE);
+
+            /* QoS attribute set length */
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_qos_attribute_setlen, tvb, offset+clen, 2, FALSE);
+            clen++;
+
+            /* QoS attribute set */
+            ti2 = proto_tree_add_text(exts_tree1, tvb, offset+clen, 4, "QoS Attribute Set");
+            exts_tree2 = proto_item_add_subtree(ti2, ett_a11_fqi_qos_attribute_set);
+			
+            /* QoS attribute setid */
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_qos_attribute_setid, tvb, offset+clen, 2, FALSE);
+            clen++;
+
+            /* verbose */
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_verbose, tvb,offset+clen, 1, FALSE);
+
+            /* Flow profile id */
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_flow_profileid, tvb, offset+clen, 3, FALSE);
+            clen += 3;
+
         }
 
         /* Granted QoS Length */
@@ -1073,9 +1121,18 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
         /* Granted QoS Blob */
         if(granted_qos_len)
         {
-            proto_tree_add_item
-                (exts_tree, hf_a11_fqi_granted_qos, tvb, offset+clen, granted_qos_len, ENC_NA);
-            clen += granted_qos_len;
+            proto_item* ti3;
+            proto_tree* exts_tree3;
+
+            ti3 = proto_tree_add_text(ext_tree, tvb, offset+clen, granted_qos_len, "Forward Granted QoS ");
+
+            exts_tree3 = proto_item_add_subtree(ti3, ett_a11_fqi_grantedqos);
+
+            proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Forward Granted QoS Sub Blob");
+
+            /* QoS attribute setid */
+            proto_tree_add_item(exts_tree3, hf_a11_fqi_qos_granted_attribute_setid, tvb, offset+clen, 1, TRUE);
+            clen++;
         }
     }
 }
@@ -1130,9 +1187,39 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
         /* Requested QoS Blob */
         if(requested_qos_len)
         {
-            proto_tree_add_item
-                (exts_tree, hf_a11_rqi_requested_qos, tvb, offset+clen, requested_qos_len, ENC_NA);
-            clen += requested_qos_len;
+            proto_item *ti1, *ti2;
+            proto_tree *exts_tree1, *exts_tree2;
+
+			ti1 = proto_tree_add_text(ext_tree, tvb, offset+clen,requested_qos_len , "Reverse Requested QoS ");
+
+            exts_tree1 = proto_item_add_subtree(ti1, ett_a11_rqi_requestedqos);
+
+            proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Reverse Requested QoS Sub Blob");
+
+            /* Flow Priority */
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_flow_priority, tvb,offset+clen , 1, FALSE);
+
+            /*  Num of QoS attribute sets */
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_num_qos_attribute_set, tvb, offset+clen, 1, FALSE);
+
+            /* QoS attribute set length */
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_qos_attribute_setlen, tvb, offset+clen, 2, FALSE);
+            clen++;
+
+            /* QoS attribute set */
+            ti2 = proto_tree_add_text(exts_tree1, tvb, offset+clen, 4, "QoS Attribute Set");
+            exts_tree2 = proto_item_add_subtree(ti2, ett_a11_rqi_qos_attribute_set);
+
+            /* QoS attribute setid */
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_qos_attribute_setid, tvb, offset+clen, 2, FALSE);
+            clen++;
+
+            /* verbose */
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_verbose, tvb,offset+clen, 1, FALSE);
+
+            /* Flow profile id */
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_flow_profileid, tvb, offset+clen, 3, FALSE);
+            clen += 3;
         }
 
         /* Granted QoS Length */
@@ -1143,9 +1230,17 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
         /* Granted QoS Blob */
         if(granted_qos_len)
         {
-            proto_tree_add_item
-                (exts_tree, hf_a11_rqi_granted_qos, tvb, offset+clen, granted_qos_len, ENC_NA);
-            clen += granted_qos_len;
+            proto_item* ti3;
+            proto_tree* exts_tree3;
+
+            ti3 = proto_tree_add_text(ext_tree, tvb, offset+clen,granted_qos_len , "Reverse Granted QoS ");
+            exts_tree3 = proto_item_add_subtree(ti3, ett_a11_rqi_grantedqos);
+
+            proto_tree_add_text(exts_tree3, tvb, offset+clen, granted_qos_len, "Reverse Granted QoS Sub Blob");
+
+            /* QoS attribute setid */
+            proto_tree_add_item(exts_tree3, hf_a11_rqi_qos_granted_attribute_setid, tvb, offset+clen, 1, TRUE);
+            clen++;
         }
     }
 }
@@ -2054,12 +2149,12 @@ proto_register_a11(void)
         { &hf_a11_fqi_flowcount,
           { "Forward Flow Count",   "a11.ext.fqi.flowcount",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Forward Flow Count.", HFILL }
+            NULL, HFILL }
         },
         { &hf_a11_fqi_flowid,
           { "Forward Flow Id",   "a11.ext.fqi.flowid",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Forward Flow Id.", HFILL }
+            NULL, HFILL }
         },
         { &hf_a11_fqi_entrylen,
           { "Entry Length",   "a11.ext.fqi.entrylen",
@@ -2074,27 +2169,87 @@ proto_register_a11(void)
         { &hf_a11_fqi_flowstate,
           { "Forward Flow State",   "a11.ext.fqi.flowstate",
             FT_UINT8, BASE_HEX, NULL, 0,
-            "Forward Flow State.", HFILL }
+            NULL, HFILL }
         },
         { &hf_a11_fqi_requested_qoslen,
           { "Requested QoS Length",   "a11.ext.fqi.reqqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Forward Requested QoS Length.", HFILL }
         },
-        { &hf_a11_fqi_requested_qos,
-          { "Requested QoS",   "a11.ext.fqi.reqqos",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Forward Requested QoS.", HFILL }
-        },
+	    { &hf_a11_fqi_flow_priority,
+		 { "Flow Priority",   "a11.ext.fqi.flow_priority",
+			FT_UINT8, BASE_DEC, NULL, 0xF0,
+			NULL, HFILL }
+	    },
+	    { &hf_a11_fqi_num_qos_attribute_set,
+		 { "Number of QoS Attribute Sets",   "a11.ext.fqi.num_qos_attribute_set",
+			FT_UINT8, BASE_DEC, NULL, 0x0E,
+			NULL, HFILL }
+	    },
+	    { &hf_a11_fqi_qos_attribute_setlen,
+		 { "QoS Attribute Set Length",   "a11.ext.fqi.qos_attribute_setlen",
+			FT_UINT16, BASE_DEC, NULL, 0x01E0,
+			NULL, HFILL }
+	    },
+	    { &hf_a11_fqi_qos_attribute_setid,
+		 { "QoS Attribute SetID",   "a11.ext.fqi.qos_attribute_setid",
+			FT_UINT16, BASE_DEC, NULL, 0x1FC0,
+			"QoS Attribute SetID.", HFILL }
+	    },
+	    { &hf_a11_fqi_verbose,
+		 { "Verbose",   "a11.ext.fqi.verbose",
+			FT_UINT8, BASE_DEC, NULL, 0x20,
+			NULL, HFILL }
+	    },
+	    { &hf_a11_fqi_flow_profileid,
+		 { "Flow Profile Id",   "a11.ext.fqi.flow_profileid",
+			FT_UINT24, BASE_DEC, NULL, 0x1FFFE0,
+			NULL, HFILL }
+	    },
+	    { &hf_a11_fqi_qos_granted_attribute_setid,
+		 { "QoS Attribute SetID",   "a11.ext.fqi.qos_granted_attribute_setid",
+			FT_UINT8, BASE_DEC, NULL, 0xFE,
+			NULL, HFILL }
+	    },
         { &hf_a11_fqi_granted_qoslen,
           { "Granted QoS Length",   "a11.ext.fqi.graqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Forward Granted QoS Length.", HFILL }
         },
-        { &hf_a11_fqi_granted_qos,
-          { "Granted QoS",   "a11.ext.fqi.graqos",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Forward Granted QoS.", HFILL }
+        { &hf_a11_rqi_flow_priority,
+          { "Flow Priority",   "a11.ext.rqi.flow_priority",
+          FT_UINT8, BASE_DEC, NULL, 0xF0,
+          NULL, HFILL }
+        },
+        { &hf_a11_rqi_num_qos_attribute_set,
+          { "Number of QoS Attribute Sets",   "a11.ext.rqi.num_qos_attribute_set",
+          FT_UINT8, BASE_DEC, NULL, 0x0E,
+          NULL, HFILL }
+        },
+        { &hf_a11_rqi_qos_attribute_setlen,
+          { "QoS Attribute Set Length",   "a11.ext.rqi.qos_attribute_setlen",
+          FT_UINT16, BASE_DEC, NULL, 0x01E0,
+          NULL, HFILL }
+        },
+        { &hf_a11_rqi_qos_attribute_setid,
+          { "QoS Attribute SetID",   "a11.ext.rqi.qos_attribute_setid",
+            FT_UINT16, BASE_DEC, NULL, 0x1FC0,
+            NULL, HFILL }
+        },
+        { &hf_a11_rqi_verbose,
+          { "Verbose",   "a11.ext.rqi.verbose",
+            FT_UINT8, BASE_DEC, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_a11_rqi_flow_profileid,
+          { "Flow Profile Id",   "a11.ext.rqi.flow_profileid",
+            FT_UINT24, BASE_DEC, NULL, 0x1FFFE0,
+            NULL, HFILL }
+        },
+        { &hf_a11_rqi_qos_granted_attribute_setid,
+          { "QoS Attribute SetID",   "a11.ext.rqi.qos_granted_attribute_setid",
+            FT_UINT8, BASE_DEC, NULL, 0xFE,
+            "QoS Attribute SetID.", HFILL }
         },
         { &hf_a11_rqi_srid,
           { "SRID",   "a11.ext.rqi.srid",
@@ -2126,41 +2281,41 @@ proto_register_a11(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             "Reverse Requested QoS Length.", HFILL }
         },
-        { &hf_a11_rqi_requested_qos,
-          { "Requested QoS",   "a11.ext.rqi.reqqos",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Reverse Requested QoS.", HFILL }
-        },
-        { &hf_a11_rqi_granted_qoslen,
-          { "Granted QoS Length",   "a11.ext.rqi.graqoslen",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Reverse Granted QoS Length.", HFILL }
-        },
-        { &hf_a11_rqi_granted_qos,
-          { "Granted QoS",   "a11.ext.rqi.graqos",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Reverse Granted QoS.", HFILL }
-        },
-        { &hf_a11_fqui_flowcount,
-          { "Forward QoS Update Flow Count",   "a11.ext.fqui.flowcount",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Forward QoS Update Flow Count.", HFILL }
-        },
-        { &hf_a11_rqui_flowcount,
-          { "Reverse QoS Update Flow Count",   "a11.ext.rqui.flowcount",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Reverse QoS Update Flow Count.", HFILL }
-        },
-        { &hf_a11_fqui_updated_qoslen,
-          { "Forward Updated QoS Sub-Blob Length",   "a11.ext.fqui.updatedqoslen",
-            FT_UINT8, BASE_DEC, NULL, 0,
-            "Forward Updated QoS Sub-Blob Length.", HFILL }
-        },
-        { &hf_a11_fqui_updated_qos,
-          { "Forward Updated QoS Sub-Blob",   "a11.ext.fqui.updatedqos",
-            FT_BYTES, BASE_NONE, NULL, 0,
-            "Forward Updated QoS Sub-Blob.", HFILL }
-        },
+      { &hf_a11_rqi_requested_qos,
+        { "Requested QoS",   "a11.ext.rqi.reqqos",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Reverse Requested QoS.", HFILL }
+      },
+      { &hf_a11_rqi_granted_qoslen,
+        { "Granted QoS Length",   "a11.ext.rqi.graqoslen",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Reverse Granted QoS Length.", HFILL }
+      },
+      { &hf_a11_rqi_granted_qos,
+        { "Granted QoS",   "a11.ext.rqi.graqos",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Reverse Granted QoS.", HFILL }
+      },
+      { &hf_a11_fqui_flowcount,
+        { "Forward QoS Update Flow Count",   "a11.ext.fqui.flowcount",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Forward QoS Update Flow Count.", HFILL }
+      },
+      { &hf_a11_rqui_flowcount,
+        { "Reverse QoS Update Flow Count",   "a11.ext.rqui.flowcount",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Reverse QoS Update Flow Count.", HFILL }
+      },
+      { &hf_a11_fqui_updated_qoslen,
+        { "Forward Updated QoS Sub-Blob Length",   "a11.ext.fqui.updatedqoslen",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Forward Updated QoS Sub-Blob Length.", HFILL }
+      },
+      { &hf_a11_fqui_updated_qos,
+        { "Forward Updated QoS Sub-Blob",   "a11.ext.fqui.updatedqos",
+          FT_BYTES, BASE_NONE, NULL, 0,
+         "Forward Updated QoS Sub-Blob.", HFILL }
+      },
         { &hf_a11_rqui_updated_qoslen,
           { "Reverse Updated QoS Sub-Blob Length",   "a11.ext.rqui.updatedqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -2267,7 +2422,12 @@ proto_register_a11(void)
         &ett_a11_radiuses,
         &ett_a11_ase,
         &ett_a11_fqi_flowentry,
+        &ett_a11_fqi_requestedqos,
+        &ett_a11_fqi_qos_attribute_set,
+		&ett_a11_fqi_grantedqos,
         &ett_a11_rqi_flowentry,
+		&ett_a11_rqi_requestedqos,
+		&ett_a11_rqi_qos_attribute_set,
         &ett_a11_fqi_flags,
         &ett_a11_fqi_entry_flags,
         &ett_a11_rqi_entry_flags,
