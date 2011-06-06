@@ -114,7 +114,7 @@ set(WIRESHARK_GTK_SRC
 	stock_icons.c
 	summary_dlg.c
 	supported_protos_dlg.c
-	tap_dfilter_dlg.c
+	tap_param_dlg.c
 	text_import.c
 	text_page_utils.c
 	uat_gui.c
