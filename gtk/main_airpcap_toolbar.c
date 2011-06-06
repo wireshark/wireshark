@@ -178,7 +178,7 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     display_airpcap_key_management_cb(w,data);
 }
 
-GtkWidget *airpcap_toolbar_new()
+GtkWidget *airpcap_toolbar_new(void)
 {
     GtkWidget	  *channel_lb = NULL,
 		  *channel_cb = NULL,
