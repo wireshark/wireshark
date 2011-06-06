@@ -1027,6 +1027,44 @@ static gint ett_dnp3_al_obj_point_perms = -1;
 /* Tables for reassembly of fragments. */
 static GHashTable *al_fragment_table = NULL;
 static GHashTable *al_reassembled_table = NULL;
+static GHashTable *dl_conversation_table = NULL;
+
+/* Data-Link-Layer Conversation Key Structure */
+typedef struct _dl_conversation_key
+{
+	guint32 conversation; /* TCP / UDP conversation index */
+	guint16 src;	      /* DNP3.0 Source Address */
+	guint16 dst;	      /* DNP3.0 Destination Address */
+} dl_conversation_key_t;
+
+/* Data-Link-Layer conversation key equality function */
+static gint
+dl_conversation_equal(gconstpointer v, gconstpointer w)
+{
+  const dl_conversation_key_t* v1 = (const dl_conversation_key_t*)v;
+  const dl_conversation_key_t* v2 = (const dl_conversation_key_t*)w;
+
+  if (v1->conversation == v2->conversation &&
+      v1->src == v2->src &&
+      v1->dst == v2->dst)
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
+/* Data-Link-Layer conversation key hash function */
+static guint
+dl_conversation_hash(gconstpointer v)
+{
+	const dl_conversation_key_t *key = (const dl_conversation_key_t*)v;
+	guint val;
+
+	val = key->conversation + (key->src << 16) + key->dst;
+
+	return val;
+}
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
@@ -2693,6 +2731,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean      update_col_info = TRUE;
     conversation_t *conversation;
     dnp3_conv_t  *conv_data_ptr;
+    dl_conversation_key_t dl_conversation_key;
 
 
 
@@ -2902,17 +2941,32 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Look up the conversation to get the fragment reassembly id */
         conversation = find_or_create_conversation(pinfo);
 
-        conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
+		/*
+		 * The TCP/UDP conversation is not sufficient to identify a conversation
+		 * on a multi-drop DNP network.  Lookup conversation data based on TCP/UDP
+		 * conversation and the DNP src and dst addresses
+		 */
 
-        if (conv_data_ptr == NULL) {
-          /* New data structure required */
+        dl_conversation_key.conversation = conversation->index;
+        dl_conversation_key.src = dl_src;
+        dl_conversation_key.dst = dl_dst;
+
+        conv_data_ptr = (dnp3_conv_t*)g_hash_table_lookup(dl_conversation_table, &dl_conversation_key);
+
+        if(!pinfo->fd->flags.visited && conv_data_ptr == NULL)
+        {
+          dl_conversation_key_t* new_dl_conversation_key = NULL;
+          new_dl_conversation_key = se_alloc(sizeof(dl_conversation_key_t));
+          *new_dl_conversation_key = dl_conversation_key;
+          
           conv_data_ptr = se_alloc(sizeof(dnp3_conv_t));
-
+          
           /*** Increment static global fragment reassembly id ***/
           conv_data_ptr->conv_seq_number = seq_number++;
 
-          conversation_add_proto_data(conversation, proto_dnp3, (void *)conv_data_ptr);
-        }
+          g_hash_table_insert(dl_conversation_table, new_dl_conversation_key, conv_data_ptr);
+		}
+
         conv_seq_number = conv_data_ptr->conv_seq_number;
 
         /*
@@ -2940,7 +2994,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
           /* We don't have the complete reassembled payload. */
           if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Application Layer fragment %u ", tr_seq);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Transport Layer fragment %u ", tr_seq);
         }
 
       }
@@ -3016,8 +3070,14 @@ dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-al_defragment_init(void)
+dnp3_init(void)
 {
+  if (dl_conversation_table)
+  {
+    g_hash_table_destroy(dl_conversation_table);
+  }
+  dl_conversation_table = g_hash_table_new(dl_conversation_hash, dl_conversation_equal);
+
   fragment_table_init(&al_fragment_table);
   reassembled_table_init(&al_reassembled_table);
 }
@@ -3472,7 +3532,7 @@ proto_register_dnp3(void)
   module_t *dnp3_module;
 
 /* Register protocol init routine */
-  register_init_routine(&al_defragment_init);
+  register_init_routine(&dnp3_init);
 
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
