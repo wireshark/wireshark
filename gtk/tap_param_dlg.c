@@ -57,7 +57,7 @@ typedef struct _tap_param_dlg_list_item {
     GtkWidget *dlg;
     tap_param_dlg cont;
     construct_args_t args;
-    GtkWidget **param_entries;    /* items for params */
+    GtkWidget **param_items;    /* items for params */
     struct _tap_param_dlg_list_item *next;
 } tap_param_dlg_list_item;
 
@@ -115,17 +115,30 @@ dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
 static void
 tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
-    const char *value;
     GString *params;
     size_t i;
+    gint j;
     
     tap_param_dlg_list_item *dlg_data = (tap_param_dlg_list_item *) dialog_data;
 
     params = g_string_new(dlg_data->cont.init_string);
     for(i=0;i<dlg_data->cont.nparams;i++) {
-        value=gtk_entry_get_text(GTK_ENTRY(dlg_data->param_entries[i]));
-        params=g_string_append_c(params, ',');
-        params=g_string_append(params, value);
+        g_string_append_c(params, ',');
+        switch (dlg_data->cont.params[i].type) {
+
+        case PARAM_ENUM:
+            j = gtk_combo_box_get_active(GTK_COMBO_BOX(dlg_data->param_items[i]));
+            g_string_append_printf(params,"%d",
+                                   dlg_data->cont.params[i].enum_vals[j].value);
+            break;
+
+        case PARAM_UINT:
+        case PARAM_STRING:
+        case PARAM_FILTER:
+            g_string_append(params,
+                            gtk_entry_get_text(GTK_ENTRY(dlg_data->param_items[i])));
+            break;
+        }
     }
     (dlg_data->cont.tap_init_cb)(params->str,NULL);
     g_string_free(params, TRUE);
@@ -138,9 +151,10 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
     const char *filter;
     char *title;
     GtkWidget *dlg_box;
-    GtkWidget *item_box, *item_entry, *label, *filter_bt;
+    GtkWidget *item_box, *item, *label, *filter_bt;
     GtkWidget *bbox, *start_button, *cancel_button;
-    size_t i;
+    size_t i, j;
+    char *label_with_colon;
     
     tap_param_dlg *dlg_data = (tap_param_dlg *) data;
 
@@ -159,7 +173,7 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
             end_dlg_list = end_dlg_list->next;
         }
         end_dlg_list->dlg = NULL;
-        end_dlg_list->param_entries = g_malloc(dlg_data->nparams * sizeof (GtkWidget *));
+        end_dlg_list->param_items = g_malloc(dlg_data->nparams * sizeof (GtkWidget *));
         end_dlg_list->cont.win_title = dlg_data->win_title;
         end_dlg_list->cont.init_string = dlg_data->init_string;
         end_dlg_list->cont.tap_init_cb = dlg_data->tap_init_cb;
@@ -207,18 +221,36 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
         /* Item box */
         item_box=gtk_hbox_new(FALSE, 3);
 
-        /* Item entry */
-        item_entry=gtk_entry_new();
-        current_dlg->param_entries[i] = item_entry;
-
         switch (current_dlg->cont.params[i].type) {
 
         case PARAM_UINT:
         case PARAM_STRING:
             /* Label */
-            label=gtk_label_new(current_dlg->cont.params[i].title);
+            label_with_colon=g_strdup_printf("%s:", current_dlg->cont.params[i].title);
+            label=gtk_label_new(label_with_colon);
+            g_free(label_with_colon);
             gtk_box_pack_start(GTK_BOX(item_box), label, FALSE, TRUE, 0);
             gtk_widget_show(label);
+
+            /* Entry */
+            item=gtk_entry_new();
+            break;
+
+        case PARAM_ENUM:
+            /* Label */
+            label_with_colon=g_strdup_printf("%s:", current_dlg->cont.params[i].title);
+            label=gtk_label_new(label_with_colon);
+            g_free(label_with_colon);
+            gtk_box_pack_start(GTK_BOX(item_box), label, FALSE, TRUE, 0);
+            gtk_widget_show(label);
+
+            /* Combo box */
+            item=gtk_combo_box_new_text();
+            for (j = 0; current_dlg->cont.params[i].enum_vals[j].name != NULL;
+                 j++)
+                gtk_combo_box_append_text(GTK_COMBO_BOX(item),
+                                          current_dlg->cont.params[i].enum_vals[j].description);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(item), 0);
             break;
 
         case PARAM_FILTER:
@@ -227,39 +259,31 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
             g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &(current_dlg->args));
             gtk_box_pack_start(GTK_BOX(item_box), filter_bt, FALSE, TRUE, 0);
             gtk_widget_show(filter_bt);
-            g_signal_connect(item_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-            g_object_set_data(G_OBJECT(item_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-            g_signal_connect(item_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-            g_signal_connect(current_dlg->dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
-            /* prefs dialog */
-            g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, item_entry);
-            /* prefs dialog */
+            /* Entry */
+            item=gtk_entry_new();
+            filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+            if(filter){
+                gtk_entry_set_text(GTK_ENTRY(item), filter);
+            } else {
+                colorize_filter_te_as_empty(item);
+            }
+            g_signal_connect(item, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+            g_object_set_data(G_OBJECT(item_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+            g_signal_connect(item, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+            g_signal_connect(current_dlg->dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+            g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, item);
             break;
 
         default:
-            /* XXX - fill me in */
+            g_assert_not_reached();
+            item=NULL;
             break;
         }
     
-        gtk_box_pack_start(GTK_BOX(item_box), item_entry, TRUE, TRUE, 0);
-
-        switch(current_dlg->cont.params[i].type){
-
-        case PARAM_FILTER:
-            filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-            if(filter){
-                gtk_entry_set_text(GTK_ENTRY(item_entry), filter);
-            } else {
-                colorize_filter_te_as_empty(item_entry);
-            }
-            break;
-
-        default:
-            /* XXX - anything to do here? */
-            break;
-        }
-        gtk_widget_show(item_entry);
+        gtk_box_pack_start(GTK_BOX(item_box), item, TRUE, TRUE, 0);
+        current_dlg->param_items[i]=item;
+        gtk_widget_show(item);
 
         gtk_box_pack_start(GTK_BOX(dlg_box), item_box, TRUE, TRUE, 0);
         gtk_widget_show(item_box);
@@ -283,12 +307,22 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
        some widget that *doesn't* handle the Return key has the input
        focus. */
     for(i=0;i<current_dlg->cont.nparams;i++){
-        dlg_set_activate(current_dlg->param_entries[i], start_button);
+        switch (current_dlg->cont.params[i].type) {
+
+        case PARAM_ENUM:
+            break;
+
+        case PARAM_UINT:
+        case PARAM_STRING:
+        case PARAM_FILTER:
+            dlg_set_activate(current_dlg->param_items[i], start_button);
+            break;
+        }
     }
 
     /* Give the initial focus to the first entry box. */
     if(current_dlg->cont.nparams>0){
-        gtk_widget_grab_focus(current_dlg->param_entries[0]);
+        gtk_widget_grab_focus(current_dlg->param_items[0]);
     }
 
     gtk_widget_grab_default(start_button );

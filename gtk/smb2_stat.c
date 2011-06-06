@@ -47,7 +47,6 @@
 
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
-#include "gtk/filter_dlg.h"
 #include "gtk/service_response_time_table.h"
 #include "gtk/tap_param_dlg.h"
 #include "gtk/gtkglobals.h"

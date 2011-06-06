@@ -54,14 +54,10 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
-#include "gtk/filter_dlg.h"
-#include "gtk/stock_icons.h"
 #include "gtk/service_response_time_table.h"
+#include "gtk/tap_param_dlg.h"
 #include "gtk/gtkglobals.h"
-#include "gtk/filter_autocomplete.h"
 
-
-static GtkWidget *dlg=NULL;
 
 /* used to keep track of the statistics for an entire scsi command set */
 typedef struct _scsistat_t {
@@ -73,7 +69,6 @@ typedef struct _scsistat_t {
 } scsistat_t;
 
 static guint8 scsi_program=0;
-static GtkWidget *filter_entry;
 
 enum
 {
@@ -112,34 +107,6 @@ scsistat_reset(void *arg)
 	scsistat_set_title(rs);
 }
 
-
-static void
-dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
-{
-	dlg=NULL;
-}
-
-static void
-scsistat_program_select(GtkWidget *w, gpointer key _U_)
-{
-	int i;
-
-	i = gtk_combo_box_get_active (GTK_COMBO_BOX(w));
-	switch(i){
-		case SCSI_STAT_PROG_LABEL_SBC:
-			scsi_program = SCSI_DEV_SBC;
-			break;
-		case SCSI_STAT_PROG_LABEL_SSC:
-			scsi_program = SCSI_DEV_SSC;
-			break;
-		case SCSI_STAT_PROG_LABEL_MMC:
-			scsi_program = SCSI_DEV_CDROM;
-			break;
-		default:
-			scsi_program = SCSI_DEV_SBC;
-			break;
-	}
-}
 
 static int
 scsistat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
@@ -313,146 +280,32 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	gdk_window_raise(rs->win->window);
 }
 
+static enum_val_t scsi_command_sets[] = {
+	{ "sbc", "SBC (disk)", SCSI_DEV_SBC },
+	{ "ssc", "SSC (tape)", SCSI_DEV_SSC },
+	{ "mmc", "MMC (cd/dvd)", SCSI_DEV_CDROM },
+	{ "smc", "SMC (tape robot)", SCSI_DEV_SMC },
+	{ "osd", "OSD (object based)", SCSI_DEV_OSD },
+	{ NULL, NULL, 0 }
+};
 
+static tap_param scsi_stat_params[] = {
+	{ PARAM_ENUM, "Command set", scsi_command_sets },
+	{ PARAM_FILTER, "Filter", NULL }
+};
 
-static void
-scsistat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
-{
-	GString *str;
-	const char *filter;
-
-	str = g_string_new("scsi,srt");
-	g_string_append_printf(str, ",%d", scsi_program);
-	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	if(filter[0]!=0){
-		g_string_append_printf(str, ",%s", filter);
-	}
-
-	gtk_scsistat_init(str->str,NULL);
-	g_string_free(str, TRUE);
-}
-
-static void
-gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	GtkWidget *prog_combo_box;
-	GtkWidget *dlg_box;
-	GtkWidget *prog_box, *prog_label;
-	GtkWidget *filter_box, *filter_bt;
-	GtkWidget *bbox, *start_button, *cancel_button;
-	const char *filter;
-	static construct_args_t args = {
-	  "Service Response Time Statistics Filter",
-	  TRUE,
-	  FALSE,
-      FALSE
-	};
-
-	/* if the window is already open, bring it to front */
-	if(dlg){
-		gdk_window_raise(dlg->window);
-		return;
-	}
-
-	dlg=dlg_window_new("Wireshark: Compute SCSI SRT statistics");
-	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
-
-	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
-	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
-	gtk_widget_show(dlg_box);
-
-	/* Program box */
-	prog_box=gtk_hbox_new(FALSE, 10);
-
-	/* Program label */
-	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
-	prog_label=gtk_label_new("Commandset:");
-	gtk_box_pack_start(GTK_BOX(prog_box), prog_label, FALSE, FALSE, 0);
-	gtk_widget_show(prog_label);
-
-	/* Program menu */
-	prog_combo_box = gtk_combo_box_new_text ();
-
-	/* SBC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "SBC (disk)");
-	/* SSC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "SSC (tape)");
-	/* MMC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "MMC (cd/dvd)");
-
-	gtk_box_pack_start(GTK_BOX(prog_box), prog_combo_box, TRUE, TRUE, 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(prog_combo_box), SCSI_DEV_SBC);
-	g_signal_connect(prog_combo_box, "changed", G_CALLBACK(scsistat_program_select), NULL);
-	gtk_widget_show(prog_combo_box);
-
-	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
-	gtk_widget_show(prog_box);
-
-	/* Filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
-
-	/* Filter label */
-	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
-	gtk_widget_show(filter_bt);
-
-	/* Filter entry */
-	filter_entry=gtk_entry_new();
-        g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-	g_signal_connect(filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-	g_signal_connect(dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
-
-	/* filter prefs dialog */
-        g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
-	/* filter prefs dialog */
-
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
-	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	if(filter){
-		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
-	} else {
-		colorize_filter_te_as_empty(filter_entry);
-	}
-	gtk_widget_show(filter_entry);
-
-	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
-	gtk_widget_show(filter_box);
-
-	/* button box */
-        bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
-	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-        gtk_widget_show(bbox);
-
-        start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
-        g_signal_connect_swapped(start_button, "clicked",
-			     G_CALLBACK(scsistat_start_button_clicked), NULL);
-
-        cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-        window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
-
-	/* Give the initial focus to the "Filter" entry box. */
-	gtk_widget_grab_focus(filter_entry);
-
-        gtk_widget_grab_default(start_button );
-
-        g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(dlg, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
-
-        gtk_widget_show_all(dlg);
-        window_present(dlg);
-}
-
+static tap_param_dlg scsi_stat_dlg = {
+	"SCSI SRT Statistics",
+	"scsi,srt",
+	gtk_scsistat_init,
+	-1,
+	G_N_ELEMENTS(scsi_stat_params),
+	scsi_stat_params
+};
 
 void
 register_tap_listener_gtkscsistat(void)
 {
-	register_stat_cmd_arg("scsi,srt,", gtk_scsistat_init, NULL);
-
-	register_stat_menu_item("SCSI...", REGISTER_STAT_GROUP_RESPONSE_TIME,
-	    gtk_scsistat_cb, NULL, NULL, NULL);
-
+	register_dfilter_stat(&scsi_stat_dlg, "SCSI",
+	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-
