@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
 
 <!-- $Id$ -->
@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4">
+  <!ENTITY WiresharkCurrentVersion "1.7">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "&WiresharkRepositorySite;/wireshark/trunk/AUTHORS">
@@ -81,7 +81,7 @@ FILE SECTION
   <!ENTITY Tools SYSTEM "wsdg_src/WSDG_chapter_tools.xml">
   <!ENTITY Libraries SYSTEM "wsdg_src/WSDG_chapter_libraries.xml">
   <!ENTITY Sources SYSTEM "wsdg_src/WSDG_chapter_sources.xml">
-  
+
   <!ENTITY BuildIntroduction SYSTEM "wsdg_src/WSDG_chapter_build_intro.xml">
   <!ENTITY HowWiresharkWorks SYSTEM "wsdg_src/WSDG_chapter_works.xml">
   <!ENTITY Capture SYSTEM "wsdg_src/WSDG_chapter_capture.xml">
@@ -104,15 +104,15 @@ FILE SECTION
 <command>Part I. Wireshark Build Environment</command>
 </para>
 <para>
-<command>The first part describes how to set up the tools, libraries and 
-source needed to generate Wireshark, and how to do some typical development 
+<command>The first part describes how to set up the tools, libraries and
+source needed to generate Wireshark, and how to do some typical development
 tasks.</command>
 </para>
 <para>
 Part II. Wireshark Development
 </para>
 <para>
-The second part describes how the Wireshark sources are structured and how 
+The second part describes how the Wireshark sources are structured and how
 to change the sources (e.g. adding a new dissector).
 </para>
 </partintro>
@@ -129,14 +129,14 @@ to change the sources (e.g. adding a new dissector).
 Part I. Wireshark Build Environment
 </para>
 <para>
-The first part describes how to set up the tools, libraries and source needed 
+The first part describes how to set up the tools, libraries and source needed
 to generate Wireshark, and how to do some typical development tasks.
 </para>
 <para>
 <command>Part II. Wireshark Development</command>
 </para>
 <para>
-<command>The second part describes how the Wireshark sources are structured and how 
+<command>The second part describes how the Wireshark sources are structured and how
 to change the sources (e.g. adding a new dissector).</command>
 </para>
 </partintro>
