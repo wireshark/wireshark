@@ -12,17 +12,17 @@ To build everything, just do 'make' (for Win32: 'nmake -f Makefile.nmake')
 but see the requirements below.
 
 
-The guides are written in Docbook/XML (formerly Docbook/SGML). This format is 
-now used by many other documentation projects, e.g. "the Linux Documentation 
+The guides are written in Docbook/XML (formerly Docbook/SGML). This format is
+now used by many other documentation projects, e.g. "the Linux Documentation
 Project."
 
-To get HTML, PDF or other output formats, conversions are done using XSL 
+To get HTML, PDF or other output formats, conversions are done using XSL
 stylesheets, which provides a flexible way for these conversions.
 
-By default the Makefile generates HTML in single page and multiple (chunked) 
+By default the Makefile generates HTML in single page and multiple (chunked)
 formats and two PDF's.
 
-Win32 only: The optional output format CHM has to be enabled by setting 
+Win32 only: The optional output format CHM has to be enabled by setting
 HHC_EXE in ..\config.nmake.
 
 
@@ -31,7 +31,7 @@ Settings:
 
 Unix only: Makefile and catalog.xml
 -----------------------------------
-You have to edit the settings in these files, to point to the DTD/XSL files 
+You have to edit the settings in these files, to point to the DTD/XSL files
 and FOP. (Makefile.auto.am is currently experimental and will probably NOT
 work - any progress on this would be appreciated!)
 
@@ -45,13 +45,13 @@ Requirements:
 
 DocBook XML DTD
 ---------------
-DocBook "official" XML DTD V4.2: 
+DocBook "official" XML DTD V4.2:
 http://www.oasis-open.org/docbook/xml/
 (available as a package for Linux / Cygwin)
 
 DocBook XSL
 -----------
-The "official" XSL stylesheets from Norman Walsh: 
+The "official" XSL stylesheets from Norman Walsh:
 http://docbook.sourceforge.net/
 (available as a package for Linux / Cygwin)
 
@@ -64,7 +64,7 @@ Supplied with Mac OS X Panther and later.
 
 xmllint
 -------
-Needed to validate if the .xml files conform to the Docbook/XML DTD. 
+Needed to validate if the .xml files conform to the Docbook/XML DTD.
 Part of libxml2:
 http://xmlsoft.org/
 Available as a package for Linux / Cygwin.
@@ -76,7 +76,7 @@ FOP processor from the apache project:
 http://xml.apache.org/fop/
 
 FOP is a Java program, so you need to have a Java environment installed.
-The makefiles look for fop-0.95 in the docbook directory. You can change
+The makefiles look for fop-1.0 in the docbook directory. You can change
 this location by setting the FOP environment variable or by changing
 config.nmake.
 
@@ -93,11 +93,11 @@ commercial use.
 
 JIMI (for PDF generation)
 -------------------------
-Jimi is a JAVA class library for managing images. 
-In addition to FOP, be sure to also have installed JAI and/or jimi to be able 
+Jimi is a JAVA class library for managing images.
+In addition to FOP, be sure to also have installed JAI and/or jimi to be able
 to use/convert the PNG graphics files. The FOP release note webpage tells how
-to do it: 
-download jimi from: 
+to do it:
+download jimi from:
 http://java.sun.com/products/jimi/
 then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
 rename it to jimi-1.0.jar.
@@ -105,11 +105,11 @@ rename it to jimi-1.0.jar.
 Win32 only: HTML help compiler (for .chm generation only)
 ---------------------------------------------------------
 HTML Help Compiler (hhc.exe) from Microsoft:
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
 
 Lynx
 ----
-Text based web browser used to convert release_notes.html into plain text 
+Text based web browser used to convert release_notes.html into plain text
 format.
 (Alternative [*nix]: elinks)
 
@@ -125,9 +125,9 @@ xmllint:            Doc/libxml2             M
 xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
 docbookx.dtd:       Doc/docbook-xml42       M
 lynx:               Web/lynx                M
-fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-0.95 to keep defaults from config.nmake
+fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-1.0 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
-hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
+hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
 zip:                Archive/zip             O
 getopt:             Utils/util-linux        O           Required to run "build-docbook-catalog"
 
@@ -152,8 +152,8 @@ Install it:         emerge <package>
 
 Tool/File           Package                  Opt./Mand.   Comments
 ---------           -------                  ----------   --------
-xsltproc:           libxslt                  M            
-xmllint:            libxml2                  M            
+xsltproc:           libxslt                  M
+xmllint:            libxml2                  M
 xsl stylesheets:    docbook-xsl-stylesheets  M            docbook.xsl and chunk.xsl
                                                           Necessary docbook catalogs are built automatically by portage in /etc/xml and /etc/sgml
                                                             docbook.xsl and chunk.xsl using "/usr/bin/build-docbook-catalog".
@@ -181,7 +181,7 @@ docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.
 fop:                fop                     O           See above
 jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
 
-Note: There are required dependencies (such as xml-common and sgml-common); 
+Note: There are required dependencies (such as xml-common and sgml-common);
       yum is your friend for doing package installs including required
       dependencies.
 
@@ -203,8 +203,8 @@ jimi:               -                       O           http://java.sun.com/prod
 
 Makefile / Makefile.nmake:
 --------------------------
-There are several ways and tools to do these conversion, following is a short 
-description of the way the makefile targets are doing things and which output 
+There are several ways and tools to do these conversion, following is a short
+description of the way the makefile targets are doing things and which output
 files required for a release in that format.
 
 all
@@ -214,19 +214,19 @@ make wsug
 Will generate Wireshark User's Guide in all available output formats.
 
 make wsug_html
-The HTML file is generated using xsltproc and the XSL stylesheets from 
+The HTML file is generated using xsltproc and the XSL stylesheets from
 Norman Walsh. This is a conversion into a single HTML page.
 output: wsug_html
 
 make wsug_html_chunked
-The HTML files are generated using xsltproc and the XSL stylesheets from 
+The HTML files are generated using xsltproc and the XSL stylesheets from
 Norman Walsh. This is a conversion into chunked (multiple) HTML pages.
 output: wsug_html_chunked
 
 make wsug_pdf_us
 make wsug_pdf_a4
-The PDF is generated using an intermediate format named XSL-FO (XSL 
-formatting objects). xsltproc converts the XML to a FO file, and then FOP 
+The PDF is generated using an intermediate format named XSL-FO (XSL
+formatting objects). xsltproc converts the XML to a FO file, and then FOP
 (Apache's formatting object processor) is used to generate the PDF document,
 in US letter or A4 paper format.
 Tip: You will get lot's of INFO/WARNING/ERROR messages when generating PDF,
@@ -234,12 +234,12 @@ but the conversion works just fine.
 output: user-guide-us.pdf user-guide-a4.pdf
 
 make wsug_chm
-On Win32 platforms, the "famous" HTML help format can be generated by using a 
-special HTML chunked conversion and then use the htmlhelp compiler from 
+On Win32 platforms, the "famous" HTML help format can be generated by using a
+special HTML chunked conversion and then use the htmlhelp compiler from
 Microsoft.
 output: htmlhelp.chm
 
-Using the prefix wsdg_ instead of wsug_ will build the same targets but for the 
+Using the prefix wsdg_ instead of wsug_ will build the same targets but for the
 Wireshark Developer's Guide.
 
 The makefile is written to be run with make on UNIX/Linux platforms.
