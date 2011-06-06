@@ -2272,6 +2272,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *pdu_header_tree;
 
     gboolean   have_seen_data_header = FALSE;
+    guint8     number_of_padding_subheaders = 0;
     gboolean   have_seen_non_padding_control = FALSE;
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
@@ -2410,7 +2411,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ((direction == DIRECTION_UPLINK) && is_bsr_lcid(lcids[number_of_headers])) {
             if (have_seen_bsr) {
                 expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
-                                      "There shouldn't be > 1 BSR in a frame");
+                                       "There shouldn't be > 1 BSR in a frame");
                 return;
             }
             have_seen_bsr = TRUE;
@@ -2419,10 +2420,18 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Should not see padding after non-padding control... */
         if ((lcids[number_of_headers] > 10) &&
             (lcids[number_of_headers] == PADDING_LCID) &&
-            extension &&
-            have_seen_non_padding_control) {
+            extension)
+        {
+            number_of_padding_subheaders++;
+            if (number_of_padding_subheaders > 2) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_WARN,
+                                       "Should not see more than 2 padding subheaders in one frame");
+            }
+
+            if (have_seen_non_padding_control) {
                 expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
-                                      "Padding should come before other control subheaders!");
+                                       "Padding should come before other control subheaders!");
+            }
         }
 
         /* Remember that we've seen non-padding control */
