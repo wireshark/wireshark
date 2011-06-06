@@ -339,7 +339,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
 				new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
 				val=(guint64)(new_time->secs)*1000000 + new_time->nsecs/1000;
-				tival = val % mit->parent->interval;
+				tival = (int)(val % mit->parent->interval);
 				it->counter += tival;
 				val -= tival;
 				pit = it->prev;
