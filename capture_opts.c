@@ -144,7 +144,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
     for (i = 0; i < capture_opts->number_of_ifaces; i++) {
         interface_options options;
-        
+
         options = g_array_index(capture_opts->ifaces, interface_options, i);
         g_log(log_domain, log_level, "Interface name[%02d] : %s", i, options.name);
         g_log(log_domain, log_level, "Interface Descr[%02d]: %s", i, options.descr);
@@ -791,6 +791,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
              */
             free_interface_list(if_list);
         }
+        options.descr = g_strdup(capture_opts->default_options.descr);
         options.cfilter = g_strdup(capture_opts->default_options.cfilter);
         options.snaplen = capture_opts->default_options.snaplen;
         options.linktype = capture_opts->default_options.linktype;
