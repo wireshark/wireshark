@@ -3068,9 +3068,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
         /* init the input filter from the network interface (capture pipe will do nothing) */
+        /*
+         * When remote capturing WinPCap crashes when the capture filter
+         * is NULL. This might be a bug in WPCap. Therefore we provide an emtpy
+         * string.
+         */
         switch (capture_loop_init_filter(pcap_opts->pcap_h, pcap_opts->from_cap_pipe,
                                          interface_opts.name,
-                                         interface_opts.cfilter)) {
+                                         interface_opts.cfilter?interface_opts.cfilter:"")) {
 
         case INITFILTER_NO_ERROR:
             break;
