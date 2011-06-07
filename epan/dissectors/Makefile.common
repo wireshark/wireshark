@@ -869,6 +869,7 @@ DISSECTOR_SRC = \
 	packet-sdlc.c		\
 	packet-sdp.c		\
 	packet-sebek.c		\
+	packet-sercosiii.c	\
 	packet-ses.c		\
 	packet-sflow.c		\
 	packet-sgsap.c		\

@@ -34,7 +34,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	mate \
 	opcua \
 	profinet \
-	sercosiii \
 	stats_tree \
 	unistim \
 	wimax \

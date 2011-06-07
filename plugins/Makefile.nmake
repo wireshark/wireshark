@@ -18,7 +18,6 @@ PLUGIN_LIST = \
 	mate        \
 	opcua       \
 	profinet    \
-	sercosiii   \
 	stats_tree  \
 	unistim     \
 	wimax       \

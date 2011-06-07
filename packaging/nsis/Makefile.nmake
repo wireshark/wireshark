@@ -58,7 +58,6 @@ PLUGINS= \
 	../../plugins/mate/mate.dll \
 	../../plugins/opcua/opcua.dll \
 	../../plugins/profinet/profinet.dll \
-	../../plugins/sercosiii/sercosiii.dll \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/unistim/unistim.dll \
 	../../plugins/wimax/wimax.dll \

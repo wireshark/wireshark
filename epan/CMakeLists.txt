@@ -953,6 +953,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sdlc.c
 	dissectors/packet-sdp.c
 	dissectors/packet-sebek.c
+	dissectors/packet-sercosiii.c
 	dissectors/packet-ses.c
 	dissectors/packet-sflow.c
 	dissectors/packet-sgsap.c
