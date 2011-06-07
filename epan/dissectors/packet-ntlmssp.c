@@ -970,7 +970,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
     if (blob_length < MAX_BLOB_SIZE)
     {
       tvb_memcpy(tvb, result->contents, blob_offset, blob_length);
-      if (blob_hf == hf_ntlmssp_auth_lmresponse && !(memcmp(tvb->real_data+blob_offset+8,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",NTLMSSP_KEY_LEN)))
+      if (blob_hf == hf_ntlmssp_auth_lmresponse && !(tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN)))
       {
         proto_tree_add_item (ntlmssp_tree,
                              hf_ntlmssp_ntlm_client_challenge,

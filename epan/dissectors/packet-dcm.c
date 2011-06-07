@@ -5146,11 +5146,11 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Create PDV structure:
 
        Since we can have multiple PDV per packet (offset) and
-       multiple merged packets per PDV (tvb->raw_offset)
+       multiple merged packets per PDV (the tvb raw_offset)
        we need both values to uniquely identify a PDV
     */
 
-    *pdv = dcm_state_pdv_get(pctx, pinfo->fd->num, tvb->raw_offset+offset, TRUE);
+    *pdv = dcm_state_pdv_get(pctx, pinfo->fd->num, TVB_RAW_OFFSET(tvb)+offset, TRUE);
     if (*pdv == NULL) {
 	return 0;		    /* Failed to allocate memory */
     }
@@ -6280,6 +6280,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += pdv_body_len;
 	    }
 	    else {
+		guint next_tvb_length = tvb_length(next_tvb);
 		/* Decode reassembled data */
 
 		if (tree || have_tap_listener(dicom_eo_tap)) {
@@ -6289,15 +6290,15 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       i.e Class & Instance UID, so the export dialog has all information and
 		       that the dicome header is complete
 		    */
-		    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb->length, pdv_description);
+		    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb_length, pdv_description);
 		}
 
 		if (have_tap_listener(dicom_eo_tap)) {
 		    /* Copy pure DICOM data to buffer, no PDV flags */
 
-		    pdv->data = g_malloc(next_tvb->length);      /* will be freed in dcm_export_create_object() */
-                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb->length);
-                    pdv->data_len = next_tvb->length;
+		    pdv->data = g_malloc(next_tvb_length);      /* will be freed in dcm_export_create_object() */
+                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb_length);
+                    pdv->data_len = next_tvb_length;
 
 		    /* Copy to export buffer */
 		    dcm_export_create_object(pinfo, assoc, pdv);

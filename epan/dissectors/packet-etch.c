@@ -610,7 +610,7 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
   int i;
 
   ti = proto_tree_add_item(etch_tree, hf_etch_struct, tvb, *offset,
-                           tvb->length - *offset, ENC_NA);
+                           tvb_length(tvb) - *offset, ENC_NA);
   new_tree = proto_item_add_subtree(ti, ett_etch_struct);
 
   if (add_type_field) {

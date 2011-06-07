@@ -2288,7 +2288,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Create display subtree for the protocol
      */
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb->length, FALSE);
+        ti = proto_tree_add_item (tree, proto_smpp, tvb, 0, tvb_length(tvb), FALSE);
         smpp_tree = proto_item_add_subtree (ti, ett_smpp);
     }
 

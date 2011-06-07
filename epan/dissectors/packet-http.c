@@ -1179,8 +1179,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			eo_info->hostname = conv_data->http_host;
 			eo_info->filename = conv_data->request_uri;
 			eo_info->content_type = headers.content_type;
-			eo_info->payload_len = next_tvb->length;
-			eo_info->payload_data = next_tvb->real_data;
+			eo_info->payload_len = tvb_length(next_tvb);
+			eo_info->payload_data = tvb_get_ptr(next_tvb, 0, eo_info->payload_len);
 
 			tap_queue_packet(http_eo_tap, pinfo, eo_info);
 		}

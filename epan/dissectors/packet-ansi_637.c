@@ -733,7 +733,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
         if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
         {
-            utf8_text = g_convert_with_iconv(tvb->real_data +  offset, num_fields , cd , NULL , NULL , &l_conv_error);
+            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb, offset, num_fields), num_fields , cd , NULL , NULL , &l_conv_error);
             if(!l_conv_error)
             {
                 proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);

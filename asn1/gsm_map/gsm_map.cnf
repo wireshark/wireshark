@@ -1,6 +1,6 @@
 
 #.OPT
--b 
+-b
 #-d satcom
 #-s packet-gsm_map-tmp
 -k
@@ -8,10 +8,10 @@
 #.END
 
 #.MODULE
-MAP-BS-Code             gsm_map        
-MAP-TS-Code             gsm_map        
-MAP-SS-Code             gsm_map        
-MAP-ExtensionDataTypes  gsm_map        
+MAP-BS-Code             gsm_map
+MAP-TS-Code             gsm_map
+MAP-SS-Code             gsm_map
+MAP-ExtensionDataTypes  gsm_map
 MAP-CommonDataTypes     gsm_map
 
 MAP-SS-DataTypes        gsm_map.ss
@@ -151,7 +151,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 #.END
 
 #.TABLE2_BODY ERROR
-	{ %(&errorCode)s, "%(_ident)s" },  
+	{ %(&errorCode)s, "%(_ident)s" },
 #.END
 
 
@@ -172,7 +172,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_BODY  GSMMAPOperationLocalvalue
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
 
@@ -184,14 +184,14 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_PARS PrivateExtension/extId  FN_VARIANT = _str  VAL_PTR = &obj_id
 
-#.FN_BODY PrivateExtension/extType	
+#.FN_BODY PrivateExtension/extType
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
   if (obj_id){
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
 	 offset = tvb_length_remaining(tvb,offset);
-  }	
+  }
 
 #.FN_PARS  AccessNetworkProtocolId
 
@@ -243,7 +243,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  if (!parameter_tvb)
 	return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo); 
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo);
 
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
@@ -262,12 +262,12 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
 			length = tvb_get_guint8(parameter_tvb,0);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
  	/* ts3G-25413 */
 	case 2:
-		call_dissector(ranap_handle, parameter_tvb, actx->pinfo, tree); 
+		call_dissector(ranap_handle, parameter_tvb, actx->pinfo, tree);
 		break;
 	default:
 		break;
@@ -382,12 +382,12 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
  octet = tvb_get_guint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
+ if ((octet & 0x01)== 1)
 	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);
 
 #.FN_BODY Ext-SS-Status VAL_PTR = &parameter_tvb
  /* Note Ext-SS-Status can have more than one byte */
@@ -403,12 +403,12 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
  octet = tvb_get_guint8(parameter_tvb,0);
 
  proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
+ if ((octet & 0x01)== 1)
 	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);
 
 #.END
 
@@ -432,12 +432,12 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   tvbuff_t	*parameter_tvb;
   int			length;
   guint8		out_len;
-  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
+  /* XXX - The maximum item label length is 240.  Does this really need to be 1024?
    * use ep_alloc ?
    */
   static unsigned char msgbuf[1024];
   gchar *utf8_text = NULL;
-  GIConv cd;	
+  GIConv cd;
   GError *l_conv_error = NULL;
 
 %(DEFAULT_BODY)s
@@ -463,21 +463,21 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
     case SMS_ENCODING_UCS2_LANG:
 	if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
 	{
-	    utf8_text = g_convert_with_iconv(parameter_tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
+	    utf8_text = g_convert_with_iconv(tvb_get_ptr(parameter_tvb, 0, length), length, cd, NULL, NULL, &l_conv_error);
 	    if(!l_conv_error)
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: %%s", utf8_text);
 	    else
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_convert_with_iconv FAILED");
 
 	    g_free(utf8_text);
-	    g_iconv_close(cd);				
+	    g_iconv_close(cd);
 	}
 	else
 	    proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_iconv_open FAILED contact wireshark");
 
 	break;
     default:
-	break;	
+	break;
   }
 
 #.FN_FTR ForwardingOptions
@@ -575,35 +575,35 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 #.FN_BODY LAIFixedLength VAL_PTR = &parameter_tvb
 
-        tvbuff_t        *parameter_tvb; 
-        proto_tree *subtree; 
+        tvbuff_t        *parameter_tvb;
+        proto_tree *subtree;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-         if (!parameter_tvb) 
-                return offset; 
-        subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
-        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE); 
+         if (!parameter_tvb)
+                return offset;
+        subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength);
+        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
 
-#.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb 
-    tvbuff_t        *parameter_tvb; 
+#.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb
+    tvbuff_t        *parameter_tvb;
 	proto_tree *subtree;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
-                return offset; 
+	if (!parameter_tvb)
+                return offset;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation);
 	be_chan_type(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 #.FN_BODY RANAP-ServiceHandover VAL_PTR = &parameter_tvb
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -613,9 +613,9 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -625,9 +625,9 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
+	if (!parameter_tvb)
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
@@ -647,7 +647,7 @@ and GSM 09.10. The Protocol ID indicates that the message or messages are accord
 For the coding of the messages see GSM 08.06 and GSM 08.08.
 */
  ProtocolId = 0xffffffff;
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 if (!actx->value_ptr)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
@@ -667,7 +667,7 @@ if (!actx->value_ptr)
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
-			/* Dissect the data part */			
+			/* Dissect the data part */
 			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
@@ -690,8 +690,8 @@ if (!actx->value_ptr)
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
@@ -726,9 +726,9 @@ MAP interfaces
  guint8		length;
  tvbuff_t	*next_tvb;
  proto_tree *subtree;
- 
+
  ProtocolId = 0xffffffff;
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 if (!actx->value_ptr)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
@@ -748,7 +748,7 @@ if (!actx->value_ptr)
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
-			/* Dissect the data part */			
+			/* Dissect the data part */
 			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
@@ -771,8 +771,8 @@ if (!actx->value_ptr)
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
-			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
-		}	
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
+		}
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
@@ -794,29 +794,29 @@ if (!actx->value_ptr)
 		break;
 	}/*switch (ProtocolId)*/
 
-#.FN_BODY GlobalCellId VAL_PTR = &parameter_tvb 
-    tvbuff_t	*parameter_tvb; 
+#.FN_BODY GlobalCellId VAL_PTR = &parameter_tvb
+    tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
-                return offset; 
+	if (!parameter_tvb)
+                return offset;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId); 
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId);
 	be_cell_id_aux(parameter_tvb, subtree, actx->pinfo, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
 
-#.FN_BODY Ext-GeographicalInformation VAL_PTR = &parameter_tvb 
-    tvbuff_t	*parameter_tvb; 
+#.FN_BODY Ext-GeographicalInformation VAL_PTR = &parameter_tvb
+    tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
-%(DEFAULT_BODY)s 
+%(DEFAULT_BODY)s
 
-	if (!parameter_tvb) 
-                return offset; 
+	if (!parameter_tvb)
+                return offset;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeographicalInformation);
-	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree); 
+	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree);
 
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
