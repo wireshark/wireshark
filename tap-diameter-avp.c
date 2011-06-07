@@ -136,7 +136,6 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	double resp_time=0.;
 	gboolean is_request=TRUE;
 	guint32 cmd_code=0;
-	guint32 result_code=0;
 	guint32 req_frame=0;
 	guint32 ans_frame=0;
 	guint32 diam_child_node=0;
@@ -164,7 +163,6 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	/* Extract data from request/answer pair provided by diameter dissector.*/
 	is_request=dp->processing_request;
 	cmd_code=dp->cmd_code;
-	result_code=dp->result_code;
 	req_frame=dp->req_frame;
 	ans_frame=dp->ans_frame;
 	if(!is_request) {
