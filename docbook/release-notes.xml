@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.6.0">
+  <!ENTITY WiresharkCurrentVersion "1.6.1">
 
 ]>
 
@@ -31,6 +31,31 @@ Wireshark Info
 
     <para>
 
+      The following vulnerabilities have been fixed. See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-??.html">security advisory</ulink> for details and a workaround.
+
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.</para>
+
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
+
+    <para>
+
     The following bugs have been fixed:
 
       <itemizedlist>
@@ -45,23 +70,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Wireshark is unresponsive when capturing from named pipes on Windows.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
-          1759</ulink>)
-        </para></listitem>
-
-	<listitem><para>
-	  Crash when sorting column while capturing.
-	  (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4273">Bug
-	  4273</ulink>)
-	</para></listitem>
-
-	<listitem><para>
-	  Ring buffers are no longer turned on by default when using multiple
-	  capture files.
-	</para></listitem>
-
       </itemizedlist>
 
     </para>
@@ -70,183 +78,8 @@ Wireshark Info
 
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
-      The following features are new (or have been significantly updated)
-      since version 1.4:
 
-      <itemizedlist>
-
-        <listitem>
-          <para>
-	    Wireshark is now distributed as an installation package rather than
-	    a drag-installer on OS X. The installer adds a startup item that
-	    should make it easier to capture packets.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Large file (greater than 2 GB) support has been improved.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark and TShark can import text dumps, similar to text2pcap.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now view Wireshark's dissector tables (for example the
-            TCP port to dissector mappings) from the main window.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-	    Wireshark can export SSL session keys via
-	    <guimenu>File</guimenu>→<guisubmenu>Export</guisubmenu>→<guimenuitem>SSL Session Keys...</guimenuitem>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-           TShark can show a specific occurrence of a field when using '-T fields'.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Custom columns can show a specific occurrence of a field.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can hide columns in the packet list.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark can now export SMB objects.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            dftest and randpkt now have manual pages.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TShark can now display iSCSI, ICMP and ICMPv6 service response times.
-          </para>
-        </listitem>
-
-
-        <listitem>
-          <para>
-            Dumpcap can now save files with a user-specified group id.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Syntax checking is done for capture filters.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can display the compiled BPF code for capture filters in the
-            Capture Options dialog.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now navigate backwards and forwards through TCP and UDP
-            sessions using
-              <keycombo><keycap>Ctrl</keycap><keycap>,</keycap></keycombo>
-            and
-              <keycombo><keycap>Ctrl</keycap><keycap>.</keycap></keycombo>
-            .
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Packet length is (finally) a default column.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TCP window size is now avaiable both scaled and unscaled. A TCP
-            window scaling graph is available in the GUI.
-          </para>
-        </listitem>
-
-	<listitem>
-	  <para>
-	    802.1q VLAN tags are now shown in the Ethernet II protocol tree
-	    instead of a separate tree.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Various dissectors now display some UTF-16 strings as proper Unicode
-	    including the DCE/RPC and SMB dissectors.
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    The RTP player now has an option to show the time of day in the
-	    graph in addition to the seconds since beginning of capture.
-	  </para>
-	</listitem>
-
-        <listitem>
-          <para>
-            The RTP player now shows why media interruptions occur.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Graphs now save as PNG images by default.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-	    TShark can read and write host name information from and to
-	    pcapng-formatted files. Wireshark can read it. TShark can dump host
-	    name information via <cmdsynopsis><arg>-z hosts</arg></cmdsynopsis>.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-	    TShark's -z option now uses the <cmdsynopsis><arg>-z
-	    &lt;proto&gt;,srt</arg></cmdsynopsis> syntax instead of
-	    <cmdsynopsis><arg>-z &lt;proto&gt;,rtt</arg></cmdsynopsis> for all
-	    protocols that support service response time statistics. This
-	    matches Wireshark's syntax for this option.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark and TShark can now read compressed Windows Sniffer files.
-          </para>
-        </listitem>
-
-      </itemizedlist>
+There are no new features in this release.
 
     </para>
     </section>
@@ -254,51 +87,14 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
-ADwin,
-ADwin-Config,
-Apache Etch,
-Aruba PAPI,
-Babel Routing Protocol,
-Broadcast/Multicast Control,
-Constrained Application Protocol (COAP),
-Digium TDMoE,
-Erlang Distribution Protocol,
-Ether-S-I/O,
-FastCGI,
-Fibre Channel over InfiniBand (FCoIB),
-Gopher,
-Gigamon GMHDR,
-IDMP,
-Infiniband Socket Direct Protocol (SDP),
-JSON,
-LISP Control,
-LISP Data,
-LISP,
-MikroTik MAC-Telnet,
-MRP Multiple Mac Registration Protocol (MMRP)
-Mongo Wire Protocol,
-MUX27010,
-Network Monitor 802.11 radio header,
-OPC UA ExtensionObjects,
-openSAFETY,
-PPI-GEOLOCATION-GPS,
-ReLOAD,
-ReLOAD Framing,
-RObust Header Compression (ROHC),
-RSIP,
-SAMETIME,
-SCoP,
-SGSAP,
-Tektronix Teklink,
-USB/AT Commands,
-uTorrent Transport Protocol,
-WAI authentication,
-Wi-Fi P2P (Wi-Fi Direct)
+There are no new protocols in this release.
 
     </para>
     </section>
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
+
+<!-- Sort alphabetically -->
 
     </para>
     </section>
@@ -306,16 +102,7 @@ Wi-Fi P2P (Wi-Fi Direct)
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Apple PacketLogger,
-Catapult DCT2000,
-Daintree SNA,
-Endace ERF,
-HP OpenVMS TCPTrace,
-IPFIX (the file format, not the protocol),
-Lucent/Ascend debug,
-Microsoft Network Monitor,
-Network Instruments,
-TamoSoft CommView
+Network Monitor.
 
     </para>
     </section>
