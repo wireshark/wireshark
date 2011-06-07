@@ -810,7 +810,6 @@ gchar *
 rel_time_to_str(const nstime_t *rel_time)
 {
 	emem_strbuf_t *buf;
-	const char *sign;
 	gint32 time_val;
 	gint32 nsec;
 
@@ -820,7 +819,6 @@ rel_time_to_str(const nstime_t *rel_time)
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
-	sign = "";
 	time_val = (gint) rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time_val == 0 && nsec == 0) {

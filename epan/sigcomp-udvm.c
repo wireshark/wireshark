@@ -174,7 +174,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	guint16		state_address_buff[5];
 	guint16		state_instruction_buff[5];
 	guint16		state_minimum_access_length_buff[5];
-	guint16		state_state_retention_priority_buff[5];
+	/* guint16		state_state_retention_priority_buff[5]; */
 	guint32		used_udvm_cycles = 0;
 	guint		cycles_per_bit;
 	guint		maximum_UDVM_cycles;
@@ -2420,7 +2420,7 @@ execute_next_instruction:
 		state_address_buff[no_of_state_create] = state_address;
 		state_instruction_buff[no_of_state_create] = state_instruction;
 		state_minimum_access_length_buff[no_of_state_create] = minimum_access_length;
-		state_state_retention_priority_buff[no_of_state_create] = state_retention_priority;
+		/* state_state_retention_priority_buff[no_of_state_create] = state_retention_priority; */
 		used_udvm_cycles = used_udvm_cycles + state_length;
 		/* Debug */
 		byte_copy_right = buff[66] << 8;
@@ -2660,7 +2660,7 @@ execute_next_instruction:
 		state_instruction_buff[no_of_state_create] = state_instruction;
 		/* Not used ? */
 		state_minimum_access_length_buff[no_of_state_create] = minimum_access_length;
-		state_state_retention_priority_buff[no_of_state_create] = state_retention_priority;
+		/* state_state_retention_priority_buff[no_of_state_create] = state_retention_priority; */
 
 		/* Execute the instruction
 		 */

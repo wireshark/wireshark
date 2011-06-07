@@ -6324,7 +6324,7 @@ proto_registrar_dump_protocols(void)
 void
 proto_registrar_dump_values(void)
 {
-	header_field_info	*hfinfo, *parent_hfinfo;
+	header_field_info	*hfinfo;
 	int			i, len, vi;
 	const value_string	*vals;
 	const range_string	*range;
@@ -6358,8 +6358,6 @@ proto_registrar_dump_values(void)
 			 */
 			if (hfinfo->same_name_prev != NULL)
 				continue;
-
-			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
 
 			vals  = NULL;
 			range = NULL;
