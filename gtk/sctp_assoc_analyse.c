@@ -187,7 +187,6 @@ void
 update_analyse_dlg(struct sctp_analyse* u_data)
 {
 	gchar label_txt[50];
-	gchar *data[1];
 	gchar field[1][MAX_ADDRESS_LEN];
 	GList *list;
 	address *store = NULL;
@@ -241,7 +240,6 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 		list = g_list_first(u_data->assoc->addr1);
 		while (list)
 		{
-			data[0] = &field[0][0];
 			store = (address *) (list->data);
 			if (store->type == AT_IPv4)
 			{
@@ -254,12 +252,13 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 			list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (u_data->analyse_nb->page2->clist))); /* Get store */
 
 #if GTK_CHECK_VERSION(2,6,0)
-    		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+							   0,	field[0], -1);
 #else
-    		gtk_list_store_append  (list_store, &iter);
-    		gtk_list_store_set  (list_store, &iter,
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+					     0,	field[0], -1);
 #endif
-			0,	field[0], -1);
 			list = g_list_next(list);
 		}
 	}
@@ -305,7 +304,6 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 
 		while (list)
 		{
-			data[0] = &field[0][0];
 			store = (address *) (list->data);
 			if (store->type == AT_IPv4)
 			{
@@ -318,12 +316,13 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 			list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (u_data->analyse_nb->page3->clist))); /* Get store */
 
 #if GTK_CHECK_VERSION(2,6,0)
-    		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+							   0,	field[0], -1);
 #else
-    		gtk_list_store_append  (list_store, &iter);
-    		gtk_list_store_set  (list_store, &iter,
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+					     0,	field[0], -1);
 #endif
-			0,	field[0], -1);
 			list = g_list_next(list);
 		}
 	}
@@ -482,11 +481,11 @@ GtkWidget *create_list(void)
 	GtkCellRenderer *renderer;
 	GtkTreeView *list_view;
 	list_store = gtk_list_store_new(1,
-		G_TYPE_STRING /* IP address */
-			);
+					G_TYPE_STRING /* IP address */
+		);
 
-    /* Create a view */
-    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+	/* Create a view */
+	list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
 	list_view = GTK_TREE_VIEW(list);
 
@@ -495,24 +494,24 @@ GtkWidget *create_list(void)
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
 #endif
 
-    /* The view now holds a reference.  We can get rid of our own reference */
-    g_object_unref (G_OBJECT (list_store));
+	/* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref (G_OBJECT (list_store));
 
-    /*
-     * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model
-     */
-   	renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Address", renderer,
-		"text",	0,
-		NULL);
+	/*
+	 * Create the first column packet, associating the "text" attribute of the
+	 * cell_renderer to the first column of the model
+	 */
+ 	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Address", renderer,
+							   "text",	0,
+							   NULL);
 
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 300);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 300);
 
 	/* Add the column to the view. */
-    gtk_tree_view_append_column (list_view, column);
+	gtk_tree_view_append_column (list_view, column);
 
 	gtk_tree_view_set_headers_visible(list_view, FALSE);
 	return list;
@@ -865,8 +864,6 @@ void assoc_analyse(sctp_assoc_info_t* assoc)
 
 static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 {
-	guint16 srcport;
-	guint16 dstport;
 	GList *list, *framelist;
 	dfilter_t *sfcode;
 	capture_file *cf;
@@ -909,8 +906,6 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 		return;
 	}
 
-	srcport = edt.pi.srcport;
-	dstport = edt.pi.destport;
 	list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
 	while (list)

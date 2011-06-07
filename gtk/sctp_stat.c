@@ -529,7 +529,6 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
 	sctp_error_info_t *error = NULL;
-	char str[200];
 	guint16	type, length;
 	address *store = NULL;
 	tsn_t	*tsn = NULL;
@@ -537,17 +536,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	guint8  *t_s_n = NULL;
 	gboolean sackchunk = FALSE;
 	gboolean datachunk = FALSE;
-	guint32 max;
 	struct tsn_sort *tsn_s;
 	guint8* addr = NULL;
 	int i;
 	guint8 idx = 0;
 
-	sctp_allassocs_info_t *assoc_info=NULL;
-	assoc_info = &sctp_tapinfo_struct;
-
 	sctp_info = (struct _sctp_info *) data;
-	max =0xFFFFFFFF;
 
 	framenumber=pinfo->fd->num;
 
@@ -930,7 +924,6 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			{
 				error = g_malloc(sizeof(sctp_error_info_t));
 				error->frame_number = pinfo->fd->num;
-				str[0] = '\0';
 				error->chunk_info[0] = '\0';
 				if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
 					g_strlcpy(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved"), 200);

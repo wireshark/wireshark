@@ -246,7 +246,7 @@ pref_show(pref_t *pref, gpointer user_data)
                                           pref->varp.uat);
     break;
   }
- 
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -294,7 +294,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
   if (prefs_module_has_submodules(module) && !cts->iter.stamp)
     gtk_tree_store_append(model, &iter, NULL);
-  else 
+  else
     gtk_tree_store_append(model, &iter, &cts->iter);
 
   /*
@@ -319,7 +319,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     /* keep the page count right */
     cts->page = child_cts.page;
 
-  } 
+  }
   if(module->prefs) {
     /*
      * Has preferences.  Create a notebook page for it.
@@ -367,7 +367,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   } else {
     /* show the protocols page */
 
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, protocols_page, -1);  
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, protocols_page, -1);
 
   }
 
@@ -538,7 +538,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
      only work if the widget and it's corresponding window is already shown
      (so don't put the following into gui_font_prefs_show()) !!! */
 
-  /* We set the current font now, because setting it appears not to work 
+  /* We set the current font now, because setting it appears not to work
      when run before appending the frame to the notebook. */
 
   gtk_font_selection_set_font_name(
@@ -925,7 +925,6 @@ pref_check(pref_t *pref, gpointer user_data)
 {
   const char *str_val;
   char *p;
-  guint uval;
   pref_t **badpref = user_data;
 
   /* Fetch the value of the preference, and check whether it's valid. */
@@ -933,7 +932,7 @@ pref_check(pref_t *pref, gpointer user_data)
 
   case PREF_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    uval = strtoul(str_val, &p, pref->info.base);
+    strtoul(str_val, &p, pref->info.base);
     if (p == str_val || *p != '\0') {
       *badpref = pref;
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
@@ -1673,7 +1672,7 @@ module_search_properties(module_t *module, gpointer user_data)
     p->module = module;
     return 1;   /* stops the search */
   }
-  
+
   if(prefs_module_has_submodules(module))
     return prefs_modules_foreach_submodules(module, module_search_properties, p);
 

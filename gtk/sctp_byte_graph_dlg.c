@@ -626,10 +626,8 @@ static void
 sctp_graph_close_cb(GtkWidget* widget _U_, gpointer u_data)
 {
 	struct sctp_udata *udata;
-	int dir;
 
 	udata = (struct sctp_udata *)u_data;
-	dir = udata->dir - 1;
 	gtk_grab_remove(GTK_WIDGET(udata->io->window));
 	gtk_widget_destroy(GTK_WIDGET(udata->io->window));
 }
@@ -1116,7 +1114,6 @@ static void
 gtk_sctpgraph_init(struct sctp_udata *u_data)
 {
 	sctp_graph_t *io;
-	gint dir;
 	sctp_min_max_t* tmp_minmax;
 
 	io=g_malloc(sizeof(sctp_graph_t));
@@ -1128,7 +1125,6 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	io->pixmap_width=800;
 	io->pixmap_height=600;
 	io->graph_type=0;
-	dir=u_data->dir-1;
 	u_data->io=io;
 
 

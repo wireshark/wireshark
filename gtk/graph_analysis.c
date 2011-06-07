@@ -605,8 +605,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	guint32 top_y_border;
 	guint32 bottom_y_border;
 	graph_analysis_item_t *gai;
-	guint16 first_conv_num;
-	gboolean first_packet = TRUE;
 
 	GdkGC *frame_fg_color;
 	GdkGC *frame_bg_color;
@@ -712,11 +710,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 				user_data->dlg.items[current_item].comment = gai->comment;
 				user_data->dlg.items[current_item].conv_num = gai->conv_num;
 
-				if (first_packet){
-					first_conv_num = gai->conv_num;
-					first_packet=FALSE;
-				}
-
 				user_data->dlg.items[current_item].src_node = gai->src_node;
 				user_data->dlg.items[current_item].dst_node = gai->dst_node;
 				user_data->dlg.items[current_item].line_style = gai->line_style;
@@ -727,7 +720,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 		list = g_list_next(list);
 	}
-	/* in case the windows is resized so we have to move the top item */
+	/* in case the window is resized we might have to move the top item */
 	if ((first_item + display_items) > user_data->num_items){
 		if (display_items>user_data->num_items)
 			first_item=0;
@@ -1528,18 +1521,18 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.pixmap_height);
 	scroll_window_comments=gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.pixmap_height);
-	/* 
+	/*
 	 * Set the scrollbar policy for the horizontal and vertical scrollbars
 	 * The policy determines when the scrollbar should appear
 	 */
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scroll_window_comments), 
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scroll_window_comments),
 		GTK_POLICY_ALWAYS, /* Policy for horizontal bar. */
 		GTK_POLICY_NEVER); /* Policy for vertical bar */
 
 	/* Changes the type of shadow drawn around the contents of scrolled_window. */
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window_comments), 
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window_comments),
 		GTK_SHADOW_ETCHED_IN);
-	
+
 	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)),
 					     gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)));
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
@@ -1561,11 +1554,11 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
 
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window), 
-		GTK_POLICY_ALWAYS, 
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window),
+		GTK_POLICY_ALWAYS,
 		GTK_POLICY_NEVER);
 
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window), 
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window),
 		GTK_SHADOW_ETCHED_IN);
 	viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)),
 				    gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)));

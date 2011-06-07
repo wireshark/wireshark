@@ -528,7 +528,9 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	GtkWidget       *filter_box, *filter_bt;
 	GtkWidget       *bbox, *start_button, *cancel_button;
         GtkCellRenderer *cell_renderer;
+#if 0
 	GtkTreeIter      program_first_item_iter;
+#endif
 	const char      *filter;
 	int              program_item_index = 0;
 
@@ -609,8 +611,10 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 			GtkTreeIter tmp_iter;
 			tmp_iter = dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value,
 								  prog_combo_box, program_item_index);
+#if 0
 			if (program_item_index == 0)
 				program_first_item_iter = tmp_iter;
+#endif
 			program_item_index += 1;
 		}
 		current_uuid_key   = new_uuid_key;

@@ -594,14 +594,18 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	double start_rtp_time = 0;
 	double diff;
 	double pack_period;
+#ifdef DEBUG /* ?? */
 	double total_time;
 	double total_time_prev;
+#endif
 	gint32 silence_frames;
 	int seq;
 	double delay;
 	double prev_diff;
+#ifdef DEBUG /* ?? */
 	double mean_delay;
 	double variation;
+#endif
 	int decoded_bytes;
 	int decoded_bytes_prev;
 	int jitter_buff;
@@ -687,13 +691,17 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	arrive_time = start_time = 0;
 	arrive_time_prev = 0;
 	pack_period = 0;
+#ifdef DEBUG /* ?? */
 	total_time = 0;
 	total_time_prev = 0;
+#endif
 	seq = 0;
 	delay = 0;
 	prev_diff = 0;
+#ifdef DEBUG /* ?? */
 	mean_delay = 0;
 	variation = 0;
+#endif
 	start_timestamp = 0;
 	decoders_hash = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, rtp_decoder_value_destroy);
 
@@ -758,8 +766,8 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 		if (diff<0) diff = -diff;
 
-		total_time = (double)rp->arrive_offset/1000;
 #ifdef DEBUG
+		total_time = (double)rp->arrive_offset/1000;
 		printf("seq = %d arr = %f abs_diff = %f index = %d tim = %f ji=%d jb=%f\n",rp->info->info_seq_num,
 			total_time, diff, rci->samples->len, ((double)rci->samples->len/8000 - total_time)*1000, 0,
 				(mean_delay + 4*variation)*1000);
@@ -874,7 +882,7 @@ stop_channels(void)
 	GtkWidget *dialog;
 
 	/* we should never be here if we are already in STOP */
-	g_assert(rtp_channels->stop == FALSE); 
+	g_assert(rtp_channels->stop == FALSE);
 
 	rtp_channels->stop = TRUE;
 	/* force a draw_cursor to stop it */

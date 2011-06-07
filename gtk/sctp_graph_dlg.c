@@ -154,7 +154,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 	GdkGC *red_gc, *green_gc, *cyan_gc;
 	struct sack_chunk_header *sack_header;
 	struct gaps *gap;
-	guint32 max_num, diff;
+	guint32 /*max_num,*/ diff;
 	guint32 *dup_list;
 
 	red_gc = gdk_gc_new(u_data->io->draw_area->window);
@@ -221,7 +221,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 						{
 							gap_start=g_ntohs(gap->start);
 							gap_end = g_ntohs(gap->end);
-							max_num=gap_end+tsnumber;
+							/* max_num=gap_end+tsnumber; */
 							for (j=gap_start; j<=gap_end; j++)
 							{
 								if (u_data->io->uoff)
@@ -243,8 +243,10 @@ draw_sack_graph(struct sctp_udata *u_data)
 								gap++;
 						}
 					}
+					/*
 					else
 						max_num=tsnumber;
+					*/
 					if (tsnumber>=min_tsn)
 					{
 						if (u_data->io->uoff)
@@ -321,7 +323,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 	GdkGC *red_gc, *blue_gc, *green_gc;
 	struct nr_sack_chunk_header *nr_sack_header;
 	struct gaps *nr_gap;
-	guint32 max_num, diff;
+	guint32 /*max_num,*/ diff;
 	/* This holds the sum of gap acks and nr gap acks */
 	guint16 total_gaps = 0;
 
@@ -391,7 +393,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 						{
 							gap_start=g_ntohs(nr_gap->start);
 							gap_end = g_ntohs(nr_gap->end);
-							max_num= gap_end + tsnumber;
+							/* max_num= gap_end + tsnumber; */
 							for ( j = gap_start; j <= gap_end; j++)
 							{
 								if (u_data->io->uoff)
@@ -439,9 +441,10 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 								nr_gap++;
 						}
 					}
+					/*
 					else
 						max_num=tsnumber;
-
+					*/
 					if (tsnumber>=min_tsn)
 					{
 						if (u_data->io->uoff)
@@ -1459,7 +1462,6 @@ static void
 gtk_sctpgraph_init(struct sctp_udata *u_data)
 {
 	sctp_graph_t *io;
-	gint dir;
 	sctp_min_max_t* tmp_minmax;
 
 	io=g_malloc(sizeof(sctp_graph_t));
@@ -1471,7 +1473,6 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	io->pixmap_width=800;
 	io->pixmap_height=600;
 	io->graph_type=0;
-	dir=u_data->dir-1;
 	u_data->io=io;
 	u_data->io->x1_tmp_sec=u_data->assoc->min_secs;
 	u_data->io->x1_tmp_usec=u_data->assoc->min_usecs;
