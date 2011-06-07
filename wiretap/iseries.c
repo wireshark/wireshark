@@ -553,7 +553,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 {
   iseries_t *iseries = (iseries_t *)wth->priv;
   gint64 cur_off;
-  gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA, isDataFormatted, isDataHandled;
+  gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA, isDataHandled;
   int num_items_scanned, line, pktline, buflen;
   guint32 pkt_len;
   int cap_len, pktnum, hr, min, sec, csec;
@@ -657,7 +657,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   IPread = FALSE;
   TCPread = FALSE;
   isDATA = FALSE;
-  isDataFormatted = TRUE;
   /*
    * Allocate 2 work buffers to handle concatentation of the hex data block
    */
