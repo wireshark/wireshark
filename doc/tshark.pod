@@ -768,9 +768,9 @@ The examples above all use the standard syntax for generating statistics
 which only calculates the number of packets and bytes in each interval.
 
 B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
-MIN(), MAX(), and AVG() using a slightly different filter syntax:
+MIN(), MAX(), AVG() and LOAD() using a slightly different filter syntax:
 
-=item -z io,stat,E<34>[COUNT|SUM|MIN|MAX|AVG](I<field>)I<field> [and I<filter>]E<34>
+=item -z io,stat,E<34>[COUNT|SUM|MIN|MAX|AVG|LOAD](I<field>)I<field> [and I<filter>]E<34>
 
 NOTE: One important thing to note here is that the field that the
 calculation is based on MUST also be part of the filter string or
@@ -853,6 +853,29 @@ the total number of bytes transferred in SMB Write PDUs:
   Time            |       AVG      |       SUM      |       AVG      |       SUM      |
   000.000-                    30018         28067522               72             3240
   =====================================================================================
+
+B<LOAD(I<field>)I<field> [and I<filter>]> - The LOAD/Queue-Depth
+in each interval is calculated.  The specified field must be a relative-time filed that represents a response time. For example smb.time.
+For each interval the Queue-Depth for the specified protocol is calculated.
+
+The following command displays the average SMB LOAD.
+A value of 1.0 represents one I/O in flight.
+
+  tshark -n -q -r smb_reads_writes.cap
+  -z "io,stat,0.001,LOAD(smb.time)smb.time"
+
+  ============================================================================
+  IO Statistics
+  Interval:   0.001000 secs
+  Column #0: LOAD(smb.time)smb.time
+                          |    Column #0   |
+  Time                    |       LOAD     |
+  0000.000000-0000.001000         1.000000 
+  0000.001000-0000.002000         0.741000 
+  0000.002000-0000.003000         0.000000 
+  0000.003000-0000.004000         1.000000 
+
+
 
 B<FRAMES | BYTES[()I<filter>]> - Displays the total number of frames or bytes.
 The filter field is optional but if included it must be prepended with ''()''.  
