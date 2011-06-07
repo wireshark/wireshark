@@ -195,7 +195,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-cmip.c
 	dissectors/packet-cmp.c
 	dissectors/packet-cms.c
-	dissectors/packet-cnip.c
 	dissectors/packet-crmf.c
 	dissectors/packet-dap.c
 	dissectors/packet-disp.c
@@ -405,6 +404,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-clip.c
 	dissectors/packet-clnp.c
 	dissectors/packet-cmpp.c
+	dissectors/packet-cnip.c
 	dissectors/packet-coap.c
 	dissectors/packet-collectd.c
 	dissectors/packet-componentstatus.c
