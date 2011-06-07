@@ -3278,6 +3278,11 @@ Florian Fainelli	<florian [AT] openwrt.org> {
 	HomePlug AV protocol dissector
 }
 
+Daniel  Willmann	<daniel [AT] totalueberwachung.de> {
+	CN/IP (EIA-852) protocol dissector
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
