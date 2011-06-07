@@ -13,4 +13,5 @@ EXTRA_DIST = \
 	WinPcap_4_1_2.exe \
 	Makefile.nmake \
 	Custom.nmake \
-	custom_plugins.txt
+	custom_plugins.txt	\
+	x64.nsh
