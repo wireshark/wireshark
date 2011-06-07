@@ -559,6 +559,7 @@ EXTRA_DIST = \
 	Makefile.nmake.inc	\
 	README.aix		\
 	README.bsd		\
+	README.DECT		\
 	README.hpux		\
 	README.irix		\
 	README.linux		\
