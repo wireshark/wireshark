@@ -655,7 +655,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	guint i;
 	const guint8 *data;
 	guint8 tmp;
-	size_t nchars;
+	/*size_t nchars;*/
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -712,7 +712,8 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 				tmp = 0;
 				break;
 			}
-			nchars=fwrite(&tmp, 1, 1, saveinfo->fp);
+			/*nchars=*/fwrite(&tmp, 1, 1, saveinfo->fp);
+			/* XXX: Check for write errors ? */
 			saveinfo->count++;
 		}
 		fflush(saveinfo->fp);
@@ -736,7 +737,8 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		* plus the offset of the payload from the beginning
 		* of the RTP data */
 		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		nchars=fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		/*nchars=*/fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		/* XXX: Check for write errors ? */
 		saveinfo->count+=(rtpinfo->info_payload_len - rtpinfo->info_padding_count);
 
 		fflush(saveinfo->fp);
@@ -1191,14 +1193,14 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/* Draw the marks */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint32 interval;
-		guint32 x_pos, prev_x_pos;
+		guint32 x_pos/*, prev_x_pos*/;
 
 		/* XXX for fwd or rev, the flag info for jitter and diff is the same, and here I loop twice */
 		if (!user_data->dlg.dialog_graph.graph[i].display){
 			continue;
 		}
 		/* initialize prev x/y to the low left corner of the graph */
-		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+		/*prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;*/
 
 		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
 			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
@@ -1219,7 +1221,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 						layout);
 			}
 
-			prev_x_pos=x_pos;
+			/*prev_x_pos=x_pos;*/
 		}
 	}
 
@@ -1230,12 +1232,12 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint32 interval;
-		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+		guint32 x_pos, y_pos, /*prev_x_pos,*/ prev_y_pos;
 	        if (!user_data->dlg.dialog_graph.graph[i].display){
 			continue;
 		}
 		/* initialize prev x/y to the low left corner of the graph */
-		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+		/*prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;*/
 		prev_y_pos=draw_height-1+top_y_border;
 
 		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
@@ -1253,7 +1255,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			 */
 			if( (prev_y_pos==0) && (y_pos==0) ){
 				prev_y_pos=y_pos;
-				prev_x_pos=x_pos;
+				/*prev_x_pos=x_pos;*/
 				continue;
 			}
 
@@ -1264,7 +1266,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			}
 
 			prev_y_pos=y_pos;
-			prev_x_pos=x_pos;
+			/*prev_x_pos=x_pos;*/
 		}
 	}
 
@@ -2224,7 +2226,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	progdlg_t *progbar;
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
-	size_t nchars;
+	/*size_t nchars;*/
 
 	forw_stream = ws_fopen(user_data->f_tempname, "rb");
 	if (forw_stream == NULL)
@@ -2247,25 +2249,26 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 	if	(format == SAVE_AU_FORMAT) /* au format */
 	{
-		/* First we write the .au header. XXX Hope this is endian independant */
+		/* First we write the .au header. XXX Hope this is endian independent */
 		/* the magic word 0x2e736e64 == .snd */
+		/* XXX: Check for write errors below ? */
 		phtonl(pd, 0x2e736e64);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 		/* total length; it is permitted to set this to 0xffffffff */
 		phtonl(pd, -1);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 		/* channels == 1 */
 		phtonl(pd, 1);
-		nchars=fwrite(pd, 1, 4, to_stream);
+		/*nchars=*/fwrite(pd, 1, 4, to_stream);
 
 
 		switch (channels) {

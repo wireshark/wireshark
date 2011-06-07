@@ -585,11 +585,13 @@ int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 }
 
 
+#if 0
 static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
+#endif
 
 /****************************************************************************/
 /* adds statistics information from the packet to the list */
@@ -602,7 +604,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	struct tm *tm_tmp;
 	time_t then;
 	gchar status[40];
-	GdkColor color = COLOR_DEFAULT;
+	/* GdkColor color = COLOR_DEFAULT; */
 	gchar color_str[14];
 	then = pinfo->fd->abs_ts.secs;
 	msecs = (guint16)(pinfo->fd->abs_ts.nsecs/1000000);
@@ -621,17 +623,17 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 
 	if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
 		g_snprintf(status,sizeof(status),"Wrong sequence nr.");
-		color = COLOR_ERROR;
+		/* color = COLOR_ERROR; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
 		g_snprintf(status,sizeof(status),"Incorrect timestamp");
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
@@ -640,12 +642,12 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		&&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
 		&&  !(statinfo->flags & STAT_FLAG_MARKER)) {
 		g_snprintf(status,sizeof(status),"Marker missing?");
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
-			color = COLOR_WARNING;
+			/* color = COLOR_WARNING; */
 			g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 		}
 		g_snprintf(status,sizeof(status),OK_TEXT);
@@ -684,7 +686,7 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 				    const struct _iax2_info_t *iax2info)
 {
 	const guint8 *data;
-	size_t nchars;
+	/* size_t nchars; */
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -710,7 +712,8 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 	if (iax2info->payload_len > 0) {
 		data = iax2info->payload_data;
-		nchars=fwrite(data, sizeof(unsigned char), iax2info->payload_len, saveinfo->fp);
+		/* nchars= */fwrite(data, sizeof(unsigned char), iax2info->payload_len, saveinfo->fp);
+		/* XXX: Should check for write error ? */
 		saveinfo->count+=iax2info->payload_len;
 
 		fflush(saveinfo->fp);
@@ -1178,14 +1181,14 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/* Draw the marks */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint32 interval;
-		guint32 x_pos, prev_x_pos;
+		guint32 x_pos/*, prev_x_pos*/;
 
 		/* XXX for fwd or rev, the flag info for jitter and diff is the same, and here I loop twice */
 		if (!user_data->dlg.dialog_graph.graph[i].display){
 			continue;
 		}
 		/* initialize prev x/y to the low left corner of the graph */
-		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+		/* prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border; */
 
 		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
 			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
@@ -1206,7 +1209,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 					layout);
 			}
 
-			prev_x_pos=x_pos;
+			/* prev_x_pos=x_pos; */
 		}
 	}
 
@@ -1217,12 +1220,12 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint32 interval;
-		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+		guint32 x_pos, y_pos, /*prev_x_pos,*/ prev_y_pos;
 		if (!user_data->dlg.dialog_graph.graph[i].display){
 			continue;
 		}
 		/* initialize prev x/y to the low left corner of the graph */
-		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+		/* prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border; */
 		prev_y_pos=draw_height-1+top_y_border;
 
 		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
@@ -1240,7 +1243,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			 */
 			if( (prev_y_pos==0) && (y_pos==0) ){
 				prev_y_pos=y_pos;
-				prev_x_pos=x_pos;
+				/* prev_x_pos=x_pos; */
 				continue;
 			}
 
@@ -1251,7 +1254,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			}
 
 			prev_y_pos=y_pos;
-			prev_x_pos=x_pos;
+			/* prev_x_pos=x_pos; */
 		}
 	}
 
@@ -1483,62 +1486,62 @@ static void create_filter_area(user_data_t* user_data, GtkWidget *box)
 static void yscale_select(GtkWidget *item, gpointer data)
 {
 	user_data_t *user_data = data;
-        int i;
+	int i;
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	user_data->dlg.dialog_graph.max_y_units_index=i;
-        user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
-        dialog_graph_redraw(user_data);
+	user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
+	dialog_graph_redraw(user_data);
 }
 
 /****************************************************************************/
 static void pixels_per_tick_select(GtkWidget *item, gpointer data)
 {
 	user_data_t *user_data = data;
-        int i;
+	int i;
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
 	user_data->dlg.dialog_graph.pixels_per_tick_index=i;
-        user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[i];
-        dialog_graph_redraw(user_data);
+	user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[i];
+	dialog_graph_redraw(user_data);
 }
 
 /****************************************************************************/
 static void tick_interval_select(GtkWidget *item, gpointer data)
 {
 	user_data_t *user_data = data;
-        int i;
+	int i;
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-        user_data->dlg.dialog_graph.interval_index=i;
-        user_data->dlg.dialog_graph.interval=tick_interval_values[i];
-        cf_retap_packets(&cfile);
-        dialog_graph_redraw(user_data);
+	user_data->dlg.dialog_graph.interval_index=i;
+	user_data->dlg.dialog_graph.interval=tick_interval_values[i];
+	cf_retap_packets(&cfile);
+	dialog_graph_redraw(user_data);
 }
 
 /****************************************************************************/
 static GtkWidget *
 create_yscale_max_menu_items(user_data_t* user_data)
 {
-        char str[15];
-        GtkWidget *combo_box;
-        int i;
+	char str[15];
+	GtkWidget *combo_box;
+	int i;
 
 	combo_box = gtk_combo_box_new_text ();
 
-        for(i=0;i<MAX_YSCALE;i++){
-                if(yscale_max[i]==AUTO_MAX_YSCALE){
+	for(i=0;i<MAX_YSCALE;i++){
+		if(yscale_max[i]==AUTO_MAX_YSCALE){
 			g_strlcpy(str,"Auto",sizeof(str));
-                } else if (yscale_max[i] < 1000000) {
+		} else if (yscale_max[i] < 1000000) {
 			g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000);
-                } else {
+		} else {
 			g_snprintf(str, sizeof(str), "%u s", yscale_max[i]/1000000);
-                }
-                gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
-        }
+		}
+		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.max_y_units_index);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), user_data);
 
@@ -1549,16 +1552,16 @@ create_yscale_max_menu_items(user_data_t* user_data)
 static GtkWidget *
 create_pixels_per_tick_menu_items(user_data_t *user_data)
 {
-        char str[5];
-        GtkWidget *combo_box;
-        int i;
+	char str[5];
+	GtkWidget *combo_box;
+	int i;
 
 	combo_box = gtk_combo_box_new_text ();
 
-        for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-                g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
+	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
+		g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
-        }
+	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.pixels_per_tick_index);
 
 	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), user_data);
@@ -1571,21 +1574,21 @@ static GtkWidget *
 create_tick_interval_menu_items(user_data_t *user_data)
 {
 	GtkWidget *combo_box;
-        char str[15];
-        int i;
+	char str[15];
+	int i;
 
 	combo_box = gtk_combo_box_new_text ();
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-                if(tick_interval_values[i]>=1000){
-                        g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
-                } else if(tick_interval_values[i]>=100){
-                        g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
-                } else if(tick_interval_values[i]>=10){
-                        g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
-                } else {
-                        g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
-                }
+		if(tick_interval_values[i]>=1000){
+			g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
+		} else if(tick_interval_values[i]>=100){
+			g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
+		} else if(tick_interval_values[i]>=10){
+			g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
+		} else {
+			g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
+		}
 		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.interval_index);
@@ -1597,22 +1600,22 @@ create_tick_interval_menu_items(user_data_t *user_data)
 /****************************************************************************/
 static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, GtkWidget *(*func)(user_data_t* user_data))
 {
-        GtkWidget *hbox;
-        GtkWidget *label;
-        GtkWidget *combo_box;
+	GtkWidget *hbox;
+	GtkWidget *label;
+	GtkWidget *combo_box;
 
-        hbox=gtk_hbox_new(FALSE, 0);
-        gtk_container_add(GTK_CONTAINER(box), hbox);
-        gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
-        gtk_widget_show(hbox);
+	hbox=gtk_hbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(box), hbox);
+	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_widget_show(hbox);
 
-        label=gtk_label_new(name);
-        gtk_widget_show(label);
-        gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	label=gtk_label_new(name);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-        combo_box = (*func)(user_data);
-        gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
-        gtk_widget_show(combo_box);
+	combo_box = (*func)(user_data);
+	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+	gtk_widget_show(combo_box);
 }
 
 /****************************************************************************/
@@ -2106,17 +2109,17 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 	window_present(user_data->dlg.save_csv_as_w);
 
 	/* "Run" the GtkFileChooserDialog.                                              */
-        /* Upon exit: If "Accept" run the OK callback.                                  */
-        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-        /*            Destroy the window.                                               */
-        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-        /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_csv_as_w)) == GTK_RESPONSE_ACCEPT) {
 		if (save_csv_as_ok_cb(NULL, user_data->dlg.save_csv_as_w)) {
@@ -2150,7 +2153,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	progdlg_t *progbar;
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
-	size_t nchars;
+	/*size_t nchars;*/
 
 	forw_fd = ws_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (forw_fd < 0)
@@ -2175,23 +2178,24 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	{
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
+		/* XXX: Should we be checking for write errors below ? */
 		phtonl(pd, 0x2e736e64);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 		/* total length, it is permited to set this to 0xffffffff */
 		phtonl(pd, -1);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 		/* channels == 1 */
 		phtonl(pd, 1);
-		nchars=ws_write(to_fd, pd, 4);
+		/*nchars=*/ws_write(to_fd, pd, 4);
 
 
 		switch (channels) {
@@ -3334,7 +3338,7 @@ void iax2_analysis(
 	int fd;
 	int i;
 	static color_t col[MAX_GRAPHS] = {
-       		{0,     0x0000, 0x0000, 0x0000},
+		{0,     0x0000, 0x0000, 0x0000},
 		{0,     0xffff, 0x0000, 0x0000},
 		{0,     0x0000, 0xffff, 0x0000},
 		{0,     0x0000, 0x0000, 0xffff}
