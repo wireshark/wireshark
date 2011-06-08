@@ -227,7 +227,7 @@ mac_lte_stat_reset(void *phs)
     if (mac_lte_stat->mac_lte_stat_dlg_w != NULL) {
         g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (filter=\"%s\")",
                    cf_get_display_name(&cfile),
-                   mac_lte_stat->filter ? mac_lte_stat->filter : "none");
+                   strlen(mac_lte_stat->filter) ? mac_lte_stat->filter : "none");
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat->mac_lte_stat_dlg_w), title);
     }
 
@@ -683,7 +683,7 @@ mac_lte_stat_draw(void *phs)
                cf_get_display_name(&cfile),
                number_of_ues,
                hs->common_stats.all_frames,
-               hs->filter ? hs->filter : "none");
+               strlen(hs->filter) ? hs->filter : "none");
     gtk_window_set_title(GTK_WINDOW(hs->mac_lte_stat_dlg_w), title);
 
 
@@ -787,7 +787,7 @@ static void set_filter_expression(guint16  ueid,
     }
 
     /* Filter expression */
-    if (hs->filter) {
+    if (strlen(hs->filter)) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "%s and ", hs->filter);
     }
 

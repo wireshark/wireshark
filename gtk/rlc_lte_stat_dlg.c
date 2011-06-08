@@ -277,7 +277,7 @@ rlc_lte_stat_reset(void *phs)
     if (rlc_lte_stat->dlg_w != NULL) {
         g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Traffic Statistics: %s (filter=\"%s\")",
                    cf_get_display_name(&cfile),
-                   rlc_lte_stat->filter ? rlc_lte_stat->filter : "none");
+                   strlen(rlc_lte_stat->filter) ? rlc_lte_stat->filter : "none");
         gtk_window_set_title(GTK_WINDOW(rlc_lte_stat->dlg_w), title);
     }
 
@@ -740,7 +740,7 @@ rlc_lte_stat_draw(void *phs)
                cf_get_display_name(&cfile),
                number_of_ues,
                hs->total_frames,
-               hs->filter ? hs->filter : "none");
+               strlen(hs->filter) ? hs->filter : "none");
     gtk_window_set_title(GTK_WINDOW(hs->dlg_w), title);
 
 
@@ -985,7 +985,7 @@ static void set_channel_filter_expression(guint16  ueid,
     }
 
     /* Include dialog filter */
-    if (hs->filter) {
+    if (strlen(hs->filter)) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "%s and ", hs->filter);
     }
 
