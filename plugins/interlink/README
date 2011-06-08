@@ -1,7 +1,0 @@
-Interlink is the basic network format for all kinds of network
-communication in BMW cars.
-
-The plugin decodes the top-level communication protocol, but not any
-particular network messages like "left indicator" or the like.
-
-The author is Uwe Girlich <uwe.girlich@philosys.de>
