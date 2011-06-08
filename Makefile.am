@@ -615,6 +615,7 @@ EXTRA_DIST = \
 	fix/hfDecl.xsl		\
 	fix/hfField.xsl		\
 	fix/hfList.xsl		\
+	idl/coseventcomm.idl	\
 	idl/cosnaming.idl	\
 	idl/tango.idl	\
 	idl/parlay/am.idl	\
@@ -772,7 +773,7 @@ EXTRA_DIST = \
 	image/wslogo.svg	\
 	image/wssplash-dev.xpm	\
 	image/wssplash.xpm	\
-	ipmap.html	\
+	ipmap.html			\
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\
@@ -831,6 +832,7 @@ EXTRA_DIST = \
 	cmake/modules/LICENSE.txt		\
 	cmake/modules/CMakeInstallDirs.cmake	\
 	cmake/modules/CheckCLinkerFlag.cmake	\
+	cmake/modules/COPYING-CMAKE-SCRIPTS	\
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindKERBEROS.cmake	\
