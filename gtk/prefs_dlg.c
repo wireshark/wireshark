@@ -926,6 +926,7 @@ pref_check(pref_t *pref, gpointer user_data)
   const char *str_val;
   char *p;
   pref_t **badpref = user_data;
+  unsigned long val;
 
   /* Fetch the value of the preference, and check whether it's valid. */
   switch (pref->type) {
@@ -933,7 +934,7 @@ pref_check(pref_t *pref, gpointer user_data)
   case PREF_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     errno = 0;
-    (void) strtoul(str_val, &p, pref->info.base);
+    val = strtoul(str_val, &p, pref->info.base);
     if (p == str_val || *p != '\0' || errno != 0) {
       *badpref = pref;
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
