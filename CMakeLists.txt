@@ -235,9 +235,14 @@ set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
 #Build the gui ?
 if(BUILD_wireshark)
-	set(PACKAGELIST ${PACKAGELIST} GTK2)
-	set(GTK2_OPTIONS COMPONENTS gtk)
-	set(GTK2_DEBUG false)
+	if(ENABLE_GTK3)
+		set(PACKAGELIST ${PACKAGELIST} GTK3)
+		set(UI_MANAGER ON)
+	else()
+		set(PACKAGELIST ${PACKAGELIST} GTK2)
+		set(GTK2_OPTIONS COMPONENTS gtk)
+		set(GTK2_DEBUG false)
+	endif()
 endif()
 
 if(BUILD_dumpcap)
@@ -361,6 +366,10 @@ endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
 endif()
+# No matter which version of GTK is present
+if(GTK2_FOUND OR GTK3_FOUND)
+	set(GTK_FOUND ON)
+endif()
 # That's the name autofoo uses
 if(HAVE_LIBZLIB)
 	set(HAVE_LIBZ 1)
@@ -414,7 +423,7 @@ add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
-if(BUILD_wireshark AND GTK2_FOUND)
+if(BUILD_wireshark AND GTK_FOUND)
 	add_subdirectory( gtk )
 endif()
 
@@ -635,10 +644,11 @@ set(LIBEPAN_LIBS
 		${M_LIBRARIES}
 )
 
-if(BUILD_wireshark AND GTK2_FOUND)
+if(BUILD_wireshark AND GTK_FOUND)
 	set(wireshark_LIBS
 		ui
 		${GTK2_LIBRARIES}
+		${GTK3_LIBRARIES}
 		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
