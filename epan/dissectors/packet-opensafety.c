@@ -1589,14 +1589,6 @@ proto_register_opensafety(void)
 
     new_register_dissector("opensafety", dissect_opensafety, proto_opensafety);
 
-    /* For SercosIII we have check if the plugin is available, and throw a warning if not.
-     * Here we do not abort, as the UDP part of SercosIII can still be dissected. If the
-     * user asked for termination of the program by WIRESHARK_ABORT_ON_DISSECTOR_BUG we
-     * report the dissector bug, which will lead to an abort() call. */
-    if ( find_dissector("sercosiii") == NULL )
-    {
-    	g_warning ( "openSAFETY - SercosIII heuristic dissector cannot be registered, openSAFETY/SercosIII native dissection." );
-    }
 	new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety);
 
 }
@@ -1632,6 +1624,7 @@ proto_reg_handoff_opensafety(void)
              * the ethernet subdissector list. No SercosIII specific data will be dissected
              * and a warning will be displayed, recognizing the missing dissector plugin.
              */
+			g_warning ( "openSAFETY - SercosIII heuristic dissector cannot be registered, openSAFETY/SercosIII native dissection." );
             dissector_add_uint("ethertype", ETHERTYPE_SERCOS, find_dissector("opensafety_siii"));
         }
     }
