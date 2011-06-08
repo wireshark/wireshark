@@ -12,7 +12,6 @@ PLUGIN_LIST = \
 	ethercat    \
 	giop        \
 	gryphon     \
-	interlink   \
 	irda        \
 	m2m         \
 	mate        \

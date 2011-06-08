@@ -282,7 +282,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/giop/cosnaming.la \
 	-dlopen plugins/giop/coseventcomm.la \
 	-dlopen plugins/gryphon/gryphon.la \
-	-dlopen plugins/interlink/interlink.la \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/m2m/m2m.la \
 	-dlopen plugins/mate/mate.la \

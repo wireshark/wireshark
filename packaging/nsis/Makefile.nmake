@@ -52,7 +52,6 @@ PLUGINS= \
 	../../plugins/giop/parlay.dll \
 	../../plugins/giop/tango.dll \
 	../../plugins/gryphon/gryphon.dll \
-	../../plugins/interlink/interlink.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/m2m/m2m.dll \
 	../../plugins/mate/mate.dll \
