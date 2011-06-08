@@ -1355,7 +1355,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create hidden TM root */
     tm_ti = proto_tree_add_string_format(tree, hf_rlc_lte_tm,
-                                         tvb, offset, 0, "", "UM");
+                                         tvb, offset, 0, "", "TM");
     PROTO_ITEM_SET_HIDDEN(tm_ti);
 
     /* Remaining bytes are all data */
