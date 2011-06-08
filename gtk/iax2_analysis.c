@@ -2180,23 +2180,64 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* the magic word 0x2e736e64 == .snd */
 		/* XXX: Should we be checking for write errors below ? */
 		phtonl(pd, 0x2e736e64);
-		/*nchars=*/ws_write(to_fd, pd, 4);
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		/*nchars=*/ws_write(to_fd, pd, 4);
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 		/* total length, it is permited to set this to 0xffffffff */
 		phtonl(pd, -1);
-		/*nchars=*/ws_write(to_fd, pd, 4);
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		/*nchars=*/ws_write(to_fd, pd, 4);
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		/*nchars=*/ws_write(to_fd, pd, 4);
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 		/* channels == 1 */
 		phtonl(pd, 1);
-		/*nchars=*/ws_write(to_fd, pd, 4);
-
+		fwritten = ws_write(to_fd, pd, 4);
+		if ((fwritten < 4) || (fwritten < 0) || (fread_cnt < 0)) {
+			ws_close(forw_fd);
+			ws_close(rev_fd);
+			ws_close(to_fd);
+			destroy_progress_dlg(progbar);
+			return FALSE;
+		}
 
 		switch (channels) {
 			/* only forward direction */
