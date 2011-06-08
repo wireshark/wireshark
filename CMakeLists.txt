@@ -383,7 +383,6 @@ if(ENABLE_PLUGINS)
 		plugins/ethercat
 		plugins/giop
 		plugins/gryphon
-		plugins/interlink
 		plugins/irda
 		plugins/m2m
 		plugins/mate
