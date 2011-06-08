@@ -926,7 +926,6 @@ pref_check(pref_t *pref, gpointer user_data)
   const char *str_val;
   char *p;
   pref_t **badpref = user_data;
-  unsigned long val;
 
   /* Fetch the value of the preference, and check whether it's valid. */
   switch (pref->type) {
