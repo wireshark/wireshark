@@ -1483,10 +1483,10 @@ wlan_create_popup_menu(wlanstat_t *hs)
 	GError *error = NULL;
 
 	action_group = gtk_action_group_new ("WlanFilterPopupActionGroup");
-	gtk_action_group_add_actions (action_group,							/* the action group */
-								wlans_stat_popup_entries,				/* an array of action descriptions */
-								G_N_ELEMENTS(wlans_stat_popup_entries),	/* the number of entries */
-								hs);									/* data to pass to the action callbacks */
+	gtk_action_group_add_actions (action_group,								/* the action group */
+								wlans_stat_popup_entries,					/* an array of action descriptions */
+								G_N_ELEMENTS(wlans_stat_popup_entries),		/* the number of entries */
+								(gpointer)hs);								/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
@@ -1703,7 +1703,7 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 	gtk_action_group_add_actions (action_group,									/* the action group */
 								wlan_details_list_popup_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(wlan_details_list_popup_entries),	/* the number of entries */
-								hs);											/* data to pass to the action callbacks */
+								(gpointer)hs);											/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);

@@ -1248,7 +1248,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='WLAN' action='/Analyze/ConversationList/WLAN'/>\n"
 "      </menu>\n"
 "      <menu name= 'ServiceResponseTimeMenu' action='/Analyze/ServiceResponseTime'>\n"
-"        <placeholder name='SRT-List-item'/>\n"
+"        <menuitem name='ONC-RPC' action='/Analyze/ServiceResponseTime/ONC-RPC'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <placeholder name='ANCP'/>\n"
@@ -1656,6 +1656,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/EndpointList/WLAN",				WIRESHARK_STOCK_ENDPOINTS,		"WLAN",							NULL, NULL,	G_CALLBACK(gtk_wlan_hostlist_cb) },
 
    { "/Analyze/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
+   { "/Analyze/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
 
    { "/Analyze/BACnet",										NULL,				"BACnet",						NULL, NULL, NULL },
    
@@ -3599,12 +3600,12 @@ menus_init(void) {
         gtk_action_group_add_actions (packet_list_heading_action_group,            /* the action group */
             packet_list_heading_menu_popup_action_entries,                         /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),           /* the number of entries */
-            popup_menu_object);                                                    /* data to pass to the action callbacks */
+            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
 
-        gtk_action_group_add_toggle_actions(packet_list_heading_action_group,          /* the action group */
-                                    packet_list_heading_menu_toggle_action_entries,    /* an array of action descriptions */
+        gtk_action_group_add_toggle_actions(packet_list_heading_action_group,                     /* the action group */
+                                    packet_list_heading_menu_toggle_action_entries,               /* an array of action descriptions */
                                     G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
-                                    NULL);                                                /* data to pass to the action callbacks */
+                                    (gpointer)NULL);                                              /* data to pass to the action callbacks */
 
         ui_manager_packet_list_heading = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading,
@@ -3631,7 +3632,7 @@ menus_init(void) {
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
             packet_list_menu_popup_action_entries,                                 /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
-            popup_menu_object);                                                    /* data to pass to the action callbacks */
+            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
 
         ui_manager_packet_list_menu = gtk_ui_manager_new ();
 
@@ -3660,7 +3661,7 @@ menus_init(void) {
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
             tree_view_menu_popup_action_entries,                                   /* an array of action descriptions */
             G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
-            popup_menu_object);                                                    /* data to pass to the action callbacks */
+            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
 
         ui_manager_tree_view_menu = gtk_ui_manager_new ();
 
@@ -3695,7 +3696,7 @@ menus_init(void) {
                                     G_N_ELEMENTS(bytes_menu_radio_action_entries),          /* the number of entries */
                                     recent.gui_bytes_view,                                  /* the value of the action to activate initially, or -1 if no action should be activated  */
                                     G_CALLBACK(select_bytes_view_cb),                       /* the callback to connect to the changed signal  */
-                                    popup_menu_object);                                     /* data to pass to the action callbacks  */
+                                    (gpointer)popup_menu_object);                           /* data to pass to the action callbacks  */
 
         ui_manager_bytes_menu = gtk_ui_manager_new ();
 
@@ -3776,10 +3777,10 @@ menus_init(void) {
 
         statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
-        gtk_action_group_add_actions (statusbar_profiles_action_group,            /* the action group */
-            statusbar_profiles_menu_action_entries,                        /* an array of action descriptions */
+        gtk_action_group_add_actions (statusbar_profiles_action_group,   /* the action group */
+            statusbar_profiles_menu_action_entries,                      /* an array of action descriptions */
             G_N_ELEMENTS(statusbar_profiles_menu_action_entries),        /* the number of entries */
-            popup_menu_object);                                                    /* data to pass to the action callbacks */
+            (gpointer)popup_menu_object);                                /* data to pass to the action callbacks */
 
         ui_manager_statusbar_profiles_menu = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_statusbar_profiles_menu,

@@ -303,10 +303,10 @@ srt_create_popup_menu(srt_stat_table *rst)
 	GError *error = NULL;
 
 	action_group = gtk_action_group_new ("ServiceRespTFilterPopupActionGroup");
-	gtk_action_group_add_actions (action_group,					/* the action group */
-				      service_resp_t__popup_entries,			/* an array of action descriptions */
+	gtk_action_group_add_actions (action_group,						/* the action group */
+				      service_resp_t__popup_entries,				/* an array of action descriptions */
 				      G_N_ELEMENTS(service_resp_t__popup_entries),	/* the number of entries */
-				      rst);						/* data to pass to the action callbacks */
+				      (gpointer)rst);								/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager,
