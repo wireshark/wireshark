@@ -130,6 +130,7 @@ EXTRA_DIST = \
 	wireshark_be.py					\
 	wireshark_gen.py				\
 	WiresharkXML.py					\
+	ws-coding-style.cfg				\
 	yacc.py
 
 noinst_SCRIPTS = setuid-root.pl
