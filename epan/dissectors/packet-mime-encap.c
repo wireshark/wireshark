@@ -86,7 +86,7 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	} else {
 		if (!pinfo->fd->flags.visited) {
-			g_string_set_size(whole_file, pinfo->fd->file_off + len);
+			g_string_set_size(whole_file, (gsize) pinfo->fd->file_off + len);
 			tvb_memcpy(tvb, whole_file->str + pinfo->fd->file_off, 0, len);
 		}
 	}
