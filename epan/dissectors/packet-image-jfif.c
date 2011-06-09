@@ -1176,4 +1176,5 @@ proto_reg_handoff_jfif(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_JPEG_JFIF, jfif_handle);
 
 	heur_dissector_add("http", dissect_jfif_heur, proto_jfif);
+	heur_dissector_add("wtap_file", dissect_jfif_heur, proto_jfif);
 }

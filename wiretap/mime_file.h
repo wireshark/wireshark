@@ -1,8 +1,6 @@
-/* jpeg_jfif.h
+/* mime_file.h
  *
- * JPEG/JFIF file format decoder for the Wiretap library.
- * Written by Marton Nemeth <nm127@freemail.hu>
- * Copyright 2009 Marton Nemeth
+ * MIME file format decoder for the Wiretap library.
  *
  * $Id$
  *
@@ -28,6 +26,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int jpeg_jfif_open(wtap *wth, int *err, gchar **err_info);
+int mime_file_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -82,7 +82,7 @@
 #include "packetlogger.h"
 #include "daintree-sna.h"
 #include "netscaler.h"
-#include "jpeg_jfif.h"
+#include "mime_file.h"
 #include "ipfix.h"
 
 
@@ -133,7 +133,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	tnef_open,
 	dct3trace_open,
 	daintree_sna_open,
-	jpeg_jfif_open,
+	mime_file_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that

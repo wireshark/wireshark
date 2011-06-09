@@ -53,7 +53,7 @@ NONGENERATED_C_FILES = \
 	ipfix.c			\
 	iptrace.c		\
 	iseries.c		\
-	jpeg_jfif.c		\
+	mime_file.c		\
 	k12.c			\
 	lanalyzer.c		\
 	libpcap.c		\
@@ -104,7 +104,7 @@ NONGENERATED_HEADER_FILES = \
 	ipfix.h			\
 	iptrace.h		\
 	iseries.h		\
-	jpeg_jfif.h		\
+	mime_file.h		\
 	k12.h			\
 	lanalyzer.h		\
 	libpcap.h		\
