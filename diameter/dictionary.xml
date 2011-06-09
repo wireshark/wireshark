@@ -19,7 +19,9 @@
 	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
 	<!ENTITY Ericsson SYSTEM "Ericsson.xml">
 	<!ENTITY Tango SYSTEM "Tango.xml">
-	<!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
+  <!ENTITY mobileipv6 SYSTEM "mobileipv6.xml">
+  <!ENTITY Cisco SYSTEM "Cisco.xml">
+  <!ENTITY Vodafone SYSTEM "Vodafone.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -147,8 +149,9 @@
 		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
-		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
-		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
+    <vendor vendor-id="Cisco" code="5771" name="Cisco"/>
+    <vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
+    <vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
@@ -5721,5 +5724,7 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	&gqpolicy;
 	&etsie2e4;
 	&Ericsson;
-	&mobileipv6;
+  &mobileipv6;
+  &Cisco;
+  &Vodafone;
 </dictionary>

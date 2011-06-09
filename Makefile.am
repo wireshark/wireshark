@@ -70,6 +70,7 @@ pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
 diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = \
 	diameter/chargecontrol.xml \
+	diameter/Cisco.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
 	diameter/eap.xml \
@@ -84,7 +85,8 @@ diameter_DATA = \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
 	diameter/TGPPRx.xml \
-	diameter/TGPPSh.xml
+	diameter/TGPPSh.xml	\
+	diameter/Vodafone.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
