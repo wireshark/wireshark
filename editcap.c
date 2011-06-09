@@ -831,7 +831,7 @@ main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename = NULL;
-  gboolean check_ts;
+  gboolean ts_okay = TRUE;
   int secs_per_block = 0;
   int block_cnt = 0;
   nstime_t block_start;
@@ -1208,10 +1208,10 @@ main(int argc, char *argv[])
         }
       }
 
-      check_ts = check_timestamp(wth);
+      if (check_startstop)
+        ts_okay = check_timestamp(wth);
 
-      if ( ((check_startstop && check_ts) || (!check_startstop && !check_ts)) && ((!selected(count) && !keep_em) ||
-          (selected(count) && keep_em)) ) {
+      if ( ts_okay && ((!selected(count) && !keep_em) || (selected(count) && keep_em)) ) {
 
         if (verbose && !dup_detect && !dup_detect_by_time)
           printf("Packet: %u\n", count);
@@ -1438,6 +1438,12 @@ main(int argc, char *argv[])
               }
             }
           }
+        }
+
+        if(phdr->caplen > wtap_snapshot_length(wth)) {
+            fprintf(stderr, "Warning: packet %d too big for file type, skipping it...\n", count);
+            count++;
+            continue;
         }
 
         if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), buf, &err)) {
