@@ -57,6 +57,9 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item* item;
 	guint len;
 
+	/* XXX, COL_INFO */
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIME_FILE");
 	item = proto_tree_add_item(tree, proto_mime_encap, tvb, 0, -1, FALSE);
 
 	/* frames with nsec >= 1000000000 means errors :) */

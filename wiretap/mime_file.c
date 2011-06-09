@@ -85,8 +85,7 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	/* XXX, mtime of file? */
-	wth->phdr.ts.secs = 0;
+	wth->phdr.ts.secs = wth->data_offset;
 	wth->phdr.ts.nsecs = 0;
 
 	*data_offset = wth->data_offset;
