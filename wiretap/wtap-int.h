@@ -35,10 +35,6 @@
 #include <winsock2.h>
 #endif
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif /* HAVE_LIBZ */
-
 #include <wsutil/file_util.h>
 
 #include "wtap.h"

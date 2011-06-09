@@ -9,8 +9,8 @@
  */
 %option prefix="ascend"
 
-%top{
-/* Generated from ascend_scanner.l
+%{
+/* ascend_scanner.l
  *
  * $Id$
  *
@@ -35,9 +35,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-}
 
-%{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
