@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {
 	const guchar *magic;
-	size_t magic_len;
+	guint magic_len;
 } mime_files_t;
 
 /*
@@ -76,7 +76,6 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	mime_file_private_t *priv = (mime_file_private_t *) wth->priv;
 
 	char _buf[WTAP_MAX_PACKET_SIZE];
-
 	guint8 *buf;
 	int packet_size;
 
@@ -85,7 +84,7 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	wth->phdr.ts.secs = wth->data_offset;
+	wth->phdr.ts.secs = (time_t) wth->data_offset;
 	wth->phdr.ts.nsecs = 0;
 
 	*data_offset = wth->data_offset;
@@ -107,7 +106,6 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	/* copy to wth frame buffer */
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	buf = buffer_start_ptr(wth->frame_buffer);
-
 	memcpy(buf, _buf, packet_size);
 
 	wth->data_offset += packet_size;
@@ -134,12 +132,12 @@ mime_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_head
 int
 mime_file_open(wtap *wth, int *err, gchar **err_info)
 {
-	char magic_buf[128]; /* increase when needed */
+	char magic_buf[128]; /* increase buffer size when needed */
 	int bytes_read;
-	int ret = 0;
+	int ret;
 	guint i;
 
-	gsize read_bytes = 0;
+	guint read_bytes = 0;
 
 	for (i = 0; i < N_MAGIC_TYPES; i++)
 		read_bytes = MAX(read_bytes, magic_files[i].magic_len);
@@ -149,13 +147,13 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 
 	if (bytes_read > 0) {
 		gboolean found_file = FALSE;
-		guint file_ok;
+		/* guint file_ok; */
 
 		for (i = 0; i < N_MAGIC_TYPES; i++) {
-			if ((gsize) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (gsize) bytes_read))) {
+			if ((guint) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (guint) bytes_read))) {
 				if (!found_file) {
 					found_file = TRUE;
-					file_ok = i;
+					/* file_ok = i; */
 				} else
 					return 0;	/* many files matched, bad file */
 			}
@@ -183,3 +181,4 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	}
 	return ret;
 }
+
