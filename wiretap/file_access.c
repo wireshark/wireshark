@@ -645,7 +645,11 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_IPFIX */
 	{ "IPFIX File Format", "ipfix", "*.pfx;*.ipfix", NULL, FALSE, FALSE,
-	  NULL, NULL }
+	  NULL, NULL },
+
+	/* WTAP_ENCAP_MIME */
+	{ "MIME File Format", "mime", NULL, NULL, FALSE, FALSE, 
+	   NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
