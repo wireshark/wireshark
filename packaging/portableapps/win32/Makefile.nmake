@@ -129,5 +129,6 @@ clean:
    	rm -rf *~ *.*~
 
 distclean:	clean
+	rm -rf WiresharkPortable-*.paf.exe
 
 maintainer-clean:	distclean

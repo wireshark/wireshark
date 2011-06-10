@@ -125,10 +125,11 @@ clean:
 	rm -rf $(DATA)
 	rm -rf $(MANIFEST)
 	rm -rf u3util.{exe,obj,pdb}
-	rm -rf wireshark*.u3p
+	rm -rf wireshark-$(VERSION).u3p
 	rm -rf distribution.nmake
    	rm -rf *~ *.*~
 
 distclean:	clean
+	rm -rf wireshark*.u3p
 
 maintainer-clean:	distclean
