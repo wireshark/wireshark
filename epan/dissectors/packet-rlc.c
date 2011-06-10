@@ -538,11 +538,7 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 				}
 				break;
 			case 0x7ffb:
-				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The second last octet in the previous RLC PDU is the last octet of an RLC SDU and there is no LI to indicate the end of SDU. The remaining octet in the previous RLC PDU is ignored)");
-				} else {
-					proto_item_append_text(ti, " (Reserved)");
-				}
+				proto_item_append_text(ti, " (The second last octet in the previous RLC PDU is the last octet of an RLC SDU and there is no LI to indicate the end of SDU. The remaining octet in the previous RLC PDU is ignored)");
 				break;
 			case 0x7ffc:
 				if (mode == RLC_UM) {
@@ -1019,12 +1015,12 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 		if (li_on_2_bytes) {
 			switch (li[num_li].li) {
 				case 0x0000: /* previous segment was the last one */
+				case 0x7ffb: /* previous PDU contains last segment of SDU (minus last byte) */
 				case 0x7ffe: /* contains piggybacked STATUS in AM or segment in UM */
 				case 0x7fff: /* padding */
 					li[num_li].len = 0;
 					break;
 				case 0x7ffa: /* contains exactly one SDU (minus last byte), UM only */
-				case 0x7ffb: /* previous PDU contains last segment of SDU (minus last byte), UM only */
 				case 0x7ffc: /* start of a new SDU, UM only */
 				case 0x7ffd: /* contains exactly one SDU, UM only */
 					if (mode == RLC_UM) {
