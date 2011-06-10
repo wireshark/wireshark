@@ -926,7 +926,6 @@ pref_check(pref_t *pref, gpointer user_data)
   const char *str_val;
   char *p;
   pref_t **badpref = user_data;
-  unsigned long val;
 
   /* Fetch the value of the preference, and check whether it's valid. */
   switch (pref->type) {
@@ -934,7 +933,21 @@ pref_check(pref_t *pref, gpointer user_data)
   case PREF_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     errno = 0;
-    val = strtoul(str_val, &p, pref->info.base);
+
+    /* XXX: The following ugly hack prevents a gcc warning
+       "ignoring return value of 'strtoul', declared with attribute warn_unused_result"
+       which can occur when using certain gcc configurations (see _FORTIFY_SOURCE).
+       A dummy variable is not used because when using gcc 4.6 with -Wextra a
+       "set but not used [-Wunused-but-set-variable]" warning will occur.
+       TBD: will this hack pass muster with other validators such as Coverity, CLang, & etc
+
+       [Guy Harris comment:
+        "... perhaps either using spin buttons for numeric preferences, or otherwise making
+         it impossible to type something that's not a number into the GUI for those preferences,
+         and thus avoiding the need to check whether it's a valid number, would also be a good idea."
+       ]
+    */
+    if(strtoul(str_val, &p, pref->info.base)){}
     if (p == str_val || *p != '\0' || errno != 0) {
       *badpref = pref;
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
