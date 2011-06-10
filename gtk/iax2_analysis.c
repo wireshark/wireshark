@@ -195,6 +195,7 @@ typedef enum {
 	TAP_RTP_PADDING_ERROR,
 	TAP_RTP_SHORT_FRAME,
 	TAP_RTP_FILE_OPEN_ERROR,
+	TAP_RTP_FILE_WRITE_ERROR,
 	TAP_RTP_NO_DATA
 } error_type_t;
 
@@ -686,7 +687,7 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 				    const struct _iax2_info_t *iax2info)
 {
 	const guint8 *data;
-	/* size_t nchars; */
+	size_t nchars;
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -712,11 +713,21 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 	if (iax2info->payload_len > 0) {
 		data = iax2info->payload_data;
-		/* nchars= */fwrite(data, sizeof(unsigned char), iax2info->payload_len, saveinfo->fp);
-		/* XXX: Should check for write error ? */
+		nchars = fwrite(data, sizeof(unsigned char), iax2info->payload_len, saveinfo->fp);
+		if (nchars != iax2info->payload_len) {
+			/* Write error or short write */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_FILE_WRITE_ERROR;
+			return;
+		}
 		saveinfo->count+=iax2info->payload_len;
 
-		fflush(saveinfo->fp);
+		if (fflush(saveinfo->fp) == EOF) {
+			/* Write error */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_FILE_WRITE_ERROR;
+			return;
+		}
 		saveinfo->saved = TRUE;
 		return;
 	}
