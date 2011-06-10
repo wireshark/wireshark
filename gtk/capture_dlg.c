@@ -266,6 +266,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+#if GTK_CHECK_VERSION(2,24,0)
+  filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
+#else
 #if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
 #else
@@ -273,6 +276,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
   gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
 #endif
+#endif /*GTK_CHECK_VERSION(2,24,0)*/
   if (strlen(filter_text) == 0) {
     colorize_filter_te_as_empty(filter_te);
     return;
@@ -330,6 +334,9 @@ set_if_capabilities(gboolean monitor_mode_changed)
   GtkWidget *advanced_bt;
 #endif
 
+#if GTK_CHECK_VERSION(2,24,0)
+  entry_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(if_cb));
+#else
 #if GTK_CHECK_VERSION(2,6,0)
   entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
 #else
@@ -340,6 +347,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
   gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
 #endif
+#endif /* GTK_CHECK_VERSION(2,24,0) */
 
   if(!entry_text)
     entry_text = '\0';
@@ -565,11 +573,17 @@ static const char *time_unit_name[MAX_TIME_UNITS] = {
 static GtkWidget *time_unit_combo_box_new(guint32 value) {
   GtkWidget *unit_combo_box;
   int i;
-
+#if GTK_CHECK_VERSION(2,24,0)
+  unit_combo_box = gtk_combo_box_text_new ();
+  for(i = 0; i < MAX_TIME_UNITS; i++) {
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (unit_combo_box), time_unit_name[i]);
+  }
+#else
   unit_combo_box = gtk_combo_box_new_text ();
   for(i = 0; i < MAX_TIME_UNITS; i++) {
     gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), time_unit_name[i]);
   }
+#endif
   /* the selected combo_box item can't be changed, once the combo_box
      is created, so set the matching combo_box item now */
   /* days */
@@ -589,7 +603,6 @@ static GtkWidget *time_unit_combo_box_new(guint32 value) {
       }
     }
   }
-
   return unit_combo_box;
 }
 
@@ -656,11 +669,18 @@ static const char *size_unit_name[MAX_SIZE_UNITS] = {
 static GtkWidget *size_unit_combo_box_new(guint32 value) {
   GtkWidget *unit_combo_box;
   int i;
+#if GTK_CHECK_VERSION(2,24,0)
+  unit_combo_box=gtk_combo_box_text_new();
+  for(i=0;i<MAX_SIZE_UNITS;i++){
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (unit_combo_box), size_unit_name[i]);
+  }
 
+#else
   unit_combo_box=gtk_combo_box_new_text();
   for(i=0;i<MAX_SIZE_UNITS;i++){
     gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), size_unit_name[i]);
   }
+#endif /*GTK_CHECK_VERSION(2,24,0)*/
 
   /* the selected combo_box item can't be changed, once the combo_box
      is created, so set the matching combo_box item now */
@@ -676,7 +696,6 @@ static GtkWidget *size_unit_combo_box_new(guint32 value) {
       gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_KILOBYTES);
     }
   }
-
   return unit_combo_box;
 }
 
@@ -1582,6 +1601,9 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   pd = pcap_open_dead(global_capture_opts.linktype, DUMMY_SNAPLENGTH);
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
+#if GTK_CHECK_VERSION(2,24,0)
+  filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
+#else
 #if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
 #else
@@ -1589,7 +1611,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
   gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
 #endif
-
+#endif /* GTK_CHECK_VERSION(2,24,0) */
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
   if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
@@ -1868,7 +1890,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if (global_capture_opts.iface != NULL) {
       if_device = build_capture_combo_name(if_list, global_capture_opts.iface);
   }
-
+#if GTK_CHECK_VERSION(2,24,0)
+  if_cb = gtk_combo_box_text_new_with_entry();
+  combo_list = build_capture_combo_list(if_list, TRUE);
+  if (combo_list != NULL){
+    for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(if_cb), combo_list_entry->data);
+      /* Do we have a prefered if(if_device != NULL),
+       * if we do compare to the entry we are making
+       * and make that entry active if they are equal.
+       */
+#else
   if_cb = gtk_combo_box_entry_new_text();
   combo_list = build_capture_combo_list(if_list, TRUE);
   if (combo_list != NULL){
@@ -1878,6 +1910,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
        * if we do compare to the entry we are making
        * and make that entry active if they are equal.
        */
+#endif /* GTK_CHECK_VERSION(2,24,0) */
       if((if_device)&&(strcmp(if_device, combo_list_entry->data) == 0)) {
         gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),if_index);
       }
@@ -1887,6 +1920,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       /* If we did not have an prefered interface make the first one active */
       gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
   }
+
   /* If we allocated the string free it */
   g_free(if_device);
 
@@ -2117,8 +2151,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
   /* Create the capture filter combo box*/
+#if GTK_CHECK_VERSION(2,24,0)
+  filter_cm = gtk_combo_box_new_with_entry ();
+#else
   filter_cm = gtk_combo_box_entry_new_text ();
-
+#endif
   cfilter_list = g_object_get_data(G_OBJECT(top_level), E_CFILTER_FL_KEY);
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_CM_KEY, filter_cm);
@@ -2128,12 +2165,19 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if (cfilter_list != NULL){
     for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
+#if GTK_CHECK_VERSION(2,24,0)
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(filter_cm), cf_entry->data);
+#else
       gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), cf_entry->data);
+#endif
     }
   }
   if (global_capture_opts.cfilter)
+#if GTK_CHECK_VERSION(2,24,0)
+    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), global_capture_opts.cfilter);
+#else
     gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), global_capture_opts.cfilter);
-
+#endif
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
@@ -3123,6 +3167,9 @@ capture_dlg_prep(gpointer parent_w) {
   n_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
 
+#if GTK_CHECK_VERSION(2,24,0)
+  entry_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(if_cb));
+#else
 #if GTK_CHECK_VERSION(2,6,0)
   entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
 #else
@@ -3130,7 +3177,7 @@ capture_dlg_prep(gpointer parent_w) {
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
   gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
 #endif
-
+#endif /* GTK_CHECK_VERSION(2,24,0) */
   if(!entry_text)
     entry_text = '\0';
 
@@ -3191,6 +3238,9 @@ capture_dlg_prep(gpointer parent_w) {
      until a filter is set, which means they aren't bound at all if
      no filter is set, which means no packets arrive as input on that
      socket, which means Wireshark never sees any packets. */
+#if GTK_CHECK_VERSION(2,24,0)
+  filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
+#else
 #if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
 #else
@@ -3198,7 +3248,7 @@ capture_dlg_prep(gpointer parent_w) {
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
   gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
 #endif
-
+#endif /* GTK_CHECK_VERSION(2,24,0 */
   if (global_capture_opts.cfilter)
     g_free(global_capture_opts.cfilter);
   g_assert(filter_text != NULL);
