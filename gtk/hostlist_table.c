@@ -593,7 +593,7 @@ hostlist_create_popup_menu(hostlist_table *hl)
 	gtk_action_group_add_actions (action_group,								/* the action group */
 								service_resp_t__popup_entries,				/* an array of action descriptions */
 								G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
-								hl);										/* data to pass to the action callbacks */
+								(gpointer)hl);								/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager, 
