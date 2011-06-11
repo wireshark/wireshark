@@ -1262,15 +1262,15 @@ AC_ARG_WITH(zlib,
   AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],
                  [use zlib (located in directory DIR, if supplied) for gzip compression and decompression .  @<:@default=yes, if available@:>@]),
 [
-	if test $withval = no
+	if test "x$withval" = "xno"
 	then
 		want_zlib=no
-	elif test $withval = yes
+	elif test "x$withval" = "xyes"
 	then
 		want_zlib=yes
 	else
 		want_zlib=yes
-		zlib_dir=$withval
+		zlib_dir="$withval"
 	fi
 ],[
 	#
@@ -1332,12 +1332,12 @@ else
 fi
 
 
-dnl lua check
-AC_MSG_CHECKING(whether to use liblua for the lua scripting plugin)
+dnl Lua check
+AC_MSG_CHECKING(whether to use liblua for the Lua scripting plugin)
 
 AC_ARG_WITH(lua,
   AC_HELP_STRING( [--with-lua@<:@=DIR@:>@],
-                  [use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  @<:@default=yes, if available@:>@]),
+                  [use liblua (located in directory DIR, if supplied) for the Lua scripting plugin.  @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -1655,23 +1655,38 @@ fi
 AC_SUBST(GEOIP_LIBS)
 
 dnl Python devel Check
+AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
+
 AC_ARG_WITH(python,
     AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use python interpreter (installed in DIR, if supplied). @<:@default=yes@:>@ (EXPERIMENTAL)]),
+                    [use Python interpreter (installed in DIR, if supplied). @<:@default=yes, if available@:>@ (EXPERIMENTAL)]),
 [
-pythondir='${libdir}/wireshark/python/${VERSION}'
-if test "x$withval" = "xno"; then
-  want_python=no
-elif test "x$withval" != "xyes"; then
-  pythondir="$withval"
-  want_python=yes
-  AC_WIRESHARK_PYTHON_CHECK
-else
-  want_python=yes
-  AC_WIRESHARK_PYTHON_CHECK
-fi
+	pythondir='${libdir}/wireshark/python/${VERSION}'
+	if test "x$withval" = "xno"
+	then
+		want_python=no
+	elif test "x$withval" = "xyes"
+	then
+		want_python=yes
+	else
+		want_python=yes
+		pythondir="$withval"
+	fi
+],[
+	#
+	# Use the embeddable Python interpreter if it's present,
+	# otherwise don't.
+	#
+	want_pythin=ifavailable
+	pythondir='${libdir}/wireshark/python/${VERSION}'
 ])
-AM_CONDITIONAL(HAVE_LIBPY, test x$want_python = xyes)
+if test "x$want_python" = "xno" ; then
+        AC_MSG_RESULT(no)
+else
+        AC_MSG_RESULT(yes)
+	AC_WIRESHARK_PYTHON_CHECK
+fi
+AM_CONDITIONAL(HAVE_LIBPY, test x$want_python != xno)
 AC_SUBST(pythondir)
 
 #
@@ -2091,10 +2106,10 @@ else
 	lua_message="no"
 fi
 
-if test "x$want_python" = "xyes"; then
-        python_message="yes"
-else
+if test "x$want_python" = "xno"; then
         python_message="no"
+else
+        python_message="yes"
 fi
 
 if test "x$want_portaudio" = "xyes" ; then
@@ -2161,8 +2176,8 @@ echo "  Install dumpcap with capabilities : $setcap_message"
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                  Use dumpcap group : $dumpcap_group_message"
 echo "                        Use plugins : $have_plugins"
-echo "                    Use lua library : $lua_message"
-echo "                 Use python binding : $python_message"
+echo "                    Use Lua library : $lua_message"
+echo "                 Use Python binding : $python_message"
 echo "                   Build rtp_player : $portaudio_message"
 echo "                        Use threads : $enable_threads"
 echo "             Build profile binaries : $enable_profile_build"

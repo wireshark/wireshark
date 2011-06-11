@@ -1867,6 +1867,11 @@ AC_DEFUN([AC_WIRESHARK_PYTHON_CHECK],
 	    AC_MSG_ERROR("Python test program failed compilation")
 	  fi
           AC_MSG_RESULT([no])
+          #
+          # Set want_zlib to no, so we report that we aren't using
+          # the Python interpreter.
+          #
+	  want_zlib=no
         ])
     fi
 #    ])
