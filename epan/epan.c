@@ -25,6 +25,10 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_PYTHON
+#include <Python.h> /* to get the Python version number (PY_VERSION) */
+#endif
+
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
@@ -32,7 +36,6 @@
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>
 #endif /* HAVE_LIBGNUTLS */
-
 
 #include <glib.h>
 #include "epan.h"
