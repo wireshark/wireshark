@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_PYTHON
-#include <Python.h> /* to get the Python version number (PY_VERSION) */
-#endif
-
 #include <glib.h>
 
 #include <stdlib.h>
@@ -65,10 +61,6 @@
 
 #ifdef HAVE_LIBCAP
 # include <sys/capability.h>
-#endif
-
-#ifdef HAVE_GEOIP
-#include <epan/geoip_db.h>
 #endif
 
 #ifdef SVNVERSION
