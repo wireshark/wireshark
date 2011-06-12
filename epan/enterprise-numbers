@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-06-04)
+(last updated 2011-06-10)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -35346,9 +35346,9 @@ Decimal
     Larry Kong
       lkong&pivotech.com
 8848
-  RootRoute Corp.
-    Boris JM Fabbro
-      dns&rootr.net
+  Rootroute Research
+    OID PEN Administrator
+      pen8848&rootr.net
 8849
   LPMD.ORG
     John Cosimano
@@ -37911,8 +37911,8 @@ Decimal
       domaintech&circuitcity.com
 9489
   SAXA, Inc. (previously was 'Taiko Electric Works, LTD')
-    Hikaru Sano
-      sano.h&saxa.co.jp
+    Yoshinari Hasegawa
+      hasegawa.yo&saxa.co.jp
 9490
   Scorecon International
     Ryan Denneny
@@ -43207,8 +43207,8 @@ Decimal
       tig&infotecs.ru
 10813
   Centre National de la Recherche Scientifique
-    Claude Gross
-      claude.gross&urec.cnrs.fr
+    Marc Dexet
+      marc.dexet&dsi.cnrs.fr
 10814
   UNIFIED Technologies, Inc.
     Ronald W. Henderson
@@ -132615,9 +132615,9 @@ Decentralization / Helenic Public Administra
     Hardtmann Stephan
       shardtmann&abakus.de
 33258
-  mosais pty. ltd.
+  dzhon pty. ltd. (previous was 'mosais pty. ltd.')
     Rob Gillan
-      rob&mosais.com
+      rob&dzhon.com
 33259
   Martin DiViaio
     Martin DiViaio
@@ -142526,7 +142526,7 @@ Decentralization / Helenic Public Administra
 35735
   A9 SAS
     Antoine Brenner
-      brenner-iana&gymglish.com
+      support&gymglish.com
 35736
   BZCToOn'S Network / RedJuice.fr SARL
     Réda Bourebaba
@@ -151811,6 +151811,206 @@ Decentralization / Helenic Public Administra
   Nason Hospital
     Brian Lilly
       blilly&nasonhospital.com
+38057
+  D&B Germany GmbH
+    Stephan Umbach
+      umbach&dnbgermany.de
+38058
+  Cyanide Studio
+    Bastien Semene
+      admin&cyanide-studio.com
+38059
+  Banking production center
+    Glukhova Marina
+      glukhova&bpcbt.com
+38060
+  Sempla Srl
+    Raniero Bonelli
+      it&sempla.it
+38061
+  Edistar Srl
+    Denis Gasparin
+      denis.gasparin&edistar.com
+38062
+  Marathon Oil Corporation
+    Rod Holmes
+      externaldomainmgt&marathonoil.com
+38063
+  Suomen Asiakastieto Oy
+    Jussi Saarinen
+      jussi.saarinen&asiakastieto.fi
+38064
+  SSL Corp
+    Leo Grove
+      leo.grove&ssl.com
+38065
+  Media Alliance, CJSC
+    Egor Vyscrebentsov
+      noc&medi-a.ru
+38066
+  SC Romastru Trading SRL
+    Mihai Limbasan
+      support&itsquad.ro
+38067
+  APPRO International, Inc.
+    FRANCIS KUNOH LEE
+      kolee&appro.com
+38068
+  Centrastate Medical Center, Inc.
+    Mark Handerhan
+      mhanderhan&centrastate.com
+38069
+  Cetis, Inc.
+    Brock Munsell
+      bmunsell&Cetisgroup.com
+38070
+  Anode
+    Paul C. Bryan
+      pbryan&anode.ca
+38071
+  MaximaTelecom CJSC
+    Sergey Ponomarenko
+      sponomarenko&effts.ru
+38072
+  Linear Photonics, LLC
+    Tim Naples
+      tnaples&lintech.com
+38073
+  Defense Photonics Group
+    Khurram Kazi
+      k.kazi&defensephotonics.com
+38074
+  Statropy Software LLC
+    Erik Larson
+      info&statropy.com
+38075
+  Sentaca Communications
+    Maciej Lopacinski
+      maciej.lopacinski&sentaca.com
+38076
+  Radical Creations
+    Łukasz Rżanek
+      lukasz.rzanek&radical.com.pl
+38077
+  JetPay, LLC
+    Zephaniah Loss-Cutler-Hull
+      sysadmin&jetpay.com
+38078
+  Nanjing Yxlink Information Technologies Co.,Ltd
+    Zhong Wei
+      zhongwei&yxlink.com
+38079
+  DEAC Medics S de RL de CV
+    Hugo Romero
+      hromero&deacmedics.com
+38080
+  Pick n Pay
+    Duncan Rae
+      drae&pnp.co.za
+38081
+  Rank Group
+    Kunal Sharma
+      itbackoffice&rankinteractive.com
+38082
+  HD Vietnam Co.
+    Nguyen Huyen Dieu
+      sau&hdvietnam.com.vn
+38083
+  SLG Broadcast AG
+    Michael Hofer
+      michael.hofer&slgbroadcast.com
+38084
+  Connecture, Inc.
+    Mike Cernik
+      mcernik&connecture.com
+38085
+  Solo Cup Company
+    Matthew Talaga
+      matthew.talaga&solocup.com
+38086
+  Kordia
+    Tony Halligan
+      noc.nz&kordia.co.nz
+38087
+  Real I.T. Technicians, LLC
+    David Rufrano
+      contact&realittechs.com
+38088
+  Joshua Tree Software, LLC
+    Shawn McKinney
+      shawn.mckinney&jtstools.com
+38089
+  Prometheus Research
+    Daniel Ferris
+      dferris&prometheusresearch.com
+38090
+  GreenMojito.org
+    Aaron Hinkle
+      aaron.hinkle&greenmojito.org
+38091
+  SolidFire, Inc.
+    Preston Wilson
+      preston&solidfire.com
+38092
+  EtherDVB Pty Ltd
+    Greg Wickham
+      greg&etherdvb.com
+38093
+  wopoco.de
+    Klemens Rutz
+      oidmaster&wopoco.de
+38094
+  Thales Optronics
+    Karl Farmer
+      karl.farmer&uk.thalesgroup.com
+38095
+  Cooperativa de Ensino Superior Politecnico e Universitario
+    Antonio Salgado
+      dsi&cespu.pt
+38096
+  CyclopusCAD s.r.l.
+    Francesco Fauci
+      info&cyclopuscad.com
+38097
+  Universidade Estadual de Goiás
+    Robson Cardoso Vieira
+      robsoncardoso.ti&gmail.com
+38098
+  Rostov region office of Federal service of state registration cadaster and cartography
+    Besstremyannyy Sergey
+      master&donjust.ru
+38099
+  Transglobal Secure Collaboration Program (TSCP)
+    Stephen Howard
+      support&tscp.org
+38100
+  CAMI Research Inc.
+    Erik Muench
+      erikm&camiresearch.com
+38101
+  Roalter International
+    Luis Roalter
+      luis&roalter.it
+38102
+  Szechenyi Istvan University
+    Bela Csabi
+      csabi&sze.hu
+38103
+  Dataport AöR
+    Holger Kraft
+      holger.kraft&dataport.de
+38104
+  ProFIX Co.
+    Oleksii Shcherbatiuk
+      Oleksii.Shcherbatiuk&profix.kiev.ua
+38105
+  Kit Digital
+    Edward Shnayder
+      edward.shnayder&kit-digital.com
+38106
+  Nebraska Furniture Mart, Inc.
+    Thomas Applebee
+      tom.applebee&nfm.com
 
 
 End of Document
