@@ -71,8 +71,8 @@ void
 
    /* write all non empty capture filter strings to the recent file (until max count) */
    li = g_list_first(cfilter_list);
-   while ( li && (max_count++ <= cfilter_combo_max_recent) ) {
-     if (strlen(li->data)) {
+   while (li && (max_count++ <= cfilter_combo_max_recent) ) {
+     if (li->data && strlen(li->data)) {
        fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", (char *)li->data);
      }
      li = li->next;
@@ -84,10 +84,12 @@ gboolean
  cfilter_combo_add_recent(gchar *s) {
    gchar *dup;
 
-   dup = g_strdup(s);
-   if (!cfilter_combo_add(dup)) {
-     g_free(dup);
-     return FALSE;
+   if (s) {
+     dup = g_strdup(s);
+     if (!cfilter_combo_add(dup)) {
+       g_free(dup);
+       return FALSE;
+     }
    }
    return TRUE;
 }
