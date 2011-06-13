@@ -1360,7 +1360,9 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget *opt_remote_w, *main_vb;
   GtkWidget   *caller, *bbox, *ok_bt, *cancel_bt;
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tooltips;
+#endif
   GtkWidget     *capture_fr, *capture_vb;
   GtkWidget     *nocap_rpcap_cb, *datatx_udp_cb;
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -1382,8 +1384,9 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(opt_remote_w), E_OPT_REMOTE_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY, opt_remote_w);
 
+#if !GTK_CHECK_VERSION(2,12,0)
   tooltips = gtk_tooltips_new();
-
+#endif
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(opt_remote_w), main_vb);
@@ -1475,12 +1478,19 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(options_remote_ok_cb), opt_remote_w);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(ok_bt, "Accept parameters and close dialog");
+#else
   gtk_tooltips_set_tip(tooltips, ok_bt,
                        "Accept parameters and close dialog.", NULL);
-
+#endif
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog.");
+#else 
   gtk_tooltips_set_tip(tooltips, cancel_bt,
                          "Cancel and exit dialog.", NULL);
+#endif
   window_set_cancel_button(opt_remote_w, cancel_bt, window_cancel_button_cb);
 
   gtk_widget_grab_default(ok_bt);
