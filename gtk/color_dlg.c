@@ -167,8 +167,10 @@ colorize_dialog_new (char *filter)
   GtkWidget *dlg_vbox;
   GtkWidget *main_hbox;
   GtkWidget *ctrl_vbox;
+#if GTK_CHECK_VERSION(2,12,0)
+#else
   GtkTooltips *tooltips;
-
+#endif
   GtkWidget *order_fr;
   GtkWidget *order_vbox;
   GtkWidget *color_filter_up;
@@ -212,8 +214,10 @@ colorize_dialog_new (char *filter)
 
   color_dlg_num_of_filters = 0;
   color_dlg_row_selected = -1; /* no row selected */
+#if GTK_CHECK_VERSION(2,12,0)
+#else
   tooltips = gtk_tooltips_new ();
-
+#endif
   /* Resizing of the dialog window is now reasonably done.
    * Default size is set so that it should fit into every usual screen resolution.
    * All other widgets are always packed depending on the current window size. */
@@ -241,27 +245,47 @@ colorize_dialog_new (char *filter)
 
   color_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_new, "Create a new filter at the end of the list");
+#else
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
+#endif                
 
   color_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_edit, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_edit, " If more than one filter is selected, edit the first selected one");
+#else
   gtk_tooltips_set_tip (tooltips, color_edit, ("Edit the properties of the selected filter."
       " If more than one filter is selected, edit the first selected one"), NULL);
+#endif
   gtk_widget_set_sensitive (color_edit, FALSE);
 
   color_enable = gtk_button_new_from_stock(WIRESHARK_STOCK_ENABLE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_enable, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_enable, "Enable the selected filter(s)");
+#else
   gtk_tooltips_set_tip (tooltips, color_enable, ("Enable the selected filter(s)"), NULL);
+#endif
   gtk_widget_set_sensitive (color_enable, FALSE);
 
   color_disable = gtk_button_new_from_stock(WIRESHARK_STOCK_DISABLE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_disable, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_disable, "Disable the selected filter(s)");
+#else
   gtk_tooltips_set_tip (tooltips, color_disable, ("Disable the selected filter(s)"), NULL);
+#endif
   gtk_widget_set_sensitive (color_disable, FALSE);
 
   color_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_delete, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_delete, "Delete the selected filter(s)");
+#else
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete the selected filter(s)"), NULL);
+#endif
   gtk_widget_set_sensitive (color_delete, FALSE);
   /* End edit buttons frame */
 
@@ -276,16 +300,25 @@ colorize_dialog_new (char *filter)
 
   color_import = gtk_button_new_from_stock(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_import, "Load filters from a file and append them to the list");
+#else
   gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file and append them to the list"), NULL);
-
+#endif
   color_export = gtk_button_new_from_stock(WIRESHARK_STOCK_EXPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_export, "Save all/selected filters to a file");
+#else
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/selected filters to a file"), NULL);
-
+#endif
   color_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
   gtk_box_pack_start(GTK_BOX (manage_vbox), color_clear, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_clear, "Clear the filter list and revert to system-wide default filter set");
+#else
   gtk_tooltips_set_tip(tooltips, color_clear, ("Clear the filter list and revert to system-wide default filter set"), NULL);
-
+#endif
 
   /* filter list frame */
   list_fr = gtk_frame_new("Filter");
@@ -352,7 +385,11 @@ colorize_dialog_new (char *filter)
 
   color_filter_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_up, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_filter_up, "Move filter higher in list");
+#else  
   gtk_tooltips_set_tip (tooltips, color_filter_up, ("Move filter higher in list"), NULL);
+#endif
   gtk_widget_set_sensitive (color_filter_up, FALSE);
 
   order_move_label = gtk_label_new (("Move\nselected filter\nup or down"));
@@ -360,7 +397,11 @@ colorize_dialog_new (char *filter)
 
   color_filter_down = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_down, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_filter_down, "Move filter lower in list");
+#else  
   gtk_tooltips_set_tip (tooltips, color_filter_down, ("Move filter lower in list"), NULL);
+#endif
   gtk_widget_set_sensitive (color_filter_down, FALSE);
 
 
@@ -369,20 +410,38 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
 
   color_ok = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_OK);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_ok, "Apply the color filters to the display and close this dialog");
+#else 
   gtk_tooltips_set_tip (tooltips, color_ok, ("Apply the color filters to the display and close this dialog"), NULL);
-
+#endif
   color_apply = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_APPLY);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_apply, "Apply the color filters to the display and keep this dialog open");
+#else   
   gtk_tooltips_set_tip (tooltips, color_apply, ("Apply the color filters to the display and keep this dialog open"), NULL);
+#endif
 
   color_save = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_SAVE);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_save, "Save the color filters permanently and keep this dialog open");
+#else 
   gtk_tooltips_set_tip (tooltips, color_save, ("Save the color filters permanently and keep this dialog open"), NULL);
-
+#endif
   color_cancel = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(color_win, color_cancel, color_cancel_cb);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_cancel, "Cancel changes done (since last \"Apply\") and close this dialog");
+#else 
   gtk_tooltips_set_tip (tooltips, color_cancel, ("Cancel changes done (since last \"Apply\") and close this dialog"), NULL);
+#endif
 
   color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
+#if GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_tooltip_text(color_help, "Get help about this dialog");
+#else   
   gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
+#endif
   g_signal_connect(color_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_COLORING_RULES_DIALOG);
 
   gtk_widget_grab_default(color_ok);
