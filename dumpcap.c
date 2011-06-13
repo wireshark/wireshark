@@ -329,7 +329,6 @@ static gboolean need_timeout_workaround;
 #else
 #define PIPE_READ_TIMEOUT   100000
 #endif
-static const char *cap_pipe_err_str;
 
 #define WRITER_THREAD_TIMEOUT 100000 /* usecs */
 
@@ -1610,17 +1609,13 @@ static void *cap_pipe_read(void *arg)
 /* Provide select() functionality for a single file descriptor
  * on UNIX/POSIX. Windows uses cap_pipe_read via a thread.
  *
- * Returns the same values as select.  If an error is returned,
- * the string cap_pipe_err_str should be used instead of errno.
+ * Returns the same values as select.
  */
 static int
 cap_pipe_select(int pipe_fd)
 {
     fd_set      rfds;
     struct timeval timeout;
-    int sel_ret;
-
-    cap_pipe_err_str = "Unknown error";
 
     FD_ZERO(&rfds);
     FD_SET(pipe_fd, &rfds);
@@ -1628,10 +1623,7 @@ cap_pipe_select(int pipe_fd)
     timeout.tv_sec = PIPE_READ_TIMEOUT / 1000000;
     timeout.tv_usec = PIPE_READ_TIMEOUT % 1000000;
 
-    sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
-    if (sel_ret < 0)
-        cap_pipe_err_str = strerror(errno);
-    return sel_ret;
+    return select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
 }
 
 
