@@ -530,7 +530,7 @@ eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
   	/* Copy and convert the address to network byte order. */
   	*(guint64 *)(void *)(p_eui64) = pntoh64(&(fv->value.integer64));
 
-	sprintf(buf, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
+	g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
 	p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
 	p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
 }
