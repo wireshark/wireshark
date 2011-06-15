@@ -1149,7 +1149,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		val16 = htoles(nspr_abstime_v10_s);
 		memcpy(abs10.phd.ph_RecordSize, &val16, sizeof abs10.phd.ph_RecordSize);
 
-		memcpy(&reltime, ((nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr, sizeof reltime);
+		memcpy(&reltime, ((const nspr_pktracefull_v10_t *)pd)->fp_RelTimeHr, sizeof reltime);
 		nsg_creltime = ns_hrtime2nsec(reltime);
 
 		memset(abs10.abs_RelTime, 0, sizeof abs10.abs_RelTime);
@@ -1172,7 +1172,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		abs20.abs_RecordType = NSPR_ABSTIME_V20;
 		abs20.abs_RecordSize = nspr_abstime_v20_s;
 
-		memcpy(&reltime, ((nspr_pktracefull_v20_t *)pd)->fp_RelTimeHr, sizeof reltime);
+		memcpy(&reltime, ((const nspr_pktracefull_v20_t *)pd)->fp_RelTimeHr, sizeof reltime);
 		nsg_creltime = ns_hrtime2nsec(reltime);
 
 		memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
