@@ -811,6 +811,46 @@ static const value_string ieee80211_supported_rates_vals[] = {
   { 0,    NULL}
 };
 /* ************************************************************************* */
+/*                         7.3.1.7 Reason Code field                         */
+/* ************************************************************************* */
+static const value_string ieee80211_reason_code[] = {
+  { 1, "Unspecified reason" },
+  { 2, "Previous authentication no longer valid" },
+  { 3, "Deauthenticated because sending STA is leaving (or has left) IBSS or ESS" },
+  { 4, "Disassociated due to inactivity" },
+  { 5, "Disassociated because AP is unable to handle all currently associated STAs" },
+  { 6, "Class 2 frame received from nonauthenticated STA" },
+  { 7, "Class 3 frame received from nonassociated STA" },
+  { 8, "Disassociated because sending STA is leaving (or has left) BSS" },
+  { 9, "STA requesting (re)association is not authenticated with responding STA" },
+  { 10, "Disassociated because the information in the Power Capability element is unacceptable" },
+  { 11, "Disassociated because the information in the Supported Channels element is unacceptable" },
+  { 12, "Reserved" },
+  { 13, "Invalid information element, i.e., an information element defined in this standard for which the content does not meet the specifications in Clause 7" },
+  { 14, "Message integrity code (MIC) failure" },
+  { 15, "4-Way Handshake timeout" },
+  { 16, "Group Key Handshake timeout" },
+  { 17, "Information element in 4-Way Handshake different from (Re)Association Request/Probe Response/Beacon frame" },
+  { 18, "Invalid group cipher" },
+  { 19, "Invalid pairwise cipher" },
+  { 20, "Invalid AKMP" },
+  { 21, "Unsupported RSN information element version" },
+  { 22, "Invalid RSN information element capabilities" },
+  { 23, "IEEE 802.1X authentication failed" },
+  { 24, "Cipher suite rejected because of the security policy" },
+  { 31, "TS deleted because QoS AP lacks sufficient bandwidth for this QoS STA due to a change in BSS service characteristics or operational mode" },
+  { 32, "Disassociated for unspecified, QoS-related reason" },
+  { 33, "Disassociated because QoS AP lacks sufficient bandwidth for this QoS STA" },
+  { 34, "Disassociated because excessive number of frames need to be acknowledged, but are not acknowledged due to AP transmissions and/or poor channel conditions" },
+  { 35, "Disassociated because STA is transmitting outside the limits of its TXOPs" },
+  { 36, "Requested from peer STA as the STA is leaving the BSS (or resetting)" },
+  { 37, "Requested from peer STA as it does not want to use the mechanism" },
+  { 38, "Requested from peer STA as the STA received frames using the mechanism for which a setup is required" },
+  { 39, "Requested from peer STA due to timeout" },
+  { 45, "Peer STA does not support the requested cipher suite" },
+  { 0,    NULL}
+};
+/* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
 static const value_string frame_type_subtype_vals[] = {
@@ -11148,57 +11188,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string reason_codes[] = {
-    {0x00, "Reserved"},
-    {0x01, "Unspecified reason"},
-    {0x02, "Previous authentication no longer valid"},
-    {0x03, "Deauthenticated because sending STA is leaving (has left) "
-     "IBSS or ESS"},
-    {0x04, "Disassociated due to inactivity"},
-    {0x05, "Disassociated because AP is unable to handle all currently "
-     "associated stations"},
-    {0x06, "Class 2 frame received from nonauthenticated station"},
-    {0x07, "Class 3 frame received from nonassociated station"},
-    {0x08, "Disassociated because sending STA is leaving (has left) BSS"},
-    {0x09, "Station requesting (re)association is not authenticated with "
-      "responding station"},
-    {0x0A, "Disassociated because the information in the Power Capability "
-      "element is unacceptable"},
-    {0x0B, "Disassociated because the information in the Supported"
-      "Channels element is unacceptable"},
-    {0x0D, "Invalid Information Element"},
-    {0x0E, "Michael MIC failure"},
-    {0x0F, "4-Way Handshake timeout"},
-    {0x10, "Group key update timeout"},
-    {0x11, "Information element in 4-Way Handshake different from "
-     "(Re)Association Request/Probe Response/Beacon"},
-    {0x12, "Group Cipher is not valid"},
-    {0x13, "Pairwise Cipher is not valid"},
-    {0x14, "AKMP is not valid"},
-    {0x15, "Unsupported RSN IE version"},
-    {0x16, "Invalid RSN IE Capabilities"},
-    {0x17, "IEEE 802.1X Authentication failed"},
-    {0x18, "Cipher suite is rejected per security policy"},
-    {0x19, "TDLS direct-link teardown due to TDLS peer STA unreachable via "
-     "the TDLS direct link"},
-    {0x1A, "TDLS direct-link teardown for unspecified reason"},
-    {0x20, "Disassociated for unspecified, QoS-related reason"},
-    {0x21, "Disassociated because QoS AP lacks sufficient bandwidth for this QoS STA"},
-    {0x22, "Disassociated because of excessive number of frames that need to be "
-      "acknowledged, but are not acknowledged for AP transmissions and/or poor "
-      "channel conditions"},
-    {0x23, "Disassociated because STA is transmitting outside the limits of its TXOPs"},
-    {0x24, "Requested from peer STA as the STA is leaving the BSS (or resetting)"},
-    {0x25, "Requested from peer STA as it does not want to use the mechanism"},
-    {0x26, "Requested from peer STA as the STA received frames using the mechanism "
-      "for which a set up is required"},
-    {0x27, "Requested from peer STA due to time out"},
-    {0x2D, "Peer STA does not support the requested cipher suite"},
-    {0x2E, "Association denied due to requesting STA not supporting HT features"},
-    {0x00, NULL}
-  };
-
-
   static const value_string status_codes[] = {
     {0x00, "Successful"},
     {0x01, "Unspecified failure"},
@@ -13040,7 +13029,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_reason,
      {"Reason code", "wlan_mgt.fixed.reason_code",
-      FT_UINT16, BASE_HEX, VALS (&reason_codes), 0,
+      FT_UINT16, BASE_HEX, VALS (&ieee80211_reason_code), 0,
       "Reason for unsolicited notification", HFILL }},
 
     {&hf_ieee80211_ff_status_code,
