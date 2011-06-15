@@ -4728,7 +4728,7 @@ proto_register_icmpv6(void)
         /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */
         { &hf_icmpv6_da_status,
           { "Status", "icmpv6.6lowpannd.da.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x0,
-            " Indicates the status of a registration in the DAC", HFILL }},
+            "Indicates the status of a registration in the DAC", HFILL }},
         { &hf_icmpv6_da_rsv,
           { "Reserved", "icmpv6.6lowpannd.da.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Must be Zero", HFILL }},
