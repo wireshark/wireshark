@@ -81,6 +81,7 @@
  * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
  * draft-ieft-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
+ * draft-ietf-6lowpan-nd-17: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2011-04-08)
  */
 
@@ -788,7 +789,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_DNS_SEARCH_LIST          31
 #define ND_OPT_PROXY_SIGNATURE          32
 /* draft-6lowpan-nd types, pending IANA assignment */
-#define ND_OPT_ADDR_RESOLUTION          131 /* Conflit with RFC6106.. */
+#define ND_OPT_ADDR_REGISTRATION        131 /* Conflit with RFC6106.. */
 #define ND_OPT_6LOWPAN_CONTEXT          132 /* Conflit with draft-ietf-csi-proxy-send-05.txt.. */
 #define ND_OPT_AUTH_BORDER_ROUTER       33
 
@@ -823,10 +824,10 @@ static const value_string option_vals[] = {
 /* 29 */   { ND_OPT_HANDOVER_ASSIST_INFO,      "Handover Assist Information" },            /* [RFC5271] */
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
-/* 31 */   { ND_OPT_PROXY_SIGNATURE,           "DNS Search List Option" },                 /* [RFC6106] */
-/* 31 */   { ND_OPT_ADDR_RESOLUTION,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
-/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* 6LoWPAN-ND */
-/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* 6LoWPAN-ND */
+/* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
+/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-17.txt] */
+/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-17.txt] */
+/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* [draft-ietf-6lowpan-nd-17.txt] */
 /* 34-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
@@ -1997,7 +1998,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* TODO: Calculate padding length and exlude from the signature */
                 break;
             }
-            case ND_OPT_ADDR_RESOLUTION: /* Address Registration (TBD1 Pending IANA...) */
+            case ND_OPT_ADDR_REGISTRATION: /* Address Registration (TBD1 Pending IANA...) */
             {
                 /* 6lowpan-ND */
                 guint8 status;
@@ -4067,7 +4068,7 @@ proto_register_icmpv6(void)
             NULL, HFILL }},
         { &hf_icmpv6_opt_aro_status,
           { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x00,
-            "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
+            "Indicates the status of a registration in the NA response", HFILL }},
         { &hf_icmpv6_opt_aro_registration_lifetime,
           { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
             "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
