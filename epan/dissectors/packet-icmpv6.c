@@ -443,6 +443,12 @@ static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_length = -1;
 static int hf_icmpv6_rpl_opt_targetdesc = -1;
 
+static int hf_icmpv6_da_status = -1;
+static int hf_icmpv6_da_rsv = -1;
+static int hf_icmpv6_da_lifetime = -1;
+static int hf_icmpv6_da_eui64 = -1;
+static int hf_icmpv6_da_raddr = -1;
+
 static int icmpv6_tap = -1;
 
 /* Conversation related data */
@@ -528,6 +534,8 @@ static dissector_handle_t data_handle;
 #define ICMP6_MCAST_ROUTER_TERM         153
 #define ICMP6_FMIPV6_MESSAGES           154
 #define ICMP6_RPL_CONTROL               155
+#define ICMP6_6LOWPANND_DAR             156 /* Pending IANA assignment */
+#define ICMP6_6LOWPANND_DAC             157 /* Pending IANA assignment */
 
 
 static const value_string icmpv6_type_val[] = {
@@ -566,6 +574,8 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-19.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-17.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-17.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -3653,6 +3663,31 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
+        
+            case ICMP6_6LOWPANND_DAR:
+            case ICMP6_6LOWPANND_DAC:
+            {               
+                /* Status */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_status, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_rsv, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* Lifetime */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_lifetime, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* EUI-64 */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_eui64, tvb, offset, 8, FALSE);
+                offset += 8;
+            
+                /* Address */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_raddr, tvb, offset, 16, FALSE);
+                offset += 16;
+                break;
+            }
             default:
                 expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
                                        "Dissector for ICMPv6 Type (%d)"
@@ -4689,6 +4724,23 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_targetdesc,
            { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
              "Opaque Data", HFILL }},
+
+        /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */
+        { &hf_icmpv6_da_status,
+          { "Status", "icmpv6.6lowpannd.da.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x0,
+            " Indicates the status of a registration in the DAC", HFILL }},
+        { &hf_icmpv6_da_rsv,
+          { "Reserved", "icmpv6.6lowpannd.da.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Must be Zero", HFILL }},
+        { &hf_icmpv6_da_lifetime,
+          { "Lifetime", "icmpv6.6lowpannd.da.lifetime", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The amount of time in a unit of 60 seconds that the router should retain the Neighbor Cache entry for the sender of the NS that includes this option", HFILL }},
+        { &hf_icmpv6_da_eui64,
+          { "EUI-64", "icmpv6.6lowpannd.da.eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            "This field is used to uniquely identify the interface of the registered address by including the EUI-64 identifier", HFILL }},
+        { &hf_icmpv6_da_raddr,
+          { "Registered Address", "icmpv6.6lowpannd.da.reg_addr", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "Carries the host address, which was contained in the IPv6 Source field in the NS that contained the ARO option sent by the host", HFILL }},
 
         /* Conversation-related [generated] header fields */
         { &hf_icmpv6_resp_in,
