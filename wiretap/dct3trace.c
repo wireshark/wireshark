@@ -138,7 +138,7 @@ xml_get_int(int *val, const unsigned char *str, const unsigned char *pattern)
 	char *start, *end;
 	char buf[32];
 
-	ptr = strstr((char *)str, (char *)pattern);
+	ptr = strstr((const char *)str, (const char *)pattern);
 	if (ptr == NULL)
 		return -1;
 	start = strchr(ptr, '"');
