@@ -95,7 +95,7 @@ struct wtap_reader {
 	int seek;               /* true if seek request pending */
 	/* error information */
 	int err;                /* error code */
-	char *err_info;         /* additional error information string for some errors */
+	const char *err_info;   /* additional error information string for some errors */
 
 	unsigned int  avail_in;  /* number of bytes available at next_in */
 	unsigned char *next_in;  /* next input byte */
