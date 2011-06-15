@@ -714,7 +714,7 @@ set_pcap_linktype(pcap_t *pcap_h, int linktype,
 
 static gboolean
 compile_capture_filter(const char *iface, pcap_t *pcap_h,
-                       struct bpf_program *fcode, char *cfilter)
+                       struct bpf_program *fcode, const char *cfilter)
 {
     bpf_u_int32 netnum, netmask;
     gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
@@ -2421,7 +2421,7 @@ static void capture_loop_close_input(loop_data *ld)
 #endif
         /* if open, close the pcap "input file" */
         if (pcap_opts->pcap_h != NULL) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", pcap_opts->pcap_h);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", (void *)pcap_opts->pcap_h);
             pcap_close(pcap_opts->pcap_h);
             pcap_opts->pcap_h = NULL;
         }
@@ -2439,7 +2439,7 @@ static void capture_loop_close_input(loop_data *ld)
 /* init the capture filter */
 static initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
-                         gchar * name, gchar * cfilter)
+                         const gchar * name, const gchar * cfilter)
 {
     struct bpf_program fcode;
 
