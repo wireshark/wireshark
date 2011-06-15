@@ -733,7 +733,13 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
           "Warning:  Couldn't obtain netmask info (%s).", lookup_net_err_str);*/
         netmask = 0;
     }
-    if (pcap_compile(pcap_h, fcode, cfilter, 1, netmask) < 0)
+
+    /*
+     * Sigh.  Older versions of libpcap don't properly declare the
+     * third argument to pcap_compile() as a const pointer.  Cast
+     * away the warning.
+     */
+    if (pcap_compile(pcap_h, fcode, (char *)cfilter, 1, netmask) < 0)
         return FALSE;
     return TRUE;
 }
