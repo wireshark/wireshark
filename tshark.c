@@ -193,8 +193,8 @@ struct string_elem {
 static gint
 string_compare(gconstpointer a, gconstpointer b)
 {
-  return strcmp(((struct string_elem *)a)->sstr,
-                ((struct string_elem *)b)->sstr);
+  return strcmp(((const struct string_elem *)a)->sstr,
+                ((const struct string_elem *)b)->sstr);
 }
 
 static void
