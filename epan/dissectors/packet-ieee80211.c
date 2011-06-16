@@ -1944,6 +1944,10 @@ static int hf_ieee80211_tag_extended_capabilities_b39 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b40 = -1;
 static int hf_ieee80211_tag_extended_capabilities_serv_int_granularity = -1;
 
+static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
+static int hf_ieee80211_tag_cisco_ccx1_name = -1;
+static int hf_ieee80211_tag_cisco_ccx1_clients = -1;
+
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reachability = -1;
@@ -6591,7 +6595,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
   int n, ret;
-  char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
   proto_tree * orig_tree=tree;
   proto_item *ti = NULL, *ti_len = NULL;
@@ -7850,7 +7853,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
       break;
 
-    case TAG_CISCO_CCX1_CKIP:
+    case TAG_CISCO_CCX1_CKIP: /* Cisco CCX1 CKIP + Device Name (133) */
       /* From WCS manual:
        * If Aironet IE support is enabled, the access point sends an Aironet
        * IE 0x85 (which contains the access point name, load, number of
@@ -7861,24 +7864,23 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
        * if it receives Aironet IE 0x85 in the reassociation request.
        */
 
-      /* The Name of the sending device starts at offset 10 and is up to
-         15 or 16 bytes in length, \0 padded */
       if (tag_len < 26)
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u too short, must be >= 26",
-                             tag_len);
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u too short, must be >= 26", tag_len);
         break;
       }
-      /* A cisco AP transmits the first 15 bytes of the AP name, probably
-         followed by '\0' for ASCII termination */
-      g_snprintf (out_buff, SHORT_STR, "%.16s",
-                tvb_format_stringzpad(tvb, offset + 12, 16));
-      proto_tree_add_string_format (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
-           tag_len, "", "Tag interpretation: Unknown + Name: %s #Clients: %u",
-           out_buff,
-           /* Total number off associated clients and repeater access points */
-           tvb_get_guint8(tvb, offset + 28));
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", Name=\"%s\"", out_buff);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_unknown, tvb, offset, 10, ENC_NA);
+      offset += 10;
+
+      /* The Name of the sending device starts at offset 10 and is up to
+         15 or 16 bytes in length, \0 padded */
+      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_name, tvb, offset, 16, ENC_NA);
+      offset += 16;
+
+      /* Total number off associated clients and repeater access points */
+      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_clients, tvb, offset, 1, ENC_NA);
+      offset += 1;
       break;
 
     case TAG_VENDOR_SPECIFIC_IE: /* 7.3.2.26 Vendor Specific information element (221) */
@@ -7893,7 +7895,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         oui = tvb_get_ntoh24(tvb, offset);
         tag_tvb = tvb_new_subset(tvb, offset, tag_len, tag_len);
         proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
-        proto_item_append_text(ti, ": %s", get_manuf_name(tvb_get_ptr(tvb, offset, 3)));
+        proto_item_append_text(ti, ": %s", tvb_get_manuf_name(tvb, offset));
 
         if (tag_len > 3) {
           proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tvb, offset + 3, 1, FALSE);
@@ -14700,6 +14702,18 @@ proto_register_ieee80211 (void)
       "wlan_mgt.extcap.infoexchange.serv_int_granularity",
       FT_UINT8, BASE_NONE, VALS(service_interval_granularity_vals), 0x000e,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_cisco_ccx1_unknown,
+     {"Unknown", "wlan_mgt.cisco.ccx1.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_cisco_ccx1_name,
+     {"Name", "wlan_mgt.cisco.ccx1.name",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_cisco_ccx1_clients,
+     {"Clients", "wlan_mgt.cisco.ccx1.clients",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
