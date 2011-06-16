@@ -71,9 +71,9 @@
 #include "geoip_db.h"
 #endif
 
-gchar*
+const gchar*
 epan_get_version(void) {
-  return VERSION;
+	return VERSION;
 }
 
 void

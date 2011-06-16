@@ -84,7 +84,7 @@ epan_new(void);
 void
 epan_free(epan_t*);
 
-extern gchar*
+extern const gchar*
 epan_get_version(void);
 
 /** initialize an existing single packet dissection */
