@@ -244,7 +244,8 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_ENCAP_UNKNOWN,	/* Other */
 		WTAP_ENCAP_UNKNOWN,	/* Other */
 		WTAP_ENCAP_UNKNOWN,	/* Other */
-		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+		WTAP_ENCAP_IEEE_802_11_WITH_RADIO, /* IEEE 802.11 with Radio Header */
+		WTAP_ENCAP_ETHERNET,	/* 10 Gigabit Ethernet */
 	};
 	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
 	int file_encap;
