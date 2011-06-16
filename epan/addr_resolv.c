@@ -712,7 +712,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
      */
     g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
   } else {
-    ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
+    ip_to_str_buf((const guint8 *)&addr, tp->name, MAXNAMELEN);
   }
 }
 
@@ -759,7 +759,7 @@ new_ipv4(const guint addr)
   tp->next = NULL;
   tp->resolve = FALSE;
   tp->is_dummy_entry = FALSE;
-  ip_to_str_buf((guint8 *)&addr, tp->ip, sizeof(tp->ip));
+  ip_to_str_buf((const guint8 *)&addr, tp->ip, sizeof(tp->ip));
   return tp;
 }
 
