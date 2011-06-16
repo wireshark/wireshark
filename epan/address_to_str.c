@@ -395,7 +395,9 @@ ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
 						  buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
 			g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR ); /* Let the unexpected value alert user */
 	} else {	/* this is a LID (16 bits) */
-		guint16 lid_number = *((guint16*) addr->data);
+		guint16 lid_number;
+		
+		memcpy((void *)&lid_number, addr->data, sizeof lid_number);
 		g_snprintf(buf,buf_len,"LID: %u",lid_number);
 	}
 }
