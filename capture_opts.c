@@ -184,7 +184,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
             interface_opts.auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
             "Unknown");
         if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
-            g_log(log_domain, log_level, "Auth username[%02d]  : %s", i, interface_opts.auth_password);
+            g_log(log_domain, log_level, "Auth username[%02d]  : %s", i, interface_opts.auth_username);
             g_log(log_domain, log_level, "Auth password[%02d]  : <hidden>", i);
         }
         g_log(log_domain, log_level, "UDP data tfer[%02d]  : %u", i, interface_opts.datatx_udp);
@@ -220,7 +220,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         capture_opts->default_options.auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
         "Unknown");
     if (capture_opts->default_options.auth_type == CAPTURE_AUTH_PWD) {
-        g_log(log_domain, log_level, "Auth username[df]  : %s", capture_opts->default_options.auth_password);
+        g_log(log_domain, log_level, "Auth username[df]  : %s", capture_opts->default_options.auth_username);
         g_log(log_domain, log_level, "Auth password[df]  : <hidden>");
     }
     g_log(log_domain, log_level, "UDP data tfer[df]  : %u", capture_opts->default_options.datatx_udp);
@@ -246,7 +246,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         capture_opts->auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
         "Unknown");
     if (capture_opts->auth_type == CAPTURE_AUTH_PWD) {
-        g_log(log_domain, log_level, "Auth username      : %s", capture_opts->auth_password);
+        g_log(log_domain, log_level, "Auth username      : %s", capture_opts->auth_username);
         g_log(log_domain, log_level, "Auth password      : <hidden>");
     }
     g_log(log_domain, log_level, "UDP data transfer  : %u", capture_opts->datatx_udp);
