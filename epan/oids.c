@@ -284,7 +284,7 @@ static const oid_value_type_t* get_typedata(SmiType* smiType) {
 	 * SNMP Types and our FT_s
 	 */
 	static const struct _type_mapping_t {
-		char* name;
+		const char* name;
 		SmiBasetype base;
 		const oid_value_type_t* type;
 	} types[] =  {
