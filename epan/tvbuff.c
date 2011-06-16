@@ -3183,7 +3183,7 @@ static dgt_set_t Dgt1_9_bcd = {
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
-gchar *
+const gchar *
 tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
 {
 	int length;

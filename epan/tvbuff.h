@@ -627,7 +627,7 @@ typedef struct dgt_set_t
 }
 dgt_set_t;
 
-extern gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
+extern const gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
 struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 

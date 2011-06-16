@@ -1226,7 +1226,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	guint32		value, n;
 	float		floatval;
 	double		doubleval;
-	char		*string;
+	const char	*string;
 	nstime_t	time_stamp;
 	GPtrArray	*ptrs;
 
@@ -1458,12 +1458,15 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * we're putting this item.
 			 */
 			if (length == -1) {
+				gchar *string_writable;
+
 				/* This can throw an exception */
 				length = tvb_strsize(tvb, start);
 
-				string = ep_alloc(length);
+				string_writable = ep_alloc(length);
 
-				tvb_memcpy(tvb, string, start, length);
+				tvb_memcpy(tvb, string_writable, start, length);
+				string = string_writable;
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {
