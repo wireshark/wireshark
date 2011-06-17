@@ -2417,7 +2417,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
          * However, SMPP now has its own preferences, so we just map
          * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
          *
-         * We also renamed "dcp" to "dccp", "x.25" to "x25" and "nsip" to "gprs_ns".
+         * We also renamed "dcp" to "dccp", "x.25" to "x25", "x411" to "p1"
+	 * and "nsip" to "gprs_ns".
 	 *
 	 * The vlan dissector was integrated into the Ethernet dissector.
 	 *
@@ -2439,6 +2440,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             module = prefs_find_module("dccp");
           else if (strcmp(pref_name, "x.25") == 0)
             module = prefs_find_module("x25");
+          else if (strcmp(pref_name, "x411") == 0)
+            module = prefs_find_module("p1");
 	  else if (strcmp(pref_name, "vlan") == 0)
 	    module = prefs_find_module("eth");
           else if (strcmp(pref_name, "nsip") == 0)
