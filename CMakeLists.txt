@@ -435,6 +435,10 @@ if(ENABLE_GUIDES)
 	add_subdirectory( docbook )
 endif()
 
+if(ENABLE_PCAP_NG_DEFAULT)
+	set(PCAP_NG_DEFAULT 1)
+endif()
+
 #Platform specific
 if(UNIX)
 	set(WS_VAR_IMPORT "extern")
