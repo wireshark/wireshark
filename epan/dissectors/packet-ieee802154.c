@@ -2159,7 +2159,7 @@ gboolean ieee802154_short_addr_equal(gconstpointer a, gconstpointer b)
 /* Key hash function. */
 guint ieee802154_long_addr_hash(gconstpointer key)
 {
-    return (((ieee802154_long_addr *)key)->addr) & 0xFFFFFFFF;
+    return (guint)(((ieee802154_long_addr *)key)->addr) & 0xFFFFFFFF;
 }
 
 /* Key equal function. */
