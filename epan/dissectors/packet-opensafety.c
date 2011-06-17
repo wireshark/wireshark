@@ -357,6 +357,11 @@ static int hf_oss_spdo_time_request_to    = -1;
 static int hf_oss_spdo_time_request_from  = -1;
 
 static const char *global_scm_udid = "00:00:00:00:00:00";
+static gboolean global_mbtcp_big_endian = TRUE;
+static guint global_network_udp_port = UDP_PORT_OPENSAFETY;
+static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
+
+/* Conversation functions */
 
 /* This is defined by the specification. The Address field is 10 bits long, and the node with the number
  *  1 is always the SCM, therefore ( 2 ^ 10 ) - 1 nodes can be addressed. We use 2 ^ 10 here, because the
@@ -432,11 +437,12 @@ static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint3
     return k;
 }
 
-static guint16 findFrame1Position ( guint8 dataLength, guint8 byteStream[] )
+static guint16
+findFrame1PositionExtended ( guint8 dataLength, guint8 byteStream[], gboolean checkIfSlimMistake )
 {
     guint16 i_wFrame1Position = 0;
     guint16 i_payloadLength, i_calculatedLength = 0;
-    guint16 i_offset = 0;
+    guint16 i_offset = 0, calcCRC = 0, frameCRC = 0;
     guint8 b_tempByte = 0;
 
     /*
@@ -449,7 +455,26 @@ static guint16 findFrame1Position ( guint8 dataLength, guint8 byteStream[] )
     /* Calculating the assumed frame length, taking CRC8/CRC16 into account */
     i_calculatedLength = i_payloadLength * 2 + 11 + 2 * (i_payloadLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? 1 : 0);
 
-    /* If the calculated length differs from the given length, a slim package is assumed */
+    /* To prevent miscalculations, where by chance the byte at [length / 2] + 3 is a value matching a possible payload length,
+     * but in reality the frame is a slim ssdo, the CRC of frame 1 get's checked additionally. This check
+     * is somewhat time consuming, so it will only run if the normal check led to a mistake detected along the line */
+    if ( checkIfSlimMistake && i_calculatedLength == dataLength )
+    {
+        if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
+            calcCRC = crc16_opensafety(dataLength + 4, &byteStream[i_wFrame1Position], 0);
+        else
+            calcCRC = crc8_opensafety(dataLength + 4, &byteStream[i_wFrame1Position], 0);
+
+        frameCRC = byteStream[i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA];
+        if (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
+            frameCRC += (byteStream[i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA + 1] << 8);
+
+        /* if the calculated crc does not match the detected, the package is not a normal openSAFETY package */
+        if ( frameCRC != calcCRC )
+            dataLength = 0;
+    }
+
+    /* If the calculated length differs from the given length, a slim package is assumed. */
     if ( i_calculatedLength != dataLength )
     {
         /* possible slim package */
@@ -472,6 +497,13 @@ static guint16 findFrame1Position ( guint8 dataLength, guint8 byteStream[] )
     }
 
     return i_wFrame1Position;
+}
+
+static guint16
+findFrame1Position ( guint8 dataLength, guint8 byteStream[] )
+{
+    /* To safe time, the normal search, does not take the possible mistake into consideration */
+    return ( findFrame1PositionExtended(dataLength, byteStream, FALSE) );
 }
 
 /*
@@ -606,7 +638,7 @@ static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC)
     crc = initCRC;
     while(len-- > 0)
     {
-       crc = (guint8)(*pBuffer++) ^ crc;
+        crc = (guint8)(*pBuffer++) ^ crc;
         crc = crc8_opensafety_precompiled[crc];
     }
 
@@ -624,9 +656,9 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
     DISSECTOR_ASSERT ( u_Offset < ( u_Offset + length ) );
     for ( n = u_Offset; n < ( u_Offset + length ); n++)
     {
-       /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid */
-       if ( n == 0 )
-           continue;
+        /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid */
+        if ( n == 0 )
+            continue;
 
         *u_frameLength = 0;
         *u_frameOffset = 0;
@@ -639,8 +671,8 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
          *  bit is set */
         if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
         {
-           /* If the determined size could be bigger, than the data to be dissect,
-            * we have an error, return */
+            /* If the determined size could be bigger, than the data to be dissect,
+             * we have an error, return */
             if ( ( b_Length + n ) > ( u_Offset + length ) )
                 continue;
 
@@ -1146,8 +1178,27 @@ dissect_opensafety_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
         type = OPENSAFETY_SNMT_MESSAGE_TYPE;
     else
     {
-        /* This is an invalid openSAFETY package, we return */
-        return FALSE;
+        /* This is an invalid openSAFETY package, but it could be an undetected slim ssdo message. This specific error
+         * will only occur, if findFrame1Position is in play. So we search once more, but this time calculating the CRC.
+         * The reason for the second run is, that calculating the CRC is time consuming.  */
+        if ( b_frame2First )
+        {
+            /* Now let's check again, but this time calculate the CRC */
+            frameStart1 = findFrame1PositionExtended(length, bytes, TRUE );
+            frameStart2 = 0;
+
+            if ( ( OSS_FRAME_ID(bytes, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+                type = OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE;
+            else if ( ( OSS_FRAME_ID(bytes, frameStart1) & OPENSAFETY_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SSDO_MESSAGE_TYPE )
+                type = OPENSAFETY_SSDO_MESSAGE_TYPE;
+            else if ( ( OSS_FRAME_ID(bytes, frameStart1) & OPENSAFETY_SPDO_MESSAGE_TYPE ) == OPENSAFETY_SPDO_MESSAGE_TYPE )
+                type = OPENSAFETY_SPDO_MESSAGE_TYPE;
+            else if ( ( OSS_FRAME_ID(bytes, frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
+                type = OPENSAFETY_SNMT_MESSAGE_TYPE;
+            else
+                return FALSE;
+        } else
+            return FALSE;
     }
 
     b_ID = OSS_FRAME_ID(bytes, frameStart1);
@@ -1290,6 +1341,9 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
 
             /* Freeing memory before dissector, as otherwise we would waste it */
             next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
+            /* Adding a visual aid to the dissector tree */
+            add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
+
             if ( ! dissectorCalled )
             {
                 call_dissector(epl_handle, message_tvb, pinfo, tree);
@@ -1375,12 +1429,12 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
         siii_handle = find_dissector("data");
         /* We can handle the packages internally, if there is no sercos iii plugin available */
         if ( pinfo->ethertype == ETHERTYPE_SERCOS )
-        	internSIIIHandling = TRUE;
+            internSIIIHandling = TRUE;
     }
 
     if ( tree && internSIIIHandling )
     {
-    	proto_tree_add_text(tree,message_tvb, 0, -1, "SercosIII dissector not available, openSAFETY/SercosIII native dissection.");
+        proto_tree_add_text(tree,message_tvb, 0, -1, "SercosIII dissector not available, openSAFETY/SercosIII native dissection.");
     }
 
     /* We have a SERCOS III package, whether encapsulated in UDP or
@@ -1412,6 +1466,8 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
 
             /* Freeing memory before dissector, as otherwise we would waste it */
             next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
+            /* Adding a visual aid to the dissector tree */
+            add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
 
             /* pinfo is NULL only if dissect_opensafety_message is called from dissect_error cause */
             if ( ( ! udpDissectorCalled ) && ( pinfo->ipproto == IPPROTO_UDP ) && pinfo )
@@ -1425,8 +1481,8 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
             /* Call the dissector */
             if ( ( ! dissectorCalled ) && ( pinfo->ipproto != IPPROTO_UDP ) )
             {
-            	if ( ! internSIIIHandling )
-            		call_dissector(siii_handle, message_tvb, pinfo, tree);
+                if ( ! internSIIIHandling )
+                call_dissector(siii_handle, message_tvb, pinfo, tree);
                 dissectorCalled = TRUE;
 
                 /* pinfo is NULL only if dissect_opensafety_message is called from dissect_error cause */
@@ -1493,6 +1549,128 @@ dissect_heur_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_
     }
 
     return FALSE;
+}
+
+static gboolean
+dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+{
+    tvbuff_t *next_tvb;
+    guint length, frameOffset, frameLength;
+    guint8 *bytes;
+    gboolean handled, dissectorCalled;
+    guint8 found, packageCounter, i, tempByte;
+    gint len, reported_len;
+
+    length = tvb_length(message_tvb);
+    /* Minimum package length is 11 */
+    if ( length < 11 )
+        return FALSE;
+
+    handled = FALSE;
+    dissectorCalled = FALSE;
+
+    bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
+
+    if ( global_mbtcp_big_endian == TRUE )
+    {
+        /* Wordswapping for modbus detection */
+        /* Only a even number of bytes can be swapped */
+        len = (length / 2);
+        for ( i = 0; i < len; i++ )
+        {
+            tempByte = bytes [ 2 * i ]; bytes [ 2 * i ] = bytes [ 2 * i + 1 ]; bytes [ 2 * i + 1 ] = tempByte;
+        }
+    }
+    len = tvb_length_remaining(message_tvb, 0);
+    reported_len = tvb_reported_length_remaining(message_tvb, 0);
+
+    frameOffset = 0;
+    frameLength = 0;
+    found = 0;
+    packageCounter = 0;
+    while ( frameOffset < length )
+    {
+        if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, &frameOffset, &frameLength) )
+        {
+            if ((frameOffset + frameLength) > (guint)reported_len )
+                break;
+
+            found++;
+
+            /* Freeing memory before dissector, as otherwise we would waste it */
+            if ( global_mbtcp_big_endian == TRUE )
+            {
+                next_tvb = tvb_new_real_data(&bytes[frameOffset], (frameLength), reported_len);
+                tvb_set_child_real_data_tvbuff(message_tvb, next_tvb);
+                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame (Swapped)");
+            }
+            else
+            {
+                next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
+                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
+            }
+
+            if ( ! dissectorCalled )
+            {
+                dissectorCalled = TRUE;
+
+                /* pinfo is NULL only if dissect_opensafety_message is called from dissect_error cause */
+                if (pinfo)
+                {
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "openSAFETY over Modbus");
+                    col_clear(pinfo->cinfo,COL_INFO);
+                }
+            }
+
+            /* Only engage, if we are not called strictly for the overview */
+            if ( tree )
+            {
+                if ( dissect_opensafety_frame(next_tvb, pinfo, tree, FALSE, found ) == TRUE )
+                    packageCounter++;
+            }
+            handled = TRUE;
+        }
+        else
+            break;
+
+        frameOffset += frameLength;
+    }
+
+    if ( handled == TRUE && packageCounter == 0 )
+        handled = FALSE;
+
+    return ( handled ? TRUE : FALSE );
+}
+
+static void
+apply_prefs ( void )
+{
+    static gboolean opensafety_init = FALSE;
+    static guint opensafety_udp_port_number;
+    static guint opensafety_udp_siii_port_number;
+
+    /* It only should delete dissectors, if run for any time except the first */
+    if ( opensafety_init )
+    {
+        /* Delete dissectors in preparation of a changed config setting */
+        dissector_delete_uint ("udp.port", opensafety_udp_port_number, find_dissector("opensafety"));
+        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
+    }
+
+    opensafety_init = TRUE;
+
+    /* Storing the port numbers locally, to being able to delete the old associations */
+    opensafety_udp_port_number = global_network_udp_port;
+    opensafety_udp_siii_port_number = global_network_udp_port_sercosiii;
+
+    /* Default UDP only based dissector */
+    dissector_add_uint("udp.port", opensafety_udp_port_number, find_dissector("opensafety"));
+
+    /* Sercos III dissector does not handle UDP transport, has to be handled
+     *  separately, everything else should be caught by the heuristic dissector
+     */
+    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, find_dissector("opensafety_siii"));
+
 }
 
 void
@@ -1575,7 +1753,7 @@ proto_register_opensafety(void)
 
     /* Register the protocol name and description */
     proto_opensafety = proto_register_protocol("openSAFETY", "openSAFETY",  "opensafety");
-    opensafety_module = prefs_register_protocol(proto_opensafety, NULL);
+    opensafety_module = prefs_register_protocol(proto_opensafety, apply_prefs);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_opensafety, hf, array_length(hf));
@@ -1586,10 +1764,23 @@ proto_register_opensafety(void)
                  "SCM UDID (xx:xx:xx:xx:xx:xx)",
                  "To be able to fully dissect SSDO and SPDO packages, a valid UDID for the SCM has to be provided",
                  &global_scm_udid);
+    prefs_register_uint_preference(opensafety_module, "network_udp_port",
+                "UDP Port used for the UDP demo ",
+                "UDP port used by UDP demo implementation to transport asynchronous data", 10,
+                &global_network_udp_port);
+    prefs_register_uint_preference(opensafety_module, "network_udp_port_sercosiii",
+                "UDP Port used for SercosIII",
+                "UDP port used by SercosIII to transport asynchronous data", 10,
+                &global_network_udp_port_sercosiii);
+    prefs_register_bool_preference(opensafety_module, "mbtcp_big_endian",
+                "Modbus/TCP Big Endian Word Coding",
+                "Modbus/TCP words can be transmissioned either big- or little endian. Default will be little endian",
+                &global_mbtcp_big_endian);
 
-    new_register_dissector("opensafety", dissect_opensafety, proto_opensafety);
-
-	new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety);
+    /* Registering default and ModBus/TCP dissector */
+    new_register_dissector("opensafety", dissect_opensafety, proto_opensafety );
+    new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
+    new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety);
 
 }
 
@@ -1600,14 +1791,6 @@ proto_reg_handoff_opensafety(void)
 
     if ( !opensafety_inited )
     {
-        /* Default UDP only based dissector */
-        dissector_add_uint("udp.port", UDP_PORT_OPENSAFETY, find_dissector("opensafety"));
-
-        /* Sercos III dissector does not handle UDP transport, has to be handled
-         *  separately, everything else should be caught by the heuristic dissector
-         */
-        dissector_add_uint("udp.port", UDP_PORT_SIII, find_dissector("opensafety_siii"));
-
         heur_dissector_add("epl", dissect_heur_opensafety_epl, proto_opensafety);
 
         /* For SercosIII we have to register as a heuristic dissector, as SercosIII
@@ -1616,7 +1799,7 @@ proto_reg_handoff_opensafety(void)
          */
         if ( find_dissector("sercosiii") != NULL )
         {
-        	heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
+            heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
         }
         else
         {
@@ -1627,5 +1810,9 @@ proto_reg_handoff_opensafety(void)
 			g_warning ( "openSAFETY - SercosIII heuristic dissector cannot be registered, openSAFETY/SercosIII native dissection." );
             dissector_add_uint("ethertype", ETHERTYPE_SERCOS, find_dissector("opensafety_siii"));
         }
+
+        /* Modbus TCP dissector registration */
+        dissector_add_string("mbtcp.modbus.data", "data", find_dissector("opensafety_mbtcp"));
     }
+
 }
