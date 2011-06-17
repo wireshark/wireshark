@@ -2669,14 +2669,14 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case 152: /*  flowStartMilliseconds: 64-bit integer */
 			offset_s[rev] = offset;
 			ts_start[rev].secs = tvb_get_ntoh64(tvb, offset)/1000;
-			ts_start[rev].nsecs = (tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+			ts_start[rev].nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
 			goto timestamp_common;
 			break;
 
 		case 153: /*  flowEndMilliseconds; 64-bit integer */
 			offset_e[rev] = offset;
 			ts_end[rev].secs  = (tvb_get_ntoh64(tvb, offset)/1000);
-			ts_end[rev].nsecs = (tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+			ts_end[rev].nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
 			goto timestamp_common;
 			break;
 
@@ -2713,7 +2713,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			offset_s[rev]       = offset;
 			usec                = tvb_get_ntohl(tvb, offset);
 			ts_start[rev].secs  = (((guint64)(hdrinfo->export_time_secs)*1000000 - usec) / 1000000);
-			ts_start[rev].nsecs = (((guint64)(hdrinfo->export_time_secs)*1000000 - usec) % 1000000) * 1000;
+			ts_start[rev].nsecs = (int)(((guint64)(hdrinfo->export_time_secs)*1000000 - usec) % 1000000) * 1000;
 			goto timestamp_common;
 			break;
 
@@ -2723,7 +2723,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			offset_e[rev] = offset;
 			usec          = tvb_get_ntohl(tvb, offset);
 			ts_end[rev].secs  = (((guint64)(hdrinfo->export_time_secs)*1000000 - usec) / 1000000);
-			ts_end[rev].nsecs = (((guint64)(hdrinfo->export_time_secs)*1000000 - usec) % 1000000) * 1000;
+			ts_end[rev].nsecs = (int)(((guint64)(hdrinfo->export_time_secs)*1000000 - usec) % 1000000) * 1000;
 
 			/* This code executed for all timestamp fields above  */
 			/* !! Assumption: Only 1 set of time fields in a flow */
@@ -3379,7 +3379,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 160: /*  systemInitTimeMilliseconds */
 			ts.secs  = (tvb_get_ntoh64(tvb, offset)/1000);
-			ts.nsecs = (tvb_get_ntoh64(tvb, offset)%1000) *1000000;
+			ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) *1000000;
 			ti = proto_tree_add_time(pdutree,
 						 hf_cflow_sys_init_time,
 						 tvb, offset, length, &ts);
@@ -3958,7 +3958,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 258: /* collectionTimeMilliseconds */
 			ts.secs  = (tvb_get_ntoh64(tvb, offset)/1000);
-			ts.nsecs = (tvb_get_ntoh64(tvb, offset)%1000) *1000000;
+			ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) *1000000;
 			ti = proto_tree_add_time(pdutree,
 						 hf_cflow_collection_time_milliseconds,
 						 tvb, offset, length, &ts);
@@ -4024,7 +4024,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 269: /* maxFlowEndMilliseconds */
 			ts.secs =  (tvb_get_ntoh64(tvb, offset)/1000);
-			ts.nsecs = (tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+			ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
 			ti = proto_tree_add_time(pdutree, hf_cflow_max_flow_end_milliseconds,
 				tvb, offset, length, &ts);
 			break;
@@ -4165,7 +4165,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 323: /* observationTimeMilliseconds */
 			ts.secs  = (tvb_get_ntoh64(tvb, offset)/1000);
-			ts.nsecs = (tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
+			ts.nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
 			ti = proto_tree_add_time(pdutree, hf_cflow_observation_time_milliseconds,
 				tvb, offset, length, &ts);
 			break;
