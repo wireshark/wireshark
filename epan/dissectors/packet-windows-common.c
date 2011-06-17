@@ -2060,6 +2060,15 @@ static const value_string acl_revision_vals[] = {
 #define ACE_TYPE_ACCESS_DENIED_OBJECT	6
 #define ACE_TYPE_SYSTEM_AUDIT_OBJECT	7
 #define ACE_TYPE_SYSTEM_ALARM_OBJECT	8
+#define ACE_TYPE_ACCESS_ALLOWED_CALLBACK         9
+#define ACE_TYPE_ACCESS_DENIED_CALLBACK         10
+#define ACE_TYPE_ACCESS_ALLOWED_CALLBACK_OBJECT 11
+#define ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT  12
+#define ACE_TYPE_SYSTEM_AUDIT_CALLBACK          13
+#define ACE_TYPE_SYSTEM_ALARM_CALLBACK          14
+#define ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT   15
+#define ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT   16
+#define ACE_TYPE_SYSTEM_MANDATORY_LABEL         17
 static const value_string ace_type_vals[] = {
   { ACE_TYPE_ACCESS_ALLOWED,		"Access Allowed"},
   { ACE_TYPE_ACCESS_DENIED,		"Access Denied"},
@@ -2070,6 +2079,15 @@ static const value_string ace_type_vals[] = {
   { ACE_TYPE_ACCESS_DENIED_OBJECT,	"Denied Object"},
   { ACE_TYPE_SYSTEM_AUDIT_OBJECT,	"Audit Object"},
   { ACE_TYPE_SYSTEM_ALARM_OBJECT,	"Alarm Object"},
+  { ACE_TYPE_ACCESS_ALLOWED_CALLBACK,        "Allowed Callback"},
+  { ACE_TYPE_ACCESS_DENIED_CALLBACK,         "Denied Callback"},
+  { ACE_TYPE_ACCESS_ALLOWED_CALLBACK_OBJECT, "Allowed Callback Object"},
+  { ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT,  "Denied Callback Object"},
+  { ACE_TYPE_SYSTEM_AUDIT_CALLBACK,          "Audit Callback"},
+  { ACE_TYPE_SYSTEM_ALARM_CALLBACK,          "Alarm Callback"},
+  { ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT,   "Audit Callback Object"},
+  { ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT,   "Alarm Callback Object"},
+  { ACE_TYPE_SYSTEM_MANDATORY_LABEL,         "Mandatory label"},
   { 0, NULL}
 };
 static const true_false_string tfs_ace_flags_object_inherit = {
@@ -2287,6 +2305,15 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACE_TYPE_ACCESS_DENIED_OBJECT:
 	case ACE_TYPE_SYSTEM_AUDIT_OBJECT:
 	case ACE_TYPE_SYSTEM_ALARM_OBJECT:
+	case ACE_TYPE_ACCESS_ALLOWED_CALLBACK:
+	case ACE_TYPE_ACCESS_DENIED_CALLBACK:
+	case ACE_TYPE_ACCESS_ALLOWED_CALLBACK_OBJECT:
+	case ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT:
+	case ACE_TYPE_SYSTEM_AUDIT_CALLBACK:
+	case ACE_TYPE_SYSTEM_ALARM_CALLBACK:
+	case ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT:
+	case ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT:
+	case ACE_TYPE_SYSTEM_MANDATORY_LABEL:
 		/* access mask */
 		offset = dissect_nt_access_mask(
 			tvb, offset, pinfo, tree, drep,
@@ -2298,6 +2325,10 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case ACE_TYPE_ACCESS_DENIED_OBJECT:
 		case ACE_TYPE_SYSTEM_AUDIT_OBJECT:
 		case ACE_TYPE_SYSTEM_ALARM_OBJECT:
+		case ACE_TYPE_ACCESS_ALLOWED_CALLBACK_OBJECT:
+		case ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT:
+		case ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT:
+		case ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT:
 			offset=dissect_nt_ace_object(tvb, offset, tree);
 		}
 
