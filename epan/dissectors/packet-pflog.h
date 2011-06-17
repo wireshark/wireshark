@@ -73,7 +73,4 @@ struct old_pfloghdr {
 #define PF_IN    1
 #define PF_OUT   2
 
-# define BSD_PF_INET    2
-# define BSD_PF_INET6   24
-
 #endif /* __PACKET_PFLOG_H__ */

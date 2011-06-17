@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 
+#include <epan/aftypes.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include "packet-ip.h"
@@ -77,8 +78,8 @@ static int hf_old_pflog_dir = -1;
 static gint ett_old_pflog = -1;
 
 static const value_string af_vals[] = {
-  { BSD_PF_INET,  "IPv4" },
-  { BSD_PF_INET6, "IPv6" },
+  { BSD_AF_INET,  "IPv4" },
+  { BSD_AF_INET6_BSD, "IPv6" },
   { 0,            NULL }
 };
 
@@ -197,11 +198,11 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (pflogh.af) {
 
-  case BSD_PF_INET:
+  case BSD_AF_INET:
     call_dissector(ip_handle, next_tvb, pinfo, tree);
     break;
 
-  case BSD_PF_INET6:
+  case BSD_AF_INET6_BSD:
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     break;
 
@@ -326,11 +327,11 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (pflogh.af) {
 
-  case BSD_PF_INET:
+  case BSD_AF_INET:
     call_dissector(ip_handle, next_tvb, pinfo, tree);
     break;
 
-  case BSD_PF_INET6:
+  case BSD_AF_INET6_BSD:
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     break;
 
