@@ -3598,9 +3598,9 @@ menus_init(void) {
         packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_heading_action_group,            /* the action group */
-            packet_list_heading_menu_popup_action_entries,                         /* an array of action descriptions */
+            (gpointer)packet_list_heading_menu_popup_action_entries,               /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),           /* the number of entries */
-            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
+            popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(packet_list_heading_action_group,                     /* the action group */
                                     packet_list_heading_menu_toggle_action_entries,               /* an array of action descriptions */
@@ -3630,9 +3630,9 @@ menus_init(void) {
         packet_list_action_group = gtk_action_group_new ("PacketListPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            packet_list_menu_popup_action_entries,                                 /* an array of action descriptions */
+            (gpointer)packet_list_menu_popup_action_entries,                       /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
-            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
+            popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         ui_manager_packet_list_menu = gtk_ui_manager_new ();
 
@@ -3659,9 +3659,9 @@ menus_init(void) {
         packet_list_details_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
 
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            tree_view_menu_popup_action_entries,                                   /* an array of action descriptions */
+            (gpointer)tree_view_menu_popup_action_entries,                         /* an array of action descriptions */
             G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
-            (gpointer)popup_menu_object);                                          /* data to pass to the action callbacks */
+            popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         ui_manager_tree_view_menu = gtk_ui_manager_new ();
 
@@ -3778,9 +3778,9 @@ menus_init(void) {
         statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (statusbar_profiles_action_group,   /* the action group */
-            statusbar_profiles_menu_action_entries,                      /* an array of action descriptions */
+            (gpointer)statusbar_profiles_menu_action_entries,            /* an array of action descriptions */
             G_N_ELEMENTS(statusbar_profiles_menu_action_entries),        /* the number of entries */
-            (gpointer)popup_menu_object);                                /* data to pass to the action callbacks */
+            popup_menu_object);                                          /* data to pass to the action callbacks */
 
         ui_manager_statusbar_profiles_menu = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_statusbar_profiles_menu,

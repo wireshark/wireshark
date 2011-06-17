@@ -395,9 +395,9 @@ proto_hier_create_popup_menu(void)
 
 	action_group = gtk_action_group_new ("ProtoHierStatsTFilterPopupActionGroup");
 	gtk_action_group_add_actions (action_group,									/* the action group */
-								proto_hier_stats_popup_entries,					/* an array of action descriptions */
+								(gpointer)proto_hier_stats_popup_entries,		/* an array of action descriptions */
 								G_N_ELEMENTS(proto_hier_stats_popup_entries),	/* the number of entries */
-								(gpointer)NULL);								/* data to pass to the action callbacks */
+								NULL);											/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager,
