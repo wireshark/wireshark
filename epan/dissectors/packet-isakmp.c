@@ -40,7 +40,7 @@
  *
  * http://www.iana.org/assignments/isakmp-registry (last updated 2009-10-08)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2010-06-14)
- * http://www.iana.org/assignments/ikev2-parameters (last updated 2010-10-11)
+ * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-05-09)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -174,6 +174,11 @@ static int hf_isakmp_notify_data_rohc_attr_profile = -1;
 static int hf_isakmp_notify_data_rohc_attr_integ = -1;
 static int hf_isakmp_notify_data_rohc_attr_icv_len = -1;
 static int hf_isakmp_notify_data_rohc_attr_mrru = -1;
+static int hf_isakmp_notify_data_qcd_token_secret_data = -1;
+static int hf_isakmp_notify_data_ha_nonce_data = -1;
+static int hf_isakmp_notify_data_ha_expected_send_req_msg_id = -1;
+static int hf_isakmp_notify_data_ha_expected_recv_req_msg_id = -1;
+static int hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value = -1;
 static int hf_isakmp_delete_doi = -1;
 static int hf_isakmp_delete_protoid_v1 = -1;
 static int hf_isakmp_delete_protoid_v2 = -1;
@@ -1208,7 +1213,12 @@ static const range_string notifmsg_v2_type[] = {
   { 16416,16416,        "ROHC_SUPPORTED" },			/* RFC5857 */
   { 16417,16417,        "EAP_ONLY_AUTHENTICATION" },		/* RFC5998 */
   { 16418,16418,        "CHILDLESS_IKEV2_SUPPORTED" },		/* RFC6023 */
-  { 16419,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16419,16419,        "QUICK_CRASH_DETECTION" },              /* [RFC-ietf-ipsecme-failure-detection-08.txt] */
+  { 16420,16420,        "IKEV2_MESSAGE_ID_SYNC_SUPPORTED" },    /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
+  { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
+  { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
+  { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
+  { 16424,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,	NULL },
 };
@@ -3824,7 +3834,20 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           case 16416: /* ROHC_SUPPORTED */
                while (offset < offset_end) {
                       offset += dissect_rohc_supported(tvb, tree, offset);
-		}
+               }
+          break;
+          case 16419: /* QUICK_CRASH_DETECTION */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_qcd_token_secret_data, tvb, offset, length, FALSE);
+          break;
+          case 16422: /* IKEV2_MESSAGE_ID_SYNC */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_nonce_data, tvb, offset, 4, FALSE);
+               offset += 4;
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_expected_send_req_msg_id, tvb, offset, 4, FALSE);
+               offset += 4;
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_expected_recv_req_msg_id, tvb, offset, 4, FALSE);
+          break;
+          case 16423: /* IPSEC_REPLAY_COUNTER_SYNC */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value, tvb, offset, length, FALSE);
           break;
           default:
                /* No Default Action */
@@ -5220,6 +5243,28 @@ proto_register_isakmp(void)
       { "MRRU",	"isakmp.notify.data.rohc.attr.mrru",
 	FT_UINT16, BASE_DEC, NULL, 0x00,
 	NULL, HFILL }},
+
+    { &hf_isakmp_notify_data_qcd_token_secret_data,
+      { "Token Secret Data", "isakmp.notify.data.qcd.token_secret_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isakmp_notify_data_ha_nonce_data,
+      { "Nonce Data", "isakmp.notify.data.ha.nonce_data",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Random nonce data, the data should be identical in the synchronization request and response", HFILL }},
+    { &hf_isakmp_notify_data_ha_expected_send_req_msg_id,
+      { "EXPECTED SEND REQ MESSAGE ID", "isakmp.notify.data.ha.expected_send_req_message_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Indicate the Message ID it will use in the next request that it will send to the other protocol peer", HFILL }},
+    { &hf_isakmp_notify_data_ha_expected_recv_req_msg_id,
+      { "EXPECTED RECV REQ MESSAGE ID", "isakmp.notify.data.ha.expected_recv_req_message_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Indicate the Message ID it is expecting in the next request to be received from the other protocol peer", HFILL }},
+    { &hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value,
+      { "Incoming IPsec SA delta value", "isakmp.notify.data.ha.incoming_ipsec_sa_delta_value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "The sender requests that the peer should increment all the Child SA Replay Counters for the sender's incomingtraffic by this value", HFILL }},
 
     { &hf_isakmp_delete_doi,
       { "Domain of interpretation", "isakmp.delete.doi",
