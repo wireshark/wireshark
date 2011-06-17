@@ -219,14 +219,15 @@ README.windows for those instructions.
    working. You must have root privileges in order to capture live data.
 
 9. Run 'make install'.  If you're running a system that supports
-   the Apt, RPM, or System V Release 4 packaging systems, you can
+   the Apt, RPM, OSX, or System V Release 4 packaging systems, you can
    run one of
 
         make debian-package	# Builds a binary package using dpkg
         make rpm-package	# Builds a binary package using rpm
         make srpm-package	# Builds a source package using rpm
-        make svr4-package	# Builds a source package using pkgmk
+        make svr4-package	# Builds a binary package using pkgmk
         make solaris-package	# Same as "make svr4-package"
+        make osx-package	# Builds a binary package for OSX
 
    to make an installable package for your system.
 
