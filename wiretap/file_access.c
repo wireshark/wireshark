@@ -412,6 +412,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
+        /* Gianluca Varenni suggests that we add "deprecated" to the description. */
 	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
@@ -648,7 +649,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_ENCAP_MIME */
-	{ "MIME File Format", "mime", NULL, NULL, FALSE, FALSE, 
+	{ "MIME File Format", "mime", NULL, NULL, FALSE, FALSE,
 	   NULL, NULL }
 };
 

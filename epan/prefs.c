@@ -1294,7 +1294,11 @@ init_prefs(void) {
   prefs.capture_devices_hide          = NULL;
   prefs.capture_devices_monitor_mode  = NULL;
   prefs.capture_prom_mode             = TRUE;
+#ifdef PCAP_NG_DEFAULT
+  prefs.capture_pcap_ng               = TRUE;
+#else
   prefs.capture_pcap_ng               = FALSE;
+#endif
   prefs.capture_real_time             = TRUE;
   prefs.capture_auto_scroll           = TRUE;
   prefs.capture_show_info             = FALSE;

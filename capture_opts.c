@@ -112,7 +112,11 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->saving_to_file                  = FALSE;
   capture_opts->save_file                       = NULL;
   capture_opts->group_read_access               = FALSE;
-  capture_opts->use_pcapng                      = FALSE;            /* the default is pcap */
+#ifdef PCAP_NG_DEFAULT
+  capture_opts->use_pcapng                      = TRUE;             /* Save as pcap-ng by default */
+#else
+  capture_opts->use_pcapng                      = FALSE;            /* Save as pcap by default */
+#endif
   capture_opts->real_time_mode                  = TRUE;
   capture_opts->show_info                       = TRUE;
   capture_opts->quit_after_cap                  = FALSE;
@@ -724,6 +728,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         } else {
             capture_opts->default_options.promisc_mode = FALSE;
         }
+        break;
+    case 'P':        /* Use pcap format */
+        capture_opts->use_pcapng = FALSE;
         break;
     case 'Q':        /* Quit after capture (just capture to file) */
         capture_opts->quit_after_cap  = TRUE;

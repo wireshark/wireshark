@@ -382,6 +382,8 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (capture_opts->use_pcapng)
         argv = sync_pipe_add_arg(argv, &argc, "-n");
+    else
+        argv = sync_pipe_add_arg(argv, &argc, "-P");
 
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {

@@ -63,7 +63,23 @@ Wireshark Info
 
         <listitem>
           <para>
-            <!-- -->
+            Wireshark supports capturing from multiple interfaces at once.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark, TShark, and their associated utilities now save files
+	    using the pcap-ng file format by default. (Your copy of Wireshark
+	    might still use the pcap file format if pcap-ng is disabled in
+	    your preferences.)
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Decryption key management for IEEE 802.11, IPsec, and ISAKMP
+	    is now easier.
           </para>
         </listitem>
 

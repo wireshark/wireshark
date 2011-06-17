@@ -1231,6 +1231,14 @@ fi
 AC_SUBST(rawshark_bin)
 AC_SUBST(rawshark_man)
 
+dnl Use pcap-ng by default
+AC_ARG_ENABLE(pcap-ng-default,
+  AC_HELP_STRING( [--enable-pcap-ng-default],
+                  [use the pcap-ng file format by default instead of pcap.  @<:@default=yes@:>@]),
+    enable_pcap_ng_default=$enableval,enable_pcap_ng_default=yes)
+if test x$enable_pcap_ng_default = xyes; then
+	AC_DEFINE(PCAP_NG_DEFAULT, 1, [Support for pcap-ng])
+fi
 
 dnl pcap remote check
 AC_MSG_CHECKING(whether to use libpcap remote capturing feature)
@@ -2172,6 +2180,7 @@ echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
 echo ""
+echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                  Use dumpcap group : $dumpcap_group_message"

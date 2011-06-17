@@ -20,7 +20,7 @@
 #define __STDC__ 0
 #endif
 
-/* 
+/*
  * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
  */
 #define YY_NO_UNISTD_H
@@ -69,13 +69,14 @@
 
 @HAVE_AIRPCAP@
 
+@PCAP_NG_DEFAULT@
 @MAIN_MENU_USE_UIMANAGER@
 @WANT_PACKET_EDITOR@
 
 /* availability of pcap_freecode() is handled at runtime */
 #define HAVE_PCAP_FREECODE 1
 
-/* define macro for importing variables from an dll 
+/* define macro for importing variables from an dll
  * it depends on HAVE_LIBWIRESHARKDLL and _NEED_VAR_IMPORT_
  */
 #if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBWIRESHARKDLL)

@@ -20,6 +20,7 @@ S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-M> ]>
 S<[ B<-p> ]>
+S<[ B<-P> ]>
 S<[ B<-q> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
@@ -212,8 +213,7 @@ B<TShark>; its format is subject to change from release to release.
 
 =item -n
 
-Write the output file in the pcap-ng format instead of the default pcap
-format.
+Save files as pcap-ng. This is the default.
 
 =item -p
 
@@ -223,6 +223,12 @@ B<-p> cannot be used to ensure that the only traffic that is captured is
 traffic sent to or from the machine on which B<Dumpcap> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
+
+=item -P
+
+Save files as pcap instead of the default pcap-ng. In situations that require
+pcap-ng, such as capturing from multiple interfaces, this option will be
+overridden.
 
 =item -q
 

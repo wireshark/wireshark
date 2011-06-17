@@ -206,6 +206,9 @@ PYTHON="$(PYTHON_DIR)\python.exe"
 PATH=$(PYTHON_DIR);$(PATH)
 !ENDIF
 
+#### Save files as pcap-ng by default. Comment out to use pcap instead. ####
+PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
+
 ##### To Use packet editor uncomment this line ####
 ### Warning Experimental - work in progress
 #WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1

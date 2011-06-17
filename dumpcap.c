@@ -3720,7 +3720,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "Mnpq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -3990,6 +3990,7 @@ main(int argc, char *argv[])
         case 'i':        /* Use interface x */
         case 'n':        /* Use pcapng format */
         case 'p':        /* Don't capture in promiscuous mode */
+        case 'P':        /* Use pcap format */
         case 's':        /* Set the snapshot (capture) length */
         case 'w':        /* Write to capture file x */
         case 'g':        /* enable group read accesson file(s) */
