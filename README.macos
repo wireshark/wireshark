@@ -3,8 +3,12 @@ $Id$
 This file tries to help building Wireshark for Mac OS X (Wireshark does
 not work on earlier versions of Mac OS).
 
-You must have the developer tools installed.  They should be available
-on the install DVD.  [Insert details here.]
+You must have the developer tools (called Xcode) installed. Xcode 3 should
+be available on the install DVD. See
+
+	http://guide.macports.org/chunked/installing.xcode.html
+
+for details.
 
 You must have X11 and the X11 developer headers and libraries installed;
 otherwise, you will not be able to build or install GTK+, and will only
