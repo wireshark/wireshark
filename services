@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-06-10)
+(last updated 2011-06-13)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -13012,7 +13012,10 @@ ncxcp 		5681/udp   Net-coneX Control Protocol
 #               5682/tcp   Reserved
 brightcore      5682/udp   BrightCore control & data transfer exchange
 #                          Marko Bjelac <marko.bjelac&elma.hr> 10 June 2010
-#               5683-5687  Unassigned
+#               5683/tcp   Reserved
+coap            5683/udp   Constrained Application Protocol
+#                          [I-D.ietf-core-coap] 13 June 2011
+#               5684-5687  Unassigned
 ggz             5688/tcp   GGZ Gaming Zone
 ggz             5688/udp   GGZ Gaming Zone
 #                          Josef Spillner <admin&ggzgamingzone.org> January 2003  
@@ -17272,6 +17275,8 @@ References
 [RFC-ietf-ancp-protocol-17.txt]
             S. Wadhwa, J. Moisand, T. Haag, N. Voigt, T. Taylor, Ed., "Protocol for 
             Access Node Control Mechanism in Broadband Networks", RFC XXXX, Month Year.
+
+[I-D.ietf-core-coap] (work in process)
 
 []
 
