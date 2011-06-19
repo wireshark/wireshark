@@ -3078,7 +3078,6 @@ static guint32
 dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 {
   int start = offset;
-  int length = 0;
 
  /*TODO: Warn on invalid length. <= 7 */
   static const int *byte[] = {
@@ -3121,7 +3120,6 @@ dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
       { 0, 0, 0, 0 }
   };
 
-  length = tvb_get_guint8(tvb, offset);
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
 				start_of_header_fields);

@@ -122,7 +122,6 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	proto_item* sub_item = NULL;
 	proto_tree* sub_tree = NULL;
 	gint32 res;
-	gint32 state;
 
 	if (tree) {
 		sub_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
@@ -135,7 +134,6 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_stat_res_res,offset);
 
 	if (res==STAT_SUCC) {
-		state = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_stat_res_state,offset);
 	} else {
 		offset += 4;

@@ -1863,7 +1863,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
-    int clen, slen;
+    int clen;
     proto_tree *rnid_tree;
 
     if (tree) {
@@ -1881,7 +1881,6 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             clen = tvb_get_guint8 (tvb, offset+5);
             proto_tree_add_text (rnid_tree, tvb, offset+5, 1,
                                  "Common Identification Data Length: %u", clen);
-            slen = tvb_get_guint8 (tvb, offset+7);
             proto_tree_add_item (rnid_tree, hf_fcels_spidlen, tvb, offset+7,
                                  1, FALSE);
             if (clen) {

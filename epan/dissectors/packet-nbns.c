@@ -1037,7 +1037,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	column_info		*cinfo;
 	proto_tree		*nbns_tree = NULL;
 	proto_item		*ti;
-	guint16			id, flags, opcode, rcode, quest, ans, auth, add;
+	guint16			id, flags, opcode, quest, ans, auth, add;
 	int			cur_off;
 
 	nbns_data_offset = offset;
@@ -1049,7 +1049,6 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	id    = tvb_get_ntohs(tvb, offset + NBNS_ID);
 	flags = tvb_get_ntohs(tvb, offset + NBNS_FLAGS);
 	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
-	rcode  = (guint16)  (flags & F_RCODE);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",

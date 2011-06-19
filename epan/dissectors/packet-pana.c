@@ -484,7 +484,6 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint16            msg_type;
        guint32            msg_length;
        guint32            avp_length;
-       guint32            session_id;
        guint32            seq_num;
        conversation_t     *conversation;
        pana_conv_info_t   *pana_info;
@@ -498,7 +497,6 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        msg_length = tvb_get_ntohs(tvb, 2);
        flags      = tvb_get_ntohs(tvb, 4);
        msg_type   = tvb_get_ntohs(tvb, 6);
-       session_id = tvb_get_ntohl(tvb, 8);
        seq_num    = tvb_get_ntohl(tvb, 12);
        avp_length = msg_length - 16;
 

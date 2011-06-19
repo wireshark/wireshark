@@ -532,9 +532,6 @@ static const struct true_false_string tfs_36_fail_unknown = {
 static void
 rs00(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint8 v;
-
-	v = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_00_version, tvb, 0, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_00_max_fruid, tvb, 1, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_00_ipmc_fruid, tvb, 2, 1, TRUE);

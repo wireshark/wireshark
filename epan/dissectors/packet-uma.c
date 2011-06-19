@@ -922,7 +922,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_item	*urr_ie_item;
 	proto_tree	*urr_ie_tree;
 	char		*string;
-	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port, communication_port;
+	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port;
 	guint32		udr;
 	conversation_t *conversation;
 	address 	dst_addr, null_addr;
@@ -1117,7 +1117,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 25:
 		/* 11.2.25 Communication Port Identity */
-		communication_port = tvb_get_ntohs(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_communication_port, tvb, ie_offset, 2, FALSE);
 		break;
 

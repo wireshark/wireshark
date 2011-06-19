@@ -1259,8 +1259,7 @@ dissect_skinny_xml(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const gi
   next_tvb = tvb_new_subset(tvb, start, length, -1);
   handle = dissector_get_string_handle(media_type_dissector_table, "text/xml");
   if (handle != NULL) {
-    gboolean dissected;
-    dissected = call_dissector(handle, next_tvb, pinfo, subtree);
+    call_dissector(handle, next_tvb, pinfo, subtree);
    }
 }
 

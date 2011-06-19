@@ -4446,7 +4446,7 @@ dissect_enc(tvbuff_t *tvb,
 {
 #ifdef HAVE_LIBGCRYPT
   ikev2_decrypt_data_t *key_info = NULL;
-  gint iv_len, encr_data_len, icd_len, encr_key_len, decr_data_len, md_len;
+  gint iv_len, encr_data_len, icd_len, decr_data_len, md_len;
   guint8 pad_len;
   guchar *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL;
   gcry_cipher_hd_t cipher_hd;
@@ -4459,7 +4459,6 @@ dissect_enc(tvbuff_t *tvb,
 
   if (pinfo->private_data) {
     key_info = (ikev2_decrypt_data_t*)(pinfo->private_data);
-    encr_key_len = key_info->encr_spec->key_len;
     iv_len = key_info->encr_spec->iv_len;
     icd_len = key_info->auth_spec->trunc_len;
     encr_data_len = length - iv_len - icd_len;

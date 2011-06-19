@@ -220,7 +220,7 @@ static void
 dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtrees and manage them */
-    proto_item *ti, *msg_ti, *attr_list_ti, *vect_attr_ti, *first_value_ti;
+    proto_item *ti, *msg_ti, *attr_list_ti, *vect_attr_ti;
     proto_tree *mmrp_tree, *msg_tree, *attr_list_tree, *vect_attr_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -311,9 +311,9 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 if (attribute_type == MMRP_ATTRIBUTE_TYPE_MAC) {
                     /* MMRP FirstValue is a Mac Adress*/
-                    first_value_ti = proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
-                                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
-                                                         attribute_length, ENC_NA);
+                    proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
+                                        MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
+                                        attribute_length, ENC_NA);
                     /* Decode three packed events. */
                     offset = dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
                                                              MMRP_MAC_THREE_PACKED_OFFSET + msg_offset + vect_offset,
@@ -322,9 +322,9 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 else if (attribute_type == MMRP_ATTRIBUTE_TYPE_SERVICE) {
                     /* MMRP Service Requierment*/
-                    first_value_ti = proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
-                                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
-                                                         attribute_length, ENC_NA);
+                    proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
+                                        MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
+                                        attribute_length, ENC_NA);
                     offset = dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
                                                              MMRP_MAC_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                              number_of_values);

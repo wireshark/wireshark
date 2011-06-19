@@ -124,7 +124,6 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *sebek_tree;
 	proto_item	*ti;
 	int offset = 0;
-	int datalen = 0;
 	nstime_t ts;
 	int sebek_ver = 0;
 	int sebek_type = 0;
@@ -202,7 +201,6 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
 				offset += 12;
 
-				datalen = tvb_get_letohl(tvb, offset);
 				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, FALSE);
 				offset += 4;
 
@@ -246,7 +244,6 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
 				offset += 12;
 
-                                datalen = tvb_get_ntohl(tvb, offset);
 				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, FALSE);
 				offset += 4;
 

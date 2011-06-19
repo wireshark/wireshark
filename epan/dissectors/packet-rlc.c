@@ -1123,7 +1123,7 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 	fp_info *fpinf;
 	rlc_info *rlcinf;
 	guint32 orig_num;
-	guint8 seq, ext;
+	guint8 seq;
 	guint8 next_byte, offs = 0;
 	gint16 pos, num_li = 0;
 	gboolean is_truncated, li_is_on_2_bytes;
@@ -1131,7 +1131,6 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 
 	next_byte = tvb_get_guint8(tvb, offs++);
 	seq = next_byte >> 1;
-	ext = next_byte & 0x01;
 
 	/* show sequence number and extension bit */
 	if (tree) {

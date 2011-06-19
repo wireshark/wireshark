@@ -310,9 +310,7 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 	static const int *ops[] = { &hf_ipmi_stor_20_op_overflow, &hf_ipmi_stor_20_op_update,
 		&hf_ipmi_stor_20_op_delete, &hf_ipmi_stor_20_op_partial_add, &hf_ipmi_stor_20_op_reserve,
 		&hf_ipmi_stor_20_op_allocinfo, NULL };
-	guint8 v;
 
-	v = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_20_sdr_version, tvb, 0, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_stor_20_rec_count, tvb, 1, 2, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_stor_20_free_space, tvb, 3, 2, TRUE);
@@ -480,9 +478,7 @@ rs40(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *ops[] = { &hf_ipmi_stor_40_op_overflow, &hf_ipmi_stor_40_op_delete,
 		&hf_ipmi_stor_40_op_partial_add, &hf_ipmi_stor_40_op_reserve, &hf_ipmi_stor_40_op_allocinfo, NULL };
-	guint8 v;
 
-	v = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_40_sel_version, tvb, 0, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_stor_40_entries, tvb, 1, 2, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_stor_40_free_space, tvb, 3, 2, TRUE);

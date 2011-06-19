@@ -5535,14 +5535,13 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   gboolean little_endian)
 {
       int offset = 0, *offsetp = &offset, left;
-      unsigned char errorcode, error;
+      unsigned char errorcode;
       proto_item *ti;
       proto_tree *t;
 
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
       t = proto_item_add_subtree(ti, ett_x11);
 
-      error = tvb_get_guint8(tvb, offset);
       CARD8(error);
 
       errorcode = tvb_get_guint8(tvb, offset);

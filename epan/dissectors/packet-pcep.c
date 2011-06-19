@@ -949,7 +949,6 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 	guint16 AS_number;
 	guint8 reserved;
 	guint8 attribute;
-	guint16 op_AS_nu_high_oct;
 
 	int l;
 	l = (l_and_or_type& Mask_L)>>7;
@@ -957,7 +956,6 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 	if(obj_class == PCEP_XRO_OBJ){
 		reserved = tvb_get_guint8(tvb, offset+2);
 		attribute = tvb_get_guint8(tvb, offset+3);
-		op_AS_nu_high_oct = tvb_get_ntohs(tvb, offset+4);
 		AS_number = tvb_get_ntohs(tvb, offset+6);
 
 		ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, FALSE);

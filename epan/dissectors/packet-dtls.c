@@ -611,12 +611,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   guint8 next_byte;
   proto_tree *ti;
   proto_tree *dtls_record_tree;
-  guint32 available_bytes;
   SslAssociation* association;
   SslDataInfo *appl_data;
   ti              = NULL;
   dtls_record_tree = NULL;
-  available_bytes = tvb_length_remaining(tvb, offset);
 
   /*
    * Get the record layer fields of interest

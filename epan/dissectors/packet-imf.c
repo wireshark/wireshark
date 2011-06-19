@@ -481,7 +481,6 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint   max_length;
   guint8 *key;
   gboolean last_field = FALSE;
-  gboolean dissected = FALSE;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
 
@@ -608,7 +607,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb = tvb_new_subset_remaining(tvb, end_offset);
 
-    dissected = dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
+    dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
 
     pinfo->private_data = pd_save;
   } else {

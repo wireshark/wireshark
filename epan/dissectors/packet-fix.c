@@ -235,7 +235,6 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char *value;
     char *tag_str;
     fix_parameter *tag;
-    int check_sum = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
@@ -355,7 +354,6 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     for (j = 0; j < field_offset; j++, data++) {
                          sum += *data;
                     }
-                    check_sum = 1;
                     sum_ok = (atoi(value) == sum);
                     if (sum_ok) {
                         item = proto_tree_add_string_format_value(fix_tree, fix_fields[i].hf_id, tvb, field_offset, tag->field_len,

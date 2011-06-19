@@ -310,14 +310,12 @@ static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
 static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
-	guint8 flags;
 	proto_item *ti;
 	proto_tree *flag_tree;
 
 	offset = dissect_grrtetc(tree, tvb, offset);
 
 	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, FALSE);
-	flags = tvb_get_guint8(tvb, offset);
 	flag_tree = proto_item_add_subtree(ti, ett.flags);
 	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, FALSE);
 	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, FALSE);

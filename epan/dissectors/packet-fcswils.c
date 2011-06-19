@@ -1156,17 +1156,12 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
     proto_tree *dev_tree;
-    int addrfmt, evtype;
     int numrec, i;
     proto_item *subti;
 
     if (rscn_tree) {
         if (!isreq)
             return;
-
-        evtype = tvb_get_guint8 (tvb, offset+4);
-        addrfmt = evtype & 0x0F;
-        evtype = evtype >> 4;
 
         proto_tree_add_item (rscn_tree, hf_swils_rscn_evtype, tvb, offset+4,
                              1, 0);

@@ -3613,7 +3613,6 @@ static void
 dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
 
-  guint8 application_transport_instruction_ind;
   guint8 si_and_apm_seg_ind;
   guint8 apm_Segmentation_local_ref = 0;
   guint16 aci16;
@@ -3647,7 +3646,6 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
   /* Octet 2 */
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport instruction indicators: ");
-  application_transport_instruction_ind = tvb_get_guint8(parameter_tvb, offset);
   proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
   proto_tree_add_item( parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, FALSE );
   proto_tree_add_item( parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, FALSE );

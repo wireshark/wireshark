@@ -387,8 +387,7 @@ static void
 dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, fcp_conv_data_t *fcp_conv_data)
 {
     int offset = 0;
-    int len,
-        add_len = 0;
+    int add_len = 0;
     guint8 flags, rwflags, lun0;
     guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
@@ -401,11 +400,6 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if (flags) {
         add_len = tvb_get_guint8 (tvb, offset+11) & 0x7C;
         add_len = add_len >> 2;
-
-        len = FCP_DEF_CMND_LEN + add_len;
-    }
-    else {
-        len = FCP_DEF_CMND_LEN;
     }
 
     hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);

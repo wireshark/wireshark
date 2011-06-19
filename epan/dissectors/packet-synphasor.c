@@ -650,7 +650,7 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	proto_item *temp_item;
 
 	gint	offset = 0;
-	guint16 framesize, idcode;
+	guint16 framesize;
 
 	/* SYNC and flags */
 	temp_item = proto_tree_add_item(tree, hf_sync, tvb, offset, 2, FALSE);
@@ -665,7 +665,7 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 
 	/* IDCODE */
 	proto_tree_add_item(tree, hf_idcode, tvb, offset, 2, FALSE);
-	idcode = tvb_get_ntohs(tvb, offset); offset += 2;
+	offset += 2;
 
 	/* SOC */
 	{

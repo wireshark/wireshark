@@ -619,7 +619,6 @@ static int
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8      eap_code;
-  guint8      eap_id;
   guint16     eap_len;
   guint8      eap_type;
   gint        len;
@@ -705,8 +704,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if (eap_code == EAP_FAILURE)
     conversation_state->leap_state = -1;
-
-  eap_id = tvb_get_guint8(tvb, 1);
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;

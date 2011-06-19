@@ -466,12 +466,10 @@ static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    gint data_len;
     guint32 flags;
     proto_item *flags_item = NULL;
     proto_tree *flags_tree = NULL;
 
-    data_len = tvb_get_letohl(tvb, offset);
     flags = tvb_get_letohl(tvb, offset+4);
 
     proto_tree_add_item(tree, hf_dplay_sess_desc_length, tvb, offset, 4, TRUE); offset += 4;
@@ -1013,11 +1011,9 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 message_type;
     guint16 second_message_type = G_MAXUINT16;
     guint16 proto_version;
-    guint16 packet_size;
     guint32 dplay_id;
     guint8 play_id[] = {'p','l','a','y'};
 
-    packet_size = tvb_get_letohs(tvb, 0);
     dplay_id = tvb_get_letohl(tvb, 20);
     message_type = tvb_get_letohs(tvb, 24);
     proto_version = tvb_get_letohs(tvb, 26);

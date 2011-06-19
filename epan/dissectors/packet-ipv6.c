@@ -1036,15 +1036,12 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     gint padding;
     proto_tree *opt_tree;
     proto_item *ti;
-    guint8 tmp[2];
     const gchar *ctype;
 
 
     p = offset;
 
-    tmp[0] = tvb_get_guint8(tvb, p++);
-    tmp[1] = tvb_get_guint8(tvb, p++);
-    p += 2;
+    p += 4;
 
     len = tvb_get_ntohs(tvb, offset+2);
     padding = 7 - ((len + 3) % 8);

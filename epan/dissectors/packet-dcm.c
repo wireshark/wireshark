@@ -6121,10 +6121,8 @@ dissect_dcm_pdv_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     gchar *tag_value = NULL;
     gboolean dummy = FALSE;
-    guint32 startpos = 0;
     guint32 endpos = 0;
 
-    startpos = offset;
     endpos = offset + pdv_body_len;
 
     if (pdv->syntax == DCM_UNK) {

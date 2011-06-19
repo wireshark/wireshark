@@ -1858,12 +1858,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			if (tree) {
 				int channel;
-				guint8 maxpower;
 
 				flags = tvb_get_letohl(tvb, offset);
 				freq = tvb_get_letohs(tvb, offset + 4);
 				channel = tvb_get_guint8(tvb, offset + 6);
-				maxpower = tvb_get_guint8(tvb, offset + 7);
 				proto_tree_add_uint(radiotap_tree,
 						    hf_radiotap_xchannel,
 						    tvb, offset + 6, 1,

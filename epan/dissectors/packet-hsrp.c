@@ -454,7 +454,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		        offset2 = offset;
                         if (type == 1 && len == 40) {
                                 /* Group State TLV */
-                                guint8 version,opcode, state = 0, ipver;
+                                guint8 opcode, state = 0, ipver;
                                 guint32 hellotime, holdtime;
                                 proto_tree *group_state_tlv;
 
@@ -464,7 +464,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 }
 				offset+=2;
 
-                                version = tvb_get_guint8(tvb, offset);
                                 opcode = tvb_get_guint8(tvb, offset+1);
                                 if (check_col(pinfo->cinfo, COL_INFO)) {
                                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s",

@@ -4997,7 +4997,6 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree   *tn3270_tree;
   proto_item   *ti;
   gint         offset = 0;
-  gint         tn3270_cmd = 0;
   conversation_t *conversation;
   tn3270_conv_info_t *tn3270_info = NULL;
 
@@ -5026,7 +5025,6 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += dissect_tn3270e_header(tn3270_tree, tvb, offset);
     }
     while (tvb_offset_exists(tvb, offset)) {
-      tn3270_cmd = tvb_get_guint8(tvb, offset);
       if (pinfo->srcport == tn3270_info->outbound_port) {
         col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data from Mainframe");
         offset += dissect_outbound_stream(tn3270_tree, tvb, offset);

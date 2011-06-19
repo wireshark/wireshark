@@ -209,11 +209,9 @@ static void
 dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tree)
 {
 	guint8 message_type;
-	guint8 offset = 0;
 
 	/* Extract the message type;  all other processing is based on this */
 	message_type   = tvb_get_guint8(tvb, SCCPMG_MESSAGE_TYPE_OFFSET);
-	offset = SCCPMG_MESSAGE_TYPE_LENGTH;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));

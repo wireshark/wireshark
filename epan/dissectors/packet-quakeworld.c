@@ -203,8 +203,6 @@ Cmd_TokenizeString(char* text)
 {
 	int i;
 	int start;
-	int length;
-
 
 	/* clear the args from the last string */
 	for (i=0 ; i<cmd_argc ; i++)
@@ -220,8 +218,6 @@ Cmd_TokenizeString(char* text)
 			text++;
 			start++;
 		}
-
-		length = 0;
 
 		if (*text == '\n') {
 			/* a newline seperates commands in the buffer */

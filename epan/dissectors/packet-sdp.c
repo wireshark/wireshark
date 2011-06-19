@@ -1490,7 +1490,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_item *fmtp_item, *media_format_item;
   proto_tree *fmtp_tree;
   gint offset, next_offset, tokenlen, n, colon_offset;
-  gint start_offset;
   /*??guint8 *field_name;*/
   guint8 *payload_type;
   guint8 *attribute_value;
@@ -1562,7 +1561,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
     tokenlen = next_offset - offset;
 
-    start_offset = offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 
