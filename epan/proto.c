@@ -3839,21 +3839,25 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 u_integer = fvalue_get_uinteger(&finfo->value);
                                 if (hfinfo->strings) {
                                         if (hfinfo->display & BASE_RANGE_STRING) {
-                                                offset_r += (int)g_strlcpy(result+offset_r, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset_r);
+                                                g_strlcpy(result+offset_r, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                offset_r += (int)g_strlcpy(result+offset_r, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset_r);
+                                                g_strlcpy(result+offset_r, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset_r);
                                         } else {
-                                                offset_r += (int)g_strlcpy(result+offset_r, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size-offset_r);
+                                                g_strlcpy(result+offset_r, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size-offset_r);
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset_r, size-offset_r, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
-                                        offset_r = (int)strlen(result);
                                 } else {
                                         g_snprintf(result+offset_r, size-offset_r, hfinfo_uint_value_format(hfinfo), u_integer);
-                                        offset_r = (int)strlen(result);
                                 }
 
-                                g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
+                                if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+                                        g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
+                                } else {
+                                        g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
+                                }
+
+                                offset_r = (int)strlen(result);
                                 offset_e = (int)strlen(expr);
                                 break;
 
@@ -3873,21 +3877,25 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 integer = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->strings) {
                                         if (hfinfo->display & BASE_RANGE_STRING) {
-                                                offset_r += (int)g_strlcpy(result+offset_r, rval_to_str(integer, hfinfo->strings, "%d"), size-offset_r);
+                                                g_strlcpy(result+offset_r, rval_to_str(integer, hfinfo->strings, "%d"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                offset_r += (int)g_strlcpy(result+offset_r, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset_r);
+                                                g_strlcpy(result+offset_r, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset_r);
                                         } else {
-                                                offset_r += (int)g_strlcpy(result+offset_r, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size-offset_r);
+                                                g_strlcpy(result+offset_r, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size-offset_r);
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset_r, size-offset_r, hfinfo_int_value_format(hfinfo), integer, integer);
-                                        offset_r = (int)strlen(result);
                                 } else {
                                         g_snprintf(result+offset_r, size-offset_r, hfinfo_int_value_format(hfinfo), integer);
-                                        offset_r = (int)strlen(result);
                                 }
 
-                                g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_sinteger(&finfo->value));
+                                if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+                                        g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
+                                } else {
+                                        g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_sinteger(&finfo->value));
+                                }
+
+                                offset_r = (int)strlen(result);
                                 offset_e = (int)strlen(expr);
                                 break;
 
