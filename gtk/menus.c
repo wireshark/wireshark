@@ -4101,16 +4101,17 @@ gboolean    enabled = FALSE;
  *
  * @param callback_data data for callback function
  */
+#ifdef MAIN_MENU_USE_UIMANAGER
 void
 register_stat_menu_item(
-    const char *name,
-    register_stat_group_t group,
-    GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
-    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
-    gpointer callback_data)
+    const char *name _U_,
+    register_stat_group_t group _U_,
+    GtkItemFactoryCallback callback _U_,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data) _U_,
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data) _U_,
+    gpointer callback_data _U_)
 {
-#ifdef MAIN_MENU_USE_UIMANAGER
+
 #if 0
 register_stat_menu_item_stock(
 		group,
@@ -4127,6 +4128,15 @@ register_stat_menu_item_stock(
         callback_data);
 #endif
 #else
+void
+register_stat_menu_item(
+    const char *name,
+    register_stat_group_t group,
+    GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
+    gpointer callback_data)
+{
     register_stat_menu_item_stock(
         name,
         group,
