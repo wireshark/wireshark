@@ -3,88 +3,29 @@ $Id$
 This file tries to help building Wireshark for Mac OS X (Wireshark does
 not work on earlier versions of Mac OS).
 
-In order to build Wireshark, you must have X11 and the X11 developer
-headers and libraries installed; otherwise, you will not be able to
-build or install GTK+, and will only be able to build TShark.  The X11
-and X11 SDK that come with Mac OS X releases starting with Panther are
-sufficient to build and run Wireshark.
+You must have the developer tools installed.  They should be available
+on the install DVD.  [Insert details here.]
 
-The changes to enable libwiretap and libwireshark being built as shared
-libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
-GTK+ 1.x release tarballs were built with an older version of libtool
-that didn't support shared libraries on Mac OS X, so you can't build and
-install them as shared libraries, but the shared-library build of
-Wireshark requires GLib and GTK+, on Mac OS X, to be shared libraries. 
-The alternative to build Wireshark as one big statically linked binary
-isn't working either (and may never have worked on this OS).
+You must have X11 and the X11 developer headers and libraries installed;
+otherwise, you will not be able to build or install GTK+, and will only
+be able to build TShark.  The X11 and X11 SDK that come with Mac OS X
+releases starting with Panther can be used to build and run Wireshark.
 
-The way out of this situation is to use gtk2 and associated libraries
-which is known to work in this constellation:
+You must also have GLib and, if you want to build Wireshark as well as
+TShark, GTK+.  See
 
-        GLib 2.4.0
-        Pango 1.4.0
-        GTK+ 2.4.0
-        ATK 1.6.0
+	https://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 
-and the corresponding dependency, which you can download from the
-"dependencies" subdirectory of the GTK+ download directory on the GTK+
-FTP site:
+for information on how to install GLib, GTK+'s dependencies, GTK+, and
+some additional optional support libraries from source.
+from source
 
-	pkg-config
+If you are building from a Subversion tree, rather than from a source
+distribution tarball, run the autogen.sh script.  This should not be
+necessary if you're building from a source distribution tarball, unless
+you've added new source files to the Wireshark source.
 
-as well as GNU gettext, which isn't included in the directory of
-dependencies on the GTK+ FTP site.
-
-GTK+ can also be configured to include code to load various sorts of
-images.  To do so, you would also need the following dependencies, also
-available from the "dependencies" subdirectory of the GTK+ download
-directory:
-
-	jpegsrc
-	libpng
-	tiff
-
-However, on Tiger and later releases, it appears that the libraries
-built and installed by those packages collide with libraries that come
-with the OS, so you might have to configure GTK+ not to support loading
-those images (Wireshark doesn't use the ability to load JPEG, PNG, or
-TIFF images), by using the "--without-libpng", "--without-libjpeg", and
-"---without-libtiff" flags when running "configure" in the GTK+ source
-directory.
-
-NOTE: you must set the PKG_CONFIG_PATH environment variable to include
-"/usr/X11R6/lib/pkgconfig" (unless you've already set it, set it to
-"/usr/X11R6/lib/pkgconfig") before running the Pango configuration
-script, so that it can be configured to use the version of fontconfig
-that comes with Mac OS X's X11. This is also needed for the GTK+
-configuration.
-
-NOTE: you must install the pkg-config dependency first; unless it is
-installed, you cannot configure GLib or GTK+.  After that, you must
-install GNU gettext; only after both of those have been built and
-installed will you be able to configure GLib.  After configuring and
-installing GLib, configure, build, and install Pango, ATK, jpegsrc,
-libpng, tiff, and GTK+, in order.  (The exact order might not be
-important, but you must configure, build, and install Pango and ATK
-before configuring GTK+ and, if you want GTK+ to be able to use the
-capabilities from the other libraries, you must configure, build, and
-install them before configuring GTK+.)
-
-You will need to do "make install-lib" for the JPEG library to install
-its libraries - "make install" does not suffice.  You will also have to
-do "sudo ranlib /usr/local/lib/libjpeg.a" after "make install-lib".
-
-For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
-
-Finally run the configure script. By default it will use
-the GLib2 and GTK+2 libraries. If you run Wireshark's configure script
-with the "--disable-gtk2" argument it'll try to configure with GLib
-1.2[.x] and GTK+ 1.2[.x], in which case:
-
-	if they're not installed, the configure script will fail;
-
-	if they are installed, the configure script will configure
-	Wireshark to build with them.
+Then run the configure script, and run make to build Wireshark.
 
 If you upgrade the major release of Mac OS X on which you are building
 Wireshark, we advise that, before you do any builds after the upgrade,
