@@ -3608,6 +3608,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8  th_off_x2; /* combines th_off and th_x2 */
     guint16 th_sum;
+    guint32 ack;
     guint16 th_urp;
     proto_tree *tcp_tree = NULL, *field_tree = NULL;
     proto_item *ti = NULL, *tf, *hidden_item;
@@ -3868,18 +3869,25 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_GENERATED(tf);
             }
         }
+
         if (tcph->th_flags & TH_ACK) {
-            if(tcp_relative_seq){
+            if (tcp_relative_seq){
                 proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack, "Acknowledgement number: %u    (relative ack number)", tcph->th_ack);
             } else {
                 proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
             }
         } else {
             /* Verify that the ACK field is zero */
-            if(tvb_get_ntohl(tvb, offset+8) != 0){
-                proto_tree_add_text(tcp_tree, tvb, offset+8, 4,"Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
+            ack = tvb_get_ntohl(tvb, offset+8);
+            if (ack != 0){
+                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, ack,
+                           "Acknowledgement Number: 0x%08x [should be 0x00000000 because ACK flag is not set]",
+                           ack);
+                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+                    "Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
             }
         }
+
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
@@ -4105,8 +4113,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
+    th_urp = tvb_get_ntohs(tvb, offset + 18);
     if (tcph->th_flags & TH_URG) {
-        th_urp = tvb_get_ntohs(tvb, offset + 18);
         /* Export the urgent pointer, for the benefit of protocols such as
            rlogin. */
         tcpinfo.urgent = TRUE;
@@ -4114,8 +4122,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, " Urg=%u", th_urp);
         if (tcp_tree != NULL)
             proto_tree_add_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp);
-    } else
+    } else {
         tcpinfo.urgent = FALSE;
+        if (th_urp) {
+            if (tcp_tree != NULL) {
+                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp,
+                                                  "Urgent Pointer: 0x%04x [should be 0x0000 because URG flag is not set]",
+                                                  th_urp);
+                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+                    "Urgent Pointer: Broken TCP. The urgent pointer field is nonzero while the URG flag is not set");
+            }
+        }
+    }
+
 
     if (tcph->th_have_seglen) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
