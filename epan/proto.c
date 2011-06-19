@@ -6708,6 +6708,7 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo)
 	} else {
 		/* Get the underlying BASE_ value */
 		switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+			case BASE_NONE:
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
