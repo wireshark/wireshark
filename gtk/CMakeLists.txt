@@ -78,7 +78,7 @@ set(WIRESHARK_GTK_SRC
 	main_welcome.c
 	manual_addr_resolv.c
 	mcast_stream.c
-	# menus.c
+	menus.c
 	new_packet_list.c
 	packet_history.c
 	packet_list_store.c
@@ -237,7 +237,6 @@ register_tap_files(wireshark-tap-register.c
 
 add_library(ui STATIC
 	${WIRESHARK_GTK_SRC}
-	menus.c
 	${WIRESHARK_TAP_SRC}
 	wireshark-tap-register.c
 )

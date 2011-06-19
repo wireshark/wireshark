@@ -4149,6 +4149,7 @@ register_stat_menu_item(
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
+#if 0
 static void
 add_menu_item(menu_item_t *node_data){
     GtkActionGroup *action_group = NULL;
@@ -4198,6 +4199,7 @@ add_menu_item(menu_item_t *node_data){
                FALSE);
 
 }
+#endif
 
 static guint merge_tap_menus_layered(GList *node, gint group) {
     /*GtkItemFactoryEntry *entry;*/
@@ -4280,7 +4282,6 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 
     return added;
 }
-
 #else
 static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
