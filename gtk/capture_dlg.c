@@ -2162,7 +2162,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Create the capture filter combo box*/
 #if GTK_CHECK_VERSION(2,24,0)
-  filter_cm = gtk_combo_box_new_with_entry ();
+  filter_cm = gtk_combo_box_text_new_with_entry ();
 #else
   filter_cm = gtk_combo_box_entry_new_text ();
 #endif
