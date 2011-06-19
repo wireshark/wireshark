@@ -40,7 +40,7 @@ you do, in the build directory:
 
 Then re-run the configure script and rebuild from scratch.
 
-On Snow Leopard, if you are building on a machine with a 64-bit
+On Snow Leopard (10.6), if you are building on a machine with a 64-bit
 processor (with the exception of the early Intel Core Duo and Intel Core
 Solo machines, all Apple machines with Intel processors have 64-bit
 processors), the C/C++/Objective-C compiler will build 64-bit by
@@ -51,7 +51,7 @@ This means that you will, by default, get a 64-bit version of Wireshark.
 One consequence of this is that, if you built and installed any required
 or optional libraries for Wireshark on an earlier release of Mac OS X,
 those are probably 32-bit versions of the libraries, and you will need
-to un-install them and rebuild them on Snow Leopard, to get 64-bit
+to un-install them and rebuild them on Snow Leopard (10.6), to get 64-bit
 versions.
 
 Some required and optional libraries require special attention if you
@@ -75,9 +75,9 @@ assembler-language routines, which will fail.  The workaround for this
 is to run the configure script with the --disable-asm argument, so that
 the assembler-language routines are not used.
 
-PortAudio - when compiling on Darwin (e.g., on Mac OS X), the configure
-script for the pa_stable_v19_20071207 version of PortAudio will cause
-certain platform-dependent build environment #defines to be set in the
+PortAudio - when compiling on Mac OS X, the configure script for the
+pa_stable_v19_20071207 version of PortAudio will cause certain
+platform-dependent build environment #defines to be set in the
 Makefile rules, and to cause a universal build to be done; those
 #defines will be incorrect for all but one of the architectures for
 which the build is being done, and that will cause a compile-time error
