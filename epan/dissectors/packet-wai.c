@@ -42,7 +42,7 @@
 #include <epan/reassemble.h>
 
 #define WAI_SUB_PRE_AUTHENTICATION	0x01	/* pre-authentication start */
-#define WAI_SUB_STAKEY_REQ			0x02	/* STAKey request */
+#define WAI_SUB_STAKEY_REQ		0x02	/* STAKey request */
 #define WAI_SUB_AUTH_ACTIVATION		0x03	/* authentication activation */
 #define WAI_SUB_ACCESS_AUTH_REQ		0x04	/* access authentication request */
 #define WAI_SUB_ACCESS_AUTH_RESP	0x05	/* access authentication response */
@@ -826,7 +826,6 @@ Figure 18 from [ref:1]
 #define WAI_MESSAGE_LENGTH	12 /*Length of all fields without 'Data' field*/
 #define WAI_DATA_OFFSET 	WAI_MESSAGE_LENGTH
     guint16		version;
-    guint8		type;
     guint8		subtype;
     guint16		length;
     guint16		packet_num;
@@ -856,7 +855,6 @@ Figure 18 from [ref:1]
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", subtype_name);
 
     /* Field lengths and offsets in WAI protocol described above */
-    type = tvb_get_guint8(tvb, 2);
     packet_num = tvb_get_ntohs(tvb, 8);
     fragment_num = tvb_get_guint8(tvb, 10);
     flags = tvb_get_guint8(tvb, 11);

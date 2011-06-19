@@ -84,24 +84,23 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	user_encap_t* encap = NULL;
 	tvbuff_t* payload_tvb;
 	proto_item* item;
-	int offset = 0;
 	int len;
 	guint i;
-	
+
 	for (i = 0; i < num_encaps; i++) {
 		if (encaps[i].encap == pinfo->match_uint) {
 			encap = &(encaps[i]);
 			break;
 		}
 	}
-	
+
 	item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,FALSE);
 	if (!encap) {
 		char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, check your Preferences->Protocols->DLT_USER",
 					     pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 		proto_item_set_text(item,"%s",msg);
 		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
-		
+
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return;
 	}
@@ -111,7 +110,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 					     pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 		proto_item_set_text(item,"%s",msg);
 		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
-		
+
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return;
 	}
@@ -119,11 +118,10 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 
 	len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
-	
+
 	if (encap->header_size) {
 		tvbuff_t* hdr_tvb = tvb_new_subset(tvb, 0, encap->header_size, encap->header_size);
 		call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
-		offset = encap->header_size;
 		if (encap->header_proto_name) {
 			const char *proto_name = dissector_handle_get_long_name(find_dissector(encap->header_proto_name));
 			if (proto_name) {
@@ -131,7 +129,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 			}
 		}
 	}
-	
+
 	payload_tvb = tvb_new_subset(tvb, encap->header_size, len, len);
 	call_dissector(encap->payload_proto, payload_tvb, pinfo, tree);
 	if (encap->payload_proto_name) {
@@ -144,7 +142,6 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	if (encap->trailer_size) {
 		tvbuff_t* trailer_tvb = tvb_new_subset(tvb, encap->header_size + len, encap->trailer_size, encap->trailer_size);
 		call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
-		offset = encap->trailer_size;
 		if (encap->trailer_proto_name) {
 			const char *proto_name = dissector_handle_get_long_name(find_dissector(encap->trailer_proto_name));
 			if (proto_name) {
@@ -154,7 +151,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	}
 }
 
-static void* user_copy_cb(void* dest, const void* orig, size_t len _U_) 
+static void* user_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
   const user_encap_t *o = orig;
   user_encap_t *d = dest;
@@ -186,10 +183,10 @@ void proto_reg_handoff_user_encap(void)
 {
 	dissector_handle_t user_encap_handle;
 	guint i;
-	
+
 	user_encap_handle = find_dissector("user_dlt");
 	data_handle = find_dissector("data");
-	
+
 	for (i = WTAP_ENCAP_USER0 ; i <= WTAP_ENCAP_USER15; i++)
 		dissector_add_uint("wtap_encap", i, user_encap_handle);
 
@@ -209,12 +206,12 @@ void proto_register_user_encap(void)
 		UAT_FLD_PROTO(user_encap,trailer_proto,"Trailer protocol","Protocol to be used for the trailer (empty = data)"),
 		UAT_END_FIELDS
 	};
-	
-	
+
+
 	proto_user_encap = proto_register_protocol("DLT User","DLT_USER","user_dlt");
-	
+
 	module = prefs_register_protocol(proto_user_encap, NULL);
-	
+
 	encaps_uat = uat_new("User DLTs Table",
 						 sizeof(user_encap_t),
 						 "user_dlts",
@@ -228,14 +225,14 @@ void proto_register_user_encap(void)
 						 user_free_cb,
                                                  NULL,
 						 user_flds );
-	
+
 	prefs_register_uat_preference(module,
 				      "encaps_table",
 				      "Encapsulations Table",
 				      "A table that enumerates the various protocols to be used against a certain user DLT",
 				      encaps_uat);
-	
-	
+
+
 	register_dissector("user_dlt",dissect_user,proto_user_encap);
 
 	/*

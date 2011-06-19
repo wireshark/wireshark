@@ -52,7 +52,7 @@
  *		close-delimiter   := delimiter "--"
  *		body-part         := MIME-part-headers [ line-end *OCTET ]
  *		transport-padding := *LWSP-char
- * 
+ *
  * Note that line-end is often a LF instead of a CRLF.
 */
 
@@ -193,7 +193,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
  *		o Remove LWS before and after a separator
  *		o Remove trailing LWS
  *		o Replace other LWS with a single space
- * Set value to the start of the value 
+ * Set value to the start of the value
  * Return the cleaned-up RFC2822 header (buffer must be freed).
  */
 static char *
@@ -331,7 +331,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
 
 		while ((*p) && isspace((guchar)*p))
 			p++; /* Skip white space */
-		
+
 		if (g_ascii_strncasecmp(p, key, keylen) == 0)
 			break;
 		/* Skip to next parameter */
@@ -385,7 +385,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
 /* Retrieve the media information from pinfo->private_data,
  * and compute the boundary string and its length.
  * Return a pointer to a filled-in multipart_info_t, or NULL on failure.
- * 
+ *
  * Boundary delimiters must not appear within the encapsulated material,
  * and must be no longer than 70 characters, not counting the two
  * leading hyphens. (quote from rfc2046)
@@ -417,7 +417,7 @@ get_multipart_info(packet_info *pinfo)
 		g_free(parameters);
 		return NULL;
 	}
-	
+
 	/*
 	 * There is a value for the boundary string
 	 */
@@ -614,7 +614,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		char *hdr_str;
 		char *header_str;
 
-		/* Look for the end of the header (denoted by cr) 
+		/* Look for the end of the header (denoted by cr)
 		 * 3:d argument to imf_find_field_end() maxlen; must be last offset in the tvb.
 		 */
 		next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset)+offset, &last_field);
@@ -675,7 +675,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
 							/* Show content-type in root 'part' label */
 							proto_item_append_text(ti, " (%s)", content_type_str);
-							
+
 							/* find the "name" parameter in case we don't find a content disposition "filename" */
 							if((typename = find_parameter(parameters, "name=", &len)) != NULL) {
 							  typename = g_strndup(typename, len);
@@ -734,9 +734,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 			void *save_private_data = pinfo->private_data;
 			gboolean dissected;
 
-			/* 
+			/*
 			 * Try and remove any content transfer encoding so that each sub-dissector
-			 * doesn't have to do it itself 
+			 * doesn't have to do it itself
 			 *
 			 */
 
@@ -812,7 +812,6 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 	gint header_start = 0;
 	guint8 *boundary;
 	gint boundary_len;
-	gint offset = 0;
 	gboolean last_boundary = FALSE;
 
 	if (m_info == NULL) {
@@ -851,8 +850,6 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 	 */
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_fence(pinfo->cinfo, COL_INFO);
-
-	offset = 0;
 
 	/*
 	 * Process the multipart preamble

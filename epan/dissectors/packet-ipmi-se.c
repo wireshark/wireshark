@@ -302,7 +302,7 @@ static gint hf_ipmi_se_XX_b4_0 = -1;
 
 static gint hf_ipmi_se_28_sensor = -1;
 static gint hf_ipmi_se_28_fl_evm = -1;
-static gint hf_ipmi_se_28_fl_scan = -1;			
+static gint hf_ipmi_se_28_fl_scan = -1;
 static gint hf_ipmi_se_28_fl_action = -1;
 
 static gint hf_ipmi_se_29_sensor = -1;
@@ -2219,9 +2219,7 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_se_10_action_oem_filter, &hf_ipmi_se_10_action_diag_intr,
 		&hf_ipmi_se_10_action_oem_action, &hf_ipmi_se_10_action_pwr_cycle, &hf_ipmi_se_10_action_reset,
 		&hf_ipmi_se_10_action_pwr_down, &hf_ipmi_se_10_action_alert, NULL };
-	guint8 v;
 
-	v = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_se_10_pef_version, tvb, 0, 1, TRUE);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Action support: ", "None", ett_ipmi_se_10_action,
 			byte2, TRUE, 0);
@@ -2260,7 +2258,7 @@ rq12(tvbuff_t *tvb, proto_tree *tree)
 	tvbuff_t *sub;
 	guint8 pno;
 	const char *desc;
-	
+
 	pno = tvb_get_guint8(tvb, 0) & 0x7f;
 	if (pno < array_length(conf_params)) {
 		desc = conf_params[pno].name;
@@ -2312,7 +2310,7 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	pno &= 0x7f;
-	
+
 	if (pno < array_length(conf_params)) {
 		desc = conf_params[pno].name;
 	} else if (pno >= 96 && pno <= 127) {
@@ -2463,7 +2461,7 @@ static void
 rs16(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint32 val;
-	
+
 	if (ipmi_getsaveddata(0, &val) && val == 0x01) {
 		/* Operation == Get Alert Immediate Status */
 		proto_tree_add_item(tree, hf_ipmi_se_16_status, tvb, 0, 1, TRUE);
@@ -3497,7 +3495,7 @@ ipmi_register_se(gint proto_ipmi)
 		{ &hf_ipmi_se_28_fl_evm,
 			{ "Event Messages",
 				"ipmi.se28.fl_evm", FT_BOOLEAN, 8, TFS(&tfs_28_enable), 0x80, NULL, HFILL }},
-		{ &hf_ipmi_se_28_fl_scan,			
+		{ &hf_ipmi_se_28_fl_scan,
 			{ "Scanning",
 				"ipmi.se28.fl_scan", FT_BOOLEAN, 8, TFS(&tfs_28_enable), 0x40, NULL, HFILL }},
 		{ &hf_ipmi_se_28_fl_action,
