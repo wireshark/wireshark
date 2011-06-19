@@ -129,6 +129,8 @@ void gtk_udpip_hostlist_cb(GtkAction *action, gpointer user_data);
 void gtk_usb_hostlist_cb(GtkAction *action, gpointer user_data);
 void gtk_wlan_hostlist_cb(GtkAction *action, gpointer user_data);
 
+void gtk_rpcstat_cb(GtkAction *action, gpointer user_data);
+
 void flow_graph_launch(GtkAction *action, gpointer user_data);
 
 void iax2_analysis_cb(GtkAction *action, gpointer user_data);
