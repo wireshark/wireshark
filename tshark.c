@@ -818,7 +818,11 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   gboolean             quiet = FALSE;
+#ifdef PCAP_NG_DEFAULT
+  int                  out_file_type = WTAP_FILE_PCAPNG;
+#else
   int                  out_file_type = WTAP_FILE_PCAP;
+#endif
   gboolean             out_file_name_res = FALSE;
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -1525,8 +1529,8 @@ main(int argc, char *argv[])
       if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
 
-        /* When capturing, we only support writing libpcap format. */
-        if (out_file_type != WTAP_FILE_PCAP) {
+        /* When capturing, we only support writing pcap or pcap-ng format. */
+        if (out_file_type != WTAP_FILE_PCAP && out_file_type != WTAP_FILE_PCAPNG) {
           cmdarg_err("Live captures can only be saved in libpcap format.");
           return 1;
         }
@@ -2621,7 +2625,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
 
+#ifdef PCAP_NG_DEFAULT
+  linktype = WTAP_ENCAP_PER_PACKET;
+#else
   linktype = wtap_file_encap(cf->wth);
+#endif
   if (save_file != NULL) {
     /* Get a string that describes what we're writing to */
     save_file_string = output_file_description(save_file);
@@ -2646,7 +2654,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
         cmdarg_err("The capture file being read can't be written in "
-          "that format.");
+          "the format \"%s\".", wtap_encap_short_string(linktype));
         break;
 
       case WTAP_ERR_CANT_OPEN:

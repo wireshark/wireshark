@@ -152,7 +152,11 @@ main(int argc, char *argv[])
   gboolean     verbose       = FALSE;
   int          in_file_count = 0;
   guint        snaplen = 0;
-  int          file_type = WTAP_FILE_PCAP;	/* default to libpcap format */
+#ifdef PCAP_NG_DEFAULT
+  int          file_type = WTAP_FILE_PCAPNG;	/* default to pcap format */
+#else
+  int          file_type = WTAP_FILE_PCAP;	/* default to pcapng format */
+#endif
   int          frame_type = -2;
   int          out_fd;
   merge_in_file_t   *in_files      = NULL;

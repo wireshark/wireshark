@@ -123,7 +123,11 @@ struct time_adjustment {
 static struct select_item selectfrm[MAX_SELECTIONS];
 static int max_selected = -1;
 static int keep_em = 0;
-static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
+#ifdef PCAP_NG_DEFAULT
+static int out_file_type = WTAP_FILE_PCAPNG; /* default to pcapng   */
+#else
+static int out_file_type = WTAP_FILE_PCAP;   /* default to pcap     */
+#endif
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
