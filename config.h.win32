@@ -240,6 +240,9 @@
 #if _MSC_VER == 1500 || _MSC_VER == 1600
 #define NTDDI_VERSION NTDDI_WIN2K
 #define _WIN32_WINNT _WIN32_WINNT_WIN2K
+#else
+/* IsDebuggerPresent() needs this #define! */
+#define _WIN32_WINNT 0x0400
 #endif
 
 #define strncasecmp		strnicmp
