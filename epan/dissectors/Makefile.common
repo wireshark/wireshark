@@ -778,6 +778,7 @@ DISSECTOR_SRC = \
 	packet-ppi-geolocation-common.c	\
 	packet-ppi-gps.c	\
 	packet-ppi-vector.c	\
+	packet-ppi-sensor.c	\
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\

@@ -180,7 +180,7 @@ typedef enum {
     MOHAMED_THAGA_PRIVATE        = 30001,
     PPI_GPS_INFO                 = 30002, /* 30002 - 30005 described in PPI-GEOLOCATION specifcation */
     PPI_VECTOR_INFO              = 30003, /* currently available in draft from. jellch@harris.com */
-    PPI_HARRIS_TEST0             = 30004, /* 30004 is used for testing geolocation tag enhancements */
+    PPI_SENSOR_INFO              = 30004, 
     PPI_ANTENNA_INFO             = 30005,
     CACE_PRIVATE                 = 0xCACE
     /* All others RESERVED.  Contact the WinPcap team for an assignment */
@@ -320,7 +320,7 @@ static gint ett_8023_extension_errors = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_ht_handle;
-static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_harris_test_handle, ppi_antenna_handle;
+static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 
 
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
@@ -343,7 +343,7 @@ static const value_string vs_ppi_field_type[] = {
     {MOHAMED_THAGA_PRIVATE, "Mohamed Thaga (private)"},
     {PPI_GPS_INFO, "GPS Tagging"},
     {PPI_VECTOR_INFO, "Vector Tagging"},
-    {PPI_HARRIS_TEST0, "Harris geolocation-tag development"},
+    {PPI_SENSOR_INFO, "Sensor tagging"},
     {PPI_ANTENNA_INFO, "Antenna Tagging"},
     {CACE_PRIVATE, "CACE Technologies (private)"},
     {0, NULL}
@@ -855,17 +855,17 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
-        case PPI_HARRIS_TEST0:
-            if (ppi_harris_test_handle == NULL)
+        case PPI_SENSOR_INFO:
+            if (ppi_sensor_handle == NULL)
             {
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
                                     "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "HARRIS: "), data_len);
             }
             else /* we found a suitable dissector */
             {
-                /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA_ORIENTATION dissetor */
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated SENSOR dissetor */
                 next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
-                call_dissector(ppi_harris_test_handle, next_tvb, pinfo, ppi_tree);
+                call_dissector(ppi_sensor_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
         case PPI_ANTENNA_INFO:
@@ -1361,7 +1361,7 @@ proto_reg_handoff_ppi(void)
     ieee80211_ht_handle = find_dissector("wlan_ht");
     ppi_gps_handle = find_dissector("ppi_gps");
     ppi_vector_handle = find_dissector("ppi_vector");
-    ppi_harris_test_handle = find_dissector("ppi_harris_test");
+    ppi_sensor_handle = find_dissector("ppi_sensor");
     ppi_antenna_handle = find_dissector("ppi_antenna");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
