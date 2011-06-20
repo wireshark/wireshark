@@ -859,9 +859,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-pop.c
 	dissectors/packet-portmap.c
 	dissectors/packet-ppi.c
+	dissectors/packet-ppi-antenna.c
 	dissectors/packet-ppi-geolocation-common.c
 	dissectors/packet-ppi-geolocation-common.h
-	dissectors/packet-ppi-antenna.c
+	dissectors/packet-ppi-gps.c
+	dissectors/packet-ppi-sensor.c
 	dissectors/packet-ppp.c
 	dissectors/packet-pppoe.c
 	dissectors/packet-pptp.c
