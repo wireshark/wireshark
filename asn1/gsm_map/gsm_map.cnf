@@ -818,6 +818,42 @@ if (!actx->value_ptr)
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeographicalInformation);
 	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree);
 
+
+# APN ::=  OCTET STRING (SIZE (2..63))
+# Octets are coded according to TS 3GPP TS 23.003 
+# 9.1 Structure of APN
+# :
+# The APN consists of one or more labels. Each label is coded as a one octet length field followed by that number of
+# octets coded as 8 bit ASCII characters. Following RFC 1035 [19] the labels shall consist only of the alphabetic
+# characters (A-Z and a-z), digits (0-9) and the hyphen (-). Following RFC 1123 [20], the label shall begin and end with
+# either an alphabetic character or a digit. The case of alphabetic characters is not significant. The APN is not terminated
+# by a length byte of zero.
+#.FN_BODY APN VAL_PTR = &parameter_tvb
+    tvbuff_t	*parameter_tvb;
+    proto_tree	*subtree;
+    int			length, name_len, tmp;
+    guint8		*apn_str = NULL;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+                return offset;
+                
+    length = tvb_length(parameter_tvb);
+    name_len = tvb_get_guint8(parameter_tvb, 0);
+	apn_str = tvb_get_ephemeral_string(parameter_tvb, 1, length - 1);
+    if (name_len < length-1) {
+		for (;;) {
+			if (name_len >= length - 1)
+				break;
+			tmp = name_len;
+			name_len = name_len + apn_str[tmp] + 1;
+			apn_str[tmp] = '.';
+		}
+	}
+	proto_item_append_text(actx->created_item, " - %%s", apn_str);
+	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
+	proto_tree_add_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, apn_str);
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

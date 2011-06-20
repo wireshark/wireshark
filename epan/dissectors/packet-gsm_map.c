@@ -147,6 +147,7 @@ static int hf_gsm_map_ie_tag = -1;
 static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
 static int hf_gsm_map_dlci = -1;
+static int hf_gsm_apn_str = -1;
 
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
@@ -1578,7 +1579,7 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 144 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 145 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1603,6 +1604,7 @@ static gint ett_gsm_map_externalsignalinfo = -1;
 static gint ett_gsm_map_cbs_data_coding = -1;
 static gint ett_gsm_map_GlobalCellId = -1;
 static gint ett_gsm_map_GeographicalInformation = -1;
+static gint ett_gsm_map_apn_str = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -2180,7 +2182,7 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 170 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 172 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -7537,8 +7539,35 @@ dissect_gsm_map_ms_SGSN_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 832 "../../asn1/gsm_map/gsm_map.cnf"
+    tvbuff_t	*parameter_tvb;
+    proto_tree	*subtree;
+    int			length, name_len, tmp;
+    guint8		*apn_str = NULL;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (!parameter_tvb)
+                return offset;
+                
+    length = tvb_length(parameter_tvb);
+    name_len = tvb_get_guint8(parameter_tvb, 0);
+	apn_str = tvb_get_ephemeral_string(parameter_tvb, 1, length - 1);
+    if (name_len < length-1) {
+		for (;;) {
+			if (name_len >= length - 1)
+				break;
+			tmp = name_len;
+			name_len = name_len + apn_str[tmp] + 1;
+			apn_str[tmp] = '.';
+		}
+	}
+	proto_item_append_text(actx->created_item, " - %s", apn_str);
+	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
+	proto_tree_add_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, apn_str);
+
+
 
   return offset;
 }
@@ -13949,6 +13978,7 @@ dissect_gsm_map_lcs_Ext_GeographicalInformation(gboolean implicit_tag _U_, tvbuf
 
 
 
+
   return offset;
 }
 
@@ -16834,7 +16864,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 761 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 763 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -17046,7 +17076,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 772 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 774 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -17251,7 +17281,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 776 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 778 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -18939,6 +18969,10 @@ void proto_register_gsm_map(void) {
         { "DLCI", "gsm_map.disc_par",
           FT_UINT8, BASE_DEC, NULL, 0,
           "Data Link Connection Indicator", HFILL }},
+      { &hf_gsm_apn_str,
+        { "APN", "gsm_map.apn_str",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -24504,7 +24538,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2465 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2471 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -24531,6 +24565,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_cbs_data_coding,
     &ett_gsm_map_GlobalCellId,
     &ett_gsm_map_GeographicalInformation,
+	&ett_gsm_map_apn_str,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -25108,7 +25143,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2493 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2500 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25184,7 +25219,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2511 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2518 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

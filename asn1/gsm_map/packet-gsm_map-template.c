@@ -139,6 +139,7 @@ static int hf_gsm_map_ie_tag = -1;
 static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
 static int hf_gsm_map_dlci = -1;
+static int hf_gsm_apn_str = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -165,6 +166,7 @@ static gint ett_gsm_map_externalsignalinfo = -1;
 static gint ett_gsm_map_cbs_data_coding = -1;
 static gint ett_gsm_map_GlobalCellId = -1;
 static gint ett_gsm_map_GeographicalInformation = -1;
+static gint ett_gsm_map_apn_str = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -2460,6 +2462,10 @@ void proto_register_gsm_map(void) {
         { "DLCI", "gsm_map.disc_par",
           FT_UINT8, BASE_DEC, NULL, 0,
           "Data Link Connection Indicator", HFILL }},
+      { &hf_gsm_apn_str,
+        { "APN", "gsm_map.apn_str",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };
@@ -2488,6 +2494,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_cbs_data_coding,
     &ett_gsm_map_GlobalCellId,
     &ett_gsm_map_GeographicalInformation,
+	&ett_gsm_map_apn_str,
 
 #include "packet-gsm_map-ettarr.c"
   };
