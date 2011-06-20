@@ -62,7 +62,7 @@ static void edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_dat
 
 static GtkWidget* color_sel_win_new(color_filter_t *colorf, gboolean);
 static void color_sel_ok_cb(GtkButton *button, gpointer user_data);
-static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
+static void color_sel_cancel_cb(GObject *object, gpointer user_data);
 
 
 #define COLOR_FILTERS_CL        "color_filters_cl"
@@ -613,7 +613,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 /* Don't choose the selected color as the foreground or background
    color for the filter. */
 static void
-color_sel_cancel_cb                    (GtkObject       *object _U_,
+color_sel_cancel_cb                    (GObject        *object _U_,
                                         gpointer         user_data)
 {
   GtkWidget *color_dialog;

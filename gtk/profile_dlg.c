@@ -31,6 +31,9 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#if GTK_CHECK_VERSION(3,0,0)
+# include <gdk/gdkkeysyms-compat.h>
+#endif
 
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
