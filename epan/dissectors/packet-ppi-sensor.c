@@ -143,7 +143,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* used with ScaleFactor */
 gdouble base_10_expt(int power)
 {
-    gint64 ret = 1;
+    gdouble ret = 1;
     int provide_frac = 0;
 
     if (power == 0) /* likely*/
