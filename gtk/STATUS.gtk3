@@ -1,0 +1,26 @@
+Status of the GTK+ 3 port :
+===========================
+
+$Id$
+
+Take a look at the "Migrating from GTK+ 2.x to GTK+ 3" document at:
+http://developer.gnome.org/gtk3/stable/gtk-migrating-2-to-3.html
+
+There are two ways to make the Wireshark code gtk3 ready:
+
+1) CMake and configure options to build with gtk3 instead of gtk2:
+  cmake:     ENABLE_GTK3=ON
+  configure: --enable-gtk3
+  This will currently break the build and not gain much until the last
+  problem has been fixed. It will also require everyone interested in
+  working on this to have gtk3 installed.
+
+2) The compat flags:
+  -DGTK_DISABLE_SINGLE_INCLUDES
+  -DGSEAL_ENABLE
+  -DGDK_DISABLE_DEPRECATED
+  -DGTK_DISABLE_DEPRECATED
+  Gtk2 offers several compile time flags, so if you run a sufficiently new
+  version of gtk2 and turn on one or more of these flags, you can find many
+  things that are not gtk3 compatible yet. 
+
