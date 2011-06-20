@@ -99,7 +99,7 @@ static const value_string class_option_vals[] = {
 static int
 dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info _U_)
 {
-	guint8 class;
+	/*guint8 class;*/
 	gint len, next_offset;
 
 	/*DST-REF is always 0 */
@@ -110,7 +110,7 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	offset+=2;
 
 	/* class options */
-	class = tvb_get_guint8(tvb, offset);
+	/*class = tvb_get_guint8(tvb, offset);*/
 	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, FALSE);
 	offset+=1;
 

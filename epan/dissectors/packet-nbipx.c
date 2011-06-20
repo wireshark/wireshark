@@ -668,7 +668,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int		name_type;
 	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	int		node_name_type = 0;
+	/*int		node_name_type = 0;*/
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMPI");
@@ -689,7 +689,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	opcode = tvb_get_guint8(tvb, offset);
 	nmpi_name_type = tvb_get_guint8(tvb, offset+1);
 	name_type = get_netbios_name(tvb, offset+4, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
-	node_name_type = get_netbios_name(tvb, offset+20, node_name, (NETBIOS_NAME_LEN - 1)*4 + 1);
+	/*node_name_type = */get_netbios_name(tvb, offset+20, node_name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		switch (opcode) {

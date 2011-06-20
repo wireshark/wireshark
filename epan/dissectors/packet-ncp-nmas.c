@@ -282,7 +282,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
 void
 dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp_req_hash_value *request_value)
 {
-    guint8              func, subfunc = 0;
+    guint8              /*func,*/ subfunc;
     guint32             msg_length=0, cur_string_len=0;
     guint32             foffset;
     guint32             subverb=0;
@@ -292,7 +292,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     proto_item          *aitem;
 
     foffset = 6;
-    func = tvb_get_guint8(tvb, foffset);
+    /*func = tvb_get_guint8(tvb, foffset);*/
     foffset += 1;
     subfunc = tvb_get_guint8(tvb, foffset);
     foffset += 1;

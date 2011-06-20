@@ -1258,7 +1258,7 @@ static gint
 dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 	packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *DectTree, proto_tree *ColumnsTree)
 {
-	guint8 xcrc, xcrclen;
+	guint8 xcrc/*, xcrclen*/;
 	guint16 blen;
 	gint start_offset;
 	char *bfield_str;
@@ -1290,21 +1290,21 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 	case 5:
 	case 6:
 		blen=40;
-		xcrclen=4;
+		/*xcrclen=4;*/
 
 		bfield_short_str="Full Slot";
 		bfield_str="Full Slot (320 bit data, 4 bit xcrc)";
 		break;
 	case 2:
 		blen=100;
-		xcrclen=4;
+		/*xcrclen=4;*/
 
 		bfield_short_str="Double Slot";
 		bfield_str="Double Slot (800 bit data, 4 bit xcrc)";
 		break;
 	case 4:
 		blen=10;
-		xcrclen=4;
+		/*xcrclen=4;*/
 
 		bfield_short_str="Half Slot";
 		bfield_str="Half Slot (80 bit data, 4 bit xcrc)";
@@ -1312,7 +1312,7 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 	case 7:
 	default:
 		blen=0;
-		xcrclen=0;
+		/*xcrclen=0;*/
 
 		bfield_short_str="No B-Field";
 		bfield_str="No B-Field";

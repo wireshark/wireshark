@@ -1,4 +1,4 @@
-/* packet-3com-tapa.c
+/* packet-tapa.c
  * Routines for the disassembly of the Trapeze TAPA protocol
  *
  * $Id$
@@ -127,10 +127,12 @@ static const value_string tapa_discover_request_vals[] = {
 	{ 0,	NULL }
 };
 
+#if 0
 static const value_string tapa_discover_unknown_vals[] = {
 
 	{ 0,	NULL }
 };
+#endif
 
 static gboolean
 check_ascii(tvbuff_t *tvb, gint offset, gint length)
@@ -231,12 +233,12 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	guint8		 item_type;
 	gint		 item_length;
 	const gchar	*item_text;
-	const gchar	*item_type_text;
+	/*const gchar	*item_type_text;*/
 	gboolean	 is_ascii;
 
 	while (remaining > 0) {
 		item_type = tvb_get_guint8(tvb, offset);
-		item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");
+		/*item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");*/
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
 
 		DISSECTOR_ASSERT(item_length > 0);

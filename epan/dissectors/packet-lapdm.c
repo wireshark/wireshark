@@ -215,7 +215,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *lapdm_tree, *addr_tree, *length_tree;
     proto_item *lapdm_ti, *addr_ti, *length_ti;
-    guint8 addr, length, cr, sapi, len, n_s;
+    guint8 addr, length, cr, sapi, len/*, n_s*/;
     int control;
     gboolean m;
     tvbuff_t *payload;
@@ -272,7 +272,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     sapi = (addr & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
     len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
-    n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
+    /*n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;*/
     m = (length & LAPDM_M) >> LAPDM_M_SHIFT;
     available_length = tvb_length(tvb) - LAPDM_HEADER_LEN;
 

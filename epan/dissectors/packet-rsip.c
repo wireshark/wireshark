@@ -981,12 +981,12 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	proto_tree	*rsip_tree;
 	guint8		msgtype;
-	gboolean	msgcnt_required;
+	/*gboolean	msgcnt_required;*/
 	int		eoff;
 
 	msgtype = tvb_get_guint8(tvb, 1);
 
-	msgcnt_required = (pinfo->ipproto == IP_PROTO_UDP)? TRUE : FALSE;
+	/*msgcnt_required = (pinfo->ipproto == IP_PROTO_UDP)? TRUE : FALSE;*/
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSIP");
 

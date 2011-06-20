@@ -747,7 +747,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         proto_item *root_ti;
         int tree_start_offset = offset;
         guint8     rx;
-        guint8     contributing_csrcs;
+        /*guint8     contributing_csrcs;*/
         guint16    sequence_number;
         guint32    timestamp;
         guint8     tis=0, tss=0;
@@ -761,7 +761,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         /* V | P | RX | CC */
         rx = tvb_get_guint8(tvb, offset) & 0x10;
         proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_rx, tvb, offset, 1, FALSE);
-        contributing_csrcs = tvb_get_guint8(tvb, offset) & 0x0f;
+        /*contributing_csrcs = tvb_get_guint8(tvb, offset) & 0x0f;*/
         proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_cc, tvb, offset, 1, FALSE);
         offset += 1;
 

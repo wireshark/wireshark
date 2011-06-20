@@ -1088,9 +1088,9 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len)
     /* guchar * ivp; */
     gint ret;
     /* gint i; */
-    gcry_cipher_hd_t c;
+    /* gcry_cipher_hd_t c; */
     ret=0;
-    c=(gcry_cipher_hd_t)*cipher;
+    /*c=(gcry_cipher_hd_t)*cipher;*/
 
     ssl_debug_printf("--------------------------------------------------------------------");
     /*for(ivp=c->iv,i=0; i < iv_len; i++ )

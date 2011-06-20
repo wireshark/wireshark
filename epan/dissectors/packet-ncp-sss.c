@@ -521,7 +521,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
 void
 dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp_req_hash_value *request_value)
 {
-    guint8              func, subfunc = 0;
+    guint8              /*func,*/ subfunc = 0;
     guint32             subverb=0;
     guint32             msg_length=0;
     guint32             foffset= 0;
@@ -533,7 +533,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         return;
     }
     foffset = 6;
-    func = tvb_get_guint8(tvb, foffset);
+    /*func = tvb_get_guint8(tvb, foffset);*/
     foffset += 1;
     subfunc = tvb_get_guint8(tvb, foffset);
     foffset += 1;

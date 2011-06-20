@@ -2626,7 +2626,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 {
 	smb_info_t *smb_info = pinfo->private_data;
 	smb_transact_info_t *trp = NULL;
-	int offset = 0, start_offset;
+	int offset = 0/*, start_offset*/;
 	guint16 cmd;
 	guint16 status;
 	int convert;
@@ -2720,7 +2720,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		lanman = find_lanman(cmd);
 
 		/* request parameters */
-		start_offset = offset;
+		/*start_offset = offset;*/
 		offset = dissect_request_parameters(p_tvb, offset, pinfo, tree,
 		    param_descrip, lanman->req, &has_data);
 

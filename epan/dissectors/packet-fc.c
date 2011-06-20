@@ -697,7 +697,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
     int vft_offset = -1;
-    gboolean is_lastframe_inseq, is_1frame_inseq, is_valid_frame;
+    gboolean is_lastframe_inseq, is_1frame_inseq/*, is_valid_frame*/;
     gboolean is_exchg_resp = 0;
     fragment_data *fcfrag_head;
     guint32 frag_id;
@@ -708,7 +708,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint32 param;
     guint16 real_seqcnt;
     guint8 ftype;
-    gboolean is_ack;
+    /*gboolean is_ack;*/
 
     static fc_hdr fchdr;
     itlq_nexus_t *fc_ex=NULL;
@@ -842,7 +842,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     fchdr.itlq=fc_ex;
 
-    is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));
+    /*is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));*/
 
     /* There are two ways to determine if this is the first frame of a
      * sequence. Either:
@@ -856,7 +856,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     is_lastframe_inseq = ((pinfo->sof_eof & PINFO_EOF_LAST_FRAME) == PINFO_EOF_LAST_FRAME);
 
     is_lastframe_inseq |= fchdr.fctl & FC_FCTL_SEQ_LAST;
-    is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);
+    /*is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);*/
 
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
 

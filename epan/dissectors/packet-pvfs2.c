@@ -2412,7 +2412,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	char *ptr = NULL;
 	proto_item *item = NULL, *config_item = NULL;
 	proto_tree *tree = NULL, *config_tree = NULL;
-	guint8 truncated = 0;
+	/*guint8 truncated = 0;*/
 
 	if (parent_tree)
 	{
@@ -2459,7 +2459,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	{
 		total_config_bytes = length_remaining;
 
-		truncated = 1;
+		/*truncated = 1;*/
 	}
 
 	bytes_processed = 0;
