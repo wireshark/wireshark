@@ -216,6 +216,26 @@ if (WERROR)
 	)
 endif()
 
+add_definitions(
+	# To check that your application only includes the allowed headers,
+	# you can use defines to disable inclusion of individual headers
+
+	-DGTK_DISABLE_SINGLE_INCLUDES
+
+	# GTK+ 3 removes many implementation details and struct members from its
+	# public headers. Make the compiler catch all uses of direct access to
+	# struct fields so that you can go through them one by one and replace
+	# them with a call to an accessor function instead.
+
+	# -DGSEAL_ENABLE
+
+	# To verify that your program does not use any deprecated symbols,
+	# you can use defines to remove deprecated symbols from the header files
+
+	# -DGDK_DISABLE_DEPRECATED
+	# -DGTK_DISABLE_DEPRECATED
+)
+
 add_lex_files(WIRESHARK_GTK_SRC
 	text_import_scanner.l
 )
