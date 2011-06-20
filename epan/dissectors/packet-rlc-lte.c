@@ -828,6 +828,13 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                p_rlc_lte_info->ueid);
                         break;
 
+                    case SN_OK:
+                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                                    tvb, 0, 0, TRUE);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_append_text(seqnum_ti, " - OK");
+                        break;
+
                     default:
                         /* Incorrect sequence number */
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
@@ -953,6 +960,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             if (!createdChannel) {
                 expectedSequenceNumber = (p_channel_status->previousSequenceNumber + 1) % snLimit;
             }
+            else {
+                /* Whatever we got is fine.. */
+                expectedSequenceNumber = sequenceNumber;
+            }
 
             /* Set report for this frame */
             /* For UM, sequence number is always expectedSequence number */
@@ -970,21 +981,16 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 /* Frames are not missing if we get an earlier sequence number again */
-                else if (((snLimit + expectedSequenceNumber - sequenceNumber) % snLimit) > 40) {
-                    if (!createdChannel) {
-                        p_report_in_frame->state = SN_Missing;
-                        tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
-                        p_report_in_frame->firstSN = expectedSequenceNumber;
-                        p_report_in_frame->lastSN = (snLimit + sequenceNumber - 1) % snLimit;
+                /* TODO: taking time into account would give better idea of whether missing or repeated... */
+                else if (((snLimit + sequenceNumber - expectedSequenceNumber) % snLimit) < 10) {
+                    p_report_in_frame->state = SN_Missing;
+                    tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
+                    p_report_in_frame->firstSN = expectedSequenceNumber;
+                    p_report_in_frame->lastSN = (snLimit + sequenceNumber - 1) % snLimit;
 
-                        p_report_in_frame->sequenceExpected = expectedSequenceNumber;
-                        p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
-                        p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
-                    }
-                    else {
-                        /* The log may not contain the very first SNs for this channel, so be forgiving... */
-                        p_report_in_frame->state = SN_OK;
-                    }
+                    p_report_in_frame->sequenceExpected = expectedSequenceNumber;
+                    p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
+                    p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
 
                     /* Update channel status to remember *this* frame */
                     p_channel_status->previousFrameNum = pinfo->fd->num;
@@ -1505,7 +1511,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    write_pdu_label_and_info(top_ti, NULL, pinfo, "  SN=%-4u", (guint16)sn);
+    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "  SN=%-4u", (guint16)sn);
 
     proto_item_set_len(um_header_ti, offset-start_offset);
 
