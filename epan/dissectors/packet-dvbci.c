@@ -25,7 +25,7 @@
 
 /* The dissector supports DVB-CI as defined in EN50221.
  * Reassembly of fragmented data is not implemented yet.
- * Some resources are incomplete, most notably MMI.
+ * Ca_pmt_reply, low-level MMI and low-speed communication are unsupported.
  *
  * Missing functionality and CI+ support (www.ci-plus.com) will be
  *  added in future versions.
@@ -160,6 +160,50 @@
 
 #define CA_DESC_TAG 0x9
 
+/* mmi resource */
+#define CLOSE_MMI_CMD_ID_IMMEDIATE 0x0
+#define CLOSE_MMI_CMD_ID_DELAY     0x1
+
+/* only commands and parameters for high-level mmi are supported */
+#define DISP_CMD_SET_MMI_MODE 1
+#define DISP_CMD_GET_DISP_TBL 2
+#define DISP_CMD_GET_INP_TBL  3
+
+#define MMI_MODE_HIGH 1
+
+#define DISP_REP_ID_MMI_MODE_ACK     0x01
+#define DISP_REP_ID_DISP_CHAR_TBL    0x02
+#define DISP_REP_ID_INP_CHAR_TBL     0x03
+#define DISP_REP_ID_UNKNOWN_CMD      0xF0
+#define DISP_REP_ID_UNKNOWN_MMI_MODE 0xF1
+#define DISP_REP_ID_UNKNOWN_CHAR_TBL 0xF2
+
+#define VISIBLE_ANS 0
+#define BLIND_ANS   1
+
+#define ANSW_ID_CANCEL 0x00
+#define ANSW_ID_ANSWER 0x01
+
+/* used for answer_text_length, choice_nb and item_nb */
+#define NB_UNKNOWN 0xFF
+
+                                 
+/* character tables, DVB-SI spec annex A.2 */
+#define CHAR_TBL_8859_5   0x01
+#define CHAR_TBL_8859_6   0x02
+#define CHAR_TBL_8859_7   0x03
+#define CHAR_TBL_8859_8   0x04
+#define CHAR_TBL_8859_9   0x05
+#define CHAR_TBL_8859_10  0x06
+#define CHAR_TBL_8859_11  0x07
+#define CHAR_TBL_8859_13  0x09
+#define CHAR_TBL_8859_14  0x0A
+#define CHAR_TBL_8859_15  0x0B
+
+/* control codes for texts, DVB-SI spec annex A.1 */
+#define TEXT_CTRL_EMPH_ON   0x86
+#define TEXT_CTRL_EMPH_OFF  0x87
+#define TEXT_CTRL_CRLF      0x8A
 
 /* application layer */
 
@@ -202,6 +246,10 @@ static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
+static void
+dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
 
 
 /* apdu defines */
@@ -220,14 +268,9 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
 #define T_ASK_RELEASE     0x9F8403
 #define T_DATE_TIME_ENQ   0x9F8440
 #define T_DATE_TIME       0x9F8441
-
-/* the following apdus are recognized but not dissected in the 1st release */
-#define T_CA_PMT_REPLY    0x9F8033
 #define T_CLOSE_MMI       0x9F8800
 #define T_DISPLAY_CONTROL 0x9F8801
 #define T_DISPLAY_REPLY   0x9F8802
-#define T_TEXT_LAST       0x9F8803
-#define T_TEXT_MORE       0x9F8804
 #define T_ENQ             0x9F8807
 #define T_ANSW            0x9F8808
 #define T_MENU_LAST       0x9F8809
@@ -236,26 +279,47 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
 #define T_LIST_LAST       0x9F880C
 #define T_LIST_MORE       0x9F880D
 
+/* the following apdus are recognized but not dissected in this release */
+#define T_CA_PMT_REPLY    0x9F8033
+
+/* these are no real apdus, they just use the same format */
+#define T_TEXT_LAST       0x9F8803
+#define T_TEXT_MORE       0x9F8804
+
+
+#define IS_MENU_APDU(t) (t==T_MENU_MORE || t==T_MENU_LAST)
+
 static const apdu_info_t apdu_info[] = {
-    {T_PROFILE_ENQ,    0, 0,             DIRECTION_ANY,    NULL},
-    {T_PROFILE,        0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
-    {T_PROFILE_CHANGE, 0, 0,             DIRECTION_ANY,    NULL},
+    {T_PROFILE_ENQ,     0, 0,             DIRECTION_ANY,    NULL},
+    {T_PROFILE,         0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
+    {T_PROFILE_CHANGE,  0, 0,             DIRECTION_ANY,    NULL},
 
-    {T_APP_INFO_ENQ,   0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_APP_INFO,       6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
-    {T_ENTER_MENU,     0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_APP_INFO_ENQ,    0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_APP_INFO,        6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
+    {T_ENTER_MENU,      0, 0,             DATA_HOST_TO_CAM, NULL},
 
-    {T_CA_INFO_ENQ,    0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_CA_INFO,        0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
-    {T_CA_PMT,         6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
+    {T_CA_INFO_ENQ,     0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_CA_INFO,         0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
+    {T_CA_PMT,          6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
 
-    { T_TUNE,          0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    { T_REPLACE,       0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    { T_CLEAR_REPLACE, 0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    { T_ASK_RELEASE,   0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_TUNE,            0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_REPLACE,         0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_CLEAR_REPLACE,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_ASK_RELEASE,     0, 0,             DATA_HOST_TO_CAM, NULL},
  
-    {T_DATE_TIME_ENQ,  0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
-    {T_DATE_TIME,      5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt}
+    {T_DATE_TIME_ENQ,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
+    {T_DATE_TIME,       5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
+
+    {T_CLOSE_MMI,       1, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_mmi},
+    {T_DISPLAY_CONTROL, 1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_DISPLAY_REPLY,   1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_ENQ,             2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_ANSW,            1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_MENU_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi}, 
+    {T_MENU_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_MENU_ANSW,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_LIST_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi}, 
+    {T_LIST_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -308,6 +372,7 @@ static gint ett_dvbci_res = -1;
 static gint ett_dvbci_application = -1;
 static gint ett_dvbci_es = -1;
 static gint ett_dvbci_ca_desc = -1;
+static gint ett_dvbci_text = -1;
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
@@ -347,6 +412,19 @@ static int hf_dvbci_replacement_pid = -1;
 static int hf_dvbci_resp_intv = -1;
 static int hf_dvbci_utc_time = -1;
 static int hf_dvbci_local_offset = -1;
+static int hf_dvbci_close_mmi_cmd_id = -1;
+static int hf_dvbci_close_mmi_delay = -1;
+static int hf_dvbci_disp_ctl_cmd = -1;
+static int hf_dvbci_mmi_mode = -1;
+static int hf_dvbci_disp_rep_id = -1;
+static int hf_dvbci_char_tbl = -1;
+static int hf_dvbci_blind_ans = -1;
+static int hf_dvbci_ans_txt_len = -1;
+static int hf_dvbci_text_ctrl = -1;
+static int hf_dvbci_ans_id = -1;
+static int hf_dvbci_choice_nb = -1;
+static int hf_dvbci_choice_ref = -1;
+static int hf_dvbci_item_nb = -1;
 
 typedef struct _spdu_info_t {
     guint8 tag;
@@ -480,6 +558,63 @@ static const value_string dvbci_ca_pmt_cmd_id[] = {
     { CMD_ID_NOT_SELECTED, "not selected" },
     { 0, NULL }
 };
+static const value_string dvbci_close_mmi_cmd_id[] = {
+    { CLOSE_MMI_CMD_ID_IMMEDIATE, "immediate close" },
+    { CLOSE_MMI_CMD_ID_DELAY, "delayed close" },
+    { 0, NULL }
+};
+static const value_string dvbci_disp_ctl_cmd[] = {
+    { DISP_CMD_SET_MMI_MODE, "set MMI mode" },
+    { DISP_CMD_GET_DISP_TBL, "get display character tables" },
+    { DISP_CMD_GET_INP_TBL,  "get input character tables" },
+    { 0, NULL }
+};
+static const value_string dvbci_mmi_mode[] = {
+    { MMI_MODE_HIGH, "High-level MMI" },
+    { 0, NULL }
+};
+static const value_string dvbci_disp_rep_id[] = {
+    { DISP_REP_ID_MMI_MODE_ACK,     "MMI mode acknowledge" },
+    { DISP_REP_ID_DISP_CHAR_TBL,    "list display character tables" },
+    { DISP_REP_ID_INP_CHAR_TBL,     "list input character tables" },
+    { DISP_REP_ID_UNKNOWN_CMD,      "unknown display control command" },
+    { DISP_REP_ID_UNKNOWN_MMI_MODE, "unknown MMI mode" },
+    { DISP_REP_ID_UNKNOWN_CHAR_TBL, "unknown character table" },
+    { 0, NULL }
+};
+static const value_string dvbci_blind_ans[] = {
+    { VISIBLE_ANS, "visible" },
+    { BLIND_ANS,   "blind" },
+    { 0, NULL }
+};
+static const value_string dvbci_text_ctrl[] = {
+    { TEXT_CTRL_EMPH_ON,  "character emphasis on" },
+    { TEXT_CTRL_EMPH_OFF, "character emphasis off" },
+    { TEXT_CTRL_CRLF,     "CR/LF" },
+    { 0, NULL }
+};
+static const value_string dvbci_char_tbl[] = {
+    { CHAR_TBL_8859_5,  "ISO/IEC 8859-5 (Latin/Cyrillic)" },
+    { CHAR_TBL_8859_6,  "ISO/IEC 8859-6 (Latin/Arabic)" },
+    { CHAR_TBL_8859_7,  "ISO/IEC 8859-7 (Latin/Greek)" },
+    { CHAR_TBL_8859_8,  "ISO/IEC 8859-8 (Latin/Hebrew)" },
+    { CHAR_TBL_8859_9,  "ISO/IEC 8859-9 (Latin No. 5)" },
+    { CHAR_TBL_8859_10, "ISO/IEC 8859-10 (Latin No. 6)" },
+    { CHAR_TBL_8859_11, "ISO/IEC 8859-11 (Latin/Thai)" },
+    { CHAR_TBL_8859_13, "ISO/IEC 8859-13 (Latin No. 7)" },
+    { CHAR_TBL_8859_14, "ISO/IEC 8859-14 (Latin No. 8 (Celtic))" },
+    { CHAR_TBL_8859_15, "ISO/IEC 8859-15 (Latin No. 9)" },
+    /* don't add any multi-byte tables (>= 0x10) */
+    { 0, NULL }
+};
+static const value_string dvbci_ans_id[] = {
+    { ANSW_ID_CANCEL, "cancel" },
+    { ANSW_ID_ANSWER, "answer" },
+    { 0, NULL }
+};
+
+
+    
 
 
 static guint16 buf_size_cam;    /* buffer size proposal by the CAM */
@@ -502,6 +637,56 @@ dvbci_init(void)
     buf_size_host = 0;
 }
 
+
+/* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
+static void
+dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
+        packet_info *pinfo, proto_tree *tree, gchar *title,
+        gboolean show_col_info)
+{
+    guint8 byte0;
+    guint8 *si_str = NULL;
+    proto_item *pi;
+
+    if (!title)  /* we always have a title for our strings */
+        return;
+    if (str_len==0)
+        return;
+
+    byte0 = tvb_get_guint8(tvb, offset);
+    if (byte0>=0x01 && byte0<=0x0F) {
+        proto_tree_add_item(tree, hf_dvbci_char_tbl, tvb, offset, 1, ENC_NA);
+        offset++;
+        str_len--;
+    }
+    else if (byte0>=0x10 && byte0 <= 0x1F) {
+        pi = proto_tree_add_text(tree, tvb, offset, 1,
+                "Invalid/unsupported character table");
+        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                "Character tables with multi-byte encoding are not supported");
+        offset++;
+        str_len--;
+        proto_tree_add_text(tree, tvb, offset, str_len, "encoded text");
+        return;
+    }
+    /* for now, control characters are supported only at the beginning
+     * of a string (this should cover all cases found in practice) */
+    else if (byte0>=0x80 && byte0<=0x9F) {
+        proto_tree_add_item(tree, hf_dvbci_text_ctrl, tvb, offset, 1, ENC_NA);
+        offset++;
+        str_len--;
+    }
+
+    si_str = tvb_get_ephemeral_string(tvb, offset, str_len);
+    if (!si_str)
+        return;
+
+    proto_tree_add_text(tree, tvb, offset, str_len, "%s: %s", title, si_str);
+    if (show_col_info)
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", si_str);
+}
+
+ 
 /* dissect a ca descriptor in the ca_pmt */
 static gint
 dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -605,6 +790,42 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
     if (ti)
         proto_item_set_len(ti, offset-offset_start);
     return offset-offset_start;
+}
+
+/* dissect a text pseudo-apdu */
+static gint
+dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
+                   packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *ti = NULL;
+    proto_tree *text_tree;
+    guint32 tag;
+    gint offset_start;
+    gint len_field;
+
+    offset_start = offset;
+
+    if (!title)
+        return 0;
+
+    /* check the tag before setting up the tree */
+    tag = tvb_get_ntoh24(tvb, offset);
+    if (tag!=T_TEXT_LAST && tag!=T_TEXT_MORE)
+        return 0;
+
+    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "%s", title);
+    text_tree = proto_item_add_subtree(ti, ett_dvbci_text);
+
+    proto_tree_add_item(text_tree, hf_dvbci_apdu_tag,
+            tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
+    offset += APDU_TAG_SIZE;
+    offset = dissect_ber_length(pinfo, text_tree, tvb, offset, &len_field, NULL);
+    dissect_si_string(tvb, offset, len_field, pinfo, text_tree, "Text", FALSE);
+    offset += len_field;
+
+    if (ti)
+        proto_item_set_len(ti, offset-offset_start);
+    return (offset-offset_start);
 }
 
 
@@ -921,6 +1142,171 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
             proto_tree_add_text(tree, tvb, 0, 0,
                     "Offset between UTC and local time is unknown");
         }
+    }
+}
+
+
+static void
+dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree)
+{
+    gint offset_start;
+    proto_item *pi;
+    guint8 close_mmi_cmd_id;
+    guint8 disp_ctl_cmd, disp_rep_id;
+    const gchar *disp_ctl_cmd_str = NULL, *disp_rep_id_str = NULL;
+    guint8 ans_txt_len;
+    guint8 ans_id;
+    guint8 choice_or_item_nb;
+    gint text_len;
+    guint8 choice_ref;
+
+
+    offset_start = offset;
+
+    switch(tag) {
+        case T_CLOSE_MMI:
+            close_mmi_cmd_id = tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(tree, hf_dvbci_close_mmi_cmd_id,
+                    tvb, offset, 1, ENC_NA);
+            offset++;
+            /* apdu layer len field checks are sufficient for "immediate" */
+            if (close_mmi_cmd_id == CLOSE_MMI_CMD_ID_DELAY) {
+                if (len_field != 2) {
+                    pi = proto_tree_add_text(tree, tvb,
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
+                            "Length field mismatch");
+                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "Length field must be 2");
+                    return;
+                }
+                proto_tree_add_item(tree, hf_dvbci_close_mmi_delay, tvb,
+                        offset, 1, ENC_NA);
+            }
+            break;
+        case T_DISPLAY_CONTROL:
+            disp_ctl_cmd = tvb_get_guint8(tvb,offset);
+            disp_ctl_cmd_str = val_to_str(disp_ctl_cmd,
+                    dvbci_disp_ctl_cmd, "unknown command");
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "%s", disp_ctl_cmd_str);
+            proto_tree_add_item(tree, hf_dvbci_disp_ctl_cmd, tvb,
+                    offset, 1, ENC_NA);
+            offset++;
+            if (disp_ctl_cmd == DISP_CMD_SET_MMI_MODE)
+            {
+                proto_tree_add_item(tree, hf_dvbci_mmi_mode, tvb,
+                        offset, 1, ENC_NA);
+                if (len_field != 2) {
+                    pi = proto_tree_add_text(tree, tvb,
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
+                            "Length field mismatch");
+                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "Length field must be 2");
+                    return;
+                }
+            }
+            break;
+        case T_DISPLAY_REPLY:
+            disp_rep_id = tvb_get_guint8(tvb,offset);
+            disp_rep_id_str = val_to_str(disp_rep_id,
+                    dvbci_disp_rep_id, "unknown command");
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "%s", disp_rep_id_str);
+            proto_tree_add_item(tree, hf_dvbci_disp_rep_id,
+                    tvb, offset, 1, ENC_NA);
+            offset++;
+            if (disp_rep_id == DISP_REP_ID_MMI_MODE_ACK) {
+                proto_tree_add_item(tree, hf_dvbci_mmi_mode,
+                        tvb, offset, 1, ENC_NA);
+            }
+            else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL || 
+                     disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL) {
+                while (tvb_reported_length_remaining(tvb, offset) != 0) {
+                    proto_tree_add_item(tree, hf_dvbci_char_tbl,
+                            tvb, offset, 1, ENC_NA);
+                    offset++;
+                 }
+            }
+            break;
+        case T_ENQ:
+            proto_tree_add_item(tree, hf_dvbci_blind_ans,
+                    tvb, offset, 1, ENC_NA);
+            offset++;
+            ans_txt_len = tvb_get_guint8(tvb,offset);
+            if (ans_txt_len == NB_UNKNOWN) {
+                proto_tree_add_text(tree, tvb, offset, 1,
+                        "Length of expected answer is unknown");
+            }
+            else
+                proto_tree_add_item(tree, hf_dvbci_ans_txt_len,
+                        tvb, offset, 1, ENC_NA);
+            offset++;
+            dissect_si_string(tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset),
+                    pinfo, tree, "Enquiry string", FALSE);
+            break;
+        case T_ANSW:
+            ans_id = tvb_get_guint8(tvb,offset);
+            proto_tree_add_item(tree, hf_dvbci_ans_id, tvb, offset, 1, ENC_NA);
+            offset++;
+            if (ans_id == ANSW_ID_ANSWER) {
+                dissect_si_string(tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset),
+                    pinfo, tree, "Answer", TRUE);
+            }
+            break;
+        case T_MENU_LAST:
+        case T_MENU_MORE:
+        case T_LIST_LAST:
+        case T_LIST_MORE:
+            choice_or_item_nb = tvb_get_guint8(tvb,offset);
+            if (choice_or_item_nb == NB_UNKNOWN)
+            {
+                proto_tree_add_text(tree, tvb, offset, 1,
+                        "Number of items is unknown");
+            }
+            else
+            {
+                if (IS_MENU_APDU(tag)) {
+                    proto_tree_add_item(
+                            tree, hf_dvbci_choice_nb, tvb, offset, 1, ENC_NA);
+                }
+                else {
+                    proto_tree_add_item(
+                            tree, hf_dvbci_item_nb, tvb, offset, 1, ENC_NA);
+                }
+            }
+            offset++;
+            text_len = dissect_dvbci_text("Title", tvb, offset, pinfo, tree);
+            offset += text_len;
+            text_len = dissect_dvbci_text("Sub-title", tvb, offset, pinfo, tree);
+            offset += text_len;
+            text_len = dissect_dvbci_text("Bottom line", tvb, offset, pinfo, tree);
+            offset += text_len;
+            while (tvb_reported_length_remaining(tvb, offset)) {
+                text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree);
+                offset += text_len;
+            }
+            break;
+        case T_MENU_ANSW:
+            choice_ref = tvb_get_guint8(tvb,offset);
+            if (choice_ref == 0x0) {
+                proto_tree_add_text(tree, tvb, offset, 1,
+                        "Selection was cancelled.");
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                        "cancelled");
+            }
+            else {
+                proto_tree_add_item(
+                        tree, hf_dvbci_choice_ref, tvb, offset, 1, ENC_NA);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                        "Item %d", choice_ref);
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -1619,7 +2005,8 @@ proto_register_dvbci(void)
         &ett_dvbci_res,
         &ett_dvbci_application,
         &ett_dvbci_es,
-        &ett_dvbci_ca_desc
+        &ett_dvbci_ca_desc,
+        &ett_dvbci_text
     };
 
     static hf_register_info hf[] = {
@@ -1739,8 +2126,47 @@ proto_register_dvbci(void)
            local offset can be negative */
         { &hf_dvbci_local_offset,
             { "Local time offset", "dvbci.dt.local_offset", FT_INT16, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_close_mmi_cmd_id,
+            { "Command ID", "dvbci.mmi.close_mmi_cmd_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_close_mmi_cmd_id), 0, NULL, HFILL } },
+        { &hf_dvbci_close_mmi_delay,
+            { "Delay (in sec)", "dvbci.mmi.delay", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_disp_ctl_cmd,
+            { "Command", "dvbci.mmi.disp_ctl_cmd", FT_UINT8, BASE_HEX,
+                VALS(dvbci_disp_ctl_cmd), 0, NULL, HFILL } },
+        { &hf_dvbci_mmi_mode,
+            { "MMI mode", "dvbci.mmi.mode", FT_UINT8, BASE_HEX,
+                VALS(dvbci_mmi_mode), 0, NULL, HFILL } },
+        { &hf_dvbci_disp_rep_id,
+            { "Reply ID", "dvbci.mmi.disp_rep_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_disp_rep_id), 0, NULL, HFILL } },
+        { &hf_dvbci_char_tbl,
+            { "Character table", "dvbci.mmi.char_tbl", FT_UINT8, BASE_HEX,
+                VALS(dvbci_char_tbl), 0, NULL, HFILL } },
+        { &hf_dvbci_blind_ans,
+            { "Blind answer flag", "dvbci.mmi.blind_ans", FT_UINT8, BASE_HEX,
+                VALS(dvbci_blind_ans), 0x01, NULL, HFILL } },
+        { &hf_dvbci_ans_txt_len,
+            { "Answer text length", "dvbci.mmi.ans_txt_len",
+                FT_UINT8, BASE_DEC, NULL , 0, NULL, HFILL } },
+        { &hf_dvbci_text_ctrl,
+            { "Text control code", "dvbci.mmi.text_ctrl", FT_UINT8, BASE_HEX,
+                VALS(dvbci_text_ctrl), 0, NULL, HFILL } },
+        { &hf_dvbci_ans_id,
+            { "Answer ID", "dvbci.mmi.ans_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_ans_id) , 0, NULL, HFILL } },
+        { &hf_dvbci_choice_nb,
+            { "Number of menu items", "dvbci.mmi.choice_nb", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_choice_ref,
+            { "Selected item", "dvbci.mmi.choice_ref", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_item_nb,
+            { "Number of list items", "dvbci.mmi.item_nb", FT_UINT8, BASE_DEC,
                 NULL, 0, NULL, HFILL } }
-   };
+    };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     if (!spdu_table)
