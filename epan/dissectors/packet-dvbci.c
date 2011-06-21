@@ -74,6 +74,15 @@
 #define READY_H   0x09
 #define READY_L   0x0A
 
+/* Card Information Structure */
+#define CISTPL_NO_LINK       0x14
+#define CISTPL_VERS_1        0x15
+#define CISTPL_CONFIG        0x1A
+#define CISTPL_CFTABLE_ENTRY 0x1B
+#define CISTPL_DEVICE_OC     0x1C
+#define CISTPL_DEVICE_OA     0x1D
+#define CISTPL_MANFID        0x20
+#define CISTPL_END           0xFF
 
 /* link layer */
 #define ML_MORE 0x80
@@ -365,6 +374,8 @@ static int proto_dvbci = -1;
 
 static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
+static gint ett_dvbci_cis = -1;
+static gint ett_dvbci_cis_tpl = -1;
 static gint ett_dvbci_link = -1;
 static gint ett_dvbci_transport = -1;
 static gint ett_dvbci_session = -1;
@@ -376,6 +387,7 @@ static gint ett_dvbci_text = -1;
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
+static int hf_dvbci_cistpl_code = -1;
 static int hf_dvbci_buf_size = -1;
 static int hf_dvbci_tcid = -1;
 static int hf_dvbci_ml = -1;
@@ -451,6 +463,17 @@ static const value_string dvbci_hw_event[] = {
     { RESET_L,   "Reset pin is low" },
     { READY_H,   "Ready pin is high" },
     { READY_L,   "Ready pin is low" },
+    { 0, NULL }
+};
+static const value_string dvbci_cistpl_code[] = {
+    { CISTPL_NO_LINK, "No-link tuple" },
+    { CISTPL_VERS_1, "Level 1 version/product information" },
+    { CISTPL_CONFIG, "Configuration for a 16bit PC-Card" },
+    { CISTPL_CFTABLE_ENTRY, "Configuration-table entry" },
+    { CISTPL_DEVICE_OC, "Device information for Common Memory" },
+    { CISTPL_DEVICE_OA, "Device information for Attribute Memory" },
+    { CISTPL_MANFID, "Manufacturer indentification string" },
+    { CISTPL_END, "End of chain" },
     { 0, NULL }
 };
 static const value_string dvbci_ml[] = {
@@ -1881,6 +1904,57 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+
+static void
+dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset_start;
+    proto_tree *cis_tree = NULL, *tpl_tree = NULL;
+    proto_item *ti_main = NULL, *ti_tpl;
+    gint tpl_len;  /* entire tuple length, including tag and len field */
+    guint8 tpl_code, len_field;
+
+    offset_start = offset;
+
+    if (tree) {
+        ti_main = proto_tree_add_text(tree, tvb, offset, -1,
+                "Card Information Structure (CIS)");
+        cis_tree = proto_item_add_subtree(ti_main, ett_dvbci_cis);
+    }
+
+    do {
+        tpl_code = tvb_get_guint8(tvb, offset);
+        if (tpl_code == CISTPL_END) {
+            len_field = 0;
+            tpl_len = 1;
+        }
+        else {
+            len_field = tvb_get_guint8(tvb, offset+1);
+            tpl_len = 2+len_field;  /* 1 byte tag, 1 byte len field */
+        }
+        if (cis_tree) {
+            ti_tpl = proto_tree_add_text(cis_tree, tvb,
+                    offset, tpl_len, "CIS tuple");
+            tpl_tree = proto_item_add_subtree(ti_tpl, ett_dvbci_cis_tpl);
+            proto_tree_add_uint_format(tpl_tree, hf_dvbci_cistpl_code,
+                    tvb, offset, 1, tpl_code, "Tuple code: %s (0x%x)",
+                    val_to_str(tpl_code, dvbci_cistpl_code, "unknown"), tpl_code);
+            if (tpl_code != CISTPL_END) {
+                proto_tree_add_text(tpl_tree, tvb, offset+1, 1,
+                        "Length: %d", len_field);
+                proto_tree_add_text(tpl_tree, tvb, offset+2, len_field,
+                        "Tuple content");
+            }
+        }
+        offset += tpl_len;
+    } while (tvb_reported_length_remaining(tvb, offset) && tpl_code!=CISTPL_END);
+
+    if (ti_main)
+        proto_item_set_len(ti_main, offset-offset_start);
+ }
+
+ 
 static int
 dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1978,6 +2052,9 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "value 0x%x", cor_value);
         offset++;
     }
+    else if (event==CIS_READ) {
+        dissect_dvbci_cis(tvb, offset, pinfo, dvbci_tree);
+    }
     else if (event==HW_EVT) {
         hw_event = tvb_get_guint8(tvb, offset);
         col_set_str(pinfo->cinfo, COL_INFO,
@@ -1999,6 +2076,8 @@ proto_register_dvbci(void)
     static gint *ett[] = {
         &ett_dvbci,
         &ett_dvbci_hdr,
+        &ett_dvbci_cis,
+        &ett_dvbci_cis_tpl,
         &ett_dvbci_link,
         &ett_dvbci_transport,
         &ett_dvbci_session,
@@ -2016,6 +2095,9 @@ proto_register_dvbci(void)
         { &hf_dvbci_hw_event,
             { "Hardware event", "dvbci.hw_event", FT_UINT8, BASE_HEX,
                 VALS(dvbci_hw_event), 0, NULL, HFILL } },
+        { &hf_dvbci_cistpl_code,
+            { "CIS tuple code", "dvbci.cistpl_code", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cistpl_code), 0, NULL, HFILL } },
         { &hf_dvbci_buf_size,
             { "Buffer Size", "dvbci.buf_size", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
