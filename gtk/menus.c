@@ -3603,9 +3603,9 @@ menus_init(void) {
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(packet_list_heading_action_group,                     /* the action group */
-                                    packet_list_heading_menu_toggle_action_entries,               /* an array of action descriptions */
+                                    (gpointer)packet_list_heading_menu_toggle_action_entries,     /* an array of action descriptions */
                                     G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
-                                    (gpointer)NULL);                                              /* data to pass to the action callbacks */
+                                    NULL);                                                        /* data to pass to the action callbacks */
 
         ui_manager_packet_list_heading = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading,
@@ -3692,11 +3692,11 @@ menus_init(void) {
 
 
         gtk_action_group_add_radio_actions  (packet_list_byte_menu_action_group,            /* the action group */
-                                    bytes_menu_radio_action_entries,                        /* an array of radio action descriptions  */
+                                    (gpointer)bytes_menu_radio_action_entries,              /* an array of radio action descriptions  */
                                     G_N_ELEMENTS(bytes_menu_radio_action_entries),          /* the number of entries */
                                     recent.gui_bytes_view,                                  /* the value of the action to activate initially, or -1 if no action should be activated  */
                                     G_CALLBACK(select_bytes_view_cb),                       /* the callback to connect to the changed signal  */
-                                    (gpointer)popup_menu_object);                           /* data to pass to the action callbacks  */
+                                    popup_menu_object);                                     /* data to pass to the action callbacks  */
 
         ui_manager_bytes_menu = gtk_ui_manager_new ();
 
