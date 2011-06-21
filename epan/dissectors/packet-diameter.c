@@ -1062,8 +1062,15 @@ dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
-			 get_diameter_pdu_len, dissect_diameter_common);
+	/* Check if we have the start of a PDU or if this is segment */
+	if (!check_diameter(tvb)){
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+		call_dissector(data_handle, tvb, pinfo, tree);
+	}else{
+		tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
+				 get_diameter_pdu_len, dissect_diameter_common);
+	}
 }
 
 
