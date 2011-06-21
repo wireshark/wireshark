@@ -357,7 +357,7 @@ static int hf_oss_spdo_time_request_to    = -1;
 static int hf_oss_spdo_time_request_from  = -1;
 
 static const char *global_scm_udid = "00:00:00:00:00:00";
-static gboolean global_mbtcp_big_endian = TRUE;
+static gboolean global_mbtcp_big_endian = FALSE;
 static guint global_network_udp_port = UDP_PORT_OPENSAFETY;
 static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
 
@@ -1625,7 +1625,10 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
             /* Only engage, if we are not called strictly for the overview */
             if ( tree )
             {
-                if ( dissect_opensafety_frame(next_tvb, pinfo, tree, FALSE, found ) == TRUE )
+            	/* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
+            	 * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
+            	 * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
+                if ( dissect_opensafety_frame(next_tvb, pinfo, ( tree->parent != NULL ? tree->parent : tree ), FALSE, found ) == TRUE )
                     packageCounter++;
             }
             handled = TRUE;
