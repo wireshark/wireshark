@@ -48,12 +48,76 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
+#include <epan/stats_tree.h>
 #include <wsutil/str_util.h>
 
 #include "packet-rdt.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-e164.h"
+#include "packet-rtsp.h"
+
+static int rtsp_tap = -1;
+static rtsp_info_value_t	*rtsp_stat_info;
+
+/* http://www.iana.org/assignments/rtsp-parameters/rtsp-parameters.xml */
+
+const value_string rtsp_status_code_vals[] = {
+	{ 100, "Continue" },
+	{ 199, "Informational - Others" },
+
+	{ 200, "OK"},
+	{ 201, "Created"},
+	{ 250, "Low on Storage Space"},
+	{ 299, "Success - Others"},
+
+	{ 300, "Multiple Choices"},
+	{ 301, "Moved Permanently"},
+	{ 302, "Moved Temporarily"},
+	{ 303, "See Other"},
+	{ 305, "Use Proxy"},
+	{ 399, "Redirection - Others"},
+
+	{ 400, "Bad Request"},
+	{ 401, "Unauthorized"},
+	{ 402, "Payment Required"},
+	{ 403, "Forbidden"},
+	{ 404, "Not Found"},
+	{ 405, "Method Not Allowed"},
+	{ 406, "Not Acceptable"},
+	{ 407, "Proxy Authentication Required"},
+	{ 408, "Request Timeout"},
+	{ 410, "Gone"},
+	{ 411, "Length Required"},
+	{ 412, "Precondition Failed"},
+	{ 413, "Request Entity Too Large"},
+	{ 414, "Request-URI Too Long"},
+	{ 415, "Unsupported Media Type"},
+	{ 451, "Invalid Parameter"},
+	{ 452, "Illegal Conferenec Identifier"},
+	{ 453, "Not Enough Bandwidth"},
+	{ 454, "Session Not Found"},
+	{ 455, "Method Not Valid In This State"},
+	{ 456, "Header Field Not Valid"},
+	{ 457, "Invalid Range"},
+	{ 458, "Parameter Is Read-Only"},
+	{ 459, "Aggregate Operation Not Allowed"},
+	{ 460, "Only Aggregate Operation Allowed"},
+	{ 461, "Unsupported Transport"},
+	{ 462, "Destination Unreachable"},
+	{ 499, "Client Error - Others"},
+
+	{ 500, "Internal Server Error"},
+	{ 501, "Not Implemented"},
+	{ 502, "Bad Gateway"},
+	{ 503, "Service Unavailable"},
+	{ 504, "Gateway Timeout"},
+	{ 505, "RTSP Version not supported"},
+	{ 551, "Option Not Support"},
+	{ 599, "Server Error - Others"},
+
+	{ 0, 	NULL}
+};
 
 static int proto_rtsp		= -1;
 
@@ -80,6 +144,90 @@ static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
 static dissector_table_t media_type_dissector_table;
 
+static const gchar *st_str_packets = "Total RTSP Packets";
+static const gchar *st_str_requests = "RTSP Request Packets";
+static const gchar *st_str_responses = "RTSP Response Packets";
+static const gchar *st_str_resp_broken = "???: broken";
+static const gchar *st_str_resp_100 = "1xx: Informational";
+static const gchar *st_str_resp_200 = "2xx: Success";
+static const gchar *st_str_resp_300 = "3xx: Redirection";
+static const gchar *st_str_resp_400 = "4xx: Client Error";
+static const gchar *st_str_resp_500 = "5xx: Server Error";
+static const gchar *st_str_other = "Other RTSP Packets";
+
+static int st_node_packets = -1;
+static int st_node_requests = -1;
+static int st_node_responses = -1;
+static int st_node_resp_broken = -1;
+static int st_node_resp_100 = -1;
+static int st_node_resp_200 = -1;
+static int st_node_resp_300 = -1;
+static int st_node_resp_400 = -1;
+static int st_node_resp_500 = -1;
+static int st_node_other = -1;
+
+static void
+rtsp_stats_tree_init(stats_tree* st)
+{
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
+	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
+	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
+	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, TRUE);
+	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, TRUE);
+	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, TRUE);
+	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, TRUE);
+	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, TRUE);
+	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,FALSE);
+}
+
+/* RTSP/Packet Counter stats packet function */
+static int
+rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
+	const rtsp_info_value_t* v = p;
+	guint i = v->response_code;
+	int resp_grp;
+	const gchar *resp_str;
+	static gchar str[64];
+
+	tick_stat_node(st, st_str_packets, 0, FALSE);
+
+	if (i) {
+		tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
+
+		if ( (i<100)||(i>=600) ) {
+			resp_grp = st_node_resp_broken;
+			resp_str = st_str_resp_broken;
+		} else if (i<200) {
+			resp_grp = st_node_resp_100;
+			resp_str = st_str_resp_100;
+		} else if (i<300) {
+			resp_grp = st_node_resp_200;
+			resp_str = st_str_resp_200;
+		} else if (i<400) {
+			resp_grp = st_node_resp_300;
+			resp_str = st_str_resp_300;
+		} else if (i<500) {
+			resp_grp = st_node_resp_400;
+			resp_str = st_str_resp_400;
+		} else {
+			resp_grp = st_node_resp_500;
+			resp_str = st_str_resp_500;
+		}
+
+		tick_stat_node(st, resp_str, st_node_responses, FALSE);
+
+		g_snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,rtsp_status_code_vals, "Unknown (%d)"));
+		tick_stat_node(st, str, resp_grp, FALSE);
+	} else if (v->request_method) {
+		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
+	} else {
+		tick_stat_node(st, st_str_other, st_node_packets, FALSE);
+	}
+
+	return 1;
+}
 void proto_reg_handoff_rtsp(void);
 
 /*
@@ -298,6 +446,9 @@ static gboolean
 is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 {
 	unsigned	ii;
+	const guchar *next_token;
+	int tokenlen;
+	gchar response_chars[4];
 
 	/* Is this an RTSP reply? */
 	if (linelen >= 5 && g_ascii_strncasecmp("RTSP/", line, 5) == 0) {
@@ -305,6 +456,17 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 		 * Yes.
 		 */
 		*type = RTSP_REPLY;
+		/* The first token is the version. */
+		tokenlen = get_token_len(line, line+5, &next_token);
+		if (tokenlen != 0) {
+			/* The next token is the status code. */
+			tokenlen = get_token_len(next_token, line+linelen, &next_token);
+			if (tokenlen >= 3) {
+				memcpy(response_chars, next_token, 3);
+				response_chars[3] = '\0';
+				rtsp_stat_info->response_code = strtoul(response_chars, NULL, 10);
+			}
+		}
 		return TRUE;
 	}
 
@@ -320,6 +482,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 		    (len == linelen || isspace(line[len])))
 		{
 			*type = RTSP_REQUEST;
+			rtsp_stat_info->request_method = ep_strndup(rtsp_methods[ii], len+1);
 			return TRUE;
 		}
 	}
@@ -558,6 +721,13 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gchar	*frame_label = NULL;
 	gchar	*session_id = NULL;
 	voip_packet_info_t *stat_info = NULL;
+
+	rtsp_stat_info = ep_alloc(sizeof(rtsp_info_value_t));
+	rtsp_stat_info->framenum = pinfo->fd->num;
+	rtsp_stat_info->response_code = 0;
+	rtsp_stat_info->request_method = NULL;
+	rtsp_stat_info->request_uri = NULL;
+	rtsp_stat_info->rtsp_host = NULL;
 
 	/*
 	 * Is this a request or response?
@@ -1097,6 +1267,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		offset += datalen;
 	}
+
+	tap_queue_packet(rtsp_tap, pinfo, rtsp_stat_info);
+
 	return offset - orig_offset;
 }
 
@@ -1305,6 +1478,10 @@ proto_register_rtsp(void)
 	    "of a request spanning multiple TCP segments",
 	    &rtsp_desegment_body);
 
+	/*
+	 * Register for tapping
+	 */
+	rtsp_tap = register_tap("rtsp"); /* RTSP statistics tap */
 }
 
 void
@@ -1338,5 +1515,7 @@ proto_reg_handoff_rtsp(void)
 
 	saved_rtsp_tcp_port = global_rtsp_tcp_port;
 	saved_rtsp_tcp_alternate_port = global_rtsp_tcp_alternate_port;
+	
+	stats_tree_register("rtsp","rtsp","RTSP/Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );
 
 }

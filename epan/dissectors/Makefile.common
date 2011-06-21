@@ -1286,6 +1286,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rtps2.h		\
 	packet-rtp-events.h	\
 	packet-rtse.h	\
+	packet-rtsp.h	\
 	packet-rwall.h	\
 	packet-rx.h		\
 	packet-s1ap.h	\
