@@ -2035,8 +2035,10 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		info_element;
 	guint8		info_element_ext;
 	guint16		info_element_len;
+#if 0
 	int		codeset;
 	gboolean	non_locking_shift;
+#endif
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.2931");
 
@@ -2094,8 +2096,10 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * And now for the information elements....
 	 */
+#if 0
 	codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
+#endif
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 		info_element_ext = tvb_get_guint8(tvb, offset + 1);
@@ -2104,9 +2108,9 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_q2931_ie(tvb, offset, info_element_len,
 			    q2931_tree, info_element, info_element_ext);
 		}
+#if 0 /* XXX: Is codeset & etc supoosed to be used somehow ? */
 		if (non_locking_shift)
 			codeset = 0;
-
 		/*
 		 * Handle shifts.
 		 */
@@ -2126,6 +2130,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		}
+#endif
 		offset += 1 + 1 + 2 + info_element_len;
 	}
 }

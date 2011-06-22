@@ -30,7 +30,6 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/crcdrm.h>
@@ -247,7 +246,7 @@ gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output,
 
 static tvbuff_t *
 dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-  guint32 findex,
+  guint32 findex _U_,
   guint32 fcount,
   guint16 seq,
   gint offset,
@@ -261,7 +260,6 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   guint16 decoded_size;
   guint32 c_max;
   guint32 rx_min;
-  gboolean first, last;
   tvbuff_t *new_tvb=NULL;
 
   if (fcount > MAX_FRAGMENTS) {
@@ -270,8 +268,6 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     return NULL;
   }
 
-  first = findex == 0;
-  last = fcount == (findex+1);
   decoded_size = fcount*plen;
   c_max = fcount*plen/(rsk+PFT_RS_P);  /* rounded down */
   rx_min = c_max*rsk/plen;
@@ -442,7 +438,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint16 plen;
   gint offset = 0;
-  guint16 seq, payload_len, hcrc;
+  guint16 seq, payload_len;
   guint32 findex, fcount;
   proto_tree *pft_tree = NULL;
   proto_item *ti = NULL, *li = NULL;
@@ -510,7 +506,6 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
     proto_tree_add_boolean(pft_tree, hf_edcp_hcrc_ok, tvb, offset, 2, c==0xe2f0);
   }
-  hcrc = tvb_get_ntohs (tvb, offset);
   offset += 2;
   if (fcount > 1) {             /* fragmented*/
     gboolean save_fragmented = pinfo->fragmented;

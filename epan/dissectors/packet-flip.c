@@ -2,7 +2,7 @@
  * Routines for FLIP packet dissection
  *
  * Copyright 2009, Juha Siltanen <juha.siltanen@nsn.com>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -162,7 +162,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 
     gint bytes_dissected;
     gint offset;
-    
+
     item            = NULL;
     chksum_hdr_tree = NULL;
 
@@ -174,7 +174,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     chksum_hdr_spare  = (guint8) ((dw & 0x00FE0000) >> 17);
     chksum_hdr_ext    = (guint8) ((dw & 0x00010000) >> 16);
     chksum_hdr_chksum = (guint16) (dw & 0x0000FFFF);
-    
+
     /* The actually shouldn't be any headers after checksum. */
     if (chksum_hdr_ext == 1) {
         *ext_hdr_follows_ptr = TRUE;
@@ -182,12 +182,12 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     else {
         *ext_hdr_follows_ptr = FALSE;
     }
-    
+
     if (tree) {
         item = proto_tree_add_text(tree, tvb,
                                    offset + 0, 4, "Checksum Header");
         chksum_hdr_tree = proto_item_add_subtree(item, ett_flip_chksum);
-    
+
         /* ETYPE: 8 bits */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_etype,
                                          tvb, offset + 0, 1, dw,
@@ -227,9 +227,9 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
                       "Correct" : "Incorrect"),
                      computed_chksum);
     }
-    
+
     bytes_dissected += FLIP_CHKSUM_HDR_LEN;
-    
+
     return bytes_dissected;
 
 } /* dissect_flip_chksum_hdr() */
@@ -237,7 +237,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 
 /* Detection logic grabbed from packet-rtp.c and modified. */
 
-#define RTP_VERSION(octet)	    ((octet) >> 6)
+#define RTP_VERSION(octet)      ((octet) >> 6)
 #define RTP_MARKER(octet)       ((octet) & 0x80)
 #define RTP_PAYLOAD_TYPE(octet) ((octet) & 0x7F)
 
@@ -251,7 +251,7 @@ is_payload_rtp(tvbuff_t *tvb)
     unsigned int payload_type;
     unsigned int offset;
     gint         len_remaining;
-    
+
     offset = 0;
 
     len_remaining = tvb_length_remaining(tvb, offset);
@@ -281,7 +281,7 @@ is_payload_rtp(tvbuff_t *tvb)
     }
 
     return TRUE;
-    
+
 } /* is_payload_rtp() */
 
 
@@ -297,9 +297,9 @@ is_payload_rtp(tvbuff_t *tvb)
 static gboolean
 is_payload_rtcp(tvbuff_t *tvb)
 {
-	unsigned int first_byte;
-	unsigned int packet_type;
-	unsigned int offset;
+    unsigned int first_byte;
+    unsigned int packet_type;
+    unsigned int offset;
     gint         len_remaining;
 
     offset = 0;
@@ -308,31 +308,31 @@ is_payload_rtcp(tvbuff_t *tvb)
     if (len_remaining < RTCP_V2_HEADER_MIN_LEN) {
         return FALSE;
     }
-    
+
     /* Look at first byte */
-	first_byte = tvb_get_guint8(tvb, offset);
+    first_byte = tvb_get_guint8(tvb, offset);
 
-	/* Are version bits set to 2? */
-	if (((first_byte & 0xC0) >> 6) != 2) {
-		return FALSE;
-	}
+    /* Are version bits set to 2? */
+    if (((first_byte & 0xC0) >> 6) != 2) {
+        return FALSE;
+    }
 
-	/* Look at packet type */
-	packet_type = tvb_get_guint8(tvb, offset + 1);
+    /* Look at packet type */
+    packet_type = tvb_get_guint8(tvb, offset + 1);
 
-	/* First packet within compound packet is supposed to be a sender
-	   or receiver report.
+    /* First packet within compound packet is supposed to be a sender
+       or receiver report.
        - allow BYE because this happens anyway
        - allow APP because TBCP ("PoC1") packets aren't compound... */
-	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-	      (packet_type == RTCP_BYE) || (packet_type == RTCP_APP))) {
-		return FALSE;
-	}
+    if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
+          (packet_type == RTCP_BYE) || (packet_type == RTCP_APP))) {
+        return FALSE;
+    }
 
-	/* Overall length must be a multiple of 4 bytes */
-	if (tvb_reported_length(tvb) % 4) {
-		return FALSE;
-	}
+    /* Overall length must be a multiple of 4 bytes */
+    if (tvb_reported_length(tvb) % 4) {
+        return FALSE;
+    }
 
     return TRUE;
 
@@ -346,9 +346,8 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *flip_tree;
     proto_tree *basic_hdr_tree;
-    proto_tree *payload_hdr_tree;
     tvbuff_t   *flip_tvb;
-    
+
     guint32 dw1;
     guint32 dw2;
 
@@ -369,16 +368,13 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Error handling for basic header. */
     gboolean is_faulty_frame;
-    gboolean is_short_flip_len;
-    gboolean is_invalid_flip_len;
-    
+
     item             = NULL;
     ti               = NULL;
     flip_tree        = NULL;
     basic_hdr_tree   = NULL;
-    payload_hdr_tree = NULL;
     flip_tvb         = NULL;
- 
+
     ext_hdr = FALSE;
 
     bytes_dissected = 0;
@@ -388,8 +384,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset          = 0;
 
     is_faulty_frame     = FALSE;
-    is_short_flip_len   = FALSE;
-    is_invalid_flip_len = FALSE;
 
     /* Show this protocol as FLIP. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FLIP");
@@ -422,7 +416,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dw2 = tvb_get_ntohl(tvb, offset + 4);
     basic_hdr_seqnum = (guint16) ((dw2 & 0xFFFF0000) >> 16);
     basic_hdr_len    = (guint16) (dw2 & 0x0000FFFF);
-    
+
     /* Does the basic header indicate that an extension is next? */
     if (basic_hdr_ext == 1) {
         ext_hdr = TRUE;
@@ -443,7 +437,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  "FlowID %s", val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
 
     flip_tvb = tvb_new_subset(tvb, 0, frame_len, frame_len);
-        
+
     /* We are asked for details. */
     if (tree) {
         if (PTREE_DATA(tree)->visible) {
@@ -457,11 +451,11 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      flip_len, FALSE);
         }
         flip_tree = proto_item_add_subtree(ti, ett_flip);
-    
+
         /* basic header */
         item = proto_tree_add_text(flip_tree, flip_tvb, 0, 8, "Basic Header");
         basic_hdr_tree = proto_item_add_subtree(item, ett_flip_basic);
-        
+
         /* Extension header follows? 1 bit. */
         proto_tree_add_uint_format_value(basic_hdr_tree,
                                          hf_flip_basic_e,
@@ -477,7 +471,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Flow ID: 28 bits. */
         proto_tree_add_item(basic_hdr_tree, hf_flip_basic_flowid,
                             flip_tvb, offset + 0, 4, FALSE);
-        
+
         /* Sequence number: 16 bits. */
         proto_tree_add_uint_format_value(basic_hdr_tree, hf_flip_basic_seqnum,
                                          flip_tvb, offset + 4, 2, dw2,
@@ -489,7 +483,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          "%d (0x%04x)",
                                          basic_hdr_len, basic_hdr_len);
     }
-    
+
     offset += FLIP_BASIC_HDR_LEN;
 
     /*
@@ -501,7 +495,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          "Length mismatch: frame %d bytes, hdr %d bytes",
                          frame_len, flip_len);
         }
-        else if (flip_len < FLIP_BASIC_HDR_LEN) {                
+        else if (flip_len < FLIP_BASIC_HDR_LEN) {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Invalid length in basic header: %d bytes", flip_len);
         }
@@ -514,7 +508,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     payload_len  = basic_hdr_len;
     payload_len -= FLIP_BASIC_HDR_LEN;
-    
+
     /*
      * Dissect extension headers (if any).
      */
@@ -531,9 +525,9 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint16 computed_chksum;
 
         tvbuff_t *chksum_tvb;
-        
+
         ext_hdr_type = tvb_get_guint8(flip_tvb, offset);
-        
+
         switch (ext_hdr_type) {
         case FLIP_CHKSUM:
             /* Calculate checksum, let the chksum dissector verify it. */
@@ -590,7 +584,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         payload_tvb = tvb_new_subset(flip_tvb, offset,
                                      payload_len, payload_len);
-                    
+
         /*
          * 1) no decoding -> data
          * 2) heuristic decoding
@@ -620,7 +614,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 handle = data_handle;
             }
             break;
-            
+
         case FLIP_PAYLOAD_DECODING_MODE_FORCED:
             if (is_forced_handle_ok == TRUE) {
                 handle = forced_handle;
@@ -628,18 +622,18 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else {
                 /* Use data as backup. */
                 handle = data_handle;
-                
+
                 /* Tell the user he messed up. */
                 has_user_messed_up = TRUE;
             }
             break;
-            
+
         default:
             /* Fault in dissector's internal logic. */
             DISSECTOR_ASSERT(0);
             break;
         }
-        
+
         /*
          * If tree is NULL, we still cannot quit, we must give
          * the RTP/RTCP/data dissectors a chance to fill in
@@ -654,12 +648,12 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         bytes_dissected += data_len;
-        
+
     } /* if (payload_len > 0) */
 
 DISSECT_FLIP_EXIT:
     return bytes_dissected;
-    
+
 } /* dissect_flip() */
 
 
@@ -735,7 +729,7 @@ proto_register_flip(void)
                                           proto_reg_handoff_flip);
 
     /* Register preferences */
-	prefs_register_enum_preference(
+    prefs_register_enum_preference(
         flip_module,
         "decoding_mode",
         "FLIP payload decoding mode",
@@ -749,7 +743,7 @@ proto_register_flip(void)
         "heur_enabled_protocols",
         "Heuristic mode: enabled protocols",
         "Enabled protocols for heuristic mode");
-    
+
     prefs_register_bool_preference(
         flip_module,
         "heur_decode_rtp",
@@ -763,20 +757,20 @@ proto_register_flip(void)
         "RTCP",
         "Decode payload as RTCP if detected",
         &is_heur_enabled_rtcp);
-    
+
     prefs_register_static_text_preference(
         flip_module,
         "forced_protocol",
         "Forced mode: decode to user-specified protocol",
         "Mapping of flow IDs to their decodings");
-    
+
     prefs_register_string_preference(
         flip_module,
         "forced_decode",
         "Protocol name",
         "Decoding to user-defined protocol",
         &global_forced_protocol);
-    
+
 } /* proto_register_flip() */
 
 /* Protocol handoff */
@@ -804,7 +798,7 @@ proto_reg_handoff_flip(void)
     if (forced_handle != NULL) {
         is_forced_handle_ok = TRUE;
     }
-    
+
 } /* proto_reg_handoff_flip() */
 
 /* end of file packet-flip.c */

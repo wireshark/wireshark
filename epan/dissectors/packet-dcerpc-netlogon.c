@@ -1283,12 +1283,6 @@ netlogon_dissect_GENERIC_INFO(tvbuff_t *tvb, int offset,
                               packet_info *pinfo, proto_tree *tree,
                               guint8 *drep)
 {
-    dcerpc_info *di;
-    dcerpc_call_value *dcv;
-
-    di=pinfo->private_data;
-    dcv = (dcerpc_call_value *)di->call_data;
-
     offset = netlogon_dissect_LOGON_IDENTITY_INFO(tvb, offset,
                                                   pinfo, tree, drep);
 
@@ -2504,7 +2498,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     /*int oldoffset = offset;*/
-    size_t txt_len = 0;
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
     netlogon_auth_key *key = se_alloc(sizeof(netlogon_auth_key));
@@ -2523,10 +2516,9 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    txt_len = strlen(dcv->private_data);
-    debugprintf("1)Len %d offset %d txt %s\n",txt_len,offset,(char*)dcv->private_data);
+    debugprintf("1)Len %d offset %d txt %s\n",strlen(dcv->private_data),offset,(char*)dcv->private_data);
     vars->client_name = se_strdup(dcv->private_data);
-    debugprintf("2)Len %d offset %d txt %s\n",txt_len,offset,vars->client_name);
+    debugprintf("2)Len %d offset %d txt %s\n",strlen(dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
@@ -2555,28 +2547,28 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         }
     }
     /* used by other rpc that use schannel ie lsa */
-    /*
-      generate_hash_key(pinfo,0,key,vars->client_name);
-      existing_vars = NULL;
-      existing_vars = g_hash_table_lookup(schannel_auths, key);
-      if (!existing_vars)
-      {
-      g_hash_table_insert(schannel_auths, key, vars);
-      }
-      else
-      {
-      while(existing_vars->next != NULL && existing_vars->start <= vars->start) {
-      existing_vars = existing_vars->next;
-      }
-      if(existing_vars->next != NULL || existing_vars == vars) {
-      debugprintf("It seems that I already record this vars (schannel hash)%d\n",vars->start);
-      }
-      else {
-      existing_vars->next_start = pinfo->fd->num;
-      existing_vars->next = vars;
-      }
-      }
-    */
+#if 0
+    generate_hash_key(pinfo,0,key,vars->client_name);
+    existing_vars = NULL;
+    existing_vars = g_hash_table_lookup(schannel_auths, key);
+    if (!existing_vars)
+    {
+        g_hash_table_insert(schannel_auths, key, vars);
+    }
+    else
+    {
+        while(existing_vars->next != NULL && existing_vars->start <= vars->start) {
+            existing_vars = existing_vars->next;
+        }
+        if(existing_vars->next != NULL || existing_vars == vars) {
+            debugprintf("It seems that I already record this vars (schannel hash)%d\n",vars->start);
+        }
+        else {
+            existing_vars->next_start = pinfo->fd->num;
+            existing_vars->next = vars;
+        }
+    }
+#endif
     return offset;
 }
 

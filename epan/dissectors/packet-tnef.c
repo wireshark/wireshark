@@ -212,14 +212,14 @@ static const value_string tnef_Attribute_vals[] = {
 	{  ATT_SENT_FOR, "ATT_SENT_FOR" },
 	{  ATT_DELEGATE, "ATT_DELEGATE" },
 	{  ATT_OWNER, "ATT_OWNER" },
-	{  ATT_DATE_START, "ATT_DATE_START" }, 
-	{  ATT_DATE_END, "ATT_DATE_END" }, 
+	{  ATT_DATE_START, "ATT_DATE_START" },
+	{  ATT_DATE_END, "ATT_DATE_END" },
 	{  ATT_AID_OWNER, "ATT_AID_OWNER" },
 	{  ATT_REQUEST_RES, "ATT_REQUEST_RES" },
 	{  ATT_FROM, "ATT_FROM" },
 	{  ATT_SUBJECT, "ATT_SUBJECT" },
-	{  ATT_DATE_SENT, "ATT_DATE_SENT" }, 
-	{  ATT_DATE_RECD, "ATT_DATE_RECD" }, 
+	{  ATT_DATE_SENT, "ATT_DATE_SENT" },
+	{  ATT_DATE_RECD, "ATT_DATE_RECD" },
 	{  ATT_MESSAGE_STATUS, "ATT_MESSAGE_STATUS" },
 	{  ATT_MESSAGE_CLASS, "ATT_MESSAGE_CLASS" },
 	{  ATT_MESSAGE_ID, "ATT_MESSAGE_ID" },
@@ -324,7 +324,7 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, TRUE);
 	offset +=2;
-	
+
 	proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, TRUE);
 	offset +=2;
 
@@ -340,62 +340,62 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	proto_item *item, *prop_item;
 	proto_tree *prop_tree, *tag_tree;
-	guint32     count, tag, tag_kind, tag_length;
+	guint32     /*count,*/ tag, tag_kind, tag_length;
 	guint16     padding;
 	gint        offset, start_offset;
-	
+
 	guint8      drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
-	static dcerpc_info di; 
+	static dcerpc_info di;
 	static dcerpc_call_value call_data;
 	void        *old_private_data;
-	
+
 	offset = 0;
-	
+
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
-	
+
 	old_private_data = pinfo->private_data;
 	pinfo->private_data = &di;
-	
+
 	/* first the count */
 	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, TRUE);
-	count = tvb_get_letohl(tvb, offset);
-	
+	/*count = tvb_get_letohl(tvb, offset);*/
+
 	offset += 4;
 
-	while(tvb_length_remaining(tvb, offset) > 0 ) {
-		
+	while(tvb_reported_length_remaining(tvb, offset) > 0 ) {
+
 		start_offset = offset;
-		
+
 		/* get the property tag */
-		
+
 		prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, TRUE);
 		prop_tree = proto_item_add_subtree(prop_item, ett_tnef_property);
-		
+
 		item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, TRUE);
 		tag_tree = proto_item_add_subtree(item, ett_tnef_property_tag);
-		
+
 		/* add a nice name to the property */
 		tag = tvb_get_letohl(tvb, offset);
 		proto_item_append_text(prop_item, " %s", val_to_str(tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
-		
+
 		proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, TRUE);
 		offset += 2;
-		
+
 		proto_tree_add_item(tag_tree, hf_tnef_property_tag_id, tvb, offset, 2, TRUE);
 		offset += 2;
-		
+
 		if(tag & 0x80000000) {
-			
+
 			/* it is a named property */
 			proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, TRUE);
 			offset += 16;
-			
+
 			tag_kind = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, TRUE);
 			offset += 4;
-			
+
 			if(tag_kind == 0) {
 				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, TRUE);
 				offset += 4;
@@ -409,7 +409,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				offset += 4;
 
 				name_string = tvb_get_ephemeral_faked_unicode (tvb, offset, tag_length / 2, TRUE);
-				proto_tree_add_string_format(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, 
+				proto_tree_add_string_format(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
 							     tag_length, name_string, "Name: %s", name_string);
 				offset += tag_length;
 
@@ -422,7 +422,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 			}
 		}
-		
+
 		switch(tag) {
 			/* handle any specific tags here */
 		default:
@@ -487,16 +487,16 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		/* we may need to pad to a 4-byte boundary */
 		if((padding = (4 - (offset - start_offset) % 4)) != 4) {
-			
+
 			/* we need to pad */
 			proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
-			
+
 			offset += padding;
 		}
-		
+
 		proto_item_set_len(prop_item, offset - start_offset);
 	}
-	
+
 	/* restore private_data */
 	pinfo->private_data = old_private_data;
 }
@@ -524,11 +524,11 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* check the signature */
   if(signature != TNEF_SIGNATURE) {
-    
+
     proto_item_append_text(item, " [Incorrect, should be 0x%x. No further dissection possible. Check any Content-Transfer-Encoding has been removed.]", TNEF_SIGNATURE);
-    
+
     proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
-    
+
     return;
 
   } else {
@@ -540,7 +540,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item(tree, hf_tnef_key, tvb, offset, 2, TRUE);
   offset += 2;
 
-  while(tvb_length_remaining(tvb, offset) > 9 ) { /* there must be at least a level (1), tag (4) and length (4) to be valid */
+  while(tvb_reported_length_remaining(tvb, offset) > 9 ) { /* there must be at least a level (1), tag (4) and length (4) to be valid */
 
     start_offset = offset;
 
@@ -583,7 +583,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
     case ATT_MAPI_PROPS:
 	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, TRUE);
-	    props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props); 
+	    props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props);
 
 	    next_tvb = tvb_new_subset(tvb, offset, length, length);
 
@@ -592,7 +592,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
     case ATT_OWNER:
     case ATT_SENT_FOR:
-	    addr_tree = proto_item_add_subtree(item, ett_tnef_attribute_address); 
+	    addr_tree = proto_item_add_subtree(item, ett_tnef_attribute_address);
 
 	    (void)dissect_counted_address(tvb, offset, pinfo, addr_tree);
 
@@ -604,9 +604,9 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* just do it on the type */
 	    switch((tag >> 16) & 0xffff) {
 	    case ATP_DATE:
-		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, TRUE);		    
-		    date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date); 
-		    
+		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, TRUE);
+		    date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date);
+
 		    next_tvb = tvb_new_subset(tvb, offset, length, length);
 
 		    dissect_DTR(next_tvb, pinfo, date_tree);
@@ -614,7 +614,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 	    case ATP_STRING:
 		    proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, FALSE);
-		    proto_item_append_text(attr_item, " %s", tvb_get_ephemeral_string(tvb, offset, length)); 
+		    proto_item_append_text(attr_item, " %s", tvb_get_ephemeral_string(tvb, offset, length));
 		    break;
 	    default:
 		    proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, TRUE);
@@ -631,8 +631,8 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* there may be some padding */
-  if(tvb_length_remaining(tvb, offset)) /* XXX: Not sure if they is really padding or not */
-    proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);    
+  if(tvb_reported_length_remaining(tvb, offset)) /* XXX: Not sure if they is really padding or not */
+    proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_reported_length_remaining(tvb, offset), TRUE);
 }
 
 static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -691,19 +691,19 @@ proto_register_tnef(void)
     { &hf_tnef_attribute_email_address,
       { "Email Address", "tnef.attribute.email_address", FT_STRING,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
-    { &hf_tnef_attribute_date_year, 
+    { &hf_tnef_attribute_date_year,
       { "Year", "tnef.attribute.date.year", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_month, 
+    { &hf_tnef_attribute_date_month,
       { "Month", "tnef.attribute.date.month", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_day, 
+    { &hf_tnef_attribute_date_day,
       { "Day", "tnef.attribute.date.day", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_hour, 
+    { &hf_tnef_attribute_date_hour,
       { "Hour", "tnef.attribute.date.hour", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_minute, 
+    { &hf_tnef_attribute_date_minute,
       { "Minute", "tnef.attribute.date.minute", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_second, 
+    { &hf_tnef_attribute_date_second,
       { "Second", "tnef.attribute.date.second", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_attribute_date_day_of_week, 
+    { &hf_tnef_attribute_date_day_of_week,
       { "Day Of Week", "tnef.attribute.date.day_of_week", FT_UINT16, BASE_DEC, VALS(weekday_vals), 0, NULL, HFILL }},
     { &hf_tnef_attribute_checksum,
       { "Checksum", "tnef.attribute.checksum", FT_UINT16,  BASE_HEX, NULL, 0x0,
@@ -768,41 +768,41 @@ proto_register_tnef(void)
     { &hf_tnef_value_length,
       { "Length", "tnef.value.length", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	NULL, HFILL }},
-    { &hf_tnef_PropValue_i, 
+    { &hf_tnef_PropValue_i,
       { "I", "tnef.PropValue.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_l, 
+    { &hf_tnef_PropValue_l,
       { "L", "tnef.PropValue.l", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_b, 
+    { &hf_tnef_PropValue_b,
       { "B", "tnef.PropValue.b", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_lpszA, 
+    { &hf_tnef_PropValue_lpszA,
       { "Lpsza", "tnef.PropValue.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_lpszW, 
+    { &hf_tnef_PropValue_lpszW,
       { "Lpszw", "tnef.PropValue.lpszW", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_lpguid, 
+    { &hf_tnef_PropValue_lpguid,
       { "Lpguid", "tnef.PropValue.lpguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_bin, 
+    { &hf_tnef_PropValue_bin,
       { "Bin", "tnef.PropValue.bin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_ft, 
+    { &hf_tnef_PropValue_ft,
       { "Ft", "tnef.PropValue.ft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_err, 
+    { &hf_tnef_PropValue_err,
       { "Err", "tnef.PropValue.err", FT_UINT32, BASE_DEC, VALS(nspi_MAPISTATUS_vals), 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVi, 
+    { &hf_tnef_PropValue_MVi,
       { "Mvi", "tnef.PropValue.MVi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVl, 
+    { &hf_tnef_PropValue_MVl,
       { "Mvl", "tnef.PropValue.MVl", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVszA, 
+    { &hf_tnef_PropValue_MVszA,
       { "Mvsza", "tnef.PropValue.MVszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVbin, 
+    { &hf_tnef_PropValue_MVbin,
       { "Mvbin", "tnef.PropValue.MVbin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVguid, 
+    { &hf_tnef_PropValue_MVguid,
       { "Mvguid", "tnef.PropValue.MVguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVszW, 
+    { &hf_tnef_PropValue_MVszW,
       { "Mvszw", "tnef.PropValue.MVszW", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_MVft, 
+    { &hf_tnef_PropValue_MVft,
       { "Mvft", "tnef.PropValue.MVft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_null, 
+    { &hf_tnef_PropValue_null,
       { "Null", "tnef.PropValue.null", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_tnef_PropValue_object, 
+    { &hf_tnef_PropValue_object,
       { "Object", "tnef.PropValue.object", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
   };
   static gint *ett[] = {

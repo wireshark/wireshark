@@ -1612,11 +1612,10 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     gint offset = 0;                /* Current Offset */
 
     /* General Variables */
-    gboolean bthFollows = 0;        /* Tracks if we are parsing a BTH.  This is a significant decision point */
+    gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
     guint8 virtualLane = 0;         /* IB VirtualLane.  Keyed off of for detecting subnet admin/management */
     guint8 opCode = 0;              /* OpCode from BTH header. */
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
-    guint16 payloadLength = 0;      /* Payload Length should it exist */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
                                     /*  It provides the parsing methods a known size            */
@@ -1743,8 +1742,6 @@ skip_lrh:
             proto_tree_add_item(global_route_header_tree, hf_infiniband_ip_version,         tvb, offset, 1, FALSE);
             proto_tree_add_item(global_route_header_tree, hf_infiniband_traffic_class,      tvb, offset, 2, FALSE);
             proto_tree_add_item(global_route_header_tree, hf_infiniband_flow_label,         tvb, offset, 4, FALSE); offset += 4;
-
-            payloadLength = tvb_get_ntohs(tvb, offset);
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_payload_length,     tvb, offset, 2, FALSE); offset += 2;
 
@@ -4949,7 +4946,7 @@ static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tv
 static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh)
 {
     guint8 lnh_val = 0;             /* The Link Next Header Value.  Tells us which headers are coming */
-    gboolean bthFollows = 0;        /* Tracks if we are parsing a BTH.  This is a significant decision point */
+    gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
     guint8 virtualLane = 0;         /* The Virtual Lane of the current Packet */
     guint8 opCode = 0;              /* OpCode from BTH header. */
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
