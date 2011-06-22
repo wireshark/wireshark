@@ -757,6 +757,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-meta.c
 	dissectors/packet-mgcp.c
 	dissectors/packet-mikey.c
+	dissectors/packet-mime-encap.c
 	dissectors/packet-miop.c
 	dissectors/packet-mip.c
 	dissectors/packet-mip6.c
