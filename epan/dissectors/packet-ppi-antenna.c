@@ -316,7 +316,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 break;
             if (tree) {
                 /* proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, ENC_NA); */
-                curr_str = tvb_format_text(tvb, offset, 32);
+                curr_str = tvb_format_stringzpad(tvb, offset, 32);
                 proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, curr_str);
                 proto_item_append_text(antenna_line, " (%s)", curr_str);
             }
@@ -328,7 +328,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 break;
             if (tree) {
                 /*proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, ENC_NA);*/
-                curr_str = tvb_format_text(tvb, offset, 32);
+                curr_str = tvb_format_stringzpad(tvb, offset, 32);
                 proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(antenna_line, " (%s)", curr_str);
             }
