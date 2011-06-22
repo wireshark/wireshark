@@ -1310,6 +1310,15 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             offset += text_len;
             while (tvb_reported_length_remaining(tvb, offset)) {
                 text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree);
+                /* minimum is apdu tag + 1 byte len field */
+                if (text_len<APDU_TAG_SIZE+1) {
+                    pi = proto_tree_add_text(
+                            tree, tvb, offset, -1, "Invalid item");
+                    expert_add_info_format(
+                            pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "Items must be text_more() or text_last() objects");
+                    return;
+                }
                 offset += text_len;
             }
             break;
