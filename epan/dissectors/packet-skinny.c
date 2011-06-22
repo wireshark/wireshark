@@ -1361,7 +1361,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x0003: /* KeypadButtonMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_stationKeypadButton, tvb, offset+12, 4, TRUE);
       if (hdr_data_length > 8) {
-		  proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
+          proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
 		  proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
 		  si->lineId = tvb_get_letohl(tvb, offset+16);
 		  si->callId = tvb_get_letohl(tvb, offset+20);
@@ -2801,10 +2801,95 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x014A: /* CM5CallInfoMessage */
-      /* unknown uint32_t stuff */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, offset+20, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
       /* 5x unknown uint32_t stuff */
+        /* strings */
+        {
+        i = offset+44;
+        if(hdr_version == BASIC_MSG_TYPE)
+        {
+          /* 8x party numbers */
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          /* 4x party names */
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, TRUE);
+        }
+        else if(hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_A)
+        {/* I'm not sure. Not enough examples. */
+          /* 8x party numbers */
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, TRUE);
+          i += count;
+          /* 4x party names */
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, TRUE);
+          i += count;
+          count = tvb_strnlen(tvb, i, -1)+1;
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, TRUE);
+        }
+      }
       break;
 
     case 0x0152: /* DialedPhoneBookAckMessage */
