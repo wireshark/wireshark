@@ -233,7 +233,7 @@ add_definitions(
 	# you can use defines to remove deprecated symbols from the header files
 
 	# -DGDK_DISABLE_DEPRECATED
-	-DGTK_DISABLE_DEPRECATED
+	# -DGTK_DISABLE_DEPRECATED
 )
 
 add_lex_files(WIRESHARK_GTK_SRC
