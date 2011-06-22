@@ -1763,7 +1763,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x0037: /* ModifyConferenceResMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_createConfResults, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_modifyConfResults, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+20, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+20);
       proto_tree_add_uint(skinny_tree, hf_skinny_passThruData, tvb, offset+24, 1, count);
