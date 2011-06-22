@@ -196,7 +196,7 @@
 /* used for answer_text_length, choice_nb and item_nb */
 #define NB_UNKNOWN 0xFF
 
-                                 
+
 /* character tables, DVB-SI spec annex A.2 */
 #define CHAR_TBL_8859_5   0x01
 #define CHAR_TBL_8859_6   0x02
@@ -315,7 +315,7 @@ static const apdu_info_t apdu_info[] = {
     {T_REPLACE,         0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_CLEAR_REPLACE,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_ASK_RELEASE,     0, 0,             DATA_HOST_TO_CAM, NULL},
- 
+
     {T_DATE_TIME_ENQ,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
     {T_DATE_TIME,       5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
 
@@ -324,10 +324,10 @@ static const apdu_info_t apdu_info[] = {
     {T_DISPLAY_REPLY,   1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
     {T_ENQ,             2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
     {T_ANSW,            1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_MENU_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi}, 
+    {T_MENU_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
     {T_MENU_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
     {T_MENU_ANSW,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_LIST_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi}, 
+    {T_LIST_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
     {T_LIST_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
 };
 
@@ -365,9 +365,6 @@ static const value_string dvbci_apdu_tag[] = {
 
 /* convert a byte that contains two 4bit BCD digits into a decimal value */
 #define BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
-
-
-void proto_reg_handoff_dvbci(void);
 
 
 static int proto_dvbci = -1;
@@ -637,7 +634,7 @@ static const value_string dvbci_ans_id[] = {
 };
 
 
-    
+
 
 
 static guint16 buf_size_cam;    /* buffer size proposal by the CAM */
@@ -649,7 +646,7 @@ static guint16 buf_size_host;
 static inline gint16 two_comp_to_int16(guint16 x)
 {
    return (x&0x8000) ? -~(x-1) : x;
-}   
+}
 
 
 /* initialize/reset per capture state data */
@@ -706,10 +703,10 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
 
     proto_tree_add_text(tree, tvb, offset, str_len, "%s: %s", title, si_str);
     if (show_col_info)
-      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", si_str);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", si_str);
 }
 
- 
+
 /* dissect a ca descriptor in the ca_pmt */
 static gint
 dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -894,27 +891,27 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
 {
-   const gchar *tag_str;
-   proto_item *pi;
-   guint32 res_id;
+    const gchar *tag_str;
+    proto_item *pi;
+    guint32 res_id;
 
-   if (tag==T_PROFILE) {
-       if (len_field % RES_ID_LEN) {
-           tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
-           pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
+    if (tag==T_PROFILE) {
+        if (len_field % RES_ID_LEN) {
+            tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
+            pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
                    "Invalid APDU length field");
-           expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
                    "Length field for %s must be a multiple of 4 bytes",
                    tag_str);
-           return;
-       }
+            return;
+        }
 
-       while (tvb_reported_length_remaining(tvb, offset) != 0) {
-           res_id = tvb_get_ntohl(tvb, offset);
-           dissect_dvbci_res_id(tvb, offset, pinfo, tree, res_id, FALSE);
-           offset += RES_ID_LEN;
-       }
-   }
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            res_id = tvb_get_ntohl(tvb, offset);
+            dissect_dvbci_res_id(tvb, offset, pinfo, tree, res_id, FALSE);
+            offset += RES_ID_LEN;
+        }
+    }
 }
 
 static void
@@ -977,7 +974,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
             return;
         }
 
-        while (tvb_reported_length_remaining(tvb, offset) != 0) {
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(
                     tree, hf_dvbci_ca_sys_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -994,7 +991,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                 tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         byte = tvb_get_guint8(tvb,offset);
-        proto_tree_add_text(tree, tvb, offset, 1, 
+        proto_tree_add_text(tree, tvb, offset, 1,
                 "Version number: 0x%x, Current-next indicator: 0x%x",
                 (byte&0x3E) >> 1, byte&0x01);
         offset++;
@@ -1080,7 +1077,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
             tree, hf_dvbci_replacement_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                 "ref 0x%x, 0x%x -> 0x%x", ref, old_pid, new_pid);
-     }
+    }
     else if (tag==T_CLEAR_REPLACE) {
         ref = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(
@@ -1244,9 +1241,9 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                 proto_tree_add_item(tree, hf_dvbci_mmi_mode,
                         tvb, offset, 1, ENC_NA);
             }
-            else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL || 
+            else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL ||
                      disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL) {
-                while (tvb_reported_length_remaining(tvb, offset) != 0) {
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(tree, hf_dvbci_char_tbl,
                             tvb, offset, 1, ENC_NA);
                     offset++;
@@ -1308,7 +1305,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             offset += text_len;
             text_len = dissect_dvbci_text("Bottom line", tvb, offset, pinfo, tree);
             offset += text_len;
-            while (tvb_reported_length_remaining(tvb, offset)) {
+            while (tvb_reported_length_remaining(tvb, offset) > 0) {
                 text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree);
                 /* minimum is apdu tag + 1 byte len field */
                 if (text_len<APDU_TAG_SIZE+1) {
@@ -1957,13 +1954,13 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
             }
         }
         offset += tpl_len;
-    } while (tvb_reported_length_remaining(tvb, offset) && tpl_code!=CISTPL_END);
+    } while ((tvb_reported_length_remaining(tvb, offset) > 0) && (tpl_code != CISTPL_END));
 
     if (ti_main)
         proto_item_set_len(ti_main, offset-offset_start);
  }
 
- 
+
 static int
 dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2260,16 +2257,13 @@ proto_register_dvbci(void)
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    if (!spdu_table)
-        return;
     for(i=0; i<array_length(spdu_info); i++) {
         g_hash_table_insert(spdu_table,
                 GUINT_TO_POINTER((guint)spdu_info[i].tag),
                 (gpointer)(&spdu_info[i]));
     }
+
     apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    if (!apdu_table)
-        return;
     for(i=0; i<array_length(apdu_info); i++) {
         g_hash_table_insert(apdu_table,
                 GUINT_TO_POINTER((guint)apdu_info[i].tag),
