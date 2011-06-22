@@ -178,7 +178,7 @@ rtsp_stats_tree_init(stats_tree* st)
 	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, TRUE);
 	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, TRUE);
 	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, TRUE);
-	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,FALSE);
+	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,ENC_BIG_ENDIAN);
 }
 
 /* RTSP/Packet Counter stats packet function */
@@ -191,10 +191,10 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	const gchar *resp_str;
 	static gchar str[64];
 
-	tick_stat_node(st, st_str_packets, 0, FALSE);
+	tick_stat_node(st, st_str_packets, 0, ENC_BIG_ENDIAN);
 
 	if (i) {
-		tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
+		tick_stat_node(st, st_str_responses, st_node_packets, ENC_BIG_ENDIAN);
 
 		if ( (i<100)||(i>=600) ) {
 			resp_grp = st_node_resp_broken;
@@ -216,14 +216,14 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 			resp_str = st_str_resp_500;
 		}
 
-		tick_stat_node(st, resp_str, st_node_responses, FALSE);
+		tick_stat_node(st, resp_str, st_node_responses, ENC_BIG_ENDIAN);
 
 		g_snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,rtsp_status_code_vals, "Unknown (%d)"));
-		tick_stat_node(st, str, resp_grp, FALSE);
+		tick_stat_node(st, str, resp_grp, ENC_BIG_ENDIAN);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
 	} else {
-		tick_stat_node(st, st_str_other, st_node_packets, FALSE);
+		tick_stat_node(st, st_str_other, st_node_packets, ENC_BIG_ENDIAN);
 	}
 
 	return 1;
@@ -738,7 +738,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	first_linelen = tvb_find_line_end(tvb, offset,
 	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 
 	/*
 	 * Is the first line a request or response?
@@ -829,7 +829,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	orig_offset = offset;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,	-1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
@@ -853,7 +853,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		linelen = tvb_find_line_end(tvb, offset,
 		    tvb_ensure_length_remaining(tvb, offset), &next_offset,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		if (linelen < 0)
 			return -1;
 		line_end_offset = offset + linelen;
@@ -1393,7 +1393,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * first RTSP message; make the columns non-writable,
 		 * so that we don't change it for subsequent RTSP messages.
 		 */
-		col_set_writable(pinfo->cinfo, FALSE);
+		col_set_writable(pinfo->cinfo, ENC_BIG_ENDIAN);
 	}
 }
 
