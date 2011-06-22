@@ -64,6 +64,7 @@
 
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
+static dissector_table_t gtp_cdr_fmt_dissector_table;
 
 #define GTPv0_PORT  3386
 #define GTPv1C_PORT 2123    /* 3G Control PDU */
@@ -6458,7 +6459,10 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
             /* XXX this is for release 6, may not work for higer releases */
             if(format==1){
                 dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
-            }
+			}else{
+				/* Do we have a dissector regestering for this data format? */
+				dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
+			}
 
             offset = offset + cdr_length;
         }
@@ -7424,6 +7428,7 @@ void proto_register_gtp(void)
     register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
+    gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_reinit);
     gtp_tap=register_tap("gtp");
