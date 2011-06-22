@@ -248,8 +248,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
         epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
         if (cinfo->col_custom_field) {
             header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
-            g_assert(hfinfo);
-            cinfo->col_custom_field_id[i] = hfinfo->id;
+            cinfo->col_custom_field_id[i] = hfinfo ? hfinfo->id : -1;
         }
     }
   }
