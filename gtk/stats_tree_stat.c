@@ -331,6 +331,9 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gdk_window_raise(st->pr->win->window);
 }
 
+static tap_param tree_stat_params[] = {
+	{ PARAM_FILTER, "Filter", NULL }
+};
 
 static void
 register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
@@ -345,6 +348,8 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	cfg->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",cfg->abbr);
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
+	cfg->pr->stat_dlg->nparams = G_N_ELEMENTS(tree_stat_params);
+	cfg->pr->stat_dlg->params = tree_stat_params;
 
 	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name, cfg->stat_group);
 }
