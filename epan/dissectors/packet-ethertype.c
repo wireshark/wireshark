@@ -157,6 +157,7 @@ const value_string etype_vals[] = {
   { ETHERTYPE_CFM, "IEEE 802.1ag Connectivity Fault Management (CFM) protocol" },
   { ETHERTYPE_FCOE, "Fibre Channel over Ethernet" },
   { ETHERTYPE_IEEE80211_DATA_ENCAP, "IEEE 802.11 data encapsulation" },
+  { ETHERTYPE_LINX, "LINX IPC Protocol" },
   { ETHERTYPE_FIP, "FCoE Initialization Protocol" },
   { ETHERTYPE_PTP, "PTPv2 over Ethernet (IEEE1588)" },
   { ETHERTYPE_PRP, "Parallel Redundancy Protocol (IEC62439 Chapter 6)" },
