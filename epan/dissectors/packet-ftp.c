@@ -124,9 +124,6 @@ static const value_string response_table[] = {
 	{ 0,   NULL }
 };
 
-static void
-dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /*
  * Parse the address and port information in a PORT command or in the
  * response to a PASV command.  Return TRUE if we found an address and
