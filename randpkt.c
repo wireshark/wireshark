@@ -49,6 +49,7 @@
 #include <string.h>
 #include <glib.h>
 #include "wiretap/wtap.h"
+#include "wsutil/file_util.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -705,7 +706,7 @@ seed(void)
 	 *
 	 * XXX - Use CryptGenRandom on Windows?
 	 */
-	fd = open(RANDOM_DEV, O_RDONLY);
+	fd = ws_open(RANDOM_DEV, O_RDONLY);
 	if (fd == -1) {
 		if (errno != ENOENT) {
 			fprintf(stderr,
@@ -716,7 +717,7 @@ seed(void)
 		goto fallback;
 	}
 
-	ret = read(fd, &randomness, sizeof randomness);
+	ret = ws_read(fd, &randomness, sizeof randomness);
 	if (ret == -1) {
 		fprintf(stderr,
 		    "randpkt: Could not read from " RANDOM_DEV ": %s\n",
@@ -730,6 +731,7 @@ seed(void)
 		exit(2);
 	}
 	srand(randomness);
+	ws_close(fd);
 	return;
 
 fallback:
