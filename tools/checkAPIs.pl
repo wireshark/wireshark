@@ -250,15 +250,15 @@ my %APIs = (
 my %deprecatedGtkFunctions = (
 		'gtk_about_dialog_get_name',			'E',
 		'gtk_about_dialog_set_name',			'E',
-		'gtk_accel_group_ref',				'E',
-		'gtk_accel_group_unref',			'E',
+		'gtk_accel_group_ref',					'E',
+		'gtk_accel_group_unref',				'E',
 		'gtk_action_block_activate_from',		'E', # since 2.16
-		'gtk_action_connect_proxy',			'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
+		'gtk_action_connect_proxy',				'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
 		'gtk_action_disconnect_proxy',			'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
 		'gtk_action_unblock_activate_from',		'E', # since 2.16
-		'gtk_binding_entry_add',			'E',
+		'gtk_binding_entry_add',				'E',
 		'gtk_binding_entry_add_signall',		'E',
-		'gtk_binding_entry_clear',			'E',
+		'gtk_binding_entry_clear',				'E',
 		'gtk_binding_parse_binding',			'E',
 		'gtk_box_pack_end_defaults',			'E',
 		'gtk_box_pack_start_defaults',			'E',
@@ -268,22 +268,22 @@ my %deprecatedGtkFunctions = (
 		'gtk_button_box_set_child_ipadding',		'E', # style properties child-internal-pad-x/-y
 		'gtk_button_box_set_child_size',		'E', # style properties child-min-width/-height
 		'gtk_button_box_set_spacing',			'E', # gtk_box_set_spacing [==]
-		'gtk_button_enter',				'E', # since 2.20
-		'gtk_button_leave',				'E', # since 2.20
-		'gtk_button_pressed',				'E', # since 2.20
-		'gtk_button_released',				'E', # since 2.20
+		'gtk_button_enter',						'E', # since 2.20
+		'gtk_button_leave',						'E', # since 2.20
+		'gtk_button_pressed',					'E', # since 2.20
+		'gtk_button_released',					'E', # since 2.20
 		'gtk_calendar_display_options',			'E',
-		'gtk_calendar_freeze',				'E',
-		'gtk_calendar_thaw',				'E',
-		'GTK_CELL_PIXMAP',				'E', # GtkTreeView (& related) ...
-		'GTK_CELL_PIXTEXT',				'E',
+		'gtk_calendar_freeze',					'E',
+		'gtk_calendar_thaw',					'E',
+		'GTK_CELL_PIXMAP',						'E', # GtkTreeView (& related) ...
+		'GTK_CELL_PIXTEXT',						'E',
 		'gtk_cell_renderer_editing_canceled',		'E',
-		'GTK_CELL_TEXT',				'W',
-		'GTK_CELL_WIDGET',				'E',
-		'GTK_CHECK_CAST',				'E', # G_TYPE_CHECK_INSTANCE_CAST [==]
-		'GTK_CHECK_CLASS_CAST',				'E', # G_TYPE_CHECK_CLASS_CAST [==]
-		'GTK_CHECK_CLASS_TYPE',				'E', # G_TYPE_CHECK_CLASS_TYPE [==]
-		'GTK_CHECK_GET_CLASS',				'E', # G_TYPE_INSTANCE_GET_CLASS [==]
+		'GTK_CELL_TEXT',						'W',
+		'GTK_CELL_WIDGET',						'E',
+		'GTK_CHECK_CAST',						'E', # G_TYPE_CHECK_INSTANCE_CAST [==]
+		'GTK_CHECK_CLASS_CAST',					'E', # G_TYPE_CHECK_CLASS_CAST [==]
+		'GTK_CHECK_CLASS_TYPE',					'E', # G_TYPE_CHECK_CLASS_TYPE [==]
+		'GTK_CHECK_GET_CLASS',					'E', # G_TYPE_INSTANCE_GET_CLASS [==]
 		'gtk_check_menu_item_set_show_toggle',		'E', # Does nothing; remove; [show_toggle is always TRUE]
 		'gtk_check_menu_item_set_state',		'E',
 		'GTK_CHECK_TYPE',						'E', # G_TYPE_CHECK_INSTANCE_TYPE [==]
@@ -378,8 +378,8 @@ my %deprecatedGtkFunctions = (
 		'GTK_CLIST_USE_DRAG_ICONS',				'E',
 		'gtk_color_selection_get_color',		'E',
 		'gtk_color_selection_set_change_palette_hook',	'E',
-		'gtk_color_selection_set_color',			'E',
-		'gtk_color_selection_set_update_policy',	'E',
+		'gtk_color_selection_set_color',				'E',
+		'gtk_color_selection_set_update_policy',		'E',
 		'gtk_combo_disable_activate',			'E', # GtkComboBoxEntry ... (avail since 2.4/2.6/2.10/2.14)
 		'gtk_combo_new',						'E',
 		'gtk_combo_set_case_sensitive',			'E',
@@ -471,27 +471,27 @@ my %deprecatedGtkFunctions = (
 		'gtk_curve_set_range',					'E', # since 2.20
 		'gtk_curve_set_vector',					'E', # since 2.20
 		'gtk_drag_set_default_icon',			'E',
-		'gtk_draw_arrow',				'E',
-		'gtk_draw_box',					'E',
-		'gtk_draw_box_gap',				'E',
-		'gtk_draw_check',				'E',
-		'gtk_draw_diamond',				'E',
-		'gtk_draw_expander',				'E',
-		'gtk_draw_extension',				'E',
-		'gtk_draw_flat_box',				'E',
-		'gtk_draw_focus',				'E',
-		'gtk_draw_handle',				'E',
-		'gtk_draw_hline',				'E',
-		'gtk_draw_layout',				'E',
-		'gtk_draw_option',				'E',
-		'gtk_draw_polygon',				'E',
-		'gtk_draw_resize_grip',			'E',
-		'gtk_draw_shadow',				'E',
-		'gtk_draw_shadow_gap',			'E',
-		'gtk_draw_slider',				'E',
-		'gtk_draw_string',				'E',
-		'gtk_draw_tab',					'E',
-		'gtk_draw_vline',				'E',
+		'gtk_draw_arrow',						'E',
+		'gtk_draw_box',							'E',
+		'gtk_draw_box_gap',						'E',
+		'gtk_draw_check',						'E',
+		'gtk_draw_diamond',						'E',
+		'gtk_draw_expander',					'E',
+		'gtk_draw_extension',					'E',
+		'gtk_draw_flat_box',					'E',
+		'gtk_draw_focus',						'E',
+		'gtk_draw_handle',						'E',
+		'gtk_draw_hline',						'E',
+		'gtk_draw_layout',						'E',
+		'gtk_draw_option',						'E',
+		'gtk_draw_polygon',						'E',
+		'gtk_draw_resize_grip',					'E',
+		'gtk_draw_shadow',						'E',
+		'gtk_draw_shadow_gap',					'E',
+		'gtk_draw_slider',						'E',
+		'gtk_draw_string',						'E',
+		'gtk_draw_tab',							'E',
+		'gtk_draw_vline',						'E',
 		'gtk_drawing_area_size',				'E', # >> g_object_set() [==] ?
 													 #    gtk_widget_set_size_request() [==?]
 		'gtk_entry_append_text',				'E', # >> gtk_editable_insert_text() [==?]
@@ -500,48 +500,48 @@ my %deprecatedGtkFunctions = (
 		'gtk_entry_select_region',				'E',
 		'gtk_entry_set_editable',				'E', # >> gtk_editable_set_editable() [==?]
 		'gtk_entry_set_position',				'E',
-		'gtk_exit',								'E', # exit() [==]
-		'gtk_file_chooser_button_new_with_backend',	'E',
-		'gtk_file_chooser_dialog_new_with_backend',	'E',
-		'gtk_file_chooser_widget_new_with_backend',	'E',
-		'gtk_file_selection_complete',				'E',
-		'gtk_file_selection_get_filename',			'E', # GtkFileChooser ...
-		'gtk_file_selection_get_select_multiple',	'E',
-		'gtk_file_selection_get_selections',		'E',
-		'gtk_file_selection_hide_fileop_buttons',	'E',
-		'gtk_file_selection_new',					'E',
-		'gtk_file_selection_set_filename',			'E',
-		'gtk_file_selection_set_select_multiple',	'E',
-		'gtk_file_selection_show_fileop_buttons',	'E',
-		'gtk_fixed_get_has_window',			'E', # gtk_widget_get_has_window() (available since 2.18)
-		'gtk_fixed_set_has_window',			'E', # gtk_widget_set_has_window() (available since 2.18)
+		'gtk_exit',										'E', # exit() [==]
+		'gtk_file_chooser_button_new_with_backend',		'E',
+		'gtk_file_chooser_dialog_new_with_backend',		'E',
+		'gtk_file_chooser_widget_new_with_backend',		'E',
+		'gtk_file_selection_complete',					'E',
+		'gtk_file_selection_get_filename',				'E', # GtkFileChooser ...
+		'gtk_file_selection_get_select_multiple',		'E',
+		'gtk_file_selection_get_selections',			'E',
+		'gtk_file_selection_hide_fileop_buttons',		'E',
+		'gtk_file_selection_new',						'E',
+		'gtk_file_selection_set_filename',				'E',
+		'gtk_file_selection_set_select_multiple',		'E',
+		'gtk_file_selection_show_fileop_buttons',		'E',
+		'gtk_fixed_get_has_window',						'E', # gtk_widget_get_has_window() (available since 2.18)
+		'gtk_fixed_set_has_window',						'E', # gtk_widget_set_has_window() (available since 2.18)
 		'gtk_font_selection_dialog_get_apply_button',	'E',
-		'gtk_font_selection_dialog_get_font',		'E',
-		'gtk_font_selection_get_font',			'E', # gtk_font_selection_get_font_name() [!=]
-		'GTK_FUNDAMENTAL_TYPE',				'E',
-		'gtk_gamma_curve_new',				'E', # since 2.20
-		'gtk_hbutton_box_get_layout_default',		'E',
-		'gtk_hbutton_box_get_spacing_default',		'E',
-		'gtk_hbutton_box_set_layout_default',		'E',
-		'gtk_hbutton_box_set_spacing_default',		'E',
-		'gtk_idle_add',					'E',
-		'gtk_idle_add_full',				'E',
-		'gtk_idle_add_priority',			'E',
-		'gtk_idle_remove',				'E',
-		'gtk_idle_remove_by_data',			'E',
-		'gtk_image_get',				'E',
-		'gtk_image_set',				'E',
-		'gtk_input_add_full',				'W', # >>> g_io_add_watch_full()
-		'gtk_input_dialog_new',				'E', # since 2.20
-		'gtk_input_remove',				'W', # >>> g_source_remove()
-		'GTK_IS_ROOT_TREE',				'E',
-		'gtk_item_factories_path_delete',		'E', # GtkUIManager (avail since 2.4) ...
-		'gtk_item_factory_add_foreign',			'E',
-		'gtk_item_factory_construct',			'E',
-		'gtk_item_factory_create_item',			'W',
-		'gtk_item_factory_create_items',		'E',
-		'gtk_item_factory_create_items_ac',		'W',
-		'gtk_item_factory_create_menu_entries',		'E',
+		'gtk_font_selection_dialog_get_font',			'E',
+		'gtk_font_selection_get_font',					'E', # gtk_font_selection_get_font_name() [!=]
+		'GTK_FUNDAMENTAL_TYPE',							'E',
+		'gtk_gamma_curve_new',							'E', # since 2.20
+		'gtk_hbutton_box_get_layout_default',			'E',
+		'gtk_hbutton_box_get_spacing_default',			'E',
+		'gtk_hbutton_box_set_layout_default',			'E',
+		'gtk_hbutton_box_set_spacing_default',			'E',
+		'gtk_idle_add',									'E',
+		'gtk_idle_add_full',							'E',
+		'gtk_idle_add_priority',						'E',
+		'gtk_idle_remove',								'E',
+		'gtk_idle_remove_by_data',						'E',
+		'gtk_image_get',								'E',
+		'gtk_image_set',								'E',
+		'gtk_input_add_full',							'W', # >>> g_io_add_watch_full()
+		'gtk_input_dialog_new',							'E', # since 2.20
+		'gtk_input_remove',								'W', # >>> g_source_remove()
+		'GTK_IS_ROOT_TREE',								'E',
+		'gtk_item_factories_path_delete',				'E', # GtkUIManager (avail since 2.4) ...
+		'gtk_item_factory_add_foreign',					'E',
+		'gtk_item_factory_construct',					'E',
+		'gtk_item_factory_create_item',					'W',
+		'gtk_item_factory_create_items',				'E',
+		'gtk_item_factory_create_items_ac',				'W',
+		'gtk_item_factory_create_menu_entries',			'E',
 		'gtk_item_factory_delete_entries',		'E',
 		'gtk_item_factory_delete_entry',		'E',
 		'gtk_item_factory_delete_item',			'W',
@@ -889,10 +889,10 @@ my %deprecatedGtkFunctions = (
 		'gtk_tooltips_enable',						'E',
 		'gtk_tooltips_force_window',				'E',
 		'gtk_tooltips_get_info_from_tip_window',	'E',
-##		'gtk_tooltips_new',							'W',
+		'gtk_tooltips_new',							'W',
 		'gtk_tooltips_set_delay',					'E',
-##		'gtk_tooltips_set_tip',						'W',
-##		'gtk_tool_item_set_tooltip',				'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+		'gtk_tooltips_set_tip',						'W',
+		'gtk_tool_item_set_tooltip',				'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
 ##  (or: use conditional code based upon the GTK version).
@@ -944,6 +944,256 @@ my %deprecatedGtkFunctions = (
 		'gtk_item_toggle',							'E', #
 		'gtk_recent_manager_get_limit',				'E', # Use GtkRecentChooser
 		'gtk_recent_manager_set_limit',				'E', #
+
+## Deprecated as of GTK+ 2.24 but to be replaced only when Wireshark requires GTK+ 2.24 or later
+##  (or: use conditional code based upon the GTK version).
+		'gtk_combo_box_new_text',					'W', # gtk_combo_box_text_new()
+		'GtkComboBoxEntry',							'W', #
+		'gtk_combo_box_append_text',				'W', #
+		'gtk_combo_box_entry_get_text_column',		'W', #
+		'gtk_combo_box_entry_new',					'W', #
+		'gtk_combo_box_entry_new_text',				'W', #
+		'gtk_combo_box_entry_new_with_model',		'W', #
+		'gtk_combo_box_entry_set_text_column',		'W', #
+		'gtk_combo_box_get_active_text',			'W', #
+		'gtk_combo_box_insert_text',				'W', #
+		'gtk_combo_box_new_text',					'W', #
+		'gtk_combo_box_prepend_text',				'W', #
+		'gtk_combo_box_remove_text',				'W', #
+
+## GDK deprecated functions:
+		'gdk_bitmap_create_from_data',				'W', # 
+		'gdk_bitmap_ref',							'W', # 
+		'gdk_bitmap_unref',							'W', # 
+		'gdk_cairo_set_source_pixmap',				'W', # 
+		'gdk_char_height',							'W', #
+		'gdk_char_measure',							'W', #
+		'gdk_char_width',							'W', #
+		'gdk_char_width_wc',						'W', #
+		'gdk_colormap_change',						'W', # 
+		'gdk_colormap_get_system_size',				'W', # 
+		'gdk_colormap_ref',							'W', #
+		'gdk_colormap_unref',						'W', #
+		'gdk_colors_alloc',							'W', #
+		'gdk_colors_free',							'W', #
+		'gdk_colors_store',							'W', #
+		'gdk_color_alloc',							'W', #
+		'gdk_color_black',							'W', #
+		'gdk_color_change',							'W', #
+		'gdk_color_white',							'W', #
+		'gdk_cursor_destroy',						'W', # 
+		'GdkDestroyNotify',							'W', # 
+		'gdk_DISPLAY',								'W', # 
+		'gdk_display_set_pointer_hooks',			'W', # 
+		'gdk_drag_context_new',						'W', # 
+		'gdk_drag_context_ref',						'W', # 
+		'gdk_drag_context_unref',					'W', # 
+		'gdk_drag_find_window',						'W', # 
+		'gdk_drag_get_protocol',					'W', # 
+		'gdk_drawable_copy_to_image',				'W', # 
+		'gdk_drawable_get_data',					'W', # 
+		'gdk_drawable_get_display',					'W', # 
+		'gdk_drawable_get_image',					'W', # 
+		'gdk_drawable_get_screen',					'W', # 
+		'gdk_drawable_get_size',					'W', # 
+		'gdk_drawable_get_visual',					'W', # 
+		'gdk_drawable_ref',							'W', # 
+		'gdk_drawable_set_data',					'W', # 
+		'gdk_drawable_unref',						'W', # 
+		'gdk_draw_arc',								'W', # 
+		'gdk_draw_drawable',						'W', # gdk_cairo_set_source_pixmap(), 
+		'gdk_draw_glyphs',							'W', # 
+		'gdk_draw_glyphs_transformed',				'W', # 
+		'gdk_draw_gray_image',						'W', # 
+		'gdk_draw_image',							'W', # 
+		'gdk_draw_indexed_image',					'W', # 
+		'gdk_draw_layout',							'W', # 
+		'gdk_draw_layout_line',						'W', # 
+		'gdk_draw_layout_line_with_colors',			'W', # 
+		'gdk_draw_layout_with_colors',				'W', # 
+		'gdk_draw_line',							'W', # 
+		'gdk_draw_lines',							'W', # 
+		'gdk_draw_pixbuf',							'W', # gdk_cairo_set_source_pixbuf() and cairo_paint() or cairo_rectangle() and cairo_fill() instead.
+		'gdk_draw_pixmap',							'W', # 
+		'gdk_draw_point',							'W', # 
+		'gdk_draw_points',							'W', # 
+		'gdk_draw_polygon',							'W', # 
+		'gdk_draw_rectangle',						'W', # 
+		'gdk_draw_rgb_32_image',					'W', # 
+		'gdk_draw_rgb_32_image_dithalign',			'W', # 
+		'gdk_draw_rgb_image',						'W', # 
+		'gdk_draw_rgb_image_dithalign',				'W', # 
+		'gdk_draw_segments',						'W', # 
+		'gdk_draw_string',							'W', # 
+		'gdk_draw_text',							'W', # 
+		'gdk_draw_text_wc',							'W', # 
+		'gdk_draw_trapezoids',						'W', # 
+		'gdk_event_get_graphics_expose',			'W', # 
+		'gdk_exit',									'W', # 
+		'GdkFillRule',								'W', # 
+		'GdkFont',									'W', #
+		'gdk_fontset_load',							'W', # 
+		'gdk_fontset_load_for_display',				'W', # 
+		'GdkFontType',								'W', # 
+		'gdk_font_equal',							'W', # 
+		'gdk_font_from_description',				'W', # 
+		'gdk_font_from_description_for_display',	'W', # 
+		'gdk_font_get_display',						'W', # 
+		'gdk_font_id',								'W', # 
+		'gdk_font_load',							'W', # 
+		'gdk_font_load_for_display',				'W', # 
+		'gdk_font_lookup',							'W', # 
+		'gdk_font_lookup_for_display',				'W', # 
+		'gdk_font_ref',								'W', # 
+		'gdk_font_unref',							'W', # 
+		'gdk_FONT_XDISPLAY',						'W', # 
+		'gdk_FONT_XFONT',							'W', # 
+		'gdk_free_compound_text',					'W', # 
+		'gdk_free_text_list',						'W', # 
+		'gdk_gc_copy',								'W', # 
+		'gdk_gc_destroy',							'W', #  
+		'gdk_gc_get_colormap',						'W', # 
+		'gdk_gc_get_screen',						'W', # 
+		'gdk_gc_get_values',						'W', # 
+		'gdk_gc_new',								'W', # 
+		'gdk_gc_new_with_values',					'W', # 
+		'gdk_gc_offset',							'W', # 
+		'gdk_gc_ref',								'W', # 
+		'gdk_gc_set_background',					'W', # 
+		'gdk_gc_set_clip_mask',						'W', # 
+		'gdk_gc_set_clip_origin',					'W', # 
+		'gdk_gc_set_clip_rectangle',				'W', # 
+		'gdk_gc_set_clip_region',					'W', # 
+		'gdk_gc_set_colormap',						'W', # 
+		'gdk_gc_set_dashes',						'W', # 
+		'gdk_gc_set_exposures',						'W', # 
+		'gdk_gc_set_fill',							'W', # 
+		'gdk_gc_set_font',							'W', # 
+		'gdk_gc_set_foreground',					'W', # 
+		'gdk_gc_set_function',						'W', # Use cairo_set_operator() with Cairo.
+		'gdk_gc_set_line_attributes',				'W', # 
+		'gdk_gc_set_rgb_bg_color',					'W', # 
+		'gdk_gc_set_rgb_fg_color',					'W', # 
+		'gdk_gc_set_stipple',						'W', # 
+		'gdk_gc_set_subwindow',						'W', # 
+		'gdk_gc_set_tile',							'W', # 
+		'gdk_gc_set_ts_origin',						'W', # 
+		'gdk_gc_set_values',						'W', # 
+		'gdk_gc_unref',								'W', # 
+		'gdk_get_use_xshm',							'W', # 
+		'gdk_image_destroy',						'W', # 
+		'gdk_image_get',							'W', # 
+		'gdk_image_get_bits_per_pixel',				'W', # 
+		'gdk_image_get_bytes_per_line',				'W', # 
+		'gdk_image_get_bytes_per_pixel',			'W', # 
+		'gdk_image_get_byte_order',					'W', # 
+		'gdk_image_get_colormap',					'W', # 
+		'gdk_image_get_depth',						'W', # 
+		'gdk_image_get_height',						'W', # 
+		'gdk_image_get_image_type',					'W', # 
+		'gdk_image_get_pixel',						'W', # 
+		'gdk_image_get_pixels',						'W', # 
+		'gdk_image_get_visual',						'W', # 
+		'gdk_image_get_width',						'W', # 
+		'gdk_image_new',							'W', # 
+		'gdk_image_new_bitmap',						'W', # 
+		'gdk_image_put_pixel',						'W', # 
+		'gdk_image_ref',							'W', # 
+		'gdk_image_set_colormap',					'W', # 
+		'gdk_image_unref',							'W', # 
+		'gdk_input_add',							'W', # 
+		'gdk_input_add_full',						'W', # 
+		'gdk_input_remove',							'W', # 
+		'gdk_mbstowcs',								'W', # 
+		'gdk_net_wm_supports',						'W', # 
+		'gdk_pango_context_set_colormap',			'W', # 
+		'gdk_pixbuf_render_to_drawable',			'W', # 
+		'gdk_pixbuf_render_to_drawable_alpha',		'W', # 
+		'gdk_pixmap_colormap_create_from_xpm',		'W', # 
+		'gdk_pixmap_colormap_create_from_xpm_d',	'W', # 
+		'gdk_pixmap_create_from_data',				'W', # 
+		'gdk_pixmap_create_from_xpm',				'W', # 
+		'gdk_pixmap_create_from_xpm_d',				'W', # 
+		'gdk_pixmap_ref',							'W', # 
+		'gdk_pixmap_unref',							'W', # 
+		'gdk_region_polygon',						'W', # 
+		'gdk_region_rect_equal',					'W', # 
+		'gdk_region_shrink',						'W', # 
+		'gdk_region_spans_intersect_foreach',		'W', # 
+		'GdkRgbCmap',								'W', # 
+		'gdk_rgb_cmap_free',						'W', # 
+		'gdk_rgb_cmap_new',							'W', # 
+		'gdk_rgb_colormap_ditherable',				'W', # 
+		'gdk_rgb_ditherable',						'W', # 
+		'gdk_rgb_find_color',						'W', # 
+		'gdk_rgb_gc_set_background',				'W', # 
+		'gdk_rgb_gc_set_foreground',				'W', # 
+		'gdk_rgb_get_cmap',							'W', # 
+		'gdk_rgb_get_colormap',						'W', # 
+		'gdk_rgb_get_visual',						'W', # 
+		'gdk_rgb_init',								'W', # 
+		'gdk_rgb_set_install',						'W', # 
+		'gdk_rgb_set_min_colors',					'W', # 
+		'gdk_rgb_set_verbose',						'W', # 
+		'gdk_rgb_xpixel_from_rgb',					'W', # 
+		'gdk_ROOT_PARENT',							'W', # 
+		'gdk_screen_get_rgb_colormap',				'W', # 
+		'gdk_screen_get_rgb_visual',				'W', # 
+		'GdkSelection',								'W', # 
+		'GdkSelectionType',							'W', # 
+		'gdk_set_locale',							'W', # 
+		'gdk_set_pointer_hooks',					'W', # 
+		'gdk_set_sm_client_id',						'W', # 
+		'gdk_set_use_xshm',							'W', # 
+		'GdkSpanFunc',								'W', # 
+		'gdk_spawn_command_line_on_screen',			'W', # 
+		'gdk_spawn_on_screen',						'W', # 
+		'gdk_spawn_on_screen_with_pipes',			'W', # 
+		'gdk_string_extents',						'W', # 
+		'gdk_string_height',						'W', # 
+		'gdk_string_measure',						'W', # 
+		'gdk_string_to_compound_text',				'W', # 
+		'gdk_string_to_compound_text_for_display',	'W', # 
+		'gdk_string_width',							'W', # 
+		'GdkTarget',								'W', # 
+		'gdk_text_extents',							'W', # 
+		'gdk_text_extents_wc',						'W', # 
+		'gdk_text_height',							'W', # 
+		'gdk_text_measure',							'W', # 
+		'gdk_text_property_to_text_list',				'W', # 
+		'gdk_text_property_to_text_list_for_display',	'W', # 
+		'gdk_text_property_to_utf8_list',				'W', # 
+		'gdk_text_width',								'W', # 
+		'gdk_text_width_wc',							'W', # 
+		'gdk_threads_mutex',							'W', #  
+		'gdk_utf8_to_compound_text',					'W', # 
+		'gdk_utf8_to_compound_text_for_display',		'W', # 
+		'gdk_visual_ref',								'W', # 
+		'gdk_visual_unref',								'W', # 
+		'gdk_wcstombs',									'W', # 
+		'gdk_window_copy_area',							'W', # 
+		'gdk_window_foreign_new',						'W', # 
+		'gdk_window_foreign_new_for_display',			'W', # 
+		'gdk_window_get_colormap',						'W', # 
+		'gdk_window_get_deskrelative_origin',			'W', # 
+		'gdk_window_get_size',							'W', # 
+		'gdk_window_get_toplevels',						'W', # 
+		'gdk_window_get_type',							'W', # 
+		'gdk_window_lookup',							'W', # 
+		'gdk_window_lookup_for_display',				'W', # 
+		'gdk_window_ref',								'W', # 
+		'gdk_window_set_colormap',						'W', # 
+		'gdk_window_set_hints',							'W', # 
+		'gdk_window_unref',								'W', # 
+		'gdk_x11_font_get_name',						'W', # 
+		'gdk_x11_font_get_xdisplay',					'W', # 
+		'gdk_x11_font_get_xfont',						'W', # 
+		'gdk_x11_gc_get_xdisplay',						'W', # 
+		'gdk_x11_gc_get_xgc',							'W', # 
+		'gdk_xid_table_lookup',							'W', # 
+		'gdk_xid_table_lookup_for_display',				'W', # 
+		'gdkx_colormap_get',							'W', # 
+		'gdkx_visual_get',								'W', # 
 
 );
 
