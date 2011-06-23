@@ -394,7 +394,7 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
     WSLUA_RETURN(1); /* The created Tvb. */
 }
 
-WSLUA_CONSTRUCTOR Tvb_tvb (lua_State *L) {
+WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
 	/* Creates a (sub)Tvb from using a TvbRange */
 #define WSLUA_ARG_Tvb_new_subset_RANGE 1 /* The TvbRange from which to create the new Tvb. */
 
@@ -1147,7 +1147,7 @@ static const luaL_reg TvbRange_methods[] = {
     {"range", TvbRange_range},
     {"len", TvbRange_len},
     {"offset", TvbRange_offset},
-    {"tvb", Tvb_tvb},
+    {"tvb", TvbRange_tvb},
     { NULL, NULL }
 };
 
