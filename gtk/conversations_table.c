@@ -363,22 +363,22 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 enum
 {
-  SRC_ADR_COLUMN,
-  SRC_PORT_COLUMN,
-  DST_ADR_COLUMN,
-  DST_PORT_COLUMN,
-  PACKETS_COLUMN,
-  BYTES_COLUMN,
-  PKT_AB_COLUMN,
-  BYTES_AB_COLUMN,
-  PKT_BA_COLUMN,
-  BYTES_BA_COLUMN,
-  START_COLUMN,
-  DURATION_COLUMN,
-  BPS_AB_COLUMN,
-  BPS_BA_COLUMN,
-  INDEX_COLUMN,
-  N_COLUMNS
+    SRC_ADR_COLUMN,
+    SRC_PORT_COLUMN,
+    DST_ADR_COLUMN,
+    DST_PORT_COLUMN,
+    PACKETS_COLUMN,
+    BYTES_COLUMN,
+    PKT_AB_COLUMN,
+    BYTES_AB_COLUMN,
+    PKT_BA_COLUMN,
+    BYTES_BA_COLUMN,
+    START_COLUMN,
+    DURATION_COLUMN,
+    BPS_AB_COLUMN,
+    BPS_BA_COLUMN,
+    INDEX_COLUMN,
+    N_COLUMNS
 };
 
 static gint
@@ -631,331 +631,331 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 static void
 conv_apply_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 
 static void
 conv_apply_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* As Not Selected */
 static void
 conv_apply_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* And Selected */
 static void
 conv_apply_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Or Selected */
 static void
 conv_apply_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
 }
 
 /* And Not Selected */
 static void
 conv_apply_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Or Not Selected */
 static void
 conv_apply_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_apply_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 
@@ -963,495 +963,495 @@ conv_apply_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 static void
 conv_prepare_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare As Not Selected */
 static void
 conv_prepare_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare And Selected */
 static void
 conv_prepare_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare Or Selected */
 static void
 conv_prepare_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare And Not Selected */
 static void
 conv_prepare_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Prepare Or Not Selected */
 static void
 conv_prepare_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_prepare_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find packet */
 static void
 conv_find_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_find_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_find_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_find_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find next */
 static void
 conv_find_next_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_next_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_find_next_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_find_next_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_next_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_find_next_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_next_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_next_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_next_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Find Previous */
 static void
 conv_find_previous_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_previous_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_find_previous_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_find_previous_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_previous_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_find_previous_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_previous_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_previous_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_previous_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
 }
 
 /* Colorize Conversation */
@@ -1459,55 +1459,55 @@ conv_find_previous_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 static void
 conv_color_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
 }
 
 static void
 conv_color_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B));
 }
 
 static void
 conv_color_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B));
 }
 
 static void
 conv_color_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_color_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY));
 }
 
 static void
 conv_color_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
 }
 
 static void
 conv_color_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_color_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
 }
 
 static void
 conv_color_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-	ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B));
 }
 static const char *ui_desc_conv_filter_popup =
 "<ui>\n"
@@ -1697,7 +1697,7 @@ static const char *ui_desc_conv_filter_popup =
 "  </popup>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -1707,249 +1707,249 @@ static const char *ui_desc_conv_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;           The name of the action.
+ * const gchar *stock_id;       The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;          The label for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ *                              If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;    The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;        The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;          The function to call when the action is activated.
  *
  */
 static const GtkActionEntry conv_filter_menu_entries[] = {
-  /* Top level */ 
-  { "/Apply as Filter",							NULL, "Apply as Filter", NULL, NULL, NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter", NULL, NULL, NULL },
-  { "/Find Packet",								NULL, "Find Packet", NULL, NULL, NULL },
-  { "/Colorize Conversation",					NULL, "Colorize Conversation", NULL, NULL, NULL },
+  /* Top level */
+  { "/Apply as Filter",                         NULL, "Apply as Filter",       NULL, NULL, NULL },
+  { "/Prepare a Filter",                        NULL, "Prepare a Filter",      NULL, NULL, NULL },
+  { "/Find Packet",                             NULL, "Find Packet",           NULL, NULL, NULL },
+  { "/Colorize Conversation",                   NULL, "Colorize Conversation", NULL, NULL, NULL },
 
-  /* Apply as */ 
-  { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
-  { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
+  /* Apply as */
+  { "/Apply as Filter/Selected",                NULL, "Selected" ,    NULL, NULL, NULL },
+  { "/Apply as Filter/Not Selected",            NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",     NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",      NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",  NULL, NULL, NULL },
 
-  /* Apply as Selected */ 
-  { "/Apply as Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AtofromB_cb)},
-  { "/Apply as Filter/Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AtoB_cb)},
-  { "/Apply as Filter/Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_as_selected_AfromB_cb)},
-  { "/Apply as Filter/Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_as_selected_AtofromAny_cb)},
-  { "/Apply as Filter/Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_as_selected_AtoAny_cb)},
-  { "/Apply as Filter/Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_as_selected_AfromAny_cb)},
-  { "/Apply as Filter/Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_as_selected_AnytofromB_cb)},
-  { "/Apply as Filter/Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_as_selected_AnytoB_cb)},
-  { "/Apply as Filter/Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AnyfromB_cb)},
+  /* Apply as Selected */
+  { "/Apply as Filter/Selected/A_to_from_B",    NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_apply_as_selected_AtofromB_cb)},
+  { "/Apply as Filter/Selected/A_to_B",         NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_apply_as_selected_AtoB_cb)},
+  { "/Apply as Filter/Selected/A_from_B",       NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_apply_as_selected_AfromB_cb)},
+  { "/Apply as Filter/Selected/A_to_from_Any",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_apply_as_selected_AtofromAny_cb)},
+  { "/Apply as Filter/Selected/A_to_Any",       NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_as_selected_AtoAny_cb)},
+  { "/Apply as Filter/Selected/A_from_Any",     NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_as_selected_AfromAny_cb)},
+  { "/Apply as Filter/Selected/Any_tofrom_B",   NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_as_selected_AnytofromB_cb)},
+  { "/Apply as Filter/Selected/Any_to_B",       NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_as_selected_AnytoB_cb)},
+  { "/Apply as Filter/Selected/Any_from_B",     NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AnyfromB_cb)},
 
-  /* Apply as Not Selected */ 
-  { "/Apply as Filter/Not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_as_not_selected_AtofromB_cb)},
-  { "/Apply as Filter/Not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_not_selected_AtoB_cb)},
-  { "/Apply as Filter/Not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_as_not_selected_AfromB_cb)},
-  { "/Apply as Filter/Not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_as_not_selected_AtofromAny_cb)},
-  { "/Apply as Filter/Not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_as_not_selected_AtoAny_cb)},
-  { "/Apply as Filter/Not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_as_not_selected_AfromAny_cb)},
-  { "/Apply as Filter/Not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_as_not_selected_AnytofromB_cb)},
-  { "/Apply as Filter/Not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_as_not_selected_AnytoB_cb)},
-  { "/Apply as Filter/Not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_not_selected_AnyfromB_cb)},
+  /* Apply as Not Selected */
+  { "/Apply as Filter/Not Selected/A_to_from_B",    NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_apply_as_not_selected_AtofromB_cb)},
+  { "/Apply as Filter/Not Selected/A_to_B",         NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_apply_as_not_selected_AtoB_cb)},
+  { "/Apply as Filter/Not Selected/A_from_B",       NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_apply_as_not_selected_AfromB_cb)},
+  { "/Apply as Filter/Not Selected/A_to_from_Any",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_apply_as_not_selected_AtofromAny_cb)},
+  { "/Apply as Filter/Not Selected/A_to_Any",       NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_as_not_selected_AtoAny_cb)},
+  { "/Apply as Filter/Not Selected/A_from_Any",     NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_as_not_selected_AfromAny_cb)},
+  { "/Apply as Filter/Not Selected/Any_tofrom_B",   NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_as_not_selected_AnytofromB_cb)},
+  { "/Apply as Filter/Not Selected/Any_to_B",       NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_as_not_selected_AnytoB_cb)},
+  { "/Apply as Filter/Not Selected/Any_from_B",     NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_not_selected_AnyfromB_cb)},
 
-  /* Apply as ... and Selected */ 
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_selected_AfromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_selected_AtofromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AtoAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AfromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AnyfromB_cb)},
+  /* Apply as ... and Selected */
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",       NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",            NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",          NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",     NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",          NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",        NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",      NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",          NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",        NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AnyfromB_cb)},
 
-  /* Apply as ... or Selected */ 
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_selected_AfromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_selected_AtofromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AtoAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AfromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AnyfromB_cb)},
+  /* Apply as ... or Selected */
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",        NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",             NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",           NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",      NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",           NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",         NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",       NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",           NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",         NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AnyfromB_cb)},
 
-  /* Apply as ... and not Selected */ 
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_not_selected_AfromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_not_selected_AtofromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AtoAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AfromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AnyfromB_cb)},
+  /* Apply as ... and not Selected */
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_not_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_not_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AnyfromB_cb)},
 
-  /* Apply as ... or not Selected */ 
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_not_selected_AfromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_not_selected_AtofromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AtoAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AfromAny_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytofromB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytoB_cb)},
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AnyfromB_cb)},
+  /* Apply as ... or not Selected */
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",    NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_apply_or_not_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",         NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_apply_or_not_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",       NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_apply_or_not_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",       NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_or_not_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",     NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_apply_or_not_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",   NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",       NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",     NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AnyfromB_cb)},
 
-  /* Prepare a */ 
-  { "/Prepare a Filter/Selected",				NULL, "Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
+  /* Prepare a */
+  { "/Prepare a Filter/Selected",               NULL, "Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/Not Selected",           NULL, "Not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",     NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",      NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",  NULL, NULL, NULL },
 
-  /* Prepare as Selected */ 
-  { "/Prepare a Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AtofromB_cb)},
-  { "/Prepare a Filter/Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AtoB_cb)},
-  { "/Prepare a Filter/Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_as_selected_AfromB_cb)},
-  { "/Prepare a Filter/Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_as_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_as_selected_AtoAny_cb)},
-  { "/Prepare a Filter/Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_as_selected_AfromAny_cb)},
-  { "/Prepare a Filter/Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_as_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_as_selected_AnytoB_cb)},
-  { "/Prepare a Filter/Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AnyfromB_cb)},
+  /* Prepare as Selected */
+  { "/Prepare a Filter/Selected/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_as_selected_AtofromB_cb)},
+  { "/Prepare a Filter/Selected/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_as_selected_AtoB_cb)},
+  { "/Prepare a Filter/Selected/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_as_selected_AfromB_cb)},
+  { "/Prepare a Filter/Selected/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_as_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/Selected/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_as_selected_AtoAny_cb)},
+  { "/Prepare a Filter/Selected/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_as_selected_AfromAny_cb)},
+  { "/Prepare a Filter/Selected/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_as_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/Selected/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_as_selected_AnytoB_cb)},
+  { "/Prepare a Filter/Selected/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AnyfromB_cb)},
 
-  /* Prepare a Not Selected */ 
-  { "/Prepare a Filter/Not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_as_not_selected_AtofromB_cb)},
-  { "/Prepare a Filter/Not Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_not_selected_AtoB_cb)},
-  { "/Prepare a Filter/Not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_as_not_selected_AfromB_cb)},
-  { "/Prepare a Filter/Not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_as_not_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/Not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_as_not_selected_AtoAny_cb)},
-  { "/Prepare a Filter/Not Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_as_not_selected_AfromAny_cb)},
-  { "/Prepare a Filter/Not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_as_not_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/Not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_as_not_selected_AnytoB_cb)},
-  { "/Prepare a Filter/Not Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_not_selected_AnyfromB_cb)},
+  /* Prepare a Not Selected */
+  { "/Prepare a Filter/Not Selected/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_as_not_selected_AtofromB_cb)},
+  { "/Prepare a Filter/Not Selected/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_as_not_selected_AtoB_cb)},
+  { "/Prepare a Filter/Not Selected/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_as_not_selected_AfromB_cb)},
+  { "/Prepare a Filter/Not Selected/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_as_not_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/Not Selected/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_as_not_selected_AtoAny_cb)},
+  { "/Prepare a Filter/Not Selected/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_as_not_selected_AfromAny_cb)},
+  { "/Prepare a Filter/Not Selected/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_as_not_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/Not Selected/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_as_not_selected_AnytoB_cb)},
+  { "/Prepare a Filter/Not Selected/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_not_selected_AnyfromB_cb)},
 
-  /* Prepare a ... and Selected */ 
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_selected_AfromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AtoAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AfromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AnyfromB_cb)},
+  /* Prepare a ... and Selected */
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",      NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_and_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",           NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_and_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",         NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_and_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",    NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",         NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_and_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",       NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_and_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",     NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",         NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",       NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AnyfromB_cb)},
 
-  /* Prepare a ... or Selected */ 
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_selected_AfromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AtoAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AfromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AnyfromB_cb)},
+  /* Prepare a ... or Selected */
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",       NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_or_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",            NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_or_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",          NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_or_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",     NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",          NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_or_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",        NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_or_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",      NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",          NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",        NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AnyfromB_cb)},
 
-  /* Prepare a ... and not Selected */ 
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_not_selected_AfromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_not_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AtoAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AfromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AnyfromB_cb)},
+  /* Prepare a ... and not Selected */
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_and_not_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",       NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_and_not_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",     NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_and_not_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",     NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_and_not_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",   NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_and_not_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B", NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",     NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",   NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AnyfromB_cb)},
 
-  /* Prepare a ... or not Selected */ 
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_not_selected_AfromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_not_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AtoAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AfromAny_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytoB_cb)},
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AnyfromB_cb)},
+  /* Prepare a ... or not Selected */
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",   G_CALLBACK(conv_prepare_or_not_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",   G_CALLBACK(conv_prepare_or_not_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",   G_CALLBACK(conv_prepare_or_not_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_or_not_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any",  G_CALLBACK(conv_prepare_or_not_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AnyfromB_cb)},
 
-  /* Find packet*/ 
-  { "/Find Packet/Find Packet",					NULL, "Find Packet", NULL, NULL, NULL },
-  { "/Find Packet/Find Next",					NULL, "Find Next", NULL, NULL, NULL },
-  { "/Find Packet/Find Previous",				NULL, "Find Previous", NULL, NULL, NULL },
+  /* Find packet*/
+  { "/Find Packet/Find Packet",                 NULL, "Find Packet", NULL, NULL, NULL },
+  { "/Find Packet/Find Next",                   NULL, "Find Next", NULL, NULL, NULL },
+  { "/Find Packet/Find Previous",               NULL, "Find Previous", NULL, NULL, NULL },
 
-  /* Find packet*/ 
-  { "/Find Packet/Find Packet/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_AtofromB_cb)},
-  { "/Find Packet/Find Packet/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_AtoB_cb)},
-  { "/Find Packet/Find Packet/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_AfromB_cb)},
-  { "/Find Packet/Find Packet/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_AtofromAny_cb)},
-  { "/Find Packet/Find Packet/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_AtoAny_cb)},
-  { "/Find Packet/Find Packet/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_AfromAny_cb)},
-  { "/Find Packet/Find Packet/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_AnytofromB_cb)},
-  { "/Find Packet/Find Packet/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_AnytoB_cb)},
-  { "/Find Packet/Find Packet/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_AnyfromB_cb)},
+  /* Find packet*/
+  { "/Find Packet/Find Packet/A_to_from_B",     NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_AtofromB_cb)},
+  { "/Find Packet/Find Packet/A_to_B",          NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_AtoB_cb)},
+  { "/Find Packet/Find Packet/A_from_B",        NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_AfromB_cb)},
+  { "/Find Packet/Find Packet/A_to_from_Any",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_AtofromAny_cb)},
+  { "/Find Packet/Find Packet/A_to_Any",        NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_AtoAny_cb)},
+  { "/Find Packet/Find Packet/A_from_Any",      NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_AfromAny_cb)},
+  { "/Find Packet/Find Packet/Any_tofrom_B",    NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_AnytofromB_cb)},
+  { "/Find Packet/Find Packet/Any_to_B",        NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_AnytoB_cb)},
+  { "/Find Packet/Find Packet/Any_from_B",      NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_AnyfromB_cb)},
 
-  /* Find Next*/ 
-  { "/Find Packet/Find Next/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_next_AtofromB_cb)},
-  { "/Find Packet/Find Next/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_next_AtoB_cb)},
-  { "/Find Packet/Find Next/A_from_B",			NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_next_AfromB_cb)},
-  { "/Find Packet/Find Next/A_to_from_Any",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_next_AtofromAny_cb)},
-  { "/Find Packet/Find Next/A_to_Any",			NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_next_AtoAny_cb)},
-  { "/Find Packet/Find Next/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_next_AfromAny_cb)},
-  { "/Find Packet/Find Next/Any_tofrom_B",		NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_next_AnytofromB_cb)},
-  { "/Find Packet/Find Next/Any_to_B",			NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_next_AnytoB_cb)},
-  { "/Find Packet/Find Next/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_next_AnyfromB_cb)},
+  /* Find Next*/
+  { "/Find Packet/Find Next/A_to_from_B",       NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_next_AtofromB_cb)},
+  { "/Find Packet/Find Next/A_to_B",            NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_next_AtoB_cb)},
+  { "/Find Packet/Find Next/A_from_B",          NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_next_AfromB_cb)},
+  { "/Find Packet/Find Next/A_to_from_Any",     NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_next_AtofromAny_cb)},
+  { "/Find Packet/Find Next/A_to_Any",          NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_next_AtoAny_cb)},
+  { "/Find Packet/Find Next/A_from_Any",        NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_next_AfromAny_cb)},
+  { "/Find Packet/Find Next/Any_tofrom_B",      NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_next_AnytofromB_cb)},
+  { "/Find Packet/Find Next/Any_to_B",          NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_next_AnytoB_cb)},
+  { "/Find Packet/Find Next/Any_from_B",        NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_next_AnyfromB_cb)},
 
-  /* Find packet*/ 
-  { "/Find Packet/Find Previous/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_previous_AtofromB_cb)},
-  { "/Find Packet/Find Previous/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_previous_AtoB_cb)},
-  { "/Find Packet/Find Previous/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_previous_AfromB_cb)},
-  { "/Find Packet/Find Previous/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_previous_AtofromAny_cb)},
-  { "/Find Packet/Find Previous/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_previous_AtoAny_cb)},
-  { "/Find Packet/Find Previous/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_previous_AfromAny_cb)},
-  { "/Find Packet/Find Previous/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_previous_AnytofromB_cb)},
-  { "/Find Packet/Find Previous/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_previous_AnytoB_cb)},
-  { "/Find Packet/Find Previous/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_previous_AnyfromB_cb)},
+  /* Find packet*/
+  { "/Find Packet/Find Previous/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_find_previous_AtofromB_cb)},
+  { "/Find Packet/Find Previous/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_find_previous_AtoB_cb)},
+  { "/Find Packet/Find Previous/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_find_previous_AfromB_cb)},
+  { "/Find Packet/Find Previous/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_find_previous_AtofromAny_cb)},
+  { "/Find Packet/Find Previous/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_previous_AtoAny_cb)},
+  { "/Find Packet/Find Previous/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_find_previous_AfromAny_cb)},
+  { "/Find Packet/Find Previous/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_find_previous_AnytofromB_cb)},
+  { "/Find Packet/Find Previous/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_find_previous_AnytoB_cb)},
+  { "/Find Packet/Find Previous/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_find_previous_AnyfromB_cb)},
 
   /* Colorize Conversation */
-  { "/Colorize Conversation/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_color_AtofromB_cb)},
-  { "/Colorize Conversation/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_color_AtoB_cb)},
-  { "/Colorize Conversation/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_color_AfromB_cb)},
-  { "/Colorize Conversation/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_color_AtofromAny_cb)},
-  { "/Colorize Conversation/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_color_AtoAny_cb)},
-  { "/Colorize Conversation/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_color_AfromAny_cb)},
-  { "/Colorize Conversation/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_color_AnytofromB_cb)},
-  { "/Colorize Conversation/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_color_AnytoB_cb)},
-  { "/Colorize Conversation/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_color_AnyfromB_cb)},
+  { "/Colorize Conversation/A_to_from_B",   NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_color_AtofromB_cb)},
+  { "/Colorize Conversation/A_to_B",        NULL, "A " UTF8_RIGHTWARDS_ARROW  " B", NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_color_AtoB_cb)},
+  { "/Colorize Conversation/A_from_B",      NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_color_AfromB_cb)},
+  { "/Colorize Conversation/A_to_from_Any", NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_color_AtofromAny_cb)},
+  { "/Colorize Conversation/A_to_Any",      NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_color_AtoAny_cb)},
+  { "/Colorize Conversation/A_from_Any",    NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_color_AfromAny_cb)},
+  { "/Colorize Conversation/Any_tofrom_B",  NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_color_AnytofromB_cb)},
+  { "/Colorize Conversation/Any_to_B",      NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_color_AnytoB_cb)},
+  { "/Colorize Conversation/Any_from_B",    NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_color_AnyfromB_cb)},
 
 };
 
 static void
 ct_create_popup_menu(conversations_table *ct)
 {
-	GtkUIManager *ui_manager;
-	GtkActionGroup *action_group;
-	GError *error = NULL;
+    GtkUIManager *ui_manager;
+    GtkActionGroup *action_group;
+    GError *error = NULL;
 
-	action_group = gtk_action_group_new ("ConvActionGroup"); 
-	gtk_action_group_add_actions (action_group,							/* the action group */
-								(gpointer)conv_filter_menu_entries,		/* an array of action descriptions */
-								G_N_ELEMENTS(conv_filter_menu_entries),	/* the number of entries */
-								(gpointer)ct);							/* data to pass to the action callbacks */
+    action_group = gtk_action_group_new ("ConvActionGroup");
+    gtk_action_group_add_actions (action_group,                             /* the action group */
+                                  (gpointer)conv_filter_menu_entries,       /* an array of action descriptions */
+                                  G_N_ELEMENTS(conv_filter_menu_entries),   /* the number of entries */
+                                  (gpointer)ct);                            /* data to pass to the action callbacks */
 
-	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_conv_filter_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building conversation filter popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
-	ct->menu = gtk_ui_manager_get_widget(ui_manager, "/ConversationFilterPopup");
+    ui_manager = gtk_ui_manager_new ();
+    gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+    gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_conv_filter_popup, -1, &error);
+    if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building conversation filter popup failed: %s\n",
+                 error->message);
+        g_error_free (error);
+        error = NULL;
+    }
+    ct->menu = gtk_ui_manager_get_widget(ui_manager, "/ConversationFilterPopup");
 
-	g_signal_connect(ct->table, "button_press_event", G_CALLBACK(ct_show_popup_menu_cb), ct);
+    g_signal_connect(ct->table, "button_press_event", G_CALLBACK(ct_show_popup_menu_cb), ct);
 
 }
 
