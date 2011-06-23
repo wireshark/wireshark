@@ -186,9 +186,6 @@
 #define ADNS_JGAA_WIN32 1
 #endif
 
-/* Define to use the PCRE library */
-@HAVE_PCRE@
-
 /* Define to use the Nettle library */
 @HAVE_NETTLE@
 

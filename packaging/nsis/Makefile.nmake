@@ -152,9 +152,6 @@ wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(
 !IF "$(GNUTLS_DIR)" != ""
 	/DGNUTLS_DIR=$(GNUTLS_DIR) \
 !ENDIF
-!IF "$(PCRE_DIR)" != ""
-	/DPCRE_DIR=$(PCRE_DIR) \
-!ENDIF
 !IF "$(ZLIB_DIR)" != ""
 	/DZLIB_DIR=$(ZLIB_DIR) \
 !ENDIF
@@ -191,4 +188,3 @@ $(EXE) $(DLL):
 
 ####
 _FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
-

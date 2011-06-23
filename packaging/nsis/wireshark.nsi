@@ -34,7 +34,7 @@ InstType "un.All (remove all)"
 
 Name "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 
-; 
+;
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
 VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
@@ -312,7 +312,7 @@ Function .onInit
       IDYES prep_uninstaller \
       IDNO done
   Abort
- 
+
 ; Copy the uninstaller to $TEMP and run it.
 ; The uninstaller normally does this by itself, but doesn't wait around
 ; for the executable to finish, which means ExecWait won't work correctly.
@@ -333,7 +333,7 @@ silent_uninstall:
 
 cleanup:
   Delete "$TMP_UNINSTALLER"
-  
+
 done:
   ;Extract InstallOptions INI files
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
@@ -390,10 +390,6 @@ File "${C_ARES_DIR}\bin\libcares-2.dll"
 !endif
 !ifdef ADNS_DIR
 File "${ADNS_DIR}\..\${MSVC_VARIANT}\adns\adns_dll.dll"
-!endif
-!ifdef PCRE_DIR
-File "${PCRE_DIR}\bin\pcre3.dll"
-File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 !endif
 !ifdef KFW_DIR
 File "${KFW_PATH}\comerr32.dll"

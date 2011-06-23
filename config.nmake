@@ -315,18 +315,6 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib125
 C_ARES_PKG=1.7.1
 
 #
-# Optional: the PCRE (Perl Compatible Regular Expressions) library
-# enables regular expressions for display filters.
-#
-# If you have the PCRE library, set this to the directory in which
-# the GNUWIN32 pcre-lib package is stored.
-#
-# If you don't have PCRE, comment this line out, so that PCRE_DIR
-# isn't defined.
-#
-#PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
-
-#
 # Optional: the GNUTLS library enables ssl decryption.
 #
 # If you have the GNUTLS library, set this to the package version.
@@ -520,18 +508,6 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib125
 # isn't defined.
 #
 C_ARES_PKG=1.7.1
-
-#
-# Optional: the PCRE (Perl Compatible Regular Expressions) library
-# enables regular expressions for display filters.
-#
-# If you have the PCRE library, set this to the directory in which
-# the GNUWIN32 pcre-lib package is stored.
-#
-# If you don't have PCRE, comment this line out, so that PCRE_DIR
-# isn't defined.
-#
-#PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 
 #
 # Optional: the GNUTLS library enables ssl decryption.
@@ -1189,18 +1165,6 @@ KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
 KFW_CFLAGS=
 KFW_LIBS=
 KFW_CONFIG=
-!ENDIF
-
-!IFDEF PCRE_DIR
-PCRE_PATH=$(PCRE_DIR)\bin
-PCRE_CFLAGS=/I$(PCRE_DIR)\include
-PCRE_LIBS=$(PCRE_DIR)\lib\pcre.lib
-# Nmake uses carets to escape special characters
-PCRE_CONFIG=^#define HAVE_LIBPCRE 1
-!else
-PCRE_CFLAGS=
-PCRE_LIBS=
-PCRE_CONFIG=
 !ENDIF
 
 !IFDEF NETTLE_DIR

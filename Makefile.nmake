@@ -44,7 +44,7 @@ GENERATED_CFLAGS=\
 	-D_NEED_VAR_IMPORT_ \
 	/I.  /Iwiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
-	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
+	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
 	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS)
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
@@ -88,7 +88,6 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
-	$(PCRE_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -108,7 +107,6 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
-	$(PCRE_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -128,7 +126,6 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
-	$(PCRE_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -172,7 +169,6 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
-	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
 	$(SMI_LIBS)
 !ENDIF
@@ -355,7 +351,6 @@ config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
-	    -e "s/@HAVE_PCRE@/$(PCRE_CONFIG)/" \
  	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
 	    -e "s/@HAVE_NETTLE@/$(NETTLE_CONFIG)/" \
 	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
@@ -624,10 +619,10 @@ $(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-DASMV -DASMINF" OBJA="inffas32.obj match686.obj" 
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-DASMV -DASMINF" OBJA="inffas32.obj match686.obj"
 !else
 	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll AS=ml64 LOC="-DASMV -DASMINF" OBJA="inffasx64.obj gvmat64.obj inffas8664.obj"
-!endif	
+!endif
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
@@ -804,12 +799,6 @@ process_libs:
 !IFDEF ADNS_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. adns-1.0-win32-05ws.zip
-!ENDIF
-!IFDEF PCRE_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		pcre-7.0 pcre-7.0-bin.zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		pcre-7.0 pcre-7.0-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -1073,10 +1062,6 @@ install-all: install-generated-files
 !IFDEF ADNS_DIR
 	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
 !ENDIF
-!IFDEF PCRE_DIR
-	xcopy $(PCRE_DIR)\bin\pcre3.dll $(INSTALL_DIR) /d
-	xcopy $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(INSTALL_DIR) /d
-!ENDIF
 !IFDEF KFW_DIR
 	xcopy $(KFW_PATH)\comerr32.dll $(INSTALL_DIR) /d
 	xcopy $(KFW_PATH)\krb5_32.dll $(INSTALL_DIR) /d
@@ -1138,4 +1123,3 @@ checkapi: checkapi_local
 
 ####
 _FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
-
