@@ -674,6 +674,11 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   case PROTO_CHDLC:
     call_dissector(chdlc_handle, next_tvb, pinfo, tree);
     break;
+  case 0xa248:
+	  proto_tree_add_text (juniper_subtree, tvb, offset, 4,"[Unknown data]");
+	  next_tvb = tvb_new_subset_remaining(tvb, offset+4);
+	  call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+	  break;
   case PROTO_OAM: /* FIXME call OAM disector without leading HEC byte */
   default:
     call_dissector(data_handle, next_tvb, pinfo, tree);
