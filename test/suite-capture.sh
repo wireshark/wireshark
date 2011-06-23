@@ -364,6 +364,12 @@ capture_step_snapshot() {
 
 	# use tshark to filter out all packets, which are larger than 68 bytes
 	$TSHARK -r ./testout.pcap -w ./testout2.pcap -R 'frame.cap_len>68' > ./testout.txt 2>&1
+	if [ $? -ne 0 ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "Problem running TShark!"
+		return
+	fi
 
 	# ok, we got a capture file, does it contain exactly 0 packets?
 	$CAPINFOS ./testout2.pcap > ./testout.txt
