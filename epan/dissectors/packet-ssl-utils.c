@@ -635,6 +635,11 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
     { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
 
+    /* draft-chudov-cryptopro-cptls-04.txt */
+    { 0x0080,  "TLS_GOSTR341094_WITH_28147_CNT_IMIT" },
+    { 0x0081,  "TLS_GOSTR341001_WITH_28147_CNT_IMIT" },
+    { 0x0082,  "TLS_GOSTR341094_WITH_NULL_GOSTR3411" },
+    { 0x0083,  "TLS_GOSTR341001_WITH_NULL_GOSTR3411" },
 
     /* RFC 4132 */
     { 0x0084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
