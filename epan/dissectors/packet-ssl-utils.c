@@ -509,6 +509,11 @@ const value_string ssl_31_client_certificate_type[] = {
     { 2, "DSS Sign" },
     { 3, "RSA Fixed DH" },
     { 4, "DSS Fixed DH" },
+    /* GOST certificate types */
+    /* Section 3.5 of draft-chudov-cryptopro-cptls-04 */
+    { 21, "GOST R 34.10-94" },
+    { 22, "GOST R 34.10-2001" },    
+    /* END GOST certificate types */        
     { 64, "ECDSA Sign" },
     { 65, "RSA Fixed ECDH" },
     { 66, "ECDSA Fixed ECDH" },
