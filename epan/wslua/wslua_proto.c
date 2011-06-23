@@ -653,7 +653,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* name = luaL_optstring(L,2,abbr);
     base_display_e base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
-    int mask = luaL_optint(L, 5, 0x0);
+    guint32 mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (type == FT_FRAMENUM) {
