@@ -482,6 +482,7 @@ File "..\..\smi_modules"
 ; of the installation directory.
 ;
 SetOutPath $INSTDIR\diameter
+File "..\..\diameter\Cisco.xml"
 File "..\..\diameter\chargecontrol.xml"
 File "..\..\diameter\dictionary.dtd"
 File "..\..\diameter\dictionary.xml"
@@ -498,6 +499,7 @@ File "..\..\diameter\sunping.xml"
 File "..\..\diameter\TGPPGmb.xml"
 File "..\..\diameter\TGPPRx.xml"
 File "..\..\diameter\TGPPSh.xml"
+File "..\..\diameter\Vodafone.xml"
 SetOutPath $INSTDIR
 
 
