@@ -975,7 +975,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len) );
+    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len), tvbr->len );
 
     WSLUA_RETURN(1); /* The string */
 }
