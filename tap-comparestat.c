@@ -490,7 +490,7 @@ comparestat_draw(void *prs)
 	cs->stats.variance=compare_variance;
 
 	/* add statistic string */
-	statis_string=g_strdup_printf("Compare Statistics: \nNumber of packets total:%i 1st file:%i, 2nd file:%i\nScopes:\t start:%i stop:%i\nand:\t start:%i stop:%i\nEqual packets: %i \nAllowed variation: %f \nAverage time difference: %f\n", (first_file_amount+second_file_amount), first_file_amount, second_file_amount, cs->start_packet_nr_first, cs->stop_packet_nr_first, cs->start_packet_nr_second, cs->stop_packet_nr_second, cs->stats.num, cs->stats.variance, fabs(get_average(&cs->stats.tot, cs->stats.num)));
+	statis_string=g_strdup_printf("Compare Statistics: \nFilter: %s\nNumber of packets total:%i 1st file:%i, 2nd file:%i\nScopes:\t start:%i stop:%i\nand:\t start:%i stop:%i\nEqual packets: %i \nAllowed variation: %f \nAverage time difference: %f\n", cs->filter ? cs->filter : "", (first_file_amount+second_file_amount), first_file_amount, second_file_amount, cs->start_packet_nr_first, cs->stop_packet_nr_first, cs->start_packet_nr_second, cs->stop_packet_nr_second, cs->stats.num, cs->stats.variance, fabs(get_average(&cs->stats.tot, cs->stats.num)));
 
 	printf("\n");
 	printf("===================================================================\n");
