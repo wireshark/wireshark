@@ -1048,5 +1048,5 @@ proto_reg_handoff_linx_tcp(void)
 {
 	dissector_handle_t linx_tcp_handle;
 	linx_tcp_handle = create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
-	dissector_add("tcp.port", TCP_PORT_LINX, linx_tcp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_LINX, linx_tcp_handle);
 }
