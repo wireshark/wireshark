@@ -1,6 +1,7 @@
 /* packet-cfm.c
  * Routines for CFM EOAM (IEEE 802.1ag) dissection
  * Copyright 2007, Keith Mercer <keith.mercer@alcatel-lucent.com>
+ * Copyright 2011, Peter Nahas <pnahas@mrv.com>
  *
  * $Id$
  *
@@ -61,6 +62,8 @@
 #define EXR 0x30
 #define VSM 0x33
 #define VSR 0x32
+#define SLM 0x37
+#define SLR 0x36
 
 #define END_TLV 	0x00
 #define SENDER_ID_TLV	0x01
@@ -98,6 +101,8 @@ static const value_string opcodetypenames[] = {
 	{ EXR,		"Experimental OAM Reply (EXR)" },
 	{ VSM,		"Vendor Specific Message (VSM)" },
 	{ VSR,		"Vendor Specific Reply (VSR)" },
+	{ SLM,		"Synthetic Loss Message (SLM)"},
+	{ SLR,		"Synthetic Loss Reply (SLR))"},
 	{ 0,            NULL }
 };
 static const value_string CCM_IntervalFieldEncoding[] = {
@@ -308,6 +313,14 @@ static int hf_cfm_exm_exr_data = -1;
 static int hf_cfm_vsm_pdu = -1;
 static int hf_cfm_vsr_pdu = -1;
 static int hf_cfm_vsm_vsr_data = -1;
+
+static int hf_cfm_slm_pdu = -1;
+static int hf_cfm_slr_pdu = -1;
+static int hf_cfm_slm_src_mep = -1;
+static int hf_cfm_slr_rsp_mep = -1;
+static int hf_cfm_slm_testid = -1;
+static int hf_cfm_slm_txfcf  = -1;
+static int hf_cfm_slr_txfcb  = -1;
 
 static int hf_cfm_all_tlvs = -1;
 static int hf_cfm_tlv_type = -1;
@@ -1025,6 +1038,70 @@ static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	return offset;
 }
 
+static int dissect_cfm_slm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_item *fi;
+	proto_tree *cfm_pdu_tree;
+	proto_tree *cfm_flag_tree;
+
+	ti = proto_tree_add_item(tree, hf_cfm_slm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_testid, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_txfcf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_txfcb, tvb, offset, 4, FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
+static int dissect_cfm_slr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_item *fi;
+	proto_tree *cfm_pdu_tree;
+	proto_tree *cfm_flag_tree;
+
+	ti = proto_tree_add_item(tree, hf_cfm_slr_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_src_mep, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_rsp_mep, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_testid, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slm_txfcf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_txfcb, tvb, offset, 4, FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
 
 /* Main CFM EOAM protocol dissector */
 static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1128,6 +1205,12 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case VSR:
 			offset = dissect_cfm_vsr(tvb, pinfo, tree, offset);
 			break;
+		case SLM:
+			offset = dissect_cfm_slm(tvb, pinfo, tree, offset);
+			break;
+		case SLR:
+			offset = dissect_cfm_slr(tvb, pinfo, tree, offset);
+			break;
 		}
 
 		/* Get the TLV offset and add the offset of the common CFM header*/
@@ -1135,7 +1218,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cfm_tlv_offset += 4;
 
 		/* Begin dissecting the TLV's */
-		   /* the TLV offset should be the same as where the pdu left off or we have a problem */
+		/* the TLV offset should be the same as where the pdu left off or we have a problem */
 		if ((cfm_tlv_offset == offset) && (cfm_tlv_offset > 3)) {
 			proto_tree *cfm_all_tlvs_tree;
 			guint8 cfm_tlv_type = 255;
@@ -1734,6 +1817,36 @@ void proto_register_cfm(void)
 		{ &hf_cfm_vsr_pdu,
 			{ "CFM VSR PDU", "cfm.vsr.pdu", FT_NONE,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* Synthetic Loss values */
+		{ &hf_cfm_slm_pdu,
+			{ "CFM SLM PDU", "cfm.slm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_slr_pdu,
+			{ "CFM SLR PDU", "cfm.slr.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_slm_src_mep,
+			{ "SrcMepID", "cfm.slm.src_mep_id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_slr_rsp_mep,
+			{ "RspMepID", "cfm.slr.rsp_mep_id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_slm_testid,
+			{ "TestID", "cfm.slm.test_id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_slm_txfcf,
+			{ "TxFcF", "cfm.slm.txfcf", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_slr_txfcb,
+			{ "TxFcB", "cfm.slr.txfcb", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 
 		/******************************* TLVs ****************************/
