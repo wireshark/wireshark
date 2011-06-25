@@ -141,8 +141,8 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_RANGE: {
-            range_t *range = get_range(L,4,5);
-            guint32 max = (guint32)luaL_optnumber(L,5,0);
+            range_t *range = get_range(L,2,4);
+            guint32 max = (guint32)luaL_optnumber(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -200,8 +200,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
 #define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is */
-#define WSLUA_ARG_Pref_range_RANGE 4 /* The range */
-#define WSLUA_ARG_Pref_range_MAX 5 /* The maximum value */
+#define WSLUA_ARG_Pref_range_MAX 4 /* The maximum value */
     return new_pref(L,PREF_RANGE);
 }
 
