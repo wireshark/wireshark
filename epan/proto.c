@@ -4112,7 +4112,7 @@ proto_item_set_len(proto_item *pi, const gint length)
 	 * larger, if there's no data to back that length;
 	 * you can only make it smaller.
 	 */
-	if (fi->value.ftype->ftype == FT_BYTES && length <= fi->length)
+	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
 		fi->value.value.bytes->len = length;
 }
 
