@@ -610,6 +610,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     if (f->type == FT_NONE)
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
 
+    if (proto_check_field_name(f->abbr)) {
+      WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
+      return 0;
+    }
+
     if (! lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING) ) {
         if (f->type == FT_BOOLEAN) {
             tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
@@ -662,6 +667,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
         return 0;
+    }
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L, 1, "Invalid char in abbrev");
+      return 0;
     }
 
     f->hfid = -2;
@@ -816,6 +826,11 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
         return 0;
     }
 
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
+
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
@@ -853,6 +868,11 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,NULL);
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
 
     f->hfid = -2;
     f->ett = -1;
