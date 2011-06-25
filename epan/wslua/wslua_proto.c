@@ -40,7 +40,7 @@ WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 {
     static range_t *ret;
-    range_convert_str(&ret,g_strdup(lua_tostring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
+    range_convert_str(&ret,g_strdup(luaL_checkstring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
     return ret;
 }
 
