@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-06-13)
+(last updated 2011-06-23)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -8264,6 +8264,7 @@ tarantella	3144/udp   Tarantella
 csi-lfap	3145/tcp   CSI-LFAP
 csi-lfap	3145/udp   CSI-LFAP
 #			   Paul Amsden <amsden@.ctron.com>
+###UNAUTHORIZED USE: port 3145 by zftpserver#################
 bears-02        3146/tcp   bears-02
 bears-02        3146/udp   bears-02
 #                          Bruce McKinnon <brucemck&bearsolutions.com.au>
@@ -13399,7 +13400,9 @@ tal-pod         6149/udp   tal-pod
 efb-aci         6159/tcp   EFB Application Control Interface
 #                          Jonathan Schaaf <j.schaaf&astronautics.com> 10 February 2010
 #               6159/udp   Reserved
-#               6160       Unassigned 
+ecmp            6160/tcp   Emerson Extensible Control and Management Protocol
+ecmp-data       6160/udp   Emerson Extensible Control and Management Protocol Data
+#                          Bryce Beeston <bryce.beeston&emerson.com> 23 June 2011
 patrol-ism      6161/tcp   PATROL Internet Srv Mgr
 patrol-ism      6161/udp   PATROL Internet Srv Mgr
 patrol-coll     6162/tcp   PATROL Collector
