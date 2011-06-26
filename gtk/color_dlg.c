@@ -59,7 +59,7 @@
 
 
 static GtkWidget* colorize_dialog_new(char *filter);
-static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
+static void add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend);
 static void color_filter_up_cb(GtkButton *button, gpointer user_data);
 static void color_filter_down_cb(GtkButton *button, gpointer user_data);
 static void remember_selected_row(GtkTreeSelection *sel, gpointer list);
@@ -246,9 +246,9 @@ colorize_dialog_new (char *filter)
   color_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
 #if GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_tooltip_text(color_new, "Create a new filter at the end of the list");
+  gtk_widget_set_tooltip_text(color_new, "Create a new filter at the top of the list");
 #else
-  gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
+  gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the top of the list"), NULL);
 #endif                
 
   color_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
@@ -776,7 +776,7 @@ select_row(GtkWidget *color_filters, int row)
 
 /* add a single color filter to the list */
 static void
-add_filter_to_list(gpointer filter_arg, gpointer list_arg)
+add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend)
 {
   color_filter_t *colorf = filter_arg;
     gchar           fg_str[14], bg_str[14];
@@ -785,19 +785,27 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
 
   if( strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) {
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
-    gtk_list_store_append(store, &iter);
+    if (prepend) {
+      gtk_list_store_prepend(store, &iter);
+    } else {
+      gtk_list_store_append(store, &iter);
+    }
     g_snprintf(fg_str, sizeof(fg_str), "#%04X%04X%04X",
             colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
     g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
             colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
     gtk_list_store_set(store, &iter,
                 0, colorf->filter_name,
-        1, colorf->filter_text,
+                1, colorf->filter_text,
                 2, fg_str,
                 3, bg_str,
                 4, colorf->disabled,
                 5, colorf, -1);
-    color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
+    if (prepend) {
+      color_filter_edit_list = g_slist_prepend(color_filter_edit_list, colorf);
+    } else {
+      color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
+    }
     color_dlg_num_of_filters++;
   } else {
     /* But keep the temporary ones too, so they can be added again
@@ -813,7 +821,7 @@ color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
 {
   GtkWidget        *color_filters = user_data;
 
-  add_filter_to_list(colorf, color_filters);
+  add_filter_to_list(colorf, color_filters, FALSE);
 
   gtk_widget_grab_focus(color_filters);
 }
@@ -841,8 +849,8 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
 
   colorf = color_filter_new("name", filter, &bg_color, &fg_color, FALSE);
-  add_filter_to_list(colorf, color_filters);
-  select_row(color_filters, color_dlg_num_of_filters-1);
+  add_filter_to_list(colorf, color_filters, TRUE);
+  select_row(color_filters, 0);
 
   /* open the edit dialog */
   edit_color_filter_dialog(color_filters, TRUE /* is a new filter */);
