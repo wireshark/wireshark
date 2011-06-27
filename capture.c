@@ -497,6 +497,7 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
 {
   dfilter_t *rfcode = NULL;
   gchar *safe_cfilter;
+  gchar *safe_descr;
   gchar *safe_cfilter_error_msg;
   interface_options interface_opts;
 
@@ -507,11 +508,12 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
 
   interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
   safe_cfilter = simple_dialog_format_message(interface_opts.cfilter);
+  safe_descr = simple_dialog_format_message(interface_opts.descr);
   safe_cfilter_error_msg = simple_dialog_format_message(error_message);
   /* Did the user try a display filter? */
   if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sInvalid capture filter: \"%s\"!%s\n"
+      "%sInvalid capture filter \"%s\" for interface %s!%s\n"
       "\n"
       "That string looks like a valid display filter; however, it isn't a valid\n"
       "capture filter (%s).\n"
@@ -520,19 +522,20 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
       "so you can't use most display filter expressions as capture filters.\n"
       "\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      simple_dialog_primary_start(), safe_cfilter,
+      simple_dialog_primary_start(), safe_cfilter, safe_descr,
       simple_dialog_primary_end(), safe_cfilter_error_msg);
       dfilter_free(rfcode);
   } else {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sInvalid capture filter: \"%s\"!%s\n"
+      "%sInvalid capture filter \"%s\" for interface %s!%s\n"
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      simple_dialog_primary_start(), safe_cfilter,
+      simple_dialog_primary_start(), safe_cfilter, safe_descr,
       simple_dialog_primary_end(), safe_cfilter_error_msg);
   }
   g_free(safe_cfilter_error_msg);
+  g_free(safe_descr);
   g_free(safe_cfilter);
 
   /* the capture child will close the sync_pipe if required, nothing to do for now */

@@ -354,7 +354,7 @@ static void report_new_capture_file(const char *filename);
 static void report_packet_count(int packet_count);
 static void report_packet_drops(guint32 received, guint32 drops, gchar *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
-static void report_cfilter_error(const char *cfilter, const char *errmsg);
+static void report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg);
 
 #define MSG_MAX_LENGTH 4096
 
@@ -786,7 +786,7 @@ show_filter_code(capture_options *capture_opts)
         if (!compile_capture_filter(interface_opts.name, pcap_h, &fcode,
                                     interface_opts.cfilter)) {
             pcap_close(pcap_h);
-            report_cfilter_error(interface_opts.cfilter, errmsg);
+            report_cfilter_error(capture_opts, j, errmsg);
             return FALSE;
         }
         pcap_close(pcap_h);
@@ -3029,7 +3029,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     char        secondary_errmsg[MSG_MAX_LENGTH+1];
     pcap_options *pcap_opts;
     interface_options interface_opts;
-    guint i;
+    guint i, error_index = 0;
 
     interface_opts = capture_opts->default_options;
     *errmsg           = '\0';
@@ -3080,6 +3080,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
         case INITFILTER_BAD_FILTER:
             cfilter_error = TRUE;
+            error_index = i;
             g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(pcap_opts->pcap_h));
             goto error;
 
@@ -3465,7 +3466,7 @@ error:
     }
     capture_opts->save_file = NULL;
     if (cfilter_error)
-        report_cfilter_error(interface_opts.cfilter, errmsg);
+        report_cfilter_error(capture_opts, error_index, errmsg);
     else
         report_capture_error(errmsg, secondary_errmsg);
 
@@ -4404,18 +4405,23 @@ report_new_capture_file(const char *filename)
 }
 
 static void
-report_cfilter_error(const char *cfilter, const char *errmsg)
+report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
 {
-    if (capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
-        pipe_write_block(2, SP_BAD_FILTER, errmsg);
-    } else {
-        fprintf(stderr,
-          "Invalid capture filter: \"%s\"!\n"
-          "\n"
-          "That string isn't a valid capture filter (%s).\n"
-          "See the User's Guide for a description of the capture filter syntax.\n",
-          cfilter, errmsg);
+    interface_options interface_opts;
+
+    if (i < capture_opts->ifaces->len) {
+        if (capture_child) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
+            pipe_write_block(2, SP_BAD_FILTER, errmsg);
+        } else {
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+            fprintf(stderr,
+              "Invalid capture filter \"%s\" for interface %s!\n"
+              "\n"
+              "That string isn't a valid capture filter (%s).\n"
+              "See the User's Guide for a description of the capture filter syntax.\n",
+              interface_opts.cfilter, interface_opts.name, errmsg);
+        }
     }
 }
 
