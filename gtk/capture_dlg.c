@@ -2940,8 +2940,10 @@ void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
+#if 0
   gchar *if_name;
   cap_settings_t *cap_settings_p = NULL;
+#endif
   interface_options interface_opts;
 
 #ifdef HAVE_AIRPCAP
@@ -2978,36 +2980,50 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     if (!success)
       return;   /* error in options dialog */
   }
-  if (global_capture_opts.ifaces->len > 0) {
-    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-  }
 
-  if (interface_opts.name == NULL) {
+  if (global_capture_opts.ifaces->len == 0) {
     if (prefs.capture_device == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "You didn't specify an interface on which to capture packets.");
       return;
     }
+#if 0
     if_name = g_strdup(get_if_name(prefs.capture_device));
+#endif
+    interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
+    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+    interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
+    interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+    interface_opts.cfilter = global_capture_opts.default_options.cfilter;
+    interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+    interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+    interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+    interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+#endif
+#ifdef HAVE_PCAP_REMOTE
+    interface_opts.src_type = global_capture_opts.default_options.src_type;
+    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+ #endif
+ #ifdef HAVE_PCAP_SETSAMPLING
+    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+ #endif
+    g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+#if 0
   } else {
     if_name = g_strdup(interface_opts.name);
+#endif
   }
 
- /* while (global_capture_opts.ifaces->len > 0) {
-    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-    g_free(interface_opts.name);
-    g_free(interface_opts.descr);
-    g_free(interface_opts.cfilter);
-#ifdef HAVE_PCAP_REMOTE
-    g_free(interface_opts.remote_host);
-    g_free(interface_opts.remote_port);
-    g_free(interface_opts.auth_username);
-    g_free(interface_opts.auth_password);
-#endif
-  }*/
-
+#if 0
   if (cap_settings_history != NULL) {
     cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
     if (cap_settings_p == NULL) {
@@ -3023,8 +3039,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     interface_opts.linktype = capture_dev_user_linktype_find(if_name);
     g_free(if_name);
   }
+#endif
 
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
