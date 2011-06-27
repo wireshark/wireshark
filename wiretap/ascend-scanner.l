@@ -159,17 +159,17 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return WDS_PREFIX;
 }
 
-<sc_ether_direction>[^\(]+ {
+<sc_ether_direction>[^\(]{2,20} {
   BEGIN(sc_gen_task);
   return STRING; 
 }
 
-<sc_isdn_call>[^\/\(:]+ {
+<sc_isdn_call>[^\/\(:]{2,20} {
   BEGIN(sc_gen_task);
   return DECNUM;
 }
 
-<sc_wds_user>[^:]+ {
+<sc_wds_user>[^:]{2,20} {
   char *atcopy = g_strdup(ascendtext);
   char colon = input();
   char after = input();
@@ -200,7 +200,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return DECNUM;
 }
 
-<sc_gen_task>(0x|0X)?{H}+ {
+<sc_gen_task>(0x|0X)?{H}{2,8} {
   BEGIN(sc_gen_time_s);
   ascendlval.d = strtoul(ascendtext, NULL, 16);
   return HEXNUM;
@@ -210,13 +210,13 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return STRING;
 }
 
-<sc_gen_time_s>{D}+ {
+<sc_gen_time_s>{D}{1,10} {
   BEGIN(sc_gen_time_u);
   ascendlval.d = strtol(ascendtext, NULL, 10);
   return DECNUM;
 }
 
-<sc_gen_time_u>{D}+ {
+<sc_gen_time_u>{D}{1,6} {
   char *atcopy = g_strdup(ascendtext);
   BEGIN(sc_gen_octets);
   /* only want the most significant 2 digits. convert to usecs */
@@ -227,7 +227,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return DECNUM;
 }
 
-<sc_gen_octets>{D}+ {
+<sc_gen_octets>{D}{1,10} {
   BEGIN(sc_gen_counter);
   ascendlval.d = strtol(ascendtext, NULL, 10);
   return DECNUM;
@@ -315,7 +315,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return WDD_CHUNK;
 }
 
-<sc_wdd_chunknum>{H}+ {
+<sc_wdd_chunknum>{H}{1,8} {
   BEGIN(sc_wdd_type);
   ascendlval.d = strtoul(ascendtext, NULL, 16);
   return HEXNUM;
