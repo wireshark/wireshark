@@ -171,7 +171,7 @@ static void text_win_close_cb(void* data) {
     lua_State* L = cbd->L;
 
     if (cbd->L) { /* close function is set */
-	
+
         lua_settop(L,0);
         lua_pushcfunction(L,text_win_close_cb_error_handler);
         lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
@@ -189,7 +189,7 @@ static void text_win_close_cb(void* data) {
                 break;
         }
     }
-    
+
     if (cbd->wslua_tw->expired) {
         g_free(cbd->wslua_tw);
     } else {
@@ -212,6 +212,10 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     if (! ops) {
         luaL_error(L,"the GUI facility has to be enabled");
         return 0;
+    }
+
+    if (!ops->new_dialog) {
+        WSLUA_ERROR(new_dialog,"GUI not available");
     }
 
     if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
@@ -273,13 +277,15 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
     pd->title = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TITLE,"Progress"));
     pd->task = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TASK,""));
     pd->stopped = FALSE;
-    
+
     if (ops->new_progress_window) {
         pd->pw = ops->new_progress_window(pd->title,pd->task,TRUE,&(pd->stopped));
+    } else {
+        WSLUA_ERROR(ProgDlg_new, "GUI not available");   
     }
-    
+
     pushProgDlg(L,pd);
-    
+
 	WSLUA_RETURN(1); /* The newly created TextWindow object. */
 }
 
@@ -289,6 +295,10 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     ProgDlg pd = checkProgDlg(L,1);
     double pr = lua_tonumber(L,WSLUA_ARG_ProgDlg_update_PROGRESS);
     const gchar* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
+
+    if (!ops->update_progress) {
+        WSLUA_ERROR(ProgDlg_update,"GUI not available");
+    }
     
     g_free(pd->task);
     pd->task = g_strdup(task);
@@ -296,25 +306,25 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
 	if (!pd) {
 		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     }
-    
+
     if (pr >= 0.0 || pr <= 1.0) {
         ops->update_progress(pd->pw, (float) pr, task);
     } else {
         WSLUA_ERROR(ProgDlg_update,"Progress value out of range (must be between 0.0 and 1.0)");
     }
-    
+
     return 0;
 }
 
 WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has pressed the stop button.  */
     ProgDlg pd = checkProgDlg(L,1);
-    
+
 	if (!pd) {
 		WSLUA_ERROR(ProgDlg_stopped,"Cannot be called for something not a ProgDlg");
     }
-    
+
     lua_pushboolean(L,pd->stopped);
-    
+
 	WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
 }
 
@@ -322,6 +332,10 @@ WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has press
 
 WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
     ProgDlg pd = checkProgDlg(L,1);
+
+    if (!ops->destroy_progress_window) {
+        WSLUA_ERROR(ProgDlg_close,"GUI not available");
+    }
     
 	if (!pd) {
 		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
@@ -335,29 +349,31 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
 }
 
 
-static int ProgDlg__tostring(lua_State* L) { 
+static int ProgDlg__tostring(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
-    
+
     if (pd) {
         lua_pushstring(L,ep_strdup_printf("%sstopped",pd->stopped?"":"not "));
     } else {
         luaL_error(L, "ProgDlg__tostring has being passed something else!");
     }
-	
+
     return 0;
 }
 
-static int ProgDlg__gc(lua_State* L) { 
+static int ProgDlg__gc(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
-    
+
     if (pd) {
-        if (pd->pw) ops->destroy_progress_window(pd->pw);
-        
+        if (pd->pw && ops->destroy_progress_window) {
+            ops->destroy_progress_window(pd->pw);
+        }
+
         g_free(pd);
     } else {
         luaL_error(L, "ProgDlg__gc has being passed something else!");
     }
-	
+
     return 0;
 }
 
@@ -377,11 +393,11 @@ WSLUA_META ProgDlg_meta[] = {
 };
 
 int ProgDlg_register(lua_State* L) {
-    
+
     ops = funnel_get_funnel_ops();
-    
+
 	WSLUA_REGISTER_CLASS(ProgDlg);
-    
+
     return 1;
 }
 
@@ -390,7 +406,7 @@ int ProgDlg_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(TextWindow,NOP,NOP); /* Manages a text window. */
 
 /* XXX: button and close callback data is being leaked */
-/* XXX: lua callback function and TextWindow are not garbage collected because 
+/* XXX: lua callback function and TextWindow are not garbage collected because
    they stay in LUA_REGISTRYINDEX forever */
 
 WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
@@ -400,11 +416,15 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
     TextWindow tw = NULL;
     struct _close_cb_data* default_cbd;
 
+    if (!ops->new_text_window || !ops->set_close_cb) {
+        WSLUA_ERROR(TextWindow_new,"GUI not available");
+    }
+    
     title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
     tw = g_malloc(sizeof(struct _wslua_tw));
     tw->expired = FALSE;
     tw->ws_tw = ops->new_text_window(title);
-    
+
     default_cbd = g_malloc(sizeof(struct _close_cb_data));
 
     default_cbd->L = NULL;
@@ -424,6 +444,10 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     TextWindow tw = checkTextWindow(L,1);
     struct _close_cb_data* cbd;
 
+    if (!ops->set_close_cb) {
+        WSLUA_ERROR(TextWindow_set_atclose,"GUI not available");
+    }
+    
 	if (!tw)
 		WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
 
@@ -449,12 +473,15 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
 
+	if (!ops->set_text)
+		WSLUA_ERROR(TextWindow_set,"GUI not available");
+    
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_set,"Expired TextWindow");
+
     if (!text)
 		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
 
@@ -468,12 +495,15 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
+        if (!ops->append_text)
+		WSLUA_ERROR(TextWindow_append,"GUI not available");
+    
 	if (!tw)
 		WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_append,"Expired TextWindow");
+
 	if (!text)
 		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
 
@@ -487,12 +517,15 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
+	if (!ops->prepend_text)
+		WSLUA_ERROR(TextWindow_prepend,"GUI not available");
+    
 	if (!tw)
 		WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_prepend,"Expired TextWindow");
+
  	if (!text)
 		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
 
@@ -504,12 +537,15 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. */
     TextWindow tw = checkTextWindow(L,1);
 
+	if (!ops->clear_text)
+		WSLUA_ERROR(TextWindow_clear,"GUI not available");
+    
 	if (!tw)
 		WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_clear,"Expired TextWindow");
+
     ops->clear_text(tw->ws_tw);
 
 	WSLUA_RETURN(1); /* The TextWindow object. */
@@ -519,12 +555,15 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     TextWindow tw = checkTextWindow(L,1);
 	const gchar* text;
 
+	if (!ops->get_text)
+		WSLUA_ERROR(TextWindow_get_text,"GUI not available");
+        
 	if (!tw)
 		WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_get_text,"Expired TextWindow");
+
 	text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
@@ -536,15 +575,17 @@ static int TextWindow__gc(lua_State* L) {
 
 	if (!tw)
 		return 0;
-	
+
 	if (!tw->expired) {
 		tw->expired = TRUE;
+		if (ops->destroy_text_window) {
 		ops->destroy_text_window(tw->ws_tw);
+		}
 	} else {
 		g_free(tw);
 	}
 
-	
+
     return 0;
 }
 
@@ -554,12 +595,15 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 	TextWindow tw = checkTextWindow(L,1);
 	gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
 
+	if (!ops->set_editable)
+		WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
+        
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_set_editable,"Expired TextWindow");
+
 	if (ops->set_editable)
 		ops->set_editable(tw->ws_tw,editable);
 
@@ -608,12 +652,15 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	funnel_bt_t* fbt;
 	wslua_bt_cb_t* cbd;
 
+	if (!ops->add_button)
+		WSLUA_ERROR(TextWindow_add_button,"GUI not available");
+        
 	if (!tw)
 		WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
-    
+		WSLUA_ERROR(TextWindow_add_button,"Expired TextWindow");
+
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
@@ -676,7 +723,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 	if ( ops->retap_packets ) {
 		ops->retap_packets();
 	} else {
-		WSLUA_ERROR(wslua_retap_packets, "Does not work on TShark");
+		WSLUA_ERROR(wslua_retap_packets, "GUI not available");
 	}
 
 	return 0;
@@ -688,7 +735,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
 	const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
 	GString* gstr;
 	if (!ops->copy_to_clipboard) {
-		WSLUA_ERROR(wslua_copy_to_clipboard, "Does not work on TShark");
+		WSLUA_ERROR(copy_to_clipboard, "GUI not available");
 	}
 
 	if (!copied_str) {
@@ -713,7 +760,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
 	const char* error = NULL;
 
 	if (!ops->open_file) {
-		WSLUA_ERROR(wslua_open_capture_file, "Does not work on TShark");
+		WSLUA_ERROR(open_capture_file, "GUI not available");
 	}
 
 	if (!fname) {
@@ -740,7 +787,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 	const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
 
 	if (!ops->set_filter) {
-		WSLUA_ERROR(wslua_set_filter, "Does not work on TShark");
+		WSLUA_ERROR(set_filter, "GUI not available");
 	}
 
 	if (!filter_str) {
@@ -754,7 +801,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 
 WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box */
 	if (!ops->apply_filter) {
-		WSLUA_ERROR(wslua_apply_filter, "Does not work on TShark");
+		WSLUA_ERROR(apply_filter, "GUI not available");
 	}
 
 	ops->apply_filter();
@@ -766,7 +813,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the mai
 WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file */
 
 	if (!ops->reload) {
-		WSLUA_ERROR(wslua_reload, "Does not work on TShark");
+		WSLUA_ERROR(reload, "GUI not available");
 	}
 
 	ops->reload();
@@ -780,7 +827,7 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browse
 	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
 	if (!ops->browser_open_url) {
-		WSLUA_ERROR(browser_open_url, "Does not work on TShark");
+		WSLUA_ERROR(browser_open_url, "GUI not available");
 	}
 
 	if (!url) {
@@ -797,7 +844,7 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a
 	const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
 	if (!ops->browser_open_data_file) {
-		WSLUA_ERROR(browser_open_data_file, "Does not work on TShark");
+		WSLUA_ERROR(browser_open_data_file, "GUI not available");
 	}
 
 	if (!file) {
@@ -808,6 +855,3 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a
 
 	return 0;
 }
-
-
-

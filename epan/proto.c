@@ -3229,7 +3229,12 @@ proto_item_set_len(proto_item *pi, gint length)
 	DISSECTOR_ASSERT(length >= 0);
 	fi->length = length;
 
-	if (fi->value.ftype->ftype == FT_BYTES)
+	/*
+	 * You cannot just make the "len" field of a GByteArray
+	 * larger, if there's no data to back that length;
+	 * you can only make it smaller.
+	 */
+	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
 		fi->value.value.bytes->len = length;
 }
 

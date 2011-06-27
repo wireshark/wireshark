@@ -284,7 +284,7 @@ static int ByteArray_tostring(lua_State* L) {
     WSLUA_RETURN(1); /* A string contaning a representaion of the ByteArray. */
 }
 
-static int Tvb_new_real (lua_State *L);
+static int ByteArray_tvb (lua_State *L);
 
 static const luaL_reg ByteArray_methods[] = {
     {"new", ByteArray_new},
@@ -293,7 +293,7 @@ static const luaL_reg ByteArray_methods[] = {
     {"append", ByteArray_append},
     {"subset", ByteArray_subset},
     {"set_size", ByteArray_set_size},
-    {"tvb", Tvb_new_real},
+    {"tvb", ByteArray_tvb},
     {"get_index", ByteArray_get_index},
     {"set_index", ByteArray_set_index},
     { NULL, NULL }
@@ -363,14 +363,13 @@ Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
 
 
 /*
- * Tvb_new_real(bytearray,name)
+ * ByteArray_tvb(name)
  */
-WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
+WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
 	/* Creates a new Tvb from a bytearray (it gets added to the current frame too) */
-#define WSLUA_ARG_Tvb_new_real_BYTEARRAY 1 /* The data source for this Tvb. */
-#define WSLUA_ARG_Tvb_new_real_NAME 2 /* The name to be given to the new data-source. */
+#define WSLUA_ARG_ByteArray_tvb_NAME 2 /* The name to be given to the new data-source. */
     ByteArray ba = checkByteArray(L,1);
-    const gchar* name = luaL_optstring(L,WSLUA_ARG_Tvb_new_real_NAME,"Unnamed") ;
+    const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Unnamed") ;
     guint8* data;
     Tvb tvb;
 
@@ -393,7 +392,7 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
     WSLUA_RETURN(1); /* The created Tvb. */
 }
 
-WSLUA_CONSTRUCTOR Tvb_tvb (lua_State *L) {
+WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
 	/* Creates a (sub)Tvb from using a TvbRange */
 #define WSLUA_ARG_Tvb_new_subset_RANGE 1 /* The TvbRange from which to create the new Tvb. */
 
@@ -840,7 +839,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len) );
+    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len), tvbr->len );
 
 	WSLUA_RETURN(1); /* The string */
 }
@@ -937,7 +936,7 @@ static const luaL_reg TvbRange_methods[] = {
     {"bytes", TvbRange_bytes},
     {"len", TvbRange_len},
     {"offset", TvbRange_offset},
-    {"tvb", Tvb_tvb},
+    {"tvb", TvbRange_tvb},
     { NULL, NULL }
 };
 
@@ -1006,4 +1005,3 @@ int UInt64_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(UInt64);
     return 1;
 }
-

@@ -36,7 +36,7 @@ WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 {
   static range_t *ret;
-    range_convert_str(&ret,g_strdup(lua_tostring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
+    range_convert_str(&ret,g_strdup(luaL_checkstring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
   return ret;
 }
 
@@ -62,7 +62,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
         return NULL;
     }
     str1 = lua_tostring(L, -1);
-    
+
     lua_pop(L, 1);
     lua_next(L, -2);
     if (! lua_isstring(L,-1)) {
@@ -71,7 +71,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
         return NULL;
     }
     str2 = lua_tostring(L, -1);
-    
+
     lua_pop(L, 1);
     lua_next(L, -2);
     if (! lua_isnumber(L,-1)) {
@@ -84,14 +84,14 @@ static enum_val_t* get_enum(lua_State *L, int idx)
     e.name = g_strdup(str1);
     e.description = g_strdup(str2);
     e.value = (guint32)seq;
-    
+
     g_array_append_val(es,e);
-    
+
     lua_pop(L, 3);  /* removes 'value'; keeps 'key' for next iteration */
   }
-  
+
   g_array_append_val(es,last);
-  
+
   ret = (enum_val_t*)es->data;
 
   g_array_free(es,FALSE);
@@ -102,7 +102,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
 static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
     const gchar* descr = luaL_optstring(L,3,"");
-    
+
     Pref pref = g_malloc(sizeof(wslua_pref_t));
     pref->name = NULL;
     pref->label = label ? g_strdup(label) : NULL;
@@ -110,7 +110,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
     pref->type = type;
     pref->next = NULL;
     pref->proto = NULL;
-    
+
     switch(type) {
         case PREF_BOOL: {
             gboolean def = lua_toboolean(L,2);
@@ -137,8 +137,8 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_RANGE: {
-            range_t *range = get_range(L,4,5);
-            guint32 max = (guint32)luaL_optnumber(L,5,0);
+            range_t *range = get_range(L,2,4);
+            guint32 max = (guint32)luaL_optnumber(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -155,7 +155,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
 
     pushPref(L,pref);
     return 1;
-    
+
 }
 
 WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
@@ -197,8 +197,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
 #define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is */
-#define WSLUA_ARG_Pref_range_RANGE 4 /* The range */
-#define WSLUA_ARG_Pref_range_MAX 5 /* The maximum value */
+#define WSLUA_ARG_Pref_range_MAX 4 /* The maximum value */
     return new_pref(L,PREF_RANGE);
 }
 
@@ -211,7 +210,7 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
 
 static int Pref_gc(lua_State* L) {
     Pref pref = checkPref(L,1);
-    
+
     if (pref && ! pref->name) {
         g_free(pref->label);
         g_free(pref->desc);
@@ -219,7 +218,7 @@ static int Pref_gc(lua_State* L) {
 	    g_free((void*)pref->value.s);
         g_free(pref);
     }
-    
+
     return 0;
 }
 
@@ -259,12 +258,12 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 
 	if (! prefs ) return 0;
 
-	if (! name ) 
+	if (! name )
 		WSLUA_ARG_ERROR(Prefs__newindex,NAME,"must be a string");
 
 	if (! pref )
 		WSLUA_ARG_ERROR(Prefs__newindex,PREF,"must be a valid Pref");
-    
+
     if (pref->name)
         WSLUA_ARG_ERROR(Prefs__newindex,NAME,"cannot change existing preference");
 
@@ -272,7 +271,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 		WSLUA_ARG_ERROR(Prefs__newindex,PREF,"cannot be added to more than one protocol");
 
     p = prefs;
-    
+
     do {
         if ( p->name && g_str_equal(p->name,name) ) {
             luaL_error(L,"a preference named %s exists already",name);
@@ -290,22 +289,22 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 	      return 0;
 	    }
 	}
-        
+
         if ( ! p->next) {
             p->next = pref;
-            
+
             pref->name = g_strdup(name);
-            
+
             if (!pref->label)
                 pref->label = g_strdup(name);
 
             if (!prefs->proto->prefs_module) {
                 prefs->proto->prefs_module = prefs_register_protocol(prefs->proto->hfid, NULL);
-   
+
             }
-            
+
             switch(pref->type) {
-                case PREF_BOOL: 
+                case PREF_BOOL:
                     prefs_register_bool_preference(prefs->proto->prefs_module,
                                                    pref->name,
                                                    pref->label,
@@ -321,14 +320,14 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                    &(pref->value.u));
                     break;
                 case PREF_STRING:
-                    prefs_register_string_preference(prefs->proto->prefs_module, 
+                    prefs_register_string_preference(prefs->proto->prefs_module,
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
                                                      &(pref->value.s));
                     break;
                 case PREF_ENUM:
-                    prefs_register_enum_preference(prefs->proto->prefs_module, 
+                    prefs_register_enum_preference(prefs->proto->prefs_module,
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
@@ -337,7 +336,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->info.enum_info.radio_buttons);
                     break;
                 case PREF_RANGE:
-                    prefs_register_range_preference(prefs->proto->prefs_module, 
+                    prefs_register_range_preference(prefs->proto->prefs_module,
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
@@ -345,7 +344,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 						     pref->info.max_value);
                     break;
                 case PREF_STATIC_TEXT:
-                    prefs_register_static_text_preference(prefs->proto->prefs_module, 
+                    prefs_register_static_text_preference(prefs->proto->prefs_module,
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc);
@@ -353,15 +352,15 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                 default:
                     WSLUA_ERROR(Prefs__newindex,"Unknow Pref type");
             }
-            
+
             pref->proto = p->proto;
-            
+
             WSLUA_RETURN(0);
         }
     } while (( p = p->next ));
 
 	luaL_error(L,"this should not happen!");
-    
+
     WSLUA_RETURN(0);
 }
 
@@ -371,11 +370,11 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
 
     Pref prefs = checkPrefs(L,1);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
-    
+
     if (! ( name && prefs ) ) return 0;
-    
+
     prefs = prefs->next;
-    
+
     do {
         if ( g_str_equal(prefs->name,name) ) {
             switch (prefs->type) {
@@ -444,7 +443,7 @@ static enum ftenum get_ftenum(const gchar* type) {
             return ts->id;
         }
     }
-    
+
     return FT_NONE;
 }
 
@@ -455,7 +454,7 @@ static const gchar* ftenum_to_string(enum ftenum ft) {
             return ts->str;
         }
     }
-    
+
     return NULL;
 }
 
@@ -495,7 +494,7 @@ static base_display_e string_to_base(const gchar* str) {
 static value_string* value_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
     value_string* ret;
-    
+
     if(lua_isnil(L,idx)) {
 	    return NULL;
     } else if (!lua_istable(L,idx)) {
@@ -503,39 +502,39 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         g_array_free(vs,TRUE);
         return NULL;
     }
-    
+
     lua_pushnil(L);
-    
+
     while (lua_next(L, idx) != 0) {
         value_string v = {0,NULL};
-        
+
         if (! lua_isnumber(L,-2)) {
             luaL_argerror(L,idx,"All keys of a table used as vaalue_string must be integers");
             g_array_free(vs,TRUE);
             return NULL;
         }
-        
+
         if (! lua_isstring(L,-1)) {
             luaL_argerror(L,idx,"All values of a table used as vaalue_string must be strings");
             g_array_free(vs,TRUE);
             return NULL;
         }
-        
+
         v.value = (guint32)lua_tonumber(L,-2);
         v.strptr = g_strdup(lua_tostring(L,-1));
-        
+
         g_array_append_val(vs,v);
-        
+
         lua_pop(L, 1);
     }
-    
+
     ret = (value_string*)vs->data;
-    
+
     g_array_free(vs,FALSE);
 
     return ret;
-    
-}    
+
+}
 
 WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be used in a protocol. */
 #define WSLUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
@@ -545,46 +544,51 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
-	
+
     ProtoField f = g_malloc(sizeof(wslua_field_t));
     value_string* vs;
-    
+
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
 	f->ett = -1;
     f->name = g_strdup(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_NAME));
     f->abbr = g_strdup(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_ABBR));
     f->type = get_ftenum(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_TYPE));
-    
+
 	/*XXX do it better*/
-    if (f->type == FT_NONE) { 
+    if (f->type == FT_NONE) {
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
         return 0;
     }
-    
+
+    if (proto_check_field_name(f->abbr)) {
+      WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
+      return 0;
+    }
+
     if (! lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING) ) {
         vs = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
-        
+
         if (vs) {
             f->vs = vs;
         } else {
             g_free(f);
             return 0;
         }
-        
-        
+
+
     } else {
         f->vs = NULL;
     }
-    
+
     /* XXX: need BASE_ERROR */
     f->base = string_to_base(luaL_optstring(L, WSLUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
     f->mask = luaL_optint(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
     f->blob = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,""));
-    
+
     pushProtoField(L,f);
-    
-    WSLUA_RETURN(1); /* The newly created ProtoField object */ 
+
+    WSLUA_RETURN(1); /* The newly created ProtoField object */
 }
 
 
@@ -603,8 +607,13 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         return 0;
     }
 
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
+
     f->hfid = -2;
-	f->ett = -1;
+    f->ett = -1;
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
@@ -612,10 +621,10 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     f->base = base;
     f->mask = mask;
     f->blob = g_strdup(blob);
-    
-    
+
+
     pushProtoField(L,f);
-    
+
     return 1;
 }
 
@@ -736,9 +745,14 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,"");
-    
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
+
     f->hfid = -2;
-	f->ett = -1;
+    f->ett = -1;
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
@@ -746,9 +760,9 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->base = ( type == FT_FLOAT || type == FT_DOUBLE) ? BASE_DEC : BASE_NONE;
     f->mask = 0;
     f->blob = g_strdup(blob);
-    
+
     pushProtoField(L,f);
-    
+
     return 1;
 }
 
@@ -846,10 +860,10 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
 	/* Returns a string with info about a protofield (for debugging purposes) */
     ProtoField f = checkProtoField(L,1);
     gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
-    
+
     lua_pushstring(L,s);
     g_free(s);
-    
+
     return 1;
 }
 
@@ -858,12 +872,12 @@ static int ProtoField_gc(lua_State* L) {
 
     /*
      * A garbage collector for ProtoFields makes little sense.
-     * Even if This cannot be used anymore because it has gone out of scope, 
+     * Even if This cannot be used anymore because it has gone out of scope,
      * we can destroy the ProtoField only if it is not part of a ProtoFieldArray,
      * if it actualy belongs to one we need to preserve it as it is pointed by
      * a field array that may be registered afterwards causing a crash or memory corruption.
      */
-    
+
     if (!f) {
         luaL_argerror(L,1,"BUG: ProtoField_gc called for something not ProtoField");
         /* g_assert() ?? */
@@ -873,7 +887,7 @@ static int ProtoField_gc(lua_State* L) {
         g_free(f->blob);
         g_free(f);
     }
-    
+
     return 0;
 }
 
@@ -914,9 +928,9 @@ static const luaL_reg ProtoField_meta[] = {
 };
 
 int ProtoField_register(lua_State* L) {
-    
+
 	WSLUA_REGISTER_CLASS(ProtoField);
-        
+
     return 1;
 }
 
@@ -934,17 +948,17 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 #define WSLUA_ARG_Proto_new_DESC 2 /* A Long Text description of the protocol (usually lowercase) */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Proto_new_NAME);
     const gchar* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
-    
+
     if ( name ) {
 		gchar* loname = ep_strdup(name);
 		g_strdown(loname);
-        if ( proto_get_id_by_filter_name(loname) > 0 ) { 
+        if ( proto_get_id_by_filter_name(loname) > 0 ) {
             WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         } else {
             Proto proto = g_malloc(sizeof(wslua_proto_t));
 			gchar* loname = g_strdup(name);
 			gchar* hiname = g_strdup(name);
-			
+
 			g_strdown(loname);
 			g_strup(hiname);
 
@@ -953,29 +967,29 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 			proto->hfid = proto_register_protocol(proto->desc,hiname,loname);
 			proto->ett = -1;
 			proto->is_postdissector = FALSE;
-			
+
 			lua_newtable (L);
 			proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
-			
+
             proto->prefs.name = NULL;
             proto->prefs.label = NULL;
             proto->prefs.desc = NULL;
             proto->prefs.value.u = 0;
             proto->prefs.next = NULL;
             proto->prefs.proto = proto;
-			
+
             proto->prefs_module = NULL;
             proto->handle = NULL;
-            			
+
 			lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
 
 			lua_pushstring(L,loname);
 			pushProto(L,proto);
 
 			lua_settable(L, -3);
-			
+
 			pushProto(L,proto);
-			
+
 			WSLUA_RETURN(1); /* The newly created protocol */
         }
      } else {
@@ -987,16 +1001,16 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
 
 
-static int Proto_tostring(lua_State* L) { 
+static int Proto_tostring(lua_State* L) {
     Proto proto = checkProto(L,1);
     gchar* s;
-    
+
     if (!proto) return 0;
-    
+
     s = g_strdup_printf("Proto: %s",proto->name);
     lua_pushstring(L,s);
     g_free(s);
-    
+
     return 1;
 }
 
@@ -1005,24 +1019,24 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as postdissector */
     Proto proto = checkProto(L,WSLUA_ARG_register_postdissector_PROTO);
     if (!proto) return 0;
-    
+
     if(!proto->is_postdissector) {
         if (! proto->handle) {
             proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
         }
-        
+
         register_postdissector(proto->handle);
     } else {
         luaL_argerror(L,1,"this protocol is already registered as postdissector");
     }
-    
+
     return 0;
 }
 
 
-static int Proto_get_dissector(lua_State* L) { 
+static int Proto_get_dissector(lua_State* L) {
     Proto proto = toProto(L,1);
-    
+
     if (proto->handle) {
         pushDissector(L,proto->handle);
         return 1;
@@ -1033,7 +1047,7 @@ static int Proto_get_dissector(lua_State* L) {
 }
 
 
-static int Proto_set_dissector(lua_State* L) { 
+static int Proto_set_dissector(lua_State* L) {
     Proto proto = toProto(L,1);
 
 	if (lua_isfunction(L,3)) {
@@ -1046,11 +1060,11 @@ static int Proto_set_dissector(lua_State* L) {
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
         lua_settable(L,1);
-        
+
         proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
-        
+
 	new_register_dissector(loname, dissect_lua, proto->hfid);
-		
+
         return 0;
     } else {
         luaL_argerror(L,3,"The dissector of a protocol must be a function");
@@ -1058,16 +1072,16 @@ static int Proto_set_dissector(lua_State* L) {
     }
 }
 
-static int Proto_get_prefs(lua_State* L) { 
+static int Proto_get_prefs(lua_State* L) {
     Proto proto = toProto(L,1);
-    
+
     pushPrefs(L,&proto->prefs);
     return 1;
 }
 
-static int Proto_set_init(lua_State* L) { 
+static int Proto_set_init(lua_State* L) {
     Proto proto = toProto(L,1);
-    
+
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
         lua_pushstring(L, WSLUA_INIT_ROUTINES);
@@ -1076,15 +1090,15 @@ static int Proto_set_init(lua_State* L) {
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
         lua_settable(L,1);
-        
+
         return 0;
     }  else {
         luaL_argerror(L,3,"The initializer of a protocol must be a function");
         return 0;
-    } 
+    }
 }
 
-static int Proto_get_name(lua_State* L) { 
+static int Proto_get_name(lua_State* L) {
     Proto proto = toProto(L,1);
 
     lua_pushstring(L,proto->name);
@@ -1092,7 +1106,7 @@ static int Proto_get_name(lua_State* L) {
 }
 
 
-static int Proto_get_fields(lua_State* L) { 
+static int Proto_get_fields(lua_State* L) {
     Proto proto = toProto(L,1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
     return 1;
@@ -1100,7 +1114,7 @@ static int Proto_get_fields(lua_State* L) {
 
 void wslua_print_stack(char* s, lua_State* L) {
 	int i;
-	
+
 	for (i=1;i<=lua_gettop(L);i++) {
 		printf("%s-%i: %s\n",s,i,lua_typename (L,lua_type(L, i)));
 	}
@@ -1132,9 +1146,9 @@ static int Proto_set_fields(lua_State* L) {
 	} else {
 		return luaL_error(L,"either a ProtoField or an array of protofields");
 	}
-	
+
 	lua_pushvalue(L, 3);
-	
+
     return 1;
 }
 
@@ -1152,7 +1166,7 @@ static const proto_actions_t proto_actions[] = {
 
 	/* WSLUA_ATTRIBUTE Proto_fields RO The Fields Table of this dissector */
     {"fields" ,Proto_get_fields, Proto_set_fields},
-	
+
 	/* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
     {"prefs",Proto_get_prefs,NULL},
 
@@ -1168,9 +1182,9 @@ static int Proto_index(lua_State* L) {
     Proto proto = checkProto(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const proto_actions_t* pa;
-    
+
     if (! (proto && name) ) return 0;
-    
+
     for (pa = proto_actions; pa->name; pa++) {
         if ( g_str_equal(name,pa->name) ) {
             if (pa->get) {
@@ -1191,9 +1205,9 @@ static int Proto_newindex(lua_State* L) {
     Proto proto = checkProto(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const proto_actions_t* pa;
-    
+
     if (! (proto && name) ) return 0;
-    
+
     for (pa = proto_actions; pa->name; pa++) {
         if ( g_str_equal(name,pa->name) ) {
             if (pa->set) {
@@ -1204,7 +1218,7 @@ static int Proto_newindex(lua_State* L) {
             }
         }
     }
-    
+
     luaL_error(L,"A protocol doesn't have a `%s' attribute",name);
     return 0;
 }
@@ -1222,21 +1236,21 @@ int Proto_register(lua_State* L) {
 
 	lua_newtable(L);
 	protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-				
+
     lua_pushstring(L, "Proto");
     lua_pushcfunction(L, Proto_new);
     lua_settable(L, LUA_GLOBALSINDEX);
-    
+
     Pref_register(L);
     Prefs_register(L);
-    
+
     return 1;
 }
 
 int Proto_commit(lua_State* L) {
 	lua_settop(L,0);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
-	
+
 	for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 2)) {
 		GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
 		GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
@@ -1244,7 +1258,7 @@ int Proto_commit(lua_State* L) {
 		const gchar* proto_name;
 		proto_name = lua_tostring(L,2);
 		proto = checkProto(L,3);
-		
+
 		lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
 
 		for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
@@ -1255,19 +1269,19 @@ int Proto_commit(lua_State* L) {
 			if (f->hfid != -2) {
 				return luaL_error(L,"fields can be registered only once");
 			}
-			
+
 			f->hfid = -1;
 			g_array_append_val(hfa,hfri);
 			g_array_append_val(etta,ettp);
 		}
-		
+
 		proto_register_field_array(proto->hfid,(hf_register_info*)hfa->data,hfa->len);
 		proto_register_subtree_array((gint**)etta->data,etta->len);
-		
+
 		g_array_free(hfa,FALSE);
 		g_array_free(etta,FALSE);
 	}
-	
+
 	return 0;
 }
 
@@ -1284,16 +1298,16 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 #define WSLUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
     Dissector d;
-    
+
     if (!name)
         WSLUA_ARG_ERROR(Dissector_get,NAME,"must be a string");
-    
+
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
         WSLUA_RETURN(1); /* The Dissector reference */
     } else
         WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
-    
+
 }
 
 WSLUA_METHOD Dissector_call(lua_State* L) {
@@ -1301,15 +1315,15 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 #define WSLUA_ARG_Dissector_call_TVB 2 /* The buffer to dissect */
 #define WSLUA_ARG_Dissector_call_PINFO 3 /* The packet info */
 #define WSLUA_ARG_Dissector_call_TREE 4 /* The tree on which to add the protocol items */
-	
+
     Dissector d = checkDissector(L,1);
     Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
     char* error = NULL;
-	
+
     if (! ( d && tvb && pinfo) ) return 0;
-    
+
     TRY {
         call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
@@ -1351,7 +1365,7 @@ int Dissector_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(DissectorTable,NOP,NOP);
 /*
  A table of subdissectors of a particular protocol (e.g. TCP subdissectors like http, smtp, sip are added to table "tcp.port").
- Useful to add more dissectors to a table so that they appear in the Decode As... dialog. 
+ Useful to add more dissectors to a table so that they appear in the Decode As... dialog.
  */
 
 WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
@@ -1364,12 +1378,12 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     base_display_e base = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
-    
+
     if(!(name && ui_name)) return 0;
-    
+
     name = g_strdup(name);
     ui_name = g_strdup(ui_name);
-    
+
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
@@ -1379,7 +1393,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         case FT_UINT32:
         {
             DissectorTable dt = g_malloc(sizeof(struct _wslua_distbl_t));
-            
+
             dt->table = register_dissector_table(name, ui_name, type, base);
             dt->name = name;
             pushDissectorTable(L, dt);
@@ -1388,7 +1402,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         default:
             WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be FTUINT* or FT_STRING");
     }
-	return 0;    
+	return 0;
 }
 
 WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
@@ -1398,22 +1412,22 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
 #define WSLUA_ARG_DissectorTable_get_TABLENAME 1 /* The short name of the table. */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_TABLENAME);
     dissector_table_t table;
-    
+
     if(!name) return 0;
-    
+
     table = find_dissector_table(name);
-    
+
     if (table) {
         DissectorTable dt = g_malloc(sizeof(struct _wslua_distbl_t));
         dt->table = table;
         dt->name = g_strdup(name);
-        
+
         pushDissectorTable(L, dt);
-        
+
 		WSLUA_RETURN(1); /* The DissectorTable */
     } else
         WSLUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
-    
+
 }
 
 
@@ -1423,7 +1437,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
 	 */
 #define WSLUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
-	
+
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     Dissector handle;
@@ -1434,17 +1448,17 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         Proto p;
         p = toProto(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
         handle = p->handle;
-        
+
         if (! handle)
             WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"a Protocol that does not have a dissector cannot be added to a table");
-        
+
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_add_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
     } else
 		WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
-    
+
     type = get_dissector_table_selector_type(dt->name);
-    
+
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN));
         dissector_add_string(dt->name, pattern,handle);
@@ -1454,7 +1468,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
     }
-    
+
     return 0;
 }
 
@@ -1467,21 +1481,21 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     Dissector handle;
-    
+
     if (!dt) return 0;
-    
+
     if( isProto(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
         Proto p;
         p = toProto(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
         handle = p->handle;
-        
+
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
 	} else
 		WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
-    
+
     type = get_dissector_table_selector_type(dt->name);
-    
+
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,2));
         dissector_delete_string(dt->name, pattern,handle);
@@ -1489,7 +1503,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         int port = luaL_checkint(L, 2);
         dissector_delete(dt->name, port, handle);
     }
-    
+
     return 0;
 }
 
@@ -1508,33 +1522,33 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
     gchar* error = NULL;
-	
+
     if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
-    
+
     type = get_dissector_table_selector_type(dt->name);
-    
+
 	TRY {
-		
+
 		if (type == FT_STRING) {
 			const gchar* pattern = luaL_checkstring(L,2);
-			
+
 			if (!pattern) return 0;
-			
+
 			if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
 				return 0;
-			
+
 		} else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
 			int port = luaL_checkint(L, 2);
-		
-			if (dissector_try_port(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree)) 
+
+			if (dissector_try_port(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
 				return 0;
-			
+
 		} else {
 			luaL_error(L,"No such type of dissector_table");
 		}
-		
+
 		call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
-	
+
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
 	} CATCH(ReportedBoundsError) {
 		proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
@@ -1544,7 +1558,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 	if (error) { WSLUA_ERROR(DissectorTable_try,error); }
 
 	return 0;
-	
+
 }
 
 WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
@@ -1556,22 +1570,22 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     dissector_handle_t handle = lua_data_handle;
-    
+
     if (!dt) return 0;
-    
+
     type = get_dissector_table_selector_type(dt->name);
-    
+
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
-		
+
 		if (!pattern) WSLUA_ARG_ERROR(DissectorTable_try,PATTERN,"must be a string");
-		
+
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
         handle = dissector_get_port_handle(dt->table,port);
     }
-    
+
 	if (handle) {
 		pushDissector(L,handle);
 		WSLUA_RETURN(1); /* The dissector handle if found */
@@ -1588,12 +1602,12 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
     DissectorTable dt = checkDissectorTable(L,1);
     GString* s;
     ftenum_t type;
-    
+
     if (!dt) return 0;
-    
+
     type =  get_dissector_table_selector_type(dt->name);
     s = g_string_new("DissectorTable ");
-    
+
     switch(type) {
         case FT_STRING:
         {
@@ -1611,8 +1625,8 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
         }
         default:
             luaL_error(L,"Strange table type");
-    }            
-    
+    }
+
     lua_pushstring(L,s->str);
     g_string_free(s,TRUE);
     return 1;
@@ -1637,7 +1651,3 @@ int DissectorTable_register(lua_State* L) {
 	WSLUA_REGISTER_CLASS(DissectorTable);
     return 1;
 }
-
-
-
-
