@@ -4408,11 +4408,13 @@ static void
 report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
 {
     interface_options interface_opts;
+    char tmp[MSG_MAX_LENGTH+1+6];
 
     if (i < capture_opts->ifaces->len) {
         if (capture_child) {
+            g_snprintf(tmp, sizeof(tmp), "%u:%s", i, errmsg);
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
-            pipe_write_block(2, SP_BAD_FILTER, errmsg);
+            pipe_write_block(2, SP_BAD_FILTER, tmp);
         } else {
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
             fprintf(stderr,
