@@ -548,12 +548,14 @@ MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\
 	Makefile.in		\
 	aclocal.m4		\
+	compile			\
 	config.h.in		\
 	configure		\
 	depcomp			\
 	install-sh		\
 	ltmain.sh		\
-	missing
+	missing			\
+	ylwrap
 
 EXTRA_DIST = \
 	INSTALL.configure	\
