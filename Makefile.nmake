@@ -823,7 +823,7 @@ process_libs:
 !ENDIF
 !IFDEF SMI_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. libsmi-0.4.8.zip
+		. libsmi-$(SMI_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF GEOIP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -877,6 +877,7 @@ clean_setup:
     rm -r -f lua5.1.4
     rm -r -f libsmi-0.4.5
     rm -r -f libsmi-0.4.8
+    rm -r -f libsmi-win??-svn-40773
     rm -r -f nasm-2.00
     rm -r -f nasm-2.02
     rm -r -f nasm-2.09.08
@@ -1084,8 +1085,13 @@ install-all: install-generated-files
 !IFDEF SMI_DIR
 	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
 	if not exist $(INSTALL_DIR)\snmp\mibs mkdir $(INSTALL_DIR)\snmp\mibs
-	xcopy "$(SMI_DIR)\lib\smi.dll" $(INSTALL_DIR) /d
-	xcopy "$(SMI_DIR)\mibs\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\bin\libsmi-2.dll" $(INSTALL_DIR) /d
+	xcopy "$(SMI_DIR)\share\mibs\iana\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\share\mibs\ietf\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\share\mibs\irtf\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\share\mibs\tubs\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\share\pibs\*" $(INSTALL_DIR)\snmp\mibs /d
+	xcopy "$(SMI_DIR)\share\yang\*.yang" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 
 checkapi_local:

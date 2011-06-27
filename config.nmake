@@ -394,7 +394,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 #
 # Used for oid-name resolution for SNMP and other protocols
 #
-SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
+SMI_PKG=svn-40773
 
 #
 # Optional: GeoIP, IP address database lookups
@@ -589,7 +589,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 #
 # Used for oid-name resolution for SNMP and other protocols
 #
-#SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
+SMI_PKG=svn-40773
 
 #
 # Optional: GeoIP, IP address database lookups
@@ -1250,11 +1250,13 @@ HHC_CFLAGS=
 HHC_LIBS=
 !ENDIF
 
-!IFDEF SMI_DIR
+!IFDEF SMI_PKG
+SMI_DIR=$(WIRESHARK_LIBS)\libsmi-$(SMI_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
 SMI_CONFIG=^#define HAVE_LIBSMI 1
 SMI_CFLAGS=/I$(SMI_DIR)\include
-SMI_LIBS=$(SMI_DIR)\lib\smi.lib
+SMI_LIBS=$(SMI_DIR)\lib\libsmi-2.lib
 !ELSE
+SMI_DIR=
 SMI_LIBS=
 SMI_CFLAGS=
 SMI_CONFIG=

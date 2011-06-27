@@ -414,7 +414,7 @@ File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"
 !endif
 !ifdef SMI_DIR
-File "${SMI_DIR}\lib\smi.dll"
+File "${SMI_DIR}\bin\libsmi-2.dll"
 !endif
 File "..\..\wireshark-gtk2\COPYING.txt"
 File "..\..\wireshark-gtk2\NEWS.txt"
@@ -934,19 +934,16 @@ File "..\..\plugins\mate\mate.dll"
 SectionEnd
 
 
-!ifdef NET_SNMP_DIR
-Section "SNMP MIBs" SecMIBs
-;-------------------------------------------
-SetOutPath $INSTDIR\snmp\mibs
-File "${NET_SNMP_DIR}\mibs\*.txt"
-SectionEnd
-!endif
-
 !ifdef SMI_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 SetOutPath $INSTDIR\snmp\mibs
-File "${SMI_DIR}\mibs\*"
+File "${SMI_DIR}\share\mibs\iana\*"
+File "${SMI_DIR}\share\mibs\ietf\*"
+File "${SMI_DIR}\share\mibs\irtf\*"
+File "${SMI_DIR}\share\mibs\tubs\*"
+File "${SMI_DIR}\share\pibs\*"
+File "${SMI_DIR}\share\yang\*.yang"
 SectionEnd
 !endif
 
@@ -1236,9 +1233,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
-!ifdef NET_SNMP_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
-!endif
 !ifdef SMI_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
 !endif

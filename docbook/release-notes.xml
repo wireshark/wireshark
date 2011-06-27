@@ -83,6 +83,12 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            OID resolution is now supported on 64-bit Windows.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
