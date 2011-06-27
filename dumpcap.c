@@ -4416,6 +4416,10 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
             pipe_write_block(2, SP_BAD_FILTER, tmp);
         } else {
+            /*
+             * clopts_step_invalid_capfilter in test/suite-clopts.sh MUST match
+             * the error message below.
+             */
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
             fprintf(stderr,
               "Invalid capture filter \"%s\" for interface %s!\n"

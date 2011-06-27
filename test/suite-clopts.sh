@@ -116,7 +116,7 @@ clopts_step_invalid_capfilter() {
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		grep -i 'Invalid capture filter: "jkghg"' ./testout.txt > /dev/null
+		grep -i 'Invalid capture filter "jkghg" for interface' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_output_print ./testout.txt
 			test_step_ok
