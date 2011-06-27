@@ -801,6 +801,25 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 	return 0;
 }
 
+WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set color of the current packet */
+#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The row count in tmp filter list */
+#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Filter */
+	guint8 row = luaL_checkint(L,WSLUA_ARG_set_color_filter_slot_ROW);
+	const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
+
+	if (!ops->set_color_filter_slot) {
+		WSLUA_ERROR(set_color_filter_slot, "GUI not available");
+	}
+
+	if (!filter_str) {
+		WSLUA_ARG_ERROR(set_color_filter_slot,TEXT,"Must be a string");
+	}
+
+	ops->set_color_filter_slot(row, filter_str);
+
+	return 0;
+}
+
 WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box */
 	if (!ops->apply_filter) {
 		WSLUA_ERROR(apply_filter, "GUI not available");

@@ -51,8 +51,8 @@
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"
-#include "../file.h"
 #include "../progress_dlg.h"
+#include "../color_filters.h"
 
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
@@ -464,6 +464,10 @@ static void funnel_set_filter(const char* filter_string) {
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 }
 
+static void funnel_set_color_filter_slot(guint8 filt_nr, const gchar* filter_string) {
+    color_filters_set_tmp(filt_nr, (gchar *)filter_string, FALSE);
+}
+
 static void funnel_apply_filter(void) {
 	const char* filter_string = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	main_filter_packets(&cfile, filter_string, FALSE);
@@ -560,6 +564,7 @@ static const funnel_ops_t funnel_ops = {
 	funnel_retap_packets,
 	copy_to_clipboard,
 	funnel_set_filter,
+	funnel_set_color_filter_slot,
 	funnel_open_file,
 	funnel_reload,
 	funnel_apply_filter,
