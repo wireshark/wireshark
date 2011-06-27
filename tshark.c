@@ -2168,7 +2168,7 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
       "so you can't use most display filter expressions as capture filters.\n"
       "\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      interface_opts.cfilter, interface_opts.name, error_message);
+      interface_opts.cfilter, interface_opts.descr, error_message);
     dfilter_free(rfcode);
   } else {
     cmdarg_err(
@@ -2176,7 +2176,7 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      interface_opts.cfilter, interface_opts.name, error_message);
+      interface_opts.cfilter, interface_opts.descr, error_message);
   }
 }
 
