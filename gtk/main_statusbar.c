@@ -696,12 +696,10 @@ statusbar_get_interface_names(capture_options *capture_opts)
 
     interface_names = g_string_new("");
 
-    if (capture_opts->ifaces->len == 0) {
-        g_string_append_printf(interface_names, "%s", get_iface_description(capture_opts));
 #ifdef _WIN32
-    } else if (capture_opts->ifaces->len < 2) {
+    if (capture_opts->ifaces->len < 2) {
 #else
-    } else if (capture_opts->ifaces->len < 4) {
+    if (capture_opts->ifaces->len < 4) {
 #endif
         for (i = 0; i < capture_opts->ifaces->len; i++) {
             if (i > 0) {

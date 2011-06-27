@@ -145,15 +145,10 @@ capture_start(capture_options *capture_opts)
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
-  if (capture_opts->ifaces->len == 0) {
-    g_string_printf(source, "%s", get_iface_description(capture_opts));
-    if (capture_opts->cfilter && capture_opts->cfilter[0]) {
-      g_string_append_printf(source, " (%s)", capture_opts->cfilter);
-    }
 #ifdef _WIN32
-  } else if (capture_opts->ifaces->len < 2) {
+  if (capture_opts->ifaces->len < 2) {
 #else
-  } else if (capture_opts->ifaces->len < 4) {
+  if (capture_opts->ifaces->len < 4) {
 #endif
     for (i = 0; i < capture_opts->ifaces->len; i++) {
       interface_options interface_opts;
@@ -498,18 +493,23 @@ capture_input_error_message(capture_options *capture_opts, char *error_msg, char
    capture filter when starting/running the capture.
  */
 void
-capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message)
+capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message)
 {
-  dfilter_t   *rfcode = NULL;
-  gchar *safe_cfilter = simple_dialog_format_message(capture_opts->cfilter);
-  gchar *safe_cfilter_error_msg = simple_dialog_format_message(error_message);
+  dfilter_t *rfcode = NULL;
+  gchar *safe_cfilter;
+  gchar *safe_cfilter_error_msg;
+  interface_options interface_opts;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture filter error message from child: \"%s\"", error_message);
 
   g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(i < capture_opts->ifaces->len);
 
+  interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+  safe_cfilter = simple_dialog_format_message(interface_opts.cfilter);
+  safe_cfilter_error_msg = simple_dialog_format_message(error_message);
   /* Did the user try a display filter? */
-  if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
+  if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "%sInvalid capture filter: \"%s\"!%s\n"
       "\n"

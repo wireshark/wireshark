@@ -1392,12 +1392,12 @@ main(int argc, char *argv[])
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
-      if (global_capture_opts.cfilter) {
-        cmdarg_err("Capture filters were specified both with \"-f\""
+      if (global_capture_opts.default_options.cfilter) {
+        cmdarg_err("A default capture filter was specified both with \"-f\""
             " and with additional command-line arguments");
         return 1;
       }
-      global_capture_opts.cfilter = get_args_as_string(argc, argv, optind);
+      global_capture_opts.default_options.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
 #endif
@@ -1443,7 +1443,7 @@ main(int argc, char *argv[])
      support in capture files we read). */
 #ifdef HAVE_LIBPCAP
   if (cf_name != NULL) {
-    if (global_capture_opts.cfilter) {
+    if (global_capture_opts.default_options.cfilter) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
       return 1;
@@ -2149,14 +2149,17 @@ capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, 
 
 /* capture child detected an capture filter related error */
 void
-capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message)
+capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message)
 {
   dfilter_t   *rfcode = NULL;
+  interface_options interface_opts;
 
+  g_assert(i < capture_opts->ifaces->len);
+  interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
 
-  if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
+  if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
     cmdarg_err(
-      "Invalid capture filter: \"%s\"!\n"
+      "Invalid capture filter: \"%s\" for interface %s!\n"
       "\n"
       "That string looks like a valid display filter; however, it isn't a valid\n"
       "capture filter (%s).\n"
@@ -2165,15 +2168,15 @@ capture_input_cfilter_error_message(capture_options *capture_opts, char *error_m
       "so you can't use most display filter expressions as capture filters.\n"
       "\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      capture_opts->cfilter, error_message);
+      interface_opts.cfilter, interface_opts.name, error_message);
     dfilter_free(rfcode);
   } else {
     cmdarg_err(
-      "Invalid capture filter: \"%s\"!\n"
+      "Invalid capture filter: \"%s\" for interface %s!\n"
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      capture_opts->cfilter, error_message);
+      interface_opts.cfilter, interface_opts.name, error_message);
   }
 }
 

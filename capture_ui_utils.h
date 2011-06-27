@@ -93,10 +93,10 @@ char *build_capture_combo_name(GList *if_list, gchar *if_name);
 /** Return the interface description (after setting it if not already set)
  *
  * @param capture_opts The capture_options structure that contains the used interface
+ * @param i The index of the interface
  *
- * @return A pointer to capture_ops->iface_descr
+ * @return A pointer to interface_opts->descr
  */
-const char *get_iface_description(capture_options *capture_opts);
 const char *get_iface_description_for_interface(capture_options *capture_opts, guint i);
 
 #endif

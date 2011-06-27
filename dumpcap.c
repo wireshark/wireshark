@@ -3948,9 +3948,6 @@ main(int argc, char *argv[])
        by the command line parameters. */
     capture_opts_init(&global_capture_opts, NULL);
 
-    /* Default to capturing the entire packet. */
-    global_capture_opts.snaplen             = WTAP_MAX_PACKET_SIZE;
-
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
     global_capture_opts.saving_to_file      = TRUE;

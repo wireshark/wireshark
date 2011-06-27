@@ -94,7 +94,7 @@ extern void capture_input_error_message(capture_options *capture_opts, char *err
  * Capture child told us that an error has occurred while parsing a
  * capture filter when starting/running the capture.
  */
-extern void capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message);
+extern void capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message);
 
 /**
  * Capture child closed its side of the pipe, report any error and

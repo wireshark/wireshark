@@ -139,11 +139,14 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
 
 #ifdef HAVE_LIBPCAP
+/* FIXME: This needs additional functionality to support multiple interfaces */
 void
 summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
 {
-  st->cfilter = capture_opts->cfilter;
-  st->iface = capture_opts->iface;
-  st->iface_descr = get_iface_description(capture_opts);
+  if (capture_opts->ifaces->len > 0) {
+    st->cfilter = g_array_index(capture_opts->ifaces, interface_options, 0).cfilter;
+    st->iface = g_array_index(capture_opts->ifaces, interface_options, 0).name;
+    st->iface_descr = get_iface_description_for_interface(capture_opts, 0);
+  }
 }
 #endif

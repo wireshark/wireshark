@@ -77,6 +77,7 @@ typedef struct interface_options_tag {
     gchar *name;
     gchar *descr;
     gchar *cfilter;
+    gboolean has_snaplen;
     int snaplen;
     int linktype;
     gboolean promisc_mode;
@@ -105,68 +106,9 @@ typedef struct interface_options_tag {
 typedef struct capture_options_tag {
     /* general */
     void     *cf;                   /**< handle to cfile (note: untyped handle) */
-    gchar    *cfilter;              /**< Capture filter string
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.cfilter */
-    gchar    *iface;                /**< the network interface to capture from
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.name */
-    gchar    *iface_descr;          /**< A human readable description of iface.
-                                      *< NOTE: capture_opts.c is not able to
-                                      *< set this field because doing so
-                                      *< requires too many dependencies.
-                                      *< Readers of this field should use
-                                      *< get_iface_description() from
-                                      *< "capture_ui_utils.h" to access it.
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.descr */
     GArray   *ifaces;               /**< array of interfaces.
                                          Currently only used by dumpcap. */
     interface_options default_options;
-#ifdef HAVE_PCAP_REMOTE
-                                    /**< XXX: Should this whole block moved to
-                                      *< interface_options ? Yes!*/
-    capture_source src_type;        /**< Capturing on remote interface */
-    gchar    *remote_host;          /**< Host name or network address
-                                      *< for remote capturing */
-    gchar    *remote_port;          /**< TCP port of remote RPCAP server */
-
-    capture_auth  auth_type;
-    gchar    *auth_username;
-    gchar    *auth_password;        /**< Remote authentication parameters */
-
-    gboolean datatx_udp;            /**< Whether to use UDP for data transfer */
-    gboolean nocap_rpcap;           /**< Whether to capture RPCAP own traffic */
-    gboolean nocap_local;           /**< TODO: Whether to capture local traffic */
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-    capture_sampling sampling_method; /**< PCAP packet sampling method
-                                        *< XXX: Can finally be be removed.
-                                        *<      Replaced by interface_options.sampling_method */
-    int sampling_param;             /**< PCAP packet sampling parameter
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.sampling_param */
-#endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    int      buffer_size;           /**< the capture buffer size (MB)
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.buffer_size */
-#endif
-    gboolean has_snaplen;           /**< TRUE if maximum capture packet length
-                                         is specified */
-    int      snaplen;               /**< Maximum captured packet length
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.snaplen */
-    gboolean promisc_mode;          /**< Capture in promiscuous mode
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.promisc_mode */
-    int      linktype;              /**< Data link type to use, or -1 for
-                                         "use default"
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.linktype */
-    gboolean monitor_mode;          /**< Capture in monitor mode, if available
-                                      *< XXX: Can finally be be removed.
-                                      *<      Replaced by interface_options.monitor_mode */
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
     gboolean group_read_access;     /**< TRUE is group read permission needs to be set */
