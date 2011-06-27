@@ -814,6 +814,8 @@ main(int argc, char *argv[])
   int                  status;
   GList               *if_list;
   gchar               *err_str;
+  guint                i;
+  interface_options    interface_opts;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -834,8 +836,6 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
   gchar               *output_only = NULL;
-  guint                i;
-  interface_options interface_opts;
 
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
