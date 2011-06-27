@@ -2940,11 +2940,10 @@ void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
-#if 0
   gchar *if_name;
   cap_settings_t *cap_settings_p = NULL;
-#endif
   interface_options interface_opts;
+  guint i;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -2962,7 +2961,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
-  if(cap_open_w) {
+  if (cap_open_w) {
     /*
      * There's an options dialog; get the values from it and close it.
      */
@@ -2987,9 +2986,6 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
         "You didn't specify an interface on which to capture packets.");
       return;
     }
-#if 0
-    if_name = g_strdup(get_if_name(prefs.capture_device));
-#endif
     interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
     interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
@@ -3017,29 +3013,23 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
  #endif
     g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
-#if 0
-  } else {
-    if_name = g_strdup(interface_opts.name);
-#endif
   }
 
-#if 0
   if (cap_settings_history != NULL) {
-    cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
-    if (cap_settings_p == NULL) {
-      cap_settings_p = g_malloc(sizeof (cap_settings_t));
-      g_hash_table_insert(cap_settings_history, if_name, cap_settings_p);
-    } else {
-      g_free(if_name);
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+      if_name = g_strdup(interface_opts.name);
+      cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
+      if (cap_settings_p == NULL) {
+        cap_settings_p = g_malloc(sizeof (cap_settings_t));
+        g_hash_table_insert(cap_settings_history, if_name, cap_settings_p);
+      } else {
+        g_free(if_name);
+      }
+      cap_settings_p->monitor_mode = interface_opts.monitor_mode;
+      cap_settings_p->linktype = interface_opts.linktype;
     }
-    cap_settings_p->monitor_mode = interface_opts.monitor_mode;
-    cap_settings_p->linktype = interface_opts.linktype;
-  } else {
-    interface_opts.monitor_mode = prefs_capture_device_monitor_mode(if_name);
-    interface_opts.linktype = capture_dev_user_linktype_find(if_name);
-    g_free(if_name);
   }
-#endif
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
