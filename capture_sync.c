@@ -438,12 +438,6 @@ sync_pipe_start(capture_options *capture_opts) {
             argv = sync_pipe_add_arg(argv, &argc, "-f");
             argv = sync_pipe_add_arg(argv, &argc, interface_opts.cfilter);
         }
-        if (interface_opts.cfilter == NULL &&
-            capture_opts->default_options.cfilter != NULL &&
-            strlen(capture_opts->default_options.cfilter) != 0) {
-            argv = sync_pipe_add_arg(argv, &argc, "-f");
-            argv = sync_pipe_add_arg(argv, &argc, capture_opts->default_options.cfilter);
-        }
         if (interface_opts.snaplen != WTAP_MAX_PACKET_SIZE) {
             argv = sync_pipe_add_arg(argv, &argc, "-s");
             g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts.snaplen);
