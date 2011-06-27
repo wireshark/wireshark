@@ -71,3 +71,6 @@ EXTRA_DIST = \
 	rfr/mapicodes_enum.h		\
 	rfr/rfr.cnf			\
 	rfr/rfr.idl
+
+MAINTAINERCLEANFILES =  \
+        Makefile.in

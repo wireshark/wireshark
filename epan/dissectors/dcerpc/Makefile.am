@@ -43,3 +43,5 @@ EXTRA_DIST = \
 	drsuapi/packet-dcerpc-drsuapi-template.c \
 	drsuapi/packet-dcerpc-drsuapi-template.h
 
+MAINTAINERCLEANFILES =  \
+        Makefile.in
