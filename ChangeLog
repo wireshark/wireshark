@@ -1274,3 +1274,205 @@ Changed paths:
 
 [Automatic manuf, services and enterprise-numbers update for 2011-05-29]
 ------------------------------------------------------------------------
+r37481 | gerald | 2011-05-31 08:48:55 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+Build 1.2.17.
+
+------------------------------------------------------------------------
+r37484 | gerald | 2011-05-31 09:37:53 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+
+Add some missing text.
+
+------------------------------------------------------------------------
+r37502 | gerald | 2011-05-31 16:14:05 -0700 (Tue, 31 May 2011) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/debian/changelog
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+1.2.17 → 1.2.18.
+
+------------------------------------------------------------------------
+r37534 | gerald | 2011-06-03 15:57:29 -0700 (Fri, 03 Jun 2011) | 3 lines
+Changed paths:
+   M /trunk-1.2/Makefile.nmake
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+   M /trunk-1.2/tools/win32-setup.sh
+
+Revert back to GNUTLS 2.8.5-4.12 in order to fix Windows 2000
+support. Make sure libintl-8.dll exists in order to prevent hijacking.
+
+------------------------------------------------------------------------
+r37535 | gerald | 2011-06-03 19:17:52 -0700 (Fri, 03 Jun 2011) | 4 lines
+Changed paths:
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+
+Trying to create a copy of an existing file with "File /oname=..." causes
+unhappiness in the lands of U3 and PortableApps. Simply copy libintl-8.dll
+from the wireshark-gtk2 directory.
+
+------------------------------------------------------------------------
+r37552 | gerald | 2011-06-05 11:06:55 -0700 (Sun, 05 Jun 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-06-05]
+------------------------------------------------------------------------
+r37659 | gerald | 2011-06-12 11:06:03 -0700 (Sun, 12 Jun 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-06-12]
+------------------------------------------------------------------------
+r37715 | gerald | 2011-06-19 11:06:27 -0700 (Sun, 19 Jun 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-06-19]
+------------------------------------------------------------------------
+r37792 | gerald | 2011-06-26 11:06:29 -0700 (Sun, 26 Jun 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-06-26]
+------------------------------------------------------------------------
+r37809 | gerald | 2011-06-27 15:43:24 -0700 (Mon, 27 Jun 2011) | 13 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/wiretap/ascend-scanner.l
+
+Copy over r37625 from the trunk:
+
+  ------------------------------------------------------------------------
+  r37625 | gerald | 2011-06-08 13:58:44 -0700 (Wed, 08 Jun 2011) | 3 lines
+  Changed paths:
+     M /trunk/wiretap/ascend_scanner.l
+
+  Limit the lengths of some of our patterns. Fixes an infinite loop found
+  when trying to read a TPNCP data file.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r37810 | gerald | 2011-06-27 16:17:21 -0700 (Mon, 27 Jun 2011) | 96 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/proto.c
+   M /trunk-1.2/epan/range.c
+   M /trunk-1.2/epan/wslua/wslua_gui.c
+   M /trunk-1.2/epan/wslua/wslua_proto.c
+   M /trunk-1.2/epan/wslua/wslua_tvb.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37236 | guy | 2011-05-18 00:20:45 -0700 (Wed, 18 May 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  You cannot just make the "len" field of a GByteArray larger, if there's
+  no data to back that length; you can only make it smaller.
+  ------------------------------------------------------------------------
+  r37761 | stig | 2011-06-23 03:43:49 -0700 (Thu, 23 Jun 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_tvb.c
+
+  Rename Tvb_new_real to ByteArray_tvb, as it's a ByteArray function.
+  Documentation is generated from code.
+
+  This fixes bug 5199.
+  ------------------------------------------------------------------------
+  r37763 | stig | 2011-06-23 04:06:34 -0700 (Thu, 23 Jun 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_tvb.c
+
+  From Tony Trinh via bug 5960:
+  Fix TvbRange:string() so that it returns a string that contains all bytes
+  of the range, including zeroes (instead of being truncated at first zero).
+  ------------------------------------------------------------------------
+  r37783 | stig | 2011-06-25 07:58:06 -0700 (Sat, 25 Jun 2011) | 8 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Make guy's fix in revision 37236 actually work:
+  "You cannot just make the "len" field of a GByteArray larger, if there's
+  no data to back that length; you can only make it smaller."
+
+  Two equal values are always equal!
+
+  This fixes bug 5941.
+  ------------------------------------------------------------------------
+  r37785 | stig | 2011-06-25 08:24:55 -0700 (Sat, 25 Jun 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_proto.c
+
+  From Tony Trinh via bug 5894:
+  Added argument validation to Pref.range.
+  ------------------------------------------------------------------------
+  r37786 | stig | 2011-06-25 08:42:41 -0700 (Sat, 25 Jun 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_proto.c
+
+  Remove "range" from Lua's Pref.range(), as this value shall be fetched from
+  the "default".
+
+  This fixes bug 5896.
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+  ------------------------------------------------------------------------
+  r37760 | stig | 2011-06-23 03:28:53 -0700 (Thu, 23 Jun 2011) | 5 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_tvb.c
+
+  Rename Tvb_tvb to TvbRange_tvb, as it's a TvbRange function.
+  Documentation is generated from code.
+
+  This fixes bug 5006.
+  ------------------------------------------------------------------------
+  r37784 | stig | 2011-06-25 08:21:17 -0700 (Sat, 25 Jun 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/range.c
+
+  From Tony Trinh via bug 5895:
+  Add sanity checks in range.c
+  ------------------------------------------------------------------------
+  r37787 | stig | 2011-06-25 12:39:16 -0700 (Sat, 25 Jun 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_proto.c
+
+  Added check for invalid chars in abbrev in ProtoField functions.
+
+  This fixes bug 5569.
+  ------------------------------------------------------------------------
+  r37788 | stig | 2011-06-25 13:47:13 -0700 (Sat, 25 Jun 2011) | 6 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_gui.c
+
+  From Tony Trinh via bug 6018:
+  Add NULL checks and fix typos in Lua error print-outs
+
+  From me:
+  Use the error message "GUI not available" when using GUI functions in tshark.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------

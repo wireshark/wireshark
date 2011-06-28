@@ -1,4 +1,4 @@
-Wireshark 1.2.17 Release Notes
+Wireshark 1.2.18 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,35 +15,37 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Large/infinite loop in the DICOM dissector. (Bug 5876)
+     o The Lucent/Ascend file parser was susceptible to an infinite
+       loop. (Bug ????)
 
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted Diameter dictionary file could
-       crash Wireshark.
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted snoop file could crash Wireshark.
-       (Bug 5912)
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o David Maciejak of Fortinet's FortiGuard Labs discovered that
-       malformed compressed capture data could crash Wireshark. (Bug
-       5908)
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted Visual Networks file could crash
-       Wireshark. (Bug 5934)
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+       Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.
 
    The following bugs have been fixed:
+
+     o Missing LUA function. (Bug 5006)
+
+     o Lua API description about creating a new Tvb from a bytearray
+       is not correct in User's Guide. (Bug 5199)
+
+     o White space in protocol field abbreviation causes runtime
+       failure while registering Lua dissector. (Bug 5569)
+
+     o Wireshark will not run on Windows 2000. (Bug 5874)
+
+     o Wireshark crashes when calling TreeItem:set_len() on TreeItem
+       without tvb. (Bug 5941)
+
+     o TvbRange_string(lua_State* L) call a wrong function. (Bug
+       5960)
+
+     o Wireshark crashes if Lua contains "Pref.range()" with missing
+       arguments. (Bug 5985)
+
+     o The "range" field in Lua's "Pref.range()" serves as default
+       while the "default" field does nothing. (Bug 5896)
+
+     o TShark crashes when loading Lua script that contains GUI
+       function. (Bug 6018)
 
   New and Updated Features
 
@@ -98,8 +100,6 @@ Known Problems
 
    The 64-bit Windows installer does not ship with the same libraries
    as the 32-bit installer. (Bug 3610)
-
-   Wireshark will not run on Windows 2000. (Bug 5874)
 
 Getting Help
 

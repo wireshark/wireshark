@@ -92,6 +92,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark will not run on Windows 2000.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5874">Bug
+          5874</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
           5941</ulink>)
@@ -238,12 +244,6 @@ There are no capture file support updates in this release.
       32-bit installer.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3610">Bug
       3610</ulink>)
-    </para>
-
-    <para>
-      Wireshark will not run on Windows 2000.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5874">Bug
-      5874</ulink>)
     </para>
 
   </section>
