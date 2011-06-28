@@ -360,8 +360,8 @@ print_stats(const gchar *filename, capture_info *cf_info)
                           printf     ("RIPEMD160:           %s\n", file_rmd160);
                           printf     ("MD5:                 %s\n", file_md5);
   }
-  if (cap_in_order)       printf     ("Strict time order:   %s\n", (cf_info->in_order) ? "True" : "False");
 #endif /* HAVE_LIBGCRYPT */
+  if (cap_in_order)       printf     ("Strict time order:   %s\n", (cf_info->in_order) ? "True" : "False");
 }
 
 static void
