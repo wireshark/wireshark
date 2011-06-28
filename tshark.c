@@ -1388,7 +1388,7 @@ main(int argc, char *argv[])
     if (cf_name != NULL) {
       if (rfilter != NULL) {
         cmdarg_err("Read filters were specified both with \"-R\" "
-            "and with additional command-line arguments");
+            "and with additional command-line arguments.");
         return 1;
       }
       rfilter = get_args_as_string(argc, argv, optind);
@@ -1396,7 +1396,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       if (global_capture_opts.default_options.cfilter) {
         cmdarg_err("A default capture filter was specified both with \"-f\""
-            " and with additional command-line arguments");
+            " and with additional command-line arguments.");
         return 1;
       }
       for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -1405,6 +1405,10 @@ main(int argc, char *argv[])
           interface_opts.cfilter = get_args_as_string(argc, argv, optind);
           global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
           g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
+        } else {
+          cmdarg_err("A capture filter was specified both with \"-f\""
+              " and with additional command-line arguments.");
+          return 1;
         }
       }
       global_capture_opts.default_options.cfilter = get_args_as_string(argc, argv, optind);
