@@ -30,6 +30,9 @@ GENERATED_HEADER_FILES =
 GENERATED_C_FILES = \
 	wireshark-tap-register.c
 
+GENERATED_H_FILES = \
+	text_import_scanner_lex.h
+
 DIRTY_GENERATED_C_FILES = \
 	text_import_scanner.c
 
@@ -37,6 +40,7 @@ DIRTY_GENERATED_C_FILES = \
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
+	$(GENERATED_H_FILES) \
 	$(DIRTY_GENERATED_C_FILES)
 
 # Files that generate compileable files

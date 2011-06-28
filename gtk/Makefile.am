@@ -41,6 +41,8 @@ MAINTAINERCLEANFILES = \
 
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
+text_import_scanner_lex.h: text_import_scanner.c
+
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc
 	@echo Making wireshark-tap-register.c
 	@$(top_srcdir)/tools/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC)
