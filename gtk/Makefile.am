@@ -50,6 +50,7 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-d
 libui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
 	$(GENERATED_C_FILES) \
+	$(GENERATED_H_FILES) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
 
