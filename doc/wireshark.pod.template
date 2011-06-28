@@ -18,6 +18,7 @@ S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
+S<[ B<-I> ]>
 S<[ B<-J> E<lt>jump filterE<gt> ]>
 S<[ B<-j> ]>
 S<[ B<-k> ]>
@@ -252,6 +253,13 @@ This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture buffer size.
+If used after an B<-i> option, it sets the capture buffer size for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture buffer size is not set specifically,
+the default capture buffer size is used if provided.
+
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
@@ -290,6 +298,13 @@ under Windows.
 
 Set the capture filter expression.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture filter expression.
+If used after an B<-i> option, it sets the capture filter expression for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture filter expression is not set specifically,
+the default capture filter expression is used if provided.
+
 =item -g  E<lt>packet numberE<gt>
 
 After reading in a capture file using the B<-r> flag, go to the given I<packet number>.
@@ -323,6 +338,27 @@ Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input. On Windows systems, pipe names must be
 of the form ``\\pipe\.\B<pipename>''. Data read from pipes must be in
 standard libpcap format.
+
+This option can occur multiple times. When capturing from multiple
+interfaces, the capture file will be saved in pcap-ng format.
+
+=item -I
+
+Put the interface in "monitor mode"; this is supported only on IEEE
+802.11 Wi-Fi interfaces, and supported only on some operating systems.
+
+Note that in monitor mode the adapter might disassociate from the
+network with which it's associated, so that you will not be able to use
+any wireless networks with that adapter.  This could prevent accessing
+files on a network server, or resolving host names or network addresses,
+if you are capturing in monitor mode and are not connected to another
+network with another adapter.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
+If used after an B<-i> option, it enables the monitor mode for
+the interface specified by the last B<-i> option occurring before
+this option.
 
 =item -J  E<lt>jump filterE<gt>
 
@@ -423,6 +459,13 @@ traffic sent to or from the machine on which B<Wireshark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, no interface will be put into the
+promiscuous mode.
+If used after an B<-i> option, the interface specified by the last B<-i>
+option occurring before this option will not be put into the
+promiscuous mode.
+
 =item -P E<lt>path settingE<gt>
 
 Special path settings usually detected automatically. This is used for
@@ -467,6 +510,13 @@ No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default snapshot length.
+If used after an B<-i> option, it sets the snapshot length for
+the interface specified by the last B<-i> option occurring before
+this option. If the snapshot length is not set specifically,
+the default snapshot length is used if provided.
+
 =item -t  ad|a|r|d|dd|e
 
 Set the format of the packet timestamp displayed in the packet list
@@ -504,6 +554,13 @@ Set the default capture file name.
 If a capture is started from the command line with B<-k>, set the data
 link type to use while capturing packets.  The values reported by B<-L>
 are the values that can be used.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture link type.
+If used after an B<-i> option, it sets the capture link type for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture link type is not set specifically,
+the default capture link type is used if provided.
 
 =item -X E<lt>eXtension optionsE<gt>
 

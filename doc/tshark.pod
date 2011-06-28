@@ -214,6 +214,13 @@ This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture buffer size.
+If used after an B<-i> option, it sets the capture buffer size for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture buffer size is not set specifically,
+the default capture buffer size is used if provided.
+
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
@@ -307,6 +314,13 @@ uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
 =item -f  E<lt>capture filterE<gt>
 
 Set the capture filter expression.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture filter expression.
+If used after an B<-i> option, it sets the capture filter expression for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture filter expression is not set specifically,
+the default capture filter expression is used if provided.
 
 =item -F  E<lt>file formatE<gt>
 
@@ -433,6 +447,9 @@ Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
+This option can occur multiple times. When capturing from multiple
+interfaces, the capture file will be saved in pcap-ng format.
+
 Note: the Win32 version of B<TShark> doesn't support capturing from
 pipes!
 
@@ -447,6 +464,12 @@ any wireless networks with that adapter.  This could prevent accessing
 files on a network server, or resolving host names or network addresses,
 if you are capturing in monitor mode and are not connected to another
 network with another adapter.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
+If used after an B<-i> option, it enables the monitor mode for
+the interface specified by the last B<-i> option occurring before
+this option.
 
 =item -K  E<lt>keytabE<gt>
 
@@ -518,6 +541,13 @@ traffic sent to or from the machine on which B<TShark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, no interface will be put into the
+promiscuous mode.
+If used after an B<-i> option, the interface specified by the last B<-i>
+option occurring before this option will not be put into the
+promiscuous mode.
+
 =item -q
 
 When capturing packets, don't display the continuous count of packets
@@ -553,6 +583,13 @@ Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default snapshot length.
+If used after an B<-i> option, it sets the snapshot length for
+the interface specified by the last B<-i> option occurring before
+this option. If the snapshot length is not set specifically,
+the default snapshot length is used if provided.
 
 =item -S
 
@@ -664,6 +701,13 @@ default Lua scripts.
 
 Set the data link type to use while capturing packets.  The values
 reported by B<-L> are the values that can be used.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture link type.
+If used after an B<-i> option, it sets the capture link type for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture link type is not set specifically,
+the default capture link type is used if provided.
 
 =item -z  E<lt>statisticsE<gt>
 

@@ -123,6 +123,13 @@ This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture buffer size.
+If used after an B<-i> option, it sets the capture buffer size for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture buffer size is not set specifically,
+the default capture buffer size is used if provided.
+
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
@@ -160,6 +167,13 @@ Set the capture filter expression.
 The entire filter expression must be specified as a single argument (which means
 that if it contains spaces, it must be quoted).
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture filter expression.
+If used after an B<-i> option, it sets the capture filter expression for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture filter expression is not set specifically,
+the default capture filter expression is used if provided.
+
 =item -h
 
 Print the version and options and exits.
@@ -185,6 +199,9 @@ Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
+This option can occur multiple times. When capturing from multiple
+interfaces, the capture file will be saved in pcap-ng format.
+
 Note: the Win32 version of B<Dumpcap> doesn't support capturing from
 pipes or stdin!
 
@@ -199,6 +216,12 @@ any wireless networks with that adapter.  This could prevent accessing
 files on a network server, or resolving host names or network addresses,
 if you are capturing in monitor mode and are not connected to another
 network with another adapter.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
+If used after an B<-i> option, it enables the monitor mode for
+the interface specified by the last B<-i> option occurring before
+this option.
 
 =item -L
 
@@ -224,6 +247,13 @@ traffic sent to or from the machine on which B<Dumpcap> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, no interface will be put into the
+promiscuous mode.
+If used after an B<-i> option, the interface specified by the last B<-i>
+option occurring before this option will not be put into the
+promiscuous mode.
+
 =item -P
 
 Save files as pcap instead of the default pcap-ng. In situations that require
@@ -248,6 +278,13 @@ No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
 
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default snapshot length.
+If used after an B<-i> option, it sets the snapshot length for
+the interface specified by the last B<-i> option occurring before
+this option. If the snapshot length is not set specifically,
+the default snapshot length is used if provided.
+
 =item -S
 
 Print statistics for each interface once every second.
@@ -266,6 +303,13 @@ NOTE: The usage of "-" for stdout is not allowed here!
 
 Set the data link type to use while capturing packets.  The values
 reported by B<-L> are the values that can be used.
+
+This option can occur multiple times. If used before the first
+occurrence of the B<-i> option, it sets the default capture link type.
+If used after an B<-i> option, it sets the capture link type for
+the interface specified by the last B<-i> option occurring before
+this option. If the capture link type is not set specifically,
+the default capture link type is used if provided.
 
 =back
 
