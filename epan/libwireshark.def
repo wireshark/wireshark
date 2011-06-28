@@ -1026,18 +1026,29 @@ tap_listeners_require_dissection
 test_for_directory
 test_for_fifo
 tfs_accept_reject               DATA
+tfs_accepted_not_accepted       DATA
 tfs_ack_nack                    DATA
 tfs_active_inactive             DATA
 tfs_allow_block                 DATA
+tfs_allowed_not_allowed         DATA
 tfs_capable_not_capable         DATA
 tfs_command_response            DATA
+tfs_detected_not_detected       DATA
 tfs_enabled_disabled            DATA
+tfs_error_ok                    DATA
+tfs_fail_success                DATA
 tfs_found_not_found             DATA
+tfs_high_low                    DATA
+tfs_implemented_not_implemented DATA
 tfs_more_nomore                 DATA
 tfs_odd_even                    DATA
 tfs_ok_error                    DATA
 tfs_on_off                      DATA
 tfs_present_absent              DATA
+tfs_present_not_present         DATA
+tfs_pressed_not_pressed         DATA
+tfs_reliable_not_reliable       DATA
+tfs_requested_not_requested     DATA
 tfs_restricted_allowed          DATA
 tfs_set_notset                  DATA
 tfs_success_fail                DATA
