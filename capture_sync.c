@@ -595,7 +595,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the pipe between parent and child. */
-        report_failure("Couldn't create sync pipe: %s", strerror(errno));
+        report_failure("Couldn't create sync pipe: %s", g_strerror(errno));
         g_free( (gpointer) argv[0]);
         g_free(argv);
         return FALSE;
@@ -610,7 +610,7 @@ sync_pipe_start(capture_options *capture_opts) {
         ws_close(sync_pipe[PIPE_READ]);
         execv(argv[0], (gpointer)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-                   argv[0], strerror(errno));
+                   argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
 
         /* Exit with "_exit()", so that we don't close the connection
@@ -644,7 +644,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (capture_opts->fork_child == -1) {
         /* We couldn't even create the child process. */
-        report_failure("Couldn't create child process: %s", strerror(errno));
+        report_failure("Couldn't create child process: %s", g_strerror(errno));
         ws_close(sync_pipe_read_fd);
 #ifdef _WIN32
         ws_close(capture_opts->signal_pipe_write_fd);
@@ -795,7 +795,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
     /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        *msg = g_strdup_printf("Couldn't create sync pipe: %s", g_strerror(errno));
         g_free( (gpointer) argv[0]);
         g_free(argv);
         return -1;
@@ -804,7 +804,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
     /* Create a pipe for the child process to send us data */
     if (pipe(data_pipe) < 0) {
         /* Couldn't create the data pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create data pipe: %s", strerror(errno));
+        *msg = g_strdup_printf("Couldn't create data pipe: %s", g_strerror(errno));
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
         g_free( (gpointer) argv[0]);
@@ -825,7 +825,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         ws_close(sync_pipe[PIPE_WRITE]);
         execv(argv[0], (gpointer)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-                   argv[0], strerror(errno));
+                   argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
 
         /* Exit with "_exit()", so that we don't close the connection
@@ -862,7 +862,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
 
     if (*fork_child == -1) {
         /* We couldn't even create the child process. */
-        *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
+        *msg = g_strdup_printf("Couldn't create child process: %s", g_strerror(errno));
         ws_close(*data_read_fd);
         ws_close(*message_read_fd);
         return -1;
@@ -1352,9 +1352,9 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
             error = errno;
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: error(%u): %s", pipe_fd, error,
-                  strerror(error));
+                  g_strerror(error));
             *msg = g_strdup_printf("Error reading from sync pipe: %s",
-                                   strerror(error));
+                                   g_strerror(error));
             return newly;
         }
 
@@ -1413,7 +1413,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
         } else if (newly < 0) {
             /* error */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe_fd, errno, strerror(errno));
+                  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
             return newly;
         } else if (bytes[offset] == '\n') {
             break;
@@ -1654,7 +1654,7 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
     ret = 0;
 #ifdef _WIN32
     if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
-        *msgp = g_strdup_printf("Error from cwait(): %s", strerror(errno));
+        *msgp = g_strdup_printf("Error from cwait(): %s", g_strerror(errno));
         ret = -1;
     } else {
         /*
@@ -1696,7 +1696,7 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
             ret = -1;
         }
     } else {
-        *msgp = g_strdup_printf("Error from waitpid(): %s", strerror(errno));
+        *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
         ret = -1;
     }
 #endif
@@ -1820,7 +1820,7 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
     ret = write(capture_opts->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-              "signal_pipe_capquit_to_child: %d header: error %s", capture_opts->signal_pipe_write_fd, strerror(errno));
+              "signal_pipe_capquit_to_child: %d header: error %s", capture_opts->signal_pipe_write_fd, g_strerror(errno));
     }
 }
 #endif
@@ -1842,7 +1842,7 @@ sync_pipe_stop(capture_options *capture_opts)
         int sts = kill(capture_opts->fork_child, SIGINT);
         if (sts != 0) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "Sending SIGINT to child failed: %s\n", strerror(errno));
+                  "Sending SIGINT to child failed: %s\n", g_strerror(errno));
         }
 #else
 #define STOP_SLEEP_TIME 500 /* ms */
@@ -1882,7 +1882,7 @@ sync_pipe_kill(int fork_child)
         int sts = kill(fork_child, SIGTERM);    /* SIGTERM so it can clean up if necessary */
         if (sts != 0) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-                  "Sending SIGTERM to child failed: %s\n", strerror(errno));
+                  "Sending SIGTERM to child failed: %s\n", g_strerror(errno));
         }
 #else
         /* Remark: This is not the preferred method of closing a process!

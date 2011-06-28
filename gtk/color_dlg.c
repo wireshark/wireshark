@@ -1080,7 +1080,7 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   if (!prefs.gui_use_pref_save) {
       if (!color_filters_write(color_filter_edit_list))
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not open filter file: %s", strerror(errno));
+                "Could not open filter file: %s", g_strerror(errno));
   }
 
   /* Apply the coloring rules, both the temporary ones in
@@ -1100,7 +1100,7 @@ color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 
   if (!color_filters_write(color_filter_edit_list))
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Could not open filter file: %s", strerror(errno));
+            "Could not open filter file: %s", g_strerror(errno));
 }
 
 /* User pressed "Cancel" button (or "ESC" or the 'X'):

@@ -1431,7 +1431,7 @@ prefs_main_write(void)
   if (create_persconffile_dir(&pf_dir_path) == -1) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                   "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
-                  strerror(errno));
+                  g_strerror(errno));
     g_free(pf_dir_path);
   } else {
     /* Write the preferencs out. */
@@ -1439,7 +1439,7 @@ prefs_main_write(void)
     if (err != 0) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't open preferences file\n\"%s\": %s.", pf_path,
-                    strerror(err));
+                    g_strerror(err));
       g_free(pf_path);
     }
   }

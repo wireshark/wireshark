@@ -329,7 +329,7 @@ main(int argc, char *argv[])
     out_fd = ws_open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (out_fd == -1) {
       fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
-              out_filename, strerror(errno));
+              out_filename, g_strerror(errno));
       exit(1);
     }
   }

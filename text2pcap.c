@@ -1316,7 +1316,7 @@ parse_options (int argc, char *argv[])
         input_file = ws_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
-                    input_filename, strerror(errno));
+                    input_filename, g_strerror(errno));
             exit(-1);
         }
     } else {
@@ -1329,7 +1329,7 @@ parse_options (int argc, char *argv[])
         output_file = ws_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
-                    output_filename, strerror(errno));
+                    output_filename, g_strerror(errno));
             exit(-1);
         }
     } else {

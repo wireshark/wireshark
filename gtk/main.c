@@ -45,10 +45,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef NEED_STRERROR_H
-#include "wsutil/strerror.h"
-#endif
-
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
@@ -1871,24 +1867,24 @@ read_configuration_files(char **gdp_path, char **dp_path)
     if (gpf_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_open_errno));
+        g_strerror(gpf_open_errno));
     }
     if (gpf_read_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_read_errno));
+        g_strerror(gpf_read_errno));
     }
   }
   if (pf_path != NULL) {
     if (pf_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_open_errno));
+        g_strerror(pf_open_errno));
     }
     if (pf_read_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_read_errno));
+        g_strerror(pf_read_errno));
     }
     g_free(pf_path);
     pf_path = NULL;
@@ -1906,7 +1902,7 @@ read_configuration_files(char **gdp_path, char **dp_path)
   if (cf_path != NULL) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your capture filter file\n\"%s\": %s.", cf_path,
-        strerror(cf_open_errno));
+        g_strerror(cf_open_errno));
       g_free(cf_path);
   }
 
@@ -1915,7 +1911,7 @@ read_configuration_files(char **gdp_path, char **dp_path)
   if (df_path != NULL) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your display filter file\n\"%s\": %s.", df_path,
-        strerror(df_open_errno));
+        g_strerror(df_open_errno));
       g_free(df_path);
   }
 
@@ -1926,12 +1922,12 @@ read_configuration_files(char **gdp_path, char **dp_path)
     if (gdp_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open global disabled protocols file\n\"%s\": %s.",
-	*gdp_path, strerror(gdp_open_errno));
+	*gdp_path, g_strerror(gdp_open_errno));
     }
     if (gdp_read_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading global disabled protocols file\n\"%s\": %s.",
-	*gdp_path, strerror(gdp_read_errno));
+	*gdp_path, g_strerror(gdp_read_errno));
     }
     g_free(*gdp_path);
     *gdp_path = NULL;
@@ -1940,12 +1936,12 @@ read_configuration_files(char **gdp_path, char **dp_path)
     if (dp_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your disabled protocols file\n\"%s\": %s.", *dp_path,
-        strerror(dp_open_errno));
+        g_strerror(dp_open_errno));
     }
     if (dp_read_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading your disabled protocols file\n\"%s\": %s.", *dp_path,
-        strerror(dp_read_errno));
+        g_strerror(dp_read_errno));
     }
     g_free(*dp_path);
     *dp_path = NULL;
@@ -2159,7 +2155,7 @@ main(int argc, char *argv[])
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "Could not open common recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
+		  rf_path, g_strerror(rf_open_errno));
   }
 
   /* "pre-scan" the command line parameters, if we have "console only"
@@ -2254,7 +2250,7 @@ main(int argc, char *argv[])
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "Could not open recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
+		  rf_path, g_strerror(rf_open_errno));
   }
 
   if (recent.gui_fileopen_remembered_dir &&
@@ -2789,7 +2785,7 @@ main(int argc, char *argv[])
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "Could not open recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
+		  rf_path, g_strerror(rf_open_errno));
   }
 
   color_filters_enable(recent.packet_list_colorize);
@@ -3656,7 +3652,7 @@ static void copy_global_profile (const gchar *profile_name)
    if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "Can't create directory\n\"%s\":\n%s.",
-		   pf_dir_path, strerror(errno));
+		   pf_dir_path, g_strerror(errno));
 
      g_free(pf_dir_path);
    }
@@ -3665,7 +3661,7 @@ static void copy_global_profile (const gchar *profile_name)
 				 &pf_dir_path, &pf_dir_path2) == -1) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		   "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-		   pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+		   pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
 
      g_free(pf_filename);
      g_free(pf_dir_path);
@@ -3718,7 +3714,7 @@ void change_configuration_profile (const gchar *profile_name)
    if (rf_path != NULL && rf_open_errno != 0) {
      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		  "Could not open common recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
+		  rf_path, g_strerror(rf_open_errno));
    }
    if (recent.gui_fileopen_remembered_dir &&
        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {

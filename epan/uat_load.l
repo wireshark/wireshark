@@ -285,7 +285,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 
 
 	if (!(yyin = ws_fopen(fname,"r"))) {
-		*err = strerror(errno);
+		*err = g_strerror(errno);
 		g_free(fname);
 		return FALSE;
 	}

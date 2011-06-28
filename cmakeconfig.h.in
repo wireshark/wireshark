@@ -306,9 +306,6 @@
 /* Define if inet/v6defs.h needs to be included */
 #cmakedefine NEED_INET_V6DEFS_H 1
 
-/* Define if strerror.h needs to be included */
-#cmakedefine NEED_STRERROR_H 1
-
 /* Define if strptime.h needs to be included */
 #cmakedefine NEED_STRPTIME_H 1
 

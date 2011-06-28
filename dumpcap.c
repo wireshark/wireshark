@@ -539,7 +539,7 @@ relinquish_all_capabilities(void)
     cap_t caps = cap_init();    /* all capabilities initialized to off */
     print_caps("Pre-clear");
     if (cap_set_proc(caps)) {
-        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+        cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
     }
     print_caps("Post-clear");
     cap_free(caps);
@@ -1467,14 +1467,14 @@ relinquish_privs_except_capture(void)
         print_caps("Pre drop, pre set");
 
         if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
-            cmdarg_err("prctl() fail return: %s", strerror(errno));
+            cmdarg_err("prctl() fail return: %s", g_strerror(errno));
         }
 
         cap_set_flag(caps, CAP_PERMITTED,   cl_len, cap_list, CAP_SET);
         cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, CAP_SET);
 
         if (cap_set_proc(caps)) {
-            cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+            cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
         }
         print_caps("Pre drop, post set");
 
@@ -1483,7 +1483,7 @@ relinquish_privs_except_capture(void)
         print_caps("Post drop, pre set");
         cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
         if (cap_set_proc(caps)) {
-            cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+            cmdarg_err("cap_set_proc() fail return: %s", g_strerror(errno));
         }
         print_caps("Post drop, post set");
 
@@ -1688,7 +1688,7 @@ cap_pipe_open_live(char *pipename,
             else {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error getting information on pipe/socket: %s", strerror(errno));
+                           "due to error getting information on pipe/socket: %s", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
             }
             return;
@@ -1698,7 +1698,7 @@ cap_pipe_open_live(char *pipename,
             if (fd == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error on pipe open: %s", strerror(errno));
+                           "due to error on pipe open: %s", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 return;
             }
@@ -1707,7 +1707,7 @@ cap_pipe_open_live(char *pipename,
             if (fd == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
-                           "due to error on socket create: %s", strerror(errno));
+                           "due to error on socket create: %s", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 return;
             }
@@ -1747,7 +1747,7 @@ cap_pipe_open_live(char *pipename,
             if (b == -1) {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session coud not be initiated "
-                           "due to error on socket connect: %s", strerror(errno));
+                           "due to error on socket connect: %s", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
                 return;
             }
@@ -1833,7 +1833,7 @@ cap_pipe_open_live(char *pipename,
         sel_ret = cap_pipe_select(fd);
         if (sel_ret < 0) {
             g_snprintf(errmsg, errmsgl,
-                       "Unexpected error from select: %s", strerror(errno));
+                       "Unexpected error from select: %s", g_strerror(errno));
             goto error;
         } else if (sel_ret > 0) {
             b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
@@ -1842,7 +1842,7 @@ cap_pipe_open_live(char *pipename,
                     g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
                 else
                     g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
-                               strerror(errno));
+                               g_strerror(errno));
                 goto error;
             }
             bytes_read += b;
@@ -1862,7 +1862,7 @@ cap_pipe_open_live(char *pipename,
             g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
         else
             g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
-                       strerror(errno));
+                       g_strerror(errno));
         goto error;
     }
 
@@ -1908,7 +1908,7 @@ cap_pipe_open_live(char *pipename,
         sel_ret = cap_pipe_select(fd);
         if (sel_ret < 0) {
             g_snprintf(errmsg, errmsgl,
-                       "Unexpected error from select: %s", strerror(errno));
+                       "Unexpected error from select: %s", g_strerror(errno));
             goto error;
         } else if (sel_ret > 0) {
             b = read(fd, ((char *)hdr)+bytes_read,
@@ -1918,7 +1918,7 @@ cap_pipe_open_live(char *pipename,
                     g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
                 else
                     g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s",
-                               strerror(errno));
+                               g_strerror(errno));
                 goto error;
             }
             bytes_read += b;
@@ -1935,7 +1935,7 @@ cap_pipe_open_live(char *pipename,
             g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
         else
             g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s",
-                       strerror(errno));
+                       g_strerror(errno));
         goto error;
     }
 #endif /* USE_THREADS */
@@ -2148,7 +2148,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         LocalFree(err_str);
 #else
         g_snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
-                   strerror(errno));
+                   g_strerror(errno));
 #endif
         /* Fall through */
     case PD_ERR:
@@ -2554,7 +2554,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 g_snprintf(errmsg, errmsg_len,
                            "The file to which the capture would be"
                            " saved (\"%s\") could not be opened: %s.",
-                           capture_opts->save_file, strerror(err));
+                           capture_opts->save_file, g_strerror(err));
             }
             break;
         }
@@ -2622,7 +2622,7 @@ capture_loop_dispatch(loop_data *ld,
         if (sel_ret <= 0) {
             if (sel_ret < 0 && errno != EINTR) {
                 g_snprintf(errmsg, errmsg_len,
-                           "Unexpected error from select: %s", strerror(errno));
+                           "Unexpected error from select: %s", g_strerror(errno));
                 report_capture_error(errmsg, please_report);
                 ld->go = FALSE;
             }
@@ -2686,7 +2686,7 @@ capture_loop_dispatch(loop_data *ld,
             } else {
                 if (sel_ret < 0 && errno != EINTR) {
                     g_snprintf(errmsg, errmsg_len,
-                               "Unexpected error from select: %s", strerror(errno));
+                               "Unexpected error from select: %s", g_strerror(errno));
                     report_capture_error(errmsg, please_report);
                     ld->go = FALSE;
                 }
@@ -2882,7 +2882,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         if (is_tempfile) {
             g_snprintf(errmsg, errmsg_len,
                        "The temporary file to which the capture would be saved (\"%s\") "
-                       "could not be opened: %s.", capfile_name, strerror(errno));
+                       "could not be opened: %s.", capfile_name, g_strerror(errno));
         } else {
             if (capture_opts->multi_files_on) {
                 ringbuf_error_cleanup();
@@ -2891,7 +2891,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
             g_snprintf(errmsg, errmsg_len,
                        "The file to which the capture would be saved (\"%s\") "
                        "could not be opened: %s.", capfile_name,
-                       strerror(errno));
+                       g_strerror(errno));
         }
         g_free(capfile_name);
         return FALSE;
@@ -3337,7 +3337,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             /* On Linux, if an interface goes down while you're capturing on it,
                you'll get a "recvfrom: Network is down" or
                "The interface went down" error (ENETDOWN).
-               (At least you will if strerror() doesn't show a local translation
+               (At least you will if g_strerror() doesn't show a local translation
                of the error.)
 
                On FreeBSD and OS X, if a network adapter disappears while
@@ -3527,13 +3527,13 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
             g_snprintf(errmsg, errmsglen,
                        "The file to which the capture was being saved\n"
                        "(\"%s\") could not be closed: %s.",
-                       fname, strerror(err));
+                       fname, g_strerror(err));
         } else {
             g_snprintf(errmsg, errmsglen,
                        "An error occurred while writing to the file"
                        " to which the capture was being saved\n"
                        "(\"%s\"): %s.",
-                       fname, strerror(err));
+                       fname, g_strerror(err));
         }
         break;
     }

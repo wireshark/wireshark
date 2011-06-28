@@ -262,7 +262,7 @@ gboolean uat_save(uat_t* uat, char** error) {
     }
 
 	if (!fp) {
-		*error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,strerror(errno));
+		*error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,g_strerror(errno));
 		return FALSE;
 	}
 
@@ -449,7 +449,7 @@ gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, con
         long i = strtol(str,&str,10);
 
         if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
-            *err = strerror(errno);
+            *err = g_strerror(errno);
             return FALSE;
         }
     }
@@ -464,7 +464,7 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, con
         long i = strtol(str,&str,16);
 
         if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
-            *err = strerror(errno);
+            *err = g_strerror(errno);
             return FALSE;
         }
     }

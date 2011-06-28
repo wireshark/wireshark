@@ -395,7 +395,7 @@ init_progfile_dir(const char *arg0
 			 * allocate for the current directory.
 			 */
 			return g_strdup_printf("pathconf failed: %s\n",
-			    strerror(errno));
+			    g_strerror(errno));
 		}
 		curdir = (char *)g_malloc(path_max);
 		if (getcwd(curdir, path_max) == NULL) {
@@ -405,7 +405,7 @@ init_progfile_dir(const char *arg0
 			 */
 			g_free(curdir);
 			return g_strdup_printf("getcwd failed: %s\n",
-			    strerror(errno));
+			    g_strerror(errno));
 		}
 		path = g_strdup_printf("%s/%s", curdir, arg0);
 		g_free(curdir);
@@ -1650,7 +1650,7 @@ file_open_error_message(int err, gboolean for_writing)
 		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 			   "The file \"%%s\" could not be %s: %s.",
 			   for_writing ? "created" : "opened",
-			   strerror(err));
+			   g_strerror(err));
 		errmsg = errmsg_errno;
 		break;
 	}
@@ -1686,7 +1686,7 @@ file_write_error_message(int err)
 	default:
 		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 			   "An error occurred while writing to the file \"%%s\": %s.",
-			   strerror(err));
+			   g_strerror(err));
 		errmsg = errmsg_errno;
 		break;
 	}

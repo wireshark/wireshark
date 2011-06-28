@@ -2906,7 +2906,7 @@ read_asn1_type_table(const char *filename)
 
 	data = g_malloc(size);
 	if (fread(data, size, 1, f) < 1) {
-		g_warning("error reading %s, %s", filename, strerror(errno));
+		g_warning("error reading %s, %s", filename, g_strerror(errno));
 	}
 	fclose(f);
 

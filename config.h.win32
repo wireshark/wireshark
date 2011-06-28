@@ -43,8 +43,6 @@
 
 /* #undef HAVE_SA_LEN */
 
-/* #undef NEED_STRERROR_H */
-
 /* #undef HAVE_MKSTEMP */
 /* #undef HAVE_MKDTEMP */
 

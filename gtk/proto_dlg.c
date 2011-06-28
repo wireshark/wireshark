@@ -372,14 +372,14 @@ proto_write(gpointer parent_w _U_)
   if (create_persconffile_dir(&pf_dir_path) == -1) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                   "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
-                  strerror(errno));
+                  g_strerror(errno));
     g_free(pf_dir_path);
   } else {
     save_disabled_protos_list(&pf_path, &pf_save_errno);
     if (pf_path != NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Could not save to your disabled protocols file\n\"%s\": %s.",
-                    pf_path, strerror(pf_save_errno));
+                    pf_path, g_strerror(pf_save_errno));
       g_free(pf_path);
     }
   }

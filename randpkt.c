@@ -711,7 +711,7 @@ seed(void)
 		if (errno != ENOENT) {
 			fprintf(stderr,
 			    "randpkt: Could not open " RANDOM_DEV " for reading: %s\n",
-			    strerror(errno));
+			    g_strerror(errno));
 			exit(2);
 		}
 		goto fallback;
@@ -721,7 +721,7 @@ seed(void)
 	if (ret == -1) {
 		fprintf(stderr,
 		    "randpkt: Could not read from " RANDOM_DEV ": %s\n",
-		    strerror(errno));
+		    g_strerror(errno));
 		exit(2);
 	}
 	if ((size_t)ret != sizeof randomness) {

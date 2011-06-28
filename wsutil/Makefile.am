@@ -54,12 +54,6 @@ else
 def_sym_filter_symbols += || /^ws_inet_pton/
 endif
 
-if NEED_STRERROR_LO
-wsutil_optional_objects += @STRERROR_LO@
-else
-def_sym_filter_symbols += || /^strerror/
-endif
-
 if NEED_STRNCASECMP_LO
 wsutil_optional_objects += @STRNCASECMP_LO@
 else
@@ -98,8 +92,6 @@ EXTRA_libwsutil_la_SOURCES=	\
 	inet_ntop.c		\
 	inet_pton.c		\
 	inet_v6defs.h		\
-	strerror.c		\
-	strerror.h		\
 	strncasecmp.c		\
 	strptime.c		\
 	strptime.h		\

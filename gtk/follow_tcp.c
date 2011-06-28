@@ -145,7 +145,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	if (tmp_fd == -1) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
-			  follow_info->data_out_filename, strerror(errno));
+			  follow_info->data_out_filename, g_strerror(errno));
 	    g_free(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    g_free(follow_filter);
@@ -156,7 +156,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	if (data_out_file == NULL) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
-			  follow_info->data_out_filename, strerror(errno));
+			  follow_info->data_out_filename, g_strerror(errno));
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
 	    g_free(follow_info->data_out_filename);
@@ -227,7 +227,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	    if (ferror(data_out_file)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Could not read from temporary file %s: %s",
-			      follow_info->data_out_filename, strerror(errno));
+			      follow_info->data_out_filename, g_strerror(errno));
 	    } else {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Short read from temporary file %s: expected %lu, got %lu",
@@ -358,7 +358,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
     if (data_out_file == NULL) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
-		      strerror(errno));
+		      g_strerror(errno));
 	return FRS_OPEN_ERROR;
     }
 
@@ -421,7 +421,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
     if (ferror(data_out_file)) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Error reading temporary file %s: %s", follow_info->data_out_filename,
-		      strerror(errno));
+		      g_strerror(errno));
 	fclose(data_out_file);
 	data_out_file = NULL;
 	return FRS_READ_ERROR;

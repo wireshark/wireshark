@@ -61,10 +61,6 @@
 # include <sys/stat.h>
 #endif
 
-#ifdef NEED_STRERROR_H
-#include "wsutil/strerror.h"
-#endif
-
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
@@ -274,7 +270,7 @@ raw_pipe_open(const char *pipe_name)
 #ifndef _WIN32
         if (ws_stat64(pipe_name, &pipe_stat) < 0) {
             fprintf(stderr, "rawshark: The pipe %s could not be checked: %s\n",
-                    pipe_name, strerror(errno));
+                    pipe_name, g_strerror(errno));
             return -1;
         }
         if (! S_ISFIFO(pipe_stat.st_mode)) {
@@ -293,7 +289,7 @@ raw_pipe_open(const char *pipe_name)
         rfd = ws_open(pipe_name, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
         if (rfd == -1) {
             fprintf(stderr, "rawshark: \"%s\" could not be opened: %s\n",
-                    pipe_name, strerror(errno));
+                    pipe_name, g_strerror(errno));
             return -1;
         }
 #else /* _WIN32 */
@@ -348,7 +344,7 @@ raw_pipe_open(const char *pipe_name)
         rfd = _open_osfhandle((long) hPipe, _O_RDONLY);
         if (rfd == -1) {
             fprintf(stderr, "rawshark: \"%s\" could not be opened: %s\n",
-                    pipe_name, strerror(errno));
+                    pipe_name, g_strerror(errno));
             return -1;
         }
 #endif /* _WIN32 */
@@ -531,21 +527,21 @@ main(int argc, char *argv[])
     if (gpf_path != NULL) {
         if (gpf_open_errno != 0) {
             cmdarg_err("Can't open global preferences file \"%s\": %s.",
-                       pf_path, strerror(gpf_open_errno));
+                       pf_path, g_strerror(gpf_open_errno));
         }
         if (gpf_read_errno != 0) {
             cmdarg_err("I/O error reading global preferences file \"%s\": %s.",
-                       pf_path, strerror(gpf_read_errno));
+                       pf_path, g_strerror(gpf_read_errno));
         }
     }
     if (pf_path != NULL) {
         if (pf_open_errno != 0) {
             cmdarg_err("Can't open your preferences file \"%s\": %s.", pf_path,
-                       strerror(pf_open_errno));
+                       g_strerror(pf_open_errno));
         }
         if (pf_read_errno != 0) {
             cmdarg_err("I/O error reading your preferences file \"%s\": %s.",
-                       pf_path, strerror(pf_read_errno));
+                       pf_path, g_strerror(pf_read_errno));
         }
         g_free(pf_path);
         pf_path = NULL;
@@ -560,11 +556,11 @@ main(int argc, char *argv[])
     if (gdp_path != NULL) {
         if (gdp_open_errno != 0) {
             cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
-                       gdp_path, strerror(gdp_open_errno));
+                       gdp_path, g_strerror(gdp_open_errno));
         }
         if (gdp_read_errno != 0) {
             cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
-                       gdp_path, strerror(gdp_read_errno));
+                       gdp_path, g_strerror(gdp_read_errno));
         }
         g_free(gdp_path);
     }
@@ -572,12 +568,12 @@ main(int argc, char *argv[])
         if (dp_open_errno != 0) {
             cmdarg_err(
                 "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-                strerror(dp_open_errno));
+                g_strerror(dp_open_errno));
         }
         if (dp_read_errno != 0) {
             cmdarg_err(
                 "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-                strerror(dp_read_errno));
+                g_strerror(dp_read_errno));
         }
         g_free(dp_path);
     }
@@ -1546,7 +1542,7 @@ show_print_file_io_error(int err)
 
         default:
             cmdarg_err("An error occurred while printing packets: %s.",
-                       strerror(err));
+                       g_strerror(err));
             break;
     }
 }
@@ -1622,7 +1618,7 @@ static void
 read_failure_message(const char *filename, int err)
 {
     cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
-               filename, strerror(err));
+               filename, g_strerror(err));
 }
 
 /*
@@ -1632,7 +1628,7 @@ static void
 write_failure_message(const char *filename, int err)
 {
     cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
-               filename, strerror(err));
+               filename, g_strerror(err));
 }
 
 /*

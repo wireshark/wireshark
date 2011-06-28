@@ -383,7 +383,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
       if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Can't create directory\n\"%s\":\n%s.",
-                      pf_dir_path, strerror(errno));
+                      pf_dir_path, g_strerror(errno));
         
         g_free(pf_dir_path);
       }
@@ -394,7 +394,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 				      &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
           simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                         "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-                        pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+                        pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
 
           g_free(pf_filename);
           g_free(pf_dir_path);
@@ -420,7 +420,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't create directory\n\"%s\":\n%s.",
-			pf_dir_path, strerror(errno));
+			pf_dir_path, g_strerror(errno));
 
 	  g_free(pf_dir_path);
 	}
@@ -436,7 +436,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 					&pf_dir_path, &pf_dir_path2) == -1) {
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
-			pf_dir_path, pf_dir_path2, strerror(errno));
+			pf_dir_path, pf_dir_path2, g_strerror(errno));
 
 	  g_free(pf_dir_path);
 	  g_free(pf_dir_path2);
@@ -473,7 +473,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
       if (delete_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Can't delete profile directory\n\"%s\":\n%s.",
-		      pf_dir_path, strerror(errno));
+		      pf_dir_path, g_strerror(errno));
 
 	g_free(pf_dir_path);
       }
@@ -1143,7 +1143,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
     if (create_persconffile_profile(new_name, &pf_dir_path) == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't create directory\n\"%s\":\n%s.",
-		    pf_dir_path, strerror(errno));
+		    pf_dir_path, g_strerror(errno));
       
       g_free(pf_dir_path);
     } else if (strlen (profile_name) && 
@@ -1152,7 +1152,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
     {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-		    pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+		    pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
 	
       g_free(pf_filename);
       g_free(pf_dir_path);
@@ -1166,7 +1166,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
 				    &pf_dir_path, &pf_dir_path2) == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
-		    pf_dir_path, pf_dir_path2, strerror(errno));
+		    pf_dir_path, pf_dir_path2, g_strerror(errno));
       
       g_free(pf_dir_path);
       g_free(pf_dir_path2);
@@ -1347,7 +1347,7 @@ profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
     if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't delete profile directory\n\"%s\":\n%s.",
-		    pf_dir_path, strerror(errno));
+		    pf_dir_path, g_strerror(errno));
       
       g_free(pf_dir_path);
     }

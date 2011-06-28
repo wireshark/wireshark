@@ -267,7 +267,7 @@
 
 	if (!yyin) {
 		if (errno) {
-			g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
+			g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], g_strerror(errno) );
 			yyterminate();
 		}
 	} else {
@@ -583,7 +583,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	yyin = ws_fopen(fullpaths[include_stack_ptr],"r");
 
 	if (!yyin) {
-		g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
+		g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], g_strerror(errno) );
 		g_free(fullpaths[include_stack_ptr]);
 		*err_str = error->str;
 		g_string_free(error,FALSE);
