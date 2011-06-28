@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.18">
+  <!ENTITY WiresharkCurrentVersion "1.2.19">
 
 ]>
 
@@ -36,6 +36,7 @@ Wireshark Info
 
       <itemizedlist>
 
+<!--
         <listitem>
           <para>
             The Lucent/Ascend file parser was susceptible to an infinite loop.
@@ -47,7 +48,6 @@ Wireshark Info
             ????</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.</para>
-<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
@@ -72,60 +72,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          Missing LUA function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
-          5006</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Lua API description about creating a new Tvb from a bytearray is not correct in User's Guide.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5199">Bug
-          5199</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          White space in protocol field abbreviation causes runtime failure while registering Lua dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5569">Bug
-          5569</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark will not run on Windows 2000.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5874">Bug
-          5874</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
-          5941</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TvbRange_string(lua_State* L) call a wrong function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
-          5960</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if Lua contains "Pref.range()" with missing arguments.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5985">Bug
-          5985</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The "range" field in Lua's "Pref.range()" serves as default while the "default" field does nothing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5896">Bug
-          5896</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TShark crashes when loading Lua script that contains GUI function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6018">Bug
-          6018</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
