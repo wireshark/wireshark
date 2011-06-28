@@ -511,27 +511,11 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
     interface_opts.src_type = capture_opts->default_options.src_type;
-    if (capture_opts->default_options.remote_host) {
-        interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
-    } else {
-        interface_opts.remote_host = NULL;
-    }
-    if (capture_opts->default_options.remote_port) {
-        interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
-    } else {
-        interface_opts.remote_port = NULL;
-    }
+    interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+    interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
     interface_opts.auth_type = capture_opts->default_options.auth_type;
-    if (capture_opts->default_options.auth_username) {
-        interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
-    } else {
-        interface_opts.auth_username = NULL;
-    }
-    if (capture_opts->default_options.auth_password) {
-        interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
-    } else {
-        interface_opts.auth_password = NULL;
-    }
+    interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+    interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
     interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
     interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
     interface_opts.nocap_local = capture_opts->default_options.nocap_local;
