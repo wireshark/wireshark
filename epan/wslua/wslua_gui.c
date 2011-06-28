@@ -801,9 +801,9 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 	return 0;
 }
 
-WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set color of the current packet */
-#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The row count in tmp filter list */
-#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Filter */
+WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-coloring rule for the current session */
+#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The index of the desired color in the temporary coloring rules list */
+#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Display filter for selecting packets to be colorized */
 	guint8 row = luaL_checkint(L,WSLUA_ARG_set_color_filter_slot_ROW);
 	const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
 
