@@ -89,6 +89,7 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../tools/make-tapreg-dotc Makefil
 RUNLEX=..\tools\runlex.sh
 
 text_import_scanner.h: text_import_scanner.c
+text_import_scanner_lex.h: text_import_scanner.c
 text_import_scanner.obj : text_import_scanner.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $?
 
