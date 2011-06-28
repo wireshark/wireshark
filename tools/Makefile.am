@@ -106,6 +106,7 @@ EXTRA_DIST = \
 	setuid-root.pl.in				\
 	unix2dos.pl					\
 	win32-setup.sh					\
+	win64-setup.sh					\
 	wireshark_be.py					\
 	wireshark_gen.py				\
 	yacc.py
