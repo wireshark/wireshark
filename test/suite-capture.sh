@@ -140,7 +140,7 @@ capture_step_10packets_stdout() {
 	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		$TSHARK -D
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
@@ -159,8 +159,7 @@ capture_step_10packets_stdout() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
-		cat ./testout2.txt
+		capture_test_output_print ./testout.txt ./testout2.txt
 		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
@@ -177,6 +176,7 @@ capture_step_fifo() {
 	RETURNVALUE=$?
 	rm 'fifo'
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		capture_test_output_print ./testout.txt
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
@@ -194,7 +194,7 @@ capture_step_fifo() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "No or not enough traffic captured."
 	fi
 }
@@ -208,6 +208,7 @@ capture_step_stdin() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		capture_test_output_print ./testout.txt
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
@@ -225,7 +226,7 @@ capture_step_stdin() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "No or not enough traffic captured."
 	fi
 }
@@ -251,7 +252,7 @@ capture_step_2multi_10packets() {
 	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -272,7 +273,7 @@ capture_step_2multi_10packets() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "Probably the wrong interface (no traffic captured)!"
 	fi
 }
@@ -299,7 +300,7 @@ capture_step_read_filter() {
 	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -320,7 +321,7 @@ capture_step_read_filter() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "Capture file should contain zero packets!"
 	fi
 }
@@ -348,7 +349,7 @@ capture_step_snapshot() {
 	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -366,7 +367,7 @@ capture_step_snapshot() {
 	$TSHARK -r ./testout.pcap -w ./testout2.pcap -R 'frame.cap_len>68' > ./testout.txt 2>&1
 	if [ $? -ne 0 ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "Problem running TShark!"
 		return
 	fi
@@ -378,7 +379,7 @@ capture_step_snapshot() {
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "Capture file should contain zero packets!"
 		return
 	fi
