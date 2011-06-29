@@ -71,20 +71,20 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
     gint cur_item = 0;
 
     if (!hbox)
-	return;
+        return;
 
     button_hbox = g_object_get_data(G_OBJECT(hbox), BUTTON_HBOX_KEY);
     children = gtk_container_get_children(GTK_CONTAINER(button_hbox));
 
     while (children) {
-	if (cur_item == focus_item) {
-	    button = children->data;
-	    gtk_widget_grab_focus(button);
-	    gtk_widget_grab_default(button);
-	    break;
-	}
-	children = g_list_next(children);
-	cur_item++;
+        if (cur_item == focus_item) {
+            button = children->data;
+            gtk_widget_grab_focus(button);
+            gtk_widget_grab_default(button);
+            break;
+        }
+        children = g_list_next(children);
+        cur_item++;
     }
 
     g_list_free(children);
@@ -133,7 +133,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *save_all     = NULL;
     const gchar *stop         = NULL;
     const gchar *yes          = NULL;
-#ifdef HAVE_GEOIP    
+#ifdef HAVE_GEOIP
     const gchar *map          = NULL;
 #endif /* HAVE_GEOIP */
     const gchar *follow_stream = NULL;
@@ -158,7 +158,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, WIRESHARK_STOCK_DONT_SAVE) == 0) {
             dont_save = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_QUIT_DONT_SAVE) == 0) {
-       	    dont_save = stock_id;
+            dont_save = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
@@ -235,7 +235,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (help) {
         button = gtk_button_new_from_stock(help);
 #if GTK_CHECK_VERSION(2,18,0)
-	gtk_widget_set_can_default(button, TRUE);
+        gtk_widget_set_can_default(button, TRUE);
 #else
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
@@ -249,7 +249,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (copy) {
         button = gtk_button_new_from_stock(copy);
 #if GTK_CHECK_VERSION(2,18,0)
-	gtk_widget_set_can_default(button, TRUE);
+        gtk_widget_set_can_default(button, TRUE);
 #else
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
@@ -417,36 +417,36 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 GtkWidget *
 dlg_window_new(const gchar *title)
 {
-  GtkWidget *win;
+    GtkWidget *win;
 
-  win = window_new(GTK_WINDOW_TOPLEVEL, title);
+    win = window_new(GTK_WINDOW_TOPLEVEL, title);
 
-  /*
-   * XXX - if we're running in the capture child process, we can't easily
-   * make this window transient for the main process's window.  We just
-   * punt here.
-   *
-   * Perhaps the child process should only capture packets, write them to
-   * a file, and somehow notify the parent process and let *it* do all
-   * the GUI work.  If we can do that efficiently (so that we don't drop
-   * more packets), perhaps we can also do so even when we're *not* doing
-   * an "Update list of packets in real time" capture.  That'd let the
-   * child process run set-UID on platforms where you need that in order
-   * to capture, and might also simplify the job of having the GUI main
-   * loop wait both for user input and packet arrival.
-   */
-  /*
-   * On Windows, making the dialogs transient to top_level behaves strangely.
-   * It is not possible any more to bring the top level window to front easily.
-   * So we don't do this on Windows.
-   */
+    /*
+     * XXX - if we're running in the capture child process, we can't easily
+     * make this window transient for the main process's window.  We just
+     * punt here.
+     *
+     * Perhaps the child process should only capture packets, write them to
+     * a file, and somehow notify the parent process and let *it* do all
+     * the GUI work.  If we can do that efficiently (so that we don't drop
+     * more packets), perhaps we can also do so even when we're *not* doing
+     * an "Update list of packets in real time" capture.  That'd let the
+     * child process run set-UID on platforms where you need that in order
+     * to capture, and might also simplify the job of having the GUI main
+     * loop wait both for user input and packet arrival.
+     */
+    /*
+     * On Windows, making the dialogs transient to top_level behaves strangely.
+     * It is not possible any more to bring the top level window to front easily.
+     * So we don't do this on Windows.
+     */
 #ifndef _WIN32
-  if (top_level) {
-    gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
-  }
+    if (top_level) {
+        gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+    }
 #endif /*_WIN32*/
 
-  return win;
+    return win;
 }
 
 /* Create a configuration dialog box window that belongs to Wireshark's
@@ -455,22 +455,22 @@ dlg_window_new(const gchar *title)
 GtkWidget *
 dlg_conf_window_new(const gchar *title)
 {
-  const char *profile_name; 
-  gchar      *win_name;
-  GtkWidget  *win;
+    const char *profile_name;
+    gchar      *win_name;
+    GtkWidget  *win;
 
-  /*
-   * Set window title to reflect which preferences profile we are
-   * working with.
-   */
-  profile_name = get_profile_name();
+    /*
+     * Set window title to reflect which preferences profile we are
+     * working with.
+     */
+    profile_name = get_profile_name();
 
-  win_name = g_strdup_printf("%s - Profile: %s", title, profile_name);
-  win = dlg_window_new(win_name);
+    win_name = g_strdup_printf("%s - Profile: %s", title, profile_name);
+    win = dlg_window_new(win_name);
 
-  g_free(win_name);
+    g_free(win_name);
 
-  return win;
+    return win;
 }
 
 /* Set the "activate" signal for a widget to call a routine to
@@ -485,12 +485,12 @@ dlg_conf_window_new(const gchar *title)
 void
 dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button)
 {
-  g_signal_connect(widget, "activate", G_CALLBACK(dlg_activate), ok_button);
+    g_signal_connect(widget, "activate", G_CALLBACK(dlg_activate), ok_button);
 }
 
 static void
 dlg_activate (GtkWidget *widget _U_, gpointer ok_button)
 {
-  gtk_widget_activate(GTK_WIDGET(ok_button));
+    gtk_widget_activate(GTK_WIDGET(ok_button));
 }
 
