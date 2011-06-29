@@ -1548,7 +1548,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         case WM_INITDIALOG:
             g_sf_hwnd = sf_hwnd;
 
-            /* Default to saving all packets, in the file's current format. */
+            /* Default to saving packets in the file's current format. */
             filetype = cfile.cd_t;
 
             /* init the packet range */

@@ -89,6 +89,13 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            When saving or printing packets, the default choice is now to save
+            or print only the displayed packets rather than all packets.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

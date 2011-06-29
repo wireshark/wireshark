@@ -206,7 +206,7 @@ static void packet_range_calc_user(packet_range_t *range) {
 void packet_range_init(packet_range_t *range) {
 
     range->process            = range_process_all;
-    range->process_filtered   = FALSE;
+    range->process_filtered   = TRUE;
     range->remove_ignored     = FALSE;
     range->user_range         = range_empty();
 

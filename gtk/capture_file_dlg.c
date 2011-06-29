@@ -1235,7 +1235,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
     return;
   }
 
-  /* Default to saving all packets, in the file's current format. */
+  /* Default to saving packets in the file's current format. */
 
   /* init the packet range */
   packet_range_init(&range);
