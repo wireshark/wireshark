@@ -952,6 +952,10 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
     /* Must have the frame header */
     if (plen < 20)
       return FALSE;
+
+    /* Check if capture length is valid */
+    if (tvb_get_ntohl (tvb, offset+8) > len)
+      return FALSE;
     break;
 
   case RPCAP_MSG_FINDALLIF_REPLY:
