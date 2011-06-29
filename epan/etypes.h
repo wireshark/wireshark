@@ -27,10 +27,15 @@
 
 /*
  * Maximum length of an IEEE 802.3 frame; Ethernet type/length values
- * greater than it are types, Ethernet type/length values less than or
- * equal to it are lengths.
+ * less than or equal to it are lengths.
  */
-#define IEEE_802_3_MAX_LEN 1500
+#define IEEE_802_3_MAX_LEN		1500
+
+/* 
+ * Minimum length of an Ethernet II frame;  Ethernet type/length values
+ * greater than or equal to it are types.
+ */
+#define ETHERNET_II_MIN_LEN		1536
 
 #ifndef ETHERTYPE_UNK
 #define ETHERTYPE_UNK			0x0000
