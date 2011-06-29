@@ -172,11 +172,10 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
    * frame; the dissector for those frames registers itself with
    * an ethernet type of ETHERTYPE_UNK.
    */
-#if 0 /* TODO */
   if (etype > IEEE_802_3_MAX_LEN && etype < ETHERNET_II_MIN_LEN) {
+    ld->other++;
     return;
   }
-#endif
 
   if (etype <= IEEE_802_3_MAX_LEN && etype != ETHERTYPE_UNK) {
     length = etype;
