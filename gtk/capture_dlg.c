@@ -264,6 +264,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   GtkTreeModel *model;
 #endif
 
+  if (!prefs.capture_syntax_check_filter)
+    return;
+
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 #if GTK_CHECK_VERSION(2,24,0)
@@ -2257,12 +2260,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it."
+    "See \"Capture Filters\" in the online help for further information how to use it. "
+    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
     );
 #else
   gtk_tooltips_set_tip(tooltips, filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
+    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
     NULL);
 #endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_cm, TRUE, TRUE, 3);

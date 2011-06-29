@@ -1302,6 +1302,7 @@ init_prefs(void) {
   prefs.capture_real_time             = TRUE;
   prefs.capture_auto_scroll           = TRUE;
   prefs.capture_show_info             = FALSE;
+  prefs.capture_syntax_check_filter   = TRUE;
 
 /* set the default values for the name resolution dialog box */
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
@@ -1861,6 +1862,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_CAP_REAL_TIME            "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL          "capture.auto_scroll"
 #define PRS_CAP_SHOW_INFO            "capture.show_info"
+#define PRS_CAP_SYNTAX_CHECK_FILTER  "capture.syntax_check_filter"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
@@ -2350,6 +2352,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
     prefs.capture_show_info = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
+  } else if (strcmp(pref_name, PRS_CAP_SYNTAX_CHECK_FILTER) == 0) {
+    prefs.capture_syntax_check_filter = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
 
 /* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
@@ -3277,6 +3281,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
 	  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Syntax check capture filter?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_CAP_SYNTAX_CHECK_FILTER ": %s\n",
+	  prefs.capture_syntax_check_filter == TRUE ? "TRUE" : "FALSE");
+
   fprintf (pf, "\n######## Printing ########\n");
 
   fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
@@ -3422,6 +3431,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
   dest->capture_show_info = src->capture_show_info;
+  dest->capture_syntax_check_filter = src->capture_syntax_check_filter;
   dest->name_resolve = src->name_resolve;
   dest->name_resolve_concurrency = src->name_resolve_concurrency;
   dest->display_hidden_proto_items = src->display_hidden_proto_items;
