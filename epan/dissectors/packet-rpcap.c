@@ -297,7 +297,7 @@ static void rpcap_frame_end (void)
 }
 
 
-static gint
+static void
 dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *parent_tree, gint offset)
 {
@@ -314,10 +314,6 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, FALSE);
   expert_add_info_format (pinfo, ti, PI_SEQUENCE, PI_NOTE,
 			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
-
-  offset += len;
-
-  return offset;
 }
 
 
@@ -440,7 +436,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static gint
+static void
 dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 				 proto_tree *parent_tree, gint offset, guint16 no_devs)
 {
@@ -456,7 +452,6 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   proto_item_append_text (ti, ", %d item%s", no_devs, plurality (no_devs, "", "s"));
-  return offset;
 }
 
 
@@ -486,7 +481,7 @@ dissect_rpcap_filterbpf_insn (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static gint
+static void
 dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *parent_tree, gint offset)
 {
@@ -510,12 +505,10 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
   for (i = 0; i < nitems; i++) {
     offset = dissect_rpcap_filterbpf_insn (tvb, pinfo, tree, offset);
   }
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 			    proto_tree *parent_tree, gint offset)
 {
@@ -556,12 +549,10 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_item_append_text (ti, " (%s/%s)", username, password);
   }
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 			    proto_tree *parent_tree, gint offset)
 {
@@ -569,13 +560,10 @@ dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   len = tvb_length_remaining (tvb, offset);
   proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, FALSE);
-  offset += len;
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 			  proto_tree *parent_tree, gint offset)
 {
@@ -590,13 +578,10 @@ dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 4;
 
   proto_tree_add_item (tree, hf_tzoff, tvb, offset, 4, FALSE);
-  offset += 4;
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *parent_tree, gint offset)
 {
@@ -639,13 +624,11 @@ dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (tree, hf_client_port, tvb, offset, 2, FALSE);
   offset += 2;
 
-  offset += dissect_rpcap_filter (tvb, pinfo, tree, offset);
-
-  return offset;
+  dissect_rpcap_filter (tvb, pinfo, tree, offset);
 }
 
 
-static gint
+static void
 dissect_rpcap_startcap_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 			      proto_tree *parent_tree, gint offset)
 {
@@ -662,13 +645,10 @@ dissect_rpcap_startcap_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 2;
 
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
-  offset += 2;
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_stats_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 			   proto_tree *parent_tree, gint offset)
 {
@@ -688,13 +668,10 @@ dissect_rpcap_stats_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 4;
 
   proto_tree_add_item (tree, hf_srvcapt, tvb, offset, 4, FALSE);
-  offset += 4;
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 				proto_tree *parent_tree, gint offset)
 {
@@ -733,12 +710,10 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   default:
     break;
   }
-
-  return offset;
 }
 
 
-static gint
+static void
 dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 		      proto_tree *parent_tree, gint offset, proto_item *top_item)
 {
@@ -746,7 +721,8 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   proto_item *ti;
   nstime_t ts;
   tvbuff_t *new_tvb;
-  gint caplen, frame_no;
+  guint caplen, len, frame_no;
+  gint reported_length_remaining;
 
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, FALSE);
   tree = proto_item_add_subtree (ti, ett_packet);
@@ -757,9 +733,10 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   offset += 8;
 
   caplen = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (tree, hf_caplen, tvb, offset, 4, FALSE);
+  ti = proto_tree_add_item (tree, hf_caplen, tvb, offset, 4, FALSE);
   offset += 4;
 
+  len = tvb_get_ntohl (tvb, offset);
   proto_tree_add_item (tree, hf_len, tvb, offset, 4, FALSE);
   offset += 4;
 
@@ -767,10 +744,21 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   proto_tree_add_item (tree, hf_npkt, tvb, offset, 4, FALSE);
   offset += 4;
 
-  proto_item_append_text (ti, ", Frame %d", frame_no);
-  proto_item_append_text (top_item, " Frame %d", frame_no);
+  proto_item_append_text (ti, ", Frame %u", frame_no);
+  proto_item_append_text (top_item, " Frame %u", frame_no);
 
-  new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
+  /*
+   * reported_length_remaining should not be -1, as offset is at
+   * most right past the end of the available data in the packet.
+   */
+  reported_length_remaining = tvb_length_remaining (tvb, offset);
+  if (caplen > (guint)reported_length_remaining) {
+    expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR,
+			  "Caplen is bigger than the remaining message length");
+    return;
+  }
+    
+  new_tvb = tvb_new_subset (tvb, offset, caplen, len);
   if (decode_content && linktype != WTAP_ENCAP_UNKNOWN) {
     dissector_try_uint(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
 
@@ -790,9 +778,6 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     }
     call_dissector (data_handle, new_tvb, pinfo, top_tree);
   }
-  offset += caplen;
-
-  return offset;
 }
 
 
@@ -844,38 +829,38 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 
   switch (msg_type) {
   case RPCAP_MSG_ERROR:
-    offset = dissect_rpcap_error (tvb, pinfo, tree, offset);
+    dissect_rpcap_error (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_OPEN_REQ:
-    offset = dissect_rpcap_open_request (tvb, pinfo, tree, offset);
+    dissect_rpcap_open_request (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_STARTCAP_REQ:
-    offset = dissect_rpcap_startcap_request (tvb, pinfo, tree, offset);
+    dissect_rpcap_startcap_request (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_UPDATEFILTER_REQ:
-    offset = dissect_rpcap_filter (tvb, pinfo, tree, offset);
+    dissect_rpcap_filter (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_PACKET:
     proto_item_set_len (ti, 28);
-    offset = dissect_rpcap_packet (tvb, pinfo, top_tree, tree, offset, ti);
+    dissect_rpcap_packet (tvb, pinfo, top_tree, tree, offset, ti);
     break;
   case RPCAP_MSG_AUTH_REQ:
-    offset = dissect_rpcap_auth_request (tvb, pinfo, tree, offset);
+    dissect_rpcap_auth_request (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_SETSAMPLING_REQ:
-    offset = dissect_rpcap_sampling_request (tvb, pinfo, tree, offset);
+    dissect_rpcap_sampling_request (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_FINDALLIF_REPLY:
-    offset = dissect_rpcap_findalldevs_reply (tvb, pinfo, tree, offset, msg_value);
+    dissect_rpcap_findalldevs_reply (tvb, pinfo, tree, offset, msg_value);
     break;
   case RPCAP_MSG_OPEN_REPLY:
-    offset = dissect_rpcap_open_reply (tvb, pinfo, tree, offset);
+    dissect_rpcap_open_reply (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_STARTCAP_REPLY:
-    offset = dissect_rpcap_startcap_reply (tvb, pinfo, tree, offset);
+    dissect_rpcap_startcap_reply (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_STATS_REPLY:
-    offset = dissect_rpcap_stats_reply (tvb, pinfo, tree, offset);
+    dissect_rpcap_stats_reply (tvb, pinfo, tree, offset);
     break;
   default:
     len = tvb_length_remaining (tvb, offset);
