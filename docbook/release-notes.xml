@@ -96,6 +96,13 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            TCP fast retransmissions are now indicated as an expert info note,
+            rather than a warning, just as TCP retransmissions are.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

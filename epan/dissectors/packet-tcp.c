@@ -1178,7 +1178,7 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
                                               " retransmission"
             );
         PROTO_ITEM_SET_GENERATED(flags_item);
-        expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN,
+        expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
                                "Fast retransmission (suspected)");
         flags_item=proto_tree_add_none_format(flags_tree,
                                               hf_tcp_analysis_retransmission,
