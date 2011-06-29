@@ -201,12 +201,14 @@ capture_step_fifo() {
 
 # capture packets via a fifo
 capture_step_stdin() {
+        set -x
 	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) | \
 	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
+        set +x
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		capture_test_output_print ./testout.txt
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
