@@ -3247,7 +3247,7 @@ Martin Kaiser		<martin [AT] kaiser.cx> {
 	DVB-CI (Common Interface) dissector
 }
 
-Jakub Zawadzki		<darkjames [AT] darkjames.ath.cx> {
+Jakub Zawadzki		<darkjames-ws [AT] darkjames.pl> {
 	JSON dissector
 	Wiretap cleanup and support for fast random access to gzipped
 	    files

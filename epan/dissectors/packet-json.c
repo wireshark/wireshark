@@ -4,7 +4,7 @@
  *     RFC 4627: http://tools.ietf.org/html/rfc4627
  *     Website:  http://json.org/
  *
- * Copyright 2010, Jakub Zawadzki <darkjames@darkjames.ath.cx>
+ * Copyright 2010, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
  * $Id$
  *
