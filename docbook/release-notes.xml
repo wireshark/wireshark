@@ -103,6 +103,12 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            TCP window updates are no longer colorized as "Bad TCP".
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
