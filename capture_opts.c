@@ -142,7 +142,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         g_log(log_domain, log_level, "Capture filter[%02d] : %s", i, interface_opts.cfilter);
         g_log(log_domain, log_level, "Snap length[%02d] (%u): %d", i, interface_opts.has_snaplen, interface_opts.snaplen);
         g_log(log_domain, log_level, "Link Type[%02d]      : %d", i, interface_opts.linktype);
-        g_log(log_domain, log_level, "Promiscous Mode[%02d]: %s", i, interface_opts.promisc_mode?"TRUE":"FALSE");
+        g_log(log_domain, log_level, "Promiscuous Mode[%02d]: %s", i, interface_opts.promisc_mode?"TRUE":"FALSE");
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         g_log(log_domain, log_level, "Buffer size[%02d]    : %d (MB)", i, interface_opts.buffer_size);
 #endif
@@ -178,7 +178,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Capture filter[df] : %s", capture_opts->default_options.cfilter);
     g_log(log_domain, log_level, "Snap length[df] (%u): %d", capture_opts->default_options.has_snaplen, capture_opts->default_options.snaplen);
     g_log(log_domain, log_level, "Link Type[df]      : %d", capture_opts->default_options.linktype);
-    g_log(log_domain, log_level, "Promiscous Mode[df]: %s", capture_opts->default_options.promisc_mode?"TRUE":"FALSE");
+    g_log(log_domain, log_level, "Promiscuous Mode[df]: %s", capture_opts->default_options.promisc_mode?"TRUE":"FALSE");
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     g_log(log_domain, log_level, "Buffer size[df]    : %d (MB)", capture_opts->default_options.buffer_size);
 #endif
