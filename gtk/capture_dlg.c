@@ -1805,53 +1805,48 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_open_w = dlg_window_new(cap_title);
   g_free(cap_title);
 
-  if (global_capture_opts.ifaces->len > 0) {
+  while (global_capture_opts.ifaces->len > 0) {
     interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-  } else {
-    interface_opts.name = NULL;
-    interface_opts.descr = NULL;
-    interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-    interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-	interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-    interface_opts.linktype = global_capture_opts.default_options.linktype;
-    interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    interface_opts.buffer_size = global_capture_opts.default_options.buffer_size;
-#endif
-    interface_opts.monitor_mode = global_capture_opts.default_options.monitor_mode;
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+    g_free(interface_opts.name);
+    g_free(interface_opts.descr);
+    g_free(interface_opts.cfilter);
 #ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = global_capture_opts.default_options.src_type;
-    if (global_capture_opts.default_options.remote_host) {
-        interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-    } else {
-       interface_opts.remote_host = NULL;
-    }
-    if (global_capture_opts.default_options.remote_port) {
-        interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-    } else {
-        interface_opts.remote_port = NULL;
-    }
-    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-    if (global_capture_opts.default_options.auth_username) {
-        interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-    } else {
-        interface_opts.auth_username = NULL;
-    }
-    if (global_capture_opts.default_options.auth_password) {
-        interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-    } else {
-        interface_opts.auth_password = NULL;
-    }
-    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+    g_free(interface_opts.remote_host);
+    g_free(interface_opts.remote_port);
+    g_free(interface_opts.auth_username);
+    g_free(interface_opts.auth_password);
+#endif
+  }
+
+  interface_opts.name = NULL;
+  interface_opts.descr = NULL;
+  interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+  interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+  interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+  interface_opts.linktype = global_capture_opts.default_options.linktype;
+  interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+  interface_opts.buffer_size = global_capture_opts.default_options.buffer_size;
+#endif
+  interface_opts.monitor_mode = global_capture_opts.default_options.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+  interface_opts.src_type = global_capture_opts.default_options.src_type;
+  interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+  interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+  interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+  interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+  interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+  interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+  interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+  interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+  interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+  interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-    g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
-  }
+  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+
 #ifdef HAVE_PCAP_REMOTE
   if (interface_opts.src_type == CAPTURE_IFREMOTE) {
     if_list = get_remote_interface_list(interface_opts.remote_host,
@@ -2166,8 +2161,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    * you have it, the monitor mode checkbox.  That's why we do this
    * now.
    */
+  global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+  /* To keep consistency, the status has to be stored */
+  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
   set_if_capabilities(FALSE);
 
+  interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
@@ -2995,7 +2994,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
     interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
     interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-    interface_opts.cfilter = global_capture_opts.default_options.cfilter;
+    interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     interface_opts.snaplen = global_capture_opts.default_options.snaplen;
     interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
     interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
