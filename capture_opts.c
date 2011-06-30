@@ -495,11 +495,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     } else {
         interface_opts.name = g_strdup(optarg_str_p);
     }
-    if (capture_opts->default_options.descr) {
-        interface_opts.descr = g_strdup(capture_opts->default_options.descr);
-    } else {
-        interface_opts.descr = NULL;
-    }
+    interface_opts.descr = g_strdup(capture_opts->default_options.descr);
     interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
     interface_opts.snaplen = capture_opts->default_options.snaplen;
     interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
