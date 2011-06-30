@@ -618,6 +618,7 @@ open_capture_device(interface_options *interface_opts,
                                 *open_err_str);
 #endif
     }
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
     return pcap_h;
 }
 
