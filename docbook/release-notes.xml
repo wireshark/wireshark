@@ -91,13 +91,6 @@ Wireshark Info
 
         <listitem>
           <para>
-            When saving or printing packets, the default choice is now to save
-            or print only the displayed packets rather than all packets.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
             TCP fast retransmissions are now indicated as an expert info note,
             rather than a warning, just as TCP retransmissions are.
           </para>
