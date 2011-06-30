@@ -421,6 +421,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't register %s tap: %s\n", name, error_msg->str);
 		g_string_free(error_msg, TRUE);
+		g_free(object_list);
 		return;
 	}
 
