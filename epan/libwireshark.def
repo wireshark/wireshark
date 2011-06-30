@@ -1126,6 +1126,7 @@ tvb_get_ntohs
 tvb_get_ptr
 tvb_get_string
 tvb_get_stringz
+tvb_get_unicode_string
 tvb_ip6_to_str
 tvb_ip_to_str
 tvb_length
