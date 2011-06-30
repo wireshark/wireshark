@@ -208,7 +208,7 @@ capture_step_stdin() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		capture_test_output_print ./testout.txt
+		capture_test_output_print ./testout.txt ./dumpcap_debug_log.tmp
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi

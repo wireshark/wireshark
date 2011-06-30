@@ -120,6 +120,7 @@
 #include "wiretap/libpcap.h"
 
 /**#define DEBUG_DUMPCAP**/
+#define DEBUG_CHILD_DUMPCAP 1
 /**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef _WIN32
