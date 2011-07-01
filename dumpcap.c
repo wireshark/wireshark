@@ -643,7 +643,17 @@ open_capture_device(interface_options *interface_opts,
                                     interface_opts->promisc_mode, CAP_READ_TIMEOUT,
                                     *open_err_str);
         } __except(TRUE) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR, "Exception from pcap_open_live(): 0x%x (0x%x)\n", GetExceptionCode(), ERROR_PROC_NOT_FOUND);
+            if (GetExceptionCode() == STATUS_ACCESS_VIOLATION) {
+                EXCEPTION_POINTERS *ex = GetExceptionInformation();
+
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR, "Exception from pcap_open_live(): %s AV @ %p IP: %p\n", 
+                        (ex->ExceptionInformation[0] ? "WRITE" : "READ"),
+                        (void *) ex->ExceptionInformation[1],
+                        (void *) ex->ExceptionAddress);
+
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_err_str: %p, %p", open_err_str, *open_err_str);
+            } else
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR, "Exception from pcap_open_live(): 0x%x (0x%x)\n", GetExceptionCode(), ERROR_PROC_NOT_FOUND);
             pcap_h = NULL;
         }
 #else
