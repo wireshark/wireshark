@@ -2265,8 +2265,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #else
   gtk_tooltips_set_tip(tooltips, filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it.",
-    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
+    "See \"Capture Filters\" in the online help for further information how to use it."
+    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter.",
     NULL);
 #endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_cm, TRUE, TRUE, 3);
