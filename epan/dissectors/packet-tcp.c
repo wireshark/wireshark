@@ -3819,6 +3819,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 first_flag = FALSE;
             }
         }
+        if (tcph->th_flags & 0x0E00) {
+            if (first_flag) {
+                ep_strbuf_truncate(flags_strbuf, 0);
+            }
+            ep_strbuf_append_printf(flags_strbuf, "%sReserved", first_flag ? "" : ", ");
+        }
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_strbuf->str, tcph->th_seq);
@@ -3894,7 +3900,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
-                                        tcph->th_flags, "Flags: 0x%02x (%s)", tcph->th_flags, flags_strbuf->str);
+                                        tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, flags_strbuf->str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
