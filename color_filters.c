@@ -109,7 +109,7 @@ color_filters_add_tmp(GSList **cfl)
         bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
 
         for ( i=1 ; i<=10 ; i++ ) {
-                name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
+                name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
 
 		/* retrieve background and foreground colors */
                 cval = strtoul(fg_colors[i-1], NULL, 16);
@@ -165,7 +165,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
                 if( i!=filt_nr && filter==NULL )
                         continue;
 
-                name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
+                name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
                 cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
                 colorf = (color_filter_t *)cfl->data;
 
@@ -708,7 +708,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 	FILE *f = data->f;
 
 	if ( (colorf->selected || !data->only_selected) &&
-             (strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) ) {
+             (strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) ) {
 		fprintf(f,"%s@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
 		    colorf->disabled ? "!" : "",
 		    colorf->filter_name,

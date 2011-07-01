@@ -24,7 +24,7 @@
 #ifndef  __COLOR_FILTERS_H__
 #define  __COLOR_FILTERS_H__
 
-#define TEMP_COLOR_PREFIX       "___tmp_color_filter___"
+#define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
  *  Color filters.
  */

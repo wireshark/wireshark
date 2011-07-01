@@ -783,7 +783,7 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend)
     GtkListStore   *store;
     GtkTreeIter     iter;
 
-  if( strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) {
+  if( strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) {
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
     if (prepend) {
       gtk_list_store_prepend(store, &iter);
