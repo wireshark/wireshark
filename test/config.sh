@@ -27,6 +27,7 @@
 # http://support.microsoft.com/kb/100843
 if [ -n "${OS#Windows}" ] ; then
 	WS_SYSTEM="Windows"
+    export CYGWIN="$CYGWIN error_start=c:\cygwin\bin\dumper.exe -d %1 %2"
 else
 	WS_SYSTEM=`uname -s`
 fi
