@@ -3401,13 +3401,14 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int save_desegment_offset;
     guint32 save_desegment_len;
 
-    /* dont call subdissectors for keepalive or zerowindowprobes
-     * even though they do contain payload "data"
-     * keeaplives just contain garbage and zwp contain too little data (1 byte)
-     * so why bother.
+    /* Don't call subdissectors for keepalives.  Even though they do contain
+     * payload "data", it's just garbage.  Display any data the keepalive
+     * packet might contain though.
      */
     if(tcpd && tcpd->ta){
-        if(tcpd->ta->flags&(TCP_A_ZERO_WINDOW_PROBE|TCP_A_KEEP_ALIVE)){
+        if(tcpd->ta->flags&TCP_A_KEEP_ALIVE){
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
             return TRUE;
         }
     }
