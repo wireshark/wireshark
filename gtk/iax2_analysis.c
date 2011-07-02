@@ -2744,20 +2744,17 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 #if 0
 	/* we support .au - ulaw*/
 	wav_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".wav");
-	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (wav_rb));
 	gtk_widget_show (wav_rb);
 	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 
 	sw_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), "8 kHz, 16 bit  ");
-	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sw_rb));
 	gtk_widget_show (sw_rb);
 	gtk_table_attach (GTK_TABLE (table1), sw_rb, 2, 3, 0, 1,
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
-	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (au_rb));
 	gtk_widget_show (au_rb);
 	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 			  (GtkAttachOptions) (GTK_FILL),
