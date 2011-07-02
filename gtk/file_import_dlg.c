@@ -847,9 +847,6 @@ file_import_dlg_new(void)
                *framelen_hb, *framelen_lbl, *framelen_te,
                *bbox, *help_bt, *close_bt, *ok_bt;
 
-    GSList     *offset_grp,       /* Offset radio button group */
-               *header_grp;       /* Dummy header radio button group */
-
 #if GTK_CHECK_VERSION(2,12,0)
 #else
     GtkTooltips *tooltips = gtk_tooltips_new();
@@ -922,6 +919,7 @@ file_import_dlg_new(void)
     offset_rb_vb = gtk_vbox_new(FALSE, 0);
     gtk_table_attach_defaults(GTK_TABLE(input_tb), offset_rb_vb, 1, 2, 1, 2);
 
+    /* First entry in the group */
     offset_hex_rb = gtk_radio_button_new_with_label(NULL, "Hexadecimal");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_hex_rb, "Offsets in the text file are in hexadecimal notation");
@@ -932,8 +930,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_HEX_RB_KEY, offset_hex_rb);
     
-    offset_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(offset_hex_rb));
-    offset_oct_rb = gtk_radio_button_new_with_label(offset_grp, "Octal");
+    offset_oct_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Octal");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_oct_rb, "Offsets in the text file are in octal notation");
 #else
@@ -943,8 +940,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_OCT_RB_KEY, offset_oct_rb);
     
-    offset_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(offset_oct_rb));
-    offset_dec_rb = gtk_radio_button_new_with_label(offset_grp, "Decimal");
+    offset_dec_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Decimal");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_dec_rb, "Offsets in the text file are in decimal notation");
 #else
@@ -1042,15 +1038,13 @@ file_import_dlg_new(void)
     header_rblbl_1_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_1_hb, FALSE, FALSE, 2);
 
-	/* First entry in the group */
+    /* First entry in the group */
     header_eth_rb = gtk_radio_button_new_with_label(NULL, "Ethernet");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_eth_rb, "Prefix an Ethernet header to the frames");
 #else
     gtk_tooltips_set_tip(tooltips, header_eth_rb, "Prefix an Ethernet header to the frames", NULL);
 #endif
-	/* Get the group slist */
-    header_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(header_eth_rb));
     g_signal_connect(header_eth_rb, "toggled", G_CALLBACK(header_eth_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_eth_rb, FALSE, FALSE, 0);
 
@@ -1075,7 +1069,7 @@ file_import_dlg_new(void)
     header_rblbl_2_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_2_hb, FALSE, FALSE, 2);
 
-    header_ipv4_rb = gtk_radio_button_new_with_label(header_grp, "IPv4");
+    header_ipv4_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "IPv4");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_ipv4_rb, "Prefix an Ethernet and IPv4 header to the frames");
 #else
@@ -1105,7 +1099,7 @@ file_import_dlg_new(void)
     header_rblbl_3_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_3_hb, FALSE, FALSE, 2);
 
-    header_udp_rb = gtk_radio_button_new_with_label(header_grp, "UDP");
+    header_udp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "UDP");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_udp_rb, "Prefix an Ethernet, IPv4 and UDP header to the frames");
 #else
@@ -1135,7 +1129,7 @@ file_import_dlg_new(void)
     header_rblbl_4_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_4_hb, FALSE, FALSE, 2);
 
-    header_tcp_rb = gtk_radio_button_new_with_label(header_grp, "TCP");
+    header_tcp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "TCP");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_tcp_rb, "Prefix an Ethernet, IPv4 and TCP header to the frames");
 #else
@@ -1165,7 +1159,7 @@ file_import_dlg_new(void)
     header_rblbl_5_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_5_hb, FALSE, FALSE, 2);
 
-    header_sctp_rb = gtk_radio_button_new_with_label(header_grp, "SCTP");
+    header_sctp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_sctp_rb, "Prefix an Ethernet, IPv4 and SCTP header to the frames");
 #else
@@ -1195,7 +1189,7 @@ file_import_dlg_new(void)
     header_rblbl_6_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_6_hb, FALSE, FALSE, 2);
 
-    header_sctp_data_rb = gtk_radio_button_new_with_label(header_grp, "SCTP (DATA)");
+    header_sctp_data_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP (DATA)");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_sctp_data_rb, "Prefix an Ethernet, IPv4 and SCTP DATA header to the frames");
 #else
