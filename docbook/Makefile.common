@@ -229,14 +229,14 @@ CLEANFILES =	\
 	release-notes.txt	\
 	svn_version.xml		\
 	user-guide.zip		\
-	wsluarm			\
-	wsluarm_src/*.xml
+	wsluarm
 
 CLEANDIRS =	\
 	wsdg_html		\
 	wsdg_html_chunked	\
 	wsug_html		\
-	wsug_html_chunked
+	wsug_html_chunked	\
+	wsluarm_src
 
 WSLUA_MODULES = \
 	../epan/wslua/wslua_dumper.c \
