@@ -33,22 +33,13 @@ Wireshark Info
 
     The following bugs have been fixed:
 
-<!--
       <itemizedlist>
 
-        <listitem><para>
-          Wireshark is unresponsive when capturing from named pipes on Windows.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
-          1759</ulink>)
-        </para></listitem>
-
 	<listitem><para>
-	  Ring buffers are no longer turned on by default when using multiple
-	  capture files.
+	  The 64-bit Windows installer now supports OID-to-name resolution.
 	</para></listitem>
 
       </itemizedlist>
--->
 
     </para>
 
@@ -199,7 +190,7 @@ Wireshark Info
     </para>
 
     <para>
-      The 64-bit Windows installer does not ship with libsmi.
+      The 64-bit Windows installer does not support Kerberos decryption.
       (<ulink url="http://wiki.wireshark.org/Development/Win64">Win64
       development page</ulink>)
     </para>
