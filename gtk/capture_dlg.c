@@ -932,7 +932,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 /* Retrieve the list of local or remote interfaces according to selected
  * options and re-fill interface name combobox */
 static void
-update_interface_list()
+update_interface_list(void)
 {
   GtkWidget    *if_cb, *iftype_cbx, *remote_bt;
   GList        *if_list, *combo_list, *combo_list_entry;
