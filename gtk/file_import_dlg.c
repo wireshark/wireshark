@@ -181,7 +181,7 @@ fill_encap_combo(void)
 {
     GtkWidget *encap_co = NULL;
     GtkCellRenderer *cell;
-    
+
     encap_co = gtk_combo_box_new_with_model(GTK_TREE_MODEL(encap_list_store));
     cell = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(encap_co), cell, TRUE);
@@ -503,11 +503,11 @@ file_import_open(text_import_info_t *info)
     text_import_setup(info);
 
     text_importin = info->import_text_file;
-    
+
     text_importlex();
 
     text_import_cleanup();
-    
+
     if (fclose(info->import_text_file))
     {
         read_failure_alert_box(info->import_text_filename, errno);
@@ -554,9 +554,9 @@ setup_file_import(GtkWidget *main_w)
     GtkWidget *input_frm, *import_frm;
 
     text_import_info_t *text_import_info = g_malloc0(sizeof(text_import_info_t));
-    
+
     /* Retrieve the input and import settings from the dialog */
-  
+
     /* First the main components */
     input_frm = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w), INPUT_FRM_KEY));
     import_frm = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w), IMPORT_FRM_KEY));
@@ -774,7 +774,7 @@ static void
 file_import_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     text_import_info_t *text_import_info;
-    
+
     switch (btn) {
     case ESD_BTN_SAVE:
         /* save file first */
@@ -798,7 +798,7 @@ static void
 file_import_ok_cb(GtkWidget *widget _U_, gpointer data)
 {
     text_import_info_t *text_import_info;
-    
+
     if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
         gpointer dialog;
         /* user didn't save his current file, ask him */
@@ -867,7 +867,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(main_vb), input_frm, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(main_w), INPUT_FRM_KEY, input_frm);
-    
+
     input_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(input_frm), input_vb);
 
@@ -893,7 +893,7 @@ file_import_dlg_new(void)
     gtk_table_attach_defaults(GTK_TABLE(input_tb), filename_te, 1, 2, 0, 1);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY, filename_te);
-    
+
     browse_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(browse_bt, "Browse for text file to import");
@@ -929,7 +929,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_hex_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_HEX_RB_KEY, offset_hex_rb);
-    
+
     offset_oct_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Octal");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_oct_rb, "Offsets in the text file are in octal notation");
@@ -939,7 +939,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_oct_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_OCT_RB_KEY, offset_oct_rb);
-    
+
     offset_dec_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Decimal");
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_dec_rb, "Offsets in the text file are in decimal notation");
@@ -949,7 +949,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_dec_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_DEC_RB_KEY, offset_dec_rb);
-        
+
     /* Time format */
     timefmt_hb = gtk_hbox_new(FALSE, 3);
     gtk_container_set_border_width(GTK_CONTAINER(timefmt_hb), 3);
@@ -980,7 +980,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_TE_KEY, timefmt_te);
     g_object_set_data(G_OBJECT(input_frm), INPUT_TIMEFMT_TE_KEY, timefmt_te);
-    
+
     g_signal_connect(timefmt_cb, "toggled", G_CALLBACK(timefmt_cb_toggle), NULL);
     g_signal_emit_by_name(G_OBJECT(timefmt_cb), "toggled", NULL);
 
@@ -990,7 +990,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(main_vb), import_frm, TRUE, TRUE, 3);
 
     g_object_set_data(G_OBJECT(main_w), IMPORT_FRM_KEY, import_frm);
-        
+
     import_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(import_frm), import_vb);
 
@@ -1011,7 +1011,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(encap_hb), encap_co, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_ENCAP_CO_KEY, encap_co);
-    
+
     /* Dummy header */
     header_frm = gtk_frame_new(NULL);
     header_cb = gtk_check_button_new_with_label("Dummy header");
@@ -1026,7 +1026,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_HEADER_FRM_KEY, header_frm);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_CB_KEY, header_cb);
-    
+
     header_hb = gtk_hbox_new(FALSE, 3);
     gtk_container_set_border_width(GTK_CONTAINER(header_hb), 3);
     gtk_container_add(GTK_CONTAINER(header_frm), header_hb);
@@ -1049,7 +1049,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_eth_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETH_RB_KEY, header_eth_rb);
-    
+
     header_rblbl_1_lbl = gtk_label_new("  Ethertype (hex):");
     gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_rblbl_1_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_1_lbl), 1.0f, 0.5f);
@@ -1079,7 +1079,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_2_hb), header_ipv4_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_IPV4_RB_KEY, header_ipv4_rb);
-    
+
     header_rblbl_2_lbl = gtk_label_new("  Protocol (dec):");
     gtk_box_pack_start(GTK_BOX(header_rblbl_2_hb), header_rblbl_2_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_2_lbl), 1.0f, 0.5f);
@@ -1109,7 +1109,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_3_hb), header_udp_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_UDP_RB_KEY, header_udp_rb);
-    
+
     header_rblbl_3_lbl = gtk_label_new("  Source port:");
     gtk_box_pack_start(GTK_BOX(header_rblbl_3_hb), header_rblbl_3_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_3_lbl), 1.0f, 0.5f);
@@ -1139,7 +1139,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_4_hb), header_tcp_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TCP_RB_KEY, header_tcp_rb);
-    
+
     header_rblbl_4_lbl = gtk_label_new("  Destination port:");
     gtk_box_pack_start(GTK_BOX(header_rblbl_4_hb), header_rblbl_4_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_4_lbl), 1.0f, 0.5f);
@@ -1169,7 +1169,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_5_hb), header_sctp_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_RB_KEY, header_sctp_rb);
-        
+
     header_rblbl_5_lbl = gtk_label_new("  Tag:");
     gtk_box_pack_start(GTK_BOX(header_rblbl_5_hb), header_rblbl_5_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_5_lbl), 1.0f, 0.5f);
@@ -1199,7 +1199,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_6_hb), header_sctp_data_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_D_RB_KEY, header_sctp_data_rb);
-        
+
     header_rblbl_6_lbl = gtk_label_new("  PPI:");
     gtk_box_pack_start(GTK_BOX(header_rblbl_6_hb), header_rblbl_6_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_6_lbl), 1.0f, 0.5f);
@@ -1241,7 +1241,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);
-    
+
     /* Setup the button row */
 
     bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
@@ -1254,7 +1254,7 @@ file_import_dlg_new(void)
 #else
     gtk_tooltips_set_tip(tooltips, help_bt, "Show topic specific help", NULL);
 #endif
-    
+
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     window_set_cancel_button(main_w, close_bt, window_cancel_button_cb);
 #if GTK_CHECK_VERSION(2,12,0)
@@ -1262,7 +1262,7 @@ file_import_dlg_new(void)
 #else
     gtk_tooltips_set_tip(tooltips, close_bt, "Close this dialog", NULL);
 #endif
-   
+
     ok_bt =  g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_import_ok_cb), main_w);
     gtk_widget_grab_default(ok_bt);
@@ -1292,7 +1292,7 @@ file_import_cmd_cb(GtkWidget *widget _U_)
         /* No. Create one. */
         create_encap_list_store();
     }
-  
+
     /* Has a file import dialog already been opened? */
     if (file_import_dlg_w)
     {
