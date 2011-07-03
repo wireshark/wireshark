@@ -232,6 +232,27 @@ typedef struct _protocol protocol_t;
 
 #define ENC_NA			0x00000000
 
+/*
+ * Historically, the only place the representation mattered for strings
+ * was with FT_UINT_STRINGs, where we had FALSE for the string length
+ * being big-endian and TRUE for it being little-endian.
+ *
+ * This is a quick and dirty hack for bug 6084, which doesn't require
+ * support for multiple character encodings in FT_UINT_STRING.  We
+ * introduce ENC_UTF_8 and ENC_EBCDIC, with ENC_UTF_8 being 0 and
+ * ENC_EBCDIC being the unlikely value 0x0EBCD000, and treat all values
+ * other than ENC_EBCDIC as UTF-8.  That way, no matter how a dissector
+ * not converted to use ENC_ values calculates the last argument to
+ * proto_tree_add_item(), it's unlikely to get EBCDIC.
+ *
+ * The value for ENC_EBCDIC is subject to change in a future release (or
+ * to replacement with multiple values for different flavors of EBCDIC).
+ * Additional encodings will also be provided.
+ */
+#define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
+#define ENC_UTF_8		0x00000000
+#define ENC_EBCDIC		0x0EBCD1C0	/* XXX - multiple flavors of EBCDIC? */
+
 /* Values for header_field_info.display */
 
 /* For integral types, the display format is a base_display_e value
