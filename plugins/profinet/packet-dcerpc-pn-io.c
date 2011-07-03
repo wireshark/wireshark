@@ -571,6 +571,8 @@ static guint16  ver_pn_io_supervisor = 1;
 static e_uuid_t uuid_pn_io_parameterserver = { 0xDEA00004, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_parameterserver = 1;
 
+/* Allow heuristic dissection */
+static heur_dissector_list_t heur_pn_subdissector_list;
 
 static const value_string pn_io_block_type[] = {
 	{ 0x0000, "Reserved" },
@@ -7709,6 +7711,13 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 	guint8  u8CBAVersion;
     guint16 u16FrameID;
 
+    /*
+     * In case the packet is a protocol encoded in the basic PNIO transport stream,
+     * give that protocol a chance to make a heuristic dissection, before we continue
+     * to dissect it as a normal PNIO packet.
+     */
+    if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree))
+      return FALSE;
 
     /* the sub tvb will NOT contain the frame_id here! */
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
@@ -8734,6 +8743,10 @@ proto_register_pn_io (void)
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
 	proto_register_field_array (proto_pn_io, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+
+	/* subdissector code */
+    new_register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
+    register_heur_dissector_list("pn_io", &heur_pn_subdissector_list);
 
 	register_init_routine(pnio_reinit);
 
