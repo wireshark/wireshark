@@ -253,6 +253,7 @@ TVBTEST_OBJ=tvbtest.obj \
 	except.obj \
 	to_str.obj \
 	strutil.obj \
+	charsets.obj \
 	emem.obj
 
 tvbtest.exe: $(TVBTEST_OBJ)
