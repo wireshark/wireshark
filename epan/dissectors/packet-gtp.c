@@ -15,6 +15,8 @@
  * Updates and corrections:
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
  *
+ * PDCP PDU number extension header support added by Martin Isaksson <martin.isaksson@ericsson.com>
+ *
  * Control Plane Request-Response tracking code Largely based on similar routines in
  * packet-ldap.c by Ronnie Sahlberg
  * Added by Kari Tiirikainen <kari.tiirikainen@nsn.com>
@@ -107,6 +109,10 @@ static int hf_gtp_chrg_ipv6 = -1;
 static int hf_gtp_ext_flow_label = -1;
 static int hf_gtp_ext_id = -1;
 static int hf_gtp_ext_val = -1;
+static int hf_gtp_ext_hdr = -1;
+static int hf_gtp_ext_hdr_next = -1;
+static int hf_gtp_ext_hdr_length = -1;
+static int hf_gtp_ext_hdr_pdcpsn = -1;
 static int hf_gtp_flags = -1;
 static int hf_gtp_flags_ver = -1;
 static int hf_gtp_prime_flags_ver = -1;
@@ -251,6 +257,7 @@ static int hf_gtp_bcm = -1;
 static gint ett_gtp = -1;
 static gint ett_gtp_flags = -1;
 static gint ett_gtp_ext = -1;
+static gint ett_gtp_ext_hdr = -1;
 static gint ett_gtp_rai = -1;
 static gint ett_gtp_qos = -1;
 static gint ett_gtp_auth_tri = -1;
@@ -354,11 +361,13 @@ static const value_string pt_types[] = {
 #define GTP_SNN_MASK        0x01
 #define GTP_PN_MASK         0x01
 
+#define GTP_EXT_HDR_PDCP_SN 0xC0
+
 static const value_string next_extension_header_fieldvals[] = {
     {   0, "No more extension headers"},
     {   1, "MBMS support indication"},
     {   2, "MS Info Change Reporting support indication"},
-    {0xc0, "PDCP PDU number"},
+    {GTP_EXT_HDR_PDCP_SN, "PDCP PDU number"},
     {0xc1, "Suspend Request"},
     {0xc2, "Suspend Response"},
     {0, NULL}
@@ -6598,11 +6607,12 @@ static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U
 static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     struct _gtp_hdr gtp_hdr;
-    proto_tree *gtp_tree, *flags_tree;
-    proto_item *ti, *tf;
+    proto_tree *gtp_tree, *flags_tree, *ext_tree;
+    proto_item *ti, *tf, *item;
     int i, offset, length, gtp_prime, checked_field, mandatory;
     int seq_no=0, flow_label=0;
-    guint8 pdu_no, next_hdr = 0, ext_hdr_val;
+    guint8 pdu_no, next_hdr = 0, ext_hdr_val, noOfExtHdrs = 0, ext_hdr_length;
+    guint16 pdcpsn;
     gchar *tid_str;
     guint32 teid = 0;
     tvbuff_t *next_tvb;
@@ -6723,6 +6733,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
                 offset += 4;
 
+				/* Are sequence number/N-PDU Number/extension header present? */
                 if (gtp_hdr.flags & 0x07) {
                     seq_no = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
@@ -6732,10 +6743,67 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
                     offset++;
 
-                    next_hdr = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-                    if (!next_hdr)
-                        offset++;
+					next_hdr = tvb_get_guint8(tvb, offset);
+
+                    /* Don't add extension header, we'll add a subtree for that */
+                    /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
+
+                    offset++;
+                    
+                    /* Change to while? */
+                    if (next_hdr) {
+
+                        /* TODO Add support for more than one extension header */
+                        
+                        noOfExtHdrs++;
+                        
+                        tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
+                        ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
+
+                        /* PDCP PDU
+                         * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+                         *
+                         * "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
+                         * to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
+                         *  and therefore the Length field has value 1.
+                         *
+                         *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
+                         *  The meaning of the spare bits shall be set to zero.
+                         *
+                         *
+						 */
+                        if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
+                                                                                  
+                            /* First byte is length (should be 1) */
+                        	ext_hdr_length = tvb_get_guint8(tvb, offset);
+                        	if (ext_hdr_length != 1) {
+                        		expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
+                        	}
+                        	item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+
+                            offset++;
+
+                            /* Second and third bytes are PDCP SN, bits 5-8 of first byte should be 0. */
+                            pdcpsn = tvb_get_ntohs(tvb,offset);
+
+                            item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, pdcpsn & 0x0FFF);
+
+                            if (pdcpsn & 0xF000) {
+                            	expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Reserved bits should be zero.");
+                            }
+
+                            offset += 2;
+                            
+                            /* Last is next_hdr */
+                            next_hdr = tvb_get_guint8(tvb, offset);
+                            item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+
+                            if (next_hdr) {
+                            	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
+                            }
+                            offset++;                            
+                         }
+                    }   
                 }
                 break;
             default:
@@ -6782,7 +6850,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
                 offset++;
             }
-            proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");
+           /* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
             length = tvb_length(tvb);
             mandatory = 0;      /* check order of GTP fields against ETSI */
             for (;;) {
@@ -6843,6 +6911,9 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 offset = 8;
         } else
             offset = 20;
+
+        /* Can only handle one extension header type... */
+        if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
 
         sub_proto = tvb_get_guint8(tvb, offset);
 
@@ -6965,6 +7036,10 @@ void proto_register_gtp(void)
         {&hf_gtp_ext_id, {"Extension identifier", "gtp.ext_id", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0, NULL, HFILL}},
         {&hf_gtp_ext_val, {"Extension value", "gtp.ext_val", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
         {&hf_gtp_flags, {"Flags", "gtp.flags", FT_UINT8, BASE_HEX, NULL, 0, "Ver/PT/Spare...", HFILL}},
+        {&hf_gtp_ext_hdr, {"Extension header", "gtp.ext_hdr", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, "Extension header", HFILL}},
+        {&hf_gtp_ext_hdr_next, {"Next extension header", "gtp.ext_hdr.next", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, "Extension header", HFILL}},
+        {&hf_gtp_ext_hdr_pdcpsn, {"PDCP Sequence Number", "gtp.ext_hdr.pdcp_sn", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
+        {&hf_gtp_ext_hdr_length, {"Extension Header Length", "gtp.ext_hdr.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_flags_ver,
          {"Version", "gtp.flags.version",
           FT_UINT8, BASE_DEC, VALS(ver_types), GTP_VER_MASK,
@@ -7396,6 +7471,7 @@ void proto_register_gtp(void)
         &ett_gtp_bcm,
         &ett_gtp_cdr_ver,
         &ett_gtp_cdr_dr,
+		&ett_gtp_ext_hdr,
     };
 
     module_t *gtp_module;
