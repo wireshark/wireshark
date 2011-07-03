@@ -1094,6 +1094,7 @@ tvb_get_const_stringz
 tvb_get_ds_tvb
 tvb_get_ephemeral_faked_unicode
 tvb_get_ephemeral_string
+tvb_get_ephemeral_string_enc
 tvb_get_ephemeral_stringz
 tvb_get_guid
 tvb_get_guint8

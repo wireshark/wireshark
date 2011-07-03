@@ -210,12 +210,6 @@ typedef struct _protocol protocol_t;
  * ENC_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
  * so that we could put a field type and/or a value such as a character
  * encoding in the lower bits.
- *
- * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
- * opaque byte-array fields (FT_BYTES), and other fields where there
- * is no choice of encoding (either because it's "just a bucket
- * of bytes" or because the encoding is completely fixed), we
- * have ENC_NA (for "Not Applicable").
  */
 #define ENC_BIG_ENDIAN		0x00000000
 #define ENC_LITTLE_ENDIAN	0x80000000
@@ -229,8 +223,6 @@ typedef struct _protocol protocol_t;
  */
 #define ENC_TIME_TIMESPEC	0
 #define ENC_TIME_NTP		2
-
-#define ENC_NA			0x00000000
 
 /*
  * Historically, the only place the representation mattered for strings
@@ -251,7 +243,16 @@ typedef struct _protocol protocol_t;
  */
 #define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
 #define ENC_UTF_8		0x00000000
-#define ENC_EBCDIC		0x0EBCD1C0	/* XXX - multiple flavors of EBCDIC? */
+#define ENC_EBCDIC		0x0EBCD1C0
+
+/*
+ * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
+ * opaque byte-array fields (FT_BYTES), and other fields where there
+ * is no choice of encoding (either because it's "just a bucket
+ * of bytes" or because the encoding is completely fixed), we
+ * have ENC_NA (for "Not Applicable").
+ */
+#define ENC_NA			0x00000000
 
 /* Values for header_field_info.display */
 
