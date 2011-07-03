@@ -3351,7 +3351,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		</avp>
 <!--
 Note: The AVP codes from 924 to 999 are reserved for TS 29.061
-29.210
+29.210 -> 3GPP TS 29.212
 ******** Found in TGPPGmb.xml ********
 -->
 		<avp name="Bearer-Usage" code="1000" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3433,8 +3433,18 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 			<enum name="UE_TIME_ZONE_CHANGE"			code="25"/>
 			<enum name="USAGE_REPORT"				code="26"/>
 			<enum name="TAI_CHANGE"					code="27"/>
-			<enum name="ECGI_CHANGE"				code="28"/>
-			<enum name="TIME_CHANGE"				code="100"/>
+      <enum name="ECGI_CHANGE"				code="28"/>
+      <enum name="APN-AMBR_MODIFICATION_FAILURE"				code="29"/>
+      <enum name="USER_CSG_INFORMATION_CHANGE"				code="30"/>
+      <enum name="USAGE_REPORT"				code="33"/>
+      <enum name="DEFAULT-EPS-BEARER-QOS_MODIFICATION_FAILURE"				code="34"/>
+      <enum name="USER_CSG_HYBRID_SUBSCRIBED_INFORMATION_CHANGE"				code="35"/>
+      <enum name="USER_CSG_ HYBRID_UNSUBSCRIBED_INFORMATION_CHANGE"				code="36"/>
+      <enum name="ROUTING_RULE_CHANGE"				code="37"/>
+      <enum name="MAX_MBR_APN_AMBR_CHANGE"				code="38"/>
+      <enum name="APPLICATION_START"				code="39"/>
+      <enum name="APPLICATION_STOP"				code="40"/>
+      <enum name="TIME_CHANGE"				code="100"/>
 			<enum name="TFT DELETED"				code="1000"/>
 			<enum name="LOSS OF BEARER"				code="1001"/>
 			<enum name="RECOVERY OF BEARER"				code="1002"/>
