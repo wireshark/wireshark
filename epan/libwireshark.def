@@ -9,6 +9,7 @@
 ; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
 ;
 EXPORTS
+EBCDIC_to_ASCII
 abs_time_secs_to_str
 abs_time_to_str
 add_new_data_source
