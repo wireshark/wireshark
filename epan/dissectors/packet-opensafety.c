@@ -1385,24 +1385,20 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
 static gboolean
 dissect_heur_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-    guint32 constData;
-
-    constData = 0x0;
-    if ( pinfo->private_data != NULL )
-        memcpy(&constData, pinfo->private_data, sizeof(guint32));
+    static gboolean calledOnce = FALSE;
+    gboolean result = FALSE;
 
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
      * loop */
-    if ( pinfo->private_data == NULL || ( constData != OPENSAFETY_PINFO_CONST_DATA ) )
+    if ( calledOnce == FALSE )
     {
-        constData = OPENSAFETY_PINFO_CONST_DATA;
-        pinfo->private_data = (void*)ep_alloc(sizeof(guint32));
-        memcpy(pinfo->private_data, &constData, sizeof(guint32));
-        return dissect_opensafety_epl(message_tvb, pinfo, tree );
+        calledOnce = TRUE;
+        result = dissect_opensafety_epl(message_tvb, pinfo, tree );
+        calledOnce = FALSE;
     }
 
-    return FALSE;
+    return result;
 }
 
 static gboolean
@@ -1522,7 +1518,8 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
 static gboolean
 dissect_heur_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-    guint32 constData;
+    static gboolean calledOnce = FALSE;
+    gboolean result = FALSE;
     guint8 firstByte;
 
     /* We can assume to have a SercosIII package, as the SercosIII dissector won't detect
@@ -1533,22 +1530,17 @@ dissect_heur_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_
     if ( ( (!firstByte) & 0x40 ) == 0x40 )
         return FALSE;
 
-    constData = 0x0;
-    if ( pinfo->private_data != NULL )
-        memcpy(&constData, pinfo->private_data, sizeof(guint32));
-
     /* We will call the SercosIII dissector by using call_dissector(). The SercosIII dissector will
      * then call the heuristic openSAFETY dissector again. By setting this information, we prevent
-     * a dissector loop */
-    if ( pinfo->private_data == NULL || ( constData != OPENSAFETY_PINFO_CONST_DATA ) )
+     * a dissector loop. */
+    if ( calledOnce == FALSE )
     {
-        constData = OPENSAFETY_PINFO_CONST_DATA;
-        pinfo->private_data = (void*)ep_alloc(sizeof(guint32));
-        memcpy(pinfo->private_data, &constData, sizeof(guint32));
-        return dissect_opensafety_siii(message_tvb, pinfo, tree);
+        calledOnce = TRUE;
+        result = dissect_opensafety_siii(message_tvb, pinfo, tree);
+        calledOnce = FALSE;
     }
 
-    return FALSE;
+    return result;
 }
 
 static gboolean
@@ -1794,25 +1786,9 @@ proto_reg_handoff_opensafety(void)
 
     if ( !opensafety_inited )
     {
+    	/* EPL & SercosIII dissector registration */
         heur_dissector_add("epl", dissect_heur_opensafety_epl, proto_opensafety);
-
-        /* For SercosIII we have to register as a heuristic dissector, as SercosIII
-         *  is implemented as a plugin, and therefore the heuristic dissector is not
-         *  added by the time this method is being called
-         */
-        if ( find_dissector("sercosiii") != NULL )
-        {
-            heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
-        }
-        else
-        {
-            /* The native dissector cannot be loaded. so we add our protocol directly to
-             * the ethernet subdissector list. No SercosIII specific data will be dissected
-             * and a warning will be displayed, recognizing the missing dissector plugin.
-             */
-			g_warning ( "openSAFETY - SercosIII heuristic dissector cannot be registered, openSAFETY/SercosIII native dissection." );
-            dissector_add_uint("ethertype", ETHERTYPE_SERCOS, find_dissector("opensafety_siii"));
-        }
+        heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
 
         /* Modbus TCP dissector registration */
         dissector_add_string("mbtcp.modbus.data", "data", find_dissector("opensafety_mbtcp"));
