@@ -269,6 +269,7 @@ REASSEMBLE_TEST_OBJ=reassemble_test.obj \
 	except.obj \
 	to_str.obj \
 	strutil.obj \
+	charsets.obj \
 	emem.obj \
 	reassemble.obj
 

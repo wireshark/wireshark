@@ -154,7 +154,7 @@ libwireshark_la_DEPENDENCIES = \
 #reassemble_test_LDADD = $(GLIB_LIBS)
 
 reassemble_test: reassemble_test.o tvbuff.o except.o to_str.o strutil.o emem.o \
-                 reassemble.o
+                 reassemble.o charsets.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
 tvbtest: tvbtest.o tvbuff.o except.o to_str.o strutil.o emem.o
