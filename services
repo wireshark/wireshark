@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-06-23)
+(last updated 2011-07-01)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -2089,7 +2089,7 @@ pkix-3-ca-ra    829/udp    PKIX-3 CA/RA
 #			   Carlisle Adams <Cadams&entrust.com>
 netconf-ssh     830/tcp    NETCONF over SSH
 netconf-ssh     830/udp    NETCONF over SSH
-#                          [RFC-ietf-netconf-rfc4742bis-08.txt]
+#                          [RFC6242]
 netconf-beep    831/tcp    NETCONF over BEEP 
 netconf-beep    831/udp    NETCONF over BEEP
 #                          [RFC4744]
@@ -5729,9 +5729,7 @@ simple-tx-rx	2257/udp   simple text/file transfer
 rcts		2258/tcp   Rotorcraft Communications Test System
 rcts		2258/udp   Rotorcraft Communications Test System
 #			   Terry Eldridge <Terry.Eldridge&6pointn.com> August 2006
-acd-pm		2259/tcp   Accedian Performance Measurement
-acd-pm		2259/udp   Accedian Performance Measurement
-#			   Claude Robitaille <clauder&accedian.com> August 2006
+#               2259       Unassigned (Returned 2011-06-28)
 apc-2260        2260/tcp   APC 2260
 apc-2260        2260/udp   APC 2260
 #                          American Power Conversion <ports&apcc.com> February 2002
@@ -14232,7 +14230,10 @@ tidp		7548/udp    Threat Information Distribution Protocol
 nls-tl		7549/tcp    Network Layer Signaling Transport Layer
 nls-tl		7549/udp    Network Layer Signaling Transport Layer
 #			    Melinda Shore <mshore&cisco.com> May 2006
-#               7550-7559   Unassigned
+#               7550/tcp    Reserved
+cloudsignaling  7550/udp    Cloud Signaling Service
+#                           Scott Dawson <sdawson&arbor.net> 01 July 2011
+#               7551-7559   Unassigned
 sncp            7560/tcp    Sniffer Command Protocol
 sncp            7560/udp    Sniffer Command Protocol
 #                           Dominick Cafarelli <dominick.cafarelli&networkgeneral.com> August 2005
@@ -14885,7 +14886,12 @@ msgclnt         8786/udp    Message Client
 msgsrvr         8787/tcp    Message Server
 msgsrvr         8787/udp    Message Server
 #                           Michael O'Brien <mobrien02&comcast.net> March 2003
-#               8788-8799   Unassigned
+#               8788-8792   Unassigned
+acd-pm          8793/tcp    Accedian Performance Measurement 
+acd-pm          8793/udp    Accedian Performance Measurement 
+#                           Previous contact: Claude Robitaille <clauder&accedian.com> August 2006
+#                           Curret contact: Marco Mascitto <mmascitto&accedian.com> 28 June 2011
+#               8794-8799   Unassigned
 sunwebadmin     8800/tcp    Sun Web Server Admin Service
 sunwebadmin     8800/udp    Sun Web Server Admin Service
 #                           Jyri J. Virkki <jyri.virkki&sun.com> December 2005
@@ -16912,6 +16918,7 @@ rbr-debug       44553/tcp   REALbasic Remote Debug
 rbr-debug       44553/udp   REALbasic Remote Debug
 #                           Aaron Ballman <aaron&realsoftware.com> November 2004
 #               44554-44817 Unassigned
+### UNAUTHORIZED USE: Ports 44600 used by AudioScience HPI############
 EtherNet/IP-2   44818/tcp   EtherNet/IP messaging
 EtherNet/IP-2   44818/udp   EtherNet/IP messaging
 #                           Brian Batke <eip.jsig&gmail.com>
@@ -17271,9 +17278,8 @@ References
 [RFC6230]  C. Boulton, T. Melanchuk, S. McGlashan, "Media Control Channel Framework", 
            RFC 6230, May 2011.
 
-[RFC-ietf-netconf-rfc4742bis-08.txt]
-            M. Wasserman, T. Goddard, "Using the NETCONF Configuration Protocol over 
-            Secure Shell (SSH)", RFC XXXX, Month Year.
+[RFC6242]  M. Wasserman, T. Goddard, "Using the NETCONF Configuration Protocol over 
+           Secure Shell (SSH)", RFC 6242, June 2011.
 
 [RFC-ietf-ancp-protocol-17.txt]
             S. Wadhwa, J. Moisand, T. Haag, N. Voigt, T. Taylor, Ed., "Protocol for 

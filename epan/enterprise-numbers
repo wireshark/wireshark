@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-06-25)
+(last updated 2011-07-02)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -66436,8 +66436,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       frederic&ossservice.com
 16721
   Chronos Technology Ltd
-    Rob Desbois
-      robert.desbois&chronos.co.uk
+    Simon Gray
+      simon.gray&chronos.co.uk
 16722
   Methics Oy
     Lennart Löfberg
@@ -110782,8 +110782,8 @@ Decentralization / Helenic Public Administra
       christian.chladil&7id.at
 27800
   PKE Electronics AG
-    Gustav Haas
-      g.haas&pke.at
+    Manfred Jiras
+      m.jiras&pke.at
 27801
   Fejer Megyei Szent Gyorgy Hospital
     Bagyal Tamas
@@ -137103,9 +137103,9 @@ Decentralization / Helenic Public Administra
     Takashi Yoshida
       info&cheersnet.jp
 34380
-  Reductive Labs, Inc.
+  Puppet Labs, Inc. (previous was 'Reductive Labs, Inc.')
     Luke Kanies
-      luke&reductivelabs.com
+      luke&puppetlabs.com
 34381
   Inixa - Security & Communication
     Julio Rilo Blanco
@@ -151752,9 +151752,9 @@ Decentralization / Helenic Public Administra
     Denise Johnson
       Denise.Johnson&viachristi.org
 38042
-  Via Christi Health
-    Denise Johnson
-      Denise.Johnson&viachristi.org
+  Unassigned
+    Removed 2011-06-30
+      ---none---
 38043
   Hear And See Systems OÜ
     Imre Tabur
@@ -152402,7 +152402,7 @@ Decentralization / Helenic Public Administra
 38204
   Six DEE Telecom Solutions Pvt. Ltd.
     Kenil Paul
-      kenilpaul&gmail.com
+      kenil&6dtech.co.in
 38205
   University Teleinformatic Center - UTIC, University of Sarajevo
     Senad Burak
@@ -152465,7 +152465,7 @@ Decentralization / Helenic Public Administra
       nazrul&therapservices.net
 38220
   IZAO Greenwall Systems
-    Kuznetsov Mikhail Alexandrovich
+    Mikhail Kuznetsov 
       tech.support&greenwall.by
 38221
   IP Gorshkov Yuri Valerevich
@@ -152499,6 +152499,186 @@ Decentralization / Helenic Public Administra
   PICA GmbH
     Moritz Maier
       moritz.maier&pica.de
+38229
+  GIVC
+    Eugene Sokolov
+      sokolov&givc.ru
+38230
+  Kostroma State Technological University
+    Serge Beletskiy
+      bs&kstu.edu.ru
+38231
+  Lycée Sainte Marie du Port
+    tedesco nicolas
+      ntedesco&lpegt-smp.fr
+38232
+  Onondaga Community College
+    Keith Conger
+      sysadmin&sunyocc.edu
+38233
+  ARCHE Systeme GmbH
+    Peter Weinstock
+      peter.weinstock&arche.de
+38234
+  TESSCO Technologies Incorporated
+    Michael Kaegler
+      kaeglerm&tessco.com
+38235
+  ENTERSECT Technologies (PTY) LTD
+    Chris Kistner
+      chris&entersect.co.za
+38236
+  Colsys s.r.o.
+    Jiri Merth
+      merth&colsys.cz
+38237
+  Elverson Rod and Gun Club
+    Doug Pratt
+      doug&elversonrodandgunclub.com
+38238
+  karnal talat private limited
+    jahangir hussain
+      hussain.jahangir61&gmail.com
+38239
+  OARC, Inc.
+    Geoffrey Sisson
+      geoff&dns-oarc.net
+38240
+  Butte-Glenn Community College District
+    Christian Dyckman
+      noc&butte.edu
+38241
+  Hanlong Technology Co.,Ltd.
+    Navy Ding
+      navy&hanlongtek.com
+38242
+  Shenzhen 33e9 E-Business Co., Ltd
+    zengweizhi
+      zengweizhi&33e9.com
+38243
+  Thecus Thecnology Corp.
+    Bonny Lin
+      bonny_lin&thecus.com
+38244
+  TOKYO RADAR CORPORATION
+    Masayuki Iwasawa
+      iwasawa&radar.co.jp
+38245
+  MIBUC-NET
+    Michael Buchmann
+      info&mibuc-net.de
+38246
+  FSC International Center GmbH
+    Andre de Freitas
+      fsc&fsc.org
+38247
+  Charleston Area Medical Center, Inc.
+    Bradley B. Young, Chief Technology Officer
+      brad.young&camc.org
+38248
+  Nebraska Heart Hospital
+    Oliver Banta
+      SoarianProjectSupport&neheart.com
+38249
+  Niagara Health System
+    Patrick Radics
+      licensing&niagarahealth.on.ca
+38250
+  Proventa AG
+    Philipp Kern
+      p.kern&proventa.de
+38251
+  Zmanda, Inc.
+    Ramesh Gupta
+      ramesh&zmanda.com
+38252
+  EOSSOnline Limited
+    Steven McArdle
+      Smcardle&eossonline.com
+38253
+  Athenta Technologies (P) Ltd., India
+    Jacob A Thomas
+      jacob.thomas&athenta.com
+38254
+  Resolan
+    Julien Francois
+      admin&resolan.com
+38255
+  Khalid Shukri IT-Beratung
+    Khalid Shukri
+      khalid.shukri&web.de
+38256
+  ItsOn, Inc.
+    David Johnson
+      drj&itsoninc.com
+38257
+  nuinno
+    Stefan Nunninger
+      stefan.nunninger&nuinno.de
+38258
+  WhipTail Technologies
+    James Candelaria
+      jc&whiptailtech.com
+38259
+  ADD-Technology SRL
+    Serghei Druta
+      Serghei.Druta&addgrup.com
+38260
+  4SMS ApS
+    Josip Djuricic
+      jd&4sms.dk
+38261
+  Brightstone
+    Aleksander Adamowski
+      aleksander.adamowski&gmail.com
+38262
+  Boxcar Press, Inc
+    Brian Pribis
+      brian&boxcarpress.com
+38263
+  Thomas Memorial Hospital
+    Charles Covert
+      Charlie.Covert&thomaswv.org
+38264
+  Midwest Health Systems Data Center
+    Bob Lies
+      rlies&mhsdc.com
+38265
+  Intendencia de Canelones
+    Carlos Pirez
+      carlos.pirez&imcanelones.gub.uy
+38266
+  Chinese Bible Church of Greater Boston
+    Patrick Y. Lin
+      plin&cbcgb.org
+38267
+  UTS Programmers' Society
+    Tomislav Bozic
+      admin&progsoc.org
+38268
+  Threeline LLC
+    Alexander Orlov
+      aorlov&trxline.ru
+38269
+  rrbone
+    Dominik Bay
+      db&rrbone.net
+38270
+  inTaligent Digital Consultants
+    Charles A. Moorman
+      cam&intaligent.net
+38271
+  inTaligent Digital Consultants
+    Charles A. Moorman
+      cam&intaligent.net
+38272
+  Liberti
+    Rokhim Purboyono
+      rokhim.purboyono&liberti.co.id
+38273
+  AvePoint, Inc.
+    James Zhu
+      James.Zhu&avepoint.com
 
 
 End of Document
