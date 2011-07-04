@@ -128,6 +128,34 @@
 #define CAP_XMIT_EQPERSYM 10
 #define CAP_NUM_XMIT_EQ_TAPS 11
 #define CAP_DCC 12
+#define CAP_IP_FILTERS 13
+#define CAP_LLC_FILTERS 14
+#define CAP_EXP_UNICAST_SID 15
+#define CAP_RNG_HOFF 16
+#define CAP_L2VPN 17
+#define CAP_L2VPN_ESAFE 18
+#define CAP_DUT_FILTERING 19
+#define CAP_US_FREQ_RNG 20
+#define CAP_US_SRATE 21
+#define CAP_SAC 22
+#define CAP_CODE_HOP_M2 23
+#define CAP_MTC 24
+#define CAP_512_MSPS_UTC 25
+#define CAP_256_MSPS_UTC 26
+#define CAP_TOTAL_SID_CLUST 27
+#define CAP_SID_PER_SF 28
+#define CAP_MRC 29
+#define CAP_TOTAL_DSID 30
+#define CAP_RESEQ_DSID 31
+#define CAP_MC_DSID 32
+#define CAP_MC_DSID_FWD 33
+#define CAP_FCTYPE_FWD 34
+#define CAP_DPV 35
+#define CAP_UGS 36
+#define CAP_MAP_UCD 37
+#define CAP_UDC 38
+#define CAP_IPV6 39
+#define CAP_EXT_US_TRNS_PWR 40
 
 /* Define Classifier subtypes
  * These are subtypes of either:

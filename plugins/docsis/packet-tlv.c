@@ -131,6 +131,44 @@ static int hf_docsis_tlv_mcap_8021Q_filter = -1;
 static int hf_docsis_tlv_mcap_xmit_eq_taps_per_sym = -1;
 static int hf_docsis_tlv_mcap_xmit_eq_taps = -1;
 static int hf_docsis_tlv_mcap_dcc = -1;
+static int hf_docsis_tlv_mcap_ip_filters = -1;
+static int hf_docsis_tlv_mcap_llc_filters = -1;
+static int hf_docsis_tlv_mcap_exp_unicast_sid = -1;
+static int hf_docsis_tlv_mcap_rnghoff_cm = -1;
+static int hf_docsis_tlv_mcap_rnghoff_erouter = -1;
+static int hf_docsis_tlv_mcap_rnghoff_emta = -1;
+static int hf_docsis_tlv_mcap_rnghoff_estb = -1;
+static int hf_docsis_tlv_mcap_l2vpn = -1;
+static int hf_docsis_tlv_mcap_l2vpn_esafe = -1;
+static int hf_docsis_tlv_mcap_dut_filtering = -1;
+static int hf_docsis_tlv_mcap_us_freq_range = -1;
+static int hf_docsis_tlv_mcap_us_srate_160 = -1;
+static int hf_docsis_tlv_mcap_us_srate_320 = -1;
+static int hf_docsis_tlv_mcap_us_srate_640 = -1;
+static int hf_docsis_tlv_mcap_us_srate_1280 = -1;
+static int hf_docsis_tlv_mcap_us_srate_2560 = -1;
+static int hf_docsis_tlv_mcap_us_srate_5120 = -1;
+static int hf_docsis_tlv_mcap_sac = -1;
+static int hf_docsis_tlv_mcap_code_hop_mode2 = -1;
+static int hf_docsis_tlv_mcap_mtc = -1;
+static int hf_docsis_tlv_mcap_512_msps_utc = -1;
+static int hf_docsis_tlv_mcap_256_msps_utc = -1;
+static int hf_docsis_tlv_mcap_total_sid_cluster = -1;
+static int hf_docsis_tlv_mcap_sid_per_sf = -1;
+static int hf_docsis_tlv_mcap_mrc = -1;
+static int hf_docsis_tlv_mcap_total_dsid = -1;
+static int hf_docsis_tlv_mcap_reseq_dsid = -1;
+static int hf_docsis_tlv_mcap_mc_dsid = -1;
+static int hf_docsis_tlv_mcap_mc_dsid_fwd = -1;
+static int hf_docsis_tlv_mcap_fctype_fwd = -1;
+static int hf_docsis_tlv_mcap_dpv_path = -1;
+static int hf_docsis_tlv_mcap_dpv_packet = -1;
+static int hf_docsis_tlv_mcap_ugs = -1;
+static int hf_docsis_tlv_mcap_map_ucd = -1;
+static int hf_docsis_tlv_mcap_udc = -1;
+static int hf_docsis_tlv_mcap_ipv6 = -1;
+static int hf_docsis_tlv_mcap_ext_us_trans_power = -1;
+
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -577,6 +615,24 @@ static const value_string init_reason_vals[] = {
   {17, "No Primary SF on US Channel"},
   {18, "CM Control Init"},
   {19, "Dynamic Range Window Violation"},
+  {0, NULL},
+};
+
+static const value_string docsis_freq_rng_vals[] = {
+  {0, "Standard Upstream Frequency Range"},
+  {1, "Standard and Extended Upstream Frequency Range"},
+  {0, NULL},
+};
+
+static const value_string mc_dsid_fwd_vals[] = {
+  {0, "Support for GMAC explicit multicast DCID Forwarding"},
+  {1, "Support for GMAC promiscuous multicast DCID Forwarding"},
+  {0, NULL},
+};
+
+static const value_string fctype_fwd_vals[] = {
+  {0, "Isolation Packet PDU Header (FC_Type of 10) is not forwarded"},
+  {1, "Isolation Packet PDU Header (FC_Type of 10) is forwarded"},
   {0, NULL},
 };
 
@@ -1841,6 +1897,311 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dcc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_IP_FILTERS:
+          if (length == 2)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ip_filters, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_LLC_FILTERS:
+          if (length == 2)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_llc_filters, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_EXP_UNICAST_SID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_exp_unicast_sid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_RNG_HOFF:
+          if (length == 4)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_rnghoff_cm, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_rnghoff_erouter, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_rnghoff_emta, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_rnghoff_estb, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_L2VPN:
+          proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_l2vpn, tvb,
+                                pos, length, FALSE);
+          break;
+        case CAP_L2VPN_ESAFE:
+          proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_l2vpn_esafe, tvb,
+                                pos, length, FALSE);
+          break;
+        case CAP_DUT_FILTERING:
+          proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dut_filtering, tvb,
+                                pos, length, FALSE);
+          break;
+        case CAP_US_FREQ_RNG:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_freq_range, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_US_SRATE:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_160, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_320, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_640, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_1280, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_2560, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_us_srate_5120, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_SAC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_sac, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_CODE_HOP_M2:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_code_hop_mode2, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_MTC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_mtc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_512_MSPS_UTC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_512_msps_utc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_256_MSPS_UTC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_256_msps_utc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_TOTAL_SID_CLUST:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_total_sid_cluster, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_SID_PER_SF:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_sid_per_sf, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_MRC:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_mrc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_TOTAL_DSID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_total_dsid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_RESEQ_DSID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_reseq_dsid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_MC_DSID:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_mc_dsid, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_MC_DSID_FWD:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_mc_dsid_fwd, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_FCTYPE_FWD:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_fctype_fwd, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_DPV:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dpv_path, tvb,
+                                   pos, length, FALSE);
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dpv_packet, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_UGS:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ugs, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_MAP_UCD:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_map_ucd, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_UDC:
+          if (length == 2)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_udc, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_IPV6:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ipv6, tvb,
+                                   pos, length, FALSE);
+            }
+          else
+            {
+              THROW (ReportedBoundsError);
+            }
+          break;
+        case CAP_EXT_US_TRNS_PWR:
+          if (length == 1)
+            {
+              proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ext_us_trans_power, tvb,
                                    pos, length, FALSE);
             }
           else
@@ -4102,6 +4463,210 @@ proto_register_docsis_tlv (void)
       FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "DCC Support", HFILL}
      },
+	{&hf_docsis_tlv_mcap_ip_filters,
+	 {".13 IP Filters Support","docsis_tlv.mcap.ipfilters",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+	 "IP Filters Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_llc_filters,
+	 {".14 LLC Filters Support","docsis_tlv.mcap.llcfilters",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+	 "LLC Filters Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_exp_unicast_sid,
+	 {".15 Expanded Unicast SID Space","docsis_tlv.mcap.exucsid",
+     FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+	 "Expanded Unicast SID Space", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_rnghoff_cm,
+	 {".16 Ranging Hold-Off (CM)","docsis_tlv.mcap.rnghoffcm",
+     FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x1,
+	 "Ranging Hold-Off (CM)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_rnghoff_erouter,
+	 {".16 Ranging Hold-Off (ePS or eRouter)",
+	  "docsis_tlv.mcap.rnghofferouter",
+     FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x2,
+	 "Ranging Hold-Off (ePS or eRouter)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_rnghoff_emta,
+	 {".16 Ranging Hold-Off (eMTA or EDVA)", 
+	  "docsis_tlv.mcap.rnghoffemta",
+     FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x4,
+	 "Ranging Hold-Off (eMTA or EDVA)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_rnghoff_estb,
+	 {".16 Ranging Hold-Off (DSG/eSTB)",
+	  "docsis_tlv.mcap.rnghoffestb",
+     FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x8,
+	 "Ranging Hold-Off (DSG/eSTB)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_l2vpn,
+	 {".17 L2VPN Capability","docsis_tlv.mcap.l2vpn",
+     FT_BYTES, BASE_NONE, NULL, 0x0,
+	 "L2VPN Capability", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_l2vpn_esafe,
+	 {".18 L2VPN eSAFE Host Capability","docsis_tlv.mcap.l2vpnesafe",
+     FT_BYTES, BASE_NONE, NULL, 0x0,
+	 "L2VPN eSAFE Host Capability", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_dut_filtering,
+	 {".19 Downstream Unencrypted Traffic (DUT) Filtering",
+		"docsis_tlv.mcap.dut",
+     FT_BYTES, BASE_NONE, NULL, 0x0,
+	 "Downstream Unencrypted Traffic (DUT) Filtering", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_freq_range,
+	 {".20 Upstream Frequency Range Support",
+		"docsis_tlv.mcap.usfreqrng",
+     FT_UINT8, BASE_DEC, VALS (docsis_freq_rng_vals), 0x0,
+	 "Upstream Frequency Range Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_160,
+	 {".21 Upstream Symbol Rate 160ksps supported",
+		"docsis_tlv.mcap.srate160",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x1,
+	 "Upstream Symbol Rate 160ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_320,
+	 {".21 Upstream Symbol Rate 320ksps supported",
+		"docsis_tlv.mcap.srate320",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x2,
+	 "Upstream Symbol Rate 320ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_640,
+	 {".21 Upstream Symbol Rate 640ksps supported",
+		"docsis_tlv.mcap.srate640",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x4,
+	 "Upstream Symbol Rate 640ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_1280,
+	 {".21 Upstream Symbol Rate 1280ksps supported",
+		"docsis_tlv.mcap.srate1280",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x8,
+	 "Upstream Symbol Rate 1280ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_2560,
+	 {".21 Upstream Symbol Rate 2560ksps supported",
+		"docsis_tlv.mcap.srate2560",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x10,
+	 "Upstream Symbol Rate 2560ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_us_srate_5120,
+	 {".21 Upstream Symbol Rate 5120ksps supported",
+		"docsis_tlv.mcap.srate5120",
+     FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x20,
+	 "Upstream Symbol Rate 5120ksps supported", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_sac,
+	 {".22 Selectable Active Code Mode 2 Support","docsis_tlv.mcap.sac",
+     FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+	 "Selectable Active Code Mode 2 Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_code_hop_mode2,
+	 {".23 Code Hopping Mode 2 Support","docsis_tlv.mcap.codehopm2",
+     FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+	 "Code Hopping Mode 2 Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_mtc,
+	 {".24 Multiple Transmit Channel Support","docsis_tlv.mcap.mtc",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Multiple Transmit Channel Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_512_msps_utc,
+	 {".25 5.12 Msps Upstream Transmit Channel Support",
+		"docsis_tlv.mcap.512mspsutc",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "5.12 Msps Upstream Transmit Channel Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_256_msps_utc,
+	 {".26 2.56 Msps Upstream Transmit Channel Support",
+		"docsis_tlv.mcap.256mspsutc",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "2.56 Msps Upstream Transmit Channel Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_total_sid_cluster,
+	 {".27 Total SID Cluster Support","docsis_tlv.mcap.totalsidcl",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Total SID Cluster Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_sid_per_sf,
+	 {".28 SID Clusters per Service Flow Support",
+		"docsis_tlv.mcap.sidpersf",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "SID Clusters per Service Flow Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_mrc,
+	 {".29 Multiple Receive Channel Support","docsis_tlv.mcap.mrc",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Multiple Receive Channel Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_total_dsid,
+	 {".30 Total Downstream Service ID (DSID) Support",
+		"docsis_tlv.mcap.totaldsid",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Total Downstream Service ID (DSID) Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_reseq_dsid,
+	 {".31 Resequencing Downstream Service ID (DSID) Support",
+		"docsis_tlv.mcap.reseqdsid",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Resequencing Downstream Service ID (DSID) Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_mc_dsid,
+	 {".32 Multicast Downstream Service ID (DSID) Support",
+		"docsis_tlv.mcap.mcdsid",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Multicast Downstream Service ID (DSID) Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_mc_dsid_fwd,
+	 {".33 Mulitcast DSID Forwarding","docsis_tlv.mcap.mcdsidfwd",
+     FT_UINT8, BASE_DEC, VALS (mc_dsid_fwd_vals), 0x0,
+	 "Mulitcast DSID Forwarding", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_fctype_fwd,
+	 {".34 Frame Control Type Forwarding Capability",
+		"docsis_tlv.mcap.fctypefwd",
+     FT_UINT8, BASE_DEC, VALS (fctype_fwd_vals), 0x0,
+	 "Frame Control Type Forwarding Capability", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_dpv_path,
+	 {".35 DPV Capability (per Path)","docsis_tlv.mcap.dpvpath",
+     FT_UINT8, BASE_DEC, NULL, 0x1,
+	 "DPV Capability (per Path)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_dpv_packet,
+	 {".35 DPV Capability (per Packet)","docsis_tlv.mcap.dpvpacket",
+     FT_UINT8, BASE_DEC, NULL, 0x2,
+	 "DPV Capability (per Packet)", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_ugs,
+	 {".36 Unsolicited Grant Service Support","docsis_tlv.mcap.ugs",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Unsolicited Grant Service Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_map_ucd,
+	 {".37 MAP and UCD Receipt Support","docsis_tlv.mcap.mapucd",
+     FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+	 "MAP and UCD Receipt Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_udc,
+	 {".38 Upstream Drop Classifier Support","docsis_tlv.mcap.udc",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+	 "Upstream Drop Classifier Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_ipv6,
+	 {".39 IPv6 Support","docsis_tlv.mcap.ipv6",
+     FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
+	 "IPv6 Support", HFILL}
+	},
+	{&hf_docsis_tlv_mcap_ext_us_trans_power,
+	 {".40 Extended Upstream Transmit Power Capability",
+		"docsis_tlv.mcap.extustrpwr",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+	 "Extended Upstream Transmit Power Capability", HFILL}
+	},
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
