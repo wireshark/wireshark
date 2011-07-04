@@ -22,6 +22,12 @@
  *      SECON.RNO [31,1]
  *      EDITED 10/17/80
  *
+ * See
+ *
+ *	http://linux-decnet.sourceforge.net/docs/doc_index.html
+ *
+ * for some DECnet specifications.
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
