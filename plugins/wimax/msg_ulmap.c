@@ -1960,7 +1960,7 @@ gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offse
     nib = offset;
 
     /* display MAC UL-MAP */
-    ti = proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_ulmap_decoder, tvb, NIBHI(offset,length), "Compressed UL-MAP");
+    ti = proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_ulmap_decoder, tvb, NIBHI(offset,length-offset), "Compressed UL-MAP (%u bytes)", NIB_ADDR(length-offset));
     tree = proto_item_add_subtree(ti, ett_306);
 
     /* Decode and display the UL-MAP */
@@ -1974,7 +1974,7 @@ gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gint offse
     proto_tree_add_uint(tree, hf_ulmap_ofdma_sym, tvb, NIBHI(nib,2), data); /* added 2005 */
     nib += 2;
 
-    ti = proto_tree_add_text(tree, tvb, NIBHI(nib,length-nib), "UL-MAP IEs");
+    ti = proto_tree_add_text(tree, tvb, NIBHI(nib,length-nib), "UL-MAP IEs (%u bytes)", NIB_ADDR(length-nib));
     ie_tree = proto_item_add_subtree(ti, ett_306_ul);
     while (nib < length-1) {
         nib += dissect_ulmap_ie(ie_tree, bufptr, nib, length-nib, tvb);
