@@ -250,7 +250,11 @@ static const value_string vals_dcd_mac_version[] =
     {3, "Conformance with IEEE Std 802.16a-2003 and its predecessors"},
     {4, "Conformance with IEEE Std 802.16-2004"},
     {5, "Conformance with IEEE Std 802.16-2004 and IEEE Std 802.16e-2005"},
-    {6, "reserved"},
+    {6, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005 and IEEE Std 802.16f-2005"},
+    {7, "Conformance with IEEE Std 802.16-2004, IEEE Std 802.16e-2005, IEEE Std 802.16f-2005 and IEEE Std 802.16g-2007"},
+    {8, "Conformance with IEEE Std 802.16-2009"},
+    {9, "Conformance with IEEE Std 802.16-2009 and IEEE Std 802.16j-2009"},
+    {10, "Reserved"},
     {0, NULL}
 };
 
