@@ -1595,18 +1595,18 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 		proto_item *ti;
 
 		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE,
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V12_SIZE,
 			                                    "B.A.T.M.A.N. Unicast Fragment, Dst: %s (%s)",
 			                                    get_ether_name(dest_addr), ether_to_str(dest_addr));
 		} else {
-			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE, FALSE);
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V12_SIZE, FALSE);
 		}
 		batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
 	}
 
 	/* items */
-	proto_tree_add_uint_format(batadv_unicast_frag_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_V5,
-					"Packet Type: %s (%u)", "BATADV_UNICAST", BATADV_UNICAST_V5);
+	proto_tree_add_uint_format(batadv_unicast_frag_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_FRAG_V12,
+					"Packet Type: %s (%u)", "BATADV_UNICAST_FRAG", BATADV_UNICAST_FRAG_V12);
 	offset += 1;
 
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_version, tvb, offset, 1, FALSE);
