@@ -1773,7 +1773,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		} else {
 			offset += ext_length * 8;
 			proto_tree_add_text(tree, tvb, old_offset>>3, BLEN(old_offset, offset), "Choice no. %d in extension", choice_index);
-			PER_NOT_DECODED_YET("unknown choice extension");
+			expert_add_info_format(actx->pinfo, choice_item, PI_UNDECODED, PI_NOTE, "unknown choice extension");
 		}
 	}
 
@@ -1980,7 +1980,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(i>=num_known_extensions){
 				/* we dont know how to decode this extension */
 				offset+=length*8;
-				PER_NOT_DECODED_YET("unknown sequence extension");
+				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_NOTE, "unknown sequence extension");
 				continue;
 			}
 
