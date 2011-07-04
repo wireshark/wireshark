@@ -613,19 +613,24 @@ col_has_time_fmt(column_info *cinfo, const gint col)
   return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
           (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
           (cinfo->fmt_matx[col][COL_ABS_DATE_TIME]) ||
+          (cinfo->fmt_matx[col][COL_UTC_TIME]) ||
+          (cinfo->fmt_matx[col][COL_UTC_DATE_TIME]) ||
           (cinfo->fmt_matx[col][COL_REL_TIME]) ||
           (cinfo->fmt_matx[col][COL_DELTA_TIME]) ||
           (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
 }
 
 static gint
-set_abs_date_time(const frame_data *fd, gchar *buf)
+set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
 {
   struct tm *tmp;
   time_t then;
 
   then = fd->abs_ts.secs;
-  tmp = localtime(&then);
+  if (local)
+     tmp = localtime(&then);
+  else
+     tmp = gmtime(&then);
   if (tmp != NULL) {
       switch(timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
@@ -705,7 +710,17 @@ set_abs_date_time(const frame_data *fd, gchar *buf)
 static void
 col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_date_time(fd, cinfo->col_buf[col])) {
+  if (set_abs_date_time(fd, cinfo->col_buf[col], TRUE)) {
+      cinfo->col_expr.col_expr[col] = "frame.time";
+      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+  }
+  cinfo->col_data[col] = cinfo->col_buf[col];
+}
+
+static void
+col_set_utc_date_time(const frame_data *fd, column_info *cinfo, const int col)
+{
+  if (set_abs_date_time(fd, cinfo->col_buf[col], FALSE)) {
       cinfo->col_expr.col_expr[col] = "frame.time";
       g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
   }
@@ -969,13 +984,16 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static gint
-set_abs_time(const frame_data *fd, gchar *buf)
+set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
 {
   struct tm *tmp;
   time_t then;
 
   then = fd->abs_ts.secs;
-  tmp = localtime(&then);
+  if (local)
+     tmp = localtime(&then);
+  else
+     tmp = gmtime(&then);
   if (tmp != NULL) {
       switch(timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
@@ -1038,7 +1056,17 @@ set_abs_time(const frame_data *fd, gchar *buf)
 static void
 col_set_abs_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_time(fd, cinfo->col_buf[col])) {
+  if (set_abs_time(fd, cinfo->col_buf[col], TRUE)) {
+      cinfo->col_expr.col_expr[col] = "frame.time";
+      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+  }
+  cinfo->col_data[col] = cinfo->col_buf[col];
+}
+
+static void
+col_set_utc_time(const frame_data *fd, column_info *cinfo, const int col)
+{
+  if (set_abs_time(fd, cinfo->col_buf[col], FALSE)) {
       cinfo->col_expr.col_expr[col] = "frame.time";
       g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
   }
@@ -1169,6 +1197,14 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
       col_set_epoch_time(fd, cinfo, col);
       break;
 
+    case TS_UTC:
+      col_set_utc_time(fd, cinfo, col);
+      break;
+
+    case TS_UTC_WITH_DATE:
+      col_set_utc_date_time(fd, cinfo, col);
+      break;
+
     case TS_NOT_SET:
       /* code is missing for this case, but I don't know which [jmayer20051219] */
       g_assert_not_reached();
@@ -1211,6 +1247,14 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
 
     case COL_DELTA_TIME_DIS:
       col_set_delta_time_dis(fd, cinfo, col);
+      break;
+
+    case TS_UTC:
+      col_set_utc_time(fd, cinfo, col);
+      break;
+
+    case TS_UTC_WITH_DATE:
+      col_set_utc_date_time(fd, cinfo, col);
       break;
 
     default:
@@ -1456,6 +1500,8 @@ col_based_on_frame_data(column_info *cinfo, const gint col)
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1481,6 +1527,8 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col,
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1515,6 +1563,8 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col,
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1549,6 +1599,8 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1671,6 +1723,8 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1741,7 +1795,9 @@ col_fill_fdata(packet_info *pinfo)
     case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
     case COL_CLS_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:    /* from fd structures */
+    case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME:  /* from fd structures */
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
@@ -1879,10 +1935,16 @@ gchar  *ptr;
       set_cls_time(fd, buf);
       break;
     case COL_ABS_TIME:
-      set_abs_time(fd, buf);
+      set_abs_time(fd, buf, TRUE);
+      break;
+    case COL_UTC_TIME:
+      set_abs_time(fd, buf, FALSE);
       break;
     case COL_ABS_DATE_TIME:
-      set_abs_date_time(fd, buf);
+      set_abs_date_time(fd, buf, TRUE);
+      break;
+    case COL_UTC_DATE_TIME:
+      set_abs_date_time(fd, buf, FALSE);
       break;
     case COL_REL_TIME:
       set_rel_time(fd, buf);

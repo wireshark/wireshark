@@ -299,9 +299,11 @@ struct col_names_t {
 static const struct col_names_t colnames[] = {
     {"number",COL_NUMBER},
     {"abs_time",COL_ABS_TIME},
+    {"utc_time",COL_UTC_TIME},
     {"cls_time",COL_CLS_TIME},
     {"rel_time",COL_REL_TIME},
     {"date",COL_ABS_DATE_TIME},
+    {"utc_date",COL_UTC_DATE_TIME},
     {"delta_time",COL_DELTA_TIME},
     {"delta_time_displayed",COL_DELTA_TIME_DIS},
     {"src",COL_DEF_SRC},

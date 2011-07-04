@@ -35,6 +35,8 @@ typedef enum {
 	TS_DELTA,               /* Since previous captured packet */
 	TS_DELTA_DIS,           /* Since previous displayed packet */
 	TS_EPOCH,               /* Seconds (and fractions) since epoch */
+	TS_UTC,
+	TS_UTC_WITH_DATE,
 
 /*
  * Special value used for the command-line setting in Wireshark, to indicate

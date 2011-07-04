@@ -691,6 +691,10 @@ main(int argc, char *argv[])
                     timestamp_set_type(TS_DELTA_DIS);
                 else if (strcmp(optarg, "e") == 0)
                     timestamp_set_type(TS_EPOCH);
+                else if (strcmp(optarg, "u") == 0)
+                    timestamp_set_type(TS_UTC);
+                else if (strcmp(optarg, "ud") == 0)
+                    timestamp_set_type(TS_UTC_WITH_DATE);
                 else {
                     cmdarg_err("Invalid time stamp type \"%s\"",
                                optarg);

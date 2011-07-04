@@ -105,7 +105,9 @@ col_format_to_string(const gint fmt) {
     "%rS",                                      /* 55) COL_RES_SRC_PORT */
     "%uS",                                      /* 56) COL_UNRES_SRC_PORT */
     "%E",                                       /* 57) COL_TEI */
-    "%t"                                        /* 58) COL_CLS_TIME */
+    "%Yut",                                     /* 58) COL_UTC_DATE_TIME */
+    "%Aut",                                     /* 59) COL_UTC_TIME */
+    "%t"                                        /* 60) COL_CLS_TIME */
   };
 
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -175,7 +177,9 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "Src port (resolved)",                      /* 55) COL_RES_SRC_PORT */
     "Src port (unresolved)",                    /* 56) COL_UNRES_SRC_PORT */
     "TEI",                                      /* 57) COL_TEI */
-    "Time (format as specified)"                /* 58) COL_CLS_TIME */
+    "UTC date and time",                        /* 58) COL_UTC_DATE_TIME */
+    "UTC time",                                 /* 59) COL_UTC_TIME */
+    "Time (format as specified)"                /* 60) COL_CLS_TIME */
 };
 
 const gchar *
@@ -316,6 +320,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
 
     switch(type) {
     case(TS_ABSOLUTE_WITH_DATE):
+    case(TS_UTC_WITH_DATE):
         switch(precision) {
             case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
@@ -346,6 +351,7 @@ get_timestamp_column_longest_string(const gint type, const gint precision)
         }
             break;
     case(TS_ABSOLUTE):
+    case(TS_UTC):
         switch(precision) {
             case(TS_PREC_AUTO_SEC):
             case(TS_PREC_FIXED_SEC):
@@ -486,8 +492,14 @@ get_column_longest_string(const gint format)
     case COL_ABS_DATE_TIME:
       return get_timestamp_column_longest_string(TS_ABSOLUTE_WITH_DATE, timestamp_get_precision());
       break;
+    case COL_UTC_DATE_TIME:
+      return get_timestamp_column_longest_string(TS_UTC_WITH_DATE, timestamp_get_precision());
+      break;
     case COL_ABS_TIME:
       return get_timestamp_column_longest_string(TS_ABSOLUTE, timestamp_get_precision());
+      break;
+    case COL_UTC_TIME:
+      return get_timestamp_column_longest_string(TS_UTC, timestamp_get_precision());
       break;
     case COL_REL_TIME:
       return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());

@@ -1254,10 +1254,9 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 					fdata.cum_bytes = record->fdata->cum_bytes;
 				break;
 			case COL_ABS_TIME:
-				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
-					fdata.abs_ts = record->fdata->abs_ts;
-				break;
 			case COL_ABS_DATE_TIME:
+			case COL_UTC_TIME:
+			case COL_UTC_DATE_TIME:
 				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					fdata.abs_ts = record->fdata->abs_ts;
 				break;
@@ -1276,11 +1275,9 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 			case COL_CLS_TIME:
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:
-				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
-					  fdata.abs_ts = record->fdata->abs_ts;
-				  break;
-
 				case TS_ABSOLUTE_WITH_DATE:
+				case TS_UTC:
+				case TS_UTC_WITH_DATE:
 				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					  fdata.abs_ts = record->fdata->abs_ts;
 				  break;

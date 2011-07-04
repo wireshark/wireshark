@@ -132,8 +132,10 @@ enum {
   COL_RES_SRC_PORT,   /**< 55) Resolved source port */
   COL_UNRES_SRC_PORT, /**< 56) Unresolved source port */
   COL_TEI,            /**< 57) Q.921 TEI */
-  COL_CLS_TIME,       /**< 58) Command line-specified time (default relative) */
-  NUM_COL_FMTS        /**< 59) Should always be last */
+  COL_UTC_DATE_TIME,  /**< 58) UTC date and time */
+  COL_UTC_TIME,       /**< 59) UTC time */
+  COL_CLS_TIME,       /**< 60) Command line-specified time (default relative) */
+  NUM_COL_FMTS        /**< 61) Should always be last */
 };
 
 #ifdef __cplusplus

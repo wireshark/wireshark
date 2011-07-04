@@ -2015,6 +2015,10 @@ static GtkItemFactoryEntry menu_items[] =
                         TS_DELTA, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
     {"/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", GTK_MENU_FUNC(timestamp_format_cb),
                         TS_DELTA_DIS, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/UTC Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>7", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_UTC_WITH_DATE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/UTC Time of Day:   01:02:03.123456", "<alt><control>8", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_UTC, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
     {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/View/Time Display Format/Automatic (File Format Precision)", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
                         TS_PREC_AUTO, "<RadioItem>", NULL,},
@@ -5637,6 +5641,14 @@ menu_recent_read_finished(void) {
     case(TS_EPOCH):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456");
+        break;
+    case(TS_UTC_WITH_DATE):
+        menu = gtk_item_factory_get_widget(main_menu_factory,
+            "/View/Time Display Format/UTC Date and Time of Day:   1970-01-01 01:02:03.123456");
+        break;
+    case(TS_UTC):
+        menu = gtk_item_factory_get_widget(main_menu_factory,
+            "/View/Time Display Format/UTC Time of Day:   01:02:03.123456");
         break;
     default:
         g_assert_not_reached();

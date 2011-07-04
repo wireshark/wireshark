@@ -1263,6 +1263,10 @@ main(int argc, char *argv[])
         timestamp_set_type(TS_DELTA_DIS);
       else if (strcmp(optarg, "e") == 0)
         timestamp_set_type(TS_EPOCH);
+      else if (strcmp(optarg, "u") == 0)
+        timestamp_set_type(TS_UTC);
+      else if (strcmp(optarg, "ud") == 0)
+        timestamp_set_type(TS_UTC_WITH_DATE);
       else {
         cmdarg_err("Invalid time stamp type \"%s\"",
                    optarg);
@@ -3108,7 +3112,9 @@ print_columns(capture_file *cf)
     case COL_CLS_TIME:
     case COL_REL_TIME:
     case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME: /* XXX - wider */
+    case COL_ABS_DATE_TIME:
+    case COL_UTC_TIME:
+    case COL_UTC_DATE_TIME: /* XXX - wider */
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 10)
         column_len = 10;
