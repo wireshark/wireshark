@@ -166,22 +166,6 @@ static uat_wep_key_record_t *uat_wep_key_records = NULL;
 static uat_t * wep_uat = NULL;
 static guint num_wepkeys_uat = 0;
 
-/*
- * Convert a raw WEP key or one prefixed with "wep:" to a byte array.
- * Separators are allowed.
- */
-/* XXX This is duplicated in epan/airpdcap.c:parse_key_string() */
-static gboolean
-wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
-  char *first_nibble = (char *) hex_str;
-
-  if (g_ascii_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
-    first_nibble += 4;
-  }
-
-  return hex_str_to_bytes(first_nibble, bytes, FALSE);
-}
-
 static void* uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_wep_key_record_t* new_key = (uat_wep_key_record_t *)n;
     const uat_wep_key_record_t* old_key = (uat_wep_key_record_t *)o;
@@ -198,31 +182,29 @@ static void* uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_) 
 static void uat_wep_key_record_update_cb(void* r, const char** err) {
     uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
     decryption_key_t* dk;
-    gchar* tmpk;
 
     if (rec->string == NULL) {
          *err = ep_strdup_printf("Key can't be blank");
     } else {
         g_strstrip(rec->string);
-        tmpk = g_strdup(rec->string);
-        dk = parse_key_string(tmpk);
+        dk = parse_key_string(rec->string, rec->key);
 
         if(dk != NULL) {
            switch(dk->type) {
               case AIRPDCAP_KEY_TYPE_WEP:
               case AIRPDCAP_KEY_TYPE_WEP_40:
               case AIRPDCAP_KEY_TYPE_WEP_104:
-                 if (rec->key != 0) {
+                 if (rec->key != AIRPDCAP_KEY_TYPE_WEP) {
                     *err = ep_strdup_printf("Invalid key format");
                  }
                  break;
               case AIRPDCAP_KEY_TYPE_WPA_PWD:
-                 if (rec->key != 1) {
+                 if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PWD) {
                     *err = ep_strdup_printf("Invalid key format");
                  }
                  break;
               case AIRPDCAP_KEY_TYPE_WPA_PSK:
-                 if (rec->key != 2) {
+                 if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PSK) {
                     *err = ep_strdup_printf("Invalid key format");
                  }
                  break;
@@ -12552,9 +12534,9 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string wep_type_vals[] = {
-    { 0, STRING_KEY_TYPE_WEP },
-    { 1, STRING_KEY_TYPE_WPA_PWD },
-    { 2, STRING_KEY_TYPE_WPA_PSK },
+    { AIRPDCAP_KEY_TYPE_WEP, STRING_KEY_TYPE_WEP },
+    { AIRPDCAP_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
+    { AIRPDCAP_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
     { 0x00, NULL }
   };
 
@@ -15789,8 +15771,8 @@ proto_register_ieee80211 (void)
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
     "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
     "010203040506070809101111213 (104/128-bit WEP),\n"
-    "wpa-pwd:MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
-    "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
+    "MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
+    "0102030405...6061626364 (WPA + 256-bit key).  "
     "Invalid keys will be ignored.",
     "Valid key formats");
 
@@ -15975,16 +15957,13 @@ void set_airpdcap_keys(void)
   decryption_key_t* dk = NULL;
   GByteArray *bytes = NULL;
   gboolean res;
-  gchar* tmpk = NULL;
 
   keys=(PAIRPDCAP_KEYS_COLLECTION)g_malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
   for(i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
   {
-    tmpk = g_strdup(uat_wep_key_records[i].string);
-
-    dk = parse_key_string(tmpk);
+    dk = parse_key_string(uat_wep_key_records[i].string, uat_wep_key_records[i].key);
 
     if(dk != NULL)
     {
@@ -15993,7 +15972,7 @@ void set_airpdcap_keys(void)
         key.KeyType = AIRPDCAP_KEY_TYPE_WEP;
 
         bytes = g_byte_array_new();
-        res = wep_str_to_bytes(dk->key->str, bytes);
+        res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         if (dk->key->str && res && bytes->len > 0 && bytes->len <= AIRPDCAP_WEP_KEY_MAXLEN)
         {
@@ -16031,7 +16010,7 @@ void set_airpdcap_keys(void)
         key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
         bytes = g_byte_array_new();
-        res = wep_str_to_bytes(dk->key->str, bytes);
+        res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         /* XXX - Pass the correct array of bytes... */
         if (bytes-> len <= AIRPDCAP_WPA_PMK_LEN) {
@@ -16042,7 +16021,6 @@ void set_airpdcap_keys(void)
         }
       }
     }
-    g_free(tmpk);
   }
 
   /* Now set the keys */

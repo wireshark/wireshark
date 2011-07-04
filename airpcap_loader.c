@@ -149,7 +149,8 @@ static guint num_legacy_channels = 14;
 static guint
 get_wep_key(pref_t *pref, gpointer ud)
 {
-    gchar *my_string = NULL;
+    gchar *key_string = NULL;
+    guint8 key_type = AIRPDCAP_KEY_TYPE_WEP;
     keys_cb_data_t* user_data;
 
     decryption_key_t* new_key;
@@ -159,18 +160,33 @@ get_wep_key(pref_t *pref, gpointer ud)
 
     if (g_ascii_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
-	my_string = g_strdup(*pref->varp.string);
+        /* strip out key type */
+        if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+	       key_string = (gchar*)(*pref->varp.string)+4;
+        }
+        else if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WPA_PWD ":", 8) == 0) {
+	       key_string = (gchar*)(*pref->varp.string)+8;
+          key_type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+        }
+        else if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WPA_PSK ":", 8) == 0) {
+	       key_string = (gchar*)(*pref->varp.string)+8;
+          key_type = AIRPDCAP_KEY_TYPE_WPA_PSK;
+        }
+        else {
+          key_type = AIRPDCAP_KEY_TYPE_WEP;
+	       key_string = (gchar*)*pref->varp.string;
+        }
 
 	    /* Here we have the string describing the key... */
-	    new_key = parse_key_string(my_string);
+	    new_key = parse_key_string(key_string, key_type);
 
-	if( new_key != NULL)
-	{
-	    /* Key is added only if not null ... */
-	    user_data->list = g_list_append(user_data->list,new_key);
-	    user_data->number_of_keys++;
-	    user_data->current_index++;
-	}
+	    if( new_key != NULL)
+	    {
+	       /* Key is added only if not null ... */
+	       user_data->list = g_list_append(user_data->list,new_key);
+	       user_data->number_of_keys++;
+	       user_data->current_index++;
+	    }
     }
     return 0;
 }

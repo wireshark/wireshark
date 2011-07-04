@@ -204,17 +204,20 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
  * - 01:02:03:04:05 (40/64-bit WEP)
  * - 0102030405060708090a0b0c0d (104/128-bit WEP)
  * - 01:02:03:04:05:06:07:08:09:0a:0b:0c:0d (104/128-bit WEP)
- * - wep:01020304... (WEP)
- * - wep:01:02:03:04... (WEP)
- * - wpa-pwd:MyPassword (WPA + plaintext password + "wildcard" SSID)
- * - wpa-pwd:MyPassword:MySSID (WPA + plaintext password + specific SSID)
- * - wpa-psk:01020304... (WPA + 256-bit raw key)
+ * - MyPassword (WPA + plaintext password + "wildcard" SSID)
+ * - MyPassword:MySSID (WPA + plaintext password + specific SSID)
+ * - 01020304... (WPA + 256-bit raw key)
+ * @param key_type [IN] Type of key used for string. Possibilities include:
+ * - AIRPDCAP_KEY_TYPE_WEP (40/64-bit and 104/128-bit WEP)
+ * - AIRPDCAP_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or 
+ * WPA + plaintext password + specific SSID)
+ * - AIRPDCAP_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
  *   success, or NULL on failure.
  * @see get_key_string()
  */
 decryption_key_t*
-parse_key_string(gchar* key_string);
+parse_key_string(gchar* key_string, guint8 key_type);
 
 /**
  * Returns a newly allocated string representing the given decryption_key_t
