@@ -1637,6 +1637,104 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
     return ( handled ? TRUE : FALSE );
 }
 
+static gboolean
+dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+{
+    tvbuff_t *next_tvb;
+    guint length, frameOffset, frameLength;
+    guint8 *bytes;
+    gboolean handled, dissectorCalled;
+    guint8 found;
+    gint len, reported_len;
+    dissector_handle_t pn_io_handle;
+    guint8 packageCounter;
+    handled = FALSE;
+    dissectorCalled = FALSE;
+
+    pn_io_handle = find_dissector("pn_io");
+    if ( pn_io_handle == NULL )
+    	pn_io_handle = find_dissector("data");
+
+    len = tvb_length_remaining(message_tvb, 0);
+    reported_len = tvb_reported_length_remaining(message_tvb, 0);
+    length = tvb_length(message_tvb);
+    bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
+
+    frameOffset = 0;
+    frameLength = 0;
+    found = 0;
+    packageCounter = 0;
+    while ( frameOffset < length )
+    {
+        if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, &frameOffset, &frameLength) )
+        {
+            if ((frameOffset + frameLength) > (guint)reported_len )
+                break;
+            found++;
+
+            /* Freeing memory before dissector, as otherwise we would waste it */
+            next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
+            /* Adding a visual aid to the dissector tree */
+            add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
+
+            if ( ! dissectorCalled )
+            {
+                call_dissector(pn_io_handle, message_tvb, pinfo, tree);
+                dissectorCalled = TRUE;
+
+                /* pinfo is NULL only if dissect_opensafety_message is called from dissect_error cause */
+                if (pinfo)
+                {
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "openSAFETY/Profinet IO");
+                    col_clear(pinfo->cinfo,COL_INFO);
+                }
+            }
+
+            /* Only engage, if we are not called strictly for the overview */
+            if ( tree )
+            {
+                if ( dissect_opensafety_frame(next_tvb, pinfo, tree, FALSE, found) == TRUE )
+                    packageCounter++;
+            }
+            handled = TRUE;
+        }
+        else
+            break;
+
+        frameOffset += frameLength;
+    }
+
+    if ( handled == TRUE && packageCounter == 0 )
+        handled = FALSE;
+
+    if ( ! handled )
+    {
+        call_dissector(pn_io_handle, message_tvb, pinfo, tree);
+        handled = TRUE;
+    }
+    return ( handled ? TRUE : FALSE );
+}
+
+static gboolean
+dissect_heur_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+{
+    gboolean result = FALSE;
+    static gboolean calledOnce = FALSE;
+
+    /* We will call the pn_io dissector by using call_dissector(). The pn_io dissector will then call
+     * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
+     * loop */
+    if ( calledOnce == FALSE )
+    {
+        calledOnce = TRUE;
+      	result = dissect_opensafety_pn_io(message_tvb, pinfo, tree );
+        calledOnce = FALSE;
+        return result;
+    }
+
+    return FALSE;
+}
+
 static void
 apply_prefs ( void )
 {
@@ -1776,7 +1874,7 @@ proto_register_opensafety(void)
     new_register_dissector("opensafety", dissect_opensafety, proto_opensafety );
     new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
     new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety);
-
+    new_register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 
 void
@@ -1792,6 +1890,24 @@ proto_reg_handoff_opensafety(void)
 
         /* Modbus TCP dissector registration */
         dissector_add_string("mbtcp.modbus.data", "data", find_dissector("opensafety_mbtcp"));
+
+        /* For Profinet we have to register as a heuristic dissector, as Profinet
+         *  is implemented as a plugin, and therefore the heuristic dissector is not
+         *  added by the time this method is being called
+         */
+        if ( find_dissector("pn_io") != NULL )
+        {
+            heur_dissector_add("pn_io", dissect_heur_opensafety_pn_io, proto_opensafety);
+        }
+        else
+        {
+            /* The native dissector cannot be loaded. so we add our protocol directly to
+             * the ethernet subdissector list. No PNIO specific data will be dissected
+             * and a warning will be displayed, recognizing the missing dissector plugin.
+             */
+			g_warning ( "openSAFETY - Profinet IO heuristic dissector cannot be registered, openSAFETY/PNIO native dissection." );
+            dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
+        }
     }
 
 }
