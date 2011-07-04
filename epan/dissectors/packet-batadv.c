@@ -1570,7 +1570,6 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
 
 	tvbuff_t *new_tvb;
-	guint length_remaining;
 	int offset = 0;
 	int head = 0;
 
@@ -1640,8 +1639,6 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dest_addr);
 
 	tap_queue_packet(batadv_tap, pinfo, unicast_frag_packeth);
-
-	length_remaining = tvb_length_remaining(tvb, offset);
 
 	head = (unicast_frag_packeth->flags & 0x1);
 	frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
