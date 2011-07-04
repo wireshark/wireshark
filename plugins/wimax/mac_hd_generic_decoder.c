@@ -60,7 +60,7 @@ extern gint  mac_sdu_length;                    /* declared in packet-wmx.c */
 
 extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
-extern gboolean is_down_link(address *src_address);/* declared in packet-wmx.c */
+extern gboolean is_down_link(packet_info *pinfo);/* declared in packet-wmx.c */
 extern void proto_register_mac_mgmt_msg(void);  /* defined in macmgmtmsgdecoder.c */
 extern void init_wimax_globals(void);		/* defined in msg_ulmap.c */
 
@@ -862,7 +862,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* if Fast-feedback allocation (DL) subheader or Grant management (UL) subheader is present */
 		if (ffb_grant_mgmt_subheader)
 		{	/* check if it is downlink packet */
-			if (is_down_link(&(pinfo->src)))
+			if (is_down_link(pinfo))
 			{	/* Fast-feedback allocation (DL) subheader is present */
 				/* update the info column */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast-fb subhdr");
@@ -1280,7 +1280,7 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		/* decode and display the extended subheader type (MSB) */
 		proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_rsv, tvb, (offset+i), 1, FALSE);
 		/* for downlink */
-		if (is_down_link(&(pinfo->src))) /* for downlink */
+		if (is_down_link(pinfo)) /* for downlink */
 		{	/* decode and display the extended subheader type */
 			ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_type_dl, tvb, (offset+i), 1, FALSE);
 			/* add subtree */

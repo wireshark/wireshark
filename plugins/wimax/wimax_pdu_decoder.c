@@ -48,7 +48,7 @@ extern void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 extern void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-extern gboolean is_down_link(address *src_address);
+extern gboolean is_down_link(packet_info *pinfo);
 extern gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree);
 extern gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree);
 
@@ -130,7 +130,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		}
 		else if((first_byte & WIMAX_MAP_TYPE_MASK) == WIMAX_COMPRESSED_DL_MAP_IND)
 		{
-			if(is_down_link(&pinfo->src))
+			if(is_down_link(pinfo))
 			{	/* decode compressed dl-map without mac header */
 				if ((first_byte & REDUCED_PRIVATE_MAP_MASK) == REDUCED_PRIVATE_MAP_MASK)
 				{

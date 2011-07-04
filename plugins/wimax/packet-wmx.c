@@ -54,7 +54,7 @@ extern void proto_register_wimax_compact_ulmap_ie(void);
 
 /* Global functions */
 /* void proto_reg_handoff_wimax(void); */
-gboolean is_down_link(address *src_address);
+gboolean is_down_link(packet_info *pinfo);
 
 /* Global variables */
 gint    proto_wimax = -1;
@@ -800,11 +800,13 @@ static void dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tre
 	col_clear(pinfo->cinfo, COL_INFO);
 }
 
-gboolean is_down_link(address *src_address)
+gboolean is_down_link(packet_info *pinfo)
 {
-	if(bs_address.len && !CMP_ADDRESS(&bs_address, src_address))
+	if (pinfo->p2p_dir == P2P_DIR_RECV)
 		return TRUE;
-
+	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
+		if(bs_address.len && !CMP_ADDRESS(&bs_address, &pinfo->src))
+			return TRUE;
 	return FALSE;
 }
 
