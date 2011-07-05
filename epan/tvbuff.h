@@ -443,7 +443,8 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
  *                   packet is dissected.
  *
  * tvb_get_ephemeral_string_enc() takes a string encoding as well, and
- * converts to UTF-8 from the encoding (only UTF-8 and EBCDIC supported)
+ *                   converts to UTF-8 from the encoding (only UTF-8 and
+ *                   EBCDIC supported)
  *
  * tvb_get_ephemeral_unicode_string() Unicode (UTF-16) version of above
  *
@@ -472,6 +473,9 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   MUST be g_free() by the caller in order not to leak
  *                   memory.
  *
+ * tvb_get_stringz_enc() takes a string encoding as well, and converts to
+ *                   UTF-8 from the encoding (only UTF-8 and EBCDIC supported)
+ *
  * tvb_get_const_stringz() returns a constant (unmodifiable) string that does
  *                   not need to be freed, instead it will automatically be
  *                   freed once the next packet is dissected.  It is slightly
@@ -481,6 +485,11 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
  *
+ * tvb_get_ephemeral_stringz_enc() takes a string encoding as well, and
+ *                   converts to UTF-8 from the encoding (only UTF-8 and
+ *                   EBCDIC supported)
+ *                   packet is dissected.
+ *
  * tvb_get_ephemeral_unicode_stringz() Unicode (UTF-16) version of above
  *
  * tvb_get_seasonal_stringz() returns a string that does not need to be freed,
@@ -488,8 +497,10 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   or file is opened.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+extern guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding);
 extern const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+extern guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding);
 extern gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 

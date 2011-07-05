@@ -38,7 +38,13 @@
 *   Documentation:
 *	DRDA Version 3 Vol. 3: Distributed Relational Database Architecture,
 *	Open Group.
-*   Reference for Remote DRDA Requesters and Servers, IBM.
+*	Version 3 is no longer available; for the latest version, see
+*
+*		http://www.opengroup.org/dbiop/
+*
+*	Reference for Remote DRDA Requesters and Servers, IBM.
+*
+*		https://www-304.ibm.com/support/docview.wss?uid=pub1sc18985301
 */
 
 #ifdef HAVE_CONFIG_H
@@ -711,7 +717,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree	*drda_tree_sub;
 			proto_item	*ti;
 
-			ti = proto_tree_add_item(tree, proto_drda, tvb, offset, -1, FALSE);
+			ti = proto_tree_add_item(tree, proto_drda, tvb, offset, -1, ENC_NA);
 			proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
 			drdaroot_tree = proto_item_add_subtree(ti, ett_drda);
 
@@ -719,14 +725,14 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
 			drda_tree = proto_item_add_subtree(ti, ett_drda_ddm);
 
-			proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, FALSE);
-			proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, FALSE);
+			proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
 			iFormatFlags = tvb_get_guint8(tvb, offset + 3);
 			iDSSType = iFormatFlags & 0x0F;
 			iDSSFlags = iFormatFlags >> 4;
 
-			ti = proto_tree_add_item(drda_tree, hf_drda_ddm_format, tvb, offset + 3, 1, FALSE);
+			ti = proto_tree_add_item(drda_tree, hf_drda_ddm_format, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 			drda_tree_sub = proto_item_add_subtree(ti, ett_drda_ddm_format);
 
 			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_reserved, tvb, offset + 3, 1, iDSSFlags);
@@ -735,9 +741,9 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_samecorr, tvb, offset + 3, 1, iDSSFlags);
 			proto_tree_add_uint(drda_tree_sub, hf_drda_ddm_fmt_dsstyp, tvb, offset + 3, 1, iDSSType);
 
-			proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, offset + 4, 2, FALSE);
-			proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, offset + 6, 2, FALSE);
-			proto_tree_add_item(drda_tree, hf_drda_ddm_codepoint, tvb, offset + 8, 2, FALSE);
+			proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(drda_tree, hf_drda_ddm_codepoint, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 
 			/* The number of attributes is variable */
 			for (offset += 10; offset < iCommandEnd; )
@@ -752,18 +758,18 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ti = proto_tree_add_text(drdaroot_tree, tvb, offset, iLengthParam, DRDA_TEXT_PARAM);
 						proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
 						drda_tree_sub = proto_item_add_subtree(ti, ett_drda_param);
-						proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, FALSE);
-						proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, FALSE);
-						proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, FALSE);
-						proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, FALSE);
+						proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8|ENC_NA);
+						proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
 						if (iCommand == DRDA_CP_SQLSTT)
 						{
 							/* Extract SQL statement from packet */
 							tvbuff_t* next_tvb = NULL;
 							next_tvb = tvb_new_subset(tvb, offset + 4, iLengthParam - 4, iLengthParam - 4);
 							add_new_data_source(pinfo, next_tvb, "SQL statement");
-							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, FALSE);
-							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, FALSE);
+							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, ENC_UTF_8|ENC_NA);
+							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
 						}
 					}
 					offset += iLengthParam;
@@ -870,13 +876,13 @@ proto_register_drda(void)
       { "Data (ASCII)", "drda.param.data", FT_STRING, BASE_NONE, NULL, 0x0, "Param data left as ASCII for display", HFILL }},
 
    { &hf_drda_param_data_ebcdic,
-      { "Data (EBCDIC)", "drda.param.data.ebcdic", FT_EBCDIC, BASE_NONE, NULL, 0x0, "Param data converted from EBCDIC to ASCII for display", HFILL }},
+      { "Data (EBCDIC)", "drda.param.data.ebcdic", FT_STRING, BASE_NONE, NULL, 0x0, "Param data converted from EBCDIC to ASCII for display", HFILL }},
 
    { &hf_drda_sqlstatement,
      { "SQL statement (ASCII)", "drda.sqlstatement", FT_STRING, BASE_NONE, NULL, 0x0, "SQL statement left as ASCII for display", HFILL }},
 
    { &hf_drda_sqlstatement_ebcdic,
-      { "SQL statement (EBCDIC)", "drda.sqlstatement.ebcdic", FT_EBCDIC, BASE_NONE, NULL, 0x0, "SQL statement converted from EBCDIC to ASCII for display", HFILL }}
+      { "SQL statement (EBCDIC)", "drda.sqlstatement.ebcdic", FT_STRING, BASE_NONE, NULL, 0x0, "SQL statement converted from EBCDIC to ASCII for display", HFILL }}
 
   };
   static gint *ett[] = {

@@ -2568,15 +2568,16 @@ tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
 }
 
 /*
- * Given a tvbuff and an offset, with the offset assumed to refer to
- * a null-terminated string, find the length of that string (and throw
- * an exception if the tvbuff ends before we find the null), allocate
- * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.	Also return the length of the
+ * Given a tvbuff, an offset, and an encoding, with the offset assumed
+ * to refer to a null-terminated string, find the length of that string
+ * (and throw an exception if the tvbuff ends before we find the null),
+ * allocate a buffer big enough to hold the string, copy the string into
+ * it, and return a pointer to the string; if the encoding is EBCDIC, map
+ * the string from EBCDIC to ASCII.  Also return the length of the
  * string (including the terminating null) through a pointer.
  */
 guint8 *
-tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding)
 {
 	guint size;
 	guint8 *strptr;
@@ -2584,10 +2585,19 @@ tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	size = tvb_strsize(tvb, offset);
 	strptr = g_malloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
+	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
+		EBCDIC_to_ASCII(strptr, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
 }
+
+guint8 *
+tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+{
+	return tvb_get_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
+}
+
 /*
  * Given a tvbuff and an offset, with the offset assumed to refer to
  * a null-terminated string, find the length of that string (and throw
@@ -2613,6 +2623,7 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 		*lengthp = size;
 	return strptr;
 }
+
 /*
  * Given a tvbuff and an offset, with the offset assumed to refer to
  * a null-terminated string, find the length of that string (and throw
@@ -2628,7 +2639,7 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding)
 {
 	guint size;
 	guint8 *strptr;
@@ -2636,9 +2647,17 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	size = tvb_strsize(tvb, offset);
 	strptr = ep_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
+	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
+		EBCDIC_to_ASCII(strptr, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
+}
+
+guint8 *
+tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+{
+	return tvb_get_ephemeral_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
 }
 
 /*

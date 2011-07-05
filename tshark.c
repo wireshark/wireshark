@@ -589,7 +589,6 @@ add_decode_as(const gchar *cl_param)
 
   case FT_STRING:
   case FT_STRINGZ:
-  case FT_EBCDIC:
     /* The selector for this table is a string. */
     break;
 
@@ -686,7 +685,6 @@ add_decode_as(const gchar *cl_param)
 
   case FT_STRING:
   case FT_STRINGZ:
-  case FT_EBCDIC:
     /* The selector for this table is a string. */
     dissector_change_string(table_name, selector_str, dissector_matching);
     break;

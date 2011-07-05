@@ -1096,6 +1096,7 @@ tvb_get_ephemeral_faked_unicode
 tvb_get_ephemeral_string
 tvb_get_ephemeral_string_enc
 tvb_get_ephemeral_stringz
+tvb_get_ephemeral_stringz_enc
 tvb_get_guid
 tvb_get_guint8
 tvb_get_ipv4
@@ -1127,6 +1128,7 @@ tvb_get_ntohs
 tvb_get_ptr
 tvb_get_string
 tvb_get_stringz
+tvb_get_stringz_enc
 tvb_get_unicode_string
 tvb_ip6_to_str
 tvb_ip_to_str

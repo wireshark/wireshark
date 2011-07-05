@@ -395,43 +395,6 @@ ftype_register_string(void)
 		len,
 		slice,
 	};
-	static ftype_t ebcdic_type = {
-		FT_EBCDIC,			/* ftype */
-		"FT_EBCDIC",			/* name */
-		"EBCDIC character string",	/* pretty name */
-		0,				/* wire_size */
-		string_fvalue_new,		/* new_value */
-		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
-		val_from_string,		/* val_from_string */
-		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
-
-		string_fvalue_set,		/* set_value */
-		NULL,				/* set_value_uinteger */
-		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
-
-		value_get,			/* get_value */
-		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */
-
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
-		NULL,				/* cmp_bitwise_and */
-		cmp_contains,			/* cmp_contains */
-		CMP_MATCHES,
-
-		len,
-		slice,
-	};
 	static ftype_t uint_string_type = {
 		FT_UINT_STRING,		/* ftype */
 		"FT_UINT_STRING",		/* name */
@@ -472,6 +435,5 @@ ftype_register_string(void)
 
 	ftype_register(FT_STRING, &string_type);
 	ftype_register(FT_STRINGZ, &stringz_type);
-	ftype_register(FT_EBCDIC, &ebcdic_type);
 	ftype_register(FT_UINT_STRING, &uint_string_type);
 }

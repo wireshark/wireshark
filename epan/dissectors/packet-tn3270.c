@@ -964,6 +964,14 @@ static const value_string vals_query_replies[] = {
 #define CSRES7           0x01
 
 
+/* 6.15 Query Reply (Data Chaining) */
+static const value_string vals_data_chaining_dir[] = {
+	{ 0x00, "Both" },
+	{ 0x40, "From device only" },
+	{ 0x80, "To device only" },
+	{ 0x00, NULL }
+};
+
 /* 6.16 Query Reply (Data Streams) */
 #define SCS      0x00
 #define DCAL2    0x01
@@ -1541,6 +1549,7 @@ typedef struct hf_items {
   gint bitmask_ett;
   int length;
   const int **bitmask;
+  gint encoding;
 } hf_items;
 
 /* Utility Functions */
@@ -1558,7 +1567,7 @@ tn3270_add_hf_items(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             fields[i].hf,
                             tvb, offset,
                             fields[i].length,
-                            FALSE);
+                            fields[i].encoding);
     } else {
       proto_tree_add_bitmask(tn3270_tree, tvb, offset, fields[i].hf,
           fields[i].bitmask_ett, fields[i].bitmask, FALSE);
@@ -1579,7 +1588,7 @@ dissect_unknown_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint s
   if (len_left > 0) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_unknown_data,
                             tvb, offset, len_left,
-                            FALSE);
+                            ENC_NA);
     return len_left;
   }
   return 0;
@@ -1616,7 +1625,7 @@ add_data_until_next_order_code(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offs
 
   if (datalen) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_field_data, tvb, offset,
-                        datalen, FALSE);
+                        datalen, ENC_EBCDIC|ENC_NA);
   }
   return datalen;
 }
@@ -1629,8 +1638,8 @@ dissect_query_reply_resbytes(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
 
 
   hf_items fields[] = {
-      { hf_tn3270_res_twobytes, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_res_twobytes, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
 
@@ -1750,22 +1759,22 @@ dissect_create_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gi
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_partition_uom, 0, 1, 0 },
-    { hf_tn3270_partition_flags, 0, 1, 0 },
-    { hf_tn3270_partition_height, 0, 2, 0 },
-    { hf_tn3270_partition_width, 0, 2, 0 },
-    { hf_tn3270_partition_rv, 0, 2, 0 },
-    { hf_tn3270_partition_cv, 0, 2, 0 },
-    { hf_tn3270_partition_hv, 0, 2, 0 },
-    { hf_tn3270_partition_wv, 0, 2, 0 },
-    { hf_tn3270_partition_rw, 0, 2, 0 },
-    { hf_tn3270_partition_cw, 0, 2, 0 },
-    { hf_tn3270_partition_rs, 0, 2, 0 },
-    { hf_tn3270_partition_res, 0, 2, 0 },
-    { hf_tn3270_partition_pw, 0, 2, 0 },
-    { hf_tn3270_partition_ph, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_uom, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_height, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_width, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_cv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_hv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_wv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_cw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rs, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_res, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_pw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_ph, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -1790,13 +1799,13 @@ dissect_load_format_storage(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int operand;
 
   hf_items fields[] = {
-    { hf_tn3270_load_format_storage_flags1, 0, 1, 0 },
-    { hf_tn3270_load_format_storage_flags2, 0, 1, 0 },
-    { hf_tn3270_load_format_storage_operand, 0, 1, 0 },
-    { hf_tn3270_load_format_storage_localname, 0, 8, 0 },
-    { hf_tn3270_format_group, 0, 6, 0 },
-    { hf_tn3270_format_name, 0, 16, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_load_format_storage_flags1, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_load_format_storage_flags2, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_load_format_storage_operand, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_load_format_storage_localname, 0, 8, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_format_group, 0, 6, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_format_name, 0, 16, 0, ENC_EBCDIC|ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   operand = tvb_get_guint8(tvb, offset+2);
@@ -1807,7 +1816,7 @@ dissect_load_format_storage(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   if (operand == ADD) {
     int fmtln = ((sf_length - 4) - (offset - start));
     proto_tree_add_item(tn3270_tree, hf_tn3270_load_format_storage_format_data,
-                        tvb, offset, fmtln, FALSE);
+                        tvb, offset, fmtln, ENC_EBCDIC|ENC_NA);
     offset+=fmtln;
   }
 
@@ -1826,24 +1835,24 @@ dissect_load_programmed_symbols(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
   gint8 flags;
   gint8 extended_ps_length;
   hf_items ps_fields[] = {
-      { hf_tn3270_ps_flags, 0, 1, 0 },
-      { hf_tn3270_ps_lcid, 0, 1, 0 },
-      { hf_tn3270_ps_char, 0, 1, 0 },
-      { hf_tn3270_ps_rws, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_ps_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_ps_lcid, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_ps_char, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_ps_rws, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items extended_ps_fields[] = {
-      { hf_tn3270_extended_ps_lw, 0, 1, 0 },
-      { hf_tn3270_extended_ps_lh, 0, 1, 0 },
-      { hf_tn3270_extended_ps_subsn, 0, 1, 0 },
-      { hf_tn3270_extended_ps_color, 0, 1, 0 },
-      { hf_tn3270_extended_ps_stsubs, 0, 1, 0 },
-      { hf_tn3270_extended_ps_echar, 0, 1, 0 },
-      { hf_tn3270_extended_ps_nw, 0, 1, 0 },
-      { hf_tn3270_extended_ps_nh, 0, 1, 0 },
-      { hf_tn3270_extended_ps_res, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_extended_ps_lw, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_lh, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_subsn, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_color, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_stsubs, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_echar, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_nw, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_nh, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_extended_ps_res, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   flags = tvb_get_guint8(tvb, offset);
@@ -1857,15 +1866,16 @@ dissect_load_programmed_symbols(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
 
   extended_ps_length = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tn3270_tree,  hf_tn3270_extended_ps_length,
-                          tvb, offset,  1, FALSE);
+                          tvb, offset,  1, ENC_BIG_ENDIAN);
   offset++;
   proto_tree_add_item(tn3270_tree, hf_tn3270_extended_ps_flags,
-                          tvb, offset, 1, FALSE);
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   for (i = 0; i < extended_ps_length; ++i) {
       proto_tree_add_item(tn3270_tree, extended_ps_fields[i].hf,
-                          tvb, offset, extended_ps_fields[i].length, FALSE);
+                          tvb, offset, extended_ps_fields[i].length,
+			  extended_ps_fields[i].encoding);
       offset+=extended_ps_fields[i].length;
   }
 
@@ -1882,23 +1892,23 @@ dissect_modify_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gi
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_partition_flags, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { hf_tn3270_partition_rv, 0, 2, 0 },
-    { hf_tn3270_partition_cv, 0, 2, 0 },
-    { hf_tn3270_partition_hv, 0, 2, 0 },
-    { hf_tn3270_partition_wv, 0, 2, 0 },
-    { hf_tn3270_partition_rw, 0, 2, 0 },
-    { hf_tn3270_partition_cw, 0, 2, 0 },
-    { hf_tn3270_partition_rs, 0, 2, 0 },
-    { hf_tn3270_partition_res, 0, 2, 0 },
-    { hf_tn3270_partition_pw, 0, 2, 0 },
-    { hf_tn3270_partition_ph, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_cv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_hv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_wv, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_cw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_rs, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_res, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_pw, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_partition_ph, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -1919,18 +1929,18 @@ dissect_outbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
   gint16 hdr_length;
 
   hf_items outbound_text_header_fields1[] = {
-      { hf_tn3270_partition_id, 0, 1, 0 },
-      { hf_tn3270_operation_type, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_operation_type, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items outbound_text_header_fields2[] = {
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_lvl, 0, 1, 0 },
-      { hf_tn3270_cro, 0, 2, 0 },
-      { hf_tn3270_cc, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_lvl, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cro, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cc, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -1942,11 +1952,11 @@ dissect_outbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
   hdr_length = tvb_get_ntohs(tvb, offset);
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_outbound_text_header_lhdr,
-                      tvb, offset, 2, FALSE);
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
   offset+=2;
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_outbound_text_header_hdr,
-                      tvb, offset, hdr_length, FALSE);
+                      tvb, offset, hdr_length, ENC_BIG_ENDIAN);
   offset+=hdr_length;
 
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_length);
@@ -1966,7 +1976,7 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_partition_id,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   cmd = tvb_get_guint8(tvb, offset);
@@ -1974,7 +1984,7 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_partition_command,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   /* FIXME: the spec is ambiguous at best about what to expect here,
@@ -1986,7 +1996,7 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                               hf_tn3270_bsc,
                               tvb, offset,
                               2,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset+=2;
       break;
     case W:
@@ -2023,14 +2033,14 @@ dissect_present_absolute_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                           hf_tn3270_partition_id,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_fpc,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   offset+=dissect_wcc(tn3270_tree, tvb, offset);
@@ -2039,7 +2049,7 @@ dissect_present_absolute_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                           hf_tn3270_format_name,
                           tvb, offset,
                           (sf_length - 5),
-                          FALSE);
+                          ENC_EBCDIC|ENC_NA);
   offset+=(sf_length - 5);
   return (offset - start);
 }
@@ -2055,21 +2065,21 @@ dissect_present_relative_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                           hf_tn3270_partition_id,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_fov,
                           tvb, offset,
                           2,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset+=2;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_fpc,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   offset += dissect_wcc(tn3270_tree, tvb, offset);
@@ -2078,7 +2088,7 @@ dissect_present_relative_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                           hf_tn3270_format_name,
                           tvb, offset,
                           (sf_length - 7),
-                          FALSE);
+                          ENC_EBCDIC|ENC_NA);
   offset+=(sf_length - 7);
   return (offset - start);
 }
@@ -2098,7 +2108,7 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_partition_id,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   type = tvb_get_guint8(tvb, offset);
@@ -2111,7 +2121,7 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_operation_type,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   if (type == 0x03) { /* 'Query List' */
@@ -2119,7 +2129,7 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             hf_tn3270_reqtyp,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
 
     if (sf_length > 6) {
@@ -2130,7 +2140,7 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
       for (i = 0; i < qcode_list_len; i++) {
         proto_tree_add_item(query_list_tree,
                             hf_tn3270_sf_query_reply,
-                            tvb, offset, 1, FALSE);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
       }
     }
@@ -2152,21 +2162,21 @@ dissect_restart(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_resbyte,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_start_page,
                           tvb, offset,
                           2,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset+=2;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_start_line,
                           tvb, offset,
                           2,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset+=2;
 
 
@@ -2174,7 +2184,7 @@ dissect_restart(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_scs_data,
                           tvb, offset,
                           (sf_length - 9),
-                          FALSE);
+                          ENC_NA);
   offset+=(sf_length - 9);
 
   return (offset - start);
@@ -2202,13 +2212,13 @@ dissect_set_msr_control(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   };
 
   hf_items outbound_text_header_fields[] = {
-      { hf_tn3270_partition_id, 0, 1, 0 },
-      { hf_tn3270_msr_type, 0, 1, 0 },
-      { hf_tn3270_msr_state_mask, ett_tn3270_msr_state_mask, 1, byte },
-      { hf_tn3270_msr_state_value, 1, 1, 0 },
-      { hf_tn3270_msr_ind_mask, 1, 1, 0 },
-      { hf_tn3270_msr_ind_value, 1, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_msr_type, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_msr_state_mask, ett_tn3270_msr_state_mask, 1, byte, 0 },
+      { hf_tn3270_msr_state_value, 1, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_msr_ind_mask, 1, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_msr_ind_value, 1, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2229,28 +2239,28 @@ dissect_set_partition_characteristics_sd_parms(proto_tree *tn3270_tree, tvbuff_t
   guint16 sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_ot, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_ob, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_ol, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_or, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_ot, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_ob, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_ol, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_or, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp3[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_eucflags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2286,9 +2296,9 @@ dissect_set_partition_characteristics(proto_tree *tn3270_tree, tvbuff_t *tvb, gi
   int i;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2315,10 +2325,10 @@ dissect_set_printer_characteristics_sd_parms(proto_tree *tn3270_tree, tvbuff_t *
   guint16 sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_spc_sdp_srepc, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_spc_sdp_srepc, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   sdp = tvb_get_ntohs(tvb, offset);
@@ -2345,9 +2355,9 @@ dissect_set_printer_characteristics(proto_tree *tn3270_tree, tvbuff_t *tvb, gint
   int i;
 
   hf_items fields[] = {
-    { hf_tn3270_printer_flags, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_printer_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2372,11 +2382,12 @@ dissect_set_reply_mode(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 {
   int start=offset;
   int type;
+  gint i;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_mode, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_mode, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   type = tvb_get_guint8(tvb, offset+1);
@@ -2385,12 +2396,12 @@ dissect_set_reply_mode(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                                 fields);
 
   if (type == 0x02) { /* 'Query List' */
-    proto_tree_add_item(tn3270_tree,
-                            hf_tn3270_reply_mode_attr_list,
-                            tvb, offset,
-                            (sf_length - 5),
-                            FALSE);
-    offset+=(sf_length - 5);
+    for (i = 5; i < sf_length; i++) {
+      proto_tree_add_item(tn3270_tree,
+                          hf_tn3270_reply_mode_attr_list,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+    }
   }
   return (offset - start);
 }
@@ -2405,9 +2416,9 @@ dissect_type_1_text(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2416,7 +2427,7 @@ dissect_type_1_text(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_field_data,
                           tvb, offset,
                           (sf_length - 7),
-                          FALSE);
+                          ENC_EBCDIC|ENC_NA);
   offset+=(sf_length - 7);
   return (offset - start);
 }
@@ -2432,10 +2443,10 @@ dissect_object_control(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_object_control_flags, 0, 1, 0 },
-    { hf_tn3270_object_type, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_object_control_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_object_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2445,7 +2456,7 @@ dissect_object_control(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           hf_tn3270_type_1_text_outbound_data,
                           tvb, offset,
                           (sf_length - 7),
-                          FALSE);
+                          ENC_NA);
   offset+=(sf_length - 7);
   return (offset - start);
 }
@@ -2462,9 +2473,9 @@ dissect_save_or_restore_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offs
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_save_or_restore_format_flags, 0, 1, 0 },
-    { hf_tn3270_srf_fpcb, 0, (sf_length-5), 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_save_or_restore_format_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_srf_fpcb, 0, (sf_length-5), 0, ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2490,44 +2501,44 @@ dissect_exception_or_status_sd_parms(proto_tree *tn3270_tree, tvbuff_t *tvb, gin
   guint16 sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_sdp_excode, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_excode, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_sdp_statcode, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_statcode, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp3[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_format_group, 0, 16, 0 },
-    { hf_tn3270_format_name, 0, 16, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_format_group, 0, 16, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_format_name, 0, 16, 0, ENC_EBCDIC|ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp4[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_sdp_ngl, 0, 2, 0 },
-    { hf_tn3270_sdp_nml, 0, 2, 0 },
-    { hf_tn3270_sdp_nlml, 0, 2, 0 },
-    { hf_tn3270_sdp_stor, 0, 4, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_ngl, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_nml, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_nlml, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_stor, 0, 4, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp5[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_format_group, 0, 16, 0 },
-    { hf_tn3270_sdp_nml, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_format_group, 0, 16, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_sdp_nml, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   sdp = tvb_get_ntohs(tvb, offset);
@@ -2567,10 +2578,10 @@ dissect_exception_or_status(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int start=offset, i;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_exception_or_status_flags, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_exception_or_status_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2595,19 +2606,19 @@ dissect_inbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int start=offset;
 
   hf_items outbound_text_header_fields[] = {
-      { hf_tn3270_partition_id, 0, 1, 0 },
-      { hf_tn3270_aid, 0, 1, 0 },
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_lvl, 0, 1, 0 },
-      { hf_tn3270_cro, 0, 2, 0 },
-      { hf_tn3270_cc, 0, 2, 0 },
-      { hf_tn3270_rw, 0, 2, 0 },
-      { hf_tn3270_cw, 0, 2, 0 },
-      { hf_tn3270_hw, 0, 2, 0 },
-      { hf_tn3270_ww, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_aid, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_lvl, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cro, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cc, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_rw, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cw, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_hw, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_ww, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2627,12 +2638,12 @@ dissect_inbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_partition_id, 0, 1, 0 },
-    { hf_tn3270_aid, 0, 1, 0 },
-    { hf_tn3270_cursor_x, 0, 1, 0 },
-    { hf_tn3270_cursor_y, 0, 1, 0 },
-    { hf_tn3270_field_data, 0, (sf_length - 8), 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_partition_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_aid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_cursor_x, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_cursor_y, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_field_data, 0, (sf_length - 8), 0, ENC_EBCDIC|ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2652,30 +2663,30 @@ dissect_recovery_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 
 
   hf_items fields[] = {
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { hf_tn3270_recovery_data_flags, 1, 1, 0 },
-      { hf_tn3270_sld, 0, 1, 0 },
-      { hf_tn3270_charset, 0, 1, 0 },
-      { hf_tn3270_vertical, 0, 2, 0 },
-      { hf_tn3270_v_offset, 0, 2, 0 },
-      { hf_tn3270_v_sequence, 0, 2, 0 },
-      { hf_tn3270_v_length, 0, 2, 0 },
-      { hf_tn3270_spd, 0, 2, 0 },
-      { hf_tn3270_horizon, 0, 2, 0 },
-      { hf_tn3270_h_offset, 0, 2, 0 },
-      { hf_tn3270_h_sequence, 0, 2, 0 },
-      { hf_tn3270_h_length, 0, 2, 0 },
-      { hf_tn3270_color, 0, 1, 0 },
-      { hf_tn3270_hilite, 0, 1, 0 },
-      { hf_tn3270_pages, 0, 2, 0 },
-      { hf_tn3270_lines, 0, 2, 0 },
-      { hf_tn3270_checkpoint, 0, 2, 0 },
-      { hf_tn3270_c_offset, 0, 2, 0 },
-      { hf_tn3270_c_sequence, 0, 2, 0 },
-      { hf_tn3270_c_seqoff, 0, 2, 0 },
-      { hf_tn3270_c_scsoff, 0, 2, 0 },
-      { hf_tn3270_prime, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_recovery_data_flags, 1, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_sld, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_charset, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_vertical, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_v_offset, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_v_sequence, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_v_length, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_spd, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_horizon, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_h_offset, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_h_sequence, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_h_length, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_color, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_hilite, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_pages, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_lines, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_checkpoint, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_c_offset, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_c_sequence, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_c_seqoff, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_c_scsoff, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_prime, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2699,13 +2710,13 @@ dissect_query_reply_alphanumeric_sd_parms(proto_tree *tn3270_tree, tvbuff_t *tvb
   guint16 sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_ap_cm, 0, 1, 0 },
-    { hf_tn3270_ap_ro, 0, 1, 0 },
-    { hf_tn3270_ap_co, 0, 1, 0 },
-    { hf_tn3270_ap_fo, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ap_cm, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ap_ro, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ap_co, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ap_fo, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2743,10 +2754,10 @@ dissect_query_reply_alphanumeric(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
     };
 
   hf_items fields[] = {
-      { hf_tn3270_ap_na, 0, 1, 0 },
-      { hf_tn3270_ap_m, 0, 2, 0 },
-      { hf_tn3270_query_reply_alphanumeric_flags, ett_tn3270_query_reply_alphanumeric_flags, 1, byte },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_ap_na, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_ap_m, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_query_reply_alphanumeric_flags, ett_tn3270_query_reply_alphanumeric_flags, 1, byte, 0 },
+      { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2811,45 +2822,45 @@ dissect_query_reply_character_sets(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
 
 
   hf_items fields[] = {
-      { hf_tn3270_character_sets_flags1, ett_tn3270_character_sets_flags1, 1, byte1 },
-      { hf_tn3270_character_sets_flags2, ett_tn3270_character_sets_flags2, 1, byte2 },
-      { hf_tn3270_sdw, 0, 1, 0 },
-      { hf_tn3270_sdh, 0, 1, 0 },
-      { hf_tn3270_form, ett_tn3270_character_sets_form, 1, byte3 },
-      { hf_tn3270_formres, 0, 1, 0 },
-      { hf_tn3270_formres, 0, 1, 0 },
-      { hf_tn3270_formres, 0, 1, 0 },
-      { hf_tn3270_cs_dl, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_character_sets_flags1, ett_tn3270_character_sets_flags1, 1, byte1, 0 },
+      { hf_tn3270_character_sets_flags2, ett_tn3270_character_sets_flags2, 1, byte2, 0 },
+      { hf_tn3270_sdw, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_sdh, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_form, ett_tn3270_character_sets_form, 1, byte3, 0 },
+      { hf_tn3270_formres, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_formres, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_formres, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cs_dl, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items descriptors[] = {
-      { hf_tn3270_cs_descriptor_set, 0, 1, 0 },
-      { hf_tn3270_cs_descriptor_flags, ett_tn3270_cs_descriptor_flags, 1, byte4 },
-      { hf_tn3270_lcid, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_cs_descriptor_set, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_cs_descriptor_flags, ett_tn3270_cs_descriptor_flags, 1, byte4, 0 },
+      { hf_tn3270_lcid, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items sw_sh[] = {
-      { hf_tn3270_sw, 0, 1, 0 },
-      { hf_tn3270_sh, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_sw, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_sh, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items subsn[] = {
-      { hf_tn3270_ssubsn, 0, 1, 0 },
-      { hf_tn3270_esubsn, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_ssubsn, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_esubsn, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items gf[] = {
-      { hf_tn3270_ccsgid, 0, 4, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_ccsgid, 0, 4, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   hf_items cf[] = {
-      { hf_tn3270_ccsid, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_ccsid, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   flagbyte1 = tvb_get_guint8(tvb, offset);
@@ -2897,11 +2908,11 @@ dissect_query_reply_color_sd_parms(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
   guint16 sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_db_cavdef, 0, 1, 0 },
-    { hf_tn3270_db_cidef, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_db_cavdef, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_db_cidef, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2934,9 +2945,9 @@ dissect_query_reply_color(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
     };
 
   hf_items fields[] = {
-    { hf_tn3270_color_flags, ett_tn3270_color_flags, 1, byte },
-    { hf_tn3270_c_np, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_color_flags, ett_tn3270_color_flags, 1, byte, 0 },
+    { hf_tn3270_c_np, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -2952,7 +2963,7 @@ dissect_query_reply_color(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             hf_tn3270_c_cav,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
     if (tvb_get_guint8(tvb, offset) == 0xFF) {
         offset++;
@@ -2961,7 +2972,7 @@ dissect_query_reply_color(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             hf_tn3270_c_ci,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
   offset += dissect_query_reply_color_sd_parms(tn3270_tree, tvb, offset);
@@ -2980,10 +2991,10 @@ dissect_daid_sd_parm(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
   int start=offset;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_sdp_daid, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_daid, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -2999,10 +3010,10 @@ dissect_pclk_sd_parm(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
   int start=offset;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_oem_sdp_pclk_vers, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_sdp_pclk_vers, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3020,26 +3031,26 @@ dissect_query_reply_oem_auxiliary_device_sd_parms(proto_tree *tn3270_tree, tvbuf
   int sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_sdp_daid, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_daid, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_oem_sdp_ll_limin, 0, 2, 0 },
-    { hf_tn3270_oem_sdp_ll_limout, 0, 2, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_sdp_ll_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_sdp_ll_limout, 0, 2, 0, ENC_BIG_ENDIAN },
 
-    { 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp3[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_oem_sdp_pclk_vers, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_sdp_pclk_vers, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -3079,12 +3090,12 @@ dissect_query_reply_cooperative(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
   int start=offset;
 
   hf_items fields[] = {
-      { hf_tn3270_res_twobytes, 0, 2, 0 },
-      { hf_tn3270_limin, 0, 2, 0 },
-      { hf_tn3270_limout, 0, 2, 0 },
-      { hf_tn3270_featl, 0, 1, 0 },
-      { hf_tn3270_feats, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_res_twobytes, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_limout, 0, 2, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_featl, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_feats, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
 
@@ -3096,7 +3107,7 @@ dissect_query_reply_cooperative(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                           hf_tn3270_field_data,
                           tvb, offset,
                           (sf_length - 13),
-                          FALSE);
+                          ENC_EBCDIC|ENC_NA);
   offset+=(sf_length - 13);
 
   /* Uses same Self-Defining Parm as OEM Auxiliary Device */
@@ -3122,9 +3133,9 @@ dissect_query_reply_data_chaining(proto_tree *tn3270_tree, tvbuff_t *tvb, gint o
     };
 
   hf_items fields[] = {
-      { hf_tn3270_dc_dir_flags, ett_tn3270_dc_dir_flags, 1, byte1 },
-      { hf_tn3270_resbyte, 0, 1, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_dc_dir_flags, ett_tn3270_dc_dir_flags, 1, byte1, 0 },
+      { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3145,13 +3156,13 @@ dissect_query_reply_data_streams(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
   int i;
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_ds_default_sfid, tvb, offset, 1,
-                      FALSE);
+                      ENC_BIG_ENDIAN);
   for (i=0; i < (sf_length - 4); i++) {
     proto_tree_add_item(tn3270_tree,
                             hf_tn3270_ds_sfid,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_length);
@@ -3169,17 +3180,17 @@ dissect_query_reply_dbcs_asia_sd_parms(proto_tree *tn3270_tree, tvbuff_t *tvb, g
   int sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_asia_sdp_sosi_soset, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_asia_sdp_sosi_soset, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_asia_sdp_ic_func, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_asia_sdp_ic_func, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   sdp_len = tvb_get_guint8(tvb, offset);
@@ -3213,8 +3224,8 @@ dissect_query_reply_dbcs_asia(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
   int i;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -3243,7 +3254,7 @@ dissect_query_reply_device_characteristics(proto_tree *tn3270_tree, tvbuff_t *tv
                           hf_tn3270_sf_outbound_id,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   /* TODO: dissect descriptors */
@@ -3262,13 +3273,13 @@ dissect_query_reply_distributed_data_management(proto_tree *tn3270_tree, tvbuff_
   int done = 0;
 
   hf_items fields[] = {
-    { hf_tn3270_ddm_flags,0, 1, 0 },
-    { hf_tn3270_ddm_flags,0, 1, 0 },
-    { hf_tn3270_ddm_limin,0, 2, 0 },
-    { hf_tn3270_ddm_limout,0, 2, 0 },
-    { hf_tn3270_ddm_nss,0, 1, 0 },
-    { hf_tn3270_ddm_ddmss,0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_ddm_flags,0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ddm_flags,0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ddm_limin,0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ddm_limout,0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ddm_nss,0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ddm_ddmss,0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3308,23 +3319,23 @@ dissect_query_reply_document_interchange_architecture(proto_tree *tn3270_tree, t
   int start=offset, sdp, ln, i;
 
   hf_items fields[] = {
-    { hf_tn3270_dia_flags, 0, 2, 0 },
-    { hf_tn3270_dia_limin, 0, 2, 0 },
-    { hf_tn3270_dia_limout, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_dia_flags, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_dia_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_dia_limout, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
 
   ln = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tn3270_tree, hf_tn3270_dia_nfs,tvb, offset, 1, FALSE);
+  proto_tree_add_item(tn3270_tree, hf_tn3270_dia_nfs,tvb, offset, 1, ENC_BIG_ENDIAN);
 
   for (i=0; i < ln; i++) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_dia_diafs, tvb, offset, 1,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tn3270_tree, hf_tn3270_dia_diafn, tvb, offset, 2,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -3346,7 +3357,7 @@ dissect_query_reply_extended_drawing_routine(proto_tree *tn3270_tree, tvbuff_t *
   int start=offset;
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_field_data ,tvb, offset,
-                      (sf_length-4), FALSE);
+                      (sf_length-4), ENC_EBCDIC|ENC_NA);
 
   offset += (sf_length - 4);
 
@@ -3361,13 +3372,13 @@ dissect_query_reply_field_outlining(proto_tree *tn3270_tree, tvbuff_t *tvb, gint
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_fo_flags, 0, 1, 0 },
-    { hf_tn3270_fo_vpos, 0, 1, 0 },
-    { hf_tn3270_fo_hpos, 0, 1, 0 },
-    { hf_tn3270_fo_hpos0, 0, 1, 0 },
-    { hf_tn3270_fo_hpos1, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fo_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fo_vpos, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fo_hpos, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fo_hpos0, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fo_hpos1, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3388,11 +3399,11 @@ dissect_query_reply_format_storage_aux_device(proto_tree *tn3270_tree, tvbuff_t 
   int start=offset, sdp;
 
   hf_items fields[] = {
-    { hf_tn3270_fsad_flags, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_fsad_limin, 0, 2, 0 },
-    { hf_tn3270_fsad_limout, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_fsad_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fsad_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_fsad_limout, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3401,7 +3412,7 @@ dissect_query_reply_format_storage_aux_device(proto_tree *tn3270_tree, tvbuff_t 
   if (sdp == 0x01) { /*DAID*/
      offset += dissect_daid_sd_parm(tn3270_tree, tvb, offset);
      proto_tree_add_item(tn3270_tree, hf_tn3270_fsad_size ,tvb, offset,
-                         2, FALSE);
+                         2, ENC_BIG_ENDIAN);
      offset+=2;
   }
 
@@ -3423,8 +3434,8 @@ dissect_query_reply_highlighting(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
   int np;
 
   hf_items fields[] = {
-    { hf_tn3270_h_np, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_h_np, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
 
@@ -3440,7 +3451,7 @@ dissect_query_reply_highlighting(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
                             hf_tn3270_h_vi,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
     if (tvb_get_guint8(tvb, offset) == 0xFF) {
         offset++;
@@ -3449,7 +3460,7 @@ dissect_query_reply_highlighting(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
                             hf_tn3270_h_ai,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -3467,12 +3478,12 @@ dissect_query_reply_ibm_aux_device(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
   int done = 0;
 
   hf_items fields[] = {
-    { hf_tn3270_ibm_flags, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_ibm_limin, 0, 2, 0 },
-    { hf_tn3270_ibm_limout, 0, 2, 0 },
-    { hf_tn3270_ibm_type, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_ibm_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ibm_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ibm_limout, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ibm_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3515,34 +3526,34 @@ dissect_query_reply_implicit_partitions_sd_parms(proto_tree *tn3270_tree, tvbuff
   int sdp;
 
   hf_items sdp1[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_ip_flags, 0, 1, 0 },
-    { hf_tn3270_ipdd_wd, 0, 2, 0 },
-    { hf_tn3270_ipdd_hd, 0, 2, 0 },
-    { hf_tn3270_ipdd_wa, 0, 2, 0 },
-    { hf_tn3270_ipdd_ha, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ip_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipdd_wd, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipdd_hd, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipdd_wa, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipdd_ha, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_ip_flags, 0, 1, 0 },
-    { hf_tn3270_ippd_dpbs, 0, 4, 0 },
-    { hf_tn3270_ippd_apbs, 0, 4, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ip_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ippd_dpbs, 0, 4, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ippd_apbs, 0, 4, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items sdp3[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_ip_flags, 0, 1, 0 },
-    { hf_tn3270_ipccd_wcd, 0, 2, 0 },
-    { hf_tn3270_ipccd_hcd, 0, 2, 0 },
-    { hf_tn3270_ipccd_wca, 0, 2, 0 },
-    { hf_tn3270_ipccd_hca, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ip_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipccd_wcd, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipccd_hcd, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipccd_wca, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ipccd_hca, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   sdp_len = tvb_get_guint8(tvb, offset);
@@ -3581,9 +3592,9 @@ dissect_query_reply_implicit_partitions(proto_tree *tn3270_tree, tvbuff_t *tvb, 
   int i;
 
   hf_items fields[] = {
-    { hf_tn3270_ip_flags, 0, 1, 0 },
-    { hf_tn3270_ip_flags, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_ip_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ip_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3608,12 +3619,12 @@ dissect_query_reply_ioca_aux_device(proto_tree *tn3270_tree, tvbuff_t *tvb, gint
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_ioca_limin, 0, 2, 0 },
-    { hf_tn3270_ioca_limout, 0, 2, 0 },
-    { hf_tn3270_ioca_type, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ioca_limin, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ioca_limout, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ioca_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3633,10 +3644,10 @@ dissect_query_reply_msr_control(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_msr_nd, 0, 1, 0 },
-    { hf_tn3270_msr_type, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_msr_nd, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_msr_type, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3656,11 +3667,11 @@ dissect_query_reply_oem_auxiliary_device(proto_tree *tn3270_tree, tvbuff_t *tvb,
   int i;
 
   hf_items fields[] = {
-    { hf_tn3270_resbyte, 0, 1, 0 },
-    { hf_tn3270_oem_dsref, 0, 1, 0 },
-    { hf_tn3270_oem_dtype, 0, 8, 0 },
-    { hf_tn3270_oem_uname, 0, 8, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbyte, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_dsref, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_oem_dtype, 0, 8, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_oem_uname, 0, 8, 0, ENC_EBCDIC|ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3685,10 +3696,10 @@ dissect_query_reply_paper_feed_techniques(proto_tree *tn3270_tree, tvbuff_t *tvb
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_pft_flags, 0, 1, 0 },
-    { hf_tn3270_pft_tmo, 0, 2, 0 },
-    { hf_tn3270_pft_bmo, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_pft_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_pft_tmo, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_pft_bmo, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3706,9 +3717,9 @@ dissect_query_reply_partition_characteristics(proto_tree *tn3270_tree, tvbuff_t 
   int done = 0;
 
   hf_items fields[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   for (i = 0; i < 2; i++) {
@@ -3717,7 +3728,7 @@ dissect_query_reply_partition_characteristics(proto_tree *tn3270_tree, tvbuff_t 
       case 0x01: /*Viewport Outline*/
         offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
         proto_tree_add_item(tn3270_tree, hf_tn3270_pc_vo_thickness,
-                                tvb, offset, 1, FALSE);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         break;
       case 0x03: /*Enable User Call-Up*/
@@ -3747,10 +3758,10 @@ dissect_query_reply_product_defined_data_stream(proto_tree *tn3270_tree, tvbuff_
   int start=offset, sdp;
 
   hf_items fields[] = {
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { hf_tn3270_pdds_refid, 0, 1, 0 },
-    { hf_tn3270_pdds_ssid, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_pdds_refid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_pdds_ssid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3778,7 +3789,7 @@ dissect_query_reply_modes(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             hf_tn3270_mode,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_length);
@@ -3795,9 +3806,9 @@ dissect_query_reply_rpq_names(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
   int rpql;
 
   hf_items fields[] = {
-    { hf_tn3270_rpq_device,0, 4, 0 },
-    { hf_tn3270_rpq_mid,0, 4, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_rpq_device,0, 4, 0, ENC_EBCDIC|ENC_NA },
+    { hf_tn3270_rpq_mid,0, 4, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
@@ -3809,14 +3820,14 @@ dissect_query_reply_rpq_names(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
                           hf_tn3270_rpq_rpql,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_rpq_name,
                           tvb, offset,
                           (rpql - 1),
-                          FALSE);
+                          ENC_EBCDIC|ENC_NA);
   offset+=(rpql-1);
 
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_length);
@@ -3832,8 +3843,8 @@ dissect_query_reply_save_or_restore_format(proto_tree *tn3270_tree, tvbuff_t *tv
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_srf_fpcbl, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_srf_fpcbl, 0, 1, 0, ENC_NA },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3853,14 +3864,14 @@ dissect_query_reply_settable_printer_characteristics(proto_tree *tn3270_tree, tv
   int start=offset, sdp;
 
   hf_items fields[] = {
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items fields2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -3869,7 +3880,7 @@ dissect_query_reply_settable_printer_characteristics(proto_tree *tn3270_tree, tv
   if (sdp == 0x01) { /*Early Print Complete*/
     offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields2);
     proto_tree_add_item(tn3270_tree, hf_tn3270_spc_epc_flags, tvb, offset,
-                        1, FALSE);
+                        1, ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -3886,12 +3897,12 @@ dissect_query_reply_storage_pools(proto_tree *tn3270_tree, tvbuff_t *tvb, gint o
   int start=offset, sdp, i;
 
   hf_items fields2[] = {
-    { hf_tn3270_sdp_ln, 0, 1, 0 },
-    { hf_tn3270_sdp_id, 0, 1, 0 },
-    { hf_tn3270_sp_spid, 0, 1, 0 },
-    { hf_tn3270_sp_size, 0, 4, 0 },
-    { hf_tn3270_sp_space, 0, 4, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_sdp_ln, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sdp_id, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sp_spid, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sp_size, 0, 4, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_sp_space, 0, 4, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   sdp = tvb_get_guint8(tvb, offset+1);
@@ -3899,7 +3910,7 @@ dissect_query_reply_storage_pools(proto_tree *tn3270_tree, tvbuff_t *tvb, gint o
     offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields2);
     for (i=0; i < (sf_length - 4); i+=2) {
       proto_tree_add_item(tn3270_tree, hf_tn3270_sp_objlist,
-                              tvb, offset, 2, FALSE);
+                              tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
     }
   }
@@ -3925,7 +3936,7 @@ dissect_query_reply_summary(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             hf_tn3270_sf_query_reply,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_length);
@@ -3940,21 +3951,21 @@ dissect_query_reply_text_partitions(proto_tree *tn3270_tree, tvbuff_t *tvb, gint
   int start=offset, len, i;
 
   hf_items fields[] = {
-    { hf_tn3270_tp_nt, 0, 1, 0 },
-    { hf_tn3270_tp_m, 0, 2, 0 },
-    { hf_tn3270_tp_flags, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_tp_nt, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_tp_m, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_tp_flags, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
 
   len = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tn3270_tree, hf_tn3270_tp_ntt, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tn3270_tree, hf_tn3270_tp_ntt, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   for (i=0; i < len; i++) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_tp_tlist,
-                            tvb, offset, 1, FALSE);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -3971,15 +3982,15 @@ dissect_query_reply_transparency(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
   int start=offset, i, len;
 
   len = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tn3270_tree, hf_tn3270_t_np, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tn3270_tree, hf_tn3270_t_np, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   for (i=0; i < len; i+=2) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_t_vi,
-                            tvb, offset, 1, FALSE);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tn3270_tree, hf_tn3270_t_ai,
-                            tvb, offset, 1, FALSE);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -4013,25 +4024,25 @@ dissect_query_reply_usable_area(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
   };
 
   hf_items fields[] = {
-    { hf_tn3270_usable_area_flags1, ett_tn3270_usable_area_flags1, 1, byte1 },
-    { hf_tn3270_usable_area_flags2, ett_tn3270_usable_area_flags1, 1, byte2 },
-    { hf_tn3270_ua_width_cells_pels, 0, 2, 0 },
-    { hf_tn3270_ua_height_cells_pels, 0, 2, 0 },
-    { hf_tn3270_ua_uom_cells_pels, 0, 1, 0 },
-    { hf_tn3270_ua_xr, 0, 4, 0 },
-    { hf_tn3270_ua_yr, 0, 4, 0 },
-    { hf_tn3270_ua_aw, 0, 1, 0 },
-    { hf_tn3270_ua_ah, 0, 1, 0 },
-    { hf_tn3270_ua_buffsz, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_usable_area_flags1, ett_tn3270_usable_area_flags1, 1, byte1, 0 },
+    { hf_tn3270_usable_area_flags2, ett_tn3270_usable_area_flags1, 1, byte2, 0 },
+    { hf_tn3270_ua_width_cells_pels, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_height_cells_pels, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_uom_cells_pels, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_xr, 0, 4, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_yr, 0, 4, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_aw, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_ah, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_buffsz, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   hf_items fields2[] = {
-    { hf_tn3270_ua_xmin, 0, 1, 0 },
-    { hf_tn3270_ua_ymin, 0, 1, 0 },
-    { hf_tn3270_ua_xmax, 0, 1, 0 },
-    { hf_tn3270_ua_ymax, 0, 1, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_ua_xmin, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_ymin, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_xmax, 0, 1, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_ua_ymax, 0, 1, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   vcp = tvb_get_guint8(tvb, offset+1);
@@ -4058,9 +4069,9 @@ dissect_query_reply_3270_ipds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
   int start=offset;
 
   hf_items fields[] = {
-    { hf_tn3270_resbytes, 0, 2, 0 },
-    { hf_tn3270_3270_tranlim, 0, 2, 0 },
-    { 0, 0, 0, 0 },
+    { hf_tn3270_resbytes, 0, 2, 0, ENC_BIG_ENDIAN },
+    { hf_tn3270_3270_tranlim, 0, 2, 0, ENC_BIG_ENDIAN },
+    { 0, 0, 0, 0, 0 }
   };
 
   offset += tn3270_add_hf_items(tn3270_tree, tvb, offset, fields);
@@ -4081,13 +4092,13 @@ process_in_out_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
                               hf_tn3270_data_chain_bitmask,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_item(tn3270_tree,
                               hf_tn3270_resbyte,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       break;
     case DESTINATION_OR_ORIGIN:
@@ -4095,19 +4106,19 @@ process_in_out_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
                               hf_tn3270_destination_or_origin_bitmask,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_item(tn3270_tree,
                               hf_tn3270_resbyte,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_item(tn3270_tree,
                               hf_tn3270_sf_inbound_outbound_id,
                               tvb, offset,
                               2,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset+=2;
       break;
     case OBJECT_DATA:
@@ -4124,7 +4135,7 @@ process_in_out_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint of
                               hf_tn3270_resbytes,
                               tvb, offset,
                               2,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset+=2;
       break;
     default:
@@ -4145,7 +4156,7 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                           hf_tn3270_double_byte_sf_id,
                           tvb, offset-1,
                           2,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
   switch (full_sf_id) {
     case BEGIN_OR_END_OF_FILE:
@@ -4153,20 +4164,20 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_partition_id,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       /*TODO: use bits_text */
       proto_tree_add_bits_item(tn3270_tree,
                               hf_tn3270_begin_end_flags1,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_bits_item(tn3270_tree,
                               hf_tn3270_begin_end_flags2,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       break;
     case LOAD_COLOR_TABLE:
@@ -4175,7 +4186,7 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_load_color_command,
                               tvb, offset,
                               (sf_length - 4),
-                              FALSE);
+                              ENC_NA);
       offset+=(sf_length - 4);
       break;
     case LOAD_FORMAT_STORAGE:
@@ -4187,7 +4198,7 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_load_line_type_command,
                               tvb, offset,
                               (sf_length - 4),
-                              FALSE);
+                              ENC_NA);
       offset+=(sf_length - 4);
       break;
     case MODIFY_PARTITION:
@@ -4201,7 +4212,7 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_resbyte,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       break;
     case RESTART:
@@ -4212,7 +4223,7 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_color_command,
                               tvb, offset,
                               2,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset+=2;
       break;
     case SET_CHECKPOINT_INTERVAL:
@@ -4220,13 +4231,13 @@ process_double_byte_sf(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                               hf_tn3270_resbyte,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       proto_tree_add_item(tn3270_tree,
                               hf_tn3270_interval,
                               tvb, offset,
                               2,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset+=2;
       break;
     case SET_MSR_CONTROL:
@@ -4265,10 +4276,10 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                             hf_tn3270_sf_length,
                             tvb, offset,
                             2,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset+=2;
     sf_id = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(tn3270_tree, hf_tn3270_sf_outbound_id, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(tn3270_tree, hf_tn3270_sf_outbound_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sf_tree = proto_item_add_subtree(ti, ett_sf);
     switch (sf_id) {
@@ -4286,7 +4297,7 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                                     hf_tn3270_partition_id,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             break;
           case CREATE_PARTITION:
@@ -4297,7 +4308,7 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                                     hf_tn3270_erase_flags,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             break;
           case LOAD_PROGRAMMED_SYMBOLS:
@@ -4317,13 +4328,13 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                                     hf_tn3270_partition_id,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(sf_tree,
                                     hf_tn3270_scs_data,
                                     tvb, offset,
                                     (sf_length - 4),
-                                    FALSE);
+                                    ENC_NA);
             offset+=(sf_length - 4);
             break;
           case SET_REPLY_MODE:
@@ -4334,13 +4345,13 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                                     hf_tn3270_partition_id,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(sf_tree,
                                     hf_tn3270_format_group,
                                     tvb, offset,
                                     (sf_length - 4),
-                                    FALSE);
+                                    ENC_EBCDIC|ENC_NA);
             offset+=(sf_length - 4);
             break;
           case SET_WINDOW_ORIGIN:
@@ -4348,19 +4359,19 @@ dissect_outbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint 
                                     hf_tn3270_partition_id,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(sf_tree,
                                     hf_tn3270_partition_rw,
                                     tvb, offset,
                                     2,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset+=2;
             proto_tree_add_item(sf_tree,
                                     hf_tn3270_partition_cw,
                                     tvb, offset,
                                     2,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset+=2;
             break;
           default:
@@ -4387,7 +4398,7 @@ dissect_inbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint o
                               hf_tn3270_null,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       sf_length = tvb_get_ntohs(tvb, offset);
     }
@@ -4396,11 +4407,11 @@ dissect_inbound_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint o
                             hf_tn3270_sf_length,
                             tvb, offset,
                             2,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset+=2;
 
     sf_id = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(tn3270_tree, hf_tn3270_sf_inbound_id, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item(tn3270_tree, hf_tn3270_sf_inbound_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     sf_tree = proto_item_add_subtree(ti, ett_sf);
     switch (sf_id) {
@@ -4557,7 +4568,7 @@ dissect_stop_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                           hf_tn3270_stop_address,
                           tvb, offset,
                           2,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
   is_ge = tvb_get_guint8(tvb, offset);
   if (is_ge != GE) {
@@ -4565,7 +4576,7 @@ dissect_stop_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                             hf_tn3270_character_code,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
   }
 
@@ -4674,7 +4685,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_attribute_type,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
   switch (attribute_type) {
     case ALL_CHARACTER_ATTRIBUTES:
@@ -4682,7 +4693,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_all_character_attributes,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case T3270_FIELD_ATTRIBUTE:
@@ -4693,7 +4704,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_extended_highlighting,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case FOREGROUND_COLOR:
@@ -4702,7 +4713,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_color,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case CHARACTER_SET:
@@ -4710,7 +4721,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_character_set,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case FIELD_OUTLINING:
@@ -4718,7 +4729,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_field_outlining,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case TRANSPARENCY:
@@ -4726,7 +4737,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
                           hf_tn3270_transparency,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
       offset++;
       break;
     case FIELD_VALIDATION:
@@ -4749,7 +4760,7 @@ dissect_field_attribute_pairs(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
                           hf_tn3270_number_of_attributes,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
 
   for (i=0; i < no_of_pairs; i++) {
@@ -4772,7 +4783,7 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                             hf_tn3270_order_code,
                             tvb, offset,
                             1,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     offset++;
     switch (order_code) {
           case SF:
@@ -4794,7 +4805,7 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                                     hf_tn3270_character_code,
                                     tvb, offset,
                                     1,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
             offset++;
             break;
           case SBA:
@@ -4834,11 +4845,11 @@ dissect_tn3270e_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
   int len = 0;
 
   hf_items fields[] = {
-      { hf_tn3270_tn3270e_data_type, 0, 1, 0 },
-      { hf_tn3270_tn3270e_request_flag, 0, 1, 0 },
-      { hf_tn3270_tn3270e_response_flag_3270_SCS, 0, 1, 0 },
-      { hf_tn3270_tn3270e_seq_number, 0, 2, 0 },
-      { 0, 0, 0, 0 },
+      { hf_tn3270_tn3270e_data_type, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_tn3270e_request_flag, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_tn3270e_response_flag_3270_SCS, 0, 1, 0, ENC_BIG_ENDIAN },
+      { hf_tn3270_tn3270e_seq_number, 0, 2, 0, ENC_BIG_ENDIAN },
+      { 0, 0, 0, 0, 0 }
   };
 
   data_type = tvb_get_guint8(tvb, offset);
@@ -4855,7 +4866,7 @@ dissect_tn3270e_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
     case TN3270E_SSCP_LU_DATA:
     case TN3270E_UNBIND:
       len = tvb_length_remaining(tvb, offset);
-      proto_tree_add_item(tn3270_tree, hf_tn3270_tn3270e_header_data, tvb, offset, len, FALSE);
+      proto_tree_add_item(tn3270_tree, hf_tn3270_tn3270e_header_data, tvb, offset, len, ENC_EBCDIC|ENC_NA);
       offset += len;
       break;
     default:
@@ -4885,7 +4896,7 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                               hf_tn3270_command_code,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       /* WCC */
       offset += dissect_wcc(tn3270_tree, tvb, offset);
@@ -4897,7 +4908,7 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                               hf_tn3270_command_code,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       offset += dissect_outbound_structured_fields(tn3270_tree, tvb, offset);
       break;
@@ -4923,7 +4934,7 @@ dissect_inbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                           hf_tn3270_aid,
                           tvb, offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   offset++;
   switch (aid) {
     case  STRUCTURED_FIELD:
@@ -4971,14 +4982,14 @@ dissect_inbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
                               hf_tn3270_cursor_x,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
 
       proto_tree_add_item(tn3270_tree,
                               hf_tn3270_cursor_y,
                               tvb, offset,
                               1,
-                              FALSE);
+                              ENC_BIG_ENDIAN);
       offset++;
       offset += dissect_orders_and_data(tn3270_tree, tvb, offset);
       break;
@@ -5017,7 +5028,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_tn3270, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_tn3270, tvb, offset, -1, ENC_NA);
     tn3270_tree = proto_item_add_subtree(ti, ett_tn3270);
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -5356,7 +5367,7 @@ proto_register_tn3270(void)
     /* 5.10 - Load Color Table */
     { &hf_tn3270_load_color_command,
         {  "Command", "tn3270.load_color_command",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     /* End - 5.10 - Load Color Table */
 
@@ -5375,26 +5386,26 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_load_format_storage_localname,
         {  "Local name for user selectable formats", "tn3270.load_format_storage_localname",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_format_group,
         {  "Format Group name", "tn3270.format_group_name",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_format_name,
         {  "Format name", "tn3270.format_name",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_load_format_storage_format_data,
         {  "Format data", "tn3270.load_format_storage_format_data",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     /* END - 5.11 - Load Format Storage */
 
     /* 5.12 - Load Line Type */
     { &hf_tn3270_load_line_type_command,
         {  "Line Type Command", "tn3270.load_line_type_command",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
     /* 5.13 - Load Programmed Symbols */
@@ -5666,7 +5677,7 @@ proto_register_tn3270(void)
 
    { &hf_tn3270_type_1_text_outbound_data,
         {  "Type 1 text outbound data", "tn3270.type_1_text_outbound_data",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
     /* 6.2 - Exception/Status */
@@ -6070,17 +6081,8 @@ proto_register_tn3270(void)
     /* 6.15 - Query Reply (Data Chaining) */
     { &hf_tn3270_dc_dir_flags,
         {  "Indicates which direction can use the Data Chain structured field.", "tn3270.dc_dir_flags",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, VALS(vals_data_chaining_dir), 0xC0,
             NULL, HFILL }},
-    { &hf_tn3270_dc_both,
-        { "Both",
-            "tn3270.dc_both", FT_BOOLEAN, 8, NULL, 0x00, NULL, HFILL }},
-    { &hf_tn3270_dc_from_device,
-        { "From Device Only",
-            "tn3270.dc_device", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-    { &hf_tn3270_dc_to_device,
-        { "To Device Only",
-            "tn3270.dc_to_device", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
     /* END - 6.15 - Query Reply (Data Chaining) */
 
     /* 6.16 - Query Reply (Data Streams) */
@@ -6306,11 +6308,11 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_oem_dtype,
         {  "Device type", "tn3270.oem_dtype",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_oem_uname,
         {  "User assigned name", "tn3270.oem_uname",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_sdp_daid,
         {  "Destination/Origin ID", "tn3270.oem_sdp_daid_doid",
@@ -6366,7 +6368,7 @@ proto_register_tn3270(void)
     /* 6.43 - Query Reply (RPQ Names) */
     { &hf_tn3270_rpq_device,
         {  "Device type identifier", "tn3270.rpq_device",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_rpq_mid,
         {  "Model type identifier", "tn3270.rpq_mid",
@@ -6378,7 +6380,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_rpq_name,
         {  "RPQ name", "tn3270.rpq_name",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     /* END - Query Reply (Names) */
 
@@ -6550,7 +6552,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_field_data,
         {  "Field Data", "tn3270.field_data",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             "tn3270.field_data", HFILL }},
     { &hf_tn3270_number_of_attributes,
         {  "Number of Attributes", "tn3270.number_of_attributes",
@@ -6590,7 +6592,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_unknown_data,
         {  "Unknown Data (Possible Mainframe/Emulator Bug)", "tn3270.unknown_data",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
     /*TN3270E - Header Fields */
@@ -6612,7 +6614,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_tn3270e_header_data,
         {  "TN3270E Header Data", "tn3270.tn3270e_header_data",
-            FT_EBCDIC, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }}
   };
 

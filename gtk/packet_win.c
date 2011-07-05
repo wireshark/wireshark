@@ -309,7 +309,7 @@ finfo_string_changed(GtkEditable *editable, gpointer user_data)
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
 		/* strncpy */
 		while (finfo_length && *val) {
-			DataPtr->pd[finfo_offset++] = /* (finfo_type == FT_EBCDIC) ? ASCII_to_EBCDIC1(*val) : */ *val;
+			DataPtr->pd[finfo_offset++] = *val;
 			finfo_length--;
 			val++;
 		}
@@ -580,7 +580,6 @@ not_supported:
 			FT_FLOAT, FT_DOUBLE,
 			FT_IPXNET, FT_IPv6, FT_ETHER,
 			FT_GUID, FT_OID,
-			FT_EBCDIC,						; like FT_STRING, but it needs ASCII_to_EBCDIC1 uncommented
 			FT_UINT_STRING,
 			FT_ABSOLUTE_TIME, FT_RELATIVE_TIME
 		*/

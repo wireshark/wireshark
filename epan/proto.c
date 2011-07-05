@@ -194,9 +194,7 @@ proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
 static void
 proto_tree_set_string(field_info *fi, const char* value);
 static void
-proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
-static void
-proto_tree_set_ebcdic_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
+proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding);
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value);
 static void
@@ -1443,7 +1441,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRING:
-			proto_tree_set_string_tvb(new_fi, tvb, start, length);
+			proto_tree_set_string_tvb(new_fi, tvb, start, length,
+			    encoding);
 			break;
 
 		case FT_STRINGZ:
@@ -1458,17 +1457,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * we're putting this item.
 			 */
 			if (length == -1) {
-				gchar *string_writable;
-
 				/* This can throw an exception */
-				length = tvb_strsize(tvb, start);
-
-				string_writable = ep_alloc(length);
-
-				tvb_memcpy(tvb, string_writable, start, length);
-				if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
-					EBCDIC_to_ASCII(string_writable, length);
-				string = string_writable;
+				string = tvb_get_stringz_enc(tvb, start, &length, encoding);
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {
@@ -1503,19 +1493,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-				gchar *string_writable;
-
-				string_writable = tvb_get_ephemeral_string(tvb, start, length);
-				if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
-					EBCDIC_to_ASCII(string_writable, length);
-				string = string_writable;
+				string = tvb_get_ephemeral_string_enc(tvb, start, length, encoding);
 			}
 			new_fi->length = length;
 			proto_tree_set_string(new_fi, string);
-			break;
-
-		case FT_EBCDIC:
-			proto_tree_set_ebcdic_string_tvb(new_fi, tvb, start, length);
 			break;
 
 		case FT_UINT_STRING:
@@ -1523,18 +1504,23 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * NOTE: to support code written when
 			 * proto_tree_add_item() took a gboolean as its
 			 * last argument, with FALSE meaning "big-endian"
-			 * and TRUE meaning "little-endian", we treat any
-			 * non-zero value of "encoding" as meaning
-			 * "little-endian".
+			 * and TRUE meaning "little-endian", we any
+			 * non-zero value of "encoding", except for
+			 * ENC_EBCDIC|ENC_BIG_ENDIAN and
+			 * ENC_EBCDIC|ENC_LITTLE_ENDIAN  as meaning
+			 * "little-endian UTF-8".
 			 *
 			 * At some point in the future, we might
-			 * support character encodings in the
+			 * support more character encodings in the
 			 * encoding value as well.
 			 */
-			if (encoding)
-				encoding = ENC_LITTLE_ENDIAN;
+			if (encoding != 0 &&
+			    encoding != (ENC_EBCDIC|ENC_BIG_ENDIAN) &&
+			    encoding != (ENC_EBCDIC|ENC_LITTLE_ENDIAN))
+				encoding = ENC_UTF_8|ENC_LITTLE_ENDIAN;
 			n = get_uint_value(tvb, start, length, encoding);
-			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
+			proto_tree_set_string_tvb(new_fi, tvb, start + length, n,
+			    encoding);
 
 			/* Instead of calling proto_item_set_len(), since we
 			 * don't yet have a proto_item, we set the
@@ -2627,7 +2613,7 @@ proto_tree_set_string(field_info *fi, const char* value)
 }
 
 static void
-proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
+proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding)
 {
 	gchar	*string;
 
@@ -2635,22 +2621,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
-	string = tvb_get_ephemeral_string(tvb, start, length);
-	proto_tree_set_string(fi, string);
-}
-
-static void
-proto_tree_set_ebcdic_string_tvb(field_info *fi, tvbuff_t *tvb, gint start,
-				 gint length)
-{
-	gchar	*string;
-
-	if (length == -1) {
-		length = tvb_ensure_length_remaining(tvb, start);
-	}
-
-	string = tvb_get_ephemeral_string(tvb, start, length);
-	EBCDIC_to_ASCII(string, length);
+	string = tvb_get_ephemeral_string_enc(tvb, start, length, encoding);
 	proto_tree_set_string(fi, string);
 }
 
@@ -3943,7 +3914,6 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 offset_r = (int)strlen(result);
                                 break;
 
-                        case FT_EBCDIC:
                         case FT_STRING:
                         case FT_STRINGZ:
                         case FT_UINT_STRING:
@@ -4771,7 +4741,6 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    { FT_RELATIVE_TIME,	"FT_RELATIVE_TIME" },
 	    { FT_STRING,	"FT_STRING" },
 	    { FT_STRINGZ,	"FT_STRINGZ" },
-	    { FT_EBCDIC,	"FT_EBCDIC" },
 	    { FT_UINT_STRING,	"FT_UINT_STRING" },
 	    { FT_ETHER,		"FT_ETHER" },
 	    { FT_BYTES,		"FT_BYTES" },
@@ -5287,7 +5256,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 		case FT_STRING:
 		case FT_STRINGZ:
-		case FT_EBCDIC:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
 			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
