@@ -283,11 +283,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     g_snprintf(string_buff4, SUM_STR_MAX, "%s", pcap_datalink_val_to_description(iface.linktype));
 #else
-    strcpy(string_buff3, "unknown")
-    strcpy(string_buff4, "unknown")
+    g_snprintf(string_buff3, SUM_STR_MAX, "unknown")
+    g_snprintf(string_buff4, SUM_STR_MAX, "unknown")
 #endif
     if (strcmp(string_buff4, "(null)") == 0) {
-      strcpy(string_buff4, "unknown");
+      g_snprintf(string_buff4, SUM_STR_MAX, "unknown");
     }
     if (iface.has_snap) {
       g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
