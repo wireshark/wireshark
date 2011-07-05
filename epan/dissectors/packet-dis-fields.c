@@ -821,16 +821,18 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
 
     enumStr = val_to_str(enumVal, enumStrings, "Unknown Enumeration (%d)");
 
-    if (dis_hf_id == -1) {
+    if (dis_hf_id != -1) {
+#if 0
+       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
+       proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr);
+#else
+       proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
+#endif
+    }
+    else {
        proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %s",
            parserNode.fieldLabel, enumStr);
     }
-#if 0
-    else {
-       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
-       proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr);
-    }
-#endif
 
     if (parserNode.outputVar != 0)
     {
