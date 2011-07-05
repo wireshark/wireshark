@@ -131,22 +131,38 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->drops = cf->drops;
   st->dfilter = cf->dfilter;
 
-  /* capture related */
-  st->cfilter = NULL;
-  st->iface = NULL;
-  st->iface_descr = NULL;
+  st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
 }
 
 
 #ifdef HAVE_LIBPCAP
-/* FIXME: This needs additional functionality to support multiple interfaces */
 void
 summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
 {
+  iface_options iface;
+  interface_options interface_opts;
+  guint i;
+
   if (capture_opts->ifaces->len > 0) {
-    st->cfilter = g_array_index(capture_opts->ifaces, interface_options, 0).cfilter;
-    st->iface = g_array_index(capture_opts->ifaces, interface_options, 0).name;
-    st->iface_descr = get_iface_description_for_interface(capture_opts, 0);
-  }
+    while (st->ifaces->len > 0) {
+      iface = g_array_index(st->ifaces, iface_options, 0);
+      st->ifaces = g_array_remove_index(st->ifaces, 0);
+      g_free(iface.name);
+      g_free(iface.descr);
+      g_free(iface.cfilter);
+    }
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
+      interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+      iface.cfilter = g_strdup(interface_opts.cfilter);
+      iface.name = g_strdup(interface_opts.name);
+      iface.descr = g_strdup(interface_opts.descr);
+      iface.drops_known = FALSE;
+      iface.drops = 0;
+      iface.has_snap = interface_opts.has_snaplen;
+      iface.snap = interface_opts.snaplen;
+      iface.linktype = interface_opts.linktype;
+      g_array_append_val(st->ifaces, iface);
+    }
+  } 
 }
 #endif

@@ -29,6 +29,17 @@
 #include "capture.h"
 #endif
 
+typedef struct iface_options_tag {
+    char	*name;
+    char	*descr;
+    char	*cfilter;
+    guint64	drops;		/* number of packet drops */
+    gboolean	drops_known;	/* TRUE if number of packet drops is known */
+    gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
+    int		snap;		/* Maximum captured packet length */
+    int		linktype;		/* wiretap encapsulation type */
+} iface_options;
+
 typedef struct _summary_tally {
     guint64	bytes;		/* total bytes */
     double	start_time;	/* seconds, with msec resolution */
@@ -57,9 +68,8 @@ typedef struct _summary_tally {
     const char	*dfilter;	/* display filter */
 
     /* capture related, use summary_fill_in_capture() to get values */
-    const char	*cfilter;	/* capture filter */
-    const char	*iface;		/* interface name */
-    const char	*iface_descr;/* descriptive interface name */
+    GArray	*ifaces;
+    gboolean	legacy;
 } summary_tally;
 
 extern void

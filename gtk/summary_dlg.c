@@ -41,6 +41,7 @@
 #include "../globals.h"
 #include "../file.h"
 #include "../summary.h"
+#include "../capture-pcap-util.h"
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"
 #include "gtk/main.h"
@@ -51,7 +52,6 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/help_dlg.h"
-
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50
@@ -106,13 +106,19 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   summary_tally summary;
   GtkWidget     *sum_open_w,
                 *main_vb, *bbox, *close_bt, *help_bt;
-  GtkWidget     *table;
-  GtkWidget     *list;
+  GtkWidget     *table, *scrolled_window;
+  GtkWidget     *list, *treeview;
+  GtkListStore  *store;
+  GtkTreeIter    iter;
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
   static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
 
   gchar         string_buff[SUM_STR_MAX];
   gchar         string_buff2[SUM_STR_MAX];
   gchar         string_buff3[SUM_STR_MAX];
+  gchar         string_buff4[SUM_STR_MAX];
+  gchar         string_buff5[SUM_STR_MAX];
 
   double        seconds;
   double        disp_seconds;
@@ -126,6 +132,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   time_t        ti_time;
   struct tm    *ti_tm;
   unsigned int  elapsed_time;
+  iface_options iface;
+  unsigned int  i;
 
   /* initial computations */
   summary_fill_in(&cfile, &summary);
@@ -221,37 +229,81 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture */
   add_string_to_table(table, &row, "", "");
-  add_string_to_table_sensitive(table, &row, "Capture", "", (summary.iface != NULL));
+  add_string_to_table_sensitive(table, &row, "Capture", "", (global_capture_opts.ifaces->len>0));
+  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_widget_set_size_request(scrolled_window, -1, 120);
 
-  /* interface */
-  if (summary.iface) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.iface_descr);
-  } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "unknown");
-  }
-  add_string_to_table_sensitive(table, &row, "Interface:", string_buff, (summary.iface) != NULL);
-
-  /* Dropped count */
-  if (summary.drops_known) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.drops);
-  } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "unknown");
-  }
-  add_string_to_table_sensitive(table, &row, "Dropped packets:", string_buff, (summary.iface != NULL));
-
-#ifdef HAVE_LIBPCAP
-  /* Capture filter */
-  if (summary.cfilter && summary.cfilter[0] != '\0') {
-    g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.cfilter);
-  } else {
-    if(summary.iface) {
-      g_snprintf(string_buff, SUM_STR_MAX, "none");
+  treeview = gtk_tree_view_new();
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Interface", renderer, "text", 0, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Dropped Packets", renderer, "text", 1, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Capture Filter", renderer, "text", 2, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Link type", renderer, "text", 3, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Packet size limit", renderer, "text", 4, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+      
+  store = gtk_list_store_new(5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  for (i = 0; i < summary.ifaces->len; i++) {
+    iface = g_array_index(summary.ifaces, iface_options, i);
+    /* interface */
+    if (iface.descr) {
+      g_snprintf(string_buff, SUM_STR_MAX, "%s", iface.descr);
+    } else if (iface.name) {
+      g_snprintf(string_buff, SUM_STR_MAX, "%s", iface.name);
     } else {
       g_snprintf(string_buff, SUM_STR_MAX, "unknown");
     }
-  }
-  add_string_to_table_sensitive(table, &row, "Capture filter:", string_buff, (summary.iface != NULL));
+    /* Dropped count */
+    if (iface.drops_known) {
+      g_snprintf(string_buff2, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", iface.drops);
+    } else {
+      g_snprintf(string_buff2, SUM_STR_MAX, "unknown");
+    }
+#ifdef HAVE_LIBPCAP
+    /* Capture filter */
+    if (iface.cfilter && iface.cfilter[0] != '\0') {
+      g_snprintf(string_buff3, SUM_STR_MAX, "%s", iface.cfilter);
+    } else {
+      if(iface.name) {
+        g_snprintf(string_buff3, SUM_STR_MAX, "none");
+      } else {
+        g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
+      }
+    }
 #endif
+    g_snprintf(string_buff4, SUM_STR_MAX, "%s", pcap_datalink_val_to_description(iface.linktype));
+    if (strcmp(string_buff4, "(null)") == 0) {
+      strcpy(string_buff4, "unknown");
+    }
+    if (iface.has_snap) {
+      g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
+    } else {
+      g_snprintf(string_buff5, SUM_STR_MAX, "unknown");
+    }
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, string_buff, 1, string_buff2, 2, string_buff3, 3, string_buff4, 4, string_buff5,-1);
+  }
+  gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
+  g_object_unref (store);
+  gtk_container_add(GTK_CONTAINER(scrolled_window), treeview);
+  gtk_container_add(GTK_CONTAINER(main_vb),scrolled_window);
+  gtk_widget_show_all (scrolled_window);
+  table = gtk_table_new(1, 2, FALSE);
+  gtk_table_set_col_spacings(GTK_TABLE(table), 6);
+  gtk_table_set_row_spacings(GTK_TABLE(table), 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), table);
+  row = 0;
 
 
   /* Data */
