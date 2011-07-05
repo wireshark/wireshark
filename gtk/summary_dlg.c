@@ -229,7 +229,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture */
   add_string_to_table(table, &row, "", "");
-  add_string_to_table_sensitive(table, &row, "Capture", "", (global_capture_opts.ifaces->len>0));
+  add_string_to_table_sensitive(table, &row, "Capture", "", (summary.ifaces->len > 0));
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
@@ -275,14 +275,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     if (iface.cfilter && iface.cfilter[0] != '\0') {
       g_snprintf(string_buff3, SUM_STR_MAX, "%s", iface.cfilter);
     } else {
-      if(iface.name) {
+      if (iface.name) {
         g_snprintf(string_buff3, SUM_STR_MAX, "none");
       } else {
         g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
       }
     }
-#endif
     g_snprintf(string_buff4, SUM_STR_MAX, "%s", pcap_datalink_val_to_description(iface.linktype));
+#else
+    strcpy(string_buff3, "unknown")
+    strcpy(string_buff4, "unknown")
+#endif
     if (strcmp(string_buff4, "(null)") == 0) {
       strcpy(string_buff4, "unknown");
     }
