@@ -60,7 +60,7 @@ struct batman_packet_v5 {
 	guint16 seqno;
 	address orig;
 	address prev_sender;
-	guint8  num_hna;
+	guint8  num_tt;
 	guint8  pad;
 };
 #define BATMAN_PACKET_V5_SIZE 22
@@ -74,7 +74,7 @@ struct batman_packet_v7 {
 	address orig;
 	address prev_sender;
 	guint8  ttl;
-	guint8  num_hna;
+	guint8  num_tt;
 };
 #define BATMAN_PACKET_V7_SIZE 20
 
@@ -87,7 +87,7 @@ struct batman_packet_v9 {
 	address orig;
 	address prev_sender;
 	guint8  ttl;
-	guint8  num_hna;
+	guint8  num_tt;
 	guint8  gwflags;
 	guint8  pad;
 };
@@ -102,7 +102,7 @@ struct batman_packet_v10 {
 	address orig;
 	address prev_sender;
 	guint8  ttl;
-	guint8  num_hna;
+	guint8  num_tt;
 	guint8  gwflags;
 	guint8  pad;
 };
@@ -117,7 +117,7 @@ struct batman_packet_v11 {
 	address orig;
 	address prev_sender;
 	guint8  ttl;
-	guint8  num_hna;
+	guint8  num_tt;
 };
 #define BATMAN_PACKET_V11_SIZE 22
 
@@ -218,7 +218,7 @@ struct vis_packet_v10 {
 static gint ett_batadv_batman = -1;
 static gint ett_batadv_batman_flags = -1;
 static gint ett_batadv_batman_gwflags = -1;
-static gint ett_batadv_batman_hna = -1;
+static gint ett_batadv_batman_tt = -1;
 static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
 static gint ett_batadv_icmp_rr = -1;
@@ -241,8 +241,8 @@ static int hf_batadv_batman_seqno = -1;
 static int hf_batadv_batman_seqno32 = -1;
 static int hf_batadv_batman_orig = -1;
 static int hf_batadv_batman_prev_sender = -1;
-static int hf_batadv_batman_num_hna = -1;
-static int hf_batadv_batman_hna = -1;
+static int hf_batadv_batman_num_tt = -1;
+static int hf_batadv_batman_tt = -1;
 
 static int hf_batadv_bcast_version = -1;
 static int hf_batadv_bcast_orig = -1;
@@ -365,7 +365,7 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_tt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -526,7 +526,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	SET_ADDRESS(&batman_packeth->orig, AT_ETHER, 6, orig_addr);
 	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
 	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
-	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+20);
+	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->pad = tvb_get_guint8(tvb, offset+21);
 
 	/* Set info column */
@@ -581,7 +581,7 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
 	offset += 6;
 
-	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* Skip 1 byte of padding. */
@@ -592,14 +592,14 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->num_hna; i++) {
+	for (i = 0; i < batman_packeth->num_tt; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		dissect_batadv_tt(next_tvb, pinfo, batadv_batman_tree);
 		offset += 6;
 	}
 
@@ -635,7 +635,7 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	prev_sender_addr = tvb_get_ptr(tvb, offset+12, 6);
 	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
-	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+19);
+	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -685,7 +685,7 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
@@ -693,14 +693,14 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->num_hna; i++) {
+	for (i = 0; i < batman_packeth->num_tt; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		dissect_batadv_tt(next_tvb, pinfo, batadv_batman_tree);
 		offset += 6;
 	}
 
@@ -736,7 +736,7 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	prev_sender_addr = tvb_get_ptr(tvb, offset+12, 6);
 	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
-	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+19);
+	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+20);
 
 	/* Set info column */
@@ -788,7 +788,7 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	tgw = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_gwflags, tvb, offset, 1, FALSE);
@@ -803,14 +803,14 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->num_hna; i++) {
+	for (i = 0; i < batman_packeth->num_tt; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		dissect_batadv_tt(next_tvb, pinfo, batadv_batman_tree);
 		offset += 6;
 	}
 
@@ -846,7 +846,7 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
 	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+21);
+	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+22);
 
 	/* Set info column */
@@ -898,7 +898,7 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	tgw = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_gwflags, tvb, offset, 1, FALSE);
@@ -913,14 +913,14 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->num_hna; i++) {
+	for (i = 0; i < batman_packeth->num_tt; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		dissect_batadv_tt(next_tvb, pinfo, batadv_batman_tree);
 		offset += 6;
 	}
 
@@ -956,7 +956,7 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
 	SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, 6, prev_sender_addr);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->num_hna = tvb_get_guint8(tvb, offset+21);
+	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1007,7 +1007,7 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_hna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, orig_addr);
@@ -1015,26 +1015,26 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 
 	tap_queue_packet(batadv_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->num_hna; i++) {
+	for (i = 0; i < batman_packeth->num_tt; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 6, 6);
 
 		if (have_tap_listener(batadv_follow_tap)) {
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		dissect_batadv_hna(next_tvb, pinfo, batadv_batman_tree);
+		dissect_batadv_tt(next_tvb, pinfo, batadv_batman_tree);
 		offset += 6;
 	}
 
 	return offset;
 }
 
-static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_batadv_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	const guint8  *hna;
-	proto_tree *batadv_batman_hna_tree = NULL;
+	const guint8  *tt;
+	proto_tree *batadv_batman_tt_tree = NULL;
 
-	hna = tvb_get_ptr(tvb, 0, 6);
+	tt = tvb_get_ptr(tvb, 0, 6);
 
 	/* Set tree info */
 	if (tree) {
@@ -1042,15 +1042,15 @@ static void dissect_batadv_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, 6,
-			                                    "B.A.T.M.A.N. HNA: %s (%s)",
-			                                    get_ether_name(hna), ether_to_str(hna));
+			                                    "B.A.T.M.A.N. TT: %s (%s)",
+			                                    get_ether_name(tt), ether_to_str(tt));
 		} else {
 			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, 6, FALSE);
 		}
-		batadv_batman_hna_tree = proto_item_add_subtree(ti, ett_batadv_batman_hna);
+		batadv_batman_tt_tree = proto_item_add_subtree(ti, ett_batadv_batman_tt);
 	}
 
-	proto_tree_add_ether(batadv_batman_hna_tree, hf_batadv_batman_hna, tvb, 0, 6, hna);
+	proto_tree_add_ether(batadv_batman_tt_tree, hf_batadv_batman_tt, tvb, 0, 6, tt);
 }
 
 static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2036,8 +2036,8 @@ void proto_register_batadv(void)
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_batadv_batman_num_hna,
-		  { "Number of HNAs", "batadv.batman.num_hna",
+		{ &hf_batadv_batman_num_tt,
+		  { "Number of TTs", "batadv.batman.num_tt",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
@@ -2056,8 +2056,8 @@ void proto_register_batadv(void)
 		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
 		    NULL, HFILL }
 		},
-		{ &hf_batadv_batman_hna,
-		  { "Host Network Announcement", "batadv.batman.hna",
+		{ &hf_batadv_batman_tt,
+		  { "Translation Table", "batadv.batman.tt",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
@@ -2294,7 +2294,7 @@ void proto_register_batadv(void)
 	static gint *ett[] = {
 		&ett_batadv_batman,
 		&ett_batadv_batman_flags,
-		&ett_batadv_batman_hna,
+		&ett_batadv_batman_tt,
 		&ett_batadv_batman_gwflags,
 		&ett_batadv_bcast,
 		&ett_batadv_icmp,
