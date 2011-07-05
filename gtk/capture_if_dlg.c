@@ -106,10 +106,11 @@ static GList     *if_data_list = NULL;
 
 static guint      timer_id;
 
-static GtkWidget *stop_bt;
+static GtkWidget *stop_bt, *capture_bt, *options_bt;
 
 static GList     *if_list;
 
+static guint   currently_selected = 0;
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
  */
@@ -123,26 +124,61 @@ typedef struct if_dlg_data_s {
     GtkWidget   *ip_lb;
     GtkWidget   *curr_lb;
     GtkWidget   *last_lb;
-    GtkWidget   *capture_bt;
-    GtkWidget   *prepare_bt;
+    GtkWidget   *choose_bt;
 #ifdef _WIN32
     GtkWidget   *details_bt;
 #endif
     guint32     last_packets;
     gchar       *device;
     if_info_t   if_info;
+    gboolean    selected;
 } if_dlg_data_t;
 
+static gboolean gbl_capture_in_progress = FALSE;
+
+static void
+store_selected(GtkWidget *choose_bt _U_, gpointer if_data)
+{
+  if_dlg_data_t *if_dlg_data = if_data, *temp;
+  GList *curr;
+  unsigned int ifs;
+
+  for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
+    curr = g_list_nth(if_data_list, ifs);
+    temp = (if_dlg_data_t *)(curr->data);
+    if (strcmp(if_dlg_data->if_info.name, temp->if_info.name) == 0) {
+      temp->selected ^=1;
+      if_data_list = g_list_remove(if_data_list, curr->data);
+      if_data_list = g_list_insert(if_data_list, temp, ifs);
+      if (temp->selected)
+        currently_selected += 1;
+      else
+        currently_selected -= 1;
+      break;
+    }
+  }
+  if (cap_if_w) {
+    gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected > 0));
+    gtk_widget_set_sensitive(options_bt, !gbl_capture_in_progress && (currently_selected <= 1));
+  }
+}
 
 /* start capture button was pressed */
 static void
+#ifdef HAVE_AIRPCAP
 capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
+#else
+capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
+#endif
 {
+  if_dlg_data_t *temp;
+  GList *curr;
+  int ifs;
   interface_options interface_opts;
   cap_settings_t cap_settings;
+#ifdef HAVE_AIRPCAP
   if_dlg_data_t *if_dlg_data = if_data;
 
-#ifdef HAVE_AIRPCAP
   airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, if_dlg_data->if_info.name);
   airpcap_if_selected = airpcap_if_active;
 #endif
@@ -160,34 +196,39 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
     g_free(interface_opts.auth_password);
 #endif
   }
-  interface_opts.name = g_strdup(if_dlg_data->device);
-  interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-  cap_settings = capture_get_cap_settings (interface_opts.name);;
-  interface_opts.monitor_mode = cap_settings.monitor_mode;
-  interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-  interface_opts.cfilter = global_capture_opts.default_options.cfilter;
-  interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-  interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-  interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+  for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
+    temp = (if_dlg_data_t *)(curr->data);
+    if (temp->selected ) {
+      interface_opts.name = g_strdup(temp->device);
+      interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+      cap_settings = capture_get_cap_settings (interface_opts.name);
+      interface_opts.monitor_mode = cap_settings.monitor_mode;
+      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+      interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+      interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+      interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+      interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+      interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
 #endif
 #ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = global_capture_opts.default_options.src_type;
-    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+      interface_opts.src_type = global_capture_opts.default_options.src_type;
+      interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+      interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+      interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+      interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+      interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+      interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+      interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+      interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
     interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
     interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+      g_array_append_val(global_capture_opts.ifaces, interface_opts);
+     }
+  }
 
   /* XXX - remove this? */
   if (global_capture_opts.save_file) {
@@ -195,6 +236,9 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
     global_capture_opts.save_file = NULL;
   }
 
+  if (global_capture_opts.ifaces->len >= 2) {
+    global_capture_opts.use_pcapng = TRUE;
+  }
   /* stop capturing from all interfaces, we are going to do real work now ... */
   window_destroy(cap_if_w);
 
@@ -204,11 +248,13 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 
 /* prepare capture button was pressed */
 static void
-capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
+capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data _U_)
 {
+  int ifs;
+  if_dlg_data_t *temp;
+  GList *curr;
   interface_options interface_opts;
   cap_settings_t cap_settings;
-  if_dlg_data_t *if_dlg_data = if_data;
 
   while (global_capture_opts.ifaces->len > 0) {
     interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
@@ -222,38 +268,46 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
     g_free(interface_opts.auth_username);
     g_free(interface_opts.auth_password);
 #endif
-  } 
-  interface_opts.name = g_strdup(if_dlg_data->device);
-  interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-  cap_settings = capture_get_cap_settings (interface_opts.name);;
-  interface_opts.monitor_mode = cap_settings.monitor_mode;
-  interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-  interface_opts.cfilter = global_capture_opts.default_options.cfilter;
-  interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-  interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-  interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+  }
+
+  for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
+    temp = (if_dlg_data_t *)(curr->data);
+    if (temp->selected ) {
+      interface_opts.name = g_strdup(temp->device); 
+      interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+      cap_settings = capture_get_cap_settings (interface_opts.name);
+      interface_opts.monitor_mode = cap_settings.monitor_mode;
+      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+      interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+      interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+      interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+      interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+      interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
 #endif
 #ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = global_capture_opts.default_options.src_type;
-    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+      interface_opts.src_type = global_capture_opts.default_options.src_type;
+      interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+      interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+      interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+      interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+      interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+      interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+      interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+      interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+      interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+      interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+      g_array_append_val(global_capture_opts.ifaces, interface_opts);
+    }
+  }
   /* stop capturing from all interfaces, we are going to do real work now ... */
   window_destroy(cap_if_w);
-
+  if (global_capture_opts.ifaces->len >= 2) {
+    global_capture_opts.use_pcapng = TRUE;
+  }
   capture_prep_cb(NULL, NULL);
 }
 
@@ -288,7 +342,7 @@ update_if(if_dlg_data_t *if_dlg_data, if_stat_cache_t *sc)
    * to work the same way on all platforms.
    */
   if (sc) {
-    if(capture_stats(sc, if_dlg_data->device, &stats)) {
+    if (capture_stats(sc, if_dlg_data->device, &stats)) {
       diff = stats.ps_recv - if_dlg_data->last_packets;
       if_dlg_data->last_packets = stats.ps_recv;
 
@@ -316,38 +370,27 @@ update_all(gpointer data)
     int ifs;
     if_stat_cache_t *sc = data;
 
-    if(!cap_if_w) {
+    if (!cap_if_w) {
         return FALSE;
     }
 
-    for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
+    for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
         update_if(curr->data, sc);
     }
 
     return TRUE;
 }
 
-static gboolean gbl_capture_in_progress = FALSE;
-
 /* a live capture has started or stopped */
 void
 set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
 {
-    GList *curr;
-    int ifs;
-
-    gbl_capture_in_progress = capture_in_progress;
-
-    if(cap_if_w) {
-        gtk_widget_set_sensitive(stop_bt, capture_in_progress);
-
-        for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
-            if_dlg_data_t *if_dlg_data = curr->data;
-
-            gtk_widget_set_sensitive(if_dlg_data->capture_bt, !capture_in_progress);
-            gtk_widget_set_sensitive(if_dlg_data->prepare_bt, !capture_in_progress);
-        }
-    }
+  gbl_capture_in_progress = capture_in_progress;
+  if (cap_if_w) {
+    gtk_widget_set_sensitive(stop_bt, capture_in_progress);
+    gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected > 0));
+    gtk_widget_set_sensitive(options_bt, !capture_in_progress && (currently_selected <= 1));
+  }
 }
 
 
@@ -361,7 +404,7 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
 
     g_source_remove(timer_id);
 
-    for(ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
+    for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
         g_free(curr->data);
     }
 
@@ -646,36 +689,38 @@ found:
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget     *main_vb,
-				*main_sw,
-				*bbox,
-				*close_bt,
-				*help_bt,
-				*icon;
+  GtkWidget         *main_vb,
+                    *main_sw,
+                    *bbox,
+                    *close_bt,
+                    *help_bt,
+                    *icon;
 
 #ifdef HAVE_AIRPCAP
-  GtkWidget		*decryption_cb;
+  GtkWidget         *decryption_cb;
 #endif
 
-  GtkWidget     *if_tb;
-  GtkWidget     *if_lb;
-  GtkWidget     *eb;
+  GtkWidget         *if_tb;
+  GtkWidget         *if_lb;
+  GtkWidget         *eb;
 #if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips   *tooltips;
+  GtkTooltips       *tooltips;
 #endif
-  int           err;
-  gchar         *err_str;
-  GtkRequisition requisition;
-  int           row, height;
-  if_dlg_data_t *if_dlg_data;
-  int           ifs;
-  GList         *curr;
-  if_info_t     *if_info;
-  GString       *if_tool_str = g_string_new("");
-  const gchar   *addr_str;
-  gchar         *tmp_str;
-  gchar         *user_descr;
-  if_stat_cache_t *sc;
+  int               err;
+  gchar             *err_str;
+  GtkRequisition    requisition;
+  int               row, height;
+  if_dlg_data_t     *if_dlg_data = NULL;
+  int               ifs;
+  GList             *curr;
+  if_info_t         *if_info;
+  GString           *if_tool_str = g_string_new("");
+  const gchar       *addr_str;
+  gchar             *user_descr;
+  if_stat_cache_t   *sc;
+  int               preselected = 0, i;
+  interface_options interface_opts;
+  gboolean      found = FALSE;
 
   if (cap_if_w != NULL) {
     /* There's already a "Capture Interfaces" dialog box; reactivate it. */
@@ -694,7 +739,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 #endif
-
+  preselected = global_capture_opts.ifaces->len;
   /* LOAD THE INTERFACES */
   if_list = capture_interface_list(&err, &err_str);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
@@ -781,45 +826,28 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
    * bother showing them.
    */
   if_lb = gtk_label_new("Device");
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 1, 2, row, row+1);
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 1, 4, row, row+1);
 #endif
-
   if_lb = gtk_label_new("Description");
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 2, 3, row, row+1);
-
-  if_lb = gtk_label_new(" IP ");
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 3, 4, row, row+1);
-
-  if_lb = gtk_label_new("Packets");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 4, 5, row, row+1);
 
-  if_lb = gtk_label_new(" Packets/s ");
+  if_lb = gtk_label_new(" IP ");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 5, 6, row, row+1);
 
-  stop_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_STOP);
-#if GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_tooltip_text(stop_bt, "Stop a running capture.");
-#else
-  gtk_tooltips_set_tip(tooltips, stop_bt,
-          "Stop a running capture.", NULL);
-#endif
+  if_lb = gtk_label_new("Packets");
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 6, 7, row, row+1);
 
-#ifdef _WIN32
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), stop_bt, 6, 9, row, row+1);
-#else
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), stop_bt, 6, 8, row, row+1);
-#endif
-  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_stop_cb), NULL);
-
+  if_lb = gtk_label_new(" Packets/s ");
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 7, 8, row, row+1);
   row++;
-  gtk_widget_size_request(stop_bt, &requisition);
-  height += requisition.height + 15;
 
+  height += 30;
   /* Start gathering statistics (using dumpcap) */
   sc = capture_stat_start(if_list);
 
   /* List the interfaces */
-  for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
+  currently_selected = 0;
+  for (ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
       g_string_assign(if_tool_str, "");
       if_info = curr->data;
 
@@ -829,11 +857,40 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
 
       if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
+      
+      if (preselected > 0) {
+        found = FALSE;
+        for (i = 0; i < (gint)global_capture_opts.ifaces->len; i++) {
+          interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+          if (strcmp(interface_opts.name, (char*)if_info->name) != 0)
+            continue;
+          else {
+            found = TRUE;
+            currently_selected++;
+            preselected--;
+            break;
+          }
+        }
+        if_dlg_data->selected = found;
+      }
+      else
+        if_dlg_data->selected = FALSE;
+      
       if_dlg_data->if_info = *if_info;
 
-      /* Kind of adaptor (icon) */
+      if_dlg_data->choose_bt = gtk_check_button_new();
+#if !GTK_CHECK_VERSION(2,12,0)
+      tmp_str = g_strdup_printf("Choose the interfaces to capture from\n\n%s", if_tool_str->str);
+      gtk_tooltips_set_tip(tooltips, if_dlg_data->choose_bt,
+          tmp_str, NULL);
+      g_free(tmp_str);
+#endif
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->choose_bt, 0, 1, row, row+1);
+      gtk_toggle_button_set_active((GtkToggleButton *)if_dlg_data->choose_bt, if_dlg_data->selected);
+      g_signal_connect(if_dlg_data->choose_bt, "toggled", G_CALLBACK(store_selected), if_dlg_data);
+     /* Kind of adaptor (icon) */
 #ifdef HAVE_AIRPCAP
-      if(get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
+      if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
         icon = xpm_to_widget(capture_airpcap_16_xpm);
       else
         icon = capture_get_if_icon(if_info);
@@ -841,14 +898,14 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       icon = capture_get_if_icon(if_info);
 #endif
 
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 1, 2, row, row+1);
 
       /* device name */
       if_dlg_data->device_lb = gtk_label_new(if_info->name);
       if_dlg_data->device = if_info->name;
 #ifndef _WIN32
       gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0f, 0.5f);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 1, 2, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 2, 4, row, row+1);
 #endif
       g_string_append(if_tool_str, "Device: ");
       g_string_append(if_tool_str, if_info->name);
@@ -866,7 +923,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
           if_dlg_data->descr_lb = gtk_label_new("");
       }
       gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0f, 0.5f);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 4, 5, row, row+1);
 
       if (if_info->description) {
         g_string_append(if_tool_str, "Description: ");
@@ -888,7 +945,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
       eb = gtk_event_box_new ();
       gtk_container_add(GTK_CONTAINER(eb), if_dlg_data->ip_lb);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), eb, 3, 4, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), eb, 5, 6, row, row+1);
       if (get_ip_addr_count(if_info->addrs) > 1) {
         /* More than one IP address, make it possible to toggle */
         g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, if_dlg_data->ip_lb);
@@ -900,35 +957,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
       /* packets */
       if_dlg_data->curr_lb = gtk_label_new("-");
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->curr_lb, 4, 5, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->curr_lb, 6, 7, row, row+1);
 
       /* packets/s */
       if_dlg_data->last_lb = gtk_label_new("-");
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->last_lb, 5, 6, row, row+1);
-
-      /* capture button */
-      if_dlg_data->capture_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_START);
-	  g_signal_connect(if_dlg_data->capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
-      tmp_str = g_strdup_printf("Immediately start a capture from this interface:\n\n%s", if_tool_str->str);
-#if GTK_CHECK_VERSION(2,12,0)
-      gtk_widget_set_tooltip_text(if_dlg_data->capture_bt, tmp_str);
-#else
-      gtk_tooltips_set_tip(tooltips, if_dlg_data->capture_bt,
-          tmp_str, NULL);
-#endif
-      g_free(tmp_str);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->capture_bt, 6, 7, row, row+1);
-
-      /* prepare button */
-      if_dlg_data->prepare_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_OPTIONS);
-      g_signal_connect(if_dlg_data->prepare_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
-#if GTK_CHECK_VERSION(2,12,0)
-      gtk_widget_set_tooltip_text(if_dlg_data->prepare_bt, "Open the capture options dialog with this interface selected.");
-#else
-      gtk_tooltips_set_tip(tooltips, if_dlg_data->prepare_bt,
-          "Open the capture options dialog with this interface selected.", NULL);
-#endif
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->prepare_bt, 7, 8, row, row+1);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->last_lb, 7, 8, row, row+1);
 
       /* details button */
 #ifdef _WIN32
@@ -951,18 +984,26 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
       row++;
       if (row <= 10) {
-          /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
-          gtk_widget_size_request(GTK_WIDGET(if_dlg_data->prepare_bt), &requisition);
-          height += requisition.height;
+        /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
+        gtk_widget_size_request(GTK_WIDGET(if_dlg_data->choose_bt), &requisition);
+        height += requisition.height;
       }
   }
 
   g_string_free(if_tool_str, TRUE);
 
-  /* Button row: close and help button */
-  bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
+  /* Button row: close, help, stop, start, and options button */
+  bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
 
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
+
+  stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
+#if !GTK_CHECK_VERSION(2,12,0)
+  gtk_tooltips_set_tip(tooltips, stop_bt,"Stop a running capture.", NULL);
+#endif
+  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_stop_cb), NULL);
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
 #if GTK_CHECK_VERSION(2,12,0)
@@ -970,10 +1011,16 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #else
   gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
 #endif
-
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
-
+  options_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_OPTIONS);
+  g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
+#if !GTK_CHECK_VERSION(2,12,0)
+  gtk_tooltips_set_tip(tooltips, options_bt, "Open the capture options dialog with this interface selected.", NULL);
+#endif
+  capture_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
+  g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
+#if !GTK_CHECK_VERSION(2,12,0)
+  gtk_tooltips_set_tip(tooltips, capture_bt, "Immediately start a capture from this interface", NULL);
+#endif
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 20 + ifs;

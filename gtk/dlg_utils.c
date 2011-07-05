@@ -115,6 +115,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *cancel       = NULL;
     const gchar *cap_start    = NULL;
     const gchar *cap_stop     = NULL;
+    const gchar *cap_options  = NULL;
+#ifdef _WIN32
+    const gchar *cap_details  = NULL;
+#endif
     const gchar *clear        = NULL;
     const gchar *close        = NULL;
     const gchar *copy         = NULL;
@@ -170,6 +174,12 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             cap_start = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_STOP) == 0) {
             cap_stop = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_OPTIONS) == 0) {
+            cap_options = stock_id;
+#ifdef _WIN32
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_DETAILS) == 0) {
+            cap_details = stock_id;
+#endif
 #endif /* HAVE_LIBPCAP */
 #ifdef HAVE_GEOIP
         } else if (strcmp(stock_id, WIRESHARK_STOCK_MAP) == 0) {
@@ -402,6 +412,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (dont_save   != NULL) dlg_button_new(hbox, button_hbox, dont_save);
     if (cap_start   != NULL) dlg_button_new(hbox, button_hbox, cap_start);
     if (cap_stop    != NULL) dlg_button_new(hbox, button_hbox, cap_stop);
+    if (cap_options != NULL) dlg_button_new(hbox, button_hbox, cap_options);
+#ifdef _WIN32
+    if (cap_details != NULL) dlg_button_new(hbox, button_hbox, cap_details);
+#endif
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
     if (filter_stream!= NULL) dlg_button_new(hbox, button_hbox, filter_stream);
