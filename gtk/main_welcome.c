@@ -564,11 +564,11 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 }
 
 
-#ifdef HAVE_LIBPCAP
 /* list the interfaces */
 void
 welcome_if_tree_load(void)
 {
+#ifdef HAVE_LIBPCAP
     if_info_t     *if_info;
     GList         *if_list;
     int err;
@@ -617,8 +617,8 @@ welcome_if_tree_load(void)
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
     }
     free_interface_list(if_list);
-}
 #endif  /* HAVE_LIBPCAP */
+}
 
 
 /* reload the list of interfaces */
