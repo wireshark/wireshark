@@ -211,10 +211,42 @@ static const value_string boost_msgs[] =
     { 0,  NULL }
 };
 
+/* OFDMA frame duration ms (Table 320)*/
+static const value_string frame_duration[] =
+{
+	{ 0, "reserved"},
+	{ 1, "2 ms"},
+	{ 2, "2.5 ms"},
+	{ 3, "4 ms"},
+	{ 4, "5 ms"},
+	{ 5, "8 ms"},
+	{ 6, "10 ms"},
+	{ 7, "12.5 ms"},
+	{ 8, "20 ms"},
+	{ 0, NULL}
+};
+
+/* OFDMA frames per second (Table 320)*/
+static const value_string frames_per_second[] =
+{
+	{ 0, "reserved"},
+	{ 1, "500"},
+	{ 2, "400"},
+	{ 3, "250"},
+	{ 4, "200"},
+	{ 5, "125"},
+	{ 6, "100"},
+	{ 7, "80"},
+	{ 8, "50"},
+	{ 0, NULL}
+};
+
 /* dl-map fields */
 static gint hf_dlmap_message_type = -1;
 
 static gint hf_dlmap_phy_fdur = -1;
+static gint hf_dlmap_phy_fdur_ms = -1;
+static gint hf_dlmap_phy_fdur_per_sec = -1;
 static gint hf_dlmap_phy_fnum = -1;
 static gint hf_dlmap_fch_expected = -1;
 static gint hf_dlmap_dcd = -1;
@@ -2055,6 +2087,8 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     {
         ti = proto_tree_add_text(dlmap_tree, tvb, offset, 4, "Phy Synchronization Field");
         phy_tree = proto_item_add_subtree(ti, ett_275_phy);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset, 1, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset, 1, FALSE);
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur, tvb, offset, 1, FALSE);
         offset++;
         proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset, 3, FALSE);
@@ -2092,10 +2126,12 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* if there is a compressed ul-map, also decode that and include in the length */
     guint offset = 0;
     proto_item *ti = NULL;
+    proto_item *ti_phy = NULL;
     proto_item *ti_dlmap_ies = NULL;
     proto_item *generic_item = NULL;
     proto_tree *tree = NULL;
     proto_tree *ie_tree = NULL;
+    proto_tree *phy_tree = NULL;
     gint ulmap_appended;
     guint length, lennib, pad;
     guint mac_len, dl_ie_count;
@@ -2125,7 +2161,14 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     proto_tree_add_item(tree, hf_dlmapc_ulmap,    tvb, offset,   2, FALSE);
     proto_tree_add_item(tree, hf_dlmapc_rsv,      tvb, offset,   2, FALSE);
     proto_tree_add_item(tree, hf_dlmapc_len,      tvb, offset,   2, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_sync,     tvb, offset+2, 4, FALSE); /* PHY Synchronization (8.4.5.1) */
+    /* PHY Synchronization Field 8.4.5.1 */
+    {
+        ti_phy = proto_tree_add_text(tree, tvb, offset+2, 4, "Phy Synchronization Field");
+        phy_tree = proto_item_add_subtree(ti_phy, ett_275_phy);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset+2, 1, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset+2, 1, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset+3, 3, FALSE);
+    }
     proto_tree_add_item(tree, hf_dlmap_dcd,       tvb, offset+6, 1, FALSE);
     proto_tree_add_item(tree, hf_dlmapc_opid,     tvb, offset+7, 1, FALSE);
     proto_tree_add_item(tree, hf_dlmapc_secid,    tvb, offset+8, 1, FALSE);
@@ -2570,6 +2613,20 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 			{
 				"Frame Duration Code", "wmx.dlmap.phy_fdur",
 				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{
+			&hf_dlmap_phy_fdur_ms,
+			{
+				"Frame Duration", "wmx.dlmap.phy_fdur",
+				FT_UINT8, BASE_HEX, VALS(frame_duration), 0x00, NULL, HFILL
+			}
+		},
+		{
+			&hf_dlmap_phy_fdur_per_sec,
+			{
+				"Frames per second", "wmx.dlmap.phy_fdur",
+				FT_UINT8, BASE_HEX, VALS(frames_per_second), 0x00, NULL, HFILL
 			}
 		},
 		{
