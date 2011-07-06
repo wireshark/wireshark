@@ -648,6 +648,7 @@ welcome_if_panel_reload(void)
 #endif  /* HAVE_LIBPCAP */
 }
 
+#ifdef HAVE_LIBPCAP
 static void make_selections_array(GtkTreeModel  *model,
                                   GtkTreePath   *path _U_,
                                   GtkTreeIter   *iter,
@@ -656,6 +657,7 @@ static void make_selections_array(GtkTreeModel  *model,
   gchar *if_name;
   interface_options interface_opts;
   cap_settings_t cap_settings;
+
   gtk_tree_model_get (model, iter, 0, &if_name, -1);
   interface_opts.name = g_strdup(if_name); 
   interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
@@ -691,6 +693,7 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget*	view;
   gint len;
   interface_options  interface_opts;
+
   view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
   entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   len = gtk_tree_selection_count_selected_rows(entry);
@@ -725,12 +728,13 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
   airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
   capture_start_cb(NULL, NULL);
-}    
+}
     
 void capture_if_cb_prep(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkTreeSelection *entry;
-  GtkWidget*	view;
+  GtkWidget* view;
+
   view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
   entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   if (entry) {
@@ -743,7 +747,8 @@ void capture_if_cb_prep(GtkWidget *w _U_, gpointer d _U_)
 void capture_opts_cb_prep(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkTreeSelection *entry;
-  GtkWidget*	view;
+  GtkWidget* view;
+
   view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
   entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   if (entry) {
@@ -751,7 +756,7 @@ void capture_opts_cb_prep(GtkWidget *w _U_, gpointer d _U_)
   }
   capture_prep_cb(NULL, NULL);
 }
-
+#endif
 
 /* create the welcome page */
 GtkWidget *
@@ -773,6 +778,7 @@ welcome_new(void)
     DWORD chimney_enabled = 0;
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
+#ifdef HAVE_LIBPCAP
     GtkWidget *swindow;
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
@@ -780,6 +786,7 @@ welcome_new(void)
     GList     *if_list;
     int err;
     gchar *err_str = NULL;
+#endif
 
     /* prepare colors */
 
