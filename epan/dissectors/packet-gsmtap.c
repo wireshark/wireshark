@@ -426,6 +426,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		break;
+	case GSMTAP_TYPE_ABIS:
+		sub_handle = GSMTAP_SUB_ABIS;
+		break;
 	case GSMTAP_TYPE_TETRA_I1:
 		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
 		return;
