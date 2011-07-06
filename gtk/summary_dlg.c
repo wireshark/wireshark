@@ -112,6 +112,9 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeIter    iter;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
+#ifdef HAVE_LIBPCAP
+  char          *dl_description;
+#endif
   static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
 
   gchar         string_buff[SUM_STR_MAX];
@@ -281,14 +284,15 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
         g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
       }
     }
-    g_snprintf(string_buff4, SUM_STR_MAX, "%s", pcap_datalink_val_to_description(iface.linktype));
+    dl_description = pcap_datalink_val_to_description(iface.linktype);
+    if (dl_description != NULL)
+      g_snprintf(string_buff4, SUM_STR_MAX, "%s", dl_description);
+    else
+      g_snprintf(string_buff4, SUM_STR_MAX, "DLT %d", iface.linktype);
 #else
-    g_snprintf(string_buff3, SUM_STR_MAX, "unknown")
-    g_snprintf(string_buff4, SUM_STR_MAX, "unknown")
+    g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
+    g_snprintf(string_buff4, SUM_STR_MAX, "unknown");
 #endif
-    if (strcmp(string_buff4, "(null)") == 0) {
-      g_snprintf(string_buff4, SUM_STR_MAX, "unknown");
-    }
     if (iface.has_snap) {
       g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
     } else {
