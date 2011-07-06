@@ -2,6 +2,12 @@
  * Routines for PPI-GEOLOCATION-VECTOR  dissection
  * Copyright 2010, Harris Corp, jellch@harris.com
  *
+ * See
+ *
+ *	http://new.11mercenary.net/~johnycsh/ppi_geolocation_spec/
+ *
+ * for specifications.
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -44,12 +50,31 @@ enum ppi_vector_type {
     PPI_VECTOR_ROTX         =  2,
     PPI_VECTOR_ROTY         =  3,
     PPI_VECTOR_ROTZ         =  4,
+
+    /* V1 */
+    PPI_VECTOR_OFF_R        =  5,
+    PPI_VECTOR_OFF_F        =  6,
+    PPI_VECTOR_OFF_U        =  7,
+    PPI_VECTOR_VEL_R        =  8,
+    PPI_VECTOR_VEL_F        =  9,
+    PPI_VECTOR_VEL_U        = 10,
+    PPI_VECTOR_VEL_T        = 11,
+    PPI_VECTOR_ACC_R        = 12,
+    PPI_VECTOR_ACC_F        = 13,
+    PPI_VECTOR_ACC_U        = 14,
+    PPI_VECTOR_ACC_T        = 15,
+
+    /* V2 */
     PPI_VECTOR_OFF_X        =  5,
     PPI_VECTOR_OFF_Y        =  6,
     PPI_VECTOR_OFF_Z        =  7,
 
     PPI_VECTOR_ERR_ROT      = 16,
     PPI_VECTOR_ERR_OFF      = 17,
+
+    /* V1 only */
+    PPI_VECTOR_ERR_VEL      = 18,
+    PPI_VECTOR_ERR_ACC      = 19,
 
     PPI_VECTOR_DESCSTR      = 28,
     PPI_VECTOR_APPID        = 29,
@@ -78,12 +103,31 @@ enum ppi_vector_type {
 #define PPI_VECTOR_MASK_ROTX        0x00000004
 #define PPI_VECTOR_MASK_ROTY        0x00000008
 #define PPI_VECTOR_MASK_ROTZ        0x00000010
+
+/* V1 */
+#define PPI_VECTOR_MASK_OFF_R       0x00000020
+#define PPI_VECTOR_MASK_OFF_F       0x00000040
+#define PPI_VECTOR_MASK_OFF_U       0x00000080
+#define PPI_VECTOR_MASK_VEL_R       0x00000100
+#define PPI_VECTOR_MASK_VEL_F       0x00000200
+#define PPI_VECTOR_MASK_VEL_U       0x00000400
+#define PPI_VECTOR_MASK_VEL_T       0x00000800
+#define PPI_VECTOR_MASK_ACC_R       0x00001000
+#define PPI_VECTOR_MASK_ACC_F       0x00002000
+#define PPI_VECTOR_MASK_ACC_U       0x00004000
+#define PPI_VECTOR_MASK_ACC_T       0x00008000
+
+/* V2 */
 #define PPI_VECTOR_MASK_OFF_X       0x00000020
 #define PPI_VECTOR_MASK_OFF_Y       0x00000040
 #define PPI_VECTOR_MASK_OFF_Z       0x00000080
 
 #define PPI_VECTOR_MASK_ERR_ROT     0x00010000
 #define PPI_VECTOR_MASK_ERR_OFF     0x00020000
+
+/* V1 only */
+#define PPI_VECTOR_MASK_ERR_VEL     0x00040000
+#define PPI_VECTOR_MASK_ERR_ACC     0x00080000
 
 #define PPI_VECTOR_MASK_DESCSTR     0x10000000  /* 28 */
 #define PPI_VECTOR_MASK_APPID       0x20000000  /* 29 */
@@ -94,6 +138,12 @@ enum ppi_vector_type {
  *  These control the units/interpreration of a vector
  */
 #define PPI_VECTOR_VFLAGS_DEFINES_FORWARD   0x00000001
+
+/* V1 */
+#define PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE     0x00000002
+#define PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS  0x00000004
+
+/* V2 */
 #define PPI_VECTOR_VFLAGS_RELATIVE_TO       0x00000006 /* 2 bits */
 
 /* Values for the two-bit RelativeTo subfield of vflags */
@@ -119,12 +169,32 @@ static int hf_ppi_vector_vchars = -1;
 static int hf_ppi_vector_rot_x = -1;
 static int hf_ppi_vector_rot_y = -1;
 static int hf_ppi_vector_rot_z = -1;
+
+/* V1 */
+static int hf_ppi_vector_off_r = -1;
+static int hf_ppi_vector_off_f = -1;
+static int hf_ppi_vector_off_u = -1;
+static int hf_ppi_vector_vel_r = -1;
+static int hf_ppi_vector_vel_f = -1;
+static int hf_ppi_vector_vel_u = -1;
+static int hf_ppi_vector_vel_t = -1;
+static int hf_ppi_vector_acc_r = -1;
+static int hf_ppi_vector_acc_f = -1;
+static int hf_ppi_vector_acc_u = -1;
+static int hf_ppi_vector_acc_t = -1;
+
+/* V2 */
 static int hf_ppi_vector_off_x = -1;
 static int hf_ppi_vector_off_y = -1;
 static int hf_ppi_vector_off_z = -1;
 
 static int hf_ppi_vector_err_rot= -1;
 static int hf_ppi_vector_err_off= -1;
+
+/* V1 only */
+static int hf_ppi_vector_err_vel= -1;
+static int hf_ppi_vector_err_acc= -1;
+
 static int hf_ppi_vector_descstr= -1;
 static int hf_ppi_vector_appspecific_num = -1;
 static int hf_ppi_vector_appspecific_data = -1;
@@ -135,11 +205,32 @@ static int hf_ppi_vector_present_vchars = -1;
 static int hf_ppi_vector_present_val_x = -1;
 static int hf_ppi_vector_present_val_y = -1;
 static int hf_ppi_vector_present_val_z = -1;
+
+/* V1 */
+static int hf_ppi_vector_present_off_r = -1;
+static int hf_ppi_vector_present_off_f = -1;
+static int hf_ppi_vector_present_off_u = -1;
+static int hf_ppi_vector_present_vel_r = -1;
+static int hf_ppi_vector_present_vel_f = -1;
+static int hf_ppi_vector_present_vel_u = -1;
+static int hf_ppi_vector_present_vel_t = -1;
+static int hf_ppi_vector_present_acc_r = -1;
+static int hf_ppi_vector_present_acc_f = -1;
+static int hf_ppi_vector_present_acc_u = -1;
+static int hf_ppi_vector_present_acc_t = -1;
+
+/* V2 */
 static int hf_ppi_vector_present_off_x = -1;
 static int hf_ppi_vector_present_off_y = -1;
 static int hf_ppi_vector_present_off_z = -1;
+
 static int hf_ppi_vector_present_err_rot = -1;
 static int hf_ppi_vector_present_err_off = -1;
+
+/* V1 only */
+static int hf_ppi_vector_present_err_vel = -1;
+static int hf_ppi_vector_present_err_acc = -1;
+
 static int hf_ppi_vector_present_descstr= -1;
 static int hf_ppi_vector_presenappsecific_num = -1;
 static int hf_ppi_vector_present_appspecific_data = -1;
@@ -147,9 +238,15 @@ static int hf_ppi_vector_present_ext = -1;
 
 /* VectorFlags bits */
 /* There are currently only three bits and two fields defined in vector flags.
-*  These control the units/interpreration of a vector
+*  These control the units/interpretation of a vector
 */
 static int hf_ppi_vector_vflags_defines_forward = -1; /* bit 0 */
+
+/* V1 */
+static int hf_ppi_vector_vflags_rots_absolute = -1; /* different ways to display the same bit, hi or low */
+static int hf_ppi_vector_vflags_offsets_from_gps = -1; /* these are different ways to display the same bit, hi or low */
+
+/* V2 */
 static int hf_ppi_vector_vflags_relative_to= -1; /* bits 1 and 2 */
 
 /*  There are currently eight vector characteristics.
@@ -158,6 +255,8 @@ static int hf_ppi_vector_vflags_relative_to= -1; /* bits 1 and 2 */
 static int hf_ppi_vector_vchars_antenna = -1;
 static int hf_ppi_vector_vchars_dir_of_travel = -1;
 static int hf_ppi_vector_vchars_front_of_veh = -1;
+
+/* V2 only */
 static int hf_ppi_vector_vchars_angle_of_arrival= -1;
 static int hf_ppi_vector_vchars_transmitter_pos= -1;
 
@@ -177,7 +276,7 @@ static void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 /* We want to abbreviate this field into a single line. Does so without any string maniuplation */
-void
+static void
 annotate_vector_chars(guint32 chars, proto_tree *my_pt)
 {
     if (chars & PPI_VECTOR_VCHARS_ANTENNA)
@@ -191,24 +290,395 @@ annotate_vector_chars(guint32 chars, proto_tree *my_pt)
     if (chars & PPI_VECTOR_VCHARS_TRANSMITTER_POS)
         proto_item_append_text(my_pt, " (TRANSMITTER_POS)");
 }
-void
-dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+
+static void
+dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, guint length_remaining, proto_tree *ppi_vector_tree)
 {
-    proto_tree *ppi_vector_tree = NULL;
     proto_tree *vectorflags_tree = NULL;
     proto_tree *vectorchars_tree = NULL;
     proto_tree *my_pt, *pt, *present_tree = NULL;
-    proto_item *ti = NULL;
-    proto_item *vector_line = NULL;
-    guint length_remaining;
-    int offset = 0;
+    proto_item *ti;
 
     /* bits */
     int bit;
     guint32 present, next_present;
     /* values actually read out, for displaying */
-    guint32 version;
-    guint length;
+    gdouble rot_x, rot_y, rot_z;
+    gdouble off_r, off_f, off_u;
+    gdouble vel_r, vel_f, vel_u, vel_t;
+    gdouble acc_r, acc_f, acc_u, acc_t = 0;
+    gdouble err_rot, err_off, err_vel, err_acc;
+    guint32  appsecific_num; /* appdata parser should add a subtree based on this value */
+    guint32 flags=0, chars=0;
+
+    /* temporary, conversion values */
+    guint32 t_val;
+
+    present = tvb_get_letohl(tvb, offset+4);
+    /* Subtree for the "present flags" bitfield. */
+    if (ppi_vector_tree) {
+        pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_present,
+                                 tvb, offset + 4, 4, present);
+        present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
+
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_r, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_f, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_u, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_r, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_f, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_u, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_t, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_r, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_f, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_u, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_t, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_vel, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_acc, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_appspecific_data, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext, tvb, 4, 4, TRUE);
+    }
+    offset += PPI_GEOBASE_MIN_HEADER_LEN;
+    length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
+
+
+    /* Now all of the fixed length, fixed location stuff is over. Loop over the bits */
+    for (; present; present = next_present) {
+        /* clear the least significant bit that is set */
+        next_present = present & (present - 1);
+        /* extract the least significant bit that is set */
+        bit = BITNO_32(present ^ next_present);
+        switch (bit) {
+        case  PPI_VECTOR_VFLAGS:
+            if (length_remaining < 4)
+                break;
+            flags =  tvb_get_letohl(tvb, offset);
+            if (ppi_vector_tree) {
+                my_pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_vflags, tvb, offset , 4, flags);
+                vectorflags_tree= proto_item_add_subtree(my_pt, ett_ppi_vectorflags);
+
+                proto_tree_add_item(vectorflags_tree, hf_ppi_vector_vflags_defines_forward, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorflags_tree, hf_ppi_vector_vflags_rots_absolute, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorflags_tree, hf_ppi_vector_vflags_offsets_from_gps, tvb, offset, 4, TRUE);
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_VCHARS:
+            if (length_remaining < 4)
+                break;
+            chars =  tvb_get_letohl(tvb, offset);
+            if (ppi_vector_tree) {
+                my_pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_vchars, tvb, offset , 4, chars);
+                vectorchars_tree= proto_item_add_subtree(my_pt, ett_ppi_vectorchars);
+
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_antenna, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_dir_of_travel, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_front_of_veh, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_gps_derived, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_ins_derived, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_compass_derived, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_accelerometer_derived, tvb, offset, 4, TRUE);
+                proto_tree_add_item(vectorchars_tree, hf_ppi_vector_vchars_human_derived, tvb, offset, 4, TRUE);
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ROTX:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            rot_x = fixed3_6_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
+                if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
+                    proto_item_append_text(ti, " Degrees (Absolute)");
+                else
+                    proto_item_append_text(ti, " Degrees (Rel to forward)");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ROTY:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            rot_y = fixed3_6_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
+                if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
+                    proto_item_append_text(ti, " Degrees (Absolute)");
+                else
+                    proto_item_append_text(ti, " Degrees (Rel to forward)");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ROTZ:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            rot_z =  fixed3_6_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
+                if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
+                    proto_item_append_text(ti, " Degrees (Absolute) ");
+                else
+                    proto_item_append_text(ti, " Degrees (Rel to forward)");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_OFF_R:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            off_r = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_r, tvb, offset, 4, off_r);
+                if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
+                    proto_item_append_text(ti, " m from Curr_GPS");
+                else
+                    proto_item_append_text(ti, " m from Curr_Pos");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_OFF_F:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            off_f = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_f, tvb, offset, 4, off_f);
+                if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
+                    proto_item_append_text(ti, " m from Curr_GPS");
+                else
+                    proto_item_append_text(ti, " m from Curr_Pos");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_OFF_U:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            off_u = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_u, tvb, offset, 4, off_u);
+                if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
+                    proto_item_append_text(ti, " m from Curr_GPS");
+                else
+                    proto_item_append_text(ti, " m from Curr_Pos");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_VEL_R:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            vel_r = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
+                proto_item_append_text(ti, " m/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_VEL_F:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            vel_f = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
+                proto_item_append_text(ti, " m/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_VEL_U:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            vel_u = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
+                proto_item_append_text(ti, " m/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_VEL_T:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            vel_t = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
+                proto_item_append_text(ti, " m/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ACC_R:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            acc_r = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
+                proto_item_append_text(ti, " (m/s)/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ACC_F:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            acc_f = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
+                proto_item_append_text(ti, " (m/s)/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ACC_U:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            acc_u = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
+                proto_item_append_text(ti, " (m/s)/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ACC_T:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            acc_t = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
+                proto_item_append_text(ti, " (m/s)/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ERR_ROT:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            err_rot  = fixed3_6_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
+                proto_item_append_text(ti, " degrees");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ERR_OFF:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            err_off  = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
+                proto_item_append_text(ti, " meters");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ERR_VEL:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            err_vel  = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
+                proto_item_append_text(ti, "m/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_ERR_ACC:
+            if (length_remaining < 4)
+                break;
+            t_val = tvb_get_letohl(tvb, offset);
+            err_acc  = fixed6_4_to_gdouble(t_val);
+            if (ppi_vector_tree) {
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_acc, tvb, offset, 4, err_acc);
+                proto_item_append_text(ti, " (m/s)/s");
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_DESCSTR:
+            if (length_remaining < 32)
+                break;
+            proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA);
+            offset+=32;
+            length_remaining-=32;
+            break;
+        case  PPI_VECTOR_APPID:
+            if (length_remaining < 4)
+                break;
+            appsecific_num  = tvb_get_letohl(tvb, offset); /* application specific parsers may switch on this later */
+            if (ppi_vector_tree) {
+                proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_appspecific_num, tvb, offset, 4, appsecific_num);
+            }
+            offset+=4;
+            length_remaining-=4;
+            break;
+        case  PPI_VECTOR_APPDATA:
+            if (length_remaining < 60)
+                break;
+            if (ppi_vector_tree) {
+                proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_appspecific_data, tvb, offset, 60,  FALSE);
+            }
+            offset+=60;
+            length_remaining-=60;
+            break;
+
+        default:
+            /*
+             * This indicates a field whose size we do not
+             * know, so we cannot proceed.
+             */
+            proto_tree_add_text(ppi_vector_tree, tvb, offset, 0,  "Error: PPI-VECTOR: unknown bit (%d) set in present field.\n", bit);
+            next_present = 0;
+            continue;
+        }
+
+    }
+}
+
+static void
+dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, guint length_remaining, proto_tree *ppi_vector_tree, proto_item *vector_line)
+{
+    proto_tree *vectorflags_tree = NULL;
+    proto_tree *vectorchars_tree = NULL;
+    proto_tree *my_pt, *pt, *present_tree = NULL;
+    proto_item *ti;
+
+    /* bits */
+    int bit;
+    guint32 present, next_present;
+
+    /* values actually read out, for displaying */
     gchar *curr_str;
 
     /* these are used to specially handle RelativeTo: */
@@ -225,72 +695,9 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* temporary, conversion values */
     guint32 t_val;
 
-    /* Clear out stuff in the info column */
-    if (check_col(pinfo->cinfo,COL_INFO)) {
-        col_clear(pinfo->cinfo,COL_INFO);
-    }
-    /* pull out the first three fields of the BASE-GEOTAG-HEADER */
-    version = tvb_get_guint8(tvb, offset);
-    length = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
-
-    /* Setup basic column info */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PPI_Vector Capture v%u, Length %u",
-                     version, length);
-
-    /* Create the basic dissection tree*/
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_ppi_vector, tvb, 0, length, "Vector:");
-        vector_line = ti; /*save this for later, we will replace it with something more useful*/
-        ppi_vector_tree= proto_item_add_subtree(ti, ett_ppi_vector);
-        proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_version,
-                            tvb, offset, 1, version);
-        proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_pad,
-                            tvb, offset + 1, 1, FALSE);
-        ti = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_length,
-                                 tvb, offset + 2, 2, length);
-    }
-
-    /*We only support v2 of vectors (v1 deprecated) */
-    if (! (version == 2) ) {
-        if (tree)
-            proto_item_append_text(ti, "invalid version (got %d,  expected 2)", version);
-        return;
-    }
-
-    /* initialize remaining length */
-    length_remaining = length;
-    /* minimum length check, should atleast be a fixed-size geotagging-base header*/
-    if (length_remaining < PPI_GEOBASE_MIN_HEADER_LEN) {
-        /*
-         * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion
-         * plus one "present" bitset.
-         */
-        if (tree)
-            proto_item_append_text(ti, " (invalid - minimum length is 8)");
-        return;
-    }
-
-    /* perform max length sanity checking */
-    if (length > PPI_VECTOR_MAXTAGLEN ) {
-        if (tree)
-            proto_item_append_text(ti, "Invalid PPI-Vector length  (got %d, %d max\n)", length, PPI_VECTOR_MAXTAGLEN);
-        return;
-    }
-
-
-    if (length_remaining < PPI_GEOBASE_MIN_HEADER_LEN) {
-        /*
-         * Radiotap header is shorter than the fixed-length portion
-         * plus one "present" bitset.
-         */
-        if (tree)
-            proto_item_append_text(ti, " (bogus - minimum length is 8)");
-        return;
-    }
     /* Subtree for the "present flags" bitfield. */
-    if (tree) {
+    if (ppi_vector_tree) {
         pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_present,
                                  tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
@@ -363,7 +770,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (length_remaining < 4)
                 break;
             /* flags =  tvb_get_letohl(tvb, offset); */ /* Usually we read this in, but vflags is a special case handled above */
-            if (tree) {
+            if (ppi_vector_tree) {
                 my_pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_vflags, tvb, offset , 4, flags);
                 vectorflags_tree= proto_item_add_subtree(my_pt, ett_ppi_vectorflags);
 
@@ -382,7 +789,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (length_remaining < 4)
                 break;
             /* chars =  tvb_get_letohl(tvb, offset); */ /*Usually we read this in, but vchars specially handled above */
-            if (tree) {
+            if (ppi_vector_tree) {
                 my_pt = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_vchars, tvb, offset , 4, chars);
                 vectorchars_tree= proto_item_add_subtree(my_pt, ett_ppi_vectorchars);
 
@@ -407,7 +814,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             rot_x = fixed3_6_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Pitch:%3f ", rot_x);
@@ -420,7 +827,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             rot_y = fixed3_6_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Roll:%3f ", rot_y);
@@ -433,7 +840,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             rot_z =  fixed3_6_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Heading:%3f ", rot_z);
@@ -446,7 +853,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             off_x = fixed6_4_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_x, tvb, offset, 4, off_x);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Off-X:%3f ", off_x);
@@ -459,7 +866,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             off_y = fixed6_4_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_y, tvb, offset, 4, off_y);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Off-Y:%3f ", off_y);
@@ -472,7 +879,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             off_z = fixed6_4_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_z, tvb, offset, 4, off_z);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
                 proto_item_append_text(vector_line, " Off-Z:%3f ", off_z);
@@ -485,7 +892,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             err_rot  = fixed3_6_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
                 proto_item_append_text(ti, " Degrees");
             }
@@ -497,7 +904,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             err_off  = fixed6_4_to_gdouble(t_val);
-            if (tree) {
+            if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
                 proto_item_append_text(ti, " Meters");
             }
@@ -508,7 +915,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case  PPI_VECTOR_DESCSTR:
             if (length_remaining < 32)
                 break;
-            if (tree)
+            if (ppi_vector_tree)
             {
                 /* proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA); */
                 curr_str = tvb_format_stringzpad(tvb, offset, 32); /* need to append_text this */
@@ -522,7 +929,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (length_remaining < 4)
                 break;
             appsecific_num  = tvb_get_letohl(tvb, offset); /* application specific parsers may switch on this later */
-            if (tree) {
+            if (ppi_vector_tree) {
                 proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_appspecific_num, tvb, offset, 4, appsecific_num);
             }
             offset+=4;
@@ -531,7 +938,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case  PPI_VECTOR_APPDATA:
             if (length_remaining < 60)
                 break;
-            if (tree) {
+            if (ppi_vector_tree) {
                 proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_appspecific_data, tvb, offset, 60,  FALSE);
             }
             offset+=60;
@@ -547,11 +954,86 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             next_present = 0;
             continue;
         }
-
-    };
+    }
     /* Append the RelativeTo string we computed up top */
     proto_item_append_text (vector_line, " RelativeTo: %s", relativeto_str);
-    return;
+}
+
+static void
+dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *ppi_vector_tree = NULL;
+    proto_item *ti = NULL;
+    proto_item *vector_line = NULL;
+    guint length_remaining;
+    int offset = 0;
+
+    /* values actually read out, for displaying */
+    guint32 version;
+    guint length;
+
+    /* Clear out stuff in the info column */
+    if (check_col(pinfo->cinfo,COL_INFO)) {
+        col_clear(pinfo->cinfo,COL_INFO);
+    }
+    /* pull out the first three fields of the BASE-GEOTAG-HEADER */
+    version = tvb_get_guint8(tvb, offset);
+    length = tvb_get_letohs(tvb, offset+2);
+
+    /* Setup basic column info */
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "PPI_Vector Capture v%u, Length %u",
+                     version, length);
+
+    /* Create the basic dissection tree*/
+    if (tree) {
+        ti = proto_tree_add_protocol_format(tree, proto_ppi_vector, tvb, 0, length, "Vector:");
+        vector_line = ti; /*save this for later, we will replace it with something more useful*/
+        ppi_vector_tree= proto_item_add_subtree(ti, ett_ppi_vector);
+        proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_version,
+                            tvb, offset, 1, version);
+        proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_pad,
+                            tvb, offset + 1, 1, FALSE);
+        ti = proto_tree_add_uint(ppi_vector_tree, hf_ppi_vector_length,
+                                 tvb, offset + 2, 2, length);
+    }
+
+    /* initialize remaining length */
+    length_remaining = length;
+    /* minimum length check, should atleast be a fixed-size geotagging-base header*/
+    if (length_remaining < PPI_GEOBASE_MIN_HEADER_LEN) {
+        /*
+         * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion
+         * plus one "present" bitset.
+         */
+        if (tree)
+            proto_item_append_text(ti, " (invalid - minimum length is %d)", PPI_GEOBASE_MIN_HEADER_LEN);
+        return;
+    }
+
+    switch (version) {
+
+    case 1:
+        dissect_ppi_vector_v1(tvb, offset, length_remaining, ppi_vector_tree);
+        break;
+
+    case 2:
+        /* perform max length sanity checking */
+        if (length > PPI_VECTOR_MAXTAGLEN ) {
+            if (tree)
+                proto_item_append_text(ti, " (invalid - maximum length is %d\n)", PPI_VECTOR_MAXTAGLEN);
+            return;
+        }
+        dissect_ppi_vector_v2(tvb, offset, length_remaining, ppi_vector_tree, vector_line);
+        break;
+
+    default:
+        if (tree) {
+            proto_tree_add_text(ppi_vector_tree, tvb, offset + 4, -1,
+                "Data for unknown version");
+        }
+        break;
+    }
 }
 
 void
@@ -602,6 +1084,61 @@ proto_register_ppi_vector(void)
             "Specifies if the rotate-z field (heading) is present", HFILL } },
 
 
+        /* V1 */
+        { &hf_ppi_vector_present_off_r,
+          { "Offset_R", "ppi_vector.present.off_r",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_OFF_R,
+            "Specifies if the offset-right field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_off_f,
+          { "Offset_F", "ppi_vector.present.off_f",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_OFF_F,
+            "Specifies if the offset-forward  field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_off_u,
+          { "Offset_U", "ppi_vector.present.off_u",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_OFF_U,
+            "Specifies if the offset-up  field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_vel_r,
+          { "Velocity_R", "ppi_vector.present.vel_r",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_VEL_R,
+            "Specifies if the velocity-right field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_vel_f,
+          { "Velocity_F", "ppi_vector.present.vel_f",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_VEL_F,
+            "Specifies if the velocity-forward  field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_vel_u,
+          { "Velocity_U", "ppi_vector.present.vel_u",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_VEL_U,
+            "Specifies if the velocity-up  field  is present", HFILL } },
+        { &hf_ppi_vector_present_vel_t,
+          { "Velocity_T", "ppi_vector.present.vel_t",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_VEL_T,
+            "Specifies if the total velocity field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_acc_r,
+          { "Acceleration_R", "ppi_vector.present.acc_r",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ACC_R,
+            "Specifies if the accel-right field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_acc_f,
+          { "Acceleration_F", "ppi_vector.present.acc_f",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ACC_F,
+            "Specifies if the accel-forward  field  is present", HFILL } },
+
+        { &hf_ppi_vector_present_acc_u,
+          { "Acceleration_U", "ppi_vector.present.acc_u",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ACC_U,
+            "Specifies if the accel-up  field  is present", HFILL } },
+        { &hf_ppi_vector_present_acc_t,
+          { "Acceleration_T", "ppi_vector.present.acc_t",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ACC_T,
+            "Specifies if the total acceleration  field  is present", HFILL } },
+
+        /* V2 */
         { &hf_ppi_vector_present_off_x,
           { "Offset_R", "ppi_vector.present.off_x",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_OFF_X,
@@ -627,6 +1164,18 @@ proto_register_ppi_vector(void)
           { "err_off", "ppi_vector.present.err_off",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ERR_OFF,
             "Specifies if the offset error field is present", HFILL } },
+
+
+        /* V1 only */
+        { &hf_ppi_vector_present_err_vel,
+          { "err_vel", "ppi_vector.present.err_vel",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ERR_VEL,
+            "Specifies if the velocity  error field is present", HFILL } },
+
+        { &hf_ppi_vector_present_err_acc,
+          { "err_acc", "ppi_vector.present.err_acc",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_ERR_ACC,
+            "Specifies if the acceleration error field is present", HFILL } },
 
 
         { &hf_ppi_vector_present_descstr,
@@ -669,6 +1218,55 @@ proto_register_ppi_vector(void)
           { "Heading ", "ppi_vector.heading", /*extra spaces intentional. casuses field values to align*/
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Heading (Rotation z) packet was received at", HFILL } },
+
+        /* V1 */
+        { &hf_ppi_vector_off_r,
+          { "Off-r", "ppi_vector.off_r",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Offset right", HFILL } },
+        { &hf_ppi_vector_off_f,
+          { "Off-f", "ppi_vector.off_f",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Offation forward", HFILL } },
+        { &hf_ppi_vector_off_u,
+          { "Off-u", "ppi_vector.off_u",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Offset up", HFILL } },
+        { &hf_ppi_vector_vel_r,
+          { "Vel-r", "ppi_vector.vel_r",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Velocity-right", HFILL } },
+        { &hf_ppi_vector_vel_f,
+          { "Vel-f", "ppi_vector.vel_f",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Velocity-forward", HFILL } },
+        { &hf_ppi_vector_vel_u,
+          { "Vel-u", "ppi_vector.vel_u",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Velocity-up", HFILL } },
+        { &hf_ppi_vector_vel_t,
+          { "Vel-t", "ppi_vector.vel_t",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Velocity-Total", HFILL } },
+
+        { &hf_ppi_vector_acc_r,
+          { "Accel-r", "ppi_vector.acc_r",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Acceleration-right", HFILL } },
+        { &hf_ppi_vector_acc_f,
+          { "Accel-f", "ppi_vector.acc_f",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Acceleration-forward", HFILL } },
+        { &hf_ppi_vector_acc_u,
+          { "Accel-u", "ppi_vector.acc_u",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Acceleration-up", HFILL } },
+        { &hf_ppi_vector_acc_t,
+          { "Accel-t", "ppi_vector.acc_t",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Acceleration-Total", HFILL } },
+
+        /* V2 */
         { &hf_ppi_vector_off_x,
           { "Off-x", "ppi_vector.off_x",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
@@ -681,6 +1279,7 @@ proto_register_ppi_vector(void)
           { "Off-z", "ppi_vector.off_z",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offset-z (up)", HFILL } },
+
         { &hf_ppi_vector_err_rot,
           { "Err-Rot", "ppi_vector.err_rot",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
@@ -689,6 +1288,16 @@ proto_register_ppi_vector(void)
           { "Err-Off", "ppi_vector.err_off",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offset margin of  error", HFILL } },
+
+        /* V1 only */
+        { &hf_ppi_vector_err_vel,
+          { "Err-Vel", "ppi_vector.err_vel",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Velocity margin of error", HFILL } },
+        { &hf_ppi_vector_err_acc,
+          { "Err-Accel", "ppi_vector.err_acc",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "Acceleration margin of error", HFILL } },
 
         { &hf_ppi_vector_descstr,
           { "Description", "ppi_vector.descr",
@@ -708,6 +1317,18 @@ proto_register_ppi_vector(void)
           { "Defines forward", "ppi_vector.vflags.forward",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_VFLAGS_DEFINES_FORWARD,
             "Current vector indicates forward frame of reference", HFILL } },
+
+        /* V1 */
+        { &hf_ppi_vector_vflags_rots_absolute,
+          { "Absolute (E/N/U)  rotations", "ppi_vector.vflags.abs_rots",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE,
+            "Rotations are in East/North/Up coord. sys", HFILL } },
+        { &hf_ppi_vector_vflags_offsets_from_gps,
+          { "Offsets from prev GPS TAG", "ppi_vector.vflags.offsets_from_gps",
+            FT_BOOLEAN, 32, NULL, PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS,
+            "Offsets fied rel. to Curr_Gps", HFILL } },
+
+        /* V2 */
         { &hf_ppi_vector_vflags_relative_to,
           { "RelativeTo", "ppi_vector.vflags.relative_to", FT_UINT32, BASE_HEX, VALS(&relativeto_string), PPI_VECTOR_VFLAGS_RELATIVE_TO,
             "Reference frame vectors are RelativeTo:", HFILL } },
@@ -728,11 +1349,11 @@ proto_register_ppi_vector(void)
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_VCHARS_FRONT_OF_VEH,
             "Vector represents: Front of vehicle", HFILL } },
 
+        /* V2 only */
         { &hf_ppi_vector_vchars_angle_of_arrival,
           { "Angle of arrival", "ppi_vector.chars.angle_of_arr",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_VCHARS_AOA,
             "Vector represents: Angle of Arrival", HFILL } },
-
         { &hf_ppi_vector_vchars_transmitter_pos,
           { "Transmitter Position", "ppi_vector.chars.transmitter_pos",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_VCHARS_TRANSMITTER_POS,
