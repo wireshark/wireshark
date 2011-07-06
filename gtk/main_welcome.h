@@ -54,4 +54,6 @@ void welcome_header_set_message(gchar *msg);
  */
 void welcome_header_pop_msg(void);
 
+void welcome_if_tree_load(void);
+
 #endif /* __MAIN_WELCOME_H__ */

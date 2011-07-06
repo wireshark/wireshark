@@ -3457,6 +3457,7 @@ main_widgets_show_or_hide(void)
     if (!have_capture_file) {
         if(welcome_pane) {
             gtk_widget_show(welcome_pane);
+            welcome_if_tree_load();
         }
     } else {
         gtk_widget_hide(welcome_pane);
