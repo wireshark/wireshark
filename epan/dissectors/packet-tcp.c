@@ -927,25 +927,25 @@ finished_fwd:
 
 
     /* ACKED LOST PACKET
-     * If this segment acks beyond the nextseqnum in the other direction
+     * If this segment acks beyond the 'max seq to be acked' in the other direction
      * then that means we have missed packets going in the
      * other direction
      *
      * We only check this if we have actually seen some seq numbers
      * in the other direction.
      */
-    if( tcpd->rev->nextseq
-    &&  GT_SEQ(ack, tcpd->rev->nextseq )
+    if( tcpd->rev->maxseqtobeacked
+    &&  GT_SEQ(ack, tcpd->rev->maxseqtobeacked )
     &&  (flags&(TH_ACK))!=0 ){
 /*QQQ tested*/
         if(!tcpd->ta){
             tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
-        /* update nextseq in the other direction so we dont get
+        /* update 'max seq to be acked' in the other direction so we dont get
          * this indication again.
          */
-        tcpd->rev->nextseq=ack;
+        tcpd->rev->maxseqtobeacked=tcpd->rev->nextseq;
     }
 
 
@@ -1040,6 +1040,15 @@ finished_checking_retransmission_type:
             tcpd->fwd->nextseqframe=pinfo->fd->num;
             tcpd->fwd->nextseqtime.secs=pinfo->fd->abs_ts.secs;
             tcpd->fwd->nextseqtime.nsecs=pinfo->fd->abs_ts.nsecs;
+        }
+    }
+
+    /* Store the highest continuous seq number seen so far for 'max seq to be acked',
+     so we can detect TCP_A_ACK_LOST_PACKET contition
+     */
+    if(EQ_SEQ(seq, tcpd->fwd->maxseqtobeacked) || !tcpd->fwd->maxseqtobeacked) {
+        if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ){
+            tcpd->fwd->maxseqtobeacked=tcpd->fwd->nextseq;
         }
     }
 

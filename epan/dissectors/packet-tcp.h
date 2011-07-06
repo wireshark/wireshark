@@ -146,6 +146,9 @@ typedef struct _tcp_flow_t {
 	guint32 lastnondupack;	/* frame number of last seen non dupack */
 	guint32 dupacknum;		/* dupack number */
 	guint32 nextseq;		/* highest seen nextseq */
+	guint32 maxseqtobeacked;		/* highest seen continuous seq number (without hole in the stream) from the fwd party,
+									this is the maximum seq number that can be acked by the rev party in normal case.
+									If the rev party sends an ACK beyond this seq number it indicates TCP_A_ACK_LOST_PACKET contition */
 	guint32 nextseqframe;	/* frame number for segment with highest
 							 * sequence number
 							 */
