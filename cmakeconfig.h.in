@@ -227,6 +227,10 @@
 /* Define if plugins are enabled */
 #cmakedefine HAVE_PLUGINS 1
 
+/* Define if rpcap:// type remote capture is supported */
+#cmakedefine HAVE_PCAP_REMOTE 1
+#cmakedefine HAVE_REMOTE 1
+
 /* Define to 1 if you have the <portaudio.h> header file. */
 #cmakedefine HAVE_PORTAUDIO_H 1
 

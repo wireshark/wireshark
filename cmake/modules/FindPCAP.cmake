@@ -40,16 +40,16 @@
 # Find the PCAP includes and library
 # http://www.tcpdump.org/
 #
-# The environment variable PCAPDIR allows to specficy where to find 
+# The environment variable PCAPDIR allows to specficy where to find
 # libpcap in non standard location.
-#  
+#
 #  PCAP_INCLUDE_DIRS - where to find pcap.h, etc.
 #  PCAP_LIBRARIES   - List of libraries when using pcap.
 #  PCAP_FOUND       - True if pcap found.
 
 
 IF(EXISTS $ENV{PCAPDIR})
-  FIND_PATH(PCAP_INCLUDE_DIR 
+  FIND_PATH(PCAP_INCLUDE_DIR
     NAMES
     pcap/pcap.h
     pcap.h
@@ -57,28 +57,28 @@ IF(EXISTS $ENV{PCAPDIR})
       $ENV{PCAPDIR}
     NO_DEFAULT_PATH
   )
-  
+
   FIND_LIBRARY(PCAP_LIBRARY
-    NAMES 
+    NAMES
       pcap
     PATHS
       $ENV{PCAPDIR}
     NO_DEFAULT_PATH
   )
-  
+
 
 ELSE(EXISTS $ENV{PCAPDIR})
-  FIND_PATH(PCAP_INCLUDE_DIR 
+  FIND_PATH(PCAP_INCLUDE_DIR
     NAMES
     pcap/pcap.h
     pcap.h
   )
-  
+
   FIND_LIBRARY(PCAP_LIBRARY
-    NAMES 
+    NAMES
       pcap
   )
-  
+
 ENDIF(EXISTS $ENV{PCAPDIR})
 
 SET(PCAP_INCLUDE_DIRS ${PCAP_INCLUDE_DIR})
@@ -120,6 +120,14 @@ CHECK_FUNCTION_EXISTS("pcap_set_datalink" HAVE_PCAP_SET_DATALINK)
 CHECK_FUNCTION_EXISTS("pcap_lib_version" HAVE_PCAP_LIB_VERSION)
 CHECK_FUNCTION_EXISTS("pcap_get_selectable_fd" HAVE_PCAP_GET_SELECTABLE_FD)
 CHECK_FUNCTION_EXISTS("pcap_free_datalinks" HAVE_PCAP_FREE_DATALINKS)
+# Remote pcap checks
+CHECK_FUNCTION_EXISTS("pcap_open" H_PCAP_OPEN)
+CHECK_FUNCTION_EXISTS("pcap_findalldevs_ex" H_FINDALLDEVS_EX)
+CHECK_FUNCTION_EXISTS("pcap_createsrcstr" H_CREATESRCSTR)
+if(H_PCAP_OPEN AND H_FINDALLDEVS_EX AND H_CREATESRCSTR)
+  SET(HAVE_PCAP_REMOTE 1)
+  SET(HAVE_REMOTE 1)
+endif()
 # reset vars
 SET(CMAKE_REQUIRED_INCLUDES "")
 SET(CMAKE_REQUIRED_LIBRARIES "")
