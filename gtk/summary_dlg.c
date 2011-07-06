@@ -113,7 +113,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
 #ifdef HAVE_LIBPCAP
-  char          *dl_description;
+  const char    *dl_description;
 #endif
   static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
 
