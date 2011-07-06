@@ -573,7 +573,6 @@ welcome_if_tree_load(void)
     GList         *if_list;
     int err;
     gchar         *err_str = NULL;
-    int           ifs;
     GList         *curr;
     gchar         *user_descr;
     GtkListStore  *store;
@@ -592,14 +591,13 @@ welcome_if_tree_load(void)
     if (g_list_length(if_list) > 0) {
         store = gtk_list_store_new(1, G_TYPE_STRING);
         /* List the interfaces */
-        for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
-            /*g_string_assign(if_tool_str, "");*/
+        for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
             if_info = curr->data;
-            gtk_list_store_append (store, &iter);
             /* Continue if capture device is hidden */
             if (prefs_is_capture_device_hidden(if_info->name)) {
                 continue;
             }
+            gtk_list_store_append (store, &iter);
 
             user_descr = capture_dev_user_descr_find(if_info->name);
             if (user_descr) {
