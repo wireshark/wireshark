@@ -667,7 +667,9 @@ static void make_selections_array(GtkTreeModel  *model,
   interface_opts.snaplen = global_capture_opts.default_options.snaplen;
   cap_settings = capture_get_cap_settings (interface_opts.name);;
   interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+#endif
   interface_opts.monitor_mode = cap_settings.monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
   interface_opts.src_type = global_capture_opts.default_options.src_type;
