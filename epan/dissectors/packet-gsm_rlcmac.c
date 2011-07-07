@@ -1055,7 +1055,7 @@ CSN_DESCR_END(Starting_Frame_Number_t)
 /*< Ack/Nack Description IE >*/
 static const
 CSN_DESCR_BEGIN(Ack_Nack_Description_t)
-  M_BIT        (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, &hf_ack_nack_description_final_ack_indication),
+  M_UINT        (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, 1, &hf_ack_nack_description_final_ack_indication),
   M_UINT       (Ack_Nack_Description_t,  STARTING_SEQUENCE_NUMBER,  7, &hf_ack_nack_description_starting_sequence_number),
   M_BITMAP     (Ack_Nack_Description_t, RECEIVED_BLOCK_BITMAP, 64),
 CSN_DESCR_END  (Ack_Nack_Description_t)

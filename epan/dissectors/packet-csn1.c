@@ -450,9 +450,24 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
-          proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+        	
+          if (no_of_bits <= 32)
+          {
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
                                      decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE)),
                                      pDescr->sz);
+          }
+          else if (no_of_bits <= 64)
+          {
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits64(tvb, bit_offset, no_of_bits, FALSE)),
+                                     pDescr->sz);
+          }
+          else
+          {
+          	return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOT IMPLEMENTED", 999, pDescr);
+          }           
+          
           remaining_bits_len -= no_of_bits;
           DISSECTOR_ASSERT(remaining_bits_len >= 0);
           bit_offset += no_of_bits;
