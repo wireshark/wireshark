@@ -85,7 +85,11 @@
  *
  * IEEE Std 802.11p-2010: Wireless Access in Vehicular Environments
  * http://standards.ieee.org/getieee802/download/802.11p-2010.pdf
+ *
+ * IEEE Std 802.11z-2010: Extensions to Direct-Link Setup (DLS)
+ * http://standards.ieee.org/getieee802/download/802.11z-2010.pdf
  */
+
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -832,6 +836,78 @@ static const value_string ieee80211_reason_code[] = {
   { 45, "Peer STA does not support the requested cipher suite" },
   { 0,    NULL}
 };
+
+/* ************************************************************************* */
+/*                         7.3.1.9 Status Code field                         */
+/* ************************************************************************* */
+static const value_string ieee80211_status_code[] = {
+  { 0, "Successful" },
+  { 1, "Unspecified failure" },
+  { 2, "TDLS wakeup schedule rejected but alternative schedule provided" },
+  { 3, "TDLS wakeup schedule rejected" },
+  { 5, "Security disabled" },
+  { 6, "Unacceptable lifetime" },
+  { 7, "Not in same BSS" },
+  { 10, "Cannot support all requested capabilities in the Capability Information field" },
+  { 11, "Reassociation denied due to inability to confirm that association exists" },
+  { 12, "Association denied due to reason outside the scope of this standard" },
+  { 13, "Responding STA does not support the specified authentication algorithm" },
+  { 14, "Received an Authentication frame with authentication transaction sequence number out of expected sequence" },
+  { 15, "Authentication rejected because of challenge failure" },
+  { 16, "Authentication rejected due to timeout waiting for next frame in sequence" },
+  { 17, "Association denied because AP is unable to handle additional associated STAs" },
+  { 18, "Association denied due to requesting STA not supporting all of the data rates in the BSSBasicRateSet parameter" },
+  { 19, "Association denied due to requesting STA not supporting the short preamble option" },
+  { 20, "Association denied due to requesting STA not supporting the PBCC modulation option" },
+  { 21, "Association denied due to requesting STA not supporting the Channel Agility option" },
+  { 22, "Association request rejected because Spectrum Management capability is required" },
+  { 23, "Association request rejected because the information in the Power Capability element is unacceptable" },
+  { 24, "Association request rejected because the information in the Supported Channels element is unacceptable" },
+  { 25, "Association denied due to requesting STA not supporting the Short Slot Time option" },
+  { 26, "Association denied due to requesting STA not supporting the DSSS-OFDM option" },
+  { 27, "Reserved Association denied because the requesting STA does not support HT features" },
+  { 28, "R0KH unreachable" },
+  { 29, "Association denied because the requesting STA does not support the phased coexistence operation (PCO) transition time required by the AP" },
+  { 30, "Association request rejected temporarily; try again later" },
+  { 31, "Robust Management frame policy violation" },
+  { 32, "Unspecified, QoS-related failure" },
+  { 33, "Association denied because QoS AP has insufficient bandwidth to handle another QoS STA" },
+  { 34, "Association denied due to excessive frame loss rates and/or poor conditions on current operating channel" },
+  { 35, "Association (with QoS BSS) denied because the requesting STA does not support the QoS facility" },
+  { 36, "Reserved" },
+  { 37, "The request has been declined" },
+  { 38, "The request has not been successful as one or more parameters have invalid values" },
+  { 39, "The TS has not been created because the request cannot be honored; however, a suggested TSPEC is provided so that the initiating STA may attempt to set another TS with the suggested changes to the TSPEC" },
+  { 40, "Invalid information element, i.e., an information element defined in this standard for which the content does not meet the specifications in Clause 7" },
+  { 41, "Invalid group cipher" },
+  { 42, "Invalid pairwise cipher" },
+  { 43, "Invalid AKMP" },
+  { 44, "Unsupported RSN information element version" },
+  { 45, "Invalid RSN information element capabilities" },
+  { 46, "Cipher suite rejected because of security policy" },
+  { 47, "The TS has not been created; however, the HC may be capable of creating a TS, in response to a request, after the time indicated in the TS Delay element" },
+  { 48, "Direct link is not allowed in the BSS by policy" },
+  { 49, "The Destination STA is not present within this BSS" },
+  { 50, "The Destination STA is not a QoS STA" },
+  { 51, "Association denied because the ListenInterval is too large" },
+  { 52, "Invalid FT Action frame count" },
+  { 53, "Invalid pairwise master key identifier (PMKID)" },
+  { 54, "Invalid MDIE" },
+  { 55, "Invalid FTIE" },
+  { 56, "GAS Advertisement Protocol not supported" },
+  { 57, "No outstanding GAS request" },
+  { 58, "GAS Response not received from the Advertisement Server" },
+  { 59, "STA timed out waiting for GAS Query Response" },
+  { 60, "GAS Response is larger than query response length limit" },
+  { 61, "Advertisement Server in the network is not currently reachable" },
+  { 62, "Requested information is not available for this BSSID" },
+  { 63, "Transmission failure" },
+  { 64, "Request refused due to permissions received via SSPN interface" },
+  { 65, "Request refused because AP does not support unauthenticated access" },
+  { 72, "Invalid contents of RSNIE" },
+  { 0,    NULL}
+};
+
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
@@ -11172,97 +11248,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string status_codes[] = {
-    {0x00, "Successful"},
-    {0x01, "Unspecified failure"},
-    {0x02, "TDLS wakeup schedule rejected but alternative schedule provided"},
-    {0x03, "TDLS wakeup schedule rejected"},
-    {0x05, "Security disabled"},
-    {0x06, "Unacceptable lifetime"},
-    {0x07, "Not in same BSS"},
-    {0x0A, "Cannot support all requested capabilities in the "
-     "Capability information field"},
-    {0x0B, "Reassociation denied due to inability to confirm that "
-     "association exists"},
-    {0x0C, "Association denied due to reason outside the scope of this "
-     "standard"},
-
-    {0x0D, "Responding station does not support the specified authentication "
-     "algorithm"},
-    {0x0E, "Received an Authentication frame with authentication sequence "
-     "transaction sequence number out of expected sequence"},
-    {0x0F, "Authentication rejected because of challenge failure"},
-    {0x10, "Authentication rejected due to timeout waiting for next "
-     "frame in sequence"},
-    {0x11, "Association denied because AP is unable to handle additional "
-     "associated stations"},
-    {0x12, "Association denied due to requesting station not supporting all "
-     "of the datarates in the BSSBasicServiceSet Parameter"},
-    {0x13, "Association denied due to requesting station not supporting "
-     "short preamble operation"},
-    {0x14, "Association denied due to requesting station not supporting "
-     "PBCC encoding"},
-    {0x15, "Association denied due to requesting station not supporting "
-     "channel agility"},
-    {0x16, "Association request rejected because Spectrum Management"
-      "capability is required"},
-    {0x17, "Association request rejected because the information in the"
-      "Power Capability element is unacceptable"},
-    {0x18, "Association request rejected because the information in the"
-      "Supported Channels element is unacceptable"},
-    {0x19, "Association denied due to requesting station not supporting "
-     "short slot operation"},
-    {0x1A, "Association denied due to requesting station not supporting "
-     "DSSS-OFDM operation"},
-    {0x1C, "R0KH unreachable"},
-    {0x1E, "Association request rejected temporarily; try again later"},
-    {0x1F, "Robust Management frame policy violation"},
-    {0x20, "Unspecified, QoS-related failure"},
-    {0x21, "Association denied due to QAP having insufficient bandwidth "
-      "to handle another QSTA"},
-    {0x22, "Association denied due to excessive frame loss rates and/or "
-      "poor conditions on current operating channel"},
-    {0x23, "Association (with QBSS) denied due to requesting station not "
-      "supporting the QoS facility"},
-    {0x24, "Association denied due to requesting station not supporting "
-      "Block Ack"},
-    {0x25, "The request has been declined."},
-    {0x26, "The request has not been successful as one or more parameters "
-      "have invalid values."},
-    {0x27, "The TS has not been created because the request cannot be honored. "
-      "However, a suggested TSPEC is provided so that the initiating QSTA may "
-      "attempt to set another TS with the suggested changes to the TSPEC."},
-    {0x28, "Invalid Information Element"},
-    {0x29, "Group Cipher is not valid"},
-    {0x2A, "Pairwise Cipher is not valid"},
-    {0x2B, "AKMP is not valid"},
-    {0x2C, "Unsupported RSN IE version"},
-    {0x2D, "Invalid RSN IE Capabilities"},
-    {0x2E, "Cipher suite is rejected per security policy"},
-    {0x2F, "The TS has not been created. However, the HC may be capable of "
-      "creating a TS, in response to a request, after the time indicated in the TS Delay element."},
-    {0x30, "Direct Link is not allowed in the BSS by policy"},
-    {0x31, "Destination STA is not present within this QBSS."},
-    {0x32, "The Destination STA is not a QSTA."},
-    {0x34, "Invalid FT Action frame count"},
-    {0x35, "Invalid pairwise master key identifier (PMKID)"},
-    {0x36, "Invalid MDIE"},
-    {0x37, "Invalid FTIE"},
-    {0x3B, "GAS Advertisement Protocol not supported"},
-    {0x3C, "No outstanding GAS request"},
-    {0x3D, "GAS Response not received from the Advertisement Server"},
-    {0x3E, "STA timed out waiting for GAS Query Response"},
-    {0x3F, "GAS Response is larger than query response length limit"},
-    {0x40, "Advertisement Server in the network is not currently reachable"},
-    {0x41, "Requested information is not available for this BSSID"},
-    {0x42, "Transmission failure"},
-    {0x43, "Request refused due to permissions received via SSPN interface"},
-    {0x44, "Request refused because AP does not support unauthenticated "
-     "access"},
-    {0x48, "Invalid contents of RSNIE"},
-    {0x00, NULL}
-  };
-
   static const value_string category_codes[] = {
     {CAT_SPECTRUM_MGMT, "Spectrum Management (SM)"},
     {0x80 | CAT_SPECTRUM_MGMT, "Spectrum Management (SM) (error)"},
@@ -13018,7 +13003,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_status_code,
      {"Status code", "wlan_mgt.fixed.status_code",
-      FT_UINT16, BASE_HEX, VALS (&status_codes), 0,
+      FT_UINT16, BASE_HEX, VALS (&ieee80211_status_code), 0,
       "Status of requested event", HFILL }},
 
     {&hf_ieee80211_ff_category_code,
