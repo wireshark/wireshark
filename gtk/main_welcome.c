@@ -907,7 +907,7 @@ welcome_new(void)
                                                "text", 2,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
-        gtk_cell_renderer_set_visible(renderer, FALSE);
+        gtk_tree_view_column_set_visible(column, FALSE);
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
         item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
