@@ -589,7 +589,7 @@ welcome_if_tree_load(void)
         g_free(err_str);
     }
     if (g_list_length(if_list) > 0) {
-        store = gtk_list_store_new(1, G_TYPE_STRING);
+        store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
         /* List the interfaces */
         for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
             if_info = curr->data;
@@ -606,10 +606,12 @@ welcome_if_tree_load(void)
                 user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
                 g_free (comment);
 #endif
-                gtk_list_store_set(store, &iter, 0, if_info->name, -1);
+                gtk_list_store_set(store, &iter, 0, user_descr, 1, if_info->name, -1);
                 g_free (user_descr);
+            } else if (if_info->description) {
+                gtk_list_store_set (store, &iter, 0, if_info->description, 1, if_info->name, -1);
             } else {
-                gtk_list_store_set (store, &iter, 0, if_info->name, -1);
+                gtk_list_store_set (store, &iter, 0, if_info->name, 1, if_info->name, -1);
             }
         }
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
@@ -652,13 +654,37 @@ static void make_selections_array(GtkTreeModel  *model,
                                   GtkTreeIter   *iter,
                                   gpointer       userdata _U_)
 {
-  gchar *if_name;
+  gchar            *if_name;
   interface_options interface_opts;
-  cap_settings_t cap_settings;
+  cap_settings_t    cap_settings;
+  GList            *if_list;
+  GList            *curr;
+  int               err;
+  if_info_t        *if_info;
 
-  gtk_tree_model_get (model, iter, 0, &if_name, -1);
-  interface_opts.name = g_strdup(if_name); 
-  interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+  gtk_tree_model_get (model, iter, 1, &if_name, -1);
+ 
+  if_list = capture_interface_list(&err, NULL);
+  if_list = g_list_sort (if_list, if_list_comparator_alph);
+  if (g_list_length(if_list) > 0) {
+      for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
+          if_info = curr->data;
+          /* Continue if capture device is hidden */
+          if (prefs_is_capture_device_hidden(if_info->name)) {
+              continue;
+          }
+          if (strcmp(if_info->name, if_name) == 0) {
+              interface_opts.name = g_strdup(if_name);
+              interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+              break;
+          }
+      }
+      free_interface_list(if_list);
+  } else {
+      free_interface_list(if_list);
+      return;
+  }
+
   interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
   interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
   interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
@@ -853,12 +879,19 @@ welcome_new(void)
         g_object_set(GTK_OBJECT(if_view), "headers-visible", FALSE, NULL);
         g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
         renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes ("",  
+        column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
                                                "text", 0,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
-        gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (if_view),0), TRUE );
+        gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(if_view), 0), TRUE);
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes ("",
+                                               GTK_CELL_RENDERER(renderer),
+                                               "text", 1,
+                                               NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
+        gtk_cell_renderer_set_visible(renderer, FALSE);
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
         item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
