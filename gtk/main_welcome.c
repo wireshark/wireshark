@@ -72,6 +72,7 @@
 #include "airpcap.h"
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
+#include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
 
 /* XXX */
@@ -577,6 +578,7 @@ welcome_if_tree_load(void)
     gchar         *user_descr;
     GtkListStore  *store;
     GtkTreeIter   iter;
+    GtkWidget     *icon;
 
     /* LOAD THE INTERFACES */
     if_list = capture_interface_list(&err, &err_str);
@@ -589,7 +591,7 @@ welcome_if_tree_load(void)
         g_free(err_str);
     }
     if (g_list_length(if_list) > 0) {
-        store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+        store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
         /* List the interfaces */
         for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
             if_info = curr->data;
@@ -599,6 +601,14 @@ welcome_if_tree_load(void)
             }
             gtk_list_store_append (store, &iter);
 
+#ifdef HAVE_AIRPCAP
+            if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
+                icon = xpm_to_widget(capture_airpcap_16_xpm);
+            else
+                icon = capture_get_if_icon(if_info);
+#else
+            icon = capture_get_if_icon(if_info);
+#endif
             user_descr = capture_dev_user_descr_find(if_info->name);
             if (user_descr) {
 #ifndef _WIN32
@@ -606,12 +616,12 @@ welcome_if_tree_load(void)
                 user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
                 g_free (comment);
 #endif
-                gtk_list_store_set(store, &iter, 0, user_descr, 1, if_info->name, -1);
+                gtk_list_store_set(store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, user_descr, 2, if_info->name, -1);
                 g_free (user_descr);
             } else if (if_info->description) {
-                gtk_list_store_set (store, &iter, 0, if_info->description, 1, if_info->name, -1);
+                gtk_list_store_set (store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, if_info->description, 2, if_info->name, -1);
             } else {
-                gtk_list_store_set (store, &iter, 0, if_info->name, 1, if_info->name, -1);
+                gtk_list_store_set (store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, if_info->name, 2, if_info->name, -1);
             }
         }
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
@@ -662,7 +672,7 @@ static void make_selections_array(GtkTreeModel  *model,
   int               err;
   if_info_t        *if_info;
 
-  gtk_tree_model_get (model, iter, 1, &if_name, -1);
+  gtk_tree_model_get (model, iter, 2, &if_name, -1);
  
   if_list = capture_interface_list(&err, NULL);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
@@ -878,17 +888,23 @@ welcome_new(void)
         if_view = gtk_tree_view_new ();
         g_object_set(GTK_OBJECT(if_view), "headers-visible", FALSE, NULL);
         g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
+        renderer = gtk_cell_renderer_pixbuf_new();
+        column = gtk_tree_view_column_new_with_attributes ("",
+                                               GTK_CELL_RENDERER(renderer),
+                                               "pixbuf", 0,
+                                               NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
-                                               "text", 0,
+                                               "text", 1,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(if_view), 0), TRUE);
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
-                                               "text", 1,
+                                               "text", 2,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         gtk_cell_renderer_set_visible(renderer, FALSE);
