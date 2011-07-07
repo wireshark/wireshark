@@ -442,7 +442,7 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
  * Used to retrieve the interface icon.
  * This is hideously platform-dependent.
  */
-GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
+GtkWidget * capture_get_if_icon(const if_info_t* if_info)
 {
 #if defined(_WIN32)
   /*
