@@ -3576,7 +3576,7 @@ static void
 capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
 {
-    pcap_options *pcap_opts = (pcap_options *) pcap_opts_p;
+    pcap_options *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
     int err;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
@@ -3618,7 +3618,7 @@ static void
 capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
 {
-    pcap_options *pcap_opts = (pcap_options *) pcap_opts_p;
+    pcap_options *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
     pcap_queue_element *queue_element;
     gboolean limit_reached;
 
