@@ -223,11 +223,12 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
       interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+      interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+      interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
       g_array_append_val(global_capture_opts.ifaces, interface_opts);
      }
+     gtk_widget_set_sensitive(temp->choose_bt, FALSE);
   }
 
   /* XXX - remove this? */
@@ -683,6 +684,20 @@ found:
   return FALSE;
 }
 
+static void
+capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    guint ifs;
+    GList *curr;
+    if_dlg_data_t *if_data;
+    
+    for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
+        curr = g_list_nth(if_data_list, ifs);
+        if_data = (if_dlg_data_t *)(curr->data);
+        gtk_widget_set_sensitive(if_data->choose_bt, TRUE);
+    }
+    capture_stop_cb(NULL, NULL);
+}
 
 
 /* start getting capture stats from all interfaces */
@@ -886,6 +901,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_free(tmp_str);
 #endif
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->choose_bt, 0, 1, row, row+1);
+      if (gbl_capture_in_progress) {
+          gtk_widget_set_sensitive(if_dlg_data->choose_bt, FALSE);
+      } else {
+          gtk_widget_set_sensitive(if_dlg_data->choose_bt, TRUE);
+      }
       gtk_toggle_button_set_active((GtkToggleButton *)if_dlg_data->choose_bt, if_dlg_data->selected);
       g_signal_connect(if_dlg_data->choose_bt, "toggled", G_CALLBACK(store_selected), if_dlg_data);
      /* Kind of adaptor (icon) */
@@ -1003,7 +1023,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #if !GTK_CHECK_VERSION(2,12,0)
   gtk_tooltips_set_tip(tooltips, stop_bt,"Stop a running capture.", NULL);
 #endif
-  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_stop_cb), NULL);
+  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_if_stop_cb), NULL);
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
 #if GTK_CHECK_VERSION(2,12,0)
