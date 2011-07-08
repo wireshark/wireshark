@@ -2346,6 +2346,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 }
 
+
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in wireshark */
 static void
