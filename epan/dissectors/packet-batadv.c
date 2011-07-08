@@ -2795,10 +2795,10 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	/* Set info column */
 	switch (tt_type) {
 	case TT_REQUEST:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Request=%hu", tt_query_packeth->ttvn);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Request=%u", tt_query_packeth->ttvn);
 		break;
 	case TT_RESPONSE:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Response=%hu", tt_query_packeth->ttvn);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Response=%u", tt_query_packeth->ttvn);
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Type %u", tt_type);
