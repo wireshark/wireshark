@@ -564,6 +564,26 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
     gtk_widget_show_all(child_box);
 }
 
+static gboolean select_current_ifaces(GtkTreeModel  *model,
+                                  GtkTreePath   *path _U_,
+                                  GtkTreeIter   *iter,
+                                  gpointer       userdata)
+{
+    guint i;
+    gchar *if_name;
+    
+    GtkTreeSelection *selection = (GtkTreeSelection *)userdata;
+    gtk_tree_model_get (model, iter, 2, &if_name, -1);
+    if (global_capture_opts.ifaces->len > 0) {
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+            if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
+                gtk_tree_selection_select_iter(selection, iter);
+                break;
+            }
+        }
+    }
+    return FALSE;
+}
 
 /* list the interfaces */
 void
@@ -576,9 +596,10 @@ welcome_if_tree_load(void)
     gchar         *err_str = NULL;
     GList         *curr;
     gchar         *user_descr;
-    GtkListStore  *store;
+    GtkListStore  *store = NULL;
     GtkTreeIter   iter;
-    GtkWidget     *icon;
+    GtkWidget     *icon, *view;
+    GtkTreeSelection *entry;
 
     /* LOAD THE INTERFACES */
     if_list = capture_interface_list(&err, &err_str);
@@ -590,6 +611,9 @@ welcome_if_tree_load(void)
     } else if (err_str) {
         g_free(err_str);
     }
+    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    gtk_tree_selection_unselect_all(entry);
     if (g_list_length(if_list) > 0) {
         store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
         /* List the interfaces */
@@ -625,6 +649,10 @@ welcome_if_tree_load(void)
             }
         }
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
+    }
+    if (global_capture_opts.ifaces->len > 0) {
+        gtk_tree_model_foreach(GTK_TREE_MODEL(store), select_current_ifaces, (gpointer) entry);
+        gtk_widget_grab_focus(view);
     }
     free_interface_list(if_list);
 #endif  /* HAVE_LIBPCAP */
