@@ -608,12 +608,15 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		new_uuid_value = NULL;
 		g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_next_program, NULL);
 		if(new_uuid_key){
+#if 0
 			GtkTreeIter tmp_iter;
 			tmp_iter = dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value,
 								  prog_combo_box, program_item_index);
-#if 0
 			if (program_item_index == 0)
 				program_first_item_iter = tmp_iter;
+#else
+			dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value,
+							prog_combo_box, program_item_index);
 #endif
 			program_item_index += 1;
 		}
