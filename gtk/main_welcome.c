@@ -564,6 +564,7 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
     gtk_widget_show_all(child_box);
 }
 
+#ifdef HAVE_LIBPCAP
 static gboolean select_current_ifaces(GtkTreeModel  *model,
                                   GtkTreePath   *path _U_,
                                   GtkTreeIter   *iter,
@@ -584,6 +585,7 @@ static gboolean select_current_ifaces(GtkTreeModel  *model,
     }
     return FALSE;
 }
+#endif
 
 /* list the interfaces */
 void
