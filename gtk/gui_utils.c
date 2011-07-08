@@ -582,10 +582,12 @@ GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
 }
 
 
-/* convert an xpm to a GtkWidget, using the top_level window settings */
-/* (be sure that the top_level window is already being displayed) */
+/* convert an xpm to a GtkWidget */
 GtkWidget *xpm_to_widget(const char ** xpm) {
-    return xpm_to_widget_from_parent(top_level, xpm);
+    GdkPixbuf *pixbuf;
+
+    pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
+    return gtk_image_new_from_pixbuf(pixbuf);
 }
 
 /* Convert an pixbuf data to a GtkWidget */
