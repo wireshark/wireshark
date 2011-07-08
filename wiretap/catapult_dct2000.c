@@ -1089,13 +1089,16 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         }
     }
 
-    /* Scan ahead to the next space */
-    for (; (linebuff[n] != ' ') && (n+1 < line_length); n++);
-    if (n+1 >= line_length) {
-        return FALSE;
+    /* Skip '/' */
+    while ((n+1 < line_length) && linebuff[n] == '/') {
+        
+        n++;
     }
-    /* Skip it */
-    n++;
+
+    /* Skip a space that may happen here */
+    if ((n+1 < line_length) && linebuff[n] == ' ') {
+        n++;
+    }
 
     /* Next character gives direction of message (must be 's' or 'r') */
     if (!(*is_comment)) {
