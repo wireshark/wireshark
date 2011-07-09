@@ -394,6 +394,29 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return tvb_length(tvb);
 }
 
+static int
+dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    /* Make sure there's at least enough data to determine its a Modbus packet */
+    if (!tvb_bytes_exist(tvb, 0, 8))
+        return 0;
+
+    /* check that it actually looks like Modbus/UDP */
+    /* protocol id == 0 */
+    if(tvb_get_ntohs(tvb, 2) != 0 ){
+        return 0;
+    }
+    /* length is at least 2 (unit_id + function_code) */
+    if(tvb_get_ntohs(tvb, 4) < 2 ){
+        return 0;
+    }
+
+    /* dissect the PDU */
+    dissect_mbtcp_pdu(tvb, pinfo, tree);
+
+    return tvb_length(tvb);
+}
+
 /* Code to allow special handling of mbtcp data */
 static void
 dissect_mbtcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 function_code, gint payload_start, gint payload_len)
@@ -1235,10 +1258,13 @@ proto_register_modbus(void)
 void
 proto_reg_handoff_mbtcp(void)
 {
-    dissector_handle_t mbtcp_handle;
+    dissector_handle_t mbtcp_handle, mbudp_handle;
 
     mbtcp_handle = new_create_dissector_handle(dissect_mbtcp, proto_mbtcp);
     dissector_add_uint("tcp.port", PORT_MBTCP, mbtcp_handle);
+
+    mbudp_handle = new_create_dissector_handle(dissect_mbudp, proto_mbtcp);
+    dissector_add_uint("udp.port", PORT_MBTCP, mbudp_handle);
 
     modbus_handle = new_create_dissector_handle(dissect_modbus, proto_modbus);
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
