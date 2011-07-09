@@ -4764,7 +4764,9 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                               /* replylength is in units of four. */
                               tmp_plen = plen = 32 + VALUE32(tvb, offset + 4) * 4;
-                              DISSECTOR_ASSERT(tmp_plen >= 32);
+                              /* If tmp_plen < 32, we got an overflow;
+                               * the reply length is too long. */
+                              THROW_ON(tmp_plen < 32, ReportedBoundsError);
                               HANDLE_REPLY(plen, length_remaining,
                                            "Reply", dissect_x11_reply);
                               break;
