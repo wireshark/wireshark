@@ -344,7 +344,13 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
-  if (tree) {
+  /* Per README.developer, section 1.2, we must call subdissectors regardless
+   * of whether "tree" is NULL or not.  That is done below using
+   * call_dissector(), but since the next_tvb must begin at the correct offset,
+   * it's easier and more readable to always enter this block in order to
+   * compute the correct offset to pass to tvb_new_subset_remaining().
+   */
+  if (1) {
     ti = proto_tree_add_protocol_format(tree, proto_gre, tvb, offset, -1, "Generic Routing Encapsulation (%s)",
       val_to_str(type, gre_typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);
