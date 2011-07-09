@@ -1970,7 +1970,10 @@ check_and_warn_user_startup(gchar *cf_name _U_)
     cur_group = get_cur_groupname();
     priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
       "Running as user \"%s\" and group \"%s\".\n"
-      "This could be dangerous.", cur_user, cur_group);
+      "This could be dangerous.\n\n"
+      "If you're running Wireshark this way in order to perform live capture, "
+      "you may want to be aware that there is a better way documented at\n"
+      "http://wiki.wireshark.org/CaptureSetup/CapturePrivileges", cur_user, cur_group);
     g_free(cur_user);
     g_free(cur_group);
     simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
