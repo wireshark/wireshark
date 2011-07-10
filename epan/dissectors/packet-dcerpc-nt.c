@@ -1343,7 +1343,13 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * inside non-dcerpc pdus, i.e. kerberos PAC structure
 	 */
 	if(dcv){
-		dcv->private_data = sid_str;
+		/*
+		 * sid_str has ephemeral storage duration;
+		 * dcerpc_call_values have session duration,
+		 * so we need to make its private data have
+		 * session duration as well.
+		 */
+		dcv->private_data = se_strdup(sid_str);
 	}
 
 	return offset;
