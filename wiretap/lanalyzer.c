@@ -36,11 +36,157 @@
 	http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
  */
 
+/*    Record header format */
+
+typedef struct {
+	guint8	record_type[2];
+	guint8	record_length[2];
+} LA_RecordHeader;
+
+#define LA_RecordHeaderSize 4
+
+/*    Record type codes:                */
+
+#define     RT_HeaderRegular       0x1001
+#define     RT_HeaderCyclic        0x1007
+#define     RT_RxChannelName       0x1006
+#define     RT_TxChannelName       0x100b
+#define     RT_FilterName          0x1032
+#define     RT_RxTemplateName      0x1035
+#define     RT_TxTemplateName      0x1036
+#define     RT_DisplayOptions      0x100a
+#define     RT_Summary             0x1002
+#define     RT_SubfileSummary      0x1003
+#define     RT_CyclicInformation   0x1009
+#define     RT_Index               0x1004
+#define     RT_PacketData          0x1005
+
+#define     LA_ProFileLimit       (1024 * 1024 * 32)
+
+typedef guint8  Eadr[6];
+typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
+
+/*
+ * These records have only 2-byte alignment for 4-byte quantities,
+ * so the structures aren't necessarily valid; they're kept as comments
+ * for reference purposes.
+ */
+
+/*
+ * typedef struct {
+ *       guint8      day;
+ *       guint8      mon;
+ *       gint16      year;
+ *       } Date;
+ */
+
+/*
+ * typedef struct {
+ *       guint8      second;
+ *       guint8      minute;
+ *       guint8      hour;
+ *       guint8      day;
+ *       gint16      reserved;
+ *       } Time;
+ */
+
+/*
+ * RT_Summary:
+ *
+ * typedef struct {
+ *       Date        datcre;
+ *       Date        datclo;
+ *       Time        timeopn;
+ *       Time        timeclo;
+ *       Eadr        statadr;
+ *       gint16      mxseqno;
+ *       gint16      slcoff;
+ *       gint16      mxslc;
+ *       gint32      totpktt;
+ *       gint32      statrg;
+ *       gint32      stptrg;
+ *       gint32      mxpkta[36];
+ *       gint16      board_type;
+ *       gint16      board_version;
+ *       gint8       reserved[18];
+ *       } Summary;
+ */
+
+#define SummarySize (18+22+(4*36)+6+6+6+4+4)
+
+/*
+ * typedef struct {
+ *       gint16      rid;
+ *       gint16      rlen;
+ *       Summary     s;
+ *       } LA_SummaryRecord;
+ */
+
+#define LA_SummaryRecordSize (SummarySize + 4)
+
 /* LANalyzer board types (which indicate the type of network on which
    the capture was done). */
 #define BOARD_325		226	/* LANalyzer 325 (Ethernet) */
 #define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
 
+
+/*
+ * typedef struct {
+ *       gint16      rid;
+ *       gint16      rlen;
+ *       gint16      seqno;
+ *       gint32      totpktf;
+ *       } LA_SubfileSummaryRecord;
+ */
+
+#define LA_SubfileSummaryRecordSize 10
+
+
+#define LA_IndexSize 500
+
+/*
+ * typedef struct {
+ *       gint16      rid;
+ *       gint16      rlen;
+ *       gint16      idxsp;                    = LA_IndexSize
+ *       gint16      idxct;
+ *       gint8       idxgranu;
+ *       gint8       idxvd;
+ *       gint32      trcidx[LA_IndexSize + 2]; +2 undocumented but used by La 2.2
+ *       } LA_IndexRecord;
+ */
+
+#define LA_IndexRecordSize (10 + 4 * (LA_IndexSize + 2))
+
+
+/*
+ * typedef struct {
+ *       guint16     rx_channels;
+ *       guint16     rx_errors;
+ *       gint16      rx_frm_len;
+ *       gint16      rx_frm_sln;
+ *       TimeStamp   rx_time;
+ *       guint32     pktno;
+ *       gint16      prvlen;
+ *       gint16      offset;
+ *       gint16      tx_errs;
+ *       gint16      rx_filters;
+ *       gint8       unused[2];
+ *       gint16      hwcolls;
+ *       gint16      hwcollschans;
+ *       Packetdata ....;
+ *       } LA_PacketRecord;
+ */
+
+#define LA_PacketRecordSize 32
+
+typedef struct {
+      gboolean        init;
+      struct timeval  start;
+      guint32         pkts;
+      int             encap;
+      int             lastlen;
+      } LA_TmpInfo;
 
 static const guint8 LA_HeaderRegularFake[] = {
 0x01,0x10,0x4c,0x00,0x01,0x05,0x54,0x72,0x61,0x63,0x65,0x20,0x44,0x69,0x73,0x70,
@@ -121,11 +267,6 @@ typedef struct {
 	time_t	start;
 } lanalyzer_t;
 
-typedef struct {
-	char	record_type[2];
-	char	record_length[2];
-} lanalyzer_rec_header_t;
-
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
@@ -136,7 +277,7 @@ static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-	lanalyzer_rec_header_t rec_header;
+	LA_RecordHeader rec_header;
 	char summary[210];
 	guint16 board_type, mxslc;
 	guint16 record_type, record_length;
@@ -146,14 +287,14 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	lanalyzer_t *lanalyzer;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&rec_header, sizeof rec_header, wth->fh);
-	if (bytes_read != sizeof rec_header) {
+	bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
+	if (bytes_read != LA_RecordHeaderSize) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof rec_header;
+	wth->data_offset += LA_RecordHeaderSize;
 	record_type = pletohs(rec_header.record_type);
 	record_length = pletohs(rec_header.record_length); /* make sure to do this for while() loop */
 
@@ -180,8 +321,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		}
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&rec_header, sizeof rec_header, wth->fh);
-		if (bytes_read != sizeof rec_header) {
+		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
+		if (bytes_read != LA_RecordHeaderSize) {
 			*err = file_error(wth->fh, err_info);
 			if (*err != 0) {
 				g_free(wth->priv);
@@ -190,7 +331,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			g_free(wth->priv);
 			return 0;
 		}
-		wth->data_offset += sizeof rec_header;
+		wth->data_offset += LA_RecordHeaderSize;
 
 		record_type = pletohs(rec_header.record_type);
 		record_length = pletohs(rec_header.record_length);
@@ -263,11 +404,11 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			case RT_PacketData:
 				/* Go back header number of bytes so that lanalyzer_read
 				 * can read this header */
-				if (file_seek(wth->fh, -sizeof rec_header, SEEK_CUR, err) == -1) {
+				if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
 					g_free(wth->priv);
 					return -1;
 				}
-				wth->data_offset -= sizeof rec_header;
+				wth->data_offset -= LA_RecordHeaderSize;
 				return 1;
 
 			default:
