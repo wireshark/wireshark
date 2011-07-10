@@ -121,6 +121,11 @@ typedef struct {
 	time_t	start;
 } lanalyzer_t;
 
+typedef struct {
+	char	record_type[2];
+	char	record_length[2];
+} lanalyzer_rec_header_t;
+
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
@@ -131,8 +136,7 @@ static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-	char LE_record_type[2];
-	char LE_record_length[2];
+	lanalyzer_rec_header_t rec_header;
 	char summary[210];
 	guint16 board_type, mxslc;
 	guint16 record_type, record_length;
@@ -142,24 +146,16 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	lanalyzer_t *lanalyzer;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(LE_record_type, 2, wth->fh);
-	if (bytes_read != 2) {
+	bytes_read = file_read(&rec_header, sizeof rec_header, wth->fh);
+	if (bytes_read != sizeof rec_header) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 2;
-	bytes_read = file_read(LE_record_length, 2, wth->fh);
-	if (bytes_read != 2) {
-		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		return 0;
-	}
-	wth->data_offset += 2;
-	record_type = pletohs(LE_record_type);
-	record_length = pletohs(LE_record_length); /* make sure to do this for while() loop */
+	wth->data_offset += sizeof rec_header;
+	record_type = pletohs(rec_header.record_type);
+	record_length = pletohs(rec_header.record_length); /* make sure to do this for while() loop */
 
 	if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
 		return 0;
@@ -184,8 +180,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		}
 		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(LE_record_type, 2, wth->fh);
-		if (bytes_read != 2) {
+		bytes_read = file_read(&rec_header, sizeof rec_header, wth->fh);
+		if (bytes_read != sizeof rec_header) {
 			*err = file_error(wth->fh, err_info);
 			if (*err != 0) {
 				g_free(wth->priv);
@@ -194,21 +190,10 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			g_free(wth->priv);
 			return 0;
 		}
-		wth->data_offset += 2;
-		bytes_read = file_read(LE_record_length, 2, wth->fh);
-		if (bytes_read != 2) {
-			*err = file_error(wth->fh, err_info);
-			if (*err != 0) {
-				g_free(wth->priv);
-				return -1;
-			}
-			g_free(wth->priv);
-			return 0;
-		}
-		wth->data_offset += 2;
+		wth->data_offset += sizeof rec_header;
 
-		record_type = pletohs(LE_record_type);
-		record_length = pletohs(LE_record_length);
+		record_type = pletohs(rec_header.record_type);
+		record_length = pletohs(rec_header.record_length);
 
 		/*g_message("Record 0x%04X Length %d", record_type, record_length);*/
 		switch (record_type) {
@@ -278,11 +263,11 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			case RT_PacketData:
 				/* Go back header number of bytes so that lanalyzer_read
 				 * can read this header */
-				if (file_seek(wth->fh, -4, SEEK_CUR, err) == -1) {
+				if (file_seek(wth->fh, -sizeof rec_header, SEEK_CUR, err) == -1) {
 					g_free(wth->priv);
 					return -1;
 				}
-				wth->data_offset -= 4;
+				wth->data_offset -= sizeof rec_header;
 				return 1;
 
 			default:
