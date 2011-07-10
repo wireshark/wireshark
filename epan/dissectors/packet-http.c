@@ -217,9 +217,11 @@ static gboolean http_decompress_body = FALSE;
 
 /*
  * tcp and ssl ports
+ *
+ * 2710 is the XBT BitTorrent tracker
  */
 
-#define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869"
+#define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869,2710"
 #define SSL_DEFAULT_RANGE "443"
 
 static range_t *global_http_tcp_range = NULL;
