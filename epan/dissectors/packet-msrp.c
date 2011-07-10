@@ -359,7 +359,7 @@ check_msrp_header(tvbuff_t *tvb)
 
     linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
     /* Find the first SP */
-    space_offset = tvb_find_guint8(tvb, 0, -1, ' ');
+    space_offset = tvb_find_guint8(tvb, 0, linelen, ' ');
 
     if (space_offset <= 0) {
         /*
@@ -374,7 +374,7 @@ check_msrp_header(tvbuff_t *tvb)
 
     token_1_len = space_offset;
     token_2_start = space_offset + 1;
-    space_offset = tvb_find_guint8(tvb, token_2_start, -1, ' ');
+    space_offset = tvb_find_guint8(tvb, token_2_start, linelen, ' ');
     if (space_offset == -1) {
         /*
          * There's no space after the second token, so we don't
