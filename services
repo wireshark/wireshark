@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-07-01)
+(last updated 2011-07-07)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -7465,8 +7465,8 @@ msi-selectplay	2871/udp   MSI Select Play
 #			   Paul Fonte <paul_fonte&mediastation.com>
 radix		2872/tcp   RADIX
 radix		2872/udp   RADIX
-#			   Stein Roger Skaflotten
-#                          <sskaflot&online.no>
+#			   Previous contact: Stein Roger Skaflotten <sskaflot&online.no>
+#                          Current contact: Stein Roger Skaflotten <skaflotten&gmail.com> 06 July 2011
 #               2873       Unassigned (Removed 2003-07-23)
 dxmessagebase1	2874/tcp   DX Message Base Transport Protocol
 dxmessagebase1	2874/udp   DX Message Base Transport Protocol
@@ -16797,7 +16797,14 @@ profinet-cm     34964/udp   PROFInet Context Manager
 ethercat        34980/tcp   EtherCAT Port
 ethercat        34980/udp   EhterCAT Port
 #                           Martin Rostan <m.rostan&beckhoff.com> November 2003
-#               34981-36000 Unassigned
+#               34981-35353 Unassigned
+kitim           35354/tcp   KIT Messenger
+#                           Rudi Visser <rudi.visser&ljund.eu> 07 July 2011
+#               35354/udp   Reserved 
+altova-lm       35355/tcp   Altova License Management
+altova-lm-disc  35355/udp   Altova License Management Discovery
+#                           Alexander Falk <al&altova.com> 07 July 2011
+#               35356-36000 Unassigned
 allpeers	36001/tcp   AllPeers Network
 allpeers	36001/udp   AllPeers Network
 #			    Cedric Maloux <cedric&allpeers.com> April 2007
@@ -16917,8 +16924,11 @@ pcp             44323/udp   Port Control Protocol
 rbr-debug       44553/tcp   REALbasic Remote Debug
 rbr-debug       44553/udp   REALbasic Remote Debug
 #                           Aaron Ballman <aaron&realsoftware.com> November 2004
-#               44554-44817 Unassigned
-### UNAUTHORIZED USE: Ports 44600 used by AudioScience HPI############
+#               44554-44599 Unassigned
+#               44600/tcp   Reserved
+asihpi          44600/udp   AudioScience HPI
+#                           Eliot Blennerhassett <eblennerhassett&audioscience.com> 07 July 2011
+#               44601-44817 Unassigned
 EtherNet/IP-2   44818/tcp   EtherNet/IP messaging
 EtherNet/IP-2   44818/udp   EtherNet/IP messaging
 #                           Brian Batke <eip.jsig&gmail.com>
