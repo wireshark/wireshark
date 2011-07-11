@@ -1177,9 +1177,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 	switch (ftype) {
 	case bytes:
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, total_len, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, total_len, ENC_BIG_ENDIAN);
 		else if (hf_default->bytes != NULL)
-			proto_tree_add_item(tree, *hf_default->bytes, tvb, offset, total_len, FALSE);
+			proto_tree_add_item(tree, *hf_default->bytes, tvb, offset, total_len, ENC_BIG_ENDIAN);
 		consumed = total_len;
 		break;
 
@@ -1191,9 +1191,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, ENC_BIG_ENDIAN);
 		else if (hf_default->ipv4 != NULL)
-			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 		consumed = 4;
 		break;
 
@@ -1205,9 +1205,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 			}
 
 			if (hf != NULL)
-				proto_tree_add_item(tree, *hf, tvb, i, 4, FALSE);
+				proto_tree_add_item(tree, *hf, tvb, i, 4, ENC_BIG_ENDIAN);
 			else if (hf_default->ipv4_list != NULL)
-				proto_tree_add_item(tree, *hf_default->ipv4_list, tvb, i, 4, FALSE);
+				proto_tree_add_item(tree, *hf_default->ipv4_list, tvb, i, 4, ENC_BIG_ENDIAN);
 			consumed += 4;
 		}
 
@@ -1215,9 +1215,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 
 	case string:
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, total_len, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, total_len, ENC_BIG_ENDIAN);
 		else if (hf_default->string != NULL)
-			proto_tree_add_item(tree, *hf_default->string, tvb, offset, total_len, FALSE);
+			proto_tree_add_item(tree, *hf_default->string, tvb, offset, total_len, ENC_BIG_ENDIAN);
 		consumed = total_len;
 		break;
 
@@ -1228,9 +1228,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else if (hf_default->val_boolean != NULL)
-			proto_tree_add_item(tree, *hf_default->val_boolean, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, *hf_default->val_boolean, tvb, offset, 1, ENC_BIG_ENDIAN);
 		consumed = 1;
 		break;
 
@@ -1241,9 +1241,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else if (hf_default->val_u_byte != NULL)
-			proto_tree_add_item(tree, *hf_default->val_u_byte, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, *hf_default->val_u_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
 		consumed = 1;
 		break;
 
@@ -1254,9 +1254,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 2, ENC_BIG_ENDIAN);
 		else if (hf_default->val_u_short != NULL)
-			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, ENC_BIG_ENDIAN);
 		consumed = 2;
 		break;
 
@@ -1281,9 +1281,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 			}
 
 			if (hf != NULL)
-				proto_tree_add_item(tree, *hf, tvb, i, 2, FALSE);
+				proto_tree_add_item(tree, *hf, tvb, i, 2, ENC_BIG_ENDIAN);
 			else if (hf_default->val_u_short_list != NULL)
-				proto_tree_add_item(tree, *hf_default->val_u_short_list, tvb, i, 2, FALSE);
+				proto_tree_add_item(tree, *hf_default->val_u_short_list, tvb, i, 2, ENC_BIG_ENDIAN);
 			consumed += 2;
 		} 
 		break;
@@ -1295,9 +1295,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, ENC_BIG_ENDIAN);
 		else if (hf_default->val_u_long != NULL)
-			proto_tree_add_item(tree, *hf_default->val_u_long, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf_default->val_u_long, tvb, offset, 4, ENC_BIG_ENDIAN);
 		consumed = 4;
 		break;
 
@@ -1313,7 +1313,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, time_secs_to_str(time_s_secs));
 		}
 		else if (hf_default->time_in_s_secs != NULL)
-			proto_tree_add_item(tree, *hf_default->time_in_s_secs, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf_default->time_in_s_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		consumed = 4;
 		break;
@@ -1331,7 +1331,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 				((time_u_secs == 0xffffffff) ? "infinity" : time_secs_to_str_unsigned(time_u_secs)));
 		}
 		else if (hf_default->time_in_u_secs != NULL)
-			proto_tree_add_item(tree, *hf_default->time_in_u_secs, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, *hf_default->time_in_u_secs, tvb, offset, 4, ENC_BIG_ENDIAN);
 		consumed = 4;
 		break;
 	default: 
@@ -1388,7 +1388,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
 						tvb, voff, 1, 0, "(0) Padding");
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, ENC_BIG_ENDIAN);
 			}
 		}
 		consumed = i;
@@ -1401,9 +1401,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 						tvb, voff, 1, 0, "(255) End");
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				if (*overload_p)
-					proto_tree_add_item(v_tree, hf_bootp_option_end_overload, tvb, voff, 1, FALSE);
+					proto_tree_add_item(v_tree, hf_bootp_option_end_overload, tvb, voff, 1, ENC_BIG_ENDIAN);
 				else
-					proto_tree_add_item(v_tree, hf_bootp_option_end, tvb, voff, 1, FALSE);
+					proto_tree_add_item(v_tree, hf_bootp_option_end, tvb, voff, 1, ENC_BIG_ENDIAN);
 			}
 		}
 		*at_end = TRUE;
@@ -1497,7 +1497,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
 		tvb, voff, consumed, code, "(%d) %s", code, opt->text);
 	v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, FALSE);
+	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, ENC_BIG_ENDIAN);
 
 	/* Special cases */
 	switch (code) {
@@ -1510,8 +1510,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			}
 
-			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_ip, tvb, i, 4, FALSE);
-			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_subnet_mask, tvb, i+4, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_ip, tvb, i, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_subnet_mask, tvb, i+4, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 
@@ -1523,8 +1523,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			}
 
-			proto_tree_add_item(v_tree, hf_bootp_option_static_route_ip, tvb, i, 4, FALSE);
-			proto_tree_add_item(v_tree, hf_bootp_option_static_route_router, tvb, i+4, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_static_route_ip, tvb, i, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_static_route_router, tvb, i+4, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 
@@ -1577,7 +1577,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_item(v_tree, *opt->phf, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, *opt->phf, tvb, optoff, 1, ENC_BIG_ENDIAN);
 
 		/* Just in case we find an option 52 in sname or file */
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
@@ -1640,7 +1640,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		 * should we check for non-printables?
 		 */
       
-		proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_id, tvb, optoff, consumed-2, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_id, tvb, optoff, consumed-2, ENC_BIG_ENDIAN);
 		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10,
 				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
@@ -1658,7 +1658,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
 				(int)strlen(PACKETCABLE_CM_CAP20)) == 0 ))
 		{
-			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen, FALSE);
+			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen, ENC_BIG_ENDIAN);
 		} else
 			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP30,
 				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
@@ -1691,7 +1691,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
 				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    FALSE);
+				    ENC_BIG_ENDIAN);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -1802,7 +1802,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
 				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    FALSE);
+				    ENC_BIG_ENDIAN);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -1830,7 +1830,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		optleft = optlen;
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_value, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_value, tvb, optoff, 1, ENC_BIG_ENDIAN);
 
 		optoff++;
 		optleft--;
@@ -1846,17 +1846,17 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			}
 
-			proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_slpda_address, tvb, i, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_slpda_address, tvb, i, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 
 	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_value, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_value, tvb, optoff, 1, ENC_BIG_ENDIAN);
 
 		optoff++;
 		optleft = optlen - 1;
-		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_string, tvb, optoff, optleft, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_string, tvb, optoff, optleft, ENC_BIG_ENDIAN);
 		break;
 
 	case 81:	/* Client Fully Qualified Domain Name */
@@ -1866,15 +1866,15 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		fqdn_flags = tvb_get_guint8(tvb, optoff);
 		proto_tree_add_text(v_tree, tvb, optoff, 1, "Flags: 0x%02x", fqdn_flags);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_mbz, tvb, optoff, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_n, tvb, optoff, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_e, tvb, optoff, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_o, tvb, optoff, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_s, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_mbz, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_n, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_e, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_o, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_s, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		/* XXX: use code from packet-dns for return code decoding */
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, optoff+1, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
 		/* XXX: use code from packet-dns for return code decoding */
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, optoff+2, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, optoff+2, 1, ENC_BIG_ENDIAN);
 		if (optlen > 3) {
 			if (fqdn_flags & F_FQDN_E) {
 				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name);
@@ -1882,7 +1882,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				    tvb, optoff+3, optlen-3, dns_name);
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
-				    tvb, optoff+3, optlen-3, FALSE);
+				    tvb, optoff+3, optlen-3, ENC_BIG_ENDIAN);
 			}
 		}
 		break;
@@ -1897,7 +1897,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		/* Option 85 can be sent as a string */
 		/* Added by Greg Morris (gmorris[AT]novell.com) */
 		if (novell_string) {
-			proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_string, tvb, optoff, optlen, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_string, tvb, optoff, optlen, ENC_BIG_ENDIAN);
 		} else{
 			/* IP addresses */
 			for (i = optoff, optleft = optlen; optleft > 0;
@@ -1907,7 +1907,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 
-				proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_ip, tvb, i, 4, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_ip, tvb, i, 4, ENC_BIG_ENDIAN);
 			}
 		}
 		break;
@@ -1936,7 +1936,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		optleft = optlen;
 		protocol = tvb_get_guint8(tvb, optoff);
 
-		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_protocol, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_protocol, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		optoff++;
 		optleft--;
 
@@ -1944,29 +1944,29 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		switch (protocol) {
 
 		case AUTHEN_PROTO_DELAYED_AUTHEN:
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_alg_delay, tvb, optoff, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_alg_delay, tvb, optoff, 1, ENC_BIG_ENDIAN);
 			break;
 
 		default:
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_algorithm, tvb, optoff, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_algorithm, tvb, optoff, 1, ENC_BIG_ENDIAN);
 			break;
 		}
 		optoff++;
 		optleft--;
 
 		rdm = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		optoff++;
 		optleft--;
 
 		switch (rdm) {
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_replay_detection, tvb, optoff, 8, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_replay_detection, tvb, optoff, 8, ENC_BIG_ENDIAN);
 			break;
 
 		default:
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_rdv, tvb, optoff, 8, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_rdv, tvb, optoff, 8, ENC_BIG_ENDIAN);
 			break;
 		}
 		optoff += 8;
@@ -1987,10 +1987,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 						break;
 					}
 
-					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, optoff, 4, FALSE);
+					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, optoff, 4, ENC_BIG_ENDIAN);
 					optoff += 4;
 					optleft -= 4;
-					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, FALSE);
+					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, ENC_BIG_ENDIAN);
 					break;
 				}
 
@@ -1998,7 +1998,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				if (optleft == 0)
 					break;
 
-				proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_BIG_ENDIAN);
 				break;
 			}
 			break;
@@ -2007,7 +2007,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (optleft == 0)
 				break;
 
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_BIG_ENDIAN);
 			break;
 		}
 		break;
@@ -2017,16 +2017,16 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		optleft = optlen;
 		if (optleft >= 3)
 		{
-			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_what, tvb, optoff, 1, FALSE);
-			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_country, tvb, optoff+1, 2, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_what, tvb, optoff, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_country, tvb, optoff+1, 2, ENC_BIG_ENDIAN);
 			optleft = optleft - 3;
 			optoff = optoff + 3;
 
 			while (optleft >= 2)
 			{
 				int calength = tvb_get_guint8(tvb, optoff+1);
-				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_type, tvb, optoff, 1, FALSE);
-				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_length, tvb, optoff+1, 1, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_type, tvb, optoff, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_length, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
 
 				optoff += 2;
 				optleft -= 2;
@@ -2036,7 +2036,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 				if (optleft >= calength)
 				{
-					proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_value, tvb, optoff, calength, FALSE);
+					proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_value, tvb, optoff, calength, ENC_BIG_ENDIAN);
 
 					optoff = optoff + calength;
 					optleft = optleft - calength;
@@ -2125,17 +2125,17 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			}
 		} else if (optlen < 69) { /* CableLabs DSS_ID */
 
-			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff, 1, FALSE);
-			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
 			s_len = tvb_get_guint8(tvb, optoff+1);
-			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2, s_len, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2, s_len, ENC_BIG_ENDIAN);
 
 			if (optlen > s_len+2) { /* Second DSS_ID*/
 
-				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff+2+s_len, 1, FALSE);
-				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1+2+s_len, 1, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff+2+s_len, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1+2+s_len, 1, ENC_BIG_ENDIAN);
 				s_len = tvb_get_guint8(tvb, optoff+1+2+s_len);
-				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2+2+s_len, s_len, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2+2+s_len, s_len, ENC_BIG_ENDIAN);
 			}
 		} else {
 			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Invalid length of DHCP option!");
@@ -2147,7 +2147,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		if (optlen == 1) {
 			/* CableLab specific */
-			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_cl_address_mode, tvb, optoff, optlen, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_cl_address_mode, tvb, optoff, optlen, ENC_BIG_ENDIAN);
 			break;
 		}
 
@@ -2161,14 +2161,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			}
 
-			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_enterprise, tvb, optoff, 4, FALSE);
-			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data_length, tvb, optoff, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_enterprise, tvb, optoff, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data_length, tvb, optoff, 1, ENC_BIG_ENDIAN);
 			data_len = tvb_get_guint8(tvb, optoff + 4);
 
 			optoff += 5;
 			optleft -= 5;
 
-			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data, tvb, optoff, data_len, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data, tvb, optoff, data_len, ENC_BIG_ENDIAN);
 
 			/* look for next enterprise number */
 			optoff += data_len;
@@ -2195,7 +2195,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			}
 
 			enterprise = tvb_get_ntohl(tvb, optoff);
-			vti = proto_tree_add_item(v_tree, hf_bootp_option125_enterprise, tvb, optoff, 4, FALSE);
+			vti = proto_tree_add_item(v_tree, hf_bootp_option125_enterprise, tvb, optoff, 4, ENC_BIG_ENDIAN);
 
 			s_option_len = tvb_get_guint8(tvb, optoff + 4);
 
@@ -2250,10 +2250,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			break;
 		}
 
-		proto_tree_add_item(v_tree, hf_bootp_option_6RD_ipv4_mask_len, tvb, optoff, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix_len, tvb, optoff+1, 1, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix, tvb, optoff+2, 16, FALSE);
-		proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, optoff+18, 4, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_ipv4_mask_len, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix_len, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix, tvb, optoff+2, 16, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, optoff+18, 4, ENC_BIG_ENDIAN);
 
 		/* More Border Relay IPv4 addresses included */
 		if (optlen > 22) {
@@ -2264,7 +2264,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 
-				proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, i, 4, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, i, 4, ENC_BIG_ENDIAN);
 			}
 		}
 		break;
@@ -2306,7 +2306,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 	if ((basictype_consumed == 0) && (option_handled == FALSE) && 
 	    (opt->phf == NULL) && (optlen > 0)) {
-		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, ENC_BIG_ENDIAN);
 	}
 
 	return consumed;
@@ -2372,7 +2372,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		tvb, optoff, subopt_len+2, subopt, "(%d) %s", subopt, val_to_str(subopt, option82_suboption_vals, "Unknown"));
 
 	o82_v_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption);
-	proto_tree_add_item(o82_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o82_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
@@ -2382,28 +2382,28 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	}
 
 	if ( (subopt < 1 ) || (subopt >= array_length(o82_opt)) ) {
-		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, FALSE);
+		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 	} else if (o82_opt[subopt].ftype == special) {
 		switch(subopt)
 		{
 		case 9:
 			while (suboptoff < optend) {
 				enterprise = tvb_get_ntohl(tvb, suboptoff);
-				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, FALSE);
+				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 				suboptoff += 4;
 
 				o82_9_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
 				datalen = tvb_get_guint8(tvb, suboptoff);
-				proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, FALSE);
+				proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 				suboptoff++;
 
 				switch (enterprise) {
 				case 4491: /* CableLab */
 					vs_opt = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, FALSE);
+					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 					suboptoff++;
 					vs_len = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, FALSE);
+					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 					suboptoff++;
 
 					switch (vs_opt) {
@@ -2411,9 +2411,9 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 					case 1:
 						if (vs_len == 4) {
 							tag = tvb_get_guint8(tvb, suboptoff);
-							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, FALSE);
+							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 							tag_len = tvb_get_guint8(tvb, suboptoff+1);
-							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, FALSE);
+							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
 							suboptoff+=2;
 							if (tag == 1) {
 								proto_tree_add_uint_format_value(o82_9_tree, hf_bootp_option82_vi_cl_docsis_version,
@@ -2438,7 +2438,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 					}
 					break;
 				default:
-					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, FALSE);
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, ENC_BIG_ENDIAN);
 					suboptoff += datalen;
 					break;
 				}
@@ -2446,9 +2446,9 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			break;
 		default:
 			if (o82_opt[subopt].phf != NULL)
-				proto_tree_add_item(o82_v_tree, *o82_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(o82_v_tree, *o82_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			break;
 		}
 	}
@@ -2523,10 +2523,10 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_padding, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_padding, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_end, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_end, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
@@ -2543,21 +2543,21 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				subopt, val_to_str(subopt, option43_pxeclient_suboption_vals, "Unknown"));
 
 	o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
-	proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
 		/* I may need to decode that properly one day */
-		proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, FALSE);
+		proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 	} else if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
 		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Unknown suboption %d (%d bytes)", subopt, subopt_len);
 	} else if (o43pxeclient_opt[subopt].ftype == special) {
 		/* I may need to decode that properly one day */
 		if (o43pxeclient_opt[subopt].phf != NULL)
-			proto_tree_add_item(o43pxeclient_v_tree, *o43pxeclient_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+			proto_tree_add_item(o43pxeclient_v_tree, *o43pxeclient_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
+			proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 	} else {
 		if (bootp_handle_basic_types(pinfo, o43pxeclient_v_tree, vti, tvb, o43pxeclient_opt[subopt].ftype, 
 							suboptoff, subopt_len, o43pxeclient_opt[subopt].phf, &default_hfs) == 0)
@@ -2811,10 +2811,10 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_item(v_tree, hf_bootp_option43_cl_padding, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_cl_padding, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_item(v_tree, hf_bootp_option43_cl_end, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_cl_end, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
@@ -2831,7 +2831,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				subopt, val_to_str(subopt, option43_cl_suboption_vals, "Unknown"));
 
 	o43cl_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
-	proto_tree_add_item(o43cl_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o43cl_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
@@ -2840,7 +2840,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	}
 
 	if ( (subopt < 1 ) || (subopt >= array_length(o43cablelabs_opt)) ) {
-		proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
+		proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 	} else if (o43cablelabs_opt[subopt].ftype == special) {
 		switch(subopt)
 		{
@@ -2851,7 +2851,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				proto_tree_add_bytes_format_value(o43cl_v_tree, hf_bootp_option43_cl_oui_bytes, tvb, suboptoff, subopt_len, NULL, 
 					"%02x:%02x:%02x", tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1), tvb_get_guint8(tvb, suboptoff+2));
 			} else if (subopt_len == 6) {
-				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_oui_string, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_oui_string, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			} else {
 				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 3 or 6");
 			}
@@ -2862,13 +2862,13 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				break;
 			}
 
-			proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_mta_mac_address, tvb, suboptoff, 6, FALSE);
+			proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_mta_mac_address, tvb, suboptoff, 6, ENC_BIG_ENDIAN);
 			break;
 		default:
 			if (o43cablelabs_opt[subopt].phf != NULL)
-				proto_tree_add_item(o43cl_v_tree, *o43cablelabs_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(o43cl_v_tree, *o43cablelabs_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 		}
 	}
 	else {
@@ -2913,10 +2913,10 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_padding, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_padding, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_end, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_end, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
@@ -2933,7 +2933,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 				subopt, val_to_str(subopt, option43_alcatel_suboption_vals, "Unknown"));
 
 	o43alcatel_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
-	proto_tree_add_item(o43alcatel_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o43alcatel_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
@@ -2949,7 +2949,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 			return (optend);
 		}
 
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_vlan_id, tvb, suboptoff, 2, FALSE);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_vlan_id, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
 		break;
 	case 64: /* 0x40 - Alcatel-Lucent TFTP1 */
 		if (subopt_len != 4) {
@@ -2957,7 +2957,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 			return (optend);
 		}
 
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp1, tvb, suboptoff, 4, FALSE);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp1, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 		break;
 	case 65: /* 0x41 - Alcatel-Lucent TFTP2 */
 		if (subopt_len != 4) {
@@ -2965,17 +2965,17 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 			return (optend);
 		}
 
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp2, tvb, suboptoff, 4, FALSE);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp2, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 		break;
 	case 66: /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
 		if (subopt_len != 1) {
 			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 1");
 			return (optend);
 		}
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_app_type, tvb, suboptoff, 1, FALSE);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_app_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 		break;
 	case 67: /* 0x43 - Alcatel-Lucent SIP URL */
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, FALSE);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 		break;
 	default:
 		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
@@ -3043,7 +3043,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				subopt, val_to_str(subopt, option63_suboption_vals, "Unknown"));
 
 	o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option63_suboption);
-	proto_tree_add_item(o63_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o63_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (subopt < array_length(o63_opt)) {
@@ -3059,7 +3059,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				break;
 			default:
 				if (o63_opt[subopt].phf == NULL)
-				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				break;
 			}
 		}
@@ -3119,7 +3119,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 				subopt, val_to_str(subopt, option125_tr111_suboption_vals, "Unknown"));
 
 	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_tr111_suboption);
-	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
@@ -3133,11 +3133,11 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 							suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
 			if (o125_tr111_opt[subopt].ftype == special) {
 				if (o125_tr111_opt[subopt].phf != NULL)
-				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
-				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			} else if (o125_tr111_opt[subopt].phf == NULL)
-				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 		}
 	}
 
@@ -3198,7 +3198,7 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				subopt, val_to_str(subopt, option125_cl_suboption_vals, "Unknown"));
 
 	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_cl_suboption);
-	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
+	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
@@ -3214,15 +3214,15 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 			switch(o125_cl_opt[subopt].ftype) {
 			case special:
 				if (o125_cl_opt[subopt].phf != NULL)
-				   proto_tree_add_item(o125_v_tree, *o125_cl_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(o125_v_tree, *o125_cl_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
-				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 
 					dissect_docsis_cm_cap(o125_v_tree, tvb, optoff, subopt_len+2, TRUE);
 				break;
 			default:
 				if (o125_cl_opt[subopt].phf == NULL)
-				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				break;
 			}
 		}
@@ -4648,7 +4648,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * OK, now build the protocol tree.
 	 */
 
-	ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, ENC_BIG_ENDIAN);
 	bp_tree = proto_item_add_subtree(ti, ett_bootp);
 
 	proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
@@ -4663,9 +4663,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(bp_tree, hf_bootp_hw_len, tvb,
 			    2, 1, hlen);
 	proto_tree_add_item(bp_tree, hf_bootp_hops, tvb,
-			    3, 1, FALSE);
+			    3, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bp_tree, hf_bootp_id, tvb,
-			    4, 4, FALSE);
+			    4, 4, ENC_BIG_ENDIAN);
 	/*
 	 * Windows (98, XP and Vista tested) sends the "secs" value on
 	 * the wire formatted as little-endian. See if the LE value
@@ -4679,7 +4679,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Seconds elapsed (%u) appears to be encoded as little-endian", secs);
 	} else {
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
-			    8, 2, FALSE);
+			    8, 2, ENC_BIG_ENDIAN);
 	}
 	flags = tvb_get_ntohs(tvb, 10);
 	fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
@@ -4692,25 +4692,25 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
 			    10, 2, flags);
 	proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb,
-			    12, 4, FALSE);
+			    12, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb,
-			    16, 4, FALSE);
+			    16, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bp_tree, hf_bootp_ip_server, tvb,
-			    20, 4, FALSE);
+			    20, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bp_tree, hf_bootp_ip_relay, tvb,
-			    24, 4, FALSE);
+			    24, 4, ENC_BIG_ENDIAN);
 
 	if (hlen > 0 && hlen <= 16) {
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
 		    && hlen == 6)
-			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, FALSE);
+			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, ENC_BIG_ENDIAN);
 		else
 			/* The chaddr element is 16 bytes in length,
 			   although only the first hlen bytes are used */
 			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb, 28, 16,
 					   NULL, "%s", tvb_arphrdaddr_to_str(tvb, 28, hlen, htype));
 		if ((16 - hlen) > 0)
-			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, FALSE);
+			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, ENC_BIG_ENDIAN);
 	} else {
 		proto_tree_add_text(bp_tree,  tvb,
 					   28, 16, "Client address not given");
@@ -4725,7 +4725,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
 					   SERVER_NAME_OFFSET,
-					   SERVER_NAME_LEN, FALSE);
+					   SERVER_NAME_LEN, ENC_BIG_ENDIAN);
 
 		} else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
@@ -4744,7 +4744,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
 					   FILE_NAME_OFFSET,
-					   FILE_NAME_LEN, FALSE);
+					   FILE_NAME_LEN, ENC_BIG_ENDIAN);
 		} else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
 						   FILE_NAME_OFFSET,
@@ -5321,7 +5321,7 @@ proto_register_bootp(void)
 				       "The PacketCable CCC protocol version",
 				       &pkt_ccc_protocol_version,
 				       pkt_ccc_protocol_versions,
-				       FALSE);
+				       ENC_BIG_ENDIAN);
 
 	prefs_register_uint_preference(bootp_module, "pkt.ccc.option",
 				       "PacketCable CCC option",
