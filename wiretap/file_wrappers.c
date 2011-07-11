@@ -59,6 +59,10 @@
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif /* HAVE_LIBZ */
+
 /*
  * See RFC 1952 for a description of the gzip file format.
  *

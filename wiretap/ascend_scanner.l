@@ -16,17 +16,17 @@
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -55,7 +55,7 @@ FILE_T yy_fh;
 extern char *ascend_ra_ptr;
 extern char *ascend_ra_last;
 #define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  \
-result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
+result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
 
 int at_eof;
 int mul, scratch;
@@ -161,7 +161,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_ether_direction>[^\(]{2,20} {
   BEGIN(sc_gen_task);
-  return STRING; 
+  return STRING;
 }
 
 <sc_isdn_call>[^\/\(:]{2,20} {
@@ -243,11 +243,11 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return HEXBYTE;
 }
 
-<sc_gen_byte>" "{4} { 
+<sc_gen_byte>" "{4} {
   BEGIN(sc_chardisp);
 }
 
-<sc_chardisp>.*	{ 
+<sc_chardisp>.*	{
   BEGIN(sc_gen_byte);
 }
 
@@ -349,7 +349,7 @@ void ascend_init_lexer(FILE_T fh)
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

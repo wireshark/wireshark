@@ -3996,8 +3996,8 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			    "Big Endian" : "Litte Endian");
 	offset += 8;
 
-	toc_offset = (spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
-	querylen = (spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
+	toc_offset = (gint)(spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
+	querylen = (gint)(spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
 	proto_tree_add_text(tree,
 			    tvb,
 			    offset,
@@ -4018,7 +4018,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
 	/* Queries */
-	query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
+	query_offset_next = (gint)(spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
 	for (i = 0; i < num_queries; i++) {
 		query_offset = query_offset_next;
 		if (i == num_queries - 1)
@@ -4026,7 +4026,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			query_offset_next = toc_offset;
 		else
 			/* peek at next offset */
-			query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
+			query_offset_next = (gint)(spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
 
 		/* this is obviously the length of one query */
 		query_data_len = query_offset_next - query_offset;
@@ -4063,7 +4063,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		if (query_data_len > 8) {
 			/* populate the query tree */
 			query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 8);
-			mdlen = ((query_data64 & 0xffff) - 1) * 8;
+			mdlen = (gint)((query_data64 & 0xffff) - 1) * 8;
 			proto_tree_add_text(sub_tree_query,
 					    tvb,
 					    offset + query_offset + 8,

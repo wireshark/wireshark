@@ -177,7 +177,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         capture_opts->auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
         "Unknown");
     if (capture_opts->auth_type == CAPTURE_AUTH_PWD) {
-        g_log(log_domain, log_level, "Auth username      : %s", capture_opts->auth_password);
+        g_log(log_domain, log_level, "Auth username      : %s", capture_opts->auth_username);
         g_log(log_domain, log_level, "Auth password      : <hidden>");
     }
     g_log(log_domain, log_level, "UDP data transfer  : %u", capture_opts->datatx_udp);

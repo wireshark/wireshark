@@ -808,7 +808,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 	if (it_rate == Q931_IT_RATE_MULTIRATE) {
 		if (len == 0)
 			return;
-		proto_tree_add_text(tree, tvb, offset, 1, "Rate multiplier: %u", tvb_get_guint8(tvb, offset));
+		proto_tree_add_text(tree, tvb, offset, 1, "Rate multiplier: %u", tvb_get_guint8(tvb, offset) & 0x7f);
 		offset += 1;
 		len -= 1;
 	}

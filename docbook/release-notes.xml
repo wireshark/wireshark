@@ -92,6 +92,78 @@ Wireshark Info
           6008</ulink>)
         </para></listitem>
 
+        <listitem><para>
+	  H323 rate multiplier wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6009">Bug
+          6009</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Inclusion of config.h is too late in lex-files resulting in wrong definition of _FILE_OFFSET_BITS.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6012">Bug
+          6012</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  802.11 Disassociation Packet's "Reason Code" field is imprecisely decoded/described.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6022">Bug
+          6022</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Crash after applying "expert.severity" field as column.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6035">Bug
+          6035</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
