@@ -99,7 +99,7 @@ capture_step_10packets() {
 
 	# we should have an output file now
 	if [ ! -f "./testout.pcap" ]; then
-		capture_test_output ./testout.txt
+		capture_test_output_print ./testout.txt
 		test_step_failed "No output file!"
 		return
 	fi
