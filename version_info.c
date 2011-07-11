@@ -163,12 +163,6 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 		(*append_info)(str);
 	g_string_append(str, ".");
 
-#if !defined(HAVE_LIBPCRE) && !GLIB_CHECK_VERSION(2,14,0)
-	g_string_append(str,
-	"\nNOTE: this build doesn't support the \"matches\" operator for Wireshark filter syntax");
-	g_string_append(str, ".");
-#endif	/* HAVE_LIBPCRE */
-
 	end_string(str);
 }
 
