@@ -786,7 +786,7 @@ docdir=`(
 )`
 AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 
-# GTK checks; we require GTK+ 2.4 or later.
+# GTK checks; we require GTK+ 2.12 or later.
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GTK+.
 #
@@ -800,7 +800,7 @@ if test "x$with_gtk3" = "xyes"; then
         ], GTK_OK=no, gthread)
 
 else
-	AM_PATH_GTK_2_0(2.4.0,
+	AM_PATH_GTK_2_0(2.12.0,
 	[
 		CFLAGS="$CFLAGS $GTK_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
@@ -811,7 +811,7 @@ else
 	GTK_OK=no
 fi
 
-# GLib checks; we require GLib 2.4 or later, and require gmodule
+# GLib checks; we require GLib 2.14 or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
 # If we found GTK+, this doesn't add GLIB_CFLAGS to CFLAGS, because
 # AM_PATH_GTK will add GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a
@@ -833,16 +833,16 @@ if test "$GTK_OK" = "no" ; then
 	# Wireshark unless they fix the GTK+ problem).
 	#
 	if test "x$enable_wireshark" = "xyes"; then
-		AC_MSG_ERROR([GTK+ 2.4 or later isn't available, so Wireshark can't be compiled])
+		AC_MSG_ERROR([GTK+ 2.12 or later isn't available, so Wireshark can't be compiled])
 	fi
 	wireshark_bin=""
 	wireshark_man=""
 	# Use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.4.0,
+	AM_PATH_GLIB_2_0(2.14.0,
 	[
 		CFLAGS="$CFLAGS $GLIB_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS"
-	], AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread gmodule)
+	], AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 else
 	#
 	# We have GTK+, and thus will be building Wireshark unless the
@@ -852,29 +852,7 @@ else
 	wireshark_man="wireshark.1"
         wireshark_SUBDIRS="codecs gtk"
 	# Don't use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gthread gmodule)
-fi
-
-#
-# Check whether GLib includes GRegex support.
-# We just assume that everybody builds GLib 2.14.0 and later
-# with GRegex support; it's possible to compile GLib without
-# GRegex but it doesn't look as if anyone does.
-#
-AC_MSG_CHECKING(for GLIB - version >= 2.14.0)
-if test x$PKG_CONFIG != xno ; then
-    ## don't try to run the test against uninstalled libtool libs
-    if $PKG_CONFIG --uninstalled $pkg_config_args; then
-	echo "Will use uninstalled version of GLib found in PKG_CONFIG_PATH"
-	enable_glibtest=no
-    fi
-
-    if $PKG_CONFIG --atleast-version 2.14.0 glib-2.0; then
-	have_gregex=yes
-    else
-	have_gregex=no
-    fi
-    AC_MSG_RESULT($have_gregex)
+	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 fi
 
 #
@@ -1306,7 +1284,7 @@ AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
 
 AC_ARG_WITH(pcre,
   AC_HELP_STRING( [--with-pcre@<:@=DIR@:>@],
-                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later. @<:@default=yes, if available and GLib < 2.14@:>@]),
+                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later. @<:@default=no@:>@]),
 [
 	if test $withval = no
 	then
@@ -1319,14 +1297,7 @@ AC_ARG_WITH(pcre,
 		pcre_dir=$withval
 	fi
 ],[
-	#
-	# Use libpcre if it's present and GRegex isn't, otherwise don't.
-	#
-	if test $have_gregex = yes ; then
-		want_pcre=no
-	else
-		want_pcre=ifavailable
-	fi
+	want_pcre=no
 	pcre_dir=
 ])
 if test "x$want_pcre" = "xno" ; then
@@ -1335,7 +1306,7 @@ else
         AC_MSG_RESULT(yes)
         AC_WIRESHARK_LIBPCRE_CHECK
 	if test "x$want_pcre" = "xno" ; then
-		AC_MSG_RESULT(libpcre not found - disabling support for perl compatible regular expressions in dfilters)
+		AC_MSG_RESULT(libpcre not found)
 	fi
 fi
 
@@ -2088,12 +2059,7 @@ else
 fi
 
 if test "x$want_pcre" = "xno" ; then
-	if test $have_gregex = yes
-	then
-		pcre_message="no (using GRegex instead)"
-	else
-		pcre_message="no"
-	fi
+	pcre_message="no (using GRegex instead)"
 else
 	pcre_message="yes"
 fi
