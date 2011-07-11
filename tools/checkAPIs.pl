@@ -890,10 +890,10 @@ my %deprecatedGtkFunctions = (
 		'gtk_tooltips_enable',						'E',
 		'gtk_tooltips_force_window',				'E',
 		'gtk_tooltips_get_info_from_tip_window',	'E',
-		'gtk_tooltips_new',							'W',
+		'gtk_tooltips_new',							'E',
 		'gtk_tooltips_set_delay',					'E',
-		'gtk_tooltips_set_tip',						'W',
-		'gtk_tool_item_set_tooltip',				'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+		'gtk_tooltips_set_tip',						'E',
+		'gtk_tool_item_set_tooltip',				'E', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
 ##  (or: use conditional code based upon the GTK version).
@@ -914,7 +914,7 @@ my %deprecatedGtkFunctions = (
 		'GTK_WIDGET_APP_PAINTABLE',					'E', # gtk_widget_get_app_paintable()		(avail since 2.18)
 		'GTK_WIDGET_CAN_DEFAULT',					'E', # gtk_widget_getcan_default()		(avail since 2.18)
 		'GTK_WIDGET_CAN_FOCUS',						'E', # gtk_widget_getcan_focus()		(avail since 2.18)
-		'GTK_WIDGET_COMPOSITE_CHILD',				'E', # gtk_widget_getcomposite_child()		(avail since 2.18)
+		'GTK_WIDGET_COMPOSITE_CHILD',				'E', # gtk_widget_getcomposite_child()	(avail since 2.18)
 		'GTK_WIDGET_DOUBLE_BUFFERED',				'E', # gtk_widget_getdouble_buffered()		(avail since 2.18)
 		'GTK_WIDGET_DRAWABLE',						'E', # gtk_widget_getdrawable()			(avail since 2.18)
 		'GTK_WIDGET_FLAGS',							'E', # gtk_widget_getflags()			(avail since 2.18)
@@ -945,7 +945,7 @@ my %deprecatedGtkFunctions = (
 		'gtk_item_toggle',							'E', #
 		'gtk_recent_manager_get_limit',				'E', # Use GtkRecentChooser
 		'gtk_recent_manager_set_limit',				'E', #
-
+##
 ## Deprecated as of GTK+ 2.24 but to be replaced only when Wireshark requires GTK+ 2.24 or later
 ##  (or: use conditional code based upon the GTK version).
 		'gtk_combo_box_new_text',					'W', # gtk_combo_box_text_new()

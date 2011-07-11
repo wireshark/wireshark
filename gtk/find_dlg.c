@@ -126,7 +126,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *case_cb, *combo_lb, *combo_cb,
 
                 *bbox, *ok_bt, *cancel_bt, *help_bt;
-  GtkTooltips   *tooltips;
 
 
   /* No Apply button, but "OK" not only sets our text widget, it
@@ -145,7 +144,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   find_frame_w = dlg_window_new("Wireshark: Find Packet");
-  tooltips = gtk_tooltips_new ();
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -183,21 +181,21 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_Display filter");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), filter_rb, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
+  gtk_widget_set_tooltip_text(filter_rb, "Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1");
   gtk_widget_show(filter_rb);
 
   /* Hex */
   hex_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(filter_rb), "_Hex value");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
   gtk_box_pack_start(GTK_BOX(find_type_hb), hex_rb, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, hex_rb, ("Search for data by hex string.\ne.g. fffffda5"), NULL);
+  gtk_widget_set_tooltip_text(hex_rb, "Search for data by hex string.\ne.g. fffffda5");
   gtk_widget_show(hex_rb);
 
   /* ASCII Search */
   string_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(filter_rb), "_String");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(string_rb), cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), string_rb, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, string_rb, ("Search for data by string value.\ne.g. My String"), NULL);
+  gtk_widget_set_tooltip_text(string_rb, "Search for data by string value.\ne.g. My String");
   gtk_widget_show(string_rb);
 
   /* Filter row */
@@ -210,7 +208,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_BUTTON_KEY, filter_bt);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, filter_bt, ("Click on the filter button to select a display filter,\nor enter your search criteria into the text box"), NULL);
+  gtk_widget_set_tooltip_text(filter_bt, "Click on the filter button to select a display filter,\nor enter your search criteria into the text box");
   gtk_widget_show(filter_bt);
 
   filter_text_box = gtk_entry_new();
@@ -246,21 +244,21 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   summary_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Packet list");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), summary_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (summary pane)"), NULL);
+  gtk_widget_set_tooltip_text(summary_data_rb, "Search for string in the Info column of the packet summary (summary pane)");
   gtk_widget_show(summary_data_rb);
 
   /* Packet details */
   decode_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet details");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
   gtk_box_pack_start(GTK_BOX(data_vb), decode_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string among the decoded packet display labels (tree view pane)"), NULL);
+  gtk_widget_set_tooltip_text(decode_data_rb, "Search for string among the decoded packet display labels (tree view pane)");
   gtk_widget_show(decode_data_rb);
 
   /* Packet bytes */
   packet_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet bytes");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(packet_data_rb), packet_data);
   gtk_box_pack_start(GTK_BOX(data_vb), packet_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, packet_data_rb, ("Search for string in the ASCII-converted packet data (hex view pane)"), NULL);
+  gtk_widget_set_tooltip_text(packet_data_rb, "Search for string in the ASCII-converted packet data (hex view pane)");
   gtk_widget_show(packet_data_rb);
 
   /* string options frame */
@@ -276,7 +274,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   case_cb = gtk_check_button_new_with_mnemonic("Case sensitive");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(case_cb), !case_type);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), case_cb);
-  gtk_tooltips_set_tip (tooltips, case_cb, ("Search by mixed upper/lower case?"), NULL);
+  gtk_widget_set_tooltip_text(case_cb, "Search by mixed upper/lower case?");
   gtk_widget_show(case_cb);
 
   combo_lb = gtk_label_new("Character set:");

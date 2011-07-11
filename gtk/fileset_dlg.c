@@ -62,7 +62,6 @@ static GtkWidget *fs_w;
 static int            row;
 static GtkWidget     *fs_tb;
 static GtkWidget     *fs_sw;
-static GtkTooltips   *tooltips;
 static GtkWidget     *fs_dir_lb;
 static GtkWidget     *fs_first_rb;
 static GtkWidget     *fs_tb_vb;
@@ -186,7 +185,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
     if(entry->current) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (fs_rb), entry->current);
     }
-    gtk_tooltips_set_tip(tooltips, fs_rb, "Open this capture file", NULL);
+	gtk_widget_set_tooltip_text(fs_rb, "Open this capture file");
     gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_rb, 0, 1, row, row+1);
     g_signal_connect(fs_rb, "toggled", G_CALLBACK(fs_rb_cb), entry);
     gtk_widget_show(fs_rb);
@@ -291,8 +290,6 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   fs_w = dlg_window_new("");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(fs_w), TRUE);
 
-  tooltips = gtk_tooltips_new();
-
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(fs_w), main_vb);
@@ -316,7 +313,7 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(fs_w, close_bt, window_cancel_button_cb);
-  gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
+  gtk_widget_set_tooltip_text(close_bt, "Close this window.");
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FILESET_DIALOG);
