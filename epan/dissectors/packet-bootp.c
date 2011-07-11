@@ -3,6 +3,9 @@
  * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
  * Copyright 2004, Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
+ * Added option field filters
+ * Copyright 2011, Michael Mann
+ *
  * $Id$
  *
  * The information used comes from:
@@ -103,6 +106,7 @@
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 
 
 static int bootp_dhcp_tap = -1;
@@ -140,24 +144,283 @@ static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mta_cap_len = -1;
 static int hf_bootp_docsis_cm_cap_type = -1;
 static int hf_bootp_docsis_cm_cap_len = -1;
-static int hf_bootp_alu_vid = -1;
-static int hf_bootp_alu_tftp1 = -1;
-static int hf_bootp_alu_tftp2 = -1;
-static int hf_bootp_alu_app_type = -1;
-static int hf_bootp_alu_sip_url = -1;
 static int hf_bootp_client_identifier_uuid = -1;
-static int hf_bootp_client_network_id_major_ver = -1;
-static int hf_bootp_client_network_id_minor_ver = -1;
 static int hf_bootp_option_type = -1;
 static int hf_bootp_option_length = -1;
 static int hf_bootp_option_value = -1;
+static int hf_bootp_option_value_8 = -1;
+static int hf_bootp_option_value_16 = -1;
+static int hf_bootp_option_value_u32 = -1;
+static int hf_bootp_option_value_i32 = -1;
+static int hf_bootp_option_value_stringz = -1;
+static int hf_bootp_option_value_ip_address = -1;
+static int hf_bootp_option_value_boolean = -1;
+static int hf_bootp_suboption_length = -1;
+
+static int hf_bootp_option_padding = -1;                                /* 0 */
+static int hf_bootp_option_subnet_mask = -1;                            /* 1 */
+static int hf_bootp_option_time_offset = -1;                            /* 2 */
+static int hf_bootp_option_router = -1;                                 /* 3 */
+static int hf_bootp_option_time_server = -1;                            /* 4 */
+static int hf_bootp_option_name_server = -1;                            /* 5 */
+static int hf_bootp_option_domain_name_server = -1;                     /* 6 */
+static int hf_bootp_option_log_server = -1;                             /* 7 */
+static int hf_bootp_option_quotes_server = -1;                          /* 8 */
+static int hf_bootp_option_lpr_server = -1;                             /* 9 */
+static int hf_bootp_option_impress_server = -1;                         /* 10 */
+static int hf_bootp_option_resource_location_server = -1;               /* 11 */
+static int hf_bootp_option_hostname = -1;                               /* 12 */
+static int hf_bootp_option_boot_file_size = -1;                         /* 13 */
+static int hf_bootp_option_merit_dump_file = -1;                        /* 14 */
+static int hf_bootp_option_domain_name = -1;                            /* 15 */
+static int hf_bootp_option_swap_server = -1;                            /* 16 */
+static int hf_bootp_option_root_path = -1;                              /* 17 */
+static int hf_bootp_option_extension_path = -1;                         /* 18 */
+static int hf_bootp_option_ip_forwarding = -1;                          /* 19 */
+static int hf_bootp_option_non_local_source_routing = -1;               /* 20 */
+static int hf_bootp_option_policy_filter_ip = -1;                       /* 21 - IP address */
+static int hf_bootp_option_policy_filter_subnet_mask = -1;              /* 21 - Subnet mask */
+static int hf_bootp_option_max_datagram_reassembly_size = -1;           /* 22 */
+static int hf_bootp_option_default_ip_ttl = -1;                         /* 23 */
+static int hf_bootp_option_path_mtu_aging_timeout = -1;                 /* 24 */
+static int hf_bootp_option_path_mtu_plateau_table_item = -1;            /* 25 */
+static int hf_bootp_option_interface_mtu = -1;                          /* 26 */
+static int hf_bootp_option_all_subnets_are_local = -1;                  /* 27 */
+static int hf_bootp_option_broadcast_address = -1;                      /* 28 */
+static int hf_bootp_option_perform_mask_discovery = -1;                 /* 29 */
+static int hf_bootp_option_mask_supplier = -1;                          /* 30 */
+static int hf_bootp_option_perform_router_discover = -1;                /* 31 */
+static int hf_bootp_option_router_solicitation_address = -1;            /* 32 */
+static int hf_bootp_option_static_route_ip = -1;                        /* 33 - Destination IP */
+static int hf_bootp_option_static_route_router = -1;                    /* 33 - Router */
+static int hf_bootp_option_trailer_encapsulation = -1;                  /* 34 */
+static int hf_bootp_option_arp_cache_timeout = -1;                      /* 35 */
+static int hf_bootp_option_ethernet_encapsulation = -1;                 /* 36 */
+static int hf_bootp_option_tcp_default_ttl = -1;                        /* 37 */
+static int hf_bootp_option_tcp_keepalive_interval = -1;                 /* 38 */
+static int hf_bootp_option_tcp_keepalive_garbage = -1;                  /* 39 */
+static int hf_bootp_option_nis_domain = -1;                             /* 40 */
+static int hf_bootp_option_nis_server = -1;                             /* 41 */
+static int hf_bootp_option_ntp_server = -1;                             /* 42 */
+
+static int hf_bootp_option43_value = -1;                                /* 43 suboption value */ 
+static int hf_bootp_option43_value_8 = -1;                              /* 43 suboption value */ 
+static int hf_bootp_option43_value_16 = -1;                             /* 43 suboption value */ 
+static int hf_bootp_option43_value_32 = -1;                             /* 43 suboption value */ 
+static int hf_bootp_option43_value_stringz = -1;                         /* 43 suboption value */ 
+static int hf_bootp_option43_value_ip_address = -1;                     /* 43 suboption value */ 
+
+static int hf_bootp_option43_pxeclient_suboption = -1;                  /* 43 suboption */
+static int hf_bootp_option43_pxeclient_padding = -1;                    /* 43:0 PXE  */
+static int hf_bootp_option43_pxeclient_mtftp_ip = -1;                   /* 43:1 PXE  */
+static int hf_bootp_option43_pxeclient_mtftp_client_port = -1;          /* 43:2 PXE  */
+static int hf_bootp_option43_pxeclient_mtftp_server_port = -1;          /* 43:3 PXE  */
+static int hf_bootp_option43_pxeclient_mtftp_timeout = -1;              /* 43:4 PXE  */
+static int hf_bootp_option43_pxeclient_mtftp_delay = -1;                /* 43:5 PXE  */
+static int hf_bootp_option43_pxeclient_discovery_control = -1;          /* 43:6 PXE  */
+static int hf_bootp_option43_pxeclient_multicast_address = -1;          /* 43:7 PXE  */
+static int hf_bootp_option43_pxeclient_boot_servers = -1;               /* 43:8 PXE  */
+static int hf_bootp_option43_pxeclient_boot_menu = -1;                  /* 43:9 PXE  */
+static int hf_bootp_option43_pxeclient_menu_prompt = -1;                /* 43:10 PXE  */
+static int hf_bootp_option43_pxeclient_multicast_address_alloc = -1;    /* 43:11 PXE  */
+static int hf_bootp_option43_pxeclient_credential_types = -1;           /* 43:12 PXE  */
+static int hf_bootp_option43_pxeclient_boot_item = -1;                  /* 43:71 PXE  */
+static int hf_bootp_option43_pxeclient_end = -1;                        /* 43:255 PXE */
+
+static int hf_bootp_option43_cl_suboption = -1;                         /* 43 suboption */
+static int hf_bootp_option43_cl_padding = -1;                           /* 43:0 CL  */
+static int hf_bootp_option43_cl_suboption_request_list = -1;            /* 43:1 CL  */
+static int hf_bootp_option43_cl_device_type = -1;                       /* 43:2 CL  */
+static int hf_bootp_option43_cl_esafe_type = -1;                        /* 43:3 CL  */
+static int hf_bootp_option43_cl_serial_number = -1;                     /* 43:4 CL  */
+static int hf_bootp_option43_cl_hardware_version = -1;                  /* 43:5 CL  */
+static int hf_bootp_option43_cl_software_version = -1;                  /* 43:6 CL  */
+static int hf_bootp_option43_cl_boot_rom_version = -1;                  /* 43:7 CL  */
+static int hf_bootp_option43_cl_oui_bytes = -1;                         /* 43:8 CL  */
+static int hf_bootp_option43_cl_oui_string = -1;                        /* 43:8 CL  */
+static int hf_bootp_option43_cl_model_number = -1;                      /* 43:9 CL  */
+static int hf_bootp_option43_cl_vendor_name10 = -1;                     /* 43:10 CL  */
+static int hf_bootp_option43_cl_address_realm = -1;                     /* 43:11 CL  */
+static int hf_bootp_option43_cl_cm_ps_system_desc = -1;                 /* 43:12 CL  */
+static int hf_bootp_option43_cl_cm_ps_firmware_revision = -1;           /* 43:13 CL  */
+static int hf_bootp_option43_cl_firewall_policy_file_version = -1;      /* 43:14 CL  */
+static int hf_bootp_option43_cl_esafe_config_file_devices = -1;         /* 43:15 CL  */
+static int hf_bootp_option43_cl_video_security_tape = -1;               /* 43:18 CL  */
+static int hf_bootp_option43_cl_mta_mac_address = -1;                   /* 43:31 CL  */
+static int hf_bootp_option43_cl_correlation_ID = -1;                    /* 43:32 CL  */
+static int hf_bootp_option43_cl_vendor_name51 = -1;                     /* 43:51 CL  */
+static int hf_bootp_option43_cl_cablecard_capability = -1;              /* 43:52 CL  */
+static int hf_bootp_option43_cl_device_id_ca = -1;                      /* 43:53 CL  */
+static int hf_bootp_option43_cl_device_id_x509 = -1;                    /* 43:54 CL  */
+static int hf_bootp_option43_cl_end = -1;                               /* 43:255 CL */
+
+static int hf_bootp_option43_alcatel_suboption = -1;                    /* 43 suboption */
+static int hf_bootp_option43_alcatel_padding = -1;                      /* 43:0 Alcatel  */
+static int hf_bootp_option43_alcatel_vlan_id = -1;                      /* 43:58 Alcatel  */
+static int hf_bootp_option43_alcatel_tftp1 = -1;                        /* 43:64 Alcatel  */
+static int hf_bootp_option43_alcatel_tftp2 = -1;                        /* 43:65 Alcatel  */
+static int hf_bootp_option43_alcatel_app_type = -1;                     /* 43:66 Alcatel  */
+static int hf_bootp_option43_alcatel_sip_url = -1;                      /* 43:67 Alcatel  */
+static int hf_bootp_option43_alcatel_end = -1;                          /* 43:255 Alcatel */
+
+
+static int hf_bootp_option_netbios_over_tcpip_name_server = -1;         /* 44 */
+static int hf_bootp_option_netbios_over_tcpip_dd_name_server = -1;      /* 45 */
+static int hf_bootp_option_netbios_over_tcpip_node_type = -1;           /* 46 */
+static int hf_bootp_option_netbios_over_tcpip_scope = -1;               /* 47 */
+static int hf_bootp_option_xwindows_system_font_server = -1;            /* 48 */
+static int hf_bootp_option_xwindows_system_display_manager = -1;        /* 49 */
+static int hf_bootp_option_requested_ip_address = -1;                   /* 50 */
+static int hf_bootp_option_ip_address_lease_time = -1;                  /* 51 */
+static int hf_bootp_option_option_overload = -1;                        /* 52 */
+static int hf_bootp_option_dhcp = -1;                                   /* 53 */
+static int hf_bootp_option_dhcp_server_id = -1;                         /* 54 */
+static int hf_bootp_option_parameter_request_list_item = -1;            /* 55 */
+static int hf_bootp_option_message = -1;                                /* 56 */
+static int hf_bootp_option_dhcp_max_message_size = -1;                  /* 57 */
+static int hf_bootp_option_renewal_time_value = -1;                     /* 58 */
+static int hf_bootp_option_rebinding_time_value = -1;                   /* 59 */
+static int hf_bootp_option_vendor_class_id = -1;                        /* 60 */
+
+static int hf_bootp_option_novell_netware_ip_domain = -1;               /* 62 */
+
+static int hf_bootp_option63_suboption = -1;                            /* 63 suboption */
+static int hf_bootp_option63_value = -1;                                /* 63 suboption value */ 
+static int hf_bootp_option63_value_8 = -1;                              /* 63 suboption value */ 
+static int hf_bootp_option63_value_ip_address = -1;                     /* 63 suboption value */ 
+static int hf_bootp_option63_value_boolean = -1;                        /* 63 suboption value */ 
+static int hf_bootp_option63_broadcast = -1;                            /* 63:5 */ 
+static int hf_bootp_option63_preferred_dss_server = -1;                 /* 63:6 */
+static int hf_bootp_option63_nearest_nwip_server = -1;                  /* 63:7 */ 
+static int hf_bootp_option63_autoretries = -1;                          /* 63:8 */ 
+static int hf_bootp_option63_autoretry_delay = -1;                      /* 63:9 */ 
+static int hf_bootp_option63_support_netware_v1_1 = -1;                 /* 63:10 */ 
+static int hf_bootp_option63_primary_dss = -1;                          /* 63:11 */ 
+
+static int hf_bootp_option_nis_plus_domain = -1;                        /* 64 */
+static int hf_bootp_option_nis_plus_server = -1;                        /* 65 */
+static int hf_bootp_option_tftp_server_name = -1;                       /* 66 */
+static int hf_bootp_option_bootfile_name = -1;                          /* 67 */
+static int hf_bootp_option_mobile_ip_home_agent = -1;                   /* 68 */
+static int hf_bootp_option_smtp_server = -1;                            /* 69 */
+static int hf_bootp_option_pop3_server = -1;                            /* 70 */
+static int hf_bootp_option_nntp_server = -1;                            /* 71 */
+static int hf_bootp_option_default_www_server = -1;                     /* 72 */
+static int hf_bootp_option_default_finger_server = -1;                  /* 73 */
+static int hf_bootp_option_default_irc_server = -1;                     /* 74 */
+static int hf_bootp_option_streettalk_server = -1;                      /* 75 */
+static int hf_bootp_option_streettalk_da_server = -1;                   /* 76 */
+static int hf_bootp_option_slp_directory_agent_value = -1;              /* 78 */
+static int hf_bootp_option_slp_directory_agent_slpda_address = -1;      /* 78 */
+static int hf_bootp_option_slp_service_scope_value = -1;                /* 79 */
+static int hf_bootp_option_slp_service_scope_string = -1;               /* 79 */
+
+static int hf_bootp_option82_suboption = -1;                            /* 82 suboption */
+static int hf_bootp_option82_value = -1;                                /* 82 suboption value */ 
+static int hf_bootp_option82_value_8 = -1;                              /* 82 suboption value */ 
+static int hf_bootp_option82_value_32 = -1;                             /* 82 suboption value */ 
+static int hf_bootp_option82_value_ip_address = -1;                     /* 82 suboption value */ 
+static int hf_bootp_option82_value_stringz = -1;                        /* 82 suboption value */ 
+static int hf_bootp_option82_padding = -1;                              /* 82:0 */ 
+static int hf_bootp_option82_agent_circuit_id = -1;                     /* 82:1 */ 
+static int hf_bootp_option82_agent_remote_id = -1;                      /* 82:2 */ 
+static int hf_bootp_option82_reserved = -1;                             /* 82:3 */ 
+static int hf_bootp_option82_docsis_device_class = -1;                  /* 82:4 */ 
+static int hf_bootp_option82_link_selection = -1;                       /* 82:5 */ 
+static int hf_bootp_option82_subscriber_id = -1;                        /* 82:6 */ 
+static int hf_bootp_option82_radius_attributes = -1;                    /* 82:7 */ 
+static int hf_bootp_option82_authentication = -1;                       /* 82:8 */ 
+static int hf_bootp_option82_vi = -1;                                   /* 82:9 */
+                                                                        /* 82:9 suboptions */
+static int hf_bootp_option82_vi_enterprise = -1;
+static int hf_bootp_option82_vi_data_length = -1;
+static int hf_bootp_option82_vi_cl_option = -1;
+static int hf_bootp_option82_vi_cl_length = -1;
+static int hf_bootp_option82_vi_cl_tag = -1;
+static int hf_bootp_option82_vi_cl_tag_length = -1;
+static int hf_bootp_option82_vi_cl_docsis_version = -1;
+                                                                        /* 82:9 suboptions end */
+static int hf_bootp_option82_flags = -1;                                /* 82:10 */ 
+static int hf_bootp_option82_server_id_override = -1;                   /* 82:11 */ 
+
+static int hf_bootp_option_novell_dss_string = -1;                      /* 85 */
+static int hf_bootp_option_novell_dss_ip = -1;                          /* 85 */
+static int hf_bootp_option_novell_ds_tree_name = -1;                    /* 86 */
+static int hf_bootp_option_novell_ds_context = -1;                      /* 87 */
+static int hf_bootp_option_dhcp_authentication_protocol = -1;           /* 90 */
+static int hf_bootp_option_dhcp_authentication_alg_delay = -1;          /* 90 */
+static int hf_bootp_option_dhcp_authentication_algorithm = -1;          /* 90 */
+static int hf_bootp_option_dhcp_authentication_rdm = -1;                /* 90 */
+static int hf_bootp_option_dhcp_authentication_rdm_replay_detection = -1;   /* 90 */
+static int hf_bootp_option_dhcp_authentication_rdm_rdv = -1;            /* 90 */
+static int hf_bootp_option_dhcp_authentication_secret_id = -1;          /* 90 */
+static int hf_bootp_option_dhcp_authentication_hmac_md5_hash = -1;      /* 90 */
+static int hf_bootp_option_dhcp_authentication_information = -1;        /* 90 */
+static int hf_bootp_option_client_last_transaction_time = -1;           /* 91 */
+static int hf_bootp_option_associated_ip_option = -1;                   /* 92 */
+static int hf_bootp_option_client_system_architecture = -1;             /* 93 */
+static int hf_bootp_option_client_network_id_major_ver = -1;            /* 94 */
+static int hf_bootp_option_client_network_id_minor_ver = -1;            /* 94 */
+static int hf_bootp_option_civic_location_what = -1;                    /* 99 */
+static int hf_bootp_option_civic_location_country = -1;                 /* 99 */
+static int hf_bootp_option_civic_location_ca_type = -1;                 /* 99 */
+static int hf_bootp_option_civic_location_ca_length = -1;               /* 99 */
+static int hf_bootp_option_civic_location_ca_value = -1;                /* 99 */
+static int hf_bootp_option_netinfo_parent_server_address = -1;          /* 112 */
+static int hf_bootp_option_netinfo_parent_server_tag = -1;              /* 113 */
+static int hf_bootp_option_dhcp_auto_configuration = -1;                /* 116 */
+static int hf_bootp_option_cl_dss_id_option = -1;                       /* 123 CL */
+static int hf_bootp_option_cl_dss_id_len = -1;                          /* 123 CL */
+static int hf_bootp_option_cl_dss_id = -1;                              /* 123 CL */
+static int hf_bootp_option_vi_class_cl_address_mode = -1;               /* 124 */
+static int hf_bootp_option_vi_class_enterprise = -1;                    /* 124 */
+static int hf_bootp_option_vi_class_data_length = -1;                   /* 124 */
+static int hf_bootp_option_vi_class_data = -1;                          /* 124 */
+
+static int hf_bootp_option125_enterprise = -1;
+static int hf_bootp_option125_value = -1;                               /* 125 suboption value */ 
+static int hf_bootp_option125_value_8 = -1;                             /* 125 suboption value */ 
+static int hf_bootp_option125_value_16 = -1;                            /* 125 suboption value */ 
+static int hf_bootp_option125_value_ip_address = -1;                    /* 125 suboption value */ 
+static int hf_bootp_option125_value_stringz = -1;                       /* 125 suboption value */ 
+static int hf_bootp_option125_tr111_suboption = -1;                     /* 125 suboption */
+static int hf_bootp_option125_tr111_device_manufacturer_oui = -1;       /* 125:TR-111 1 */ 
+static int hf_bootp_option125_tr111_device_serial_number = -1;          /* 125:TR-111 2 */ 
+static int hf_bootp_option125_tr111_device_product_class = -1;          /* 125:TR-111 3 */ 
+static int hf_bootp_option125_tr111_gateway_manufacturer_oui = -1;      /* 125:TR-111 4 */ 
+static int hf_bootp_option125_tr111_gateway_serial_number = -1;         /* 125:TR-111 5 */ 
+static int hf_bootp_option125_tr111_gateway_product_class = -1;         /* 125:TR-111 6 */ 
+static int hf_bootp_option125_cl_suboption = -1;                        /* 125 suboption */
+static int hf_bootp_option125_cl_option_request = -1;                   /* 125:CL 1 */ 
+static int hf_bootp_option125_cl_tftp_server_addresses = -1;            /* 125:CL 1 */ 
+static int hf_bootp_option125_cl_erouter_container_option = -1;         /* 125:CL 1 */ 
+static int hf_bootp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL 1 */ 
+static int hf_bootp_option125_cl_modem_capabilities = -1;               /* 125:CL 1 */ 
+
+static int hf_bootp_option_subnet_selection_option = -1;                /* 118 */
+static int hf_bootp_option_lost_server_domain_name = -1;                /* 137 */
+static int hf_bootp_option_capwap_access_controller = -1;               /* 138 */
+static int hf_bootp_option_tftp_server_address = -1;                    /* 150 */
+static int hf_bootp_option_6RD_ipv4_mask_len = -1;                      /* 212 */
+static int hf_bootp_option_6RD_prefix_len = -1;                         /* 212 */
+static int hf_bootp_option_6RD_prefix = -1;                             /* 212 */
+static int hf_bootp_option_6RD_border_relay_ip = -1;                    /* 212 */
+static int hf_bootp_option_private_proxy_autodiscovery = -1;            /* 252 */
+static int hf_bootp_option_end = -1;                                    /* 255 */
+static int hf_bootp_option_end_overload = -1;                           /* 255 (with overload)*/
+
+
+
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
+static gint ett_bootp_option43_suboption = -1;
+static gint ett_bootp_option63_suboption = -1;
+static gint ett_bootp_option82_suboption = -1;
+static gint ett_bootp_option82_suboption9 = -1;
+static gint ett_bootp_option125_suboption = -1;
 static gint ett_bootp_fqdn = -1;
-
-static const char *pref_optionstring = "";
 
 /* RFC3825decoder error codes of the conversion function */
 #define RFC3825_NOERROR                           0
@@ -397,7 +660,7 @@ enum field_type {
 struct opt_info {
 	const char	*text;
 	enum field_type ftype;
-	const void	*data;
+	int* phf;
 };
 
 static const true_false_string flag_set_broadcast = {
@@ -429,28 +692,28 @@ static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
 
 
-static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
+static int dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                              tvbuff_t *tvb, int optoff, int optend);
+static int dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                              tvbuff_t *tvb, int optoff, int optend);
+static int dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                            tvbuff_t *tvb, int optoff, int optend);
+static int dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                            tvbuff_t *tvb, int optoff, int optend);
+static int dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                            tvbuff_t *tvb, int optoff, int optend);
+static int bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                            tvbuff_t *tvb, int optoff, int optend);
 static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
 static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len, gboolean opt125);
-static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
-static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend, int revision);
-static int dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend);
+static int dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                       tvbuff_t *tvb, int optoff, int optend);
+static int dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                        tvbuff_t *tvb, int optoff, int optend, int revision);
+static int dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                            tvbuff_t *tvb, int optoff, int optend);
 
 #define OPT53_DISCOVER "Discover"
 /* http://www.iana.org/assignments/bootp-dhcp-parameters */
@@ -522,6 +785,42 @@ static const value_string bootp_client_arch[] = {
 	{ 0,      NULL }
 };
 
+static const value_string opt_overload_vals[] = {
+	{ OPT_OVERLOAD_FILE,  "Boot file name holds options",                },
+	{ OPT_OVERLOAD_SNAME, "Server host name holds options",              },
+	{ OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
+	{ 0,                  NULL                                           } };
+
+static const value_string slpda_vals[] = {
+	{0x00,   "Dynamic Discovery" },
+	{0x01,   "Static Discovery" },
+	{0x80,   "Backwards compatibility" },
+	{0,     NULL     } };
+
+static const value_string slp_scope_vals[] = {
+	{0x00,   "Preferred Scope" },
+	{0x01,   "Mandatory Scope" },
+	{0,     NULL     } };
+
+static const value_string authen_protocol_vals[] = {
+	{AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
+	{AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
+	{0,                           NULL     } };
+
+static const value_string authen_da_algo_vals[] = {
+	{AUTHEN_DELAYED_ALGO_HMAC_MD5, "HMAC_MD5" },
+	{0,                            NULL     } };
+
+static const value_string authen_rdm_vals[] = {
+	{AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
+	{0,                            NULL     } };
+
+static const value_string cl_dss_id_type_vals[] = {
+	{1, "Primary DSS_ID" },
+	{2, "Secondary DSS_ID" },
+	{0, NULL }
+};
+
 /* bootp options administration */
 #define BOOTP_OPT_NUM   256
 
@@ -529,106 +828,106 @@ static const value_string bootp_client_arch[] = {
 static struct opt_info bootp_opt[BOOTP_OPT_NUM];
 
 static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
-/*   0 */ { "Padding",					none, NULL },
-/*   1 */ { "Subnet Mask",				ipv4, NULL },
-/*   2 */ { "Time Offset",				time_in_s_secs, NULL },
-/*   3 */ { "Router",					ipv4_list, NULL },
-/*   4 */ { "Time Server",				ipv4_list, NULL },
-/*   5 */ { "Name Server",				ipv4_list, NULL },
-/*   6 */ { "Domain Name Server",			ipv4_list, NULL },
-/*   7 */ { "Log Server",				ipv4_list, NULL },
-/*   8 */ { "Quotes Server",				ipv4_list, NULL },
-/*   9 */ { "LPR Server",				ipv4_list, NULL },
-/*  10 */ { "Impress Server",				ipv4_list, NULL },
-/*  11 */ { "Resource Location Server",			ipv4_list, NULL },
-/*  12 */ { "Host Name",				string, NULL },
-/*  13 */ { "Boot File Size",				val_u_short, NULL },
-/*  14 */ { "Merit Dump File",				string, NULL },
-/*  15 */ { "Domain Name",				string, NULL },
-/*  16 */ { "Swap Server",				ipv4, NULL },
-/*  17 */ { "Root Path",				string, NULL },
-/*  18 */ { "Extensions Path",				string, NULL },
-/*  19 */ { "IP Forwarding",				val_boolean, TFS(&tfs_enabled_disabled) },
-/*  20 */ { "Non-Local Source Routing",			val_boolean, TFS(&tfs_enabled_disabled) },
+/*   0 */ { "Padding",					none, &hf_bootp_option_padding },
+/*   1 */ { "Subnet Mask",				ipv4, &hf_bootp_option_subnet_mask },
+/*   2 */ { "Time Offset",				time_in_s_secs, &hf_bootp_option_time_offset },
+/*   3 */ { "Router",					ipv4_list, &hf_bootp_option_router },
+/*   4 */ { "Time Server",				ipv4_list, &hf_bootp_option_time_server },
+/*   5 */ { "Name Server",				ipv4_list, &hf_bootp_option_name_server },
+/*   6 */ { "Domain Name Server",			ipv4_list, &hf_bootp_option_domain_name_server },
+/*   7 */ { "Log Server",				ipv4_list, &hf_bootp_option_log_server },
+/*   8 */ { "Quotes Server",				ipv4_list, &hf_bootp_option_quotes_server },
+/*   9 */ { "LPR Server",				ipv4_list, &hf_bootp_option_lpr_server },
+/*  10 */ { "Impress Server",				ipv4_list, &hf_bootp_option_impress_server },
+/*  11 */ { "Resource Location Server",			ipv4_list, &hf_bootp_option_resource_location_server },
+/*  12 */ { "Host Name",				string, &hf_bootp_option_hostname },
+/*  13 */ { "Boot File Size",				val_u_short, &hf_bootp_option_boot_file_size },
+/*  14 */ { "Merit Dump File",				string, &hf_bootp_option_merit_dump_file },
+/*  15 */ { "Domain Name",				string, &hf_bootp_option_domain_name },
+/*  16 */ { "Swap Server",				ipv4, &hf_bootp_option_swap_server },
+/*  17 */ { "Root Path",				string, &hf_bootp_option_root_path },
+/*  18 */ { "Extensions Path",				string, &hf_bootp_option_extension_path },
+/*  19 */ { "IP Forwarding",				val_boolean, &hf_bootp_option_ip_forwarding },
+/*  20 */ { "Non-Local Source Routing",			val_boolean, &hf_bootp_option_non_local_source_routing },
 /*  21 */ { "Policy Filter",				special, NULL },
-/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short, NULL },
-/*  23 */ { "Default IP Time-to-Live",			val_u_byte, NULL },
-/*  24 */ { "Path MTU Aging Timeout",			time_in_u_secs, NULL },
-/*  25 */ { "Path MTU Plateau Table",			val_u_short_list, NULL },
-/*  26 */ { "Interface MTU",				val_u_short, NULL },
-/*  27 */ { "All Subnets are Local",			val_boolean, TFS(&tfs_yes_no) },
-/*  28 */ { "Broadcast Address",			ipv4, NULL },
-/*  29 */ { "Perform Mask Discovery",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  30 */ { "Mask Supplier",				val_boolean, TFS(&tfs_yes_no) },
-/*  31 */ { "Perform Router Discover",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  32 */ { "Router Solicitation Address",		ipv4, NULL },
+/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short, &hf_bootp_option_max_datagram_reassembly_size },
+/*  23 */ { "Default IP Time-to-Live",			val_u_byte, &hf_bootp_option_default_ip_ttl },
+/*  24 */ { "Path MTU Aging Timeout",			time_in_u_secs, &hf_bootp_option_path_mtu_aging_timeout },
+/*  25 */ { "Path MTU Plateau Table",			val_u_short_list, &hf_bootp_option_path_mtu_plateau_table_item },
+/*  26 */ { "Interface MTU",				val_u_short, &hf_bootp_option_interface_mtu },
+/*  27 */ { "All Subnets are Local",			val_boolean, &hf_bootp_option_all_subnets_are_local },
+/*  28 */ { "Broadcast Address",			ipv4, &hf_bootp_option_broadcast_address },
+/*  29 */ { "Perform Mask Discovery",			val_boolean, &hf_bootp_option_perform_mask_discovery },
+/*  30 */ { "Mask Supplier",				val_boolean, &hf_bootp_option_mask_supplier },
+/*  31 */ { "Perform Router Discover",			val_boolean, &hf_bootp_option_perform_router_discover },
+/*  32 */ { "Router Solicitation Address",		ipv4, &hf_bootp_option_router_solicitation_address },
 /*  33 */ { "Static Route",				special, NULL },
-/*  34 */ { "Trailer Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  35 */ { "ARP Cache Timeout",			time_in_u_secs, NULL },
-/*  36 */ { "Ethernet Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  37 */ { "TCP Default TTL", 				val_u_byte, NULL },
-/*  38 */ { "TCP Keepalive Interval",			time_in_u_secs, NULL },
-/*  39 */ { "TCP Keepalive Garbage",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  40 */ { "Network Information Service Domain",	string, NULL },
-/*  41 */ { "Network Information Service Servers",	ipv4_list, NULL },
-/*  42 */ { "Network Time Protocol Servers",		ipv4_list, NULL },
+/*  34 */ { "Trailer Encapsulation",			val_boolean, &hf_bootp_option_trailer_encapsulation },
+/*  35 */ { "ARP Cache Timeout",			time_in_u_secs, &hf_bootp_option_arp_cache_timeout },
+/*  36 */ { "Ethernet Encapsulation",			val_boolean, &hf_bootp_option_ethernet_encapsulation },
+/*  37 */ { "TCP Default TTL", 				val_u_byte, &hf_bootp_option_tcp_default_ttl },
+/*  38 */ { "TCP Keepalive Interval",			time_in_u_secs, &hf_bootp_option_tcp_keepalive_interval },
+/*  39 */ { "TCP Keepalive Garbage",			val_boolean, &hf_bootp_option_tcp_keepalive_garbage },
+/*  40 */ { "Network Information Service Domain",	string, &hf_bootp_option_nis_domain },
+/*  41 */ { "Network Information Service Servers",	ipv4_list, &hf_bootp_option_nis_server },
+/*  42 */ { "Network Time Protocol Servers",		ipv4_list, &hf_bootp_option_ntp_server },
 /*  43 */ { "Vendor-Specific Information",		special, NULL },
-/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4_list, NULL },
-/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4_list, NULL },
-/*  46 */ { "NetBIOS over TCP/IP Node Type",		val_u_byte, VALS(bootp_nbnt_vals) },
-/*  47 */ { "NetBIOS over TCP/IP Scope",		string, NULL },
-/*  48 */ { "X Window System Font Server",		ipv4_list, NULL },
-/*  49 */ { "X Window System Display Manager",		ipv4_list, NULL },
-/*  50 */ { "Requested IP Address",			ipv4, NULL },
-/*  51 */ { "IP Address Lease Time",			time_in_u_secs, NULL },
-/*  52 */ { "Option Overload",				special, NULL },
-/*  53 */ { "DHCP Message Type",			special, NULL },
-/*  54 */ { "DHCP Server Identifier",			ipv4, NULL },
-/*  55 */ { "Parameter Request List",			special, NULL },
-/*  56 */ { "Message",					string, NULL },
-/*  57 */ { "Maximum DHCP Message Size",		val_u_short, NULL },
-/*  58 */ { "Renewal Time Value",			time_in_u_secs, NULL },
-/*  59 */ { "Rebinding Time Value",			time_in_u_secs, NULL },
+/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4_list, &hf_bootp_option_netbios_over_tcpip_name_server },
+/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4_list, &hf_bootp_option_netbios_over_tcpip_dd_name_server },
+/*  46 */ { "NetBIOS over TCP/IP Node Type",		val_u_byte, &hf_bootp_option_netbios_over_tcpip_node_type },
+/*  47 */ { "NetBIOS over TCP/IP Scope",		string, &hf_bootp_option_netbios_over_tcpip_scope },
+/*  48 */ { "X Window System Font Server",		ipv4_list, &hf_bootp_option_xwindows_system_font_server },
+/*  49 */ { "X Window System Display Manager",		ipv4_list, &hf_bootp_option_xwindows_system_display_manager },
+/*  50 */ { "Requested IP Address",			ipv4, &hf_bootp_option_requested_ip_address },
+/*  51 */ { "IP Address Lease Time",			time_in_u_secs, &hf_bootp_option_ip_address_lease_time },
+/*  52 */ { "Option Overload",				special, &hf_bootp_option_option_overload },
+/*  53 */ { "DHCP Message Type",			val_u_byte, &hf_bootp_option_dhcp },
+/*  54 */ { "DHCP Server Identifier",			ipv4, &hf_bootp_option_dhcp_server_id },
+/*  55 */ { "Parameter Request List",			special, &hf_bootp_option_parameter_request_list_item },
+/*  56 */ { "Message",					string, &hf_bootp_option_message },
+/*  57 */ { "Maximum DHCP Message Size",		val_u_short, &hf_bootp_option_dhcp_max_message_size },
+/*  58 */ { "Renewal Time Value",			time_in_u_secs, &hf_bootp_option_renewal_time_value },
+/*  59 */ { "Rebinding Time Value",			time_in_u_secs, &hf_bootp_option_rebinding_time_value },
 /*  60 */ { "Vendor class identifier",			special, NULL },
 /*  61 */ { "Client identifier",			special, NULL },
-/*  62 */ { "Novell/Netware IP domain",			string, NULL },
+/*  62 */ { "Novell/Netware IP domain",			string, &hf_bootp_option_novell_netware_ip_domain },
 /*  63 */ { "Novell Options",				special, NULL },
-/*  64 */ { "Network Information Service+ Domain",	string, NULL },
-/*  65 */ { "Network Information Service+ Servers",	ipv4_list, NULL },
-/*  66 */ { "TFTP Server Name",				string, NULL },
-/*  67 */ { "Bootfile name",				string, NULL },
-/*  68 */ { "Mobile IP Home Agent",			ipv4_list, NULL },
-/*  69 */ { "SMTP Server",				ipv4_list, NULL },
-/*  70 */ { "POP3 Server",				ipv4_list, NULL },
-/*  71 */ { "NNTP Server",				ipv4_list, NULL },
-/*  72 */ { "Default WWW Server",			ipv4_list, NULL },
-/*  73 */ { "Default Finger Server",			ipv4_list, NULL },
-/*  74 */ { "Default IRC Server",			ipv4_list, NULL },
-/*  75 */ { "StreetTalk Server",			ipv4_list, NULL },
-/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list, NULL },
+/*  64 */ { "Network Information Service+ Domain",	string, &hf_bootp_option_nis_plus_domain },
+/*  65 */ { "Network Information Service+ Servers",	ipv4_list, &hf_bootp_option_nis_plus_server },
+/*  66 */ { "TFTP Server Name",				string, &hf_bootp_option_tftp_server_name },
+/*  67 */ { "Bootfile name",				string, &hf_bootp_option_bootfile_name },
+/*  68 */ { "Mobile IP Home Agent",			ipv4_list, &hf_bootp_option_mobile_ip_home_agent  },
+/*  69 */ { "SMTP Server",				ipv4_list, &hf_bootp_option_smtp_server },
+/*  70 */ { "POP3 Server",				ipv4_list, &hf_bootp_option_pop3_server },
+/*  71 */ { "NNTP Server",				ipv4_list, &hf_bootp_option_nntp_server },
+/*  72 */ { "Default WWW Server",			ipv4_list, &hf_bootp_option_default_www_server },
+/*  73 */ { "Default Finger Server",			ipv4_list, &hf_bootp_option_default_finger_server },
+/*  74 */ { "Default IRC Server",			ipv4_list, &hf_bootp_option_default_irc_server },
+/*  75 */ { "StreetTalk Server",			ipv4_list, &hf_bootp_option_streettalk_server },
+/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list, &hf_bootp_option_streettalk_da_server },
 /*  77 */ { "User Class Information",			opaque, NULL },
 /*  78 */ { "Directory Agent Information",		special, NULL },
 /*  79 */ { "Service Location Agent Scope",		special, NULL },
 /*  80 */ { "Rapid commit",				opaque, NULL },
-/*  81 */ { "Client Fully Qualified Domain Name",	special, NULL },
-/*  82 */ { "Agent Information Option",                 special, NULL },
+/*  81 */ { "Client Fully Qualified Domain Name",	special, NULL},
+/*  82 */ { "Agent Information Option",                 special, NULL},
 /*  83 */ { "iSNS [TODO:RFC4174]",			opaque, NULL },
 /*  84 */ { "Removed/Unassigned",			opaque, NULL },
-/*  85 */ { "Novell Directory Services Servers",	special, NULL },
-/*  86 */ { "Novell Directory Services Tree Name",	string, NULL },
-/*  87 */ { "Novell Directory Services Context",	string, NULL },
+/*  85 */ { "Novell Directory Services Servers",	special, NULL},
+/*  86 */ { "Novell Directory Services Tree Name",	string, &hf_bootp_option_novell_ds_tree_name },
+/*  87 */ { "Novell Directory Services Context",	string, &hf_bootp_option_novell_ds_context },
 /*  88 */ { "BCMCS Controller Domain Name [TODO:RFC4280]",	opaque, NULL },
 /*  89 */ { "BCMCS Controller IPv4 address [TODO:RFC4280]",	opaque, NULL },
-/*  90 */ { "Authentication",				special, NULL },
-/*  91 */ { "Client last transaction time",		time_in_u_secs, NULL },
-/*  92 */ { "Associated IP option",			ipv4_list, NULL },
-/*  93 */ { "Client System Architecture",		val_u_short, VALS(bootp_client_arch) },
-/*  94 */ { "Client Network Device Interface",		special, NULL },
+/*  90 */ { "Authentication",				special, NULL},
+/*  91 */ { "Client last transaction time",		time_in_u_secs, &hf_bootp_option_client_last_transaction_time },
+/*  92 */ { "Associated IP option",			ipv4_list, &hf_bootp_option_associated_ip_option },
+/*  93 */ { "Client System Architecture",		val_u_short, &hf_bootp_option_client_system_architecture },
+/*  94 */ { "Client Network Device Interface",		special, NULL},
 /*  95 */ { "LDAP [TODO:RFC3679]",			opaque, NULL },
 /*  96 */ { "Removed/Unassigend",			opaque, NULL },
-/*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL },
+/*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL},
 /*  98 */ { "Open Group's User Authentication [TODO:RFC2485]",	opaque, NULL },
-/*  99 */ { "Civic Addresses Configuration",		special, NULL },
+/*  99 */ { "Civic Addresses Configuration",		special, NULL},
 /* 100 */ { "PCode [TODO:RFC4833]",			opaque, NULL },
 /* 101 */ { "TCode [TODO:RFC4833]",			opaque, NULL },
 /* 102 */ { "Removed/unassigned",			opaque, NULL },
@@ -641,20 +940,20 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 109 */ { "Unassigned",				opaque, NULL },
 /* 110 */ { "Removed/Uassigend",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
-/* 112 */ { "NetInfo Parent Server Address",		ipv4_list, NULL },
-/* 113 */ { "NetInfo Parent Server Tag",		string, NULL },
+/* 112 */ { "NetInfo Parent Server Address",		ipv4_list, &hf_bootp_option_netinfo_parent_server_address },
+/* 113 */ { "NetInfo Parent Server Tag",		string, &hf_bootp_option_netinfo_parent_server_tag },
 /* 114 */ { "URL [TODO:RFC3679]",			opaque, NULL },
 /* 115 */ { "Removed/Unassigend",			opaque, NULL },
-/* 116 */ { "DHCP Auto-Configuration",			val_u_byte, VALS(dhcp_autoconfig) },
-/* 117 */ { "Name Service Search [TODO:RFC2937]",      	opaque, NULL },
-/* 118 */ { "Subnet Selection Option",		       	ipv4_list, NULL },
+/* 116 */ { "DHCP Auto-Configuration",			val_u_byte, &hf_bootp_option_dhcp_auto_configuration },
+/* 117 */ { "Name Service Search [TODO:RFC2937]",	opaque, NULL },
+/* 118 */ { "Subnet Selection Option",		       	ipv4_list, &hf_bootp_option_subnet_selection_option },
 /* 119 */ { "Domain Search [TODO:RFC3397]",		opaque, NULL },
 /* 120 */ { "SIP Servers [TODO:RFC3361]",		opaque, NULL },
-/* 121 */ { "Classless Static Route",		       	special, NULL },
+/* 121 */ { "Classless Static Route",			special, NULL},
 /* 122 */ { "CableLabs Client Configuration [TODO:RFC3495]",	opaque, NULL },
-/* 123 */ { "Coordinate-based Location Configuration",	special, NULL },
-/* 124 */ { "V-I Vendor Class",				special, NULL },
-/* 125 */ { "V-I Vendor-specific Information",		special, NULL },
+/* 123 */ { "Coordinate-based Location Configuration",	special, NULL},
+/* 124 */ { "V-I Vendor Class",				special, NULL},
+/* 125 */ { "V-I Vendor-specific Information",		special, NULL},
 /* 126 */ { "Removed/Unassigned",			opaque, NULL },
 /* 127 */ { "Removed/Unassigend",			opaque, NULL },
 /* 128 */ { "DOCSIS full security server IP [TODO]",	opaque, NULL },
@@ -666,8 +965,8 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 134 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 135 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 136 */ { "OPTION_PANA_AGENT [TODO:RFC5192]",		opaque, NULL },
-/* 137 */ { "LoST Server Domain Name",			string, NULL },
-/* 138 */ { "CAPWAP Access Controllers",		ipv4_list, NULL },
+/* 137 */ { "LoST Server Domain Name",			string, &hf_bootp_option_lost_server_domain_name },
+/* 138 */ { "CAPWAP Access Controllers",		ipv4_list, &hf_bootp_option_capwap_access_controller },
 /* 139 */ { "IPv4 Address-MoS",				opaque, NULL },
 /* 140 */ { "IPv4 FQDN-MoS",				opaque, NULL },
 /* 141 */ { "SIP UA Configuration Domains",		opaque, NULL },
@@ -679,7 +978,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 147 */ { "Unassigned",				opaque, NULL },
 /* 148 */ { "Unassigned",				opaque, NULL },
 /* 149 */ { "Unassigned",				opaque, NULL },
-/* 150 */ { "TFTP Server Address",			ipv4_list, NULL },
+/* 150 */ { "TFTP Server Address",			ipv4_list, &hf_bootp_option_tftp_server_address },
 /* 151 */ { "Unassigned",				opaque, NULL },
 /* 152 */ { "Unassigned",				opaque, NULL },
 /* 153 */ { "Unassigned",				opaque, NULL },
@@ -739,7 +1038,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 207 */ { "Unassigned",				opaque, NULL },
 /* 208 */ { "PXELINUX Magic",				opaque, NULL },
 /* 209 */ { "Configuration file",			opaque, NULL },
-/* 210 */ { "Authentication",				special, NULL }, /* Path Prefix rfc5071 */
+/* 210 */ { "Authentication",				special, NULL}, /* Path Prefix rfc5071 */
 /* 211 */ { "Reboot Time",				opaque, NULL },
 /* 212 */ { "6RD",					opaque, NULL },
 /* 213 */ { "V4 Access Domain",				opaque, NULL },
@@ -778,14 +1077,69 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 246 */ { "Private",					opaque, NULL },
 /* 247 */ { "Private",					opaque, NULL },
 /* 248 */ { "Private",					opaque, NULL },
-/* 249 */ { "Private/Classless Static Route (Microsoft)",	special, NULL },
+/* 249 */ { "Private/Classless Static Route (Microsoft)",	special, NULL},
 /* 250 */ { "Private",					opaque, NULL },
 /* 251 */ { "Private",					opaque, NULL },
-/* 252 */ { "Private/Proxy autodiscovery",			string, NULL },
+/* 252 */ { "Private/Proxy autodiscovery",			string, &hf_bootp_option_private_proxy_autodiscovery },
 /* 253 */ { "Private",					opaque, NULL },
 /* 254 */ { "Private",					opaque, NULL },
 /* 255 */ { "End",					opaque, NULL }
 };
+
+/*-------------------------------------
+ * UAT for BOOTP
+ *-------------------------------------
+ */
+/* UAT entry structure. */
+typedef struct {
+   guint opt;
+   gchar	*text;
+	enum field_type ftype;
+
+} uat_bootp_record_t;
+
+static uat_bootp_record_t *uat_bootp_records = NULL;
+static uat_t * bootp_uat = NULL;
+static guint num_bootp_records_uat = 0;
+
+static void* uat_bootp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
+    uat_bootp_record_t* new_record = (uat_bootp_record_t *)n;
+    const uat_bootp_record_t* old_record = (uat_bootp_record_t *)o;
+
+    if (old_record->text) {
+        new_record->text = g_strdup(old_record->text);
+    } else {
+        new_record->text = NULL;
+    }
+
+    return new_record;
+}
+
+static void uat_bootp_record_update_cb(void* r, const char** err) {
+   uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
+
+   if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1))
+      *err = ep_strdup_printf("Option must be between 1 and %d", BOOTP_OPT_NUM-2);
+}
+
+static void uat_bootp_record_free_cb(void*r) {
+   uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
+
+    if (rec->text) g_free(rec->text);
+}
+
+UAT_DEC_CB_DEF(uat_bootp_records, opt, uat_bootp_record_t)
+UAT_CSTRING_CB_DEF(uat_bootp_records, text, uat_bootp_record_t)
+UAT_VS_DEF(uat_bootp_records, ftype, uat_bootp_record_t, 0, "string")
+
+
+static struct opt_info* bootp_get_opt(unsigned int idx)
+{
+	if(idx>=BOOTP_OPT_NUM)
+      return NULL;
+
+   return &bootp_opt[idx];
+}
 
 static const char *
 bootp_get_opt_text(unsigned int idx)
@@ -795,22 +1149,198 @@ bootp_get_opt_text(unsigned int idx)
 	return bootp_opt[idx].text;
 }
 
-static const void *
-bootp_get_opt_data(unsigned int idx)
-{
-	if(idx>=BOOTP_OPT_NUM)
-		return NULL;
-	return bootp_opt[idx].data;
-}
+struct basic_types_hfs {
+	gint* bytes;
+	gint* ipv4;
+	gint* ipv4_list;
+	gint* string;
+	gint* val_boolean;
+	gint* val_u_byte;
+	gint* val_u_short;
+	gint* val_u_short_list;
+	gint* val_u_long;
+	gint* time_in_s_secs;
+	gint* time_in_u_secs;
+};
 
-static enum field_type
-bootp_get_opt_ftype(unsigned int idx)
+/* Handle "basic" datatypes adding to a tree */
+static int
+bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+                         enum field_type ftype, int offset, int total_len,
+                         gint *hf, struct basic_types_hfs* hf_default)
 {
-	if(idx>=BOOTP_OPT_NUM)
-		return none;
-	return bootp_opt[idx].ftype;
-}
+	int i, left;
+	gint32 time_s_secs;
+	guint32 time_u_secs;
+	int consumed = 0;
 
+	switch (ftype) {
+	case bytes:
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, total_len, FALSE);
+		else if (hf_default->bytes != NULL)
+			proto_tree_add_item(tree, *hf_default->bytes, tvb, offset, total_len, FALSE);
+		consumed = total_len;
+		break;
+
+	case ipv4:
+		if (total_len != 4) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL,
+				PI_ERROR, "length isn't 4");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, FALSE);
+		else if (hf_default->ipv4 != NULL)
+			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, FALSE);
+		consumed = 4;
+		break;
+
+	case ipv4_list:
+		for (i = offset, left = total_len; left > 0; i += 4, left -= 4) {
+			if (left < 4) {
+				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "Option length isn't a multiple of 4");
+				break;
+			}
+
+			if (hf != NULL)
+				proto_tree_add_item(tree, *hf, tvb, i, 4, FALSE);
+			else if (hf_default->ipv4_list != NULL)
+				proto_tree_add_item(tree, *hf_default->ipv4_list, tvb, i, 4, FALSE);
+			consumed += 4;
+		}
+
+		break;
+
+	case string:
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, total_len, FALSE);
+		else if (hf_default->string != NULL)
+			proto_tree_add_item(tree, *hf_default->string, tvb, offset, total_len, FALSE);
+		consumed = total_len;
+		break;
+
+	case val_boolean:
+		if (total_len != 1) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 1");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 1, FALSE);
+		else if (hf_default->val_boolean != NULL)
+			proto_tree_add_item(tree, *hf_default->val_boolean, tvb, offset, 1, FALSE);
+		consumed = 1;
+		break;
+
+	case val_u_byte:
+		if (total_len != 1) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 1");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 1, FALSE);
+		else if (hf_default->val_u_byte != NULL)
+			proto_tree_add_item(tree, *hf_default->val_u_byte, tvb, offset, 1, FALSE);
+		consumed = 1;
+		break;
+
+	case val_u_short:
+		if (total_len != 2) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 2");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 2, FALSE);
+		else if (hf_default->val_u_short != NULL)
+			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, FALSE);
+		consumed = 2;
+		break;
+
+	case val_u_le_short:
+		if (total_len != 2) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 2");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 2, TRUE);
+		else if (hf_default->val_u_short != NULL)
+			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, TRUE);
+		consumed = 2;
+		break;
+
+	case val_u_short_list:
+		for (i = offset, left = total_len; left > 0; i += 2, left -= 2) {
+			if (left < 2) {
+				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "Option length isn't a multiple of 2");
+				break;
+			}
+
+			if (hf != NULL)
+				proto_tree_add_item(tree, *hf, tvb, i, 2, FALSE);
+			else if (hf_default->val_u_short_list != NULL)
+				proto_tree_add_item(tree, *hf_default->val_u_short_list, tvb, i, 2, FALSE);
+			consumed += 2;
+		} 
+		break;
+
+	case val_u_long:
+		if (total_len != 4) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 4");
+			break;
+		}
+
+		if (hf != NULL)
+			proto_tree_add_item(tree, *hf, tvb, offset, 4, FALSE);
+		else if (hf_default->val_u_long != NULL)
+			proto_tree_add_item(tree, *hf_default->val_u_long, tvb, offset, 4, FALSE);
+		consumed = 4;
+		break;
+
+	case time_in_s_secs:
+		if (total_len != 4) {
+		   expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 4");
+			break;
+		}
+
+		if (hf != NULL) {
+			time_s_secs = (gint32) tvb_get_ntohl(tvb, offset);
+			proto_tree_add_int_format_value(tree, *hf,
+				tvb, offset, 4, time_s_secs, "(%ds) %s", time_s_secs, time_secs_to_str(time_s_secs));
+		}
+		else if (hf_default->time_in_s_secs != NULL)
+			proto_tree_add_item(tree, *hf_default->time_in_s_secs, tvb, offset, 4, FALSE);
+
+		consumed = 4;
+		break;
+
+	case time_in_u_secs:
+		if (total_len != 4) {
+			expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_ERROR, "length isn't 4");
+			break;
+		}
+
+		if (hf != NULL) {
+			time_u_secs = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint_format_value(tree, *hf,
+				tvb, offset, 4, time_u_secs, "(%us) %s", time_u_secs, 
+				((time_u_secs == 0xffffffff) ? "infinity" : time_secs_to_str_unsigned(time_u_secs)));
+		}
+		else if (hf_default->time_in_u_secs != NULL)
+			proto_tree_add_item(tree, *hf_default->time_in_u_secs, tvb, offset, 4, FALSE);
+		consumed = 4;
+		break;
+	default: 
+      /* Ignore other field_types */
+		break;
+   }
+
+   return consumed;
+}
 
 /* Returns the number of bytes consumed by this option. */
 static int
@@ -818,17 +1348,13 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
     int eoff, gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
     const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
-	const char		*text;
-	enum field_type		ftype;
+	struct opt_info* opt;
+	enum field_type ftype;
 	guchar			code = tvb_get_guint8(tvb, voff);
 	int			optlen;
-	const struct true_false_string *tfs;
-	const value_string	*vs;
 	guchar			byte;
-	int			i, consumed;
+	int			i, consumed, basictype_consumed;
 	int			optoff, optleft, optend;
-	guint32			time_u_secs;
-	gint32			time_s_secs;
 	proto_tree		*v_tree;
 	proto_item		*vti;
 	guint8			protocol;
@@ -840,37 +1366,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	guint8			s_option;
 	guint8			s_len;
 	const guchar		*dns_name;
-
-
-	static const value_string slpda_vals[] = {
-		{0x00,   "Dynamic Discovery" },
-		{0x01,   "Static Discovery" },
-		{0x80,   "Backwards compatibility" },
-		{0,     NULL     } };
-
-	static const value_string slp_scope_vals[] = {
-		{0x00,   "Preferred Scope" },
-		{0x01,   "Mandatory Scope" },
-		{0,     NULL     } };
-
-	static const value_string authen_protocol_vals[] = {
-		{AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
-		{AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
-		{0,                           NULL     } };
-
-	static const value_string authen_da_algo_vals[] = {
-		{AUTHEN_DELAYED_ALGO_HMAC_MD5, "HMAC_MD5" },
-		{0,                            NULL     } };
-
-	static const value_string authen_rdm_vals[] = {
-		{AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
-		{0,                            NULL     } };
-
-	static const value_string opt_overload_vals[] = {
-		{ OPT_OVERLOAD_FILE,  "Boot file name holds options",                },
-		{ OPT_OVERLOAD_SNAME, "Server host name holds options",              },
-		{ OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
-		{ 0,                  NULL                                           } };
+	gboolean		option_handled = TRUE;
+	struct basic_types_hfs default_hfs = {&hf_bootp_option_value, &hf_bootp_option_value_ip_address, &hf_bootp_option_value_ip_address, 
+										  &hf_bootp_option_value_stringz, &hf_bootp_option_value_boolean, &hf_bootp_option_value_8, 
+										  &hf_bootp_option_value_16, &hf_bootp_option_value_16, 
+										  &hf_bootp_option_value_u32, &hf_bootp_option_value_i32, &hf_bootp_option_value_u32 };
 
 	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
@@ -885,18 +1385,26 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		i = i - voff;
 		if (!first_pass) {
 			if (bp_tree != NULL) {
-				proto_tree_add_text(bp_tree, tvb, voff, i,
-				    "Padding (%d byte%s)", i, plurality(i, "", "s"));
+				vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
+						tvb, voff, 1, 0, "(0) Padding");
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, FALSE);
 			}
+
+			consumed = i;
 		}
-		consumed = i;
 		return consumed;
 
 	case 255:	/* End Option */
 		if (!first_pass) {
 			if (bp_tree != NULL) {
-				proto_tree_add_text(bp_tree, tvb, voff, 1,
-				    "End Option%s", *overload_p?" (overload)":"");
+				vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
+						tvb, voff, 1, 0, "(255) End");
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				if (*overload_p)
+					proto_tree_add_item(v_tree, hf_bootp_option_end_overload, tvb, voff, 1, FALSE);
+				else
+					proto_tree_add_item(v_tree, hf_bootp_option_end, tvb, voff, 1, FALSE);
 			}
 		}
 		*at_end = TRUE;
@@ -975,66 +1483,49 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	}
 
 	/* Normal cases */
-	text = bootp_get_opt_text(code);
-	ftype = bootp_get_opt_ftype(code);
+	opt = bootp_get_opt(code);
+	if (opt == NULL)
+	{
+		/* THIS SHOULD NEVER HAPPEN!!! */
+		return consumed;
+	}
+
+	/* function type may be overriden and that shouldn't be a 'saved' change */
+	ftype = opt->ftype; 
 
 	optoff = voff+2;
 
-	vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
-	    "Option: (t=%d,l=%d) %s", code, optlen, text);
+	vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
+		tvb, voff, consumed, code, "(%d) %s", code, opt->text);
 	v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-	proto_tree_add_uint_format_value(v_tree, hf_bootp_option_type,
-		tvb, voff, 1, code, "(%d) %s", code, text);
 	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, FALSE);
-	if (optlen > 0) {
-		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, FALSE);
-	}
 
 	/* Special cases */
 	switch (code) {
 
 	case 21:	/* Policy Filter */
-		if (optlen == 8) {
-			/* one IP address pair */
-			proto_item_append_text(vti, " = %s/%s",
-				tvb_ip_to_str(tvb, optoff),
-				tvb_ip_to_str(tvb, optoff+4));
-		} else {
-			/* > 1 IP address pair. Let's make a sub-tree */
-			for (i = optoff, optleft = optlen;
-			    optleft > 0; i += 8, optleft -= 8) {
-				if (optleft < 8) {
-					proto_tree_add_text(v_tree, tvb, i, optleft,
-					    "Option length isn't a multiple of 8");
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, i, 8, "IP Address/Mask: %s/%s",
-					tvb_ip_to_str(tvb, i),
-					tvb_ip_to_str(tvb, i+4));
+		for (i = optoff, optleft = optlen;
+			optleft > 0; i += 8, optleft -= 8) {
+			if (optleft < 8) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 8");
+				break;
 			}
+
+			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_ip, tvb, i, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_policy_filter_subnet_mask, tvb, i+4, 4, FALSE);
 		}
 		break;
 
 	case 33:	/* Static Route */
-		if (optlen == 8) {
-			/* one IP address pair */
-			proto_item_append_text(vti, " = %s/%s",
-				tvb_ip_to_str(tvb, optoff),
-				tvb_ip_to_str(tvb, optoff+4));
-		} else {
-			/* > 1 IP address pair. Let's make a sub-tree */
-			for (i = optoff, optleft = optlen; optleft > 0;
-			    i += 8, optleft -= 8) {
-				if (optleft < 8) {
-					proto_tree_add_text(v_tree, tvb, i, optleft,
-					    "Option length isn't a multiple of 8");
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, i, 8,
-					"Destination IP Address/Router: %s/%s",
-					tvb_ip_to_str(tvb, i),
-					tvb_ip_to_str(tvb, i+4));
+		for (i = optoff, optleft = optlen;
+			optleft > 0; i += 8, optleft -= 8) {
+			if (optleft < 8) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 8");
+				break;
 			}
+
+			proto_tree_add_item(v_tree, hf_bootp_option_static_route_ip, tvb, i, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_static_route_router, tvb, i+4, 4, FALSE);
 		}
 		break;
 
@@ -1049,7 +1540,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			optend = optoff + optlen;
 			while (optoff < optend) {
-				optoff = dissect_vendor_pxeclient_suboption(v_tree,
+				optoff = dissect_vendor_pxeclient_suboption(pinfo, vti, v_tree,
 					tvb, optoff, optend);
 			}
 		} else if (*vendor_class_id_p != NULL &&
@@ -1062,7 +1553,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			optend = optoff + optlen;
 			while (optoff < optend) {
-				optoff = dissect_vendor_cablelabs_suboption(v_tree,
+				optoff = dissect_vendor_cablelabs_suboption(pinfo, vti, v_tree,
 					tvb, optoff, optend);
 			}
 		} else if (s_option==58 || s_option==64 || s_option==65
@@ -1074,7 +1565,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			proto_item_append_text(vti, " (Alcatel-Lucent)");
 			optend = optoff + optlen;
 			while (optoff < optend) {
-				optoff = dissect_vendor_alcatel_suboption(v_tree,
+				optoff = dissect_vendor_alcatel_suboption(pinfo, vti, v_tree,
 					tvb, optoff, optend);
 			}
 		}
@@ -1082,13 +1573,12 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 	case 52:	/* Option Overload */
 		if (optlen < 1) {
-			proto_item_append_text(vti, " length isn't >= 1");
+		   expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 1");
 			break;
 		}
+
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_item_append_text(vti, " = %s",
-			val_to_str(byte, opt_overload_vals,
-			    "Unknown (0x%02x)"));
+		proto_tree_add_item(v_tree, *opt->phf, tvb, optoff, 1, FALSE);
 
 		/* Just in case we find an option 52 in sname or file */
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
@@ -1137,22 +1627,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		break;
 
-	case 53:	/* DHCP Message Type */
-		if (optlen != 1) {
-			proto_item_append_text(vti, " length isn't 1");
-			break;
-		}
-		proto_item_append_text(vti, " = DHCP %s",
-			val_to_str(tvb_get_guint8(tvb, optoff),
-				opt53_text,
-				"Unknown Message Type (0x%02x)"));
-		break;
-
 	case 55:	/* Parameter Request List */
 		for (i = 0; i < optlen; i++) {
 			byte = tvb_get_guint8(tvb, optoff+i);
-			proto_tree_add_text(v_tree, tvb, optoff+i, 1, "%d = %s",
-					byte, bootp_get_opt_text(byte));
+			proto_tree_add_uint_format_value(v_tree, hf_bootp_option_parameter_request_list_item,
+					tvb, optoff+i, 1, byte, "(%d) %s", byte, bootp_get_opt_text(byte));
 		}
 		break;
 
@@ -1161,8 +1640,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		 * XXX - RFC 2132 says this is a string of octets;
 		 * should we check for non-printables?
 		 */
-		proto_item_append_text(vti, " = \"%s\"",
-			tvb_format_stringzpad(tvb, optoff, consumed-2));
+      
+		proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_id, tvb, optoff, consumed-2, FALSE);
 		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10,
 				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
@@ -1247,8 +1726,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			switch (duidtype) {
 			case DUID_LLT:
 				if (optlen < 8) {
-					proto_tree_add_text(v_tree, tvb, optoff,
-						optlen, "DUID: malformed option");
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "DUID: malformed option");
 					break;
 				}
 				hwtype=tvb_get_ntohs(tvb, optoff + 2);
@@ -1266,8 +1744,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			case DUID_EN:
 				if (optlen < 6) {
-					proto_tree_add_text(v_tree, tvb, optoff,
-						optlen, "DUID: malformed option");
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "DUID: malformed option");
 					break;
 				}
 				enterprise = tvb_get_ntohl(tvb, optoff+2);
@@ -1283,8 +1760,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			case DUID_LL:
 				if (optlen < 4) {
-					proto_tree_add_text(v_tree, tvb, optoff,
-						optlen, "DUID: malformed option");
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "DUID: malformed option");
 					break;
 				}
 				hwtype=tvb_get_ntohs(tvb, optoff + 2);
@@ -1345,19 +1821,18 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		optend = optoff + optlen;
 		while (optoff < optend)
-			optoff = dissect_netware_ip_suboption(v_tree, tvb, optoff, optend);
+			optoff = dissect_netware_ip_suboption(pinfo, vti, v_tree, tvb, optoff, optend);
 		break;
 
 	case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		if (optlen < 1) {
-			proto_item_append_text(vti, " length isn't >= 1");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 1");
 			break;
 		}
 		optleft = optlen;
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_item_append_text(vti, " = %s",
-				val_to_str(byte, slpda_vals,
-					"Unknown (0x%02x)"));
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_value, tvb, optoff, 1, FALSE);
+
 		optoff++;
 		optleft--;
 		if (byte == 0x80) {
@@ -1368,30 +1843,26 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		for (i = optoff; optleft > 0; i += 4, optleft -= 4) {
 			if (optleft < 4) {
-				proto_tree_add_text(v_tree, tvb, i, optleft,
-				    "Option length isn't a multiple of 4");
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4");
 				break;
 			}
-			proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
-			    tvb_ip_to_str(tvb, i));
+
+			proto_tree_add_item(v_tree, hf_bootp_option_slp_directory_agent_slpda_address, tvb, i, 4, FALSE);
 		}
 		break;
 
 	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, optoff);
-		proto_item_append_text(vti, " = %s",
-				val_to_str(byte, slp_scope_vals,
-				    "Unknown (0x%02x)"));
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_value, tvb, optoff, 1, FALSE);
+
 		optoff++;
 		optleft = optlen - 1;
-		proto_tree_add_text(v_tree, tvb, optoff, optleft,
-		    "%s = \"%s\"", text,
-		    tvb_format_stringzpad(tvb, optoff, optleft));
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_string, tvb, optoff, optleft, FALSE);
 		break;
 
 	case 81:	/* Client Fully Qualified Domain Name */
 		if (optlen < 3) {
-			proto_item_append_text(vti, " length isn't >= 3");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 3");
 			break;
 		}
 		fqdn_flags = tvb_get_guint8(tvb, optoff);
@@ -1420,35 +1891,27 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 82:        /* Relay Agent Information Option */
 		optend = optoff + optlen;
 		while (optoff < optend)
-			optoff = bootp_dhcp_decode_agent_info(v_tree, tvb, optoff, optend);
+			optoff = bootp_dhcp_decode_agent_info(pinfo, vti, v_tree, tvb, optoff, optend);
 		break;
 
 	case 85:        /* Novell Servers (RFC 2241) */
 		/* Option 85 can be sent as a string */
 		/* Added by Greg Morris (gmorris[AT]novell.com) */
 		if (novell_string) {
-			proto_item_append_text(vti, " = \"%s\"",
-			    tvb_format_stringzpad(tvb, optoff, optlen));
-		} else {
-			if (optlen == 4) {
-				/* one IP address */
-				proto_item_append_text(vti, " = %s",
-					tvb_ip_to_str(tvb, optoff));
-			} else {
-				/* > 1 IP addresses. Let's make a sub-tree */
-				for (i = optoff, optleft = optlen; optleft > 0;
-				    i += 4, optleft -= 4) {
-					if (optleft < 4) {
-						proto_tree_add_text(v_tree, tvb, i, optleft,
-						    "Option length isn't a multiple of 4");
-						break;
-					}
-					proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
-						tvb_ip_to_str(tvb, i));
+			proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_string, tvb, optoff, optlen, FALSE);
+		} else{
+			/* IP addresses */
+			for (i = optoff, optleft = optlen; optleft > 0;
+				i += 4, optleft -= 4) {
+				if (optleft < 4) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4");
+					break;
 				}
+
+				proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_ip, tvb, i, 4, FALSE);
 			}
 		}
-	        break;
+		break;
 
 	case 94: {	/* Client network interface identifier */
 		guint8 id_type;
@@ -1456,10 +1919,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		id_type = tvb_get_guint8(tvb, optoff);
 
 		if (id_type == 0x01) {
-			proto_tree_add_item(v_tree, hf_bootp_client_network_id_major_ver,
-					    tvb, optoff + 1, 1, TRUE);
-			proto_tree_add_item(v_tree, hf_bootp_client_network_id_minor_ver,
-					    tvb, optoff + 2, 1, TRUE);
+			proto_tree_add_item(v_tree, hf_bootp_option_client_network_id_major_ver,
+								tvb, optoff + 1, 1, TRUE);
+			proto_tree_add_item(v_tree, hf_bootp_option_client_network_id_minor_ver,
+								tvb, optoff + 2, 1, TRUE);
 		}
 
 		break;
@@ -1468,14 +1931,13 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
 		if (optlen < 11) {
-			proto_item_append_text(vti, " length isn't >= 11");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 11");
 			break;
 		}
 		optleft = optlen;
 		protocol = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Protocol: %s (%u)",
-				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
-				    protocol);
+
+		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_protocol, tvb, optoff, 1, FALSE);
 		optoff++;
 		optleft--;
 
@@ -1483,40 +1945,29 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		switch (protocol) {
 
 		case AUTHEN_PROTO_DELAYED_AUTHEN:
-			proto_tree_add_text(v_tree, tvb, optoff, 1,
-				    "Algorithm: %s (%u)",
-				    val_to_str(algorithm, authen_da_algo_vals, "Unknown"),
-				    algorithm);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_alg_delay, tvb, optoff, 1, FALSE);
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, 1,
-				    "Algorithm: %u", algorithm);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_algorithm, tvb, optoff, 1, FALSE);
 			break;
 		}
 		optoff++;
 		optleft--;
 
 		rdm = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-				    "Replay Detection Method: %s (%u)",
-				    val_to_str(rdm, authen_rdm_vals, "Unknown"),
-				    rdm);
+		proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm, tvb, optoff, 1, FALSE);
 		optoff++;
 		optleft--;
 
 		switch (rdm) {
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
-			proto_tree_add_text(v_tree, tvb, optoff, 8,
-				    "RDM Replay Detection Value: %" G_GINT64_MODIFIER "x",
-				    tvb_get_ntoh64(tvb, optoff));
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_replay_detection, tvb, optoff, 8, FALSE);
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, 8,
-				    "Replay Detection Value: %s",
-				    tvb_bytes_to_str(tvb, optoff, 8));
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_rdv, tvb, optoff, 8, FALSE);
 			break;
 		}
 		optoff += 8;
@@ -1533,27 +1984,22 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				} else {
 					if (optlen < 31) {
-						proto_item_append_text(vti,
-							" length isn't >= 31");
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 31");
 						break;
 					}
-					proto_tree_add_text(v_tree, tvb, optoff, 4,
-						"Secret ID: 0x%08x",
-						tvb_get_ntohl(tvb, optoff));
+
+					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, optoff, 4, FALSE);
 					optoff += 4;
 					optleft -= 4;
-					proto_tree_add_text(v_tree, tvb, optoff, 16,
-						"HMAC MD5 Hash: %s",
-						tvb_bytes_to_str(tvb, optoff, 16));
+					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, FALSE);
 					break;
 				}
 
 			default:
 				if (optleft == 0)
 					break;
-				proto_tree_add_text(v_tree, tvb, optoff, optleft,
-					"Authentication Information: %s",
-					tvb_bytes_to_str(tvb, optoff, optleft));
+
+				proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, FALSE);
 				break;
 			}
 			break;
@@ -1561,9 +2007,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		default:
 			if (optleft == 0)
 				break;
-			proto_tree_add_text(v_tree, tvb, optoff, optleft,
-				"Authentication Information: %s",
-				tvb_bytes_to_str(tvb, optoff, optleft));
+
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, FALSE);
 			break;
 		}
 		break;
@@ -1573,51 +2018,37 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		optleft = optlen;
 		if (optleft >= 3)
 		{
-			proto_tree_add_text(v_tree, tvb, optoff, 1, "What: %d (%s)",
-				tvb_get_guint8(tvb, optoff), val_to_str(tvb_get_guint8(tvb, optoff),
-				civic_address_what_values, "Unknown") );
-			proto_tree_add_text(v_tree, tvb, optoff + 1, 2, "Country: \"%s\"",
-				tvb_format_text(tvb, optoff + 1, 2) );
+			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_what, tvb, optoff, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_country, tvb, optoff+1, 2, FALSE);
 			optleft = optleft - 3;
 			optoff = optoff + 3;
 
 			while (optleft >= 2)
 			{
-				int catype = tvb_get_guint8(tvb, optoff);
-				optoff++;
-				optleft--;
-				s_option = tvb_get_guint8(tvb, optoff);
-				optoff++;
-				optleft--;
+				int calength = tvb_get_guint8(tvb, optoff+1);
+				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_type, tvb, optoff, 1, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_length, tvb, optoff+1, 1, FALSE);
 
-				if (s_option == 0)
-				{
-					proto_tree_add_text(v_tree, tvb, optoff, s_option,
-						"CAType %d [%s] (l=%d): EMTPY", catype,
-						val_to_str(catype, civic_address_type_values,
-						"Unknown"), s_option);
+				optoff += 2;
+				optleft -= 2;
+
+				if (calength == 0)
 					continue;
-				}
 
-				if (optleft >= s_option)
+				if (optleft >= calength)
 				{
-					proto_tree_add_text(v_tree, tvb, optoff, s_option,
-						"CAType %d [%s] (l=%d): \"%s\"", catype,
-						val_to_str(catype, civic_address_type_values,
-						"Unknown"), s_option,
-						tvb_format_text(tvb, optoff, s_option));
-					optoff = optoff + s_option;
-					optleft = optleft - s_option;
+					proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_value, tvb, optoff, calength, FALSE);
+
+					optoff = optoff + calength;
+					optleft = optleft - calength;
 				}
 				else
 				{
 					optleft = 0;
-					proto_tree_add_text(v_tree, tvb, optoff, s_option,
-						"Error with CAType");
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Error with CAType");
 				}
 			}
 		}
-
 		break;
 
 	case 121:	/* Classless Static Route */
@@ -1626,17 +2057,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		optend = optoff + optlen;
 		/* minimum length is 5 bytes */
 		if (optlen < 5) {
-			proto_item_append_text(vti, " [ERROR: Option length < 5 bytes]");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length < 5 bytes");
 			break;
 		}
 		while (optoff < optend) {
 			mask_width = tvb_get_guint8(tvb, optoff);
 			/* mask_width <= 32 */
 			if (mask_width > 32) {
-				proto_tree_add_text(v_tree, tvb, optoff,
-					optend - optoff,
-					"Subnet/MaskWidth-Router: [ERROR: Mask width (%d) > 32]",
-					mask_width);
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Mask width (%d) > 32", mask_width);
 				break;
 			}
 			significant_octets = (mask_width + 7) / 8;
@@ -1646,8 +2074,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			optoff++;
 			/* significant octets + router(4) */
 			if (optend < optoff + significant_octets + 4) {
-				proto_item_append_text(vti, "[ERROR: Remaining length (%d) < %d bytes]",
-					optend - optoff, significant_octets + 4);
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Remaining length (%d) < %d bytes", optend - optoff, significant_octets + 4);
 				break;
 			}
 			if(mask_width == 0)
@@ -1697,201 +2124,149 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
 				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
 			}
-		} else if ((optlen < 69)) { /* CableLabs DSS_ID */
-			s_option = tvb_get_guint8(tvb, optoff);
-			s_len = tvb_get_guint8(tvb, optoff+1);
+		} else if (optlen < 69) { /* CableLabs DSS_ID */
 
-			if (s_option == 1) { /*First DSS_ID*/
-				proto_tree_add_text(v_tree, tvb, optoff+2, s_len, "Suboption 1: Primary DSS_ID = \"%s\"",
-					tvb_format_stringzpad(tvb, optoff+2, s_len));
-			} else if (s_option == 2) {
-				proto_tree_add_text(v_tree, tvb, optoff+2, s_len, "Suboption 2: Secondary DSS_ID = \"%s\"",
-					tvb_format_stringzpad(tvb, optoff+2, s_len));
-			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, s_len, "Unknown");
-			}
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff, 1, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1, 1, FALSE);
+			s_len = tvb_get_guint8(tvb, optoff+1);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2, s_len, FALSE);
 
 			if (optlen > s_len+2) { /* Second DSS_ID*/
-				s_option = tvb_get_guint8(tvb, optoff+2+s_len);
+
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff+2+s_len, 1, FALSE);
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1+2+s_len, 1, FALSE);
 				s_len = tvb_get_guint8(tvb, optoff+1+2+s_len);
-				if (s_option == 1) {
-					proto_tree_add_text(v_tree, tvb, optoff+2+s_len+2, s_len, "Suboption 1: Primary DSS_ID = \"%s\"",
-						tvb_format_stringzpad(tvb, optoff+2+s_len+2, s_len));
-				} else if (s_option == 2) {
-					proto_tree_add_text(v_tree, tvb, optoff+2+s_len+2, s_len, "Suboption 2: Secondary DSS_ID = \"%s\"",
-						tvb_format_stringzpad(tvb, optoff+2+s_len+2, s_len));
-				} else {
-					proto_tree_add_text(v_tree, tvb, optoff+s_len+2, s_len, "Unknown");
-				}
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2+2+s_len, s_len, FALSE);
 			}
 		} else {
-			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Invalid length of DHCP option!");
 		}
 		break;
 
 	case 124: { 	/* V-I Vendor Class */
-	        int enterprise = 0;
 		int data_len;
 
 		if (optlen == 1) {
 			/* CableLab specific */
-			s_option = tvb_get_guint8(tvb, optoff);
-			proto_tree_add_text(v_tree, tvb, optoff, optlen,
-					    "CableLabs IP addressing mode preference: %s",
-					    val_to_str (s_option, cablelab_ipaddr_mode_vals, "Unknown"));
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_cl_address_mode, tvb, optoff, optlen, FALSE);
 			break;
 		}
 
 		optend = optoff + optlen;
-	        optleft = optlen;
+		optleft = optlen;
 
 		while (optleft > 0) {
 
-		  if (optleft < 5) {
-		    proto_tree_add_text(v_tree, tvb, optoff,
-					optleft, "Vendor Class: malformed option");
-		    break;
-		  }
+			if (optleft < 5) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Vendor Class: malformed option");
+				break;
+			}
 
-		  enterprise = tvb_get_ntohl(tvb, optoff);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_enterprise, tvb, optoff, 4, FALSE);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data_length, tvb, optoff, 1, FALSE);
+			data_len = tvb_get_guint8(tvb, optoff + 4);
 
-		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
-					    "Enterprise-number: %s (%u)",
-					    val_to_str_ext_const(enterprise, &sminmpec_values_ext, "Unknown"),
-					    enterprise);
+			optoff += 5;
+			optleft -= 5;
 
-		  data_len = tvb_get_guint8(tvb, optoff + 4);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data, tvb, optoff, data_len, FALSE);
 
-		  proto_tree_add_text(v_tree, tvb, optoff + 4, 1,
-				      "Data len: %d", data_len);
-		  optoff += 5;
-		  optleft -= 5;
-
-		  proto_tree_add_text(v_tree, tvb, optoff, data_len,
-				      "Vendor Class data: %s",
-				      tvb_bytes_to_str(tvb, optoff, data_len));
-
-		  /* look for next enterprise number */
-		  optoff += data_len;
-		  optleft -= data_len;
+			/* look for next enterprise number */
+			optoff += data_len;
+			optleft -= data_len;
 		}
 		break;
 	}
 
 	case 125: { 	/* V-I Vendor-specific Information */
-	        int enterprise = 0;
+		int enterprise = 0;
 		int s_end = 0;
 		int s_option_len = 0;
 		proto_tree *e_tree = 0;
 
 		optend = optoff + optlen;
-
-	        optleft = optlen;
+		optleft = optlen;
 
 		while (optleft > 0) {
 
-		  if (optleft < 5) {
-		    proto_tree_add_text(v_tree, tvb, optoff,
-					optleft, "Vendor-specific Information: malformed option");
-		    break;
-		  }
+			if (optleft < 5) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL,
+					PI_ERROR, "Vendor-specific Information: malformed option");
+				break;
+			}
 
-		  enterprise = tvb_get_ntohl(tvb, optoff);
+			enterprise = tvb_get_ntohl(tvb, optoff);
+			vti = proto_tree_add_item(v_tree, hf_bootp_option125_enterprise, tvb, optoff, 4, FALSE);
 
-		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
-					    "Enterprise-number: %s (%u)",
-					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
-					    enterprise);
+			s_option_len = tvb_get_guint8(tvb, optoff + 4);
 
-		  s_option_len = tvb_get_guint8(tvb, optoff + 4);
+			optoff += 5;
+			optleft -= 5;
 
-		  optoff += 5;
-		  optleft -= 5;
+			/* Handle DSL Forum TR-111 Option 125 */
+			switch (enterprise) {
 
-		  /* Handle DSL Forum TR-111 Option 125 */
-		  switch (enterprise) {
+			case 3561: /* ADSL Forum */
+				s_end = optoff + s_option_len;
+				if ( s_end > optend ) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL,
+						PI_ERROR, "no room left in option for enterprise %u data", enterprise);
+					break;
+				}
 
-		  case 3561: /* ADSL Forum */
-		    s_end = optoff + s_option_len;
-		    if ( s_end > optend ) {
-		      proto_tree_add_text(v_tree, tvb, optoff, 1,
-					  "no room left in option for enterprise %u data", enterprise);
-		      break;
-		    }
+				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				while (optoff < s_end) {
 
+				optoff = dissect_vendor_tr111_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+			}
+			break;
 
-		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		    while (optoff < s_end) {
+			case 4491: /* CableLab */
+				s_end = optoff + s_option_len;
+				if ( s_end > optend ) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL,
+					   PI_ERROR, "no room left in option for enterprise %u data", enterprise);
+					break;
+				}
 
-		      optoff = dissect_vendor_tr111_suboption(e_tree,
-								 tvb, optoff, s_end);
-		    }
+				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				while (optoff < s_end) {
+					optoff = dissect_vendor_cl_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+			}
+			break;
 
-		  case 4491: /* CableLab */
-		    s_end = optoff + s_option_len;
-		    if ( s_end > optend ) {
-		      proto_tree_add_text(v_tree, tvb, optoff, 1,
-					  "no room left in option for enterprise %u data", enterprise);
-		      break;
-		    }
+			default:
+				/* skip over the data and look for next enterprise number */
+				optoff += s_option_len;
+			}
 
-		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		    while (optoff < s_end) {
-		      optoff = dissect_vendor_cl_suboption(e_tree,
-								 tvb, optoff, s_end);
-		    }
-
-		  default:
-		    /* skip over the data and look for next enterprise number */
-		    optoff += s_option_len;
-		  }
-
-		  optleft -= s_option_len;
-
+			optleft -= s_option_len;
 		}
 		break;
 	}
 
 	case 212: {	/* 6RD option (RFC 5969) */
-		struct e_in6_addr prefix;
-		if (optlen >= 22) {
+		if (optlen < 22) {
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "6RD: malformed option");
+			break;
+		}
 
-			/* IPv4 Mask Len */
-			byte = tvb_get_guint8(tvb, optoff);
-			proto_tree_add_text(v_tree, tvb, optoff, 1,
-				"IPv4 Mask Len: %u", byte);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_ipv4_mask_len, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix_len, tvb, optoff+1, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix, tvb, optoff+2, 16, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, optoff+18, 4, FALSE);
 
-			/* 6RD Prefix Len */
-			byte = tvb_get_guint8(tvb, optoff + 1);
-			proto_tree_add_text(v_tree, tvb, optoff + 1, 1,
-				"6RD Prefix Len: %u", byte);
-
-			/* 6RD Prefix */
-			memset(&prefix, 0, sizeof(prefix));
-			tvb_get_ipv6(tvb, optoff + 2, &prefix);
-			proto_tree_add_text(v_tree, tvb, optoff + 2, 16,
-				"6RD Prefix: %s", ip6_to_str(&prefix));
-
-			/* Add first Border Relay IPv4 address */
-			proto_tree_add_text(v_tree, tvb, optoff + 18, 4,
-				"Border Relay Address: %s", tvb_ip_to_str(tvb, optoff + 18 ));
-
-			/* More Border Relay IPv4 addresses included */
-			if (optlen > 22) {
-				optoff += 22;
-				for (i = optoff, optleft = optlen - 22; optleft > 0; i += 4, optleft -= 4) {
-					if (optleft < 4) {
-						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
-							"Border Relay length isn't a multiple of 4");
-						break;
-					}
-					proto_tree_add_text(v_tree, tvb, i, 4, "Border Relay Address: %s",
-						tvb_ip_to_str(tvb, i));
+		/* More Border Relay IPv4 addresses included */
+		if (optlen > 22) {
+			optoff += 22;
+			for (i = optoff, optleft = optlen - 22; optleft > 0; i += 4, optleft -= 4) {
+				if (optleft < 4) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Border Relay length isn't a multiple of 4");
+					break;
 				}
+
+				proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, i, 4, FALSE);
 			}
-		} else {
-			proto_tree_add_text(v_tree, tvb, optoff,
-				optlen, "6RD: malformed option");
 		}
 		break;
 	}
@@ -1910,177 +2285,52 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				switch (pkt_ccc_protocol_version) {
 
 				case PACKETCABLE_CCC_I05:
-					optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff, optend);
+					optoff = dissect_packetcable_i05_ccc(pinfo, vti, v_tree, tvb, optoff, optend);
 					break;
 				case PACKETCABLE_CCC_DRAFT5:
 				case PACKETCABLE_CCC_RFC_3495:
-					optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, optend, pkt_ccc_protocol_version);
+					optoff = dissect_packetcable_ietf_ccc(pinfo, vti, v_tree, tvb, optoff, optend, pkt_ccc_protocol_version);
 					break;
 				default: /* XXX Should we do something here? */
 					break;
 				}
 			}
+		} else {
+			option_handled = FALSE;
 		}
 
 		break;
 	}
 
-	switch (ftype) {
+	basictype_consumed = bootp_handle_basic_types(pinfo, v_tree, vti, tvb, ftype, 
+												  optoff, optlen, opt->phf, &default_hfs);
 
-	case ipv4:
-		if (optlen != 4) {
-			proto_item_append_text(vti,
-			    " - length isn't 4");
-			break;
-		}
-		proto_item_append_text(vti, " = %s", tvb_ip_to_str(tvb, optoff));
-		break;
-
-	case ipv4_list:
-		if (optlen == 4) {
-			/* one IP address */
-			proto_item_append_text(vti, " = %s", tvb_ip_to_str(tvb, optoff));
-		} else {
-			/* > 1 IP addresses. Let's make a sub-tree */
-			for (i = optoff, optleft = optlen; optleft > 0;
-			    i += 4, optleft -= 4) {
-				if (optleft < 4) {
-					proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
-					    "Option length isn't a multiple of 4");
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
-					tvb_ip_to_str(tvb, i));
-			}
-		}
-		break;
-
-	case string:
-		/* Fix for non null-terminated string supplied by
-		 * John Lines <John.Lines[AT]aeat.co.uk>
-		 */
-		proto_item_append_text(vti, " = \"%s\"",
-				tvb_format_stringzpad(tvb, optoff, consumed-2));
-		break;
-
-	case val_boolean:
-		if (optlen != 1) {
-			proto_item_append_text(vti,
-			    " - length isn't 1");
-			break;
-		}
-		tfs = (const struct true_false_string *) bootp_get_opt_data(code);
-		if(tfs){
-			i = tvb_get_guint8(tvb, optoff);
-			if (i != 0 && i != 1) {
-				proto_item_append_text(vti,
-				    " = Invalid Value %d", i);
-			} else {
-				proto_item_append_text(vti, " = %s",
-			    		i == 0 ? tfs->false_string : tfs->true_string);
-			}
-		}
-		break;
-
-	case val_u_byte:
-		if (optlen != 1) {
-			proto_item_append_text(vti,
-			    " - length isn't 1");
-			break;
-		}
-		vs = (const value_string *) bootp_get_opt_data(code);
-		byte = tvb_get_guint8(tvb, optoff);
-		if (vs != NULL) {
-			proto_item_append_text(vti, " = %s",
-			    val_to_str(byte, vs, "Unknown (%u)"));
-		} else
-			proto_item_append_text(vti, " = %u", byte);
-		break;
-
-	case val_u_short: {
-		gushort vd;
-
-		if (optlen != 2) {
-			proto_item_append_text(vti,
-			    " - length isn't 2");
-			break;
-		}
-
-		vs = (const value_string *) bootp_get_opt_data(code);
-		vd = tvb_get_ntohs(tvb, optoff);
-
-		if (vs != NULL) {
-			proto_item_append_text(vti, " = %s",
-					       val_to_str(vd, vs, "Unknown (%u)"));
-		} else
-			proto_item_append_text(vti, " = %u", vd);
-
-		break;
-	}
-
-	case val_u_short_list:
-		if (optlen == 2) {
-			/* one gushort */
-			proto_item_append_text(vti, " = %u",
-			    tvb_get_ntohs(tvb, optoff));
-		} else {
-			/* > 1 gushort */
-			for (i = optoff, optleft = optlen; optleft > 0;
-			    i += 2, optleft -= 2) {
-				if (optleft < 2) {
-					proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
-					    "Option length isn't a multiple of 2");
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, i, 4, "Value: %u",
-					tvb_get_ntohs(tvb, i));
-			}
-		}
-		break;
-
-	case val_u_long:
-		if (optlen != 4) {
-			proto_item_append_text(vti,
-			    " - length isn't 4");
-			break;
-		}
-		proto_item_append_text(vti, " = %u",
-		    tvb_get_ntohl(tvb, optoff));
-		break;
-
-	case time_in_s_secs:
-		if (optlen != 4) {
-			proto_item_append_text(vti,
-			    " - length isn't 4");
-			break;
-		}
-		time_s_secs = (gint32) tvb_get_ntohl(tvb, optoff);
-		proto_item_append_text(vti, " = %s",
-		      time_secs_to_str(time_s_secs));
-		break;
-
-	case time_in_u_secs:
-		if (optlen != 4) {
-			proto_item_append_text(vti,
-			    " - length isn't 4");
-			break;
-		}
-		time_u_secs = tvb_get_ntohl(tvb, optoff);
-		proto_item_append_text(vti, " = %s",
-		    ((time_u_secs == 0xffffffff) ?
-		      "infinity" :
-		      time_secs_to_str_unsigned(time_u_secs)));
-		break;
-
-	default:
-		break;
+	if ((basictype_consumed == 0) && (option_handled == FALSE) && 
+	    (opt->phf == NULL) && (optlen > 0)) {
+		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, FALSE);
 	}
 
 	return consumed;
 }
 
+static const value_string option82_suboption_vals[] = {
+	{ 0, "Padding" },
+	{ 1, "Agent Circuit ID" },
+	{ 2, "Agent Remote ID" },
+	{ 3, "Reserved" },
+	{ 4, "DOCSIS Device Class" },
+	{ 5, "Link selection" },
+	{ 6, "Subscriber ID" },
+	{ 7, "RADIUS Attributes" },
+	{ 8, "Authentication" },
+	{ 9, "Vendor-Specific Information" },
+	{ 10, "Flags" },
+	{ 11, "Server ID Override" },
+	{ 0, NULL }
+};
+
 static int
-bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
+bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, tvbuff_t *tvb, int optoff,
     int optend)
 {
 	int suboptoff = optoff;
@@ -2088,315 +2338,235 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	int subopt_len, datalen;
 	guint32 enterprise;
 	proto_item *vti;
-	proto_tree *subtree = 0;
+	proto_tree *o82_v_tree, *o82_9_tree;
 	guint8 tag, tag_len;
+	struct basic_types_hfs default_hfs = {&hf_bootp_option82_value, &hf_bootp_option82_value_ip_address, &hf_bootp_option82_value_ip_address, 
+										 &hf_bootp_option82_value_stringz, NULL, &hf_bootp_option82_value_8, 
+										 NULL, NULL, &hf_bootp_option82_value_32, NULL, NULL};
+
+	static struct opt_info o82_opt[]= {
+		/* 0 */ {"nop", bytes, &hf_bootp_option82_padding},	/* dummy */
+		/* 1 */ {"Agent Circuit ID", bytes, &hf_bootp_option82_agent_circuit_id}, /* [RFC3046] */
+		/* 2 */ {"Agent Remote ID", bytes, &hf_bootp_option82_agent_remote_id}, /* [RFC3046] */
+		/* 3 */ {"Reserved", bytes, &hf_bootp_option82_reserved},
+		/* 4 */ {"DOCSIS Device Class", val_u_long, &hf_bootp_option82_docsis_device_class}, /* [RFC3256] */
+		/* 5 */ {"Link selection", ipv4, &hf_bootp_option82_link_selection}, /* [RFC3527] */
+		/* 6 */ {"Subscriber ID", string, &hf_bootp_option82_subscriber_id},  /* [RFC3993] */ /***** CHECK STRING TYPE */
+		/* 7 */ {"RADIUS Attributes", bytes, &hf_bootp_option82_radius_attributes}, /* [RFC4014] */
+		/* 8 */ {"Authentication", bytes, &hf_bootp_option82_authentication}, /* [RFC4030] */
+		/* 9 */ {"Vendor-Specific Information", special, &hf_bootp_option82_vi}, /* [RFC 4243] */
+		/* 10 */ {"Flags", val_u_byte, &hf_bootp_option82_flags}, /* [RFC5010] */
+		/* 11 */ {"Server ID Override", ipv4, &hf_bootp_option82_server_id_override}, /* [RFC 5107] */
+	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option82_suboption,
+		tvb, optoff, subopt_len+2, subopt, "(%d) %s", subopt, val_to_str(subopt, option82_suboption_vals, "Unknown"));
+
+	o82_v_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption);
+	proto_tree_add_item(o82_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption value", subopt);
+		return (optend);
 	}
-	switch (subopt) {
 
-	case 1: /* 1   Agent Circuit ID Sub-option            [RFC3046] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Agent Circuit ID: %s",
-				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
+	if ( (subopt < 1 ) || (subopt >= array_length(o82_opt)) ) {
+		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, FALSE);
+	} else if (o82_opt[subopt].ftype == special) {
+		switch(subopt)
+		{
+		case 9:
+			while (suboptoff < optend) {
+				enterprise = tvb_get_ntohl(tvb, suboptoff);
+				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, FALSE);
+				suboptoff += 4;
 
-	case 2: /* 2   Agent Remote ID Sub-option             [RFC3046] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Agent Remote ID: %s",
-				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 3:
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Reserved: %s",
-				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 4: /* 4   DOCSIS Device Class Suboption          [RFC3256] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "DOCSIS Device Class: %s",
-				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 5: /* 5   Link selection Sub-option              [RFC3527] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Link selection: %s",
-				     tvb_ip_to_str(tvb, suboptoff));
-		break;
-
-	case 6: /*Subscriber-ID Suboption                [RFC3993] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Subscriber ID: %s",
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 7: /* 7   RADIUS Attributes Sub-option           [RFC4014] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"RADIUS Attributes: %s",
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 8: /* 8   Authentication Suboption               [RFC4030]  */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Authentication: %s",
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 9: /* Vendor-Specific Information Suboption    [RFC 4243] */
-		while (suboptoff < optend) {
-			enterprise = tvb_get_ntohl(tvb, suboptoff);
-			datalen = tvb_get_guint8(tvb, suboptoff+4);
-			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4 + datalen + 1,
-					    "Enterprise-number: %s (%u)",
-					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
-					    enterprise);
-			suboptoff += 4;
-
-			subtree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(subtree, tvb, suboptoff, 1,
-					    "Data Length: %u", datalen);
-			suboptoff++;
-
-			switch (enterprise) {
-			case 4491: /* CableLab */
-				vs_opt = tvb_get_guint8(tvb, suboptoff);
-				suboptoff++;
-				vs_len = tvb_get_guint8(tvb, suboptoff);
+				o82_9_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
+				datalen = tvb_get_guint8(tvb, suboptoff);
+				proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, FALSE);
 				suboptoff++;
 
-				switch (vs_opt) {
+				switch (enterprise) {
+				case 4491: /* CableLab */
+					vs_opt = tvb_get_guint8(tvb, suboptoff);
+					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, FALSE);
+					suboptoff++;
+					vs_len = tvb_get_guint8(tvb, suboptoff);
+					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, FALSE);
+					suboptoff++;
 
-				case 1:
-					if (vs_len == 4) {
-						tag = tvb_get_guint8(tvb, suboptoff);
-						tag_len = tvb_get_guint8(tvb, suboptoff+1);
-						suboptoff+=2;
-						if (tag == 1) {
-							proto_tree_add_text(subtree, tvb, suboptoff, tag_len,
-							    "DOCSIS Version Number %d.%d",
-							    tvb_get_guint8(tvb, suboptoff),
-							    tvb_get_guint8(tvb, suboptoff+1));
+					switch (vs_opt) {
+
+					case 1:
+						if (vs_len == 4) {
+							tag = tvb_get_guint8(tvb, suboptoff);
+							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, FALSE);
+							tag_len = tvb_get_guint8(tvb, suboptoff+1);
+							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, FALSE);
 							suboptoff+=2;
+							if (tag == 1) {
+								proto_tree_add_uint_format_value(o82_9_tree, hf_bootp_option82_vi_cl_docsis_version,
+										  tvb, suboptoff, 2, 0, "%d.%d",
+										  tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1));
+								suboptoff+=2;
+							} else {
+								expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+									"Unknown tag %d (%d bytes)", tag, tag_len);
+								suboptoff += tag_len;
+							}
 						} else {
-							proto_tree_add_text(subtree, tvb, suboptoff, tag_len,
-							    "Unknown tag=%u %s (%d byte%s)", tag,
-							    tvb_bytes_to_str(tvb, suboptoff, tag_len),
-							    tag_len, plurality(tag_len, "", "s"));
-							suboptoff += tag_len;
+							suboptoff += vs_len;
 						}
-					} else {
+					  break;
+
+					default:
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+								"Invalid suboption %d (%d bytes)", vs_opt, vs_len);
 						suboptoff += vs_len;
+						break;
 					}
 					break;
-
 				default:
-					proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
-					    "Invalid suboption %d (%d byte%s)",
-					    vs_opt, vs_len, plurality(vs_len, "", "s"));
-					suboptoff += vs_len;
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, FALSE);
+					suboptoff += datalen;
 					break;
 				}
-				break;
-			default:
-		     		proto_tree_add_text(subtree, tvb, suboptoff, datalen,
-				    "Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
-		     		suboptoff += datalen;
-				break;
 			}
+			break;
+		default:
+			if (o82_opt[subopt].phf != NULL)
+				proto_tree_add_item(o82_v_tree, *o82_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+			else
+				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, FALSE);
+			break;
 		}
-		break;
-
-	case 10: /* 10   Relay Agent Flags                      [RFC5010] */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Flags: %s",
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break;
-
-	case 11: /* Server Identifier Override Suboption     [RFC 5107] */
-		if (subopt_len == 4) {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				"Server ID Override: %s",
-				tvb_ip_to_str(tvb, suboptoff));
-		} else {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				"Server ID Override: Invalid length (%d instead of 4)",
-				subopt_len);
-		}
-		break;
-
-	default:
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Unknown agent suboption %d (%d bytes)",
-				    subopt, subopt_len);
-		break;
 	}
+	else {
+		if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[subopt].ftype, 
+							suboptoff, subopt_len, o82_opt[subopt].phf, &default_hfs) == 0) {
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
+		}
+	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
 
+static const value_string option43_pxeclient_suboption_vals[] = {
+	{ 0, "Padding" },
+	{ 1, "PXE mtftp IP" },
+	{ 2, "PXE mtftp client port" },
+	{ 3, "PXE mtftp server port" },
+	{ 4, "PXE mtftp timeout" },
+	{ 5, "PXE mtftp delay" },
+	{ 6, "PXE discovery control" },
+	{ 7, "PXE multicast address" },
+	{ 8, "PXE boot servers" },
+	{ 9, "PXE boot menu" },
+	{ 10, "PXE menu prompt" },
+	{ 11, "PXE multicast address alloc", },
+	{ 12, "PXE credential types" },
+	{ 71, "PXE boot item" },
+	{ 255, "PXE End" },
+	{ 0, NULL}
+};
+
 static int
-dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                   tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
-	int suboptleft;
 	proto_tree *o43pxeclient_v_tree;
 	proto_item *vti;
+	struct basic_types_hfs default_hfs = {NULL, &hf_bootp_option43_value_ip_address, &hf_bootp_option43_value_ip_address, 
+                                         NULL, NULL, &hf_bootp_option43_value_8, 
+                                         NULL, NULL, NULL, NULL, NULL};
 
 	static struct opt_info o43pxeclient_opt[]= {
-		/* 0 */ {"nop", special, NULL},	/* dummy */
-		/* 1 */ {"PXE mtftp IP", ipv4_list, NULL},
-		/* 2 */ {"PXE mtftp client port", val_u_le_short, NULL},
-		/* 3 */ {"PXE mtftp server port",val_u_le_short, NULL},
-		/* 4 */ {"PXE mtftp timeout", val_u_byte, NULL},
-		/* 5 */ {"PXE mtftp delay", val_u_byte, NULL},
-		/* 6 */ {"PXE discovery control", val_u_byte, NULL},
+		/* 0 */ {"nop", special, &hf_bootp_option43_pxeclient_padding},	/* dummy */
+		/* 1 */ {"PXE mtftp IP", ipv4_list, &hf_bootp_option43_pxeclient_mtftp_ip},
+		/* 2 */ {"PXE mtftp client port", val_u_le_short, &hf_bootp_option43_pxeclient_mtftp_client_port},
+		/* 3 */ {"PXE mtftp server port",val_u_le_short, &hf_bootp_option43_pxeclient_mtftp_server_port},
+		/* 4 */ {"PXE mtftp timeout", val_u_byte, &hf_bootp_option43_pxeclient_mtftp_timeout},
+		/* 5 */ {"PXE mtftp delay", val_u_byte, &hf_bootp_option43_pxeclient_mtftp_delay},
+		/* 6 */ {"PXE discovery control", val_u_byte, &hf_bootp_option43_pxeclient_discovery_control},
 			/*
 			 * Correct: b0 (lsb): disable broadcast discovery
 			 *	b1: disable multicast discovery
 			 *	b2: only use/accept servers in boot servers
 			 *	b3: download bootfile without prompt/menu/disc
 			 */
-		/* 7 */ {"PXE multicast address", ipv4_list, NULL},
-		/* 8 */ {"PXE boot servers", special, NULL},
-		/* 9 */ {"PXE boot menu", special, NULL},
-		/* 10 */ {"PXE menu prompt", special, NULL},
-		/* 11 */ {"PXE multicast address alloc", special, NULL},
-		/* 12 */ {"PXE credential types", special, NULL},
-		/* 71 {"PXE boot item", special, NULL}, */
-		/* 255 {"PXE end options", special, NULL} */
+		/* 7 */ {"PXE multicast address", ipv4_list, &hf_bootp_option43_pxeclient_multicast_address},
+		/* 8 */ {"PXE boot servers", special, &hf_bootp_option43_pxeclient_boot_servers},
+		/* 9 */ {"PXE boot menu", special, &hf_bootp_option43_pxeclient_boot_menu},
+		/* 10 */ {"PXE menu prompt", special, &hf_bootp_option43_pxeclient_menu_prompt},
+		/* 11 */ {"PXE multicast address alloc", special, &hf_bootp_option43_pxeclient_multicast_address_alloc},
+		/* 12 */ {"PXE credential types", special, &hf_bootp_option43_pxeclient_credential_types}
+		/* 71 {"PXE boot item", bytes, &hf_bootp_option43_pxeclient_boot_item}, */ 
+		/* 255 {"PXE end options", special, &hf_bootp_option43_pxeclient_end} */ 
 	};
 
-	subopt = tvb_get_guint8(tvb, suboptoff);
+	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_padding, tvb, optoff, 1, FALSE);
 		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "End PXEClient option");
+		proto_tree_add_item(v_tree, hf_bootp_option43_pxeclient_end, tvb, optoff, 1, FALSE);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption length", subopt);
 	 	return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_pxeclient_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option43_pxeclient_suboption_vals, "Unknown"));
+
+	o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
+	proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
-	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-	 		subopt);
-	 	return (optend);
-	}
 	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
 		/* I may need to decode that properly one day */
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Suboption %d: %s (%d byte%s)" ,
-	 		subopt, "PXE boot item",
-			subopt_len, plurality(subopt_len, "", "s"));
+		proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, FALSE);
 	} else if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
-			plurality(subopt_len, "", "s"));
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Unknown suboption %d (%d bytes)", subopt, subopt_len);
+	} else if (o43pxeclient_opt[subopt].ftype == special) {
+		/* I may need to decode that properly one day */
+		if (o43pxeclient_opt[subopt].phf != NULL)
+			proto_tree_add_item(o43pxeclient_v_tree, *o43pxeclient_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+		else
+			proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
 	} else {
-		switch (o43pxeclient_opt[subopt].ftype) {
-
-		case special:
-			/* I may need to decode that properly one day */
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s (%d byte%s)",
-		 		subopt, o43pxeclient_opt[subopt].text,
-				subopt_len, plurality(subopt_len, "", "s"));
-			break;
-
-		case ipv4_list:
-			if (subopt_len == 4) {
-				/* one IP address */
-				proto_tree_add_text(v_tree, tvb, optoff, 6,
-				    "Suboption %d : %s = %s",
-				    subopt, o43pxeclient_opt[subopt].text,
-				    tvb_ip_to_str(tvb, suboptoff));
-			} else {
-				/* > 1 IP addresses. Let's make a sub-tree */
-				vti = proto_tree_add_text(v_tree, tvb, optoff,
-				    subopt_len+2, "Suboption %d: %s",
-				    subopt, o43pxeclient_opt[subopt].text);
-				o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (suboptleft = subopt_len; suboptleft > 0;
-				    suboptoff += 4, suboptleft -= 4) {
-					if (suboptleft < 4) {
-						proto_tree_add_text(o43pxeclient_v_tree,
-						    tvb, suboptoff, suboptleft,
-						    "Suboption length isn't a multiple of 4");
-						break;
-					}
-					proto_tree_add_text(o43pxeclient_v_tree,
-					    tvb, suboptoff, 4, "IP Address: %s",
-					    tvb_ip_to_str(tvb, suboptoff));
-				}
-			}
-			break;
-
-#if 0 /* XXX */
-		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
-			break;
-#endif /*  XXX */
-
-		case val_u_byte:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: suboption length isn't 1", subopt);
-				break;
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
-			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_guint8(tvb, suboptoff));
-			break;
-
-		case val_u_le_short:
-			if (subopt_len != 2) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: suboption length isn't 2", subopt);
-				break;
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 4, "Suboption %d: %s = %u",
-			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_letohs(tvb, suboptoff));
-			break;
-
-		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
-			break;
+		if (bootp_handle_basic_types(pinfo, o43pxeclient_v_tree, vti, tvb, o43pxeclient_opt[subopt].ftype, 
+							suboptoff, subopt_len, o43pxeclient_opt[subopt].phf, &default_hfs) == 0)
+		{
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		}
 	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
@@ -2526,36 +2696,74 @@ rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct
 	return RFC3825_NOERROR;
 }
 
+static const value_string option43_cl_suboption_vals[] = {
+	{ 0, "Padding" },
+	{ 1, "Suboption Request List" },
+	{ 2, "Device Type" },
+	{ 3, "eSAFE Types" },
+	{ 4, "Serial Number" },
+	{ 5, "Hardware Version" },
+	{ 6, "Software Version" },
+	{ 7, "Boot ROM version" },
+	{ 8, "Organizationally Unique Identifier" },
+	{ 9, "Model Number" },
+	{ 10, "Vendor Name" },
+	{ 11, "Address Realm" },
+	{ 12, "CM/PS System Description" },
+	{ 13, "CM/PS Firmware Revision" },
+	{ 14, "Firewall Policy File Version" },
+	{ 15, "eSafe Config File Devices" },
+	{ 18, "Video Security Type" },
+	{ 31, "MTA MAC Address" },
+	{ 32, "Correlation ID" },
+	{ 51, "Vendor Name" },
+	{ 52, "CableCARD Capability" },
+	{ 53, "Device Identification (CA)" },
+	{ 54, "Device Identification (X.509)" },
+	{ 255, "CL End" },
+	{ 0, NULL}
+};
+
+static const value_string cablehome_subopt11_vals[] = {
+	{ 1, "PS WAN-Man" },
+	{ 2, "PS WAN-Data" },
+	{ 0, NULL }
+};
 
 static int
-dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                   tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt, byte_val;
+	guint8 subopt;
 	guint8 subopt_len;
+	proto_tree *o43cl_v_tree;
+	proto_item *vti;
+	struct basic_types_hfs default_hfs = {&hf_bootp_option43_value, NULL, NULL, 
+                                         &hf_bootp_option43_value_stringz, NULL, &hf_bootp_option43_value_8, 
+                                         NULL, NULL, &hf_bootp_option43_value_32, NULL, NULL};
 
 	static struct opt_info o43cablelabs_opt[]= {
-		/*  0 */ {"nop", special, NULL},	/* dummy */
-		/*  1 */ {"Suboption Request List", string, NULL},
-		/*  2 */ {"Device Type", string, NULL},
-		/*  3 */ {"eSAFE Types", string, NULL},
-		/*  4 */ {"Serial Number", string, NULL},
-		/*  5 */ {"Hardware Version", string, NULL},
-		/*  6 */ {"Software Version", string, NULL},
-		/*  7 */ {"Boot ROM version", string, NULL},
-		/*  8 */ {"Organizationally Unique Identifier", special, NULL},
-		/*  9 */ {"Model Number", string, NULL},
-		/* 10 */ {"Vendor Name", string, NULL},
+		/*  0 */ {"nop", special, &hf_bootp_option43_cl_padding},	/* dummy */
+		/*  1 */ {"Suboption Request List", string, &hf_bootp_option43_cl_suboption_request_list},
+		/*  2 */ {"Device Type", string, &hf_bootp_option43_cl_device_type},
+		/*  3 */ {"eSAFE Types", string, &hf_bootp_option43_cl_esafe_type},
+		/*  4 */ {"Serial Number", string, &hf_bootp_option43_cl_serial_number},
+		/*  5 */ {"Hardware Version", string, &hf_bootp_option43_cl_hardware_version},
+		/*  6 */ {"Software Version", string, &hf_bootp_option43_cl_software_version},
+		/*  7 */ {"Boot ROM version", string, &hf_bootp_option43_cl_boot_rom_version},
+		/*  8 */ {"Organizationally Unique Identifier", special, &hf_bootp_option43_cl_oui_bytes},
+		/*  9 */ {"Model Number", string, &hf_bootp_option43_cl_model_number},
+		/* 10 */ {"Vendor Name", string, &hf_bootp_option43_cl_vendor_name10},
 		/* *** 11-30: CableHome *** */
-		/* 11 */ {"Address Realm", special, NULL},
-		/* 12 */ {"CM/PS System Description", string, NULL},
-		/* 13 */ {"CM/PS Firmware Revision", string, NULL},
-		/* 14 */ {"Firewall Policy File Version", string, NULL},
-		/* 15 */ {"eSafe Config File Devices", string, NULL},
+		/* 11 */ {"Address Realm", val_u_byte, &hf_bootp_option43_cl_address_realm},
+		/* 12 */ {"CM/PS System Description", string, &hf_bootp_option43_cl_cm_ps_system_desc},
+		/* 13 */ {"CM/PS Firmware Revision", string, &hf_bootp_option43_cl_cm_ps_firmware_revision},
+		/* 14 */ {"Firewall Policy File Version", string, &hf_bootp_option43_cl_firewall_policy_file_version},
+		/* 15 */ {"eSafe Config File Devices", string, &hf_bootp_option43_cl_esafe_config_file_devices},
 		/* 16 */ {"Unassigned (CableHome)", special, NULL},
 		/* 17 */ {"Unassigned (CableHome)", special, NULL},
-		/* 18 */ {"Video Security Type", string, NULL},
+		/* 18 */ {"Video Security Type", string, &hf_bootp_option43_cl_video_security_tape},
 		/* 19 */ {"Unassigned (CableHome)", special, NULL},
 		/* 20 */ {"Unassigned (CableHome)", special, NULL},
 		/* 21 */ {"Unassigned (CableHome)", special, NULL},
@@ -2569,8 +2777,8 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 29 */ {"Unassigned (CableHome)", special, NULL},
 		/* 30 */ {"Unassigned (CableHome)", special, NULL},
 		/* *** 31-50: PacketCable *** */
-		/* 31 */ {"MTA MAC Address", special, NULL},
-		/* 32 */ {"Correlation ID", val_u_long, NULL},
+		/* 31 */ {"MTA MAC Address", special, &hf_bootp_option43_cl_mta_mac_address},
+		/* 32 */ {"Correlation ID", val_u_long, &hf_bootp_option43_cl_correlation_ID},
 		/* 33 */ {"Unassigned (PacketCable)", special, NULL},
 		/* 34 */ {"Unassigned (PacketCable)", special, NULL},
 		/* 35 */ {"Unassigned (PacketCable)", special, NULL},
@@ -2590,257 +2798,221 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 49 */ {"Unassigned (PacketCable)", special, NULL},
 		/* 50 */ {"Unassigned (PacketCable)", special, NULL},
 		/* *** 51-127: CableLabs *** */
-		/* 51 */ {"Vendor Name", string, NULL},
-		/* 52 */ {"CableCARD Capability", special, NULL},
-		/* 53 */ {"Device Identification (CA)", special, NULL},
-		/* 54 */ {"Device Identification (X.509)", string, NULL},
+		/* 51 */ {"Vendor Name", string, &hf_bootp_option43_cl_vendor_name51},
+		/* 52 */ {"CableCARD Capability", special, &hf_bootp_option43_cl_cablecard_capability},
+		/* 53 */ {"Device Identification (CA)", special, &hf_bootp_option43_cl_device_id_ca},
+		/* 54 */ {"Device Identification (X.509)", string, &hf_bootp_option43_cl_device_id_x509},
 		/* 55 */ {"Unassigned (CableLabs)", special, NULL},
 		/* *** 128-254: Vendors *** */
 		/* 128-254 {"Unassigned (Vendors)", special, NULL}, */
-		/* 255 {"end options", special, NULL} */
+		/* 255 {"end options", special, &hf_bootp_option43_cl_end} */
 	};
 
-	static const value_string cablehome_subopt11_vals[] = {
-		{ 1, "PS WAN-Man" },
-		{ 2, "PS WAN-Data" },
-		{ 0, NULL }
-	};
-
-	subopt = tvb_get_guint8(tvb, suboptoff);
+	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+		proto_tree_add_item(v_tree, hf_bootp_option43_cl_padding, tvb, optoff, 1, FALSE);
 		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "End CableLabs option");
+		proto_tree_add_item(v_tree, hf_bootp_option43_cl_end, tvb, optoff, 1, FALSE);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+         "Suboption %d: no room left in option for suboption length", subopt);
 	 	return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_cl_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option43_cl_suboption_vals, "Unknown"));
+
+	o43cl_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
+	proto_tree_add_item(o43cl_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Suboption %d: no room left in option for suboption value", subopt);
+		return (optend);
 	}
+
 	if ( (subopt < 1 ) || (subopt >= array_length(o43cablelabs_opt)) ) {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
-			plurality(subopt_len, "", "s"));
-	} else {
-		switch (o43cablelabs_opt[subopt].ftype) {
-
-		case special:
-			if ( subopt == 8 ) {	/* OUI */
-				/* CableLabs specs treat 43.8 inconsistently
-				 * as either binary (3b) or string (6b) */
-				if (subopt_len == 3) {
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: Organization Unique Identifier = %s", subopt,
-						tvb_bytes_to_str_punct(tvb, suboptoff, 3, ':'));
-				} else if (subopt_len == 6) {
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: Organization Unique Identifier =  \"%s\"", subopt,
-						tvb_format_stringzpad(tvb, suboptoff, subopt_len));
-				} else {
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: suboption length isn't 3 or 6", subopt);
-				}
-				break;
-			} else if ( subopt == 11 ) { /* Address Realm */
-				if (subopt_len != 1) {
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: suboption length isn't 1", subopt);
-					break;
-				}
-				byte_val = tvb_get_guint8(tvb, suboptoff);
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: %s = %s (0x%02x)",
-					subopt, o43cablelabs_opt[subopt].text,
-					val_to_str(byte_val, cablehome_subopt11_vals, "Unknown"), byte_val);
-			} else if ( subopt == 31 ) { /* MTA MAC address */
-				if (subopt_len != 6) {
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-						"Suboption %d: suboption length isn't 6", subopt);
-					break;
-				}
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: %s = %s",
-					subopt,  o43cablelabs_opt[subopt].text,
-					tvb_bytes_to_str_punct(tvb, suboptoff, 6, ':'));
+		proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
+	} else if (o43cablelabs_opt[subopt].ftype == special) {
+		switch(subopt)
+		{
+		case 8:/* OUI */
+			/* CableLabs specs treat 43.8 inconsistently
+			 * as either binary (3b) or string (6b) */
+			if (subopt_len == 3) {
+				proto_tree_add_bytes_format_value(o43cl_v_tree, hf_bootp_option43_cl_oui_bytes, tvb, suboptoff, subopt_len, NULL, 
+					"%02x:%02x:%02x", tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1), tvb_get_guint8(tvb, suboptoff+2));
+			} else if (subopt_len == 6) {
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_oui_string, tvb, suboptoff, subopt_len, FALSE);
 			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: %s (%d byte%s)" ,
-					subopt, o43cablelabs_opt[subopt].text,
-					subopt_len, plurality(subopt_len, "", "s"));
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 3 or 6");
 			}
 			break;
-
-		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = \"%s\"", subopt,
-				o43cablelabs_opt[subopt].text,
-				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
-			break;
-
-		case bytes:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = 0x%s", subopt,
-				o43cablelabs_opt[subopt].text,
-				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-			break;
-
-		case val_u_long:
-			if (subopt_len != 4) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: suboption length isn't 4", subopt);
+		case 31: /* MTA MAC address */
+			if (subopt_len != 6) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 6");
 				break;
 			}
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = %u", subopt,
-				o43cablelabs_opt[subopt].text,
-				tvb_get_ntohl(tvb, suboptoff));
-			break;
 
-		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_mta_mac_address, tvb, suboptoff, 6, FALSE);
 			break;
+		default:
+			if (o43cablelabs_opt[subopt].phf != NULL)
+				proto_tree_add_item(o43cl_v_tree, *o43cablelabs_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+			else
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, FALSE);
 		}
 	}
+	else {
+		if (bootp_handle_basic_types(pinfo, o43cl_v_tree, vti, tvb, o43cablelabs_opt[subopt].ftype, 
+							suboptoff, subopt_len, o43cablelabs_opt[subopt].phf, &default_hfs) == 0) {
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
+		}
+	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
 
+static const value_string option43_alcatel_suboption_vals[] = {
+	{ 0, "Padding" },
+	{ 58, "Voice VLAN ID" },
+	{ 64, "Spatial Redundancy TFTP1" },
+	{ 65, "Spatial Redundancy TFTP2" },
+	{ 66, "Application Type" },
+	{ 67, "SIP URL" },
+	{ 255, "Alcatel-Lucent End" },
+	{ 0, NULL}
+};
+
+static const value_string option43_alcatel_app_type_vals[] = {
+	{ 0, "NOE" },
+	{ 1, "SIP" },
+	{ 0, NULL}
+};
 
 static int
-dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                                 tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
-	proto_tree *subtree;
 	proto_item *vti;
+	proto_tree *o43alcatel_v_tree;
 
-	subopt = tvb_get_guint8(tvb, suboptoff);
+	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (subopt == 0) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_padding, tvb, optoff, 1, FALSE);
 		return (suboptoff);
-	} else if (subopt == 255) { /* End Option */
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "End Alcatel-Lucent option");
+	} else if (subopt == 255) {	/* End Option */
+		proto_tree_add_item(v_tree, hf_bootp_option43_alcatel_end, tvb, optoff, 1, FALSE);
 		/* Make sure we skip any junk left this option */
 		return (optend);
 	}
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-			subopt);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+							"Suboption %d: no room left in option for suboption length", subopt);
 		return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_alcatel_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option43_alcatel_suboption_vals, "Unknown"));
+
+	o43alcatel_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
+	proto_tree_add_item(o43alcatel_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-			subopt);
-		return (optend);
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Suboption %d: no room left in option for suboption value", subopt);
+	 	return (optend);
 	}
-	if ( subopt == 58 ) { /* 0x3A - Alcatel-Lucent AVA VLAN Id */
+
+	switch (subopt)
+	{
+	case 58: /* 0x3A - Alcatel-Lucent AVA VLAN Id */
 		if (subopt_len != 2) {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: Bad suboption length!", subopt);
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 2");
 			return (optend);
 		}
-		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-		    "Alcatel-Lucent-Specific Suboption %d: %s = %u",
-		    subopt, "VLAN Id",
-		    tvb_get_ntohs(tvb, optoff+2));
-		subtree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_uint(subtree, hf_bootp_alu_vid, tvb, optoff+2, 2,
-			tvb_get_ntohs(tvb, optoff+2));
-	} else if ( subopt == 64 ) { /* 0x40 - Alcatel-Lucent TFTP1 */
+
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_vlan_id, tvb, suboptoff, 2, FALSE);
+		break;
+	case 64: /* 0x40 - Alcatel-Lucent TFTP1 */
 		if (subopt_len != 4) {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: Bad suboption length!", subopt);
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 4");
 			return (optend);
 		}
-		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
-		    subopt, "Spatial Redundancy TFTP1",
-		    tvb_ip_to_str(tvb, optoff+2));
-		subtree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp1, tvb, optoff+2, 4,
-			tvb_get_ipv4(tvb, optoff+2));
-	} else if ( subopt == 65 ) { /* 0x41 - Alcatel-Lucent TFTP2 */
+
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp1, tvb, suboptoff, 4, FALSE);
+		break;
+	case 65: /* 0x41 - Alcatel-Lucent TFTP2 */
 		if (subopt_len != 4) {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: Bad suboption length!", subopt);
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 4");
 			return (optend);
 		}
-		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
-		    subopt, "Spatial Redundancy TFTP2",
-		    tvb_ip_to_str(tvb, optoff+2));
-		subtree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp2, tvb, optoff+2, 4,
-			tvb_get_ipv4(tvb, optoff+2));
-	} else if ( subopt == 66 ) { /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
+
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_tftp2, tvb, suboptoff, 4, FALSE);
+		break;
+	case 66: /* 0x42 - Alcatel-Lucent APPLICATION TYPE */
 		if (subopt_len != 1) {
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: Bad suboption length!", subopt);
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 1");
 			return (optend);
 		}
-		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Alcatel-Lucent-Specific Suboption %d: %s = %u",
-			subopt, "Application Type (0=NOE, 1=SIP)",
-			tvb_get_guint8(tvb, optoff+2));
-		subtree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_uint(subtree, hf_bootp_alu_app_type, tvb, optoff+2, 1,
-			tvb_get_guint8(tvb, optoff+2));
-	} else if ( subopt == 67 ) { /* 0x43 - Alcatel-Lucent SIP URL */
-		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Alcatel-Lucent-Specific Suboption %d: %s = \"%s\"",
-			subopt, "SIP URL",
-			tvb_format_stringzpad(tvb, optoff+2, subopt_len));
-		subtree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_item(subtree, hf_bootp_alu_sip_url, tvb, optoff+2, subopt_len,
-			0);
-	} else {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"ERROR, please report: Unknown subopt type handler %d", subopt);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_app_type, tvb, suboptoff, 1, FALSE);
+		break;
+	case 67: /* 0x43 - Alcatel-Lucent SIP URL */
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, FALSE);
+		break;
+	default:
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		return optend;
 	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
 
+static const value_string option63_suboption_vals[] = {
+	{ 1, "NWIP does not exist on subnet" },
+	{ 2, "NWIP exists in options area" },
+	{ 3, "NWIP exists in sname/file" },
+	{ 4, "NWIP exists, but too big" },
+	{ 5, "Broadcast for nearest Netware server" },
+	{ 6, "Preferred DSS server" },
+	{ 7, "Nearest NWIP server" },
+	{ 8, "Autoretries" },
+	{ 9, "Autoretry delay, secs" },
+	{ 10, "Support NetWare/IP v1.1" },
+	{ 11, "Primary DSS" },
+	{ 0, NULL }
+};
 
 static int
-dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                             tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt;
-	guint8 subopt_len;
-	int suboptleft;
-	const struct true_false_string *tfs;
-	int i;
+	guint8 subopt, subopt_len;
 	proto_tree *o63_v_tree;
 	proto_item *vti;
+	struct basic_types_hfs default_hfs = {NULL, &hf_bootp_option63_value_ip_address, &hf_bootp_option63_value_ip_address, 
+                                         NULL, &hf_bootp_option63_value_boolean, &hf_bootp_option63_value_8, 
+                                         NULL, NULL, NULL, NULL, NULL};
 
 	static struct opt_info o63_opt[]= {
 		/* 0 */ {"",none,NULL},
@@ -2848,147 +3020,76 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 2 */ {"NWIP exists in options area",presence,NULL},
 		/* 3 */ {"NWIP exists in sname/file",presence,NULL},
 		/* 4 */ {"NWIP exists, but too big",presence,NULL},
-		/* 5 */ {"Broadcast for nearest Netware server",val_boolean,TFS(&tfs_yes_no)},
-		/* 6 */ {"Preferred DSS server",ipv4_list,NULL},
-		/* 7 */ {"Nearest NWIP server",ipv4_list,NULL},
-		/* 8 */ {"Autoretries",val_u_byte,NULL},
-		/* 9 */ {"Autoretry delay, secs",val_u_byte,NULL},
-		/* 10*/ {"Support NetWare/IP v1.1",val_boolean,TFS(&tfs_yes_no)},
-		/* 11*/ {"Primary DSS",ipv4,NULL}
+		/* 5 */ {"Broadcast for nearest Netware server",val_boolean, &hf_bootp_option63_broadcast},
+		/* 6 */ {"Preferred DSS server",ipv4_list,&hf_bootp_option63_preferred_dss_server},
+		/* 7 */ {"Nearest NWIP server",ipv4_list,&hf_bootp_option63_nearest_nwip_server},
+		/* 8 */ {"Autoretries",val_u_byte,&hf_bootp_option63_autoretries},
+		/* 9 */ {"Autoretry delay, secs",val_u_byte,&hf_bootp_option63_autoretry_delay},
+		/* 10*/ {"Support NetWare/IP v1.1",val_boolean,&hf_bootp_option63_support_netware_v1_1},
+		/* 11*/ {"Primary DSS",ipv4,&hf_bootp_option63_primary_dss}
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option63_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option63_suboption_vals, "Unknown"));
+
+	o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option63_suboption);
+	proto_tree_add_item(o63_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
-	if (subopt >= array_length(o63_opt)) {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "Unknown suboption %d", subopt);
-	} else {
-		switch (o63_opt[subopt].ftype) {
-
-		case presence:
-			if (subopt_len != 0) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 0", subopt);
+	if (subopt < array_length(o63_opt)) {
+		if (bootp_handle_basic_types(pinfo, o63_v_tree, vti, tvb, o63_opt[subopt].ftype, 
+							suboptoff, subopt_len, o63_opt[subopt].phf, &default_hfs) == 0) {
+			switch(o63_opt[subopt].ftype)
+			{
+			case presence:
+				if (subopt_len != 0) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+						"Suboption %d: length isn't 0", subopt);
+				} 
+				break;
+			default:
+				if (o63_opt[subopt].phf == NULL)
+				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, FALSE);
 				break;
 			}
-			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].text);
-			break;
-
-		case ipv4:
-			if (subopt_len != 4) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 4", subopt);
-				break;
-			}
-			if (suboptoff+4 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
-			 	return (optend);
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 6,
-			    "Suboption %d: %s = %s" ,
-			    subopt, o63_opt[subopt].text,
-			    tvb_ip_to_str(tvb, suboptoff));
-			break;
-
-		case ipv4_list:
-			if (subopt_len == 4) {
-				/* one IP address */
-				proto_tree_add_text(v_tree, tvb, optoff, 6,
-				    "Suboption %d : %s = %s",
-				    subopt, o63_opt[subopt].text,
-				    tvb_ip_to_str(tvb, suboptoff));
-			} else {
-				/* > 1 IP addresses. Let's make a sub-tree */
-				vti = proto_tree_add_text(v_tree, tvb, optoff,
-				    subopt_len+2, "Suboption %d: %s",
-				    subopt, o63_opt[subopt].text);
-				o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (suboptleft = subopt_len; suboptleft > 0;
-				    suboptoff += 4, suboptleft -= 4) {
-					if (suboptleft < 4) {
-						proto_tree_add_text(o63_v_tree,
-						    tvb, suboptoff, suboptleft,
-						    "Suboption length isn't a multiple of 4");
-						break;
-					}
-					proto_tree_add_text(o63_v_tree, tvb, suboptoff, 4, "IP Address: %s",
-					    tvb_ip_to_str(tvb, suboptoff));
-				}
-			}
-			break;
-
-		case val_boolean:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: suboption length isn't 1", subopt);
-				break;
-			}
-			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
-			 	return (optend);
-			}
-			tfs = (const struct true_false_string *) o63_opt[subopt].data;
-			i = tvb_get_guint8(tvb, suboptoff);
-			if (i != 0 && i != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, 3,
-				    "Suboption %d: %s = Invalid Value %d",
-				    subopt, o63_opt[subopt].text, i);
-			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, 3,
-				    "Suboption %d: %s = %s", subopt,
-				    o63_opt[subopt].text,
-				    i == 0 ? tfs->false_string : tfs->true_string);
-			}
-			break;
-
-		case val_u_byte:
-			if (subopt_len != 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-					"Suboption %d: length isn't 1", subopt);
-				break;
-			}
-			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
-			 	return (optend);
-			}
-			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
-			    subopt, o63_opt[subopt].text,
-			    tvb_get_guint8(tvb, suboptoff));
-			break;
-
-		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,"Unknown suboption %d", subopt);
-			break;
 		}
 	}
 	optoff += (subopt_len + 2);
 	return optoff;
 }
 
-
+static const value_string option125_tr111_suboption_vals[] = {
+	{ 1, "DeviceManufacturerOUI" },
+	{ 2, "DeviceSerialNumber" },
+	{ 3, "DeviceProductClass" },
+	{ 4, "GatewayManufacturerOUI" },
+	{ 5, "GatewaySerialNumber" },
+	{ 6, "GatewayProductClass" },
+	{ 0, NULL }
+};
 
 static int
-dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                               tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt;
-	guint8 subopt_len;
+	proto_tree *o125_v_tree;
+	proto_item *vti;
+	guint8 subopt, subopt_len;
+	struct basic_types_hfs default_hfs = {NULL, NULL, NULL, 
+                                         &hf_bootp_option125_value_stringz, NULL, NULL, 
+                                         NULL, NULL, NULL, NULL, NULL};
 
 	/* Reference: TR-111 DHCP Option 125 Sub-Option Data Fields
 	   Page 10.
@@ -2996,189 +3097,138 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 	static struct opt_info o125_tr111_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
-		/* 1 */ {"DeviceManufacturerOUI", string, NULL},
-		/* 2 */ {"DeviceSerialNumber", string, NULL},
-		/* 3 */ {"DeviceProductClass", string, NULL},
-		/* 4 */ {"GatewayManufacturerOUI", string, NULL},
-		/* 5 */ {"GatewaySerialNumber", string, NULL},
-		/* 6 */ {"GatewayProductClass", string, NULL},
+		/* 1 */ {"DeviceManufacturerOUI", string, &hf_bootp_option125_tr111_device_manufacturer_oui},
+		/* 2 */ {"DeviceSerialNumber", string, &hf_bootp_option125_tr111_device_serial_number},
+		/* 3 */ {"DeviceProductClass", string, &hf_bootp_option125_tr111_device_product_class},
+		/* 4 */ {"GatewayManufacturerOUI", string, &hf_bootp_option125_tr111_gateway_manufacturer_oui},
+		/* 5 */ {"GatewaySerialNumber", string, &hf_bootp_option125_tr111_gateway_serial_number},
+		/* 6 */ {"GatewayProductClass", string, &hf_bootp_option125_tr111_gateway_product_class},
 	};
 
-	subopt = tvb_get_guint8(tvb, suboptoff);
+	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption length", subopt);
 	 	return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option125_tr111_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option125_tr111_suboption_vals, "Unknown"));
+
+	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_tr111_suboption);
+	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-	 		subopt);
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption value", subopt);
 	 	return (optend);
 	}
 
-
-	if ((subopt < 1) || (subopt >= array_length(o125_tr111_opt))) {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
-			plurality(subopt_len, "", "s"));
-	} else {
-		switch (o125_tr111_opt[subopt].ftype) {
-
-		case special:
-			/* I may need to decode that properly one day */
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s (%d byte%s)",
-		 		subopt, o125_tr111_opt[subopt].text,
-				subopt_len, plurality(subopt_len, "", "s"));
-			break;
-
-		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s = \"%s\"", subopt,
-				o125_tr111_opt[subopt].text,
-				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
-			break;
-
-		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
-			break;
+	if (subopt < array_length(o125_tr111_opt)) {
+		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype, 
+							suboptoff, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
+			if (o125_tr111_opt[subopt].ftype == special) {
+				if (o125_tr111_opt[subopt].phf != NULL)
+				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				else
+				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+			} else if (o125_tr111_opt[subopt].phf == NULL)
+				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
 		}
 	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
 
+static const value_string option125_cl_suboption_vals[] = {
+	{ 1, "Option Request" },
+	{ 2, "TFTP Server Addresses" },
+	{ 3, "eRouter Container Option" },
+	{ 4, "MIB Environment Indicator Option" },
+	{ 5, "Modem Capabilities" },
+	{ 0, NULL }
+};
+
+static const value_string pkt_mib_env_ind_opt_vals[] = {
+	{ 0x00, "Reserved" },
+	{ 0x01, "CableLabs" },
+	{ 0x02, "IETF" },
+	{ 0x03, "EuroCableLabs" },
+	{ 0, NULL }
+};
+
 static int
-dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optoff, int optend)
+dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                            tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt, val;
-	guint8 subopt_len;
-	proto_item *ti;
-	proto_tree *subtree;
-	int i;
+	guint8 subopt, subopt_len;
+	proto_tree *o125_v_tree;
+	proto_item *vti;
+	struct basic_types_hfs default_hfs = {&hf_bootp_option125_value, &hf_bootp_option125_value_ip_address, &hf_bootp_option125_value_ip_address, 
+                                         &hf_bootp_option125_value_stringz, NULL, &hf_bootp_option125_value_8, 
+                                         &hf_bootp_option125_value_16, NULL, NULL, NULL, NULL};
 
 	static struct opt_info o125_cl_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
-		/* 1 */ {"Option Request = ", val_u_byte, NULL},
-		/* 2 */ {"TFTP Server Addresses : ", ipv4_list, NULL},
-		/* 3 */ {"eRouter Container Option : ", bytes, NULL},
-		/* 4 */ {"MIB Environment Indicator Option = ", special, NULL},
-		/* 5 */ {"Modem Capabilities : ", special, NULL},
+		/* 1 */ {"Option Request = ", val_u_byte, &hf_bootp_option125_cl_option_request},
+		/* 2 */ {"TFTP Server Addresses : ", ipv4_list, &hf_bootp_option125_cl_tftp_server_addresses},
+		/* 3 */ {"eRouter Container Option : ", bytes, &hf_bootp_option125_cl_erouter_container_option},
+		/* 4 */ {"MIB Environment Indicator Option = ", val_u_byte, &hf_bootp_option125_cl_mib_environment_indicator_option},
+		/* 5 */ {"Modem Capabilities : ", special, &hf_bootp_option125_cl_modem_capabilities},
 	};
 
-	static const value_string pkt_mib_env_ind_opt_vals[] = {
-		{ 0x00, "Reserved" },
-		{ 0x01, "CableLabs" },
-		{ 0x02, "IETF" },
-		{ 0x03, "EuroCableLabs" },
-		{ 0, NULL }
-	};
-
-	subopt = tvb_get_guint8(tvb, suboptoff);
+	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+         "Suboption %d: no room left in option for suboption length", subopt);
 	 	return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option125_cl_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s", 
+				subopt, val_to_str(subopt, option125_cl_suboption_vals, "Unknown"));
+
+	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_cl_suboption);
+	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, FALSE);
 	suboptoff++;
 
 	if (suboptoff+subopt_len > optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-			"Suboption %d: no room left in option for suboption value",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption value", subopt);
+		return (optend);
 	}
 
-	if ((subopt < 1) || (subopt >= array_length(o125_cl_opt))) {
-		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
-			plurality(subopt_len, "", "s"));
-	} else {
-		switch (o125_cl_opt[subopt].ftype) {
+	if (subopt < array_length(o125_cl_opt)) {
+		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_cl_opt[subopt].ftype, 
+							suboptoff, subopt_len, o125_cl_opt[subopt].phf, &default_hfs) == 0) {
 
-		case bytes:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s%s (%d byte%s)", subopt,
-				o125_cl_opt[subopt].text,
-				tvb_bytes_to_str(tvb, suboptoff, subopt_len),
-				subopt_len, plurality(subopt_len, "", "s"));
-			break;
+			switch(o125_cl_opt[subopt].ftype) {
+			case special:
+				if (o125_cl_opt[subopt].phf != NULL)
+				   proto_tree_add_item(o125_v_tree, *o125_cl_opt[subopt].phf, tvb, suboptoff, subopt_len, FALSE);
+				else
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
 
-		case ipv4_list:
-			ti = proto_tree_add_text(v_tree, tvb, optoff, 2,
-					"Suboption %d %s", subopt, o125_cl_opt[subopt].text);
-
-			if ((subopt_len % 4) != 0) {
-				proto_item_append_text(ti,
-					"Invalid length for suboption %d (%d byte%s)", subopt, subopt_len,
-					plurality(subopt_len, "", "s"));
-			} else {
-				subtree = proto_item_add_subtree(ti, ett_bootp_option);
-				for (i = 0; i < subopt_len; i+=4) {
-						proto_tree_add_text(subtree, tvb, suboptoff+i, 4, "IP Address: %s",
-							tvb_ip_to_str(tvb, (suboptoff+i)));
-				}
+					dissect_docsis_cm_cap(o125_v_tree, tvb, optoff, subopt_len+2, TRUE);
+				break;
+			default:
+				if (o125_cl_opt[subopt].phf == NULL)
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, FALSE);
+				break;
 			}
-			break;
-
-		case special:
-			if (subopt == 4) {
-			  val = tvb_get_guint8(tvb, suboptoff);
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: %s%s", subopt,
-					o125_cl_opt[subopt].text,
-					val_to_str(val, pkt_mib_env_ind_opt_vals, "unknown"));
-			}
-			else {
-				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-					"Suboption %d: %s%s (%d byte%s)",
-		 			subopt, o125_cl_opt[subopt].text,
-					tvb_bytes_to_str(tvb, suboptoff, subopt_len),
-					subopt_len, plurality(subopt_len, "", "s"));
-					dissect_docsis_cm_cap(v_tree, tvb, optoff, subopt_len+2, TRUE);
-			}
-			break;
-
-		case string:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s\"%s\"", subopt,
-				o125_cl_opt[subopt].text,
-				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
-			break;
-
-		case val_u_byte:
-			val = tvb_get_guint8(tvb, suboptoff);
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s\"%s\"", subopt,
-				o125_cl_opt[subopt].text,
-				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-			break;
-
-		case val_u_short:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
-				"Suboption %d: %s%d", subopt,
-				o125_cl_opt[subopt].text,
-				tvb_get_ntohs(tvb, suboptoff));
-			break;
-
-		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
-			break;
 		}
 	}
+
 	optoff += (subopt_len + 2);
 	return optoff;
 }
@@ -4152,8 +4202,8 @@ static const value_string pkt_i05_ccc_ticket_ctl_vals[] = {
 };
 
 static int
-dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
-    int optend)
+dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                            tvbuff_t *tvb, int optoff, int optend)
 {
 	int suboptoff = optoff;
 	guint8 subopt, subopt_len, fetch_tgt, timer_val, ticket_ctl;
@@ -4164,17 +4214,16 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, "Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
 	}
+
 	subopt_len = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
 	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-	    "Suboption %u: %s: ", subopt,
-	    val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
+		"Suboption %u: %s: ", subopt,
+		val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
 
@@ -4194,8 +4243,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_TGT_FLAG:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		fetch_tgt = tvb_get_guint8(tvb, suboptoff);
@@ -4209,8 +4257,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_PROV_TIMER:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		timer_val = tvb_get_guint8(tvb, suboptoff);
@@ -4224,8 +4271,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_AS_KRB:
 		if (suboptoff+12 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
@@ -4248,8 +4294,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_AP_KRB:
 		if (suboptoff+12 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
@@ -4272,8 +4317,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_MTA_KRB_CLEAR:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		ticket_ctl = tvb_get_guint8(tvb, suboptoff);
@@ -4302,8 +4346,8 @@ static const value_string sec_tcm_vals[] = {
 };
 
 static int
-dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
-    int optend, int revision)
+dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, 
+                             tvbuff_t *tvb, int optoff, int optend, int revision)
 {
 	int suboptoff = optoff;
 	guint8 subopt, subopt_len;
@@ -4320,10 +4364,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	suboptoff++;
 
 	if (suboptoff >= optend) {
-		proto_tree_add_text(v_tree, tvb, optoff, 1,
-			"Suboption %d: no room left in option for suboption length",
-	 		subopt);
-	 	return (optend);
+		expert_add_info_format(pinfo, v_ti, PI_PROTOCOL, PI_ERROR, 
+			"Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
 	}
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -4337,8 +4380,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	case PKT_CCC_PRI_DHCP:	/* IPv4 values */
 	case PKT_CCC_SEC_DHCP:
 		if (suboptoff+4 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		ipv4addr = tvb_get_ipv4(tvb, suboptoff);
@@ -4352,8 +4394,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_IETF_PROV_SRV:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		prov_type = tvb_get_guint8(tvb, suboptoff);
@@ -4368,8 +4409,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case 1:
 			if (suboptoff+4 > optend) {
-				proto_item_append_text(vti,
-						       "no room left in option for suboption value");
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 				return (optend);
 			}
 			ipv4addr = tvb_get_ipv4(tvb, suboptoff);
@@ -4392,8 +4432,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_IETF_AS_KRB:
 		if (suboptoff+12 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
@@ -4442,8 +4481,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_TGT_FLAG:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		fetch_tgt = tvb_get_guint8(tvb, suboptoff);
@@ -4457,8 +4495,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_PROV_TIMER:
 		if (suboptoff+1 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		if (revision == PACKETCABLE_CCC_DRAFT5)
@@ -4474,8 +4511,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 	case PKT_CCC_IETF_SEC_TKT:
 		if (suboptoff+2 > optend) {
-			proto_item_append_text(vti,
-					       "no room left in option for suboption value");
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value");
 			return (optend);
 		}
 		sec_tcm = tvb_get_ntohs(tvb, suboptoff);
@@ -4759,62 +4795,43 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 bootp_init_protocol(void)
 {
-	gchar **optionstrings = NULL;
-	gchar **optiondetail = NULL;
-	gchar *type = NULL;
-	guint i, ii;
+	guint i;
 
 	/* first copy default_bootp_opt[] to bootp_opt[].  This resets all values to default */
 	for(i=0; i<BOOTP_OPT_NUM; i++)
 	{
 		bootp_opt[i].text = default_bootp_opt[i].text;
 		bootp_opt[i].ftype = default_bootp_opt[i].ftype;
-		bootp_opt[i].data = default_bootp_opt[i].data;
+		bootp_opt[i].phf = default_bootp_opt[i].phf;
 	}
 
-	/* now split semicolon seperated fields groups */
-	optionstrings = ep_strsplit(pref_optionstring, ";", -1);
-	for (i=0;optionstrings[i]!=NULL;i++)
+	/* Now apply the custom options */
+	for (i = 0; i < num_bootp_records_uat; i++)
 	{
-		/* input string should have 3 fields:
-		   1 - bootp option - uint8 1-254, not being a special
-		   2 - option name - string
-		   3 - option type - defined in enum represented as a string
-		*/
-
-		/* now split field groups to usable data */
-		optiondetail = ep_strsplit(optionstrings[i], ",",-1);
-		/* verify array has 3 or more entries, any entries beyond 3 are ingnored */
-		for(ii=0;(optiondetail[ii]!=NULL);ii++)
-		{
-			/* do nothing */
-		}
-		if (ii < 3) continue;                            /* not enough values.  Go again              */
-		ii = atoi(optiondetail[0]);                      /* get the bootp option number               */
-		if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue;      /* not a number or out of range.  Go again   */
-		if (bootp_opt[ii].ftype == special) continue;    /* don't mess with specials.  Go again       */
-		bootp_opt[ii].text = se_strdup(optiondetail[1]); /* store a permanent ("seasonal") copy       */
-		type = optiondetail[2];                          /* A string to be converted to an ftype enum */
-		/* XXX This if statement could be extended to allow for additional types */
-		if (g_ascii_strcasecmp(type,"string") == 0)
-		{
-			bootp_opt[ii].ftype = string;
-		} else if (g_ascii_strcasecmp(type,"ipv4") == 0)
-		{
-			bootp_opt[ii].ftype = ipv4;
-		} else if (g_ascii_strcasecmp(type,"bytes") == 0)
-		{
-			bootp_opt[ii].ftype = bytes;
-		} else
-		{
-			bootp_opt[ii].ftype = opaque;
-		}
+		bootp_opt[uat_bootp_records[i].opt].text = se_strdup(uat_bootp_records[i].text);
+		bootp_opt[uat_bootp_records[i].opt].ftype = uat_bootp_records[i].ftype;
+		bootp_opt[uat_bootp_records[i].opt].phf = NULL;
 	}
 }
 
 void
 proto_register_bootp(void)
 {
+	static const value_string bootp_custom_type_vals[] = {
+		{ ipv4, "IP Address"},
+		{ ipv4_list, "IP Address List" },
+		{ string, "string" },
+		{ bytes, "bytes" },
+		{ val_boolean, "boolean" },
+		{ val_u_byte, "byte" },
+		{ val_u_short, "unsigned short" },
+		{ val_u_short_list, "unsigned short list" },
+		{ val_u_long, "unsigned long" },
+		{ time_in_s_secs, "integer time in seconds" },
+		{ time_in_u_secs, "unsigned integer time in seconds" },
+		{ 0x00, NULL }
+	};
+
 	static hf_register_info hf[] = {
 		{ &hf_bootp_dhcp,
 		  { "Frame is DHCP",            "bootp.dhcp",    FT_BOOLEAN,
@@ -4981,45 +4998,10 @@ proto_register_bootp(void)
 		    BASE_DEC,			VALS(docsis_cm_cap_type_vals),	0x0,
 		    "Docsis Cable Modem Device Capability type", HFILL }},
 
-		{ &hf_bootp_alu_vid,
-		  { "Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
-		    BASE_DEC, 			NULL,		 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_bootp_alu_tftp1,
-		  { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1", FT_IPv4,
-		    BASE_NONE,			NULL,		 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_bootp_alu_tftp2,
-		  { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2", FT_IPv4,
-		    BASE_NONE,			NULL,		 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_bootp_alu_app_type,
-		  { "Application Type",	"bootp.vendor.alu.app_type", FT_UINT8,
-		    BASE_DEC,			NULL,		 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_bootp_alu_sip_url,
-		  { "SIP URL",			"bootp.vendor.alu.sip_url", FT_STRING,
-		    BASE_NONE,			NULL,		 0x0,
-		    NULL, HFILL }},
-
 		{ &hf_bootp_client_identifier_uuid,
 		  { "Client Identifier (UUID)",	"bootp.client_id_uuid", FT_GUID,
 		    BASE_NONE,			NULL,		 0x0,
 		    "Client Machine Identifier (UUID)", HFILL }},
-
-		{ &hf_bootp_client_network_id_major_ver,
-		  { "Client Network ID Major Version", "bootp.client_network_id_major", FT_UINT8,
-		    BASE_DEC, 			NULL,		 0x0,
-		    "Client Machine Identifier, Major Version", HFILL }},
-
-		{ &hf_bootp_client_network_id_minor_ver,
-		  { "Client Network ID Minor Version", "bootp.client_network_id_minor", FT_UINT8,
-		    BASE_DEC, 			NULL,		 0x0,
-		    "Client Machine Identifier, Major Version", HFILL }},
 
 		{ &hf_bootp_option_type,
 		  { "Option",	"bootp.option.type", FT_UINT8,
@@ -5031,17 +5013,286 @@ proto_register_bootp(void)
 		    BASE_DEC, 			NULL,		 0x0,
 		    "Bootp/Dhcp option length", HFILL }},
 
-		{ &hf_bootp_option_value,
-		  { "Value",	"bootp.option.value", FT_BYTES,
-		    BASE_NONE, 			NULL,		 0x0,
-		    "Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_suboption_length,
+		  { "Length",	"bootp.option.suboption_length", FT_UINT8,
+		    BASE_DEC, 			NULL,		 0x0,
+		    "Suboption length", HFILL }},
 
+		{ &hf_bootp_option_value, { "Value", "bootp.option.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_8, { "Value",	"bootp.option.value", FT_UINT8, BASE_DEC, NULL, 0x0, "8-bit Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_16, { "Value",	"bootp.option.value", FT_UINT16, BASE_DEC, NULL, 0x0, "16-bit Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_u32, { "Value",	"bootp.option.value", FT_UINT32, BASE_HEX, NULL, 0x0, "32-bit Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_i32, { "Value",	"bootp.option.value", FT_INT32, BASE_DEC, NULL, 0x0, "32-bit Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_stringz, { "Value", "bootp.option.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Z-String Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_ip_address, { "Value", "bootp.option.value", FT_IPv4, BASE_NONE, NULL, 0x00, "IP address Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value_boolean, { "Value", "bootp.option.value", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x00, "Boolean Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_padding, { "Padding", "bootp.option.padding", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 0: Padding", HFILL }},
+		{ &hf_bootp_option_subnet_mask, { "Subnet Mask", "bootp.option.subnet_mask", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 1: Subnet Mask", HFILL }},
+		{ &hf_bootp_option_time_offset, { "Time Offset", "bootp.option.time_offset", FT_INT32, BASE_DEC, NULL, 0x00, "Option 2: Time Offset", HFILL }},
+		{ &hf_bootp_option_router, { "Router", "bootp.option.router", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 3: Router", HFILL }},
+		{ &hf_bootp_option_time_server, { "Time Server", "bootp.option.time_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 4: Time Server", HFILL }},
+		{ &hf_bootp_option_name_server, { "Name Server", "bootp.option.name_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 5: Name Server", HFILL }},
+		{ &hf_bootp_option_domain_name_server, { "Domain Name Server", "bootp.option.domain_name_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 6: Domain Name Server", HFILL }},
+		{ &hf_bootp_option_log_server, { "Log Server", "bootp.option.log_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 7: Log Server", HFILL }},
+		{ &hf_bootp_option_quotes_server, { "Quotes Server", "bootp.option.quotes_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 8: Quotes Server", HFILL }},
+		{ &hf_bootp_option_lpr_server, { "LPR Server", "bootp.option.lpr_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 9: LPR Server", HFILL }},
+		{ &hf_bootp_option_impress_server, { "Impress Server", "bootp.option.impress_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 10: Impress Server", HFILL }},
+		{ &hf_bootp_option_resource_location_server, { "Resource Location Server", "bootp.option.resource_location_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 11: Resource Location Server", HFILL }},
+		{ &hf_bootp_option_hostname, { "Host Name", "bootp.option.hostname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 12: Host Name", HFILL }},
+		{ &hf_bootp_option_boot_file_size, { "Boot File Size",	"bootp.option.boot_file_size", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 13: Boot File Size", HFILL }},
+		{ &hf_bootp_option_merit_dump_file, { "Merit Dump File", "bootp.option.merit_dump_file", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 14: Merit Dump File", HFILL }},
+		{ &hf_bootp_option_domain_name, { "Domain Name", "bootp.option.domain_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 15: Domain Name", HFILL }},
+		{ &hf_bootp_option_swap_server, { "Swap Server", "bootp.option.swap_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 16: Swap Server", HFILL }},
+		{ &hf_bootp_option_root_path, { "Root Path", "bootp.option.root_path", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 17: Root Path", HFILL }},
+		{ &hf_bootp_option_extension_path, { "Extensions Path", "bootp.option.extension_path", FT_STRINGZ, BASE_NONE, NULL, 0x0,"Option 18: Extensions Path", HFILL }},
+		{ &hf_bootp_option_ip_forwarding, { "IP Forwarding", "bootp.option.ip_forwarding", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 19: IP Forwarding", HFILL }},
+		{ &hf_bootp_option_policy_filter_ip, { "IP Address", "bootp.option.policy_filter.ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 21: IP address", HFILL }},
+		{ &hf_bootp_option_policy_filter_subnet_mask, { "Subnet Mask", "bootp.option.policy_filter.subnet_mask", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 21: Subnet Mask", HFILL }},
+		{ &hf_bootp_option_non_local_source_routing, { "Non-Local Source Routing", "bootp.option.non_local_source_routing", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 20: Non-Local Source Routing", HFILL }},
+		{ &hf_bootp_option_max_datagram_reassembly_size, { "Maximum Datagram Reassembly Size",	"bootp.option.max_datagram_reassembly_size", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 22: Maximum Datagram Reassembly Size", HFILL }},
+		{ &hf_bootp_option_default_ip_ttl, { "Default IP Time-to-Live",	"bootp.option.default_ip_ttl", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 23: Default IP Time-to-Live", HFILL }},
+		{ &hf_bootp_option_path_mtu_aging_timeout, { "Path MTU Aging Timeout", "bootp.option.path_mtu_aging_timeout", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 24: Path MTU Aging Timeout", HFILL }},
+		{ &hf_bootp_option_path_mtu_plateau_table_item, { "Path MTU Plateau Table Item",	"bootp.option.path_mtu_plateau_table_item", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 25: Path MTU Plateau Table Item", HFILL }},
+		{ &hf_bootp_option_interface_mtu, { "Interface MTU",	"bootp.option.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0,"Option 26: Interface MTU", HFILL }},
+		{ &hf_bootp_option_all_subnets_are_local, { "All Subnets are Local", "bootp.option.all_subnets_are_local", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x00, "Option 27: All Subnets are Local", HFILL }},
+		{ &hf_bootp_option_broadcast_address, { "Broadcast Address", "bootp.option.broadcast_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 28: Broadcast Address", HFILL }},
+		{ &hf_bootp_option_perform_mask_discovery, { "Perform Mask Discovery", "bootp.option.perform_mask_discovery", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 29: Perform Mask Discovery", HFILL }},
+		{ &hf_bootp_option_mask_supplier, { "Mask Supplier", "bootp.option.mask_supplier", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x00, "Option 30: Mask Supplier", HFILL }},
+		{ &hf_bootp_option_perform_router_discover, { "Perform Router Discover", "bootp.option.perform_router_discover", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 31: Perform Router Discover", HFILL }},
+		{ &hf_bootp_option_router_solicitation_address, { "Router Solicitation Address", "bootp.option.router_solicitation_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 32: Router Solicitation Address", HFILL }},
+		{ &hf_bootp_option_static_route_ip, { "Destination IP Address", "bootp.option.static_route.ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 33: Destination IP address", HFILL }},
+		{ &hf_bootp_option_static_route_router, { "Destination Router", "bootp.option.static_route.router", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 33: Destination Router", HFILL }},
+		{ &hf_bootp_option_trailer_encapsulation, { "Trailer Encapsulation", "bootp.option.trailer_encapsulation", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 34: Trailer Encapsulation", HFILL }},
+		{ &hf_bootp_option_arp_cache_timeout, { "ARP Cache Timeout", "bootp.option.arp_cache_timeout", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 35: ARP Cache Timeout", HFILL }},
+		{ &hf_bootp_option_ethernet_encapsulation, { "Ethernet Encapsulation", "bootp.option.ethernet_encapsulation", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 36: Ethernet Encapsulation", HFILL }},
+		{ &hf_bootp_option_tcp_default_ttl, { "TCP Default TTL",	"bootp.option.tcp_default_ttl", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 37: TCP Default TTL", HFILL }},
+		{ &hf_bootp_option_tcp_keepalive_interval, { "TCP Keepalive Interval", "bootp.option.tcp_keepalive_interval", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 38: TCP Keepalive Interval", HFILL }},
+		{ &hf_bootp_option_tcp_keepalive_garbage, { "TCP Keepalive Garbage", "bootp.option.tcp_keepalive_garbage", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x00, "Option 39: TCP Keepalive Garbage", HFILL }},
+		{ &hf_bootp_option_nis_domain, { "Network Information Service Domain", "bootp.option.nis_domain", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 40: Network Information Service Domain", HFILL }},
+		{ &hf_bootp_option_nis_server, { "Network Information Service Server", "bootp.option.nis_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 41: Network Information Service Server", HFILL }},
+		{ &hf_bootp_option_ntp_server, { "Network Time Protocol Server", "bootp.option.ntp_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 42: Network Time Protocol Server", HFILL }},
+
+			{ &hf_bootp_option43_value, { "Value",	"bootp.option.vendor.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43: Suboption value", HFILL }},
+			{ &hf_bootp_option43_value_8, { "Value",	"bootp.option.vendor.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43: Suboption 8-bit value", HFILL }},
+			{ &hf_bootp_option43_value_16, { "Value",	"bootp.option.vendor.value", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 43: Suboption 16-bit value", HFILL }},
+			{ &hf_bootp_option43_value_32, { "Value",	"bootp.option.vendor.value", FT_UINT32, BASE_DEC, NULL, 0x0, "Option 43: Suboption 32-bit value", HFILL }},
+			{ &hf_bootp_option43_value_stringz, { "Value", "bootp.option.vendor.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43: Suboption Z-String value", HFILL }},
+			{ &hf_bootp_option43_value_ip_address, { "Value", "bootp.option.vendor.value", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 43: Suboption IP address", HFILL }},
+
+			{ &hf_bootp_option43_pxeclient_suboption, { "Option 43 Suboption", "bootp.option.vendor.pxeclient.suboption", FT_UINT8, BASE_DEC, VALS(option43_pxeclient_suboption_vals), 0x0, "Option 43:PXE Client Suboption", HFILL }},
+			{ &hf_bootp_option43_pxeclient_padding, { "Padding",	"bootp.option.vendor.pxeclient.padding", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:PXE Client 0 Padding", HFILL }},
+			{ &hf_bootp_option43_pxeclient_mtftp_ip, { "mtftp IP", "bootp.option.vendor.pxeclient.mtftp_ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 43:PXE Client 1 mtftp IP", HFILL }},
+			{ &hf_bootp_option43_pxeclient_mtftp_client_port, { "mtftp IP", "bootp.option.vendor.pxeclient.mtftp_client_port", FT_UINT16, BASE_DEC, NULL, 0x00, "Option 43:PXE Client 2 mtftp client port", HFILL }},
+			{ &hf_bootp_option43_pxeclient_mtftp_server_port, { "mtftp IP", "bootp.option.vendor.pxeclient.mtftp_server_port", FT_UINT16, BASE_DEC, NULL, 0x00, "Option 43:PXE Client 3 mtftp server port", HFILL }},
+			{ &hf_bootp_option43_pxeclient_mtftp_timeout, { "mtftp timeout",	"bootp.option.vendor.pxeclient.mtftp_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:PXE Client 4 mtftp timeout", HFILL }},
+			{ &hf_bootp_option43_pxeclient_mtftp_delay, { "mtftp delay",	"bootp.option.vendor.pxeclient.mtftp_delay", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:PXE Client 5 mtftp delay", HFILL }},
+			{ &hf_bootp_option43_pxeclient_discovery_control, { "discovery control",	"bootp.option.vendor.pxeclient.discovery_control", FT_UINT8, BASE_HEX, NULL, 0x0, "Option 43:PXE Client 6 discovery control", HFILL }},
+			{ &hf_bootp_option43_pxeclient_multicast_address, { "multicast address", "bootp.option.vendor.pxeclient.multicast_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 43:PXE Client 7 multicast address", HFILL }},
+			{ &hf_bootp_option43_pxeclient_boot_servers, { "boot servers",	"bootp.option.vendor.pxeclient.boot_servers", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 8 boot servers", HFILL }},
+			{ &hf_bootp_option43_pxeclient_boot_menu, { "boot menu",	"bootp.option.vendor.pxeclient.boot_menu", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 9 boot menu", HFILL }},
+			{ &hf_bootp_option43_pxeclient_menu_prompt, { "menu prompt",	"bootp.option.vendor.pxeclient.menu_prompt", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 10 menu prompt", HFILL }},
+			{ &hf_bootp_option43_pxeclient_multicast_address_alloc, { "multicast address alloc",	"bootp.option.vendor.pxeclient.multicast_address_alloc", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 11 multicast address alloc", HFILL }},
+			{ &hf_bootp_option43_pxeclient_credential_types, { "credential types",	"bootp.option.vendor.pxeclient.credential_types", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 12 credential types", HFILL }},
+			{ &hf_bootp_option43_pxeclient_boot_item, { "boot item",	"bootp.option.vendor.pxeclient.boot_item", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:PXE Client 71 boot item", HFILL }},
+			{ &hf_bootp_option43_pxeclient_end, { "PXE Client End",	"bootp.option.vendor.pxeclient.end", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:PXE Client 255 End", HFILL }},
+
+
+			{ &hf_bootp_option43_cl_suboption, { "Option 43 Suboption",	"bootp.option.vendor.cl.suboption", FT_UINT8, BASE_DEC, VALS(option43_cl_suboption_vals), 0x0, "Option 43:CL Suboption", HFILL }},
+			{ &hf_bootp_option43_cl_padding, { "Padding",	"bootp.option.vendor.cl.padding", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:CL 0 Padding", HFILL }},
+			{ &hf_bootp_option43_cl_suboption_request_list, { "Suboption Request List", "bootp.option.vendor.cl.suboption_request_list", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 1 Suboption Request List", HFILL }},
+			{ &hf_bootp_option43_cl_device_type, { "Device Type", "bootp.option.vendor.cl.device_type", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 2 Device Type", HFILL }},
+			{ &hf_bootp_option43_cl_esafe_type, { "eSAFE Types", "bootp.option.vendor.cl.esafe_type", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 3 eSAFE Types", HFILL }},
+			{ &hf_bootp_option43_cl_serial_number, { "Serial Number", "bootp.option.vendor.cl.serial_number", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 4 Serial Number", HFILL }},
+			{ &hf_bootp_option43_cl_hardware_version, { "Hardware Version", "bootp.option.vendor.cl.hardware_version", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 5 Hardware Version", HFILL }},
+			{ &hf_bootp_option43_cl_software_version, { "Software Version", "bootp.option.vendor.cl.software_version", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 6 Software Version", HFILL }},
+			{ &hf_bootp_option43_cl_boot_rom_version, { "Boot ROM version", "bootp.option.vendor.cl.boot_rom_version", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 7 Boot ROM version", HFILL }},
+			{ &hf_bootp_option43_cl_oui_string, { "Organizationally Unique Identifier", "bootp.option.vendor.cl.oui_string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 8 Organizationally Unique Identifier", HFILL }},
+			{ &hf_bootp_option43_cl_oui_bytes, { "Organizationally Unique Identifier", "bootp.option.vendor.cl.oui_string", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:CL 8 Organizationally Unique Identifier", HFILL }},
+			{ &hf_bootp_option43_cl_model_number, { "Model Number", "bootp.option.vendor.cl.model_number", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 9 Model Number", HFILL }},
+			{ &hf_bootp_option43_cl_vendor_name10, { "Vendor Name", "bootp.option.vendor.cl.vendor_name10", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 10 Vendor Name", HFILL }},
+			{ &hf_bootp_option43_cl_address_realm, { "Address Realm",	"bootp.option.vendor.cl.address_realm", FT_UINT8, BASE_DEC, VALS(cablehome_subopt11_vals), 0x0, "Option 43:CL 11 Address Realm", HFILL }},
+			{ &hf_bootp_option43_cl_cm_ps_system_desc, { "CM/PS System Description", "bootp.option.vendor.cl.cm_ps_system_desc", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 12 CM/PS System Description", HFILL }},
+			{ &hf_bootp_option43_cl_cm_ps_firmware_revision, { "CM/PS Firmware Revision", "bootp.option.vendor.cl.cm_ps_firmware_revision", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 13 CM/PS Firmware Revision", HFILL }},
+			{ &hf_bootp_option43_cl_firewall_policy_file_version, { "Firewall Policy File Version", "bootp.option.vendor.cl.firewall_policy_file_version", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 14 Firewall Policy File Version", HFILL }},
+			{ &hf_bootp_option43_cl_esafe_config_file_devices, { "eSafe Config File Devices", "bootp.option.vendor.cl.esafe_config_file_devices", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 15 eSafe Config File Devices", HFILL }},
+			{ &hf_bootp_option43_cl_video_security_tape, { "Video Security Type", "bootp.option.vendor.cl.video_security_tape", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 18 Video Security Type", HFILL }},
+			{ &hf_bootp_option43_cl_mta_mac_address, { "MTA MAC Address",	"bootp.option.vendor.cl.mta_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, "Option 43:CL 31 MTA MAC Address", HFILL }},
+			{ &hf_bootp_option43_cl_correlation_ID, { "Correlation ID",	"bootp.option.vendor.cl.correlation_ID", FT_UINT32, BASE_DEC, NULL, 0x0, "Option 43: CL 32 Correlation ID", HFILL }},
+			{ &hf_bootp_option43_cl_vendor_name51, { "Vendor Name", "bootp.option.vendor.cl.vendor_name51", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 51 Vendor Name", HFILL }},
+			{ &hf_bootp_option43_cl_cablecard_capability, { "CableCARD Capability",	"bootp.option.vendor.cl.cablecard_capability", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:CL 52 CableCARD Capability", HFILL }},
+			{ &hf_bootp_option43_cl_device_id_ca, { "Device Identification (CA)",	"bootp.option.vendor.cl.device_id_ca", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43:CL 53 Device Identification (CA)", HFILL }},
+			{ &hf_bootp_option43_cl_device_id_x509, { "Device Identification (X.509)", "bootp.option.vendor.cl.device_id_x509", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43:CL 54 Device Identification (X.509)", HFILL }},
+			{ &hf_bootp_option43_cl_end, { "CL End",	"bootp.option.vendor.cl.end", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:CL 255 End", HFILL }},
+
+			{ &hf_bootp_option43_alcatel_suboption, { "Option 43 Suboption",	"bootp.option.vendor.alu.suboption", FT_UINT8, BASE_DEC, VALS(option43_alcatel_suboption_vals), 0x0, "Option 43:Alcatel Suboption", HFILL }},
+			{ &hf_bootp_option43_alcatel_padding, { "Padding",	"bootp.option.vendor.alu.padding", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:Alcatel 0 Padding", HFILL }},
+			{ &hf_bootp_option43_alcatel_vlan_id, { "Voice VLAN ID",	"bootp.option.vendor.alu.vid", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 43:Alcatel 58 Voice VLAN ID", HFILL }},
+			{ &hf_bootp_option43_alcatel_tftp1, { "Spatial Redundancy TFTP1",	"bootp.option.vendor.alu.tftp1", FT_IPv4, BASE_NONE, NULL, 0x0, "Option 43:Alcatel 64 Spatial Redundancy TFTP1", HFILL }},
+			{ &hf_bootp_option43_alcatel_tftp2, { "Spatial Redundancy TFTP2",	"bootp.option.vendor.alu.tftp2", FT_IPv4, BASE_NONE, NULL, 0x0, "Option 43:Alcatel 65 Spatial Redundancy TFTP2", HFILL }},
+			{ &hf_bootp_option43_alcatel_app_type, { "Application Type",	"bootp.option.vendor.alu.app_type", FT_UINT8, BASE_DEC, VALS(option43_alcatel_app_type_vals), 0x0, "Option 43:Alcatel 66 Application Type", HFILL }},
+			{ &hf_bootp_option43_alcatel_sip_url, { "SIP URL", "bootp.option.vendor.alu.sip_url", FT_STRING, BASE_NONE, NULL, 0x0, "Option 43:Alcatel 67 SIP URL", HFILL }},
+			{ &hf_bootp_option43_alcatel_end, { "Alcatel End",	"bootp.option.vendor.alu.end", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43:Alcatel 255 End", HFILL }},
+
+		{ &hf_bootp_option_netbios_over_tcpip_name_server, { "NetBIOS over TCP/IP Name Server", "bootp.option.netbios_over_tcpip_name_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 44: NetBIOS over TCP/IP Name Server", HFILL }},
+		{ &hf_bootp_option_netbios_over_tcpip_dd_name_server, { "NetBIOS over TCP/IP Datagram Distribution Name Server", "bootp.option.netbios_over_tcpip_dd_name_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 45: NetBIOS over TCP/IP Datagram Distribution Name Server", HFILL }},
+		{ &hf_bootp_option_netbios_over_tcpip_node_type, { "NetBIOS over TCP/IP Node Type",	"bootp.option.netbios_over_tcpip_node_type", FT_UINT8, BASE_DEC,  VALS(bootp_nbnt_vals),	 0x0, "Option 46: NetBIOS over TCP/IP Node Type", HFILL }},
+		{ &hf_bootp_option_netbios_over_tcpip_scope, { "NetBIOS over TCP/IP Scope", "bootp.option.netbios_over_tcpip_scope",  FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 47: NetBIOS over TCP/IP Scope", HFILL }},
+		{ &hf_bootp_option_xwindows_system_font_server, { "X Window System Font Server", "bootp.option.xwindows_system_font_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 48: X Window System Font Server", HFILL }},
+		{ &hf_bootp_option_xwindows_system_display_manager, { "X Window System Display Manager", "bootp.option.xwindows_system_display_manager", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 49: X Window System Display Manager", HFILL }},
+		{ &hf_bootp_option_requested_ip_address, { "Requested IP Address", "bootp.option.requested_ip_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 50: Requested IP Address", HFILL }},
+		{ &hf_bootp_option_ip_address_lease_time, { "IP Address Lease Time", "bootp.option.ip_address_lease_time", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 51: IP Address Lease Time", HFILL }},
+		{ &hf_bootp_option_option_overload, { "Option Overload",	"bootp.option.option_overload", FT_UINT8, BASE_DEC, VALS(opt_overload_vals), 0x0, "Option 52: Option Overload", HFILL }},
+		{ &hf_bootp_option_dhcp, { "DHCP",	"bootp.option.dhcp",  FT_UINT8, BASE_DEC, VALS(opt53_text), 0x0, "Option 53: DHCP option", HFILL }},
+		{ &hf_bootp_option_dhcp_server_id, { "DHCP Server Identifier", "bootp.option.dhcp_server_id", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 54: DHCP Server Identifier", HFILL }},
+		{ &hf_bootp_option_parameter_request_list_item, { "Parameter Request List Item",	"bootp.option.request_list_item", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 55: Parameter Request List Item", HFILL }},
+		{ &hf_bootp_option_message, { "Message", "bootp.option.message", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 56: Option message", HFILL }},
+		{ &hf_bootp_option_dhcp_max_message_size, { "Maximum DHCP Message Size", "bootp.option.dhcp_max_message_size", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 57: Maximum DHCP Message Size", HFILL }},
+		{ &hf_bootp_option_renewal_time_value, { "Renewal Time Value", "bootp.option.renewal_time_value", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 58: Renewal Time Value", HFILL }},
+		{ &hf_bootp_option_rebinding_time_value, { "Rebinding Time Value", "bootp.option.rebinding_time_value", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 59: Rebinding Time Value", HFILL }},
+		{ &hf_bootp_option_vendor_class_id, { "Vendor class identifier", "bootp.option.vendor_class_id",  FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 60: Vendor class identifier", HFILL }},
+		{ &hf_bootp_option_novell_netware_ip_domain, { "Novell/Netware IP domain", "bootp.option.novell_netware_ip_domain",  FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 62: Novell/Netware IP domain", HFILL }},
+
+			{ &hf_bootp_option63_suboption, { "Option 63 Suboption",	"bootp.option.novell_options.suboption", FT_UINT8, BASE_DEC, VALS(option63_suboption_vals), 0x0, "Option 63: Suboption", HFILL }},
+			{ &hf_bootp_option63_value, { "Value",	"bootp.option.novell_options.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 63: Suboption value", HFILL }},
+			{ &hf_bootp_option63_value_8, { "Value",	"bootp.option.novell_options.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 63: Suboption 8-bit value", HFILL }},
+			{ &hf_bootp_option63_value_ip_address, { "Value", "bootp.option.novell_options.value", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 63: Suboption IP address", HFILL }},
+			{ &hf_bootp_option63_value_boolean, { "Value", "bootp.option.novell_options.value", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x00, "Option 63: Suboption Boolean value", HFILL }},
+			{ &hf_bootp_option63_broadcast, { "Broadcast for nearest Netware server", "bootp.option.novell_options.broadcast", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x00, "Option 63:5 Broadcast for nearest Netware server", HFILL }},
+			{ &hf_bootp_option63_preferred_dss_server, { "Preferred DSS server", "bootp.option.novell_options.preferred_dss_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 63:6 Preferred DSS server", HFILL }},
+			{ &hf_bootp_option63_nearest_nwip_server, { "Nearest NWIP server", "bootp.option.novell_options.nearest_nwip_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 63:7 Nearest NWIP server", HFILL }},
+			{ &hf_bootp_option63_autoretries, { "Autoretries",	"bootp.option.novell_options.autoretries",  FT_UINT8, BASE_DEC, NULL, 0x0, "Option 63:8 Autoretries", HFILL }},
+			{ &hf_bootp_option63_autoretry_delay, { "Autoretry delay, sec", "bootp.option.novell_options.autoretry_delay",  FT_UINT8, BASE_DEC, NULL, 0x0, "Option 63:9 Autoretry delay, sec", HFILL }},
+			{ &hf_bootp_option63_support_netware_v1_1, { "Broadcast for nearest Netware server", "bootp.option.novell_options.support_netware_v1_1", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x00, "Option 63:10 Broadcast for nearest Netware server", HFILL }},
+			{ &hf_bootp_option63_primary_dss, { "Primary DSS", "bootp.option.novell_options.primary_dss", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 63:11 Primary DSS", HFILL }},
+
+		{ &hf_bootp_option_nis_plus_domain, { "Network Information Service+ Domain", "bootp.option.nis_plus_domain",  FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 64: Network Information Service+ Domain", HFILL }},
+		{ &hf_bootp_option_nis_plus_server, { "Network Information Service+ Server", "bootp.option.nis_plus_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 65: Network Information Service+ Server", HFILL }},
+		{ &hf_bootp_option_tftp_server_name, { "TFTP Server Name", "bootp.option.tftp_server_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 66: TFTP Server Name", HFILL }},
+		{ &hf_bootp_option_bootfile_name, { "Bootfile name", "bootp.option.bootfile_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 67: Bootfile name", HFILL }},
+		{ &hf_bootp_option_mobile_ip_home_agent, { "Mobile IP Home Agent", "bootp.option.mobile_ip_home_agent", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 68: Mobile IP Home Agent", HFILL }},
+		{ &hf_bootp_option_smtp_server, { "SMTP Server", "bootp.option.smtp_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 69: SMTP Server", HFILL }},
+		{ &hf_bootp_option_pop3_server, { "POP3 Server", "bootp.option.pop3_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 70: POP3 Server", HFILL }},
+		{ &hf_bootp_option_nntp_server, { "NNTP Server", "bootp.option.nntp_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 71: NNTP Server", HFILL }},
+		{ &hf_bootp_option_default_www_server, { "Default WWW Server", "bootp.option.default_www_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 72: Default WWW Server", HFILL }},
+		{ &hf_bootp_option_default_finger_server, { "Default Finger Server", "bootp.option.default_finger_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 73: Default Finger Server", HFILL }},
+		{ &hf_bootp_option_default_irc_server, { "Default IRC Server", "bootp.option.default_irc_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 74: Default IRC Server", HFILL }},
+		{ &hf_bootp_option_streettalk_server, { "StreetTalk Server", "bootp.option.streettalk_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 75: StreetTalk Server", HFILL }},
+		{ &hf_bootp_option_streettalk_da_server, { "StreetTalk Directory Assistance Server", "bootp.option.streettalk_da_server", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 76: StreetTalk Directory Assistance Server", HFILL }},
+		{ &hf_bootp_option_slp_directory_agent_value, { "Value",	"bootp.option.slp_directory_agent.value", FT_UINT8, BASE_DEC, VALS(slpda_vals), 0x0, "Option 78: SLPDA Value", HFILL }},
+		{ &hf_bootp_option_slp_directory_agent_slpda_address, { "IP Address", "bootp.option.slp_directory_agent.slpda_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 78: SLPDA Address", HFILL }},
+		{ &hf_bootp_option_slp_service_scope_value, { "Value",	"bootp.option.slp_service_scope.value", FT_UINT8, BASE_DEC, VALS(slp_scope_vals), 0x0, "Option 79: SLP Service Scope Value", HFILL }},
+		{ &hf_bootp_option_slp_service_scope_string, { "SLP Service Scope", "bootp.option.slp_service_scope.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 79: SLP Service Scope", HFILL }},
+
+			{ &hf_bootp_option82_suboption, { "Option 82 Suboption",	"bootp.option.agent_information_option.suboption", FT_UINT8, BASE_DEC, VALS(option82_suboption_vals), 0x0, "Option 82: Suboption", HFILL }},
+			{ &hf_bootp_option82_value, { "Value",	"bootp.option.agent_information_option.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82: Suboption value", HFILL }},
+			{ &hf_bootp_option82_value_8, { "Value",	"bootp.option.agent_information_option.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82: Suboption 8-bit value", HFILL }},
+			{ &hf_bootp_option82_value_32, { "Value",	"bootp.option.agent_information_option.value", FT_UINT32, BASE_DEC, NULL, 0x0, "Option 82: Suboption 32-bit value", HFILL }},
+			{ &hf_bootp_option82_value_ip_address, { "Value", "bootp.option.agent_information_option.value", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82: Suboption IP address", HFILL }},
+			{ &hf_bootp_option82_value_stringz, { "Value", "bootp.option.agent_information_option.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 82: Suboption Z-String value", HFILL }},
+			{ &hf_bootp_option82_padding, { "Padding",	"bootp.option.agent_information_option.padding", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:0 Padding", HFILL }},
+			{ &hf_bootp_option82_agent_circuit_id, { "Agent Circuit ID",	"bootp.option.agent_information_option.agent_circuit_id", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:1 Agent Circuit ID", HFILL }},
+			{ &hf_bootp_option82_agent_remote_id, { "Agent Remote ID",	"bootp.option.agent_information_option.agent_remote_id", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:2 Agent Remote ID", HFILL }},
+			{ &hf_bootp_option82_reserved, { "Reserved",	"bootp.option.agent_information_option.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:3 Reserved", HFILL }},
+			{ &hf_bootp_option82_docsis_device_class, { "DOCSIS Device Class",	"bootp.option.agent_information_option.docsis_device_class", FT_UINT32, BASE_HEX, NULL, 0x0, "Option 82:4 DOCSIS Device Class", HFILL }},
+			{ &hf_bootp_option82_link_selection, { "Link selection", "bootp.option.agent_information_option.link_selection", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82:5 Link selection", HFILL }},
+			{ &hf_bootp_option82_subscriber_id, { "Subscriber ID", "bootp.option.agent_information_option.subscriber_id", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 82:6 Subscriber ID", HFILL }},
+			{ &hf_bootp_option82_radius_attributes, { "RADIUS Attributes",	"bootp.option.agent_information_option.radius_attributes", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:7 RADIUS Attributes", HFILL }},
+			{ &hf_bootp_option82_authentication, { "Authentication",	"bootp.option.agent_information_option.authentication", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:8 Authentication", HFILL }},
+			{ &hf_bootp_option82_vi, { "Vendor-Specific Information",	"bootp.option.agent_information_option.vi", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 82:9 Vendor-Specific Information", HFILL }},
+			{ &hf_bootp_option82_vi_enterprise, { "Enterprise",	"bootp.option.agent_information_option.vi.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0, "Option 82:9 VI Enterprise", HFILL }},
+			{ &hf_bootp_option82_vi_data_length, { "Data Length",	"bootp.option.agent_information_option.vi.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:9 VI Data Length", HFILL }},
+			{ &hf_bootp_option82_vi_cl_option, { "Option",	"bootp.option.agent_information_option.vi.cl.option", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:9 VI CL Option", HFILL }},
+			{ &hf_bootp_option82_vi_cl_length, { "Length",	"bootp.option.agent_information_option.vi.cl.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:9 VI CL Length", HFILL }},
+			{ &hf_bootp_option82_vi_cl_tag, { "Tag",	"bootp.option.agent_information_option.vi.cl.tag", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:9 VI CL Tag", HFILL }},
+			{ &hf_bootp_option82_vi_cl_tag_length, { "Tag Length", "bootp.option.agent_information_option.vi.cl.tag_length", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 82:9 VI CL Tag Length", HFILL }},
+			{ &hf_bootp_option82_vi_cl_docsis_version, { "DOCSIS Version Number", "bootp.option.agent_information_option.vi.cl.docsis_version", FT_UINT16, BASE_HEX, NULL, 0x0, "Option 82:9 VI CL DOCSIS Version Number", HFILL }},
+			{ &hf_bootp_option82_flags, { "Flags",	"bootp.option.agent_information_option.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "Option 82:10 Flags", HFILL }},
+			{ &hf_bootp_option82_server_id_override, { "Server ID Override", "bootp.option.agent_information_option.server_id_override", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82:11 Server ID Override", HFILL }},
+
+		{ &hf_bootp_option_novell_dss_string, { "Novell Directory Services Servers String", "bootp.option.novell_dss.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 85: Novell Directory Services Servers String", HFILL }},
+		{ &hf_bootp_option_novell_dss_ip, { "IP Address", "bootp.option.novell_dss.ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 85: Novell Directory Services Servers IP Address", HFILL }},
+		{ &hf_bootp_option_novell_ds_tree_name, { "Novell Directory Services Tree Name", "bootp.option.novell_ds_tree_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 86: Novell Directory Services Tree Name", HFILL }},
+		{ &hf_bootp_option_novell_ds_context, { "Novell Directory Services Context", "bootp.option.novell_ds_context", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 87: Novell Directory Services Context", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_protocol, { "Protocol",	"bootp.option.dhcp_authentication.protocol", FT_UINT8, BASE_DEC, VALS(authen_protocol_vals), 0x0, "Option 90: Authentication Protocol", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_alg_delay, { "Delay Algorithm",	"bootp.option.dhcp_authentication.alg_delay", FT_UINT8, BASE_DEC, VALS(authen_da_algo_vals), 0x0, "Option 90: Delayed Authentication Algorithm", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_algorithm, { "Algorithm",	"bootp.option.dhcp_authentication.algorithm", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 90: Authentication Algorithm", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_rdm, { "Replay Detection Method",	"bootp.option.dhcp_authentication.rdm", FT_UINT8, BASE_DEC, VALS(authen_rdm_vals), 0x0, "Option 90: Replay Detection Method", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_rdm_replay_detection, { "RDM Replay Detection Value",	"bootp.option.dhcp_authentication.rdm_replay_detection", FT_UINT64, BASE_HEX, NULL, 0x0, "Option 90: RDM Replay Detection Value", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_rdm_rdv, { "Replay Detection Value", "bootp.option.dhcp_authentication.rdm_rdv", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 90: Replay Detection Value", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_secret_id, { "Secret ID", "bootp.option.dhcp_authentication.secret_id", FT_UINT32, BASE_HEX, NULL, 0x0, "Option 90: Secret ID", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_hmac_md5_hash, { "HMAC MD5 Hash", "bootp.option.dhcp_authentication.hmac_md5_hash", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 90: HMAC MD5 Hash", HFILL }},
+		{ &hf_bootp_option_dhcp_authentication_information, { "Authentication Information", "bootp.option.dhcp_authentication.information", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 90: Authentication Information", HFILL }},
+		{ &hf_bootp_option_client_last_transaction_time, { "Client last transaction time", "bootp.option.client_last_transaction_time", FT_UINT32, BASE_DEC, NULL, 0x00, "Option 91: Client last transaction time", HFILL }},
+		{ &hf_bootp_option_associated_ip_option, { "Associated IP option", "bootp.option.associated_ip_option", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 92: Associated IP option", HFILL }},
+		{ &hf_bootp_option_client_system_architecture, { "Client System Architecture", "bootp.option.client_system_architecture", FT_UINT16, BASE_DEC, VALS(bootp_client_arch), 0x0, "Option 93: Client System Architecture", HFILL }},
+		{ &hf_bootp_option_client_network_id_major_ver, { "Major Version", "bootp.client_network_id_major", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 94: Major Version", HFILL }},
+		{ &hf_bootp_option_client_network_id_minor_ver, { "Minor Version", "bootp.client_network_id_minor", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 94: Minor Version", HFILL }},
+		{ &hf_bootp_option_civic_location_what, { "What",	"bootp.option.civic_location.what", FT_UINT8, BASE_DEC, VALS(civic_address_what_values), 0x0, "Option 99: What", HFILL }},
+		{ &hf_bootp_option_civic_location_country, { "Country", "bootp.option.civic_location.country", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 99: Country", HFILL }},
+		{ &hf_bootp_option_civic_location_ca_type, { "CA Type",	"bootp.option.civic_location.ca_type", FT_UINT8, BASE_DEC, VALS(civic_address_type_values), 0x0, "Option 99: CA Type", HFILL }},
+		{ &hf_bootp_option_civic_location_ca_length, { "CA Length",	"bootp.option.civic_location.ca_length", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 99: CA Length", HFILL }},
+		{ &hf_bootp_option_civic_location_ca_value, { "CA Value", "bootp.option.civic_location.ca_value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 99: CA Value", HFILL }},
+		{ &hf_bootp_option_netinfo_parent_server_address, { "NetInfo Parent Server Address", "bootp.option.netinfo_parent_server_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 112: NetInfo Parent Server Address", HFILL }},
+		{ &hf_bootp_option_netinfo_parent_server_tag, { "NetInfo Parent Server Tag", "bootp.option.netinfo_parent_server_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 113: NetInfo Parent Server Tag", HFILL }},
+		{ &hf_bootp_option_dhcp_auto_configuration, { "DHCP Auto-Configuration", "bootp.option.dhcp_auto_configuration", FT_UINT8, BASE_DEC,  VALS(dhcp_autoconfig), 0x0, "Option 116: DHCP Auto-Configuration", HFILL }},
+		{ &hf_bootp_option_cl_dss_id_option, { "DSS_ID Type",	"bootp.option.cl_dss_id.option", FT_UINT8, BASE_DEC, VALS(cl_dss_id_type_vals), 0x0, "Option 123:CL DSS_ID Type", HFILL }},
+		{ &hf_bootp_option_cl_dss_id_len, { "DSS_ID Length",	"bootp.option.cl_dss_id.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 123:CL DSS_ID Length", HFILL }},
+		{ &hf_bootp_option_cl_dss_id, { "Country", "bootp.option.cl_dss_id", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 123:CL DSS_ID", HFILL }},
+		{ &hf_bootp_option_vi_class_cl_address_mode, { "CableLab Address Mode",	"bootp.option.vi_class.cl_address_mode", FT_UINT8, BASE_DEC, VALS(cablelab_ipaddr_mode_vals), 0x0, "Option 124: CableLab Address Mode", HFILL }},
+		{ &hf_bootp_option_vi_class_enterprise, { "Enterprise", "bootp.option.vi_class.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x00, "Option 124: Enterprise", HFILL }},
+		{ &hf_bootp_option_vi_class_data_length, { "CableLab Address Mode",	"bootp.option.vi_class.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 124: Length", HFILL }},
+		{ &hf_bootp_option_vi_class_data, { "NetInfo Parent Server Tag", "bootp.option.vi_class.data", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 124: Data", HFILL }},
+
+			{ &hf_bootp_option125_enterprise, { "Enterprise", "bootp.option.vi.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x00, "Option 125: Enterprise", HFILL }},
+			{ &hf_bootp_option125_value, { "Value",	"bootp.option.vi.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 125: Suboption value", HFILL }},
+			{ &hf_bootp_option125_value_8, { "Value",	"bootp.option.vi.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 125: Suboption 8-bit value", HFILL }},
+			{ &hf_bootp_option125_value_16, { "Value",	"bootp.option.vi.value", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 125: Suboption 16-bit value", HFILL }},
+			{ &hf_bootp_option125_value_ip_address, { "Value", "bootp.option.vi.value", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 125: Suboption IP address value", HFILL }},
+			{ &hf_bootp_option125_value_stringz, { "Value", "bootp.option.vi.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125: Suboption Z-String value", HFILL }},
+			{ &hf_bootp_option125_tr111_suboption, { "Option 125 Suboption",	"bootp.option.vi.tr111.suboption", FT_UINT8, BASE_DEC, VALS(option125_tr111_suboption_vals), 0x0, "Option 125:TR 111 Suboption", HFILL }},
+			{ &hf_bootp_option125_tr111_device_manufacturer_oui, { "DeviceManufacturerOUI", "bootp.option.vi.tr111.device_manufacturer_oui", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 1 DeviceManufacturerOUI", HFILL }},
+			{ &hf_bootp_option125_tr111_device_serial_number, { "DeviceSerialNumber", "bootp.option.vi.tr111.device_serial_number", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 2 DeviceSerialNumber", HFILL }},
+			{ &hf_bootp_option125_tr111_device_product_class, { "DeviceProductClass", "bootp.option.vi.tr111.device_product_class", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 3 DeviceProductClass", HFILL }},
+			{ &hf_bootp_option125_tr111_gateway_manufacturer_oui, { "GatewayManufacturerOUI", "bootp.option.vi.tr111.gateway_manufacturer_oui", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 4 GatewayManufacturerOUI", HFILL }},
+			{ &hf_bootp_option125_tr111_gateway_serial_number, { "GatewaySerialNumber", "bootp.option.vi.tr111.gateway_serial_number", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 5 GatewaySerialNumber", HFILL }},
+			{ &hf_bootp_option125_tr111_gateway_product_class, { "GatewayProductClass", "bootp.option.vi.tr111.gateway_product_class", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 125:TR 111 6 GatewayProductClass", HFILL }},
+
+			{ &hf_bootp_option125_cl_suboption, { "Option 125 Suboption",	"bootp.option.vi.cl.suboption", FT_UINT8, BASE_DEC, VALS(option125_cl_suboption_vals), 0x0, "Option 125:CL Suboption", HFILL }},
+			{ &hf_bootp_option125_cl_option_request, { "Option Request",	"bootp.option.vi.cl.option_request", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 125:CL 1 Option Request", HFILL }},
+			{ &hf_bootp_option125_cl_tftp_server_addresses, { "TFTP Server Addresses", "bootp.option.vi.cl.tftp_server_addresses", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 125:CL 2 TFTP Server Addresses", HFILL }},
+			{ &hf_bootp_option125_cl_erouter_container_option, { "eRouter Container Option",	"bootp.option.vi.cl.erouter_container_option", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 125:CL 3 eRouter Container Option", HFILL }},
+			{ &hf_bootp_option125_cl_mib_environment_indicator_option, { "MIB Environment Indicator Option",	"bootp.option.vi.cl.suboption", FT_UINT8, BASE_DEC, VALS(pkt_mib_env_ind_opt_vals), 0x0, "Option 125:CL 4 MIB Environment Indicator Option", HFILL }},
+			{ &hf_bootp_option125_cl_modem_capabilities, { "Modem Capabilities",	"bootp.option.vi.cl.modem_capabilities", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 125:CL 5 Modem Capabilities", HFILL }},
+
+		{ &hf_bootp_option_subnet_selection_option, { "Subnet Selection Option", "bootp.option.subnet_selection_option", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 118: Subnet Selection Option", HFILL }},
+		{ &hf_bootp_option_lost_server_domain_name, { "LoST Server Domain Name", "bootp.option.lost_server_domain_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 137: LoST Server Domain Name", HFILL }},
+		{ &hf_bootp_option_capwap_access_controller, { "CAPWAP Access Controllers", "bootp.option.capwap_access_controller", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 138: CAPWAP Access Controllers", HFILL }},
+		{ &hf_bootp_option_tftp_server_address, { "TFTP Server Address", "bootp.option.tftp_server_address", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 150: TFTP Server Address", HFILL }},
+		{ &hf_bootp_option_6RD_ipv4_mask_len, { "6RD IPv4 Mask Length",	"bootp.option.6RD.ipv4_mask_len", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 212: 6RD IPv4 Mask Length", HFILL }},
+		{ &hf_bootp_option_6RD_prefix_len, { "6RD Prefix Length",	"bootp.option.6RD.prefix_len", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 212: 6RD Prefix Length", HFILL }},
+		{ &hf_bootp_option_6RD_prefix, { "6RD Prefix", "bootp.option.6RD.prefix", FT_IPv6, BASE_NONE, NULL, 0x00, "Option 212: 6RD Prefix", HFILL }},
+		{ &hf_bootp_option_6RD_border_relay_ip, { "Border Relay IP", "bootp.option.6RD.border_relay_ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 212: Border Relay IP", HFILL }},
+		{ &hf_bootp_option_private_proxy_autodiscovery, { "Private/Proxy autodiscovery", "bootp.option.private_proxy_autodiscovery", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 252: Private/Proxy autodiscovery", HFILL }},
+		{ &hf_bootp_option_end, { "Option End",	"bootp.option.end", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 255: End", HFILL }},
+		{ &hf_bootp_option_end_overload, { "Option End (Overload)",	"bootp.option.end", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 255: End (Overload)", HFILL }},
+	};
+
+	static uat_field_t bootp_uat_flds[] = {
+		UAT_FLD_DEC(uat_bootp_records, opt, "Option number", "Custom Option Number"),
+		UAT_FLD_CSTRING(uat_bootp_records, text, "Option Name", "Custom Option Name"),
+		UAT_FLD_VS(uat_bootp_records, ftype, "Option type", bootp_custom_type_vals, "Option datatype"),
+		UAT_END_FIELDS
 	};
 
 	static gint *ett[] = {
 		&ett_bootp,
 		&ett_bootp_flags,
 		&ett_bootp_option,
+		&ett_bootp_option43_suboption,
+		&ett_bootp_option63_suboption,
+		&ett_bootp_option82_suboption,
+		&ett_bootp_option82_suboption9,
+		&ett_bootp_option125_suboption,
 		&ett_bootp_fqdn,
 	};
 
@@ -5079,13 +5330,27 @@ proto_register_bootp(void)
 				       10,
 				       &pkt_ccc_option);
 
-	prefs_register_string_preference(bootp_module, "displayasstring",
-					 "Custom BootP/DHCP Options (Excl. suboptions)",
-					 "Format: OptionNumber,OptionName,OptionType[;Format].\n"
-					 "Example: 176,MyOption,string;242,NewOption,ipv4.\n"
-					 "OptionNumbers: 1-254, but no special options. "
-					 "OptionType: string, ipv4 and bytes",
-					 &pref_optionstring );
+	prefs_register_obsolete_preference(bootp_module, "displayasstring");
+
+	bootp_uat = uat_new("Custom BootP/DHCP Options (Excl. suboptions)",
+			sizeof(uat_bootp_record_t),  /* record size */
+			"custom_bootp",               /* filename */
+			TRUE,                       /* from_profile */
+			(void*) &uat_bootp_records,  /* data_ptr */
+			&num_bootp_records_uat,           /* numitems_ptr */
+			UAT_CAT_GENERAL,             /* category */
+			NULL,                       /* help */
+			uat_bootp_record_copy_cb,        /* copy callback */
+			uat_bootp_record_update_cb,      /* update callback */
+			uat_bootp_record_free_cb,        /* free callback */
+			NULL,                       /* post update callback */
+			bootp_uat_flds);             /* UAT field definitions */
+
+	prefs_register_uat_preference(bootp_module, 
+								   "custom_bootp_table",
+								   "Custom BootP/DHCP Options (Excl. suboptions)",
+								   "Custom BootP/DHCP Options (Excl. suboptions)",
+								   bootp_uat);
 }
 
 void
