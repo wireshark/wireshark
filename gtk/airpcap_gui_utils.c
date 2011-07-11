@@ -254,12 +254,7 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
 {
     GtkTreeIter iter;
 
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
-#else
-    gtk_list_store_append(key_list_store, &iter);
-    gtk_list_store_set(key_list_store, &iter,
-#endif
         KL_COL_TYPE, type,
         KL_COL_KEY, key,
         KL_COL_SSID, ssid,
@@ -296,12 +291,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
 
         if(curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
         {
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append(key_list_store, &iter);
-            gtk_list_store_set(key_list_store, &iter,
-#endif
                 KL_COL_TYPE, AIRPCAP_WEP_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
                 KL_COL_SSID, "",
@@ -314,12 +304,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
             else
                 s = "";
 
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append(key_list_store, &iter);
-            gtk_list_store_set(key_list_store, &iter,
-#endif
                 KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
                 KL_COL_SSID, s,
@@ -328,12 +313,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
         }
         else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
         {
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append(key_list_store, &iter);
-            gtk_list_store_set(key_list_store, &iter,
-#endif
                 KL_COL_TYPE, AIRPCAP_WPA_BIN_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
                 KL_COL_SSID, "",

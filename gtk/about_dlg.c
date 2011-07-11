@@ -285,10 +285,8 @@ about_wireshark_page_new(void)
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 
-#if GTK_CHECK_VERSION(2,9,0)
   g_object_set(gtk_widget_get_settings(main_vb),
     "gtk-label-select-on-focus", FALSE, NULL);
-#endif
 
   about_wireshark(top_level, main_vb);
 

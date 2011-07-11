@@ -103,10 +103,8 @@ GtkWidget* create_list(void)
     list_view = GTK_TREE_VIEW(list);
     sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, OP_CODE_COLUMN, GTK_SORT_ASCENDING);
@@ -260,12 +258,7 @@ ansi_map_stat_draw(
              * :
              * should generally be preferred when inserting rows in a sorted list store.
              */
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append  (list_store, &iter);
-            gtk_list_store_set  (list_store, &iter,
-#endif
                OP_CODE_COLUMN,      ansi_map_opr_code_strings[i].value,
                OP_CODE_NAME_COLUMN, ansi_map_opr_code_strings[i].strptr,
                COUNT_COLUMN,        (guint)stat_p->message_type[ansi_map_opr_code_strings[i].value],

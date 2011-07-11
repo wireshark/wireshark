@@ -2204,10 +2204,8 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
 
     sortable = GTK_TREE_SORTABLE(key_list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(key_list), TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(key_list), FALSE);
