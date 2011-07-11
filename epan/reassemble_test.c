@@ -1654,8 +1654,6 @@ main(int argc _U_, char **argv _U_)
 
     /* initialise stuff */
     emem_init();
-    tvbuff_init();
-    reassemble_init();
 
     /* a tvbuff for testing with */
     data = g_malloc(DATA_LEN);

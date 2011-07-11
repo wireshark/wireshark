@@ -274,7 +274,7 @@ run_tests(void)
 	tvbuff_t	*tvb_comp[6];
 	guint		comp_length[6];
 	int		len;
-	
+
 	for (i = 0; i < 3; i++) {
 		small[i] = g_new(guint8, 16);
 
@@ -340,7 +340,7 @@ run_tests(void)
 
 	/* Composite tvbuffs don't work at the moment -- tests commented out until
 	 * they do. */
-	
+
 	/* One Real */
 	printf("Making Composite 0\n");
 	tvb_comp[0]		= tvb_new_composite();
@@ -427,9 +427,7 @@ int
 main(void)
 {
 	except_init();
-	tvbuff_init();
 	run_tests();
-	tvbuff_cleanup();
 	except_deinit();
 	exit(failed?1:0);
 }

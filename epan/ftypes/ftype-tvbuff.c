@@ -28,14 +28,10 @@
 #include <ftypes-int.h>
 #include <string.h>
 
-#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
-# ifdef HAVE_LIBPCRE
+#ifdef HAVE_LIBPCRE
 # include <pcre.h>
-# endif
-#define CMP_MATCHES cmp_matches
-#else
-#define CMP_MATCHES NULL
 #endif
+#define CMP_MATCHES cmp_matches
 
 #define tvb_is_private	fvalue_gboolean1
 
@@ -253,7 +249,7 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 
 	TRY {
 		guint	a_len = tvb_length(a);
-	
+
 		if (a_len != tvb_length(b)) {
 			return TRUE;
 		}
@@ -277,7 +273,7 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 	TRY {
 		guint	a_len = tvb_length(a);
 		guint	b_len = tvb_length(b);
- 
+
 		if (a_len > b_len) {
 			return TRUE;
 		}
@@ -301,7 +297,7 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	
+
 	TRY {
 		guint	a_len = tvb_length(a);
 		guint	b_len = tvb_length(b);
@@ -333,7 +329,7 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 	TRY {
 		guint	a_len = tvb_length(a);
 		guint	b_len = tvb_length(b);
-	
+
 		if (a_len < b_len) {
 			return TRUE;
 		}
@@ -444,7 +440,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 	return FALSE;
 }
-#elif GLIB_CHECK_VERSION(2,14,0) /* GRegex */
+#else /* GRegex */
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {

@@ -49,14 +49,6 @@ typedef struct _dcerpc_fragment_key {
 	e_uuid_t act_id;
 } dcerpc_fragment_key;
 
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-static GMemChunk *fragment_key_chunk = NULL;
-static GMemChunk *fragment_data_chunk = NULL;
-static GMemChunk *dcerpc_fragment_key_chunk = NULL;
-static int fragment_init_count = 200;
-#endif
-
 static void LINK_FRAG(fragment_data *fd_head,fragment_data *fd)
 {
 	fragment_data *fd_i;
@@ -74,11 +66,7 @@ static void LINK_FRAG(fragment_data *fd_head,fragment_data *fd)
 static void *fragment_key_copy(const void *k)
 {
 	const fragment_key* key = (const fragment_key*) k;
-#if GLIB_CHECK_VERSION(2,10,0)
 	fragment_key *new_key = g_slice_new(fragment_key);
-#else
-	fragment_key *new_key = g_mem_chunk_alloc(fragment_key_chunk);
-#endif
 
 	COPY_ADDRESS(&new_key->src, &key->src);
 	COPY_ADDRESS(&new_key->dst, &key->dst);
@@ -91,11 +79,7 @@ static void *dcerpc_fragment_key_copy(const void *k)
 {
 	const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
 
-#if GLIB_CHECK_VERSION(2,10,0)
 	dcerpc_fragment_key *new_key = g_slice_new(dcerpc_fragment_key);
-#else
-	dcerpc_fragment_key *new_key = g_mem_chunk_alloc(dcerpc_fragment_key_chunk);
-#endif
 
 	COPY_ADDRESS(&new_key->src, &key->src);
 	COPY_ADDRESS(&new_key->dst, &key->dst);
@@ -215,46 +199,22 @@ reassembled_hash(gconstpointer k)
  * [or dcerpc_fragment_free_key()] is called (as a consequence of
  * returning TRUE from this function).
  * If mem_chunks are used, free the address data to which the key
- * refers; the the actual key and value structures get freed
- * by "reassemble_cleanup()").
+ * refers.
  */
 static gboolean
 free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
 {
 	fragment_data *fd_head, *tmp_fd;
 
-#if GLIB_CHECK_VERSION(2,10,0)
 	/* If Glib version => 2.10 we do g_hash_table_new_full() and supply a function
 	 * to free the key and the addresses.
 	 */
-#else
-	fragment_key *key = key_arg;
-	/*
-	 * Grr.  I guess the theory here is that freeing
-	 * something sure as heck modifies it, so you
-	 * want to ban attempts to free it, but, alas,
-	 * if we make the "data" field of an "address"
-	 * structure not a "const", the compiler whines if
-	 * we try to make it point into the data for a packet,
-	 * as that's a "const" array (and should be, as dissectors
-	 * shouldn't trash it).
-	 *
-	 * So we cast the complaint into oblivion, and rely on
-	 * the fact that these addresses are known to have had
-	 * their data mallocated, i.e. they don't point into,
-	 * say, the middle of the data for a packet.
-	 */
-	g_free((gpointer)key->src.data);
-	g_free((gpointer)key->dst.data);
-#endif
 	for (fd_head = value; fd_head != NULL; fd_head = tmp_fd) {
 		tmp_fd=fd_head->next;
 
 		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
 			g_free(fd_head->data);
-#if GLIB_CHECK_VERSION(2,10,0)
 		g_slice_free(fragment_data, fd_head);
-#endif
 	}
 
 	return TRUE;
@@ -268,11 +228,7 @@ static fragment_data *new_head(const guint32 flags)
 	* 'datalen' then we don't have to change the head of the list
 	* even if we want to keep it sorted
 	*/
-#if GLIB_CHECK_VERSION(2,10,0)
 	fd_head=g_slice_new0(fragment_data);
-#else
-	fd_head=g_mem_chunk_alloc0(fragment_data_chunk);
-#endif
 
 	fd_head->flags=flags;
 	return fd_head;
@@ -281,7 +237,6 @@ static fragment_data *new_head(const guint32 flags)
 /*
  * For a reassembled-packet hash table entry, free the fragment data
  * to which the value refers.
- * (The actual value structures get freed by "reassemble_cleanup()".)
  */
 static gboolean
 free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
@@ -307,7 +262,6 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 	return TRUE;
 }
 
-#if GLIB_CHECK_VERSION(2,10,0)
 static void
 fragment_free_key(void *ptr)
 {
@@ -339,7 +293,7 @@ dcerpc_fragment_free_key(void *ptr)
 		g_slice_free(dcerpc_fragment_key, key);
 	}
 }
-#endif
+
 /*
  * Initialize a fragment table.
  */
@@ -356,22 +310,15 @@ fragment_table_init(GHashTable **fragment_table)
 		 * the keys are freed by calling fragment_free_key()
 		 * and the values are freed in free_all_fragments().
 		 *
-		 * If mem_chunks are used, the key and value data
-		 * are freed by "reassemble_cleanup()". free_all_fragments()
+		 * free_all_fragments()
 		 * will free the adrress data associated with the key
 		 */
 		g_hash_table_foreach_remove(*fragment_table,
 				free_all_fragments, NULL);
 	} else {
-#if GLIB_CHECK_VERSION(2,10,0)
 		/* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new_full(fragment_hash,
 							fragment_equal, fragment_free_key, NULL);
-#else
-		/* The fragment table does not exist. Create it */
-		*fragment_table = g_hash_table_new(fragment_hash,
-				fragment_equal);
-#endif
 	}
 }
 
@@ -388,22 +335,15 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 		 * the keys are freed by calling dcerpc_fragment_free_key()
 		 * and the values are freed in free_all_fragments().
 		 *
-		 * If mem_chunks are used, the key and value data
-		 * are freed by "reassemble_cleanup()". free_all_fragments()
+		 * free_all_fragments()
 		 * will free the adrress data associated with the key
 		 */
 		   g_hash_table_foreach_remove(*fragment_table,
 						   free_all_fragments, NULL);
 	} else {
-#if GLIB_CHECK_VERSION(2,10,0)
 		   /* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new_full(dcerpc_fragment_hash,
 							dcerpc_fragment_equal, dcerpc_fragment_free_key, NULL);
-#else
-		/* The fragment table does not exist. Create it */
-		   *fragment_table = g_hash_table_new(dcerpc_fragment_hash,
-						   dcerpc_fragment_equal);
-#endif
 	}
 }
 
@@ -418,8 +358,7 @@ reassembled_table_init(GHashTable **reassembled_table)
 		 * The reassembled-packet hash table exists.
 		 *
 		 * Remove all entries and free reassembled packet
-		 * data for each entry.  (The key data is freed
-		 * by "reassemble_cleanup()".)
+		 * data for each entry.
 		 */
 		g_hash_table_foreach_remove(*reassembled_table,
 				free_all_reassembled_fragments, NULL);
@@ -428,48 +367,6 @@ reassembled_table_init(GHashTable **reassembled_table)
 		*reassembled_table = g_hash_table_new(reassembled_hash,
 				reassembled_equal);
 	}
-}
-
-/*
- * Free up all space allocated for fragment keys and data and
- * reassembled keys.
- */
-void
-reassemble_cleanup(void)
-{
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	if (fragment_key_chunk != NULL)
-		g_mem_chunk_destroy(fragment_key_chunk);
-	if (dcerpc_fragment_key_chunk != NULL)
-		g_mem_chunk_destroy(dcerpc_fragment_key_chunk);
-	if (fragment_data_chunk != NULL)
-		g_mem_chunk_destroy(fragment_data_chunk);
-
-	fragment_key_chunk = NULL;
-	dcerpc_fragment_key_chunk = NULL;
-	fragment_data_chunk = NULL;
-#endif
-}
-
-void
-reassemble_init(void)
-{
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
-		sizeof(fragment_key),
-		fragment_init_count * sizeof(fragment_key),
-		G_ALLOC_AND_FREE);
-	dcerpc_fragment_key_chunk = g_mem_chunk_new("dcerpc_fragment_key_chunk",
-		sizeof(dcerpc_fragment_key),
-		fragment_init_count * sizeof(dcerpc_fragment_key),
-		G_ALLOC_AND_FREE);
-	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
-		sizeof(fragment_data),
-		fragment_init_count * sizeof(fragment_data),
-		G_ALLOC_ONLY);
-#endif
 }
 
 /* This function cleans up the stored state and removes the reassembly data and

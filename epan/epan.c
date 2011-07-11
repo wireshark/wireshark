@@ -101,7 +101,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #elif defined(HAVE_LIBGCRYPT)
 	gcry_check_version(NULL);
 #endif
-	tvbuff_init();
 	tap_init();
 	prefs_init();
 	proto_init(register_all_protocols_func, register_all_handoffs_func,
@@ -129,7 +128,6 @@ epan_cleanup(void)
 	prefs_cleanup();
 	packet_cleanup();
 	oid_resolv_cleanup();
-	tvbuff_cleanup();
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_deinit();
 #endif

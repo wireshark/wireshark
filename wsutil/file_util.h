@@ -52,9 +52,7 @@ extern "C" {
  *  must tweak a given filename from UTF8 to UTF16 as we use NT Unicode (Win9x
  *  - now unsupported - used locale based encoding here).
  */
-#if GLIB_CHECK_VERSION(2,6,0)
 
-/* Win32, GLib 2.6 or later */
 #include <stdio.h>
 
 extern int ws_stdio_open (const gchar *filename, int flags, int mode);
@@ -75,20 +73,6 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_remove	ws_stdio_remove
 #define ws_fopen	ws_stdio_fopen
 #define ws_freopen	ws_stdio_freopen
-
-#else /* GLIB_CHECK_VERSION(2,6,0) */
-
-/* Win32, GLib prior to 2.6 */
-#define ws_open			_open
-#define ws_rename		rename
-#define ws_mkdir(dir,mode)	_mkdir(dir)	/* _mkdir() doesn't have a permission bits argument */
-#define ws_stat64		_stati64	/* use _stati64 for 64-bit size support */
-#define ws_unlink		_unlink
-#define ws_remove		remove
-#define ws_fopen		fopen
-#define ws_freopen		freopen
-
-#endif /* GLIB_CHECK_VERSION(2,6,0) */
 
 /*
  * These routines don't take pathnames, so they're the same regardless

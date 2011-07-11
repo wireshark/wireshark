@@ -139,12 +139,6 @@ init_dissection(void)
 	/* Initialize protocol-specific variables. */
 	g_slist_foreach(init_routines, &call_init_routine, NULL);
 
-	/* Initialize the common data structures for fragment reassembly.
-	   Must be done *after* calling init routines, as those routines
-	   may free up space for fragments, which they find by using the
-	   data structures that "reassemble_cleanup()" frees. */
-	reassemble_init();
-
 	/* Initialize the stream-handling tables */
 	stream_init();
 
@@ -167,12 +161,6 @@ cleanup_dissection(void)
 	/* TODO: Introduce cleanup_routines */
 	/* Cleanup protocol-specific variables. */
 	g_slist_foreach(init_routines, &call_init_routine, NULL);
-
-	/* Cleanup the common data structures for fragment reassembly.
-	   Must be done *after* calling init routines, as those routines
-	   may free up space for fragments, which they find by using the
-	   data structures that "reassemble_cleanup()" frees. */
-	reassemble_cleanup();
 
 	/* Cleanup the stream-handling tables */
 	stream_cleanup();

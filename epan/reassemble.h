@@ -99,7 +99,6 @@ typedef struct _fragment_data {
 /* a function for copying hash keys */
 typedef void *(*fragment_key_copier)(const void *key);
 
-
 /*
  * Initialize a fragment table.
  */
@@ -110,16 +109,6 @@ extern void dcerpc_fragment_table_init(GHashTable **fragment_table);
  * Initialize a reassembled-packet table.
  */
 extern void reassembled_table_init(GHashTable **reassembled_table);
-
-/*
- * Free up all space allocated for fragment keys and data.
- */
-void reassemble_cleanup(void);
-
-/*
- * Initialise fragment keys and data.
- */
-void reassemble_init(void);
 
 /*
  * This function adds a new fragment to the fragment hash table.

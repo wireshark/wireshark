@@ -2128,15 +2128,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case HDR_CONTENT_LENGTH:
 			errno = 0;
-#if GLIB_CHECK_VERSION(2,12,0)
 			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
-#elif defined(HAVE_STRTOLL)
-			eh_ptr->content_length = strtoll(value, &p, 10);
-#else
-			/* Punt and grab a 32-bit value */
-			eh_ptr->content_length = strtol(value, &p, 10);
-#endif
-
 			up = (guchar *)p;
 			if (eh_ptr->content_length < 0 ||
 			    p == value ||

@@ -62,7 +62,7 @@ enum ftenum {
 	FT_PCRE,	/* a compiled Perl-Compatible Regular Expression object */
 	FT_GUID,	/* GUID, UUID */
 	FT_OID,		/* OBJECT IDENTIFIER */
-	FT_EUI64,	
+	FT_EUI64,
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -170,7 +170,7 @@ typedef struct _fvalue_t {
 		tvbuff_t	*tvb;
 #ifdef HAVE_LIBPCRE
 		pcre_tuple_t	*re;
-#elif GLIB_CHECK_VERSION(2,14,0) /* Try falling back to GRegex. */
+#else /* Try falling back to GRegex. */
 		GRegex	        *re;
 #endif /* HAVE_LIBPCRE */
 	} value;

@@ -594,7 +594,6 @@ getenv_utf8(const char *varname)
 	envvar = getenv(varname);
 
 	/* since GLib 2.6 we need an utf8 version of the filename */
-#if GLIB_CHECK_VERSION(2,6,0)
 	/* using the wide char version of getenv should work under all circumstances */
 
 	/* convert given varname to utf16, needed by _wgetenv */
@@ -613,8 +612,6 @@ getenv_utf8(const char *varname)
 	/* convert value to utf8 */
 	envvar = g_utf16_to_utf8(envvarw, -1, NULL, NULL, NULL);
 	/* XXX - memleak */
-#endif
 
 	return envvar;
 }
-

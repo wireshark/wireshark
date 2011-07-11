@@ -1184,13 +1184,7 @@ check_test(stnode_t *st_node)
 			check_relation("contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_MATCHES:
-#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
-			check_relation("matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);
-#else
-			dfilter_fail("This Wireshark version does not support the \"matches\" operation.");
-			THROW(TypeError);
-#endif
-			break;
+			check_relation("matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);			break;
 
 		default:
 			g_assert_not_reached();

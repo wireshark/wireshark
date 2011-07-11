@@ -39,7 +39,7 @@
 
 #include <pcre.h>
 
-/* Create a pcre_tuple_t object based on the given string pattern */ 
+/* Create a pcre_tuple_t object based on the given string pattern */
 static pcre_tuple_t *
 pcre_tuple_new(const char *value)
 {
@@ -216,7 +216,7 @@ ftype_register_pcre(void)
 	ftype_register(FT_PCRE, &pcre_type);
 }
 
-#elif GLIB_CHECK_VERSION(2,14,0) /* No HAVE_LIBPCRE. Try falling back to GRegex. */
+#else /* No HAVE_LIBPCRE. Try falling back to GRegex. */
 
 
 #include <glib.h>
@@ -351,53 +351,8 @@ ftype_register_pcre(void)
 	ftype_register(FT_PCRE, &pcre_type);
 }
 
-#else /* No HAVE_LIBPCRE or GRegex */
-
-void
-ftype_register_pcre(void)
-{
-	static ftype_t pcre_type = {
-		FT_PCRE,		/* ftype */
-		"FT_PCRE",			/* name */
-		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
-		0,				/* wire_size */
-		NULL,				/* new_value */
-		NULL,				/* free_value */
-		NULL,				/* val_from_unparsed */
-		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
-
-		NULL,				/* set_value */
-		NULL,				/* set_value_uinteger */
-		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
-
-		NULL,				/* get_value */
-		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */ 
-
-		NULL,				/* cmp_eq */
-		NULL,				/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
-		NULL,				/* cmp_bitwise_and */
-		NULL,				/* cmp_contains */
-		NULL,				/* cmp_matches */
-
-		NULL,				/* len */
-		NULL,				/* slice */
-	};
-	ftype_register(FT_PCRE, &pcre_type);
-}
-
 #endif /* HAVE_LIBPCRE */
-	     
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -410,4 +365,3 @@ ftype_register_pcre(void)
  * vi: set shiftwidth=4 tabstop=4 noexpandtab
  * :indentSize=4:tabSize=4:noTabs=false:
  */
-

@@ -51,7 +51,6 @@
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 #include "register.h"
-#include "g_gnuc.h"
 
 #ifdef __cplusplus
 extern "C" {

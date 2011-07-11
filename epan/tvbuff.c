@@ -60,34 +60,6 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 static const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
 
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-/* We dole out tvbuff's from this memchunk. */
-static GMemChunk *tvbuff_mem_chunk = NULL;
-#endif
-
-void
-tvbuff_init(void)
-{
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	if (!tvbuff_mem_chunk)
-		tvbuff_mem_chunk = g_mem_chunk_create(tvbuff_t, 20, G_ALLOC_AND_FREE);
-#endif
-}
-
-void
-tvbuff_cleanup(void)
-{
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	if (tvbuff_mem_chunk)
-		g_mem_chunk_destroy(tvbuff_mem_chunk);
-
-	tvbuff_mem_chunk = NULL;
-#endif
-}
-
 static void
 tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 {
@@ -136,11 +108,7 @@ tvb_new(const tvbuff_type type)
 {
 	tvbuff_t	*tvb;
 
-#if GLIB_CHECK_VERSION(2,10,0)
 	tvb = g_slice_new(tvbuff_t);
-#else
-	tvb = g_chunk_new(tvbuff_t, tvbuff_mem_chunk);
-#endif
 
 	tvb_init(tvb, type);
 
@@ -210,11 +178,7 @@ tvb_free(tvbuff_t* tvb)
 			g_slist_free(tvb->used_in);
 		}
 
-#if GLIB_CHECK_VERSION(2,10,0)
 		g_slice_free(tvbuff_t, tvb);
-#else
-		g_chunk_free(tvb, tvbuff_mem_chunk);
-#endif
 	}
 }
 

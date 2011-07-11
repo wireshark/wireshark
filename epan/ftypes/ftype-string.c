@@ -28,14 +28,10 @@
 #include <ftypes-int.h>
 #include <string.h>
 
-#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
-# ifdef HAVE_LIBPCRE
+#ifdef HAVE_LIBPCRE
 # include <pcre.h>
-# endif
-#define CMP_MATCHES cmp_matches
-#else
-#define CMP_MATCHES NULL
 #endif
+#define CMP_MATCHES cmp_matches
 
 #include <ctype.h>
 
@@ -288,7 +284,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 	return FALSE;
 }
-#elif GLIB_CHECK_VERSION(2,14,0) /* GRegex */
+#else /* GRegex */
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {

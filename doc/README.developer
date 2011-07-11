@@ -434,10 +434,11 @@ cause a trap, which will, at best, result in the OS slowly performing an
 unaligned access for you, and will, on at least some platforms, cause
 the program to be terminated.
 
-Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer.
-If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions
-newer than 2.4/2.4 then use "#if GTK_CHECK_VERSION(...)" to conditionally
-compile code using that mechanism.
+Wireshark supports platforms with GLib 2.14[.x]/GTK+ 2.12[.x] or newer.
+If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions newer
+than 2.14/2.12 then use "#if GLIB_CHECK_VERSION(...)" or "#if
+GTK_CHECK_VERSION(...)" to conditionally compile code using that
+mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever

@@ -81,16 +81,6 @@ typedef struct tvbuff tvbuff_t;
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
-
-/** "class" initialization. Called once during execution of program
- * so that tvbuff.c can initialize its data. */
-extern void tvbuff_init(void);
-
-/** "class" cleanup. Called once during execution of program
- * so that tvbuff.c can clean up its data. */
-extern void tvbuff_cleanup(void);
-
-
 /** Returns a pointer to a newly initialized tvbuff. Note that
  * tvbuff's of types TVBUFF_SUBSET and TVBUFF_COMPOSITE
  * require further initialization via the appropriate functions */

@@ -801,7 +801,6 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
     g_snprintf(num, sizeof(num), "%d", expert_data->packet_num);
 #if 0
     This does not have a big performance improvment :(
-if GTK_CHECK_VERSION(2,10,0)
     gtk_tree_store_insert_with_values   (store,
                        &new_iter,   /* *iter */
                        &procedure->iter, /* *parent*/
