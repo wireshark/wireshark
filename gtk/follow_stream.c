@@ -262,11 +262,8 @@ static void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t      	*follow_info = data;
-	GtkTooltips		*tooltips;
 	GtkWidget		*find_dlg_w, *main_vb, *buttons_row, *find_lb;
 	GtkWidget		*find_hb, *find_text_box, *find_bt, *cancel_bt;
-
-	tooltips = gtk_tooltips_new();
 
 	if (follow_info->find_dlg_w != NULL) {
 		/* There's already a dialog box; reactivate it. */
@@ -305,7 +302,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	/* Find field */
 	find_text_box = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(find_hb), find_text_box, FALSE, FALSE, 0);
-	gtk_tooltips_set_tip(tooltips, find_text_box, "Text to search for (case sensitive)", NULL);
+	gtk_widget_set_tooltip_text(find_text_box, "Text to search for (case sensitive)");
 	gtk_widget_show(find_text_box);
 
 	/* Buttons row */
@@ -719,7 +716,6 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	GtkWidget	*hbox, *bbox, *button, *radio_bt;
 	GtkWidget	*stream_fr, *stream_vb, *direction_hbox;
 	GtkWidget	*stream_cmb;
-	GtkTooltips	*tooltips;
 	follow_stats_t stats;
 
 	follow_info->show_type = SHOW_RAW;
@@ -735,8 +731,6 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_container_set_border_width(GTK_CONTAINER(streamwindow), 6);
 
 	/* setup the container */
-	tooltips = gtk_tooltips_new ();
-
 	vbox = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
@@ -790,8 +784,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 			 G_CALLBACK(follow_stream_direction_changed),
 			 follow_info);
 
-	gtk_tooltips_set_tip (tooltips, stream_cmb,
-			      "Select the stream direction to display", NULL);
+	gtk_widget_set_tooltip_text(stream_cmb, "Select the stream direction to display");
 	gtk_box_pack_start(GTK_BOX(direction_hbox), stream_cmb, TRUE, TRUE, 0);
 
 	/* stream hbox */
@@ -801,20 +794,20 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	/* Create Find Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
 	g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
-	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
+	gtk_widget_set_tooltip_text(button, "Find text in the displayed content");
 	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
 	/* Create Save As Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	g_signal_connect(button, "clicked", G_CALLBACK(follow_save_as_cmd_cb), follow_info);
-	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed", NULL);
+	gtk_widget_set_tooltip_text(button, "Save the content as currently displayed");
 	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
 	/* Create Print Button */
-        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
-        g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
-        gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
-        gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+    button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
+    g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
+    gtk_widget_set_tooltip_text(button, "Print the content as currently displayed");
+    gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
 	/* Stream to show */
 	follow_stats(&stats);
@@ -823,7 +816,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	/* ASCII radio button */
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
-	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"ASCII\" format", NULL);
+	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"ASCII\" format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_ASCII));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -835,7 +828,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "EBCDIC");
-	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"EBCDIC\" format", NULL);
+	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"EBCDIC\" format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_EBCDIC));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -847,7 +840,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Hex Dump");
-	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
+	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"Hexdump\" format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_HEXDUMP));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -859,7 +852,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "C Arrays");
-	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
+	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"C Array\" format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_CARRAY));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -871,7 +864,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Raw");
-	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format", NULL);
+	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_RAW));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -887,15 +880,13 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 
 	button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FILTER_OUT_STREAM);
-	gtk_tooltips_set_tip (tooltips, button,
-			      "Build a display filter which cuts this stream from the capture", NULL);
+	gtk_widget_set_tooltip_text(button, "Build a display filter which cuts this stream from the capture");
 	g_signal_connect(button, "clicked", G_CALLBACK(follow_filter_out_stream),
 		       follow_info);
 
 	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
-	gtk_tooltips_set_tip (tooltips, button,
-			      "Close the dialog and keep the current display filter", NULL);
+	gtk_widget_set_tooltip_text(button, "Close the dialog and keep the current display filter");
 	gtk_widget_grab_default(button);
 
 	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

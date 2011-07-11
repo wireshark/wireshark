@@ -195,8 +195,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     GtkWidget	    *rule_w, *vbox, *txt_scrollw, *text;
     GtkWidget       *label,  *product_combo_box;
     GtkWidget	    *hbox,   *button_hbox, *button;
-    GtkTooltips     *tooltips;
-    rule_info_t	    *rule_info;
+	rule_info_t	    *rule_info;
     packet_info     *pinfo = &cfile.edt->pi;
     guint i;
 
@@ -218,8 +217,6 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_container_set_border_width(GTK_CONTAINER(rule_w), 6);
 
     /* setup the container */
-    tooltips = gtk_tooltips_new ();
-
     vbox = gtk_vbox_new(FALSE, 6);
     gtk_container_add(GTK_CONTAINER(rule_w), vbox);
 
@@ -281,15 +278,15 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     /* Create Copy Button */
     button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_COPY);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_copy_cmd_cb), rule_info);
-    gtk_tooltips_set_tip (tooltips, button, "Copy rule to clipboard ", NULL);
+	gtk_widget_set_tooltip_text(button, "Copy rule to clipboard");
 
     /* Create Save Button */
     button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_SAVE);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_save_as_cmd_cb), rule_info);
-    gtk_tooltips_set_tip (tooltips, button, "Save the rule as currently displayed ", NULL);
+	gtk_widget_set_tooltip_text(button, "Save the rule as currently displayed");
 
     button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_CANCEL);
-    gtk_tooltips_set_tip (tooltips, button, "Cancel the dialog", NULL);
+	gtk_widget_set_tooltip_text(button, "Cancel the dialog");
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
 
     button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
