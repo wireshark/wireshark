@@ -1390,9 +1390,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, FALSE);
 			}
-
-			consumed = i;
 		}
+		consumed = i;
 		return consumed;
 
 	case 255:	/* End Option */
