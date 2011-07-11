@@ -120,12 +120,12 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
     }
     if(ferror(text_file)) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",
-                    absolute_path, strerror(errno));
+                    absolute_path, g_strerror(errno));
     }
     fclose(text_file);
   } else {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
-                    absolute_path, strerror(errno));
+                    absolute_path, g_strerror(errno));
   }
 }
 

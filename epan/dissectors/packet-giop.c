@@ -288,9 +288,6 @@
 #include <ctype.h>
 #include <glib.h>
 #include <math.h>
-#ifdef NEED_STRERROR_H
-#include "wsutil/strerror.h"
-#endif
 
 #include "isprint.h"
 
@@ -1321,7 +1318,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
 
   if (fp == NULL) {
     if (errno == EACCES)
-      fprintf(stderr, "Error opening file %s for reading: %s\n", name, strerror(errno));
+      fprintf(stderr, "Error opening file %s for reading: %s\n", name, g_strerror(errno));
     return;
   }
 

@@ -676,7 +676,7 @@ process_cap_file(wtap *wth, const char *filename)
   if (size == -1) {
     fprintf(stderr,
             "capinfos: Can't get size of \"%s\": %s.\n",
-            filename, strerror(err));
+            filename, g_strerror(err));
     g_free(cf_info.encap_counts);
     return 1;
   }

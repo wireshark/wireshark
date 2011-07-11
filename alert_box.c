@@ -75,7 +75,7 @@ read_failure_alert_box(const char *filename, int err)
 {
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "An error occurred while reading from the file \"%s\": %s.",
-                filename, strerror(err));
+                filename, g_strerror(err));
 }
 
 /*

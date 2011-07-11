@@ -503,7 +503,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	} else {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Error writing to print command: %s",
-			      strerror(errno));
+			      g_strerror(errno));
 	}
 	/* XXX - cancel printing? */
 	destroy_print_stream(stream);
@@ -941,7 +941,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	case FOLLOW_TCP :
 		i = ws_unlink(follow_info->data_out_filename);
 		if(i != 0) {
-			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);
+			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, g_strerror(errno), errno);
 		}
 		break;
 

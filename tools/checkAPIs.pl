@@ -96,6 +96,7 @@ my %APIs = (
 		'g_strdown',
 		'g_string_up',
 		'g_string_down',
+		'strerror',	# use g_strerror
 		# Use the ws_* version of these:
 		# (Necessary because on Windows we use UTF8 for throughout the code
 		# so we must tweak that to UTF16 before operating on the file.  Code
@@ -115,7 +116,7 @@ my %APIs = (
 
 	# APIs that SHOULD NOT be used in Wireshark (any more)
 	'deprecated' => { 'count_errors' => 1, 'functions' => [
-		'perror',					# Use strerror() and report messages in whatever
+		'perror',					# Use g_strerror() and report messages in whatever
 								#  fashion is appropriate for the code in question.
 		'ctime',					# Use abs_time_secs_to_str()
 		'dissector_add',				# Use dissector_add_uint()

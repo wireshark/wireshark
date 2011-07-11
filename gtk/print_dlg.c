@@ -1107,7 +1107,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
       write_failure_alert_box(args->file, errno);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	"Error writing to print command: %s", strerror(errno));
+	"Error writing to print command: %s", g_strerror(errno));
     break;
   }
 

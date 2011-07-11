@@ -200,7 +200,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 
 	if (!yyin) {
 		if (err)
-			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,strerror(errno));
+			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,g_strerror(errno));
 
 		return NULL;
 	}

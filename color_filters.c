@@ -634,7 +634,7 @@ read_users_filters(GSList **cfl)
 		if (errno != ENOENT) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			    "Could not open filter file\n\"%s\": %s.", path,
-			    strerror(errno));
+			    g_strerror(errno));
 		}
 		g_free(path);
 		return FALSE;
@@ -661,7 +661,7 @@ color_filters_read_globals(gpointer user_data)
 		if (errno != ENOENT) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			    "Could not open global filter file\n\"%s\": %s.", path,
-			    strerror(errno));
+			    g_strerror(errno));
 		}
 		g_free(path);
 		return FALSE;
@@ -684,7 +684,7 @@ color_filters_import(gchar *path, gpointer user_data)
 	if ((f = ws_fopen(path, "r")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor reading: %s.",
-		    path, strerror(errno));
+		    path, g_strerror(errno));
 		return FALSE;
 	}
 
@@ -749,7 +749,7 @@ color_filters_write(GSList *cfl)
 	if (create_persconffile_dir(&pf_dir_path) == -1) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't create directory\n\"%s\"\nfor color files: %s.",
-		    pf_dir_path, strerror(errno));
+		    pf_dir_path, g_strerror(errno));
 		g_free(pf_dir_path);
 		return FALSE;
 	}
@@ -758,7 +758,7 @@ color_filters_write(GSList *cfl)
 	if ((f = ws_fopen(path, "w+")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",
-		    path, strerror(errno));
+		    path, g_strerror(errno));
 		g_free(path);
 		return FALSE;
 	}
@@ -777,7 +777,7 @@ color_filters_export(gchar *path, GSList *cfl, gboolean only_marked)
 	if ((f = ws_fopen(path, "w+")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",
-		    path, strerror(errno));
+		    path, g_strerror(errno));
 		return FALSE;
 	}
 	write_filters_file(cfl, f, only_marked);

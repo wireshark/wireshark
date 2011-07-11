@@ -837,7 +837,7 @@ filter_dlg_save(filter_list_type_t list_type)
     if (create_persconffile_dir(&pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Can't create directory\n\"%s\"\nfor filter files: %s.",
-            pf_dir_path, strerror(errno));
+            pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return;
     }
@@ -847,7 +847,7 @@ filter_dlg_save(filter_list_type_t list_type)
         /* We had an error saving the filter. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Could not save to your %s filter file\n\"%s\": %s.",
-            filter_type, f_path, strerror(f_save_errno));
+            filter_type, f_path, g_strerror(f_save_errno));
         g_free(f_path);
     }
 }

@@ -622,7 +622,7 @@ const char
 			return "Unknown reason";
 		return wtap_errlist[wtap_errlist_index];
 	} else
-		return strerror(err);
+		return g_strerror(err);
 }
 
 /* Close only the sequential side, freeing up memory it uses.

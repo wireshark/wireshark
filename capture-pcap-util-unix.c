@@ -127,7 +127,7 @@ get_interface_list(int *err, char **err_str)
 		if (err_str != NULL) {
 			*err_str = g_strdup_printf(
 			    "Can't get list of interfaces: error opening socket: %s",
-			    strerror(errno));
+			    g_strerror(errno));
 		}
 		return NULL;
 	}
@@ -148,7 +148,7 @@ get_interface_list(int *err, char **err_str)
 				if (err_str != NULL) {
 					*err_str = g_strdup_printf(
 					    "Can't get list of interfaces: SIOCGIFCONF ioctl error: %s",
-					    strerror(errno));
+					    g_strerror(errno));
 				}
 				goto fail;
 			}
@@ -206,7 +206,7 @@ get_interface_list(int *err, char **err_str)
 			if (err_str != NULL) {
 				*err_str = g_strdup_printf(
 				    "Can't get list of interfaces: SIOCGIFFLAGS error getting flags for interface %s: %s",
-				    ifr->ifr_name, strerror(errno));
+				    ifr->ifr_name, g_strerror(errno));
 			}
 			goto fail;
 		}

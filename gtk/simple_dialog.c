@@ -299,18 +299,13 @@ display_queued_messages(void)
 gpointer
 vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
 {
-  gchar             *vmessage;
   gchar             *message;
   queued_message_t *queued_message;
   GtkWidget        *win;
   GdkWindowState state = 0;
 
   /* Format the message. */
-  vmessage = g_strdup_vprintf(msg_format, ap);
-
-  /* convert character encoding from locale to UTF8 (using iconv) */
-  message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
-  g_free(vmessage);
+  message = g_strdup_vprintf(msg_format, ap);
 
   if (top_level != NULL) {
     state = gdk_window_get_state(top_level->window);
