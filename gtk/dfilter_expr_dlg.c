@@ -251,10 +251,8 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	    ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
 	add_relation_list(relation_list, "contains",
 	    ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
-#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
 	add_relation_list(relation_list, "matches",
 	    ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
-#endif
 
         gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
         gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)), &iter);

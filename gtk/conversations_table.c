@@ -2102,12 +2102,7 @@ draw_ct_table_data(conversations_table *ct)
 
             get_ct_table_address(ct, conversation, entries);
             conversation->iter_valid = TRUE;
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values( store , &conversation->iter, G_MAXINT,
-#else
-            gtk_list_store_append(store, &conversation->iter);
-            gtk_list_store_set (store, &conversation->iter,
-#endif
                   SRC_ADR_COLUMN,  entries[0],
                   SRC_PORT_COLUMN, entries[1],
                   DST_ADR_COLUMN,  entries[2],
@@ -2522,9 +2517,6 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     gboolean ret;
     GtkWidget *copy_bt, *follow_stream_bt;
     gboolean add_follow_stream_button = FALSE;
-#if !GTK_CHECK_VERSION(2,12,0)
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
 
     conversations=g_malloc0(sizeof(conversations_table));
 
@@ -2563,12 +2555,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     window_set_cancel_button(conversations->win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
-#else
-    gtk_tooltips_set_tip(tooltips, copy_bt,
-                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
-#endif
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, conversations);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
@@ -2604,9 +2591,6 @@ ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpoin
     GtkWidget *copy_bt = (GtkWidget *) data;
     GtkWidget *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);
     void      **pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
-#if !GTK_CHECK_VERSION(2,12,0)
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
 
     page++;
 
@@ -2617,25 +2601,13 @@ ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpoin
 
     /* Filter Stream only available for TCP and UDP */
     if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
-#if GTK_CHECK_VERSION(2,12,0)
         gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP Stream.");
-#else
-        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow TCP Stream.", NULL);
-#endif
         gtk_widget_set_sensitive(follow_stream_bt, TRUE);
     } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
-#if GTK_CHECK_VERSION(2,12,0)
         gtk_widget_set_tooltip_text(follow_stream_bt, "Follow UDP Stream.");
-#else
-        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow UDP Stream.", NULL);
-#endif
         gtk_widget_set_sensitive(follow_stream_bt, TRUE);
     } else {
-#if GTK_CHECK_VERSION(2,12,0)
         gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP or UDP Stream.");
-#else
-        gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow TCP or UDP Stream.", NULL);
-#endif
         gtk_widget_set_sensitive(follow_stream_bt, FALSE);
     }
 }
@@ -2774,9 +2746,6 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *page_lb;
     GSList  *current_table;
     register_ct_t *registered;
-#if !GTK_CHECK_VERSION(2,12,0)
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
     GtkWidget *copy_bt;
     GtkWidget *follow_stream_bt;
 
@@ -2821,23 +2790,14 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
                                  "Please note: The corresponding name resolution must be enabled.");
-#else
-    gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
-                         "Please note: The corresponding name resolution must be enabled.", NULL);
-#endif
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(ct_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
     gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to conversations matching the current display filter.");
-#else
-    gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to conversations matching the current display filter.", NULL);
-#endif
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(ct_filter_toggle_dest), pages);
 
     /* Button row. */
@@ -2851,21 +2811,12 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
-#else
-    gtk_tooltips_set_tip(tooltips, copy_bt,
-                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
-#endif
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
 
     follow_stream_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FOLLOW_STREAM);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(follow_stream_bt, "Follow Stream.");
-#else
-    gtk_tooltips_set_tip(tooltips, follow_stream_bt, "Follow Stream.", NULL);
-#endif
     g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
     g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
     g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
@@ -3074,4 +3025,3 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

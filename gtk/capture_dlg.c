@@ -258,11 +258,6 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   struct bpf_program fcode;
   GtkWidget *filter_cm, *filter_te;
   const gchar *filter_text;
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-  GtkTreeIter   iter;
-  GtkTreeModel *model;
-#endif
 
   if (!prefs.capture_syntax_check_filter)
     return;
@@ -272,13 +267,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 #if GTK_CHECK_VERSION(2,24,0)
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
 #else
-#if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
-#else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
-  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
-#endif
 #endif /*GTK_CHECK_VERSION(2,24,0)*/
   if (strlen(filter_text) == 0) {
     colorize_filter_te_as_empty(filter_te);
@@ -341,16 +330,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
 #if GTK_CHECK_VERSION(2,24,0)
   entry_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(if_cb));
 #else
-#if GTK_CHECK_VERSION(2,6,0)
   entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
-#else
-  GtkTreeModel *model;
-  GtkTreeIter iter;
-
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(if_cb), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
-  gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
-#endif
 #endif /* GTK_CHECK_VERSION(2,24,0) */
 
   if(!entry_text)
@@ -556,9 +536,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
     g_string_append(ip_str, "unknown");
   }
   gtk_label_set_text(GTK_LABEL(if_ip_lb), ip_str->str);
-#if GTK_CHECK_VERSION(2,6,0)
   gtk_label_set_ellipsize(GTK_LABEL(if_ip_lb), PANGO_ELLIPSIZE_MIDDLE);
-#endif
   g_string_free(ip_str, TRUE);
 }
 
@@ -786,20 +764,14 @@ static struct iftype_info iftype[] = {
   { CAPTURE_IFREMOTE, "Remote..." }
 };
 
-#if GTK_CHECK_VERSION(2,6,0)
 #define REMOTE_HOST_START ((sizeof(iftype) / sizeof(iftype[0])) + 1)
 #define REMOTE_HOST_SEPARATOR "---"
-#else
-#define REMOTE_HOST_START ((sizeof(iftype) / sizeof(iftype[0])))
-#endif
 
 static void
 iftype_combo_box_add_remote_separators (GtkWidget *iftype_cbx)
 {
-#if GTK_CHECK_VERSION(2,6,0)
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), REMOTE_HOST_SEPARATOR);
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), REMOTE_HOST_SEPARATOR);
-#endif
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), "Clear list");
 }
 
@@ -905,7 +877,6 @@ iftype_combo_box_new(void)
   return iftype_cbx;
 }
 
-#if GTK_CHECK_VERSION(2,6,0)
 static gboolean
 iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 {
@@ -921,7 +892,6 @@ iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data
   return result;
 
 }
-#endif
 
 static void
 error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data)
@@ -1129,9 +1099,6 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
               *user_lb, *user_te, *passwd_lb, *passwd_te,
               *bbox, *ok_bt, *cancel_bt;
   gchar       *title;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
   GSList      *auth_group;
   interface_options interface_opts;
 
@@ -1163,13 +1130,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   gtk_table_attach_defaults(GTK_TABLE(host_tb), host_lb, 0, 1, 0, 1);
 
   host_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(host_te,  "Enter the hostname or host IP address to be used as a source for remote capture.");
-#else
-  gtk_tooltips_set_tip(tooltips, host_te,
-                       "Enter the hostname or host IP address to be used as a source "
-                       "for remote capture.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(host_tb), host_te, 1, 2, 0, 1);
   interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
   if (interface_opts.remote_host != NULL)
@@ -1180,14 +1141,8 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   gtk_table_attach_defaults(GTK_TABLE(host_tb), port_lb, 0, 1, 1, 2);
 
   port_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(port_te, "Enter the TCP port number used by RPCAP server at remote host "
                               "(leave it empty for default port number).");
-#else
-  gtk_tooltips_set_tip(tooltips, port_te,
-                       "Enter the TCP port number used by RPCAP server at remote host "
-                       "(leave it empty for default port number).", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(host_tb), port_te, 1, 2, 1, 2);
   if (interface_opts.remote_port != NULL)
     gtk_entry_set_text(GTK_ENTRY(port_te), interface_opts.remote_port);
@@ -1239,23 +1194,12 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_remote_ok_cb), remote_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(ok_bt,
                        "Accept remote host parameters and lookup "
                        "remote interfaces.");
-#else
-  gtk_tooltips_set_tip(tooltips, ok_bt,
-                       "Accept remote host parameters and lookup "
-                       "remote interfaces.", NULL);
-#endif
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog.");
-#else
-  gtk_tooltips_set_tip(tooltips, cancel_bt,
-                       "Cancel and exit dialog.", NULL);
-#endif
   window_set_cancel_button(remote_w, cancel_bt, capture_remote_cancel_cb);
 
   if (focus_username) {
@@ -1379,9 +1323,6 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget *opt_remote_w, *main_vb;
   GtkWidget   *caller, *bbox, *ok_bt, *cancel_bt;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tooltips;
-#endif
   GtkWidget     *capture_fr, *capture_vb;
   GtkWidget     *nocap_rpcap_cb, *datatx_udp_cb;
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -1404,9 +1345,6 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(opt_remote_w), E_OPT_REMOTE_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY, opt_remote_w);
 
-#if !GTK_CHECK_VERSION(2,12,0)
-  tooltips = gtk_tooltips_new();
-#endif
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(opt_remote_w), main_vb);
@@ -1499,19 +1437,9 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(options_remote_ok_cb), opt_remote_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(ok_bt, "Accept parameters and close dialog");
-#else
-  gtk_tooltips_set_tip(tooltips, ok_bt,
-                       "Accept parameters and close dialog.", NULL);
-#endif
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog.");
-#else 
-  gtk_tooltips_set_tip(tooltips, cancel_bt,
-                         "Cancel and exit dialog.", NULL);
-#endif
   window_set_cancel_button(opt_remote_w, cancel_bt, window_cancel_button_cb);
 
   gtk_widget_grab_default(ok_bt);
@@ -1623,11 +1551,6 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   GtkWidget *filter_cm;
   const gchar *filter_text;
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-  GtkTreeIter   iter;
-  GtkTreeModel *model;
-#endif
 
   pd = pcap_open_dead(g_array_index(global_capture_opts.ifaces, interface_options, 0).linktype, DUMMY_SNAPLENGTH);
 
@@ -1635,13 +1558,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 #if GTK_CHECK_VERSION(2,24,0)
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
 #else
-#if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
-#else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
-  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
-#endif
 #endif /* GTK_CHECK_VERSION(2,24,0) */
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
@@ -1758,9 +1675,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget     *iftype_cbx;
   GtkWidget     *remote_bt;
-#endif
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips   *tooltips = gtk_tooltips_new();
 #endif
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
                 *stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj,
@@ -1926,17 +1840,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   iftype_cbx = iftype_combo_box_new();
-#if GTK_CHECK_VERSION(2,6,0)
   gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (iftype_cbx),
                                         iftype_combo_is_separator, NULL, NULL);
-#endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CBX_KEY, iftype_cbx);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(iftype_cbx, "Choose to capture from local or remote interfaces.");
-#else
-  gtk_tooltips_set_tip(tooltips, iftype_cbx,
-                       "Choose to capture from local or remote interfaces.", NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(if_hb), iftype_cbx, FALSE, FALSE, 0);
 #endif
 
@@ -2012,14 +1919,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if (interface_opts.src_type == CAPTURE_IFLOCAL)
 #endif
   free_interface_list(if_list);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(if_cb,
 "Choose which interface (network adapter) will be used to capture packets from. Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
-#else
-  gtk_tooltips_set_tip(tooltips, if_cb,
-    "Choose which interface (network adapter) will be used to capture packets from. "
-    "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 3);
 
   if_ip_hb = gtk_hbox_new(FALSE, 3);
@@ -2028,20 +1929,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if_ip_eb = gtk_event_box_new();
   gtk_event_box_set_visible_window (GTK_EVENT_BOX(if_ip_eb), FALSE);
   gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_eb, TRUE, TRUE, 3);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(if_ip_eb, "Lists the IP address(es) "
                        "assigned to the selected interface.  If there are "
                        "more addresses than will fit in the window, the "
                        "first few and the last few will be shown with \"...\" "
                        "between them.");
-#else
-  gtk_tooltips_set_tip(tooltips, if_ip_eb, "Lists the IP address(es) "
-                       "assigned to the selected interface.  If there are "
-                       "more addresses than will fit in the window, the "
-                       "first few and the last few will be shown with \"...\" "
-                       "between them.",
-                       NULL);
-#endif
 
   if_ip_lb = gtk_label_new("");
   gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
@@ -2094,12 +1986,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    *
    * We leave it as "multiple link-layer types" for now.
    */
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(linktype_combo_box, "The selected interface supports multiple link-layer types; select the desired one.");
-#else
-  gtk_tooltips_set_tip(tooltips, linktype_combo_box,
-    "The selected interface supports multiple link-layer types; select the desired one.", NULL);
-#endif
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
   g_signal_connect(GTK_COMBO_BOX(if_cb), "changed",
@@ -2110,17 +1997,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       "Capture packets in _promiscuous mode");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
                                interface_opts.promisc_mode);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.");
-#else
-  gtk_tooltips_set_tip(tooltips, promisc_cb,
-    "Usually a network adapter will only capture the traffic sent to its own network address. "
-    "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
-    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
 
 #ifdef HAVE_PCAP_CREATE
@@ -2132,21 +2012,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(monitor_cb, "toggled",
                    G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
 
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(monitor_cb,
     "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
     "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option. "
     "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
     "it might be necessary to turn this option on.\n\n"
     "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
-#else
-  gtk_tooltips_set_tip(tooltips, monitor_cb,
-    "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
-    "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option. "
-    "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
-    "it might be necessary to turn this option on.\n\n"
-    "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(left_vb), monitor_cb);
 
   /*
@@ -2170,12 +2041,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format.");
-#else
-  gtk_tooltips_set_tip(tooltips, pcap_ng_cb, "Capture packets in the next-generation capture file format.",
-                       NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(left_vb), pcap_ng_cb);
 
   /* Capture length row */
@@ -2186,15 +2052,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(snap_cb),
                                interface_opts.has_snaplen);
   g_signal_connect(snap_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
     "link-layer header and all subsequent headers. ");
-#else
-  gtk_tooltips_set_tip(tooltips, snap_cb,
-    "Limit the maximum number of bytes to be captured from each packet. This size includes the "
-    "link-layer header and all subsequent headers. ", NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
 
   snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) interface_opts.snaplen,
@@ -2215,17 +2075,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
   g_signal_connect(filter_bt, "clicked", G_CALLBACK(capture_filter_construct_cb), NULL);
   g_signal_connect(filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_bt,
     "Select a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it."
     );
-#else
-  gtk_tooltips_set_tip(tooltips, filter_bt,
-    "Select a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it.",
-    NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
   /* Create the capture filter combo box*/
@@ -2256,19 +2109,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #else
     gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), g_array_index(global_capture_opts.ifaces, interface_options, 0).cfilter);
 #endif
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it. "
     "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
     );
-#else
-  gtk_tooltips_set_tip(tooltips, filter_cm,
-    "Enter a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it."
-    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter.",
-    NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_cm, TRUE, TRUE, 3);
 
   /* let an eventually capture filters dialog know the text entry to fill in */
@@ -2277,14 +2122,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
   compile_bt = gtk_button_new_with_label("Compile BPF");
   g_signal_connect(compile_bt, "clicked", G_CALLBACK(capture_filter_compile_cb), NULL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(compile_bt,
    "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");
-#else /* GTK_CHECK_VERSION(2,12,0) */
-  gtk_tooltips_set_tip(tooltips, compile_bt,
-    "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.",
-    NULL);
-#endif /* GTK_CHECK_VERSION(2,12,0) */
   gtk_box_pack_start(GTK_BOX(filter_hb), compile_bt, FALSE, FALSE, 3);
 #endif
 
@@ -2309,11 +2148,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_PCAP_REMOTE
   remote_bt = gtk_button_new_with_label("Remote Settings");
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(remote_bt, "Various settings for remote capture.");
-#else
-  gtk_tooltips_set_tip(tooltips, remote_bt, "Various settings for remote capture.", NULL);
-#endif
 
   /* Both the callback and the data are global */
   g_signal_connect(remote_bt,"clicked", G_CALLBACK(options_remote_cb),NULL);
@@ -2340,13 +2175,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) interface_opts.buffer_size);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
   gtk_widget_set_size_request(buffer_size_sb, 80, -1);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(buffer_size_sb,
    "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.");
-#else
-  gtk_tooltips_set_tip(tooltips, buffer_size_sb,
-    "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.", NULL);
-#endif
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_sb, FALSE, FALSE, 0);
 
   buffer_size_lb = gtk_label_new("megabyte(s)");
@@ -2382,31 +2212,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(file_hb), file_lb, FALSE, FALSE, 3);
 
   file_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(file_te,
     "Enter the file name to which captured data will be written. "
     "If you don't enter something here, a temporary file will be used."
      );
-#else
-  gtk_tooltips_set_tip(tooltips, file_te,
-    "Enter the file name to which captured data will be written. "
-    "If you don't enter something here, a temporary file will be used.",
-    NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
   file_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(file_bt,
     "Select a file to which captured data will be written, "
     "instead of entering the file name directly. "
     );
-#else
-  gtk_tooltips_set_tip(tooltips, file_bt,
-    "Select a file to which captured data will be written, "
-    "instead of entering the file name directly. ",
-    NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 0);
 
   g_signal_connect(file_bt, "clicked", G_CALLBACK(capture_prep_file_cb), file_te);
@@ -2424,15 +2240,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.multi_files_on);
   g_signal_connect(multi_files_on_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity),
                  cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(multi_files_on_cb,
     "Instead of using a single capture file, multiple files will be created. "
     "The generated file names will contain an incrementing number and the start time of the capture.");
-#else
-  gtk_tooltips_set_tip(tooltips, multi_files_on_cb,
-    "Instead of using a single capture file, multiple files will be created. "
-    "The generated file names will contain an incrementing number and the start time of the capture.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), multi_files_on_cb, 0, 1, row, row+1);
   row++;
 
@@ -2441,16 +2251,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb),
                                global_capture_opts.has_autostop_filesize || !global_capture_opts.has_file_duration);
   g_signal_connect(ring_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.");
-#else
-  gtk_tooltips_set_tip(tooltips, ring_filesize_cb,
-    "If the selected file size is exceeded, capturing switches to the next file.\n"
-    "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
-    NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
 
   ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
@@ -2474,16 +2277,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.has_file_duration);
   g_signal_connect(file_duration_cb, "toggled",
                    G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(file_duration_cb,
     "If the selected duration is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.");
-#else
-  gtk_tooltips_set_tip(tooltips, file_duration_cb,
-    "If the selected duration is exceeded, capturing switches to the next file.\n"
-    "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
-    NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
 
   file_duration_adj = (GtkAdjustment *)gtk_adjustment_new(0.0,
@@ -2505,17 +2301,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb),
                                global_capture_opts.has_ring_num_files);
   g_signal_connect(ringbuffer_nbf_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(ringbuffer_nbf_cb,
     "After capturing has switched to the next file and the given number of files has exceeded, "
     "the oldest file will be removed."
     );
-#else
-  gtk_tooltips_set_tip(tooltips, ringbuffer_nbf_cb,
-    "After capturing has switched to the next file and the given number of files has exceeded, "
-    "the oldest file will be removed.",
-    NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ringbuffer_nbf_cb, 0, 1, row, row+1);
 
   ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) global_capture_opts.ring_num_files,
@@ -2536,12 +2325,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_files_cb),
                                global_capture_opts.has_autostop_files);
   g_signal_connect(stop_files_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(stop_files_cb, "Stop capturing after the given number of \"file switches\" have been done.");
-#else
-  gtk_tooltips_set_tip(tooltips, stop_files_cb,
-    "Stop capturing after the given number of \"file switches\" have been done.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_cb, 0, 1, row, row+1);
 
   stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_files,
@@ -2576,12 +2360,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_packets_cb),
                                global_capture_opts.has_autostop_packets);
   g_signal_connect(stop_packets_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(stop_packets_cb, "Stop capturing after the given number of packets have been captured.");
-#else
-  gtk_tooltips_set_tip(tooltips, stop_packets_cb,
-    "Stop capturing after the given number of packets have been captured.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_cb, 0, 1, row, row+1);
 
   stop_packets_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_packets,
@@ -2601,12 +2380,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_filesize_cb),
                                global_capture_opts.has_autostop_filesize);
   g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(stop_filesize_cb, "Stop capturing after the given amount of capture data has been captured.");
-#else
-  gtk_tooltips_set_tip(tooltips, stop_filesize_cb,
-    "Stop capturing after the given amount of capture data has been captured.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
 
   stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
@@ -2629,12 +2403,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_duration_cb),
                                global_capture_opts.has_autostop_duration);
   g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(stop_duration_cb, "Stop capturing after the given time is exceeded.");
-#else
-  gtk_tooltips_set_tip(tooltips, stop_duration_cb,
-    "Stop capturing after the given time is exceeded.", NULL);
-#endif
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
@@ -2665,40 +2434,23 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sync_cb),
                                global_capture_opts.real_time_mode);
   g_signal_connect(sync_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
     "Please note: this will slow down capturing, so increased packet drops might appear.");
-#else
-  gtk_tooltips_set_tip(tooltips, sync_cb,
-    "Using this option will show the captured packets immediately on the main screen. "
-    "Please note: this will slow down capturing, so increased packet drops might appear.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
 
   /* "Auto-scroll live update" row */
   auto_scroll_cb = gtk_check_button_new_with_mnemonic("_Automatic scrolling in live capture");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
     "when the \"Update List of packets in real time\" option is used.");
-#else
-  gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
-    "This will scroll the \"Packet List\" automatically to the latest captured packet, "
-    "when the \"Update List of packets in real time\" option is used.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
 
   /* "Hide capture info" row */
   hide_info_cb = gtk_check_button_new_with_mnemonic("_Hide capture info dialog");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_info_cb), !global_capture_opts.show_info);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(hide_info_cb, "Hide the capture info dialog while capturing.");
-#else
-  gtk_tooltips_set_tip(tooltips, hide_info_cb,
-    "Hide the capture info dialog while capturing.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(display_vb), hide_info_cb);
 
   /* Name Resolution frame */
@@ -2713,37 +2465,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 "Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
                 gbl_resolv_flags & RESOLV_MAC);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(m_resolv_cb, "Perform MAC layer name resolution while capturing.");
-#else
-  gtk_tooltips_set_tip(tooltips, m_resolv_cb,
-    "Perform MAC layer name resolution while capturing.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
                 gbl_resolv_flags & RESOLV_NETWORK);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
-#else
-  gtk_tooltips_set_tip(tooltips, n_resolv_cb,
-    "Perform network layer name resolution while capturing.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
 
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
                 gbl_resolv_flags & RESOLV_TRANSPORT);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(t_resolv_cb,
     "Perform transport layer name resolution while capturing.");
-#else
-  gtk_tooltips_set_tip(tooltips, t_resolv_cb,
-    "Perform transport layer name resolution while capturing.", NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
   /* Button row: "Start", "Cancel" and "Help" buttons */
@@ -2752,32 +2489,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(ok_bt,
     "Start the capture process.");
-#else
-  gtk_tooltips_set_tip(tooltips, ok_bt,
-    "Start the capture process.", NULL);
-#endif
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(cancel_bt,
     "Cancel and exit dialog.");
-#else
-  gtk_tooltips_set_tip(tooltips, cancel_bt,
-    "Cancel and exit dialog.", NULL);
-#endif
   window_set_cancel_button(cap_open_w, cancel_bt, capture_cancel_cb);
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
-#else
-  gtk_tooltips_set_tip(tooltips, help_bt,
-    "Show help about capturing.", NULL);
-#endif
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
 
   global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
@@ -3053,7 +2775,7 @@ capture_cancel_cb(GtkWidget *win, gpointer data)
 {
 #ifdef HAVE_PCAP_REMOTE
   interface_options interface_opts;
-  
+
   interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
   global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
   if (g_hash_table_size (remote_host_list) == 0) {
@@ -3082,7 +2804,7 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
   gpointer  ptr;
   int       dlt;
   interface_options interface_opts;
-  
+
   interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
   global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
 
@@ -3130,11 +2852,7 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
     capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
   } else if (new_iftype != old_iftype) {
     if (new_iftype > CAPTURE_IFREMOTE) {
-#if GTK_CHECK_VERSION(2,6,0)
       if (new_iftype == num_remote + 4)
-#else
-      if (new_iftype == num_remote + 2)
-#endif
       {
         /* The user selected the "Clear list" entry */
         new_iftype = CAPTURE_IFLOCAL;
@@ -3146,16 +2864,7 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
       } else {
         struct remote_host *rh;
         gchar *string;
-#if GTK_CHECK_VERSION(2,6,0)
         string = gtk_combo_box_get_active_text (GTK_COMBO_BOX(iftype_cbx));
-#else
-        GtkTreeModel *model;
-        GtkTreeIter iter;
-
-        model = gtk_combo_box_get_model(GTK_COMBO_BOX(iftype_cbx));
-        gtk_combo_box_get_active_iter(GTK_COMBO_BOX(iftype_cbx), &iter);
-        gtk_tree_model_get(model, &iter, 0, &string, -1);
-#endif
         rh = g_hash_table_lookup (remote_host_list, string);
         g_free (string);
 
@@ -3228,12 +2937,7 @@ capture_dlg_prep(gpointer parent_w) {
   gchar *cf_name;
   gchar *dirname;
   gint32 tmp;
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-  GtkTreeIter   iter;
-  GtkTreeModel *model;
-#endif
-interface_options interface_opts;
+  interface_options interface_opts;
 
 if (global_capture_opts.ifaces->len > 0) {
   interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
@@ -3286,13 +2990,7 @@ if (global_capture_opts.ifaces->len > 0) {
 #if GTK_CHECK_VERSION(2,24,0)
   entry_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(if_cb));
 #else
-#if GTK_CHECK_VERSION(2,6,0)
   entry_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(if_cb));
-#else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(if_cb), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
-  gtk_tree_model_get(model, &iter, 0, &entry_text, -1);
-#endif
 #endif /* GTK_CHECK_VERSION(2,24,0) */
   if(!entry_text)
     entry_text = '\0';
@@ -3357,13 +3055,7 @@ if (global_capture_opts.ifaces->len > 0) {
 #if GTK_CHECK_VERSION(2,24,0)
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
 #else
-#if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
-#else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
-  gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
-#endif
 #endif /* GTK_CHECK_VERSION(2,24,0 */
   if (interface_opts.cfilter)
     g_free(interface_opts.cfilter);

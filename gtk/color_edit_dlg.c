@@ -97,9 +97,6 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   color_filter_t *colorf;
   GtkWidget      *edit_dialog;
   GtkWidget      *dialog_vbox;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips    *tooltips = gtk_tooltips_new();
-#endif
   GdkColor       bg_color, fg_color;
 
   GtkWidget *filter_fr;
@@ -173,11 +170,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &fg_color);
 
   gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filt_name_entry, "This is the editable name of the filter. (No @ characters allowed.)");
-#else
-  gtk_tooltips_set_tip (tooltips, filt_name_entry, ("This is the editable name of the filter. (No @ characters allowed.)"), NULL);
-#endif
 
   /* filter string hbox */
   filter_string_hbox = gtk_hbox_new (FALSE, 0);
@@ -194,22 +187,14 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
   gtk_box_pack_start (GTK_BOX (filter_string_hbox), filt_text_entry, TRUE, TRUE, 0);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filt_text_entry, "This is the editable text of the filter");
-#else
-  gtk_tooltips_set_tip (tooltips, filt_text_entry, ("This is the editable text of the filter"), NULL);
-#endif
 
   /* Create the "Add Expression..." button, to pop up a dialog
      for constructing filter comparison expressions. */
   add_expression_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
   g_signal_connect(add_expression_bt, "clicked", G_CALLBACK(filter_expr_cb), filt_text_entry);
   gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(add_expression_bt, "Add an expression to the filter string");
-#else
-  gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
-#endif
 
   /* Show the (in)validity of the default filter string */
   filter_te_syntax_check_cb(filt_text_entry, NULL);
@@ -228,19 +213,11 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
   colorize_filter_fg = gtk_button_new_with_label (("Foreground Color..."));
   gtk_box_pack_start (GTK_BOX (colorize_hbox), colorize_filter_fg, TRUE, FALSE, 0);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(colorize_filter_fg, "Select foreground color for data display");
-#else
-  gtk_tooltips_set_tip (tooltips, colorize_filter_fg, ("Select foreground color for data display"), NULL);
-#endif
 
   colorize_filter_bg = gtk_button_new_with_label (("Background Color..."));
   gtk_box_pack_start (GTK_BOX (colorize_hbox), colorize_filter_bg, TRUE, FALSE, 0);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(colorize_filter_bg, "Select background color for data display");
-#else
-  gtk_tooltips_set_tip (tooltips, colorize_filter_bg, ("Select background color for data display"), NULL);
-#endif
 
   /* status frame */
   status_fr = gtk_frame_new("Status");
@@ -253,11 +230,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   disabled_cb = gtk_check_button_new_with_label("Disabled");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disabled_cb), colorf->disabled);
   gtk_box_pack_start (GTK_BOX (status_vbox), disabled_cb, TRUE, FALSE, 0);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(disabled_cb, "Color rule won't be checked if this box is selected");
-#else
-  gtk_tooltips_set_tip (tooltips, disabled_cb, ("Color rule won't be checked if this box is selected"), NULL);
-#endif
 
   /* button box */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
@@ -265,18 +238,10 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   gtk_container_set_border_width  (GTK_CONTAINER (bbox), 0);
 
   edit_color_filter_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(edit_color_filter_ok, "Accept filter color change");
-#else
-  gtk_tooltips_set_tip (tooltips, edit_color_filter_ok, ("Accept filter color change"), NULL);
-#endif
 
   edit_color_filter_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(edit_color_filter_cancel, "Reject filter color change");
-#else
-  gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
-#endif
 
   gtk_widget_grab_default(edit_color_filter_ok);
 

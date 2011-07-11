@@ -650,10 +650,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     err->tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
       gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
-#endif
 
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
 

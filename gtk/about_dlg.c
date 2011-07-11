@@ -566,4 +566,3 @@ about_wireshark_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have an "About Wireshark" dialog box. */
   about_wireshark_w = NULL;
 }
-

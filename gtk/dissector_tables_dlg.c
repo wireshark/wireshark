@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -63,14 +63,14 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data _U_)
 }
 
 /*
- * For a dissector table, put 
+ * For a dissector table, put
  * its short name and its
  * descriptive name in the treeview.
  */
 
 struct dissector_tables_tree_info {
     GtkWidget       *tree;
-    GtkTreeIter     iter; 
+    GtkTreeIter     iter;
     GtkTreeIter     new_iter;
 };
 
@@ -105,25 +105,16 @@ struct dissector_tables_trees {
 
 typedef struct dissector_tables_trees dissector_tables_trees_t;
 
-static void 
+static void
 proto_add_to_list(dissector_tables_tree_info_t *tree_info,
-                  GtkTreeStore *store, 
+                  GtkTreeStore *store,
                   gchar        *str,
                   const gchar  *proto_name)
 {
-#if GTK_CHECK_VERSION(2,10,0)
     gtk_tree_store_insert_with_values(store, &tree_info->new_iter, &tree_info->iter, G_MAXINT,
                                       TABLE_UI_NAME_COL,    str,
                                       TABLE_SHORT_NAME_COL, proto_name,
                                       -1);
-#else
-    gtk_tree_store_append(store, &tree_info->new_iter, &tree_info->iter);
-    gtk_tree_store_set (store, &tree_info->new_iter,
-                        TABLE_UI_NAME_COL,    str,
-                        TABLE_SHORT_NAME_COL, proto_name,
-                        -1);
-#endif
-
 }
 
 static void
@@ -170,9 +161,9 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U
 
 }
 
-static void 
+static void
 table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
-                       GtkWidget  *tree_view, 
+                       GtkWidget  *tree_view,
                        const char *table_name,
                        const char *ui_name)
 {
@@ -181,19 +172,10 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
     tree_info->tree = tree_view;
     store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view))); /* Get store */
 
-#if GTK_CHECK_VERSION(2,10,0)
     gtk_tree_store_insert_with_values(store, &tree_info->iter, NULL, G_MAXINT,
                                       TABLE_UI_NAME_COL,    ui_name,
                                       TABLE_SHORT_NAME_COL, table_name,
                                       -1);
-#else
-    gtk_tree_store_append (store, &tree_info->iter, NULL);  /* Acquire an iterator */
-    gtk_tree_store_set (store, &tree_info->iter,
-                        TABLE_UI_NAME_COL,    ui_name,
-                        TABLE_SHORT_NAME_COL, table_name,
-                        -1);
-#endif
-
 }
 
 static void
@@ -226,7 +208,7 @@ display_dissector_table_names(const char *table_name, const char *ui_name,
     g_free(tree_info);
 }
 
-static GtkWidget* 
+static GtkWidget*
 init_table(void)
 {
     GtkTreeStore      *store;
@@ -246,10 +228,8 @@ init_table(void)
     tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(tree_view, TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
@@ -261,7 +241,7 @@ init_table(void)
      * cell_renderer to the first column of the model */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("UI name", renderer, "text", TABLE_UI_NAME_COL, NULL);
-    gtk_tree_sortable_set_sort_func(sortable, TABLE_UI_NAME_COL, 
+    gtk_tree_sortable_set_sort_func(sortable, TABLE_UI_NAME_COL,
                                     ui_sort_func, GINT_TO_POINTER(TABLE_UI_NAME_COL), NULL);
     gtk_tree_view_column_set_sort_column_id(column, TABLE_UI_NAME_COL);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -272,7 +252,7 @@ init_table(void)
 
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Short name", renderer, "text", TABLE_SHORT_NAME_COL, NULL);
-    gtk_tree_sortable_set_sort_func(sortable, TABLE_SHORT_NAME_COL, 
+    gtk_tree_sortable_set_sort_func(sortable, TABLE_SHORT_NAME_COL,
                                     ui_sort_func, GINT_TO_POINTER(TABLE_SHORT_NAME_COL), NULL);
     gtk_tree_view_column_set_sort_column_id(column, TABLE_SHORT_NAME_COL);
     gtk_tree_view_column_set_resizable(column, TRUE);

@@ -530,12 +530,12 @@ airpcap_get_selected_channel_offset(GtkWidget *channel_offset_cb) {
     int offset;
     gchar *off_str;
     int retval = 0;
-    
+
 
     if (channel_offset_cb == NULL || !GTK_WIDGET_SENSITIVE(channel_offset_cb)) {
         return 0;
     }
-    
+
     off_str = gtk_combo_box_get_active_text(GTK_COMBO_BOX(channel_offset_cb));
     if (off_str && (g_ascii_strcasecmp("", off_str)))
     {
@@ -633,13 +633,13 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq,
 
     if (set) {
         change_airpcap_settings = TRUE;
-    
+
         if_info->channelInfo.ExtChannel = new_offset;
         if (!airpcap_update_frequency_and_offset(if_info)){
             simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
         }
     }
-    
+
     if (idx_count < 1) {
         gtk_widget_set_sensitive(channel_offset_cb, FALSE);
     }
@@ -674,13 +674,13 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
         while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(channel_cb)), NULL) > 0) {
             gtk_combo_box_remove_text(GTK_COMBO_BOX(channel_cb), 0);
         }
-        
+
         if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
             guint i;
             for (i = 0; i<(if_info->numSupportedChannels); i++){
                 gtk_combo_box_append_text(GTK_COMBO_BOX(channel_cb), ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
             }
-        }    
+        }
 
         airpcap_channel_combo_set_by_frequency(channel_cb, if_info->channelInfo.Frequency);
         change_airpcap_settings = TRUE;

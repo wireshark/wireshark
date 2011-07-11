@@ -138,7 +138,7 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 }
 
 /* complete reset, e.g. capture file closed */
-static void 
+static void
 expert_dlg_reset(void *tapdata)
 {
     expert_tapdata_t * etd = tapdata;
@@ -157,7 +157,7 @@ expert_dlg_reset(void *tapdata)
     expert_dlg_display_reset(etd);
 }
 
-static int 
+static int
 expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
     expert_info_t    *ei;
@@ -378,10 +378,8 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     etd->tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(etd->tree_view, TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
@@ -596,12 +594,7 @@ expert_dlg_draw(void *data)
          * :
          * should generally be preferred when inserting rows in a sorted list store.
          */
-#if GTK_CHECK_VERSION(2,6,0)
         gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-        gtk_list_store_append  (list_store, &iter);
-        gtk_list_store_set  (list_store, &iter,
-#endif
                     NO_COLUMN, packet_no,
                     SEVERITY_COLUMN, severity_str,
                     GROUP_COLUMN, group_str,

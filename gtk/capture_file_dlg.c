@@ -454,9 +454,6 @@ file_open_cmd(GtkWidget *w)
 #else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -522,12 +519,7 @@ file_open_cmd(GtkWidget *w)
                    G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog, to edit/apply filters");
-#else
-  gtk_tooltips_set_tip(tooltips, filter_bt,
-    "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
-#endif
 
   filter_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
@@ -539,11 +531,7 @@ file_open_cmd(GtkWidget *w)
   g_signal_connect(file_open_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_te, "Enter a display filter.");
-#else
-  gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
-#endif
 
   g_object_set_data(G_OBJECT(file_open_w), E_RFILTER_TE_KEY, filter_te);
 
@@ -755,9 +743,6 @@ file_merge_cmd(GtkWidget *w)
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
   int combo_box_item_to_select;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -843,12 +828,7 @@ file_merge_cmd(GtkWidget *w)
                    G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog, to edit/apply filters");
-#else
-  gtk_tooltips_set_tip(tooltips, filter_bt,
-    "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
-#endif
 
   filter_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
@@ -860,49 +840,27 @@ file_merge_cmd(GtkWidget *w)
   g_signal_connect(file_merge_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(filter_te, "Enter a display filter.");
-#else
-  gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
-#endif
 
   g_object_set_data(G_OBJECT(file_merge_w), E_RFILTER_TE_KEY, filter_te);
 
   prepend_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL,
       "Prepend packets to existing file");
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(prepend_rb, "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file, the packet timestamps will be ignored.");
-#else
-  gtk_tooltips_set_tip(tooltips, prepend_rb,
-      "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file,"
-      " the packet timestamps will be ignored.", NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(file_merge_w),
                   E_MERGE_PREPEND_KEY, prepend_rb);
   gtk_widget_show(prepend_rb);
 
   chrono_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Merge packets chronologically");
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(chrono_rb, "The resulting file contains all the packets from the currently loaded and the selected file, sorted by the packet timestamps.");
-#else
-  gtk_tooltips_set_tip(tooltips, chrono_rb,
-      "The resulting file contains all the packets from the currently loaded and the selected file,"
-      " sorted by the packet timestamps.", NULL);
-#endif
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
   g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_CHRONO_KEY, chrono_rb);
 
   append_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Append packets to existing file");
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(append_rb, "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file, the packet timestamps will be ignored.");
-#else
-  gtk_tooltips_set_tip(tooltips, append_rb,
-      "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file,"
-      " the packet timestamps will be ignored.", NULL);
-#endif
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
   gtk_widget_show(append_rb);
   g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_APPEND_KEY, append_rb);

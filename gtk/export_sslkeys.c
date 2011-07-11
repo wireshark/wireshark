@@ -23,7 +23,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -94,7 +94,7 @@ ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
     StringInfo* keylist = (StringInfo*)user_data;
 
     offset = strlen(keylist->data);
-    
+
     /*
      * XXX - should this be a string that grows as necessary to hold
      * everything in it?
@@ -241,9 +241,7 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
      * Build the dialog box we need.
      */
     savesslkeys_dlg = file_selection_new("Wireshark: Export SSL Session Keys", FILE_SELECTION_SAVE);
-#if GTK_CHECK_VERSION(2,8,0)
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(savesslkeys_dlg), TRUE);
-#endif
 
     /* label */
     label = g_strdup_printf("Will save %u SSL Session %s to specified file.",

@@ -261,32 +261,6 @@ find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
 	return row;
 }
 
-#if !GLIB_CHECK_VERSION(2,6,0)
-/**
- * g_strv_length:
- * @str_array: a %NULL-terminated array of strings.
- *
- * Returns the length of the given %NULL-terminated
- * string array @str_array.
- *
- * Return value: length of @str_array.
- *
- * Since: 2.6
- **/
-static guint
-g_strv_length (gchar **str_array)
-{
-	guint i = 0;
-
-	g_return_val_if_fail (str_array != NULL, 0);
-
-	while (str_array[i])
-		++i;
-
-	return i;
-}
-#endif
-
 /* This is the function answering to the registered tap listener call */
 static gboolean
 eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)

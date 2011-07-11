@@ -274,7 +274,7 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data _U_)
   for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
     temp = (if_dlg_data_t *)(curr->data);
     if (temp->selected ) {
-      interface_opts.name = g_strdup(temp->device); 
+      interface_opts.name = g_strdup(temp->device);
       interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
       cap_settings = capture_get_cap_settings (interface_opts.name);
       interface_opts.monitor_mode = cap_settings.monitor_mode;
@@ -690,7 +690,7 @@ capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
     guint ifs;
     GList *curr;
     if_dlg_data_t *if_data;
-    
+
     for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
         curr = g_list_nth(if_data_list, ifs);
         if_data = (if_dlg_data_t *)(curr->data);
@@ -718,9 +718,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget         *if_tb;
   GtkWidget         *if_lb;
   GtkWidget         *eb;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips       *tooltips;
-#endif
   int               err;
   gchar             *err_str;
   GtkRequisition    requisition;
@@ -809,10 +806,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
-#if !GTK_CHECK_VERSION(2,12,0)
-  tooltips = gtk_tooltips_new();
-#endif
-
   main_sw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(cap_if_w), main_sw);
@@ -872,7 +865,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
 
       if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
-      
+
       if (preselected > 0) {
         found = FALSE;
         for (i = 0; i < (gint)global_capture_opts.ifaces->len; i++) {
@@ -890,16 +883,10 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
       else
         if_dlg_data->selected = FALSE;
-      
+
       if_dlg_data->if_info = *if_info;
 
       if_dlg_data->choose_bt = gtk_check_button_new();
-#if !GTK_CHECK_VERSION(2,12,0)
-      tmp_str = g_strdup_printf("Choose the interfaces to capture from\n\n%s", if_tool_str->str);
-      gtk_tooltips_set_tip(tooltips, if_dlg_data->choose_bt,
-          tmp_str, NULL);
-      g_free(tmp_str);
-#endif
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->choose_bt, 0, 1, row, row+1);
       if (gbl_capture_in_progress) {
           gtk_widget_set_sensitive(if_dlg_data->choose_bt, FALSE);
@@ -986,12 +973,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       /* details button */
 #ifdef _WIN32
       if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
-#if GTK_CHECK_VERSION(2,12,0)
       gtk_widget_set_tooltip_text(if_dlg_data->details_bt, "Open the capture details dialog of this interface.");
-#else
-      gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
-          "Open the capture details dialog of this interface.", NULL);
-#endif
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
       if (capture_if_has_details(if_dlg_data->device)) {
         g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
@@ -1020,27 +1002,14 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 
   stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
-#if !GTK_CHECK_VERSION(2,12,0)
-  gtk_tooltips_set_tip(tooltips, stop_bt,"Stop a running capture.", NULL);
-#endif
   g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_if_stop_cb), NULL);
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
-#if GTK_CHECK_VERSION(2,12,0)
   gtk_widget_set_tooltip_text(close_bt, "Close this window.");
-#else
-  gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
-#endif
   options_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_OPTIONS);
   g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
-#if !GTK_CHECK_VERSION(2,12,0)
-  gtk_tooltips_set_tip(tooltips, options_bt, "Open the capture options dialog with this interface selected.", NULL);
-#endif
   capture_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
-#if !GTK_CHECK_VERSION(2,12,0)
-  gtk_tooltips_set_tip(tooltips, capture_bt, "Immediately start a capture from this interface", NULL);
-#endif
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 20 + ifs;
