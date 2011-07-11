@@ -40,7 +40,7 @@ WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 {
     static range_t *ret;
-    range_convert_str(&ret,g_strdup(lua_tostring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
+    range_convert_str(&ret,g_strdup(luaL_checkstring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
     return ret;
 }
 
@@ -141,8 +141,8 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_RANGE: {
-            range_t *range = get_range(L,4,5);
-            guint32 max = (guint32)luaL_optnumber(L,5,0);
+            range_t *range = get_range(L,2,4);
+            guint32 max = (guint32)luaL_optnumber(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -200,8 +200,7 @@ WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
 #define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is */
-#define WSLUA_ARG_Pref_range_RANGE 4 /* The range */
-#define WSLUA_ARG_Pref_range_MAX 5 /* The maximum value */
+#define WSLUA_ARG_Pref_range_MAX 4 /* The maximum value */
     return new_pref(L,PREF_RANGE);
 }
 
@@ -611,6 +610,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     if (f->type == FT_NONE)
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
 
+    if (proto_check_field_name(f->abbr)) {
+      WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
+      return 0;
+    }
+
     if (! lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING) ) {
         if (f->type == FT_BOOLEAN) {
             tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
@@ -663,6 +667,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
         return 0;
+    }
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L, 1, "Invalid char in abbrev");
+      return 0;
     }
 
     f->hfid = -2;
@@ -817,6 +826,11 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
         return 0;
     }
 
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
+
     f->hfid = -2;
     f->ett = -1;
     f->name = g_strdup(name);
@@ -854,6 +868,11 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,NULL);
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
 
     f->hfid = -2;
     f->ett = -1;

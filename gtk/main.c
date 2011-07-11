@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <locale.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -2065,6 +2066,8 @@ main(int argc, char *argv[])
 
   static const char optstring[] = OPTSTRING;
 
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
 #endif /* _WIN32 */

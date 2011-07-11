@@ -87,6 +87,48 @@ Wireshark Info
 -->
 
         <listitem><para>
+	  Missing LUA function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
+          5006</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Lua API description about creating a new Tvb from a bytearray is not correct in wireshark's user guide.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5199">Bug
+          5199</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  White space in protocol field abbreviation causes runtime failure while registering Lua dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5569">Bug
+          5569</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wireshark crashes if Lua contains "Pref.range()" with missing arguments.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
+          5895</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  The "range" field in Lua's "Pref.range()" serves as default while the "default" field does nothing .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5896">Bug
+          5896</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
+          5941</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  TvbRange_string(lua_State* L) call a wrong function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
+          5960</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Interface list in Capture Options isn't cleared when selecting other host.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008">Bug
           6008</ulink>)
@@ -105,9 +147,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  tshark crashes when loading Lua script that contains GUI function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6018">Bug
+          6018</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  802.11 Disassociation Packet's "Reason Code" field is imprecisely decoded/described.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6022">Bug
           6022</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wireshark crashes when setting custom column's field name with conditional.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6028">Bug
+          6028</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -117,27 +171,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+	  GTS Descriptor count limited to 3 instead of 7.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6055">Bug
+          6055</ulink>)
         </para></listitem>
 
         <listitem><para>
