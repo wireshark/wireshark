@@ -697,6 +697,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     case 'w':        /* Write to capture file x */
         capture_opts->saving_to_file = TRUE;
         g_free(capture_opts->save_file);
+        capture_opts->save_file = g_strdup(optarg_str_p);
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
     case 'g':        /* enable group read access on the capture file(s) */
