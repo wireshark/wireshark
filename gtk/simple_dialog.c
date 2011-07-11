@@ -155,10 +155,8 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
-#if GTK_CHECK_VERSION(2,9,0)
   g_object_set(gtk_widget_get_settings(msg_label),
     "gtk-label-select-on-focus", FALSE, NULL);
-#endif
 
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);

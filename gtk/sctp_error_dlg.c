@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -65,7 +65,7 @@ sctp_error_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
-		gtk_tree_model_get(model, &iter, 
+		gtk_tree_model_get(model, &iter,
 			FRAME_COLUMN, &(selected_packet->frame_number),
 			TEXT_COLUMN, &(selected_packet->chunk_info),
 			INFO_COLUMN, &(selected_packet->info_text),
@@ -82,71 +82,69 @@ GtkWidget *create_list(void)
 	GtkCellRenderer *renderer;
 	GtkTreeView *list_view;
 	GtkTreeSelection *selection;
-	
+
 	list_store = gtk_list_store_new(N_COLUMN,
 		G_TYPE_UINT, /* Frame number*/
 		G_TYPE_STRING, /* Chunk type*/
 		G_TYPE_STRING );/* Info */
-		
-    /* Create a view */
-    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	/* Create a view */
+	list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
 	list_view = GTK_TREE_VIEW(list);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
-    gtk_tree_view_set_headers_clickable(list_view, TRUE);
+	gtk_tree_view_set_headers_clickable(list_view, TRUE);
 
-    /* The view now holds a reference.  We can get rid of our own reference */
-    g_object_unref (G_OBJECT (list_store));
+	/* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref (G_OBJECT (list_store));
 
-    /* 
-     * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
-     */
-    /* 1:st column */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Framenumber", renderer, 
-		"text",	FRAME_COLUMN, 
-		NULL);
+	/*
+	 * Create the first column packet, associating the "text" attribute of the
+	 * cell_renderer to the first column of the model
+	 */
+	/* 1:st column */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Framenumber", renderer,
+		    "text",	FRAME_COLUMN,
+		    NULL);
 
 	gtk_tree_view_column_set_sort_column_id(column, FRAME_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 80);
 
 	/* Add the column to the view. */
-    gtk_tree_view_append_column (list_view, column);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 2:nd column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Chunk Types", renderer, 
-		"text", TEXT_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, INFO_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 200);
-    gtk_tree_view_append_column (list_view, column);
+	/* 2:nd column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Chunk Types", renderer,
+		    "text", TEXT_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, INFO_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 200);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 3:d column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Info", renderer, 
-		"text", INFO_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, TEXT_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 200);
-    gtk_tree_view_append_column (list_view, column);
+	/* 3:d column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Info", renderer,
+		    "text", INFO_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, TEXT_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 200);
+	gtk_tree_view_append_column (list_view, column);
 
 
-    /* Now enable the sorting of each column */
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
-    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+	/* Now enable the sorting of each column */
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
 	/* Setup the selection handler */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
@@ -163,16 +161,11 @@ static void add_to_clist(sctp_error_info_t* errinfo)
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-    gtk_list_store_append  (list_store, &iter);
-    gtk_list_store_set  (list_store, &iter,
-#endif
 		FRAME_COLUMN,			errinfo->frame_number,
 		TEXT_COLUMN,			errinfo->chunk_info,
 		INFO_COLUMN,			errinfo->info_text,
-         -1);	
+         -1);
 }
 
 static void
@@ -185,7 +178,7 @@ static void sctp_error_dlg_update(GList *list)
 {
 	GList *ilist=NULL;
 
-	if (sctp_error_dlg != NULL) 
+	if (sctp_error_dlg != NULL)
 	{
 		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(clist))));
 		ilist=list;
@@ -309,4 +302,3 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "No errors found!");
 }
-

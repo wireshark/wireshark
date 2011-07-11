@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * $Id$
@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -76,15 +76,15 @@ sctp_stat_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
 	gboolean stream_found=FALSE;
 	guint32 port2, port1;
 	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
-	
+
 	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
-		gtk_tree_model_get(model, &iter, 
+		gtk_tree_model_get(model, &iter,
 			PORT1_COLUMN, &port1,
 			PORT2_COLUMN, &port2,
 			PACKETS_COLUMN, &packets,
 			CHECKSUM_ERRORS_COLUMN, &checksum,
 			DATA_CHUNKS_COLUMN, &data_chunks,
-			DATA_BYTES_COLUMN, &data_bytes, 
+			DATA_BYTES_COLUMN, &data_bytes,
 			VTAG1_COLUMN, &vtag1,
 			VTAG2_COLUMN, &vtag2,
 			-1);
@@ -98,8 +98,8 @@ sctp_stat_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
 	while (list)
 	{
 		assoc = (sctp_assoc_info_t*)(list->data);
-		if (assoc->port1==port1 && assoc->port2==port2 
-		&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
+		if (assoc->port1==port1 && assoc->port2==port2
+		&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes
 		&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
 		{
 			selected_stream=assoc;
@@ -137,132 +137,130 @@ GtkWidget *create_list(void)
 		G_TYPE_UINT, /* number of data bytes */
 		G_TYPE_UINT, /* vtag1 */
 		G_TYPE_UINT); /* vtag2 */
-		
-    /* Create a view */
-    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	/* Create a view */
+	list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
 	list_view = GTK_TREE_VIEW(list);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
-    gtk_tree_view_set_headers_clickable(list_view, TRUE);
+	gtk_tree_view_set_headers_clickable(list_view, TRUE);
 
-    /* The view now holds a reference.  We can get rid of our own reference */
-    g_object_unref (G_OBJECT (list_store));
+	/* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref (G_OBJECT (list_store));
 
-    /* 
-     * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
-     */
-    /* 1:st column */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Port 1", renderer, 
-		"text",	PORT1_COLUMN, 
+	/*
+	 * Create the first column packet, associating the "text" attribute of the
+	 * cell_renderer to the first column of the model
+	 */
+	/* 1:st column */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Port 1", renderer,
+		"text",	PORT1_COLUMN,
 		NULL);
 
 	gtk_tree_view_column_set_sort_column_id(column, PORT1_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 80);
 
 	/* Add the column to the view. */
-    gtk_tree_view_append_column (list_view, column);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 2:nd column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Port 2", renderer, 
-		"text", PORT2_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, PORT2_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
-    gtk_tree_view_append_column (list_view, column);
+	/* 2:nd column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Port 2", renderer,
+		    "text", PORT2_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, PORT2_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 80);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 3:d column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("No of Packets", renderer, 
-		"text", PACKETS_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, PACKETS_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 3:d column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("No of Packets", renderer,
+		    "text", PACKETS_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, PACKETS_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 4:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Checksum", renderer, 
-		"text", CHECKSUM_TYPE_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_TYPE_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 4:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Checksum", renderer,
+		    "text", CHECKSUM_TYPE_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_TYPE_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 5:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("No of Errors", renderer, 
-		"text", CHECKSUM_ERRORS_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_ERRORS_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 5:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("No of Errors", renderer,
+		    "text", CHECKSUM_ERRORS_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_ERRORS_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 6:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Data Chunks", renderer, 
-		"text", DATA_CHUNKS_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, DATA_CHUNKS_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 6:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Data Chunks", renderer,
+		    "text", DATA_CHUNKS_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, DATA_CHUNKS_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 7:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Data Bytes", renderer, 
-		"text", DATA_BYTES_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, DATA_BYTES_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 7:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Data Bytes", renderer,
+		    "text", DATA_BYTES_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, DATA_BYTES_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* 8:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("VTag 1", renderer, 
-		"text", VTAG1_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, VTAG1_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 8:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("VTag 1", renderer,
+		    "text", VTAG1_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, VTAG1_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
 
-    /* 9:th column... */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("VTag 2", renderer, 
-		"text", VTAG2_COLUMN,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, VTAG2_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 120);
-    gtk_tree_view_append_column (list_view, column);
+	/* 9:th column... */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("VTag 2", renderer,
+		    "text", VTAG2_COLUMN,
+		    NULL);
+	gtk_tree_view_column_set_sort_column_id(column, VTAG2_COLUMN);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 120);
+	gtk_tree_view_append_column (list_view, column);
 
-    /* Now enable the sorting of each column */
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
-    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+	/* Now enable the sorting of each column */
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
 	/* Setup the selection handler */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
@@ -320,18 +318,13 @@ remove_analyse_child(struct sctp_analyse *child)
 
 
 static void add_to_clist(sctp_assoc_info_t* assinfo)
-{	
+{
     GtkListStore *list_store = NULL;
     GtkTreeIter  iter;
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-    gtk_list_store_append  (list_store, &iter);
-    gtk_list_store_set  (list_store, &iter,
-#endif
 		PORT1_COLUMN,			(guint32)assinfo->port1,
 		PORT2_COLUMN,			(guint32)assinfo->port2,
 		PACKETS_COLUMN,			assinfo->n_packets,
@@ -341,7 +334,7 @@ static void add_to_clist(sctp_assoc_info_t* assinfo)
 		DATA_BYTES_COLUMN,		assinfo->n_data_bytes,
 		VTAG1_COLUMN,			assinfo->verification_tag1,
 		VTAG2_COLUMN,			assinfo->verification_tag2,
-         -1);	
+         -1);
 }
 
 static void
@@ -396,7 +389,7 @@ sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 	if (filter_string != NULL)
 	{
 		port1 = selected_stream->port1;
-		port2 = selected_stream->port2;	
+		port2 = selected_stream->port2;
 		data_chunks = selected_stream->n_data_chunks;
 		data_bytes = selected_stream->n_data_bytes;
 		packets = selected_stream->n_packets;
@@ -408,8 +401,8 @@ sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 		while (list)
 		{
 			assoc = (sctp_assoc_info_t*)(list->data);
-			if (assoc->port1==port1 && assoc->port2==port2 
-			&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
+			if (assoc->port1==port1 && assoc->port2==port2
+			&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes
 			&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
 			{
 				selected_stream=assoc;
@@ -522,7 +515,7 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 		filter_string = gstring->str;
 		g_string_free(gstring,FALSE);
 	}
-	
+
 	if (filter_string != NULL) {
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 	} else {

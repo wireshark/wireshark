@@ -1793,7 +1793,6 @@ wlanstat_dlg_create (void)
 	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
 	for (i = 0; i <= PROTECTION_COLUMN; i++) {
-#if GTK_CHECK_VERSION(2,6,0)
 		if (i == PERCENT_COLUMN) {
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
@@ -1803,9 +1802,6 @@ wlanstat_dlg_create (void)
 			gtk_tree_view_column_set_expand(column, TRUE);
 			gtk_tree_view_column_set_sort_column_id(column, PERCENT_VALUE_COLUMN);
 		} else {
-#else
-		{
-#endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
 									  "text", i,
@@ -1856,7 +1852,6 @@ wlanstat_dlg_create (void)
 	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
 	for (i = 0; i <= COMMENT_COLUMN; i++) {
-#if GTK_CHECK_VERSION(2,6,0)
 		if (i == PERCENT_2_COLUMN) {
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
@@ -1866,9 +1861,6 @@ wlanstat_dlg_create (void)
 			gtk_tree_view_column_set_expand(column, TRUE);
 			gtk_tree_view_column_set_sort_column_id(column, PERCENT_VALUE_2_COLUMN);
 		} else {
-#else
-		{
-#endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
 									  "text", i,

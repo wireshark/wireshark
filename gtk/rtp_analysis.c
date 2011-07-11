@@ -1333,9 +1333,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
 	user_data_t *user_data;
 	int i;
-#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *bt_save;
-#endif
 
 	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
@@ -1355,11 +1353,9 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	user_data->dlg.dialog_graph.pixmap_width=widget->allocation.width;
 	user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
 
-#if GTK_CHECK_VERSION(2,6,0)
 	bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
 	g_object_set_data(G_OBJECT(bt_save), "pixmap", user_data->dlg.dialog_graph.pixmap);
 	gtk_widget_set_sensitive(bt_save, TRUE);
-#endif
 
 	gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
 			   widget->style->white_gc,
@@ -1695,10 +1691,8 @@ static void dialog_graph_init_window(user_data_t* user_data)
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 	GtkWidget *bt_close;
-#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *bt_save;
 	GtkTooltips   *tooltips = gtk_tooltips_new();
-#endif
 
 	/* create the main window */
 	user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
@@ -1720,24 +1714,18 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
 	dialog_graph_set_title(user_data);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	hbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
-#else
-	hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-#endif
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
 	bt_close = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	bt_save = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(bt_save, FALSE);
 	gtk_tooltips_set_tip(tooltips, bt_save, "Save the displayed graph to a file", NULL);
 	g_signal_connect(bt_save, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
 	g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save", bt_save);
-#endif
 
 	g_signal_connect(user_data->dlg.dialog_graph.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
@@ -2114,9 +2102,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 								   GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 								   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								   NULL);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
-#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
@@ -2729,9 +2715,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 								     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 								     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								     NULL);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
-#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
@@ -2990,12 +2974,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 	 * :
 	 * should generally be preferred when inserting rows in a sorted list store.
 	 */
-#if GTK_CHECK_VERSION(2,6,0)
 	gtk_list_store_insert_with_values( list_store , &user_data->dlg.iter, G_MAXINT,
-#else
-	gtk_list_store_append  (list_store, &user_data->dlg.iter);
-	gtk_list_store_set  (list_store, &user_data->dlg.iter,
-#endif
 			     PACKET_COLUMN,        number,
 			     SEQUENCE_COLUMN,      seq_num,
 			     TIMESTAMP_COLUMN,     timestamp,
@@ -3083,10 +3062,8 @@ GtkWidget* create_list(user_data_t* user_data)
 	list_view = GTK_TREE_VIEW(list);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
 	/* Setup the sortable columns */
 	gtk_tree_sortable_set_sort_column_id(sortable, PACKET_COLUMN, GTK_SORT_ASCENDING);

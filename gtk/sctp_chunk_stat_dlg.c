@@ -138,13 +138,11 @@ GtkWidget* create_list(void)
     /* Create a view */
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
-        list_view = GTK_TREE_VIEW(list);
-        sortable = GTK_TREE_SORTABLE(list_store);
+    list_view = GTK_TREE_VIEW(list);
+    sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
-        /* Speed up the list display */
-        gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
+    /* Speed up the list display */
+    gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
 
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, IP_ADDR_COLUMN, GTK_SORT_ASCENDING);
@@ -163,12 +161,12 @@ GtkWidget* create_list(void)
                 "text", IP_ADDR_COLUMN,
                 NULL);
 
-        gtk_tree_view_column_set_sort_column_id(column, IP_ADDR_COLUMN);
+    gtk_tree_view_column_set_sort_column_id(column, IP_ADDR_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 135);
 
-        /* Add the column to the view. */
+    /* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
 
     /* 2:nd column... */
@@ -418,11 +416,11 @@ GtkWidget* create_list(void)
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
-        /* Setup the selection handler */
-        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-        gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    /* Setup the selection handler */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
-        return list;
+    return list;
 
 }
 
@@ -501,12 +499,7 @@ add_to_clist(sctp_addr_chunk* sac)
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
     }
 
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-    gtk_list_store_append  (list_store, &iter);
-    gtk_list_store_set  (list_store, &iter,
-#endif
          IP_ADDR_COLUMN,         field[0],
          DATA_COLUMN,            sac->addr_count[SCTP_DATA_CHUNK_ID],
          INIT_COLUMN,            sac->addr_count[SCTP_INIT_CHUNK_ID],

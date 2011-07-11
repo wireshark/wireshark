@@ -330,9 +330,7 @@ rtpstream_on_save(GtkButton *button _U_, gpointer data _U_)
 		GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		NULL);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(rtpstream_save_dlg), TRUE);
-#endif
 
 	g_signal_connect(rtpstream_save_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(rtpstream_save_dlg, "destroy", G_CALLBACK(save_stream_destroy_cb), NULL);
@@ -488,7 +486,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 			g_string_append(CSV_str,"\n");
 		}
 	}
-	
+
 	/* Now that we have the CSV data, copy it into the default clipboard */
 	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
 	gtk_clipboard_set_text(cb, CSV_str->str, (gint)CSV_str->len);
@@ -562,7 +560,7 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
 	rtp_stream_info_t* selected_stream;
 	gboolean result = TRUE;
 	gchar label_text[80];
-	
+
 	/* Logic
 	 * nb_selected  path_currently_selected forward reverse  action           result
 	 *      0            must be false       any     any     assign forward   true
@@ -782,10 +780,8 @@ create_list_view(void)
 	list_view = GTK_TREE_VIEW(list);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
 	/* Setup the sortable columns */
 	gtk_tree_sortable_set_sort_column_id(sortable, RTP_COL_SRC_ADDR, GTK_SORT_ASCENDING);
