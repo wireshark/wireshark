@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,8 +30,6 @@
 #include <errno.h>
 
 #include <gtk/gtk.h>
-
-#if GTK_CHECK_VERSION(2,6,0)
 
 #include <epan/filesystem.h>
 
@@ -62,7 +60,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w_lcl));
 	type_cm = g_object_get_data(G_OBJECT(save_as_w_lcl), "type_cm");
 	file_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cm));
-	
+
 	/* Perhaps the user specified a directory instead of a file.
 	   Check whether they did. */
 	if(test_for_directory(filename) == EISDIR) {
@@ -106,7 +104,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	gchar *format_name;
 	guint format_index = 0;
 	guint default_index = 0;
-	
+
 	pixbuf = gdk_pixbuf_get_from_drawable(NULL, GDK_DRAWABLE(pixmap), NULL,
 					      0, 0, 0, 0, -1, -1);
 
@@ -128,9 +126,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 
 	save_as_w = file_selection_new("Wireshark: Save Graph As ...",
 				       FILE_SELECTION_SAVE);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(save_as_w), TRUE);
-#endif
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 0);
@@ -147,7 +143,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 
 	type_cm = gtk_combo_box_new_text();
 	gtk_box_pack_start(GTK_BOX(save_as_type_hb), type_cm, FALSE, FALSE, 0);
-	
+
 	/* List all of the file formats the gdk-pixbuf library supports */
 	file_formats = gdk_pixbuf_get_formats();
 	ffp = file_formats;
@@ -179,7 +175,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 #else
 	gdk_window_set_transient_for(save_as_w->window, parent);
 #endif
-	
+
 #if 0
 	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT)
 		pixbuf_save_button_cb(save_as_w, pixbuf);
@@ -207,5 +203,3 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	window_destroy(save_as_w);
 #endif
 }
-
-#endif /* GTK_CHECK_VERSION(2,6,0) */

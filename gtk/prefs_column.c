@@ -143,14 +143,14 @@ column_prefs_show(GtkWidget *prefs_window) {
     store = gtk_list_store_new(N_COLUMN,
 			       G_TYPE_BOOLEAN,
 			       G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
-    column_row_deleted_handler_id = 
+    column_row_deleted_handler_id =
         g_signal_connect(GTK_TREE_MODEL(store), "row-deleted", G_CALLBACK(column_dnd_row_deleted_cb), NULL);
 
     column_l = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
     gtk_tree_view_set_reorderable(GTK_TREE_VIEW(column_l), TRUE);
-    gtk_tooltips_set_tip (tooltips, column_l, 
+    gtk_tooltips_set_tip (tooltips, column_l,
         "Click on a title to change its name.\nDrag an item to change its order.", NULL);
 
     renderer = gtk_cell_renderer_toggle_new();
@@ -198,12 +198,7 @@ column_prefs_show(GtkWidget *prefs_window) {
             }
             fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
         }
-#if GTK_CHECK_VERSION(2,6,0)
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
-#else
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter,
-#endif
 			   VISIBLE_COLUMN, cfmt->visible,
 			   TITLE_COLUMN, cfmt->title, FORMAT_COLUMN, fmt, DATA_COLUMN, clp, -1);
 
@@ -241,7 +236,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_tooltips_set_tip (tooltips, remove_bt,
                           "Remove the selected column.", NULL);
     gtk_widget_show(remove_bt);
-  
+
     /* properties frame */
     props_fr = gtk_frame_new("Properties");
     gtk_box_pack_start (GTK_BOX (bottom_hb), props_fr, TRUE, TRUE, 0);
@@ -284,7 +279,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     /* XXX: column_field_changed_cb will be called for every character entered in the entry box.      */
     /*       Consider Changing logic so that the field is "accepted" only when a return is entered ?? */
     /*       Also: entry shouldn't be accepted if it's not a valid filter ?                           */
-    column_field_changed_handler_id = 
+    column_field_changed_handler_id =
         g_signal_connect(field_te, "changed", G_CALLBACK(column_field_changed_cb), column_l);
 
     g_object_set_data(G_OBJECT(main_vb), E_FILT_AUTOCOMP_PTR_KEY, NULL);
@@ -313,7 +308,7 @@ column_prefs_show(GtkWidget *prefs_window) {
 
     /* XXX: column_occurrence_changed_cb will be called for every character entered in the entry box.      */
     /*       Consider Changing logic so that the field is "accepted" only when a return is entered ?? */
-    column_occurrence_changed_handler_id = 
+    column_occurrence_changed_handler_id =
         g_signal_connect(occurrence_te, "changed", G_CALLBACK(column_occurrence_changed_cb), column_l);
 
     gtk_table_attach_defaults(GTK_TABLE(tb), occurrence_te, 3, 4, 1, 2);
@@ -404,12 +399,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     column_prefs_add_custom (cur_fmt, title, NULL, 0);
 
     model = gtk_tree_view_get_model(column_l);
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, G_MAXINT,
-#else
-    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
-#endif
                        VISIBLE_COLUMN, TRUE,
                        TITLE_COLUMN, title,
                        FORMAT_COLUMN, col_format_desc(cur_fmt),
@@ -507,20 +497,20 @@ column_title_changed_cb(GtkCellRendererText *cell _U_, const gchar *str_path, co
     GtkTreePath  *path = gtk_tree_path_new_from_string (str_path);
     GtkTreeIter   iter;
 
-    gtk_tree_model_get_iter(model, &iter, path); 
-  
+    gtk_tree_model_get_iter(model, &iter, path);
+
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, TITLE_COLUMN, new_title, -1);
 
     gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
-    if (clp) {    
+    if (clp) {
         cfmt  = (fmt_data *) clp->data;
         g_free(cfmt->title);
         cfmt->title = g_strdup(new_title);
     }
 
     gtk_tree_path_free (path);
-    cfile.cinfo.columns_changed = TRUE; 
-    return TRUE;  
+    cfile.cinfo.columns_changed = TRUE;
+    return TRUE;
 }
 
 /*
@@ -708,7 +698,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
         return; /* no action req'd */
     }
 
-    /* The user has entered a new value in the field entry box: make the req'd changes */ 
+    /* The user has entered a new value in the field entry box: make the req'd changes */
     cur_fmt = get_column_format_from_str(cfmt->fmt);
     if (cfmt->custom_occurrence) {
         fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), field, cfmt->custom_occurrence);
@@ -757,7 +747,7 @@ column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
         return; /* no action req'd */
     }
 
-    /* The user has entered a new value in the field occurrence entry box: make the req'd changes */ 
+    /* The user has entered a new value in the field occurrence entry box: make the req'd changes */
     cur_fmt = get_column_format_from_str(cfmt->fmt);
     if (occurrence) {
         fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), cfmt->custom_field, occurrence);
@@ -775,7 +765,7 @@ column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
 /*
  * Callback for the "row-deleted" signal emitted when a list item is dragged.
  * http://library.gnome.org/devel/gtk/stable/GtkTreeModel.html#GtkTreeModel-rows-reordered
- * says that DND deletes, THEN inserts the row. 
+ * says that DND deletes, THEN inserts the row.
  *
  * XXX: For the record: For Gtk+ 2.16.0 testing shows the actual sequence for drag-and-drop to be as follows:
  *      1. Insert a new, empty row at the destination;
@@ -784,7 +774,7 @@ column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
  *      4. Delete the source row;
  *      5. Emit a "row-deleted" signal; invoke any row-deleted callbacks & etc.
  *
- *  The code below (invoked as a consequence of a "row-deleted" signal) rebuilds 
+ *  The code below (invoked as a consequence of a "row-deleted" signal) rebuilds
  *  prefs.col_list by iterating over the (re-ordered) tree model.
  */
 static void

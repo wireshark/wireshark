@@ -901,10 +901,6 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 #endif
 	gint          linktype;
 	GtkTreeModel *list_model;
-#if ! GTK_CHECK_VERSION(2,6,0)
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
-#endif
 	GtkTreeIter   list_iter;
 	GtkListStore *list_store;
 
@@ -926,14 +922,8 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 		-1);
 
 	/* get current description text and set value in list_store for currently selected interface */
-#if GTK_CHECK_VERSION(2,6,0)
 	text = gtk_combo_box_get_active_text(cb);
 	if (text) {
-#else
-	if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(cb), &iter)) {
-		model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
-		gtk_tree_model_get(model, &iter, 0, &text, -1);
-#endif
 #ifdef HAVE_PCAP_CREATE
 		linktype = ifopts_description_to_val(ifnm, monitor_mode, text);
 #else
@@ -1135,12 +1125,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 
 	/* add row to ListStore */
 
-#if GTK_CHECK_VERSION(2,6,0)
 	gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-	gtk_list_store_append  (list_store, &iter);
-	gtk_list_store_set  (list_store, &iter,
-#endif
 			     DEVICE_COLUMN,           text[0],
 			     DESC_COLUMN,             text[1],
 #ifdef HAVE_PCAP_CREATE

@@ -43,8 +43,6 @@
 
 #include "gtk/proto_help.h"
 
-#if GLIB_CHECK_VERSION(2,14,0) /* GRegex */
-
 #define PH_MENU_TOP "/Protocol Help"
 
 #define PH_FILE_LOG "ph.log"
@@ -664,11 +662,3 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 	}
 }
 #endif /* PH_DEBUG_LOG */
-
-#else /* GLIB_CHECK_VERSION(2,14,0) */ /* No GRegex */
-
-void proto_help_init(void) {}
-void proto_help_menu_init(GtkWidget *widget _U_) {}
-void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}
-
-#endif /* GLIB_CHECK_VERSION(2,14,0) */

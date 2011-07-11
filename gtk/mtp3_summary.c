@@ -99,13 +99,11 @@ GtkWidget* create_list(void)
     /* Create a view */
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
-	list_view = GTK_TREE_VIEW(list);
-	sortable = GTK_TREE_SORTABLE(list_store);
+    list_view = GTK_TREE_VIEW(list);
+    sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
-	/* Speed up the list display */
-	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
+    /* Speed up the list display */
+    gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
 
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, SI_COLUMN, GTK_SORT_ASCENDING);
@@ -114,27 +112,27 @@ GtkWidget* create_list(void)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (list_store));
 
-    /* 
-	 * Create the first column packet, associating the "text" attribute of the
-     * cell_renderer to the first column of the model 
-	 */
-	/* 1:st column */
-	renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("SI", renderer, 
-		"text",	SI_COLUMN, 
+    /*
+     * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model
+     */
+    /* 1:st column */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("SI", renderer,
+		"text",	SI_COLUMN,
 		NULL);
 
-	gtk_tree_view_column_set_sort_column_id(column, SI_COLUMN);
+    gtk_tree_view_column_set_sort_column_id(column, SI_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 110);
 
-	/* Add the column to the view. */
+    /* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
 
     /* 2:nd column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer,
 		"text", NUM_MSUS_COLUMN,
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, NUM_MSUS_COLUMN);
@@ -143,9 +141,9 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
-	/* 3:d column... */
+    /* 3:d column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("MSUs/sec", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("MSUs/sec", renderer,
 		"text", NUM_MSUS_SEC_COLUMN,
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, NUM_MSUS_SEC_COLUMN);
@@ -154,9 +152,9 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
-	/* 4:d column... */
+    /* 4:d column... */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer,
 		"text", NUM_BYTES_COLUMN,
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_COLUMN);
@@ -167,10 +165,10 @@ GtkWidget* create_list(void)
 
     /* 5:th column... */
     renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Bytes/MSU", renderer, 
-		"text", NUM_BYTES_MSU_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Bytes/MSU", renderer,
+		"text", NUM_BYTES_MSU_COLUMN,
 		NULL);
-	
+
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_MSU_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -180,8 +178,8 @@ GtkWidget* create_list(void)
 
     /* 6:th column... */
     renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Bytes/sec", renderer, 
-		"text", NUM_BYTES_SEC_COLUMN, 
+    column = gtk_tree_view_column_new_with_attributes ("Bytes/sec", renderer,
+		"text", NUM_BYTES_SEC_COLUMN,
 		NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_SEC_COLUMN);
@@ -190,15 +188,15 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
-	/* Now enable the sorting of each column */
+    /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
-	/* Setup the selection handler */
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    /* Setup the selection handler */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
-	return list;
+    return list;
 
 }
 
@@ -254,12 +252,7 @@ mtp3_sum_draw(
         entries[4] = (num_msus) ? g_strdup_printf("%.2f", (double)num_bytes/num_msus) : g_strdup("N/A");
         entries[5] = (seconds) ? g_strdup_printf("%.2f", (double)num_bytes/seconds) : g_strdup("N/A");
 
-#if GTK_CHECK_VERSION(2,6,0)
         gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-        gtk_list_store_append  (list_store, &iter);
-        gtk_list_store_set  (list_store, &iter,
-#endif
            SI_COLUMN, mtp3_service_indicator_code_short_vals[i].strptr,
            NUM_MSUS_COLUMN, num_msus,
            NUM_MSUS_SEC_COLUMN, entries[2],
@@ -290,7 +283,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   double		seconds;
   int			tot_num_msus;
   double		tot_num_bytes;
-  
+
   /* initialize the tally */
   summary_fill_in(&cfile, &summary);
 
@@ -360,7 +353,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(table_fr);
 
    table = create_list();
-  
+
   gtk_container_add(GTK_CONTAINER(table_fr), table);
   gtk_widget_show(table);
 

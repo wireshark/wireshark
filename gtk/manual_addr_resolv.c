@@ -58,21 +58,10 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
   GtkWidget   *addr_cb, *name_te, *resolv_cb;
   const gchar *addr, *name;
   gboolean     active, redissect = FALSE;
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-	GtkTreeIter   iter;
-	GtkTreeModel *model;
-#endif
   addr_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
   name_te = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "name");
 
-  #if GTK_CHECK_VERSION(2,6,0)
   addr = gtk_combo_box_get_active_text (GTK_COMBO_BOX(addr_cb));
-  #else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(addr_cb), &iter);
-  model = gtk_combo_box_get_model(GTK_COMBO_BOX(addr_cb));
-  gtk_tree_model_get(model, &iter, 0, &addr, -1);
-  #endif
   name = gtk_entry_get_text (GTK_ENTRY (name_te));
 
   if (strlen (addr) && strlen (name)) {

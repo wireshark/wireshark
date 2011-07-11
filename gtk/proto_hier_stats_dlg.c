@@ -429,13 +429,13 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 
     /* Scrolled Window */
     sw = scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
                                         GTK_SHADOW_IN);
     gtk_container_add(GTK_CONTAINER(container), sw);
 
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, 
+                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_FLOAT,
                                G_TYPE_FLOAT);
     tree = tree_view_new(GTK_TREE_MODEL(store));
@@ -449,21 +449,12 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
                                                       NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
-#if GTK_CHECK_VERSION(2,6,0)
     renderer = gtk_cell_renderer_progress_new();
     column = gtk_tree_view_column_new_with_attributes("% Packets", renderer,
                                                       "text", PRCT_PKTS_COLUMN,
                                                       "value", PRCT_PKTS_VALUE_COLUMN,
                                                       NULL);
     gtk_tree_view_column_set_expand(column, TRUE);
-#else
-    gtk_tree_view_column_set_expand(column, TRUE);
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("% Packets", renderer,
-                                                      "text", PRCT_PKTS_COLUMN,
-                                                      NULL);
-    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
-#endif
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
     renderer = gtk_cell_renderer_text_new();
@@ -473,20 +464,12 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
-#if GTK_CHECK_VERSION(2,6,0)
     renderer = gtk_cell_renderer_progress_new();
     column = gtk_tree_view_column_new_with_attributes("% Bytes", renderer,
                                                       "text", PRCT_BYTES_COLUMN,
                                                       "value", PRCT_BYTES_VALUE_COLUMN,
                                                       NULL);
     gtk_tree_view_column_set_expand(column, TRUE);
-#else
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("% Bytes", renderer,
-                                                      "text", PRCT_BYTES_COLUMN,
-                                                      NULL);
-    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
-#endif
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
     renderer = gtk_cell_renderer_text_new();
@@ -603,4 +586,3 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

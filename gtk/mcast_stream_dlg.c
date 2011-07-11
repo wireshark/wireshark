@@ -459,10 +459,8 @@ create_list_view(void)
 	list_view = GTK_TREE_VIEW(list_w);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
 	/* Setup the sortable columns */
 	gtk_tree_sortable_set_sort_column_id(sortable, MC_COL_SRC_ADDR, GTK_SORT_ASCENDING);
@@ -653,7 +651,7 @@ mcaststream_dlg_create(void)
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
-	mcaststream_dlg_w = dlg_window_new(win_name);    
+	mcaststream_dlg_w = dlg_window_new(win_name);
 
 	gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
 

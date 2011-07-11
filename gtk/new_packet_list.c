@@ -737,10 +737,8 @@ create_view_and_model(void)
 
 	packetlist->view = tree_view_new(GTK_TREE_MODEL(packetlist));
 
-#if GTK_CHECK_VERSION(2,6,0)
 	gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(packetlist->view),
 						TRUE);
-#endif
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
 	g_signal_connect(packetlist->view, "row-activated",

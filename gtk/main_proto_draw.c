@@ -591,10 +591,10 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
     gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
                                    first_path);
 
-	/* If the last search was a string or hex search within "Packet data", the entire field might 
+	/* If the last search was a string or hex search within "Packet data", the entire field might
        not be highlighted. If the user just clicked on one of the bytes comprising that field, the
        above call didn't trigger a 'gtk_tree_view_get_selection' event. Call redraw_packet_bytes()
-       to make the highlighting of the entire field visible. */   
+       to make the highlighting of the entire field visible. */
     if (!cfile.search_in_progress) {
         if (cfile.hex || (cfile.string && cfile.packet_data)) {
             redraw_packet_bytes(byte_nb_ptr_gbl, cfile.current_frame, cfile.finfo_selected);
@@ -1075,9 +1075,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
      * Build the dialog box we need.
      */
     savehex_dlg = file_selection_new("Wireshark: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
-#if GTK_CHECK_VERSION(2,8,0)
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(savehex_dlg), TRUE);
-#endif
 
     /* label */
     label = g_strdup_printf("Will save %u %s of raw binary data to specified file.",
@@ -1594,7 +1592,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
             }
             bstart = cfile.search_pos - (blen-1);
 
-        } else {	
+        } else {
             blen = finfo->length;
             bstart = finfo->start;
         }

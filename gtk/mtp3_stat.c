@@ -109,10 +109,8 @@ GtkWidget* create_list(void)
     list_view = GTK_TREE_VIEW(list);
     sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, OPC_COLUMN, GTK_SORT_ASCENDING);
@@ -328,12 +326,7 @@ mtp3_stat_draw(
              }
 
 
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append  (list_store, &iter);
-            gtk_list_store_set  (list_store, &iter,
-#endif
                OPC_COLUMN,       dlg.entries[0],
                DPC_COLUMN,       dlg.entries[1],
                SI_COLUMN,        mtp3_service_indicator_code_short_vals[j].strptr,
@@ -381,7 +374,7 @@ mtp3_stat_gtk_win_create(
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
     dlg_p->table = create_list();
-	
+
     gtk_widget_show(dlg_p->table);
 
     gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
