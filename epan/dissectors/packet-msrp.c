@@ -303,7 +303,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
     while (tvb_offset_exists(tvb, offset)) {
         /* 'desegment' is FALSE so will set next_offset to beyond the end of
            the buffer if no line ending is found */
-        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
         linelen = next_offset - offset;
         if(tree) {
             proto_tree_add_text(tree, tvb, offset, linelen,
@@ -357,7 +357,7 @@ check_msrp_header(tvbuff_t *tvb)
         return FALSE;
     }
 
-    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, ENC_BIG_ENDIAN);
     /* Find the first SP */
     space_offset = tvb_find_guint8(tvb, 0, linelen, ' ');
 
@@ -405,7 +405,7 @@ find_end_line(tvbuff_t *tvb, gint start)
     while (tvb_length_remaining(tvb, offset) > 0) {
         /* 'desegment' is FALSE so will set next_offset to beyond the end of
            the buffer if no line ending is found */
-        linelen =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen =  tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
         if (linelen == -1) {
             return -1;
         }
@@ -493,7 +493,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * "tvb_get_ptr()" calls below won't throw exceptions.   *
      */
     offset = 0;
-    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, ENC_BIG_ENDIAN);
 
     /* Find the first SP and skip the first token */
     token_2_start = tvb_find_guint8(tvb, 0, linelen, ' ') + 1;
@@ -559,26 +559,26 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = next_offset;
     end_line_offset = find_end_line(tvb,offset);
     /* TODO if -1 (No end line found, is returned do something) */
-    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, FALSE);
+    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, ENC_BIG_ENDIAN);
     message_end_offset = end_line_offset + end_line_len + 2;
 
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, message_end_offset, FALSE);
+        ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, message_end_offset, ENC_BIG_ENDIAN);
         msrp_tree = proto_item_add_subtree(ti, ett_msrp);
 
         if (is_msrp_response){
-            th = proto_tree_add_item(msrp_tree,hf_msrp_response_line,tvb,0,linelen,FALSE);
+            th = proto_tree_add_item(msrp_tree,hf_msrp_response_line,tvb,0,linelen,ENC_BIG_ENDIAN);
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
-            proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
+            proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,ENC_BIG_ENDIAN);
             proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
                                 atoi(tvb_get_ephemeral_string(tvb, token_3_start, token_3_len)));
 
         }else{
-            th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,FALSE);
+            th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,ENC_BIG_ENDIAN);
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
-            proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
-            proto_tree_add_item(reqresp_tree,hf_msrp_method,tvb,token_3_start,token_3_len,FALSE);
+            proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,ENC_BIG_ENDIAN);
+            proto_tree_add_item(reqresp_tree,hf_msrp_method,tvb,token_3_start,token_3_len,ENC_BIG_ENDIAN);
         }
 
         /* Conversation setup info */
@@ -588,7 +588,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Headers */
-        msrp_headers_item = proto_tree_add_item(msrp_tree, hf_msrp_msg_hdr, tvb, offset,(end_line_offset - offset), FALSE);
+        msrp_headers_item = proto_tree_add_item(msrp_tree, hf_msrp_msg_hdr, tvb, offset,(end_line_offset - offset), ENC_BIG_ENDIAN);
         msrp_hdr_tree = proto_item_add_subtree(msrp_headers_item, ett_msrp_hdr);
 
         /*
@@ -597,7 +597,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < end_line_offset  ) {
             /* 'desegment' is FALSE so will set next_offset to beyond the end of
                the buffer if no line ending is found */
-            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
             if (linelen == 0) {
                 /*
                  * This is a blank line separating the
@@ -690,7 +690,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Create new tree & tvb for data */
             next_tvb = tvb_new_subset_remaining(tvb, next_offset);
             ti = proto_tree_add_item(msrp_tree, hf_msrp_data, tvb,
-                                     next_offset, -1, FALSE);
+                                     next_offset, -1, ENC_BIG_ENDIAN);
             msrp_data_tree = proto_item_add_subtree(ti, ett_msrp_data);
 
             /* give the content type parameters to sub dissectors */
@@ -709,7 +709,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 offset = 0;
                 while (tvb_offset_exists(next_tvb, offset)) {
-                    tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
+                    tvb_find_line_end(next_tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
                     linelen = next_offset - offset;
                     proto_tree_add_text(msrp_data_tree, next_tvb, offset, linelen,
                                     "%s", tvb_format_text(next_tvb, offset, linelen));
@@ -722,12 +722,12 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
         /* End line */
-        ti = proto_tree_add_item(msrp_tree,hf_msrp_end_line,tvb,end_line_offset,end_line_len,FALSE);
+        ti = proto_tree_add_item(msrp_tree,hf_msrp_end_line,tvb,end_line_offset,end_line_len,ENC_BIG_ENDIAN);
         msrp_end_tree = proto_item_add_subtree(ti, ett_msrp_end_line);
 
-        proto_tree_add_item(msrp_end_tree,hf_msrp_transactionID,tvb,end_line_offset + 7,token_2_len,FALSE);
+        proto_tree_add_item(msrp_end_tree,hf_msrp_transactionID,tvb,end_line_offset + 7,token_2_len,ENC_BIG_ENDIAN);
         /* continuation-flag */
-        proto_tree_add_item(msrp_end_tree,hf_msrp_cnt_flg,tvb,end_line_offset+end_line_len-1,1,FALSE);
+        proto_tree_add_item(msrp_end_tree,hf_msrp_cnt_flg,tvb,end_line_offset+end_line_len-1,1,ENC_BIG_ENDIAN);
 
         if (global_msrp_raw_text){
             ti = proto_tree_add_text(tree, tvb, 0, -1,"Message Session Relay Protocol(as raw text)");
