@@ -550,6 +550,7 @@ EXTRA_DIST = \
 	Makefile.nmake.inc	\
 	README.aix		\
 	README.bsd		\
+	README.DECT		\
 	README.hpux		\
 	README.irix		\
 	README.linux		\
@@ -602,6 +603,7 @@ EXTRA_DIST = \
 	debian/wireshark.files \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
+	epan/dfilter/README.dfilter	\
 	dfilters 		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
@@ -828,6 +830,8 @@ EXTRA_DIST = \
 	cmake/modules/FindXMLLINT.cmake		\
 	cmake/modules/FindSED.cmake		\
 	cmake/modules/FindGLIB2.cmake		\
+	cmake/modules/FindGMODULE2.cmake		\
+	cmake/modules/FindGTHREAD2.cmake		\
 	cmake/modules/FindHtmlViewer.cmake	\
 	cmake/modules/FindGTK2.cmake		\
 	cmake/modules/FindFOP.cmake		\

@@ -62,6 +62,7 @@ libwiretap_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)
 
 EXTRA_DIST = \
+	README.airmagnet	\
 	README.developer	\
 	Makefile.common		\
 	Makefile.nmake		\

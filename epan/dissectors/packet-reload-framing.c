@@ -129,6 +129,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (effective_length < MIN_HDR_LENGTH)
     return 0;
 
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
   /* Get the type
    * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
    * 5.6.2.  Framing Header
@@ -150,7 +153,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       }
       break;
     case ACK:
-      if (effective_length < 9) {
+      if (effective_length < 9 || ! conversation) {
         return 0;
       }
       break;
@@ -167,7 +170,10 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   /* Create the transaction key which may be used to track the conversation */
   sequence = tvb_get_ntohl(tvb, 1);
 
-  conversation = find_or_create_conversation(pinfo);
+  if (!conversation) {
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  }
 
   /*
    * Do we already have a state structure for this conv
@@ -413,4 +419,3 @@ proto_reg_handoff_reload_framing(void)
   heur_dissector_add("tcp", dissect_reload_framing_heur, proto_reload_framing);
   heur_dissector_add("dtls", dissect_reload_framing_heur, proto_reload_framing);
 }
-

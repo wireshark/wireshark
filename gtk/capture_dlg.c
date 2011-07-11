@@ -912,7 +912,7 @@ update_interface_list()
   GList        *if_list, *combo_list, *combo_list_entry;
   GtkTreeModel *model;
 
-  int        iftype, prev_iftype, err, n_interfaces, i=0;
+  int        iftype, prev_iftype, err;
   gchar     *err_str;
 
   if (cap_open_w == NULL)
@@ -954,17 +954,17 @@ update_interface_list()
       return;
     }
 
-    /* Empty the interface combo box */
-    model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
-    n_interfaces = gtk_tree_model_iter_n_children(model,NULL);
-    while(i < n_interfaces){
-      gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), i);
-    }
-
   } else if (iftype == CAPTURE_IFREMOTE) {
     /* New remote interface */
     iftype_combo_box_add (iftype_cbx);
   }
+
+  /* Empty the interface combo box */
+  model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
+  while (gtk_tree_model_iter_n_children(model, NULL) > 0) {
+    gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), 0);
+  }
+
   combo_list = build_capture_combo_list(if_list, TRUE);
   for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {
       gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);

@@ -76,6 +76,9 @@ EXTRA_DIST = \
 	ScriptExec/ScriptExec.xcodeproj/project.pbxproj	\
 	ScriptExec/ScriptExec_Prefix.pch	\
 	ScriptExec/version.plist	\
+	Scripts/chmodbpf-postinstall.sh	\
+	Scripts/cli-postinstall.sh	\
+	Scripts/wireshark-postinstall.sh	\
 	utility-launcher	\
 	root.ds_store	\
 	util.ds_store

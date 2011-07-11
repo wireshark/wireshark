@@ -32,22 +32,24 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-??.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-11.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
+            The Lucent/Ascend file parser was susceptible to an infinite loop.
+            <!-- Fixed in trunk: r37625 -->
             <!-- Fixed in trunk-1.6: r????? -->
             <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+            <!-- Fixed in trunk-1.2: r37809 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>) -->
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.17 and 1.4.0 to 1.4.7.</para>
-
+          <para>Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2597">CVE-2011-2597 </ulink>
+          </para>
         </listitem>
 
       </itemizedlist>
@@ -69,6 +71,12 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+	  Interface list in Capture Options isn't cleared when selecting other host.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008">Bug
+          6008</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
