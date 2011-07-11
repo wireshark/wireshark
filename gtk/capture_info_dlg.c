@@ -129,11 +129,6 @@ capture_options *capture_opts)
   gchar             *title_iface;
   gchar             *descr;
   GString           *str;
-#if !GTK_CHECK_VERSION(2,14,0)
-  GtkTooltips       *tooltips;
-
-  tooltips = gtk_tooltips_new ();
-#endif
 
   info = g_malloc0(sizeof(capture_info_ui_t));
   info->counts[0].title = "Total";
@@ -300,11 +295,7 @@ capture_options *capture_opts)
   g_signal_connect(info->cap_w, "delete_event", G_CALLBACK(capture_info_delete_cb), capture_opts);
 
   ci_help = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-#if GTK_CHECK_VERSION(2,14,0)
   gtk_widget_set_tooltip_text(ci_help, "Get help about this dialog");
-#else
-  gtk_tooltips_set_tip (tooltips, ci_help, ("Get help about this dialog"), NULL);
-#endif
   g_signal_connect(ci_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_INFO_DIALOG);
 
   gtk_widget_show(info->cap_w);

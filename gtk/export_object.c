@@ -400,7 +400,6 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *selection;
 	GtkWidget *vbox, *bbox, *help_bt, *cancel_bt, *save_bt, *save_all_bt;
-	GtkTooltips *button_bar_tips;
 	GString *error_msg;
 	export_object_list_t *object_list;
 	gchar *window_title;
@@ -426,8 +425,6 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	}
 
 	/* Setup our GUI window */
-	button_bar_tips = gtk_tooltips_new();
-
 	window_title = g_strdup_printf("Wireshark: %s object list", name);
 	object_list->dlg = dlg_window_new(window_title);
 	g_free(window_title);
@@ -513,29 +510,22 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	/* Help button */
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_OBJECT_LIST);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
-			     "Show help for this dialog.", NULL);
+	gtk_widget_set_tooltip_text(help_bt, "Show help for this dialog.");
 
 	/* Save All button */
 	save_all_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_SAVE_ALL);
 	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb),
 		       object_list);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_all_bt,
-			     "Save all listed objects with their displayed "
-			     "filenames.", NULL);
+	gtk_widget_set_tooltip_text(save_all_bt, "Save all listed objects with their displayed filenames.");
 
 	/* Save As button */
 	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE_AS);
 	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), object_list);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_bt,
-			     "Saves the currently selected content to a file.",
-			     NULL);
+	gtk_widget_set_tooltip_text(save_bt, "Saves the currently selected content to a file.");
 
 	/* Cancel button */
 	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), cancel_bt,
-			     "Cancel this dialog.", NULL);
-
+	gtk_widget_set_tooltip_text(cancel_bt, "Cancel this dialog.");
 
 	/* Pack the buttons into the "button box" */
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);

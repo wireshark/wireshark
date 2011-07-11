@@ -1738,7 +1738,6 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 {
     GtkWidget   *main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *help_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
-    GtkTooltips *tooltips = gtk_tooltips_new();
 
     if (decode_w != NULL) {
         /* There's already a "Decode As" dialog box; reactivate it. */
@@ -1771,8 +1770,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips, button,
-        "Open a dialog showing the current settings.", NULL);
+	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.");
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), NULL);
@@ -1782,8 +1780,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips, button,
-        "Clear ALL settings.", NULL);
+	gtk_widget_set_tooltip_text(button, "Clear ALL settings.");
 
     decode_add_notebook(format_hb);
 
@@ -1794,19 +1791,16 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 
     ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(decode_ok_cb), decode_w);
-    gtk_tooltips_set_tip(tooltips, ok_bt,
-        "Apply current setting, close dialog and redissect packets.", NULL);
+	gtk_widget_set_tooltip_text(ok_bt, "Apply current setting, close dialog and redissect packets.");
 
     apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
     g_signal_connect(apply_bt, "clicked", G_CALLBACK(decode_apply_cb), decode_w);
-    gtk_tooltips_set_tip(tooltips, apply_bt,
-        "Apply current setting, redissect packets and keep dialog open.", NULL);
+	gtk_widget_set_tooltip_text(apply_bt, "Apply current setting, redissect packets and keep dialog open.");
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(decode_w, close_bt, NULL);
     g_signal_connect(close_bt, "clicked", G_CALLBACK(decode_close_cb), decode_w);
-    gtk_tooltips_set_tip(tooltips, close_bt,
-        "Close the dialog, don't redissect packets.", NULL);
+	gtk_widget_set_tooltip_text(close_bt, "Close the dialog, don't redissect packets.");
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_DIALOG);
