@@ -40,7 +40,7 @@ Wireshark Info
           <para>
             The Lucent/Ascend file parser was susceptible to an infinite loop.
             <!-- Fixed in trunk: r37625 -->
-            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.6: r37965 -->
             <!-- Fixed in trunk-1.4: r????? -->
             <!-- Fixed in trunk-1.2: r37809 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
