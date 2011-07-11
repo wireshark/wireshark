@@ -89,7 +89,9 @@
 #define GSMTAP_CHANNEL_SDCCH8		0x08
 #define GSMTAP_CHANNEL_TCH_F		0x09
 #define GSMTAP_CHANNEL_TCH_H		0x0a
+#define GSMTAP_CHANNEL_PACCH		0x0b
 #define GSMTAP_CHANNEL_ACCH			0x80
+
 
 /* sub-types for TYPE_TETRA_AIR */
 #define GSMTAP_TETRA_BSCH			0x01
@@ -155,6 +157,8 @@ enum {
 	GSMTAP_SUB_DATA = 0,
 	GSMTAP_SUB_UM,
 	GSMTAP_SUB_UM_LAPDM,
+	GSMTAP_SUB_UM_RLC_MAC_UL,
+	GSMTAP_SUB_UM_RLC_MAC_DL,
 	GSMTAP_SUB_ABIS,
 	/* WiMAX sub handles */
 	GSMTAP_SUB_CDMA_CODE, 
@@ -201,6 +205,7 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_SDCCH8,	"SDCCH/8" },
 	{ GSMTAP_CHANNEL_TCH_F,		"FACCH/F" },
 	{ GSMTAP_CHANNEL_TCH_H,		"FACCH/H" },
+	{ GSMTAP_CHANNEL_PACCH,		"PACCH"},
 	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH,		"LSACCH" },
 	{ GSMTAP_CHANNEL_ACCH|
@@ -420,6 +425,15 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case GSMTAP_CHANNEL_TCH_H:
 			sub_handle = GSMTAP_SUB_UM_LAPDM;
 			break;
+		case GSMTAP_CHANNEL_PACCH:
+			if (pinfo->p2p_dir == P2P_DIR_SENT) {
+				sub_handle = GSMTAP_SUB_UM_RLC_MAC_UL;
+			}
+			else
+			{
+				sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
+			}
+			break;
 		case GSMTAP_CHANNEL_RACH:
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
@@ -528,6 +542,8 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_DATA] = find_dissector("data");
 	sub_handles[GSMTAP_SUB_UM] = find_dissector("gsm_a_ccch");
 	sub_handles[GSMTAP_SUB_UM_LAPDM] = find_dissector("lapdm");
+	sub_handles[GSMTAP_SUB_UM_RLC_MAC_UL] = find_dissector("gsm_rlcmac_ul");
+	sub_handles[GSMTAP_SUB_UM_RLC_MAC_DL] = find_dissector("gsm_rlcmac_dl");
 	sub_handles[GSMTAP_SUB_ABIS] = find_dissector("gsm_a_dtap");
 	sub_handles[GSMTAP_SUB_CDMA_CODE] = find_dissector("wimax_cdma_code_burst_handler"); 
 	sub_handles[GSMTAP_SUB_FCH] = find_dissector("wimax_fch_burst_handler"); 

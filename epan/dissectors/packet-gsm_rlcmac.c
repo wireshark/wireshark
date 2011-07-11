@@ -4796,9 +4796,11 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   ti = proto_tree_add_text(tree, tvb, 0, 1, "%s (Uplink)", MT_UL_TextGet(data->u.MESSAGE_TYPE));
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
+  
   if (check_col(pinfo->cinfo, COL_INFO))
   {
-    col_add_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE));
+  	 col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
+    col_append_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE));
   }
 
   switch (data->u.MESSAGE_TYPE)
@@ -4935,9 +4937,10 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_add_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE));
+    	col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
+      col_append_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE));
     }
-
+    
     /* Dissect the MAC header */
     proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_payload_type, tvb, 0, 2, FALSE);
     proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rrbp, tvb, 2, 2, FALSE);
