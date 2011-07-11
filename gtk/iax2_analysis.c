@@ -2052,9 +2052,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					    NULL);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
-#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Build our "extra widget" to be added to the file chooser widget */
@@ -2695,9 +2693,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					    NULL);
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
-#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
@@ -2886,7 +2882,6 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 	 * :
 	 * should generally be preferred when inserting rows in a sorted list store.
 	 */
-#if GTK_CHECK_VERSION(2,6,0)
 	gtk_list_store_insert_with_values( list_store , &user_data->dlg.iter, G_MAXINT,
 			     PACKET_COLUMN, number,
 			     DELTA_COLUMN, delta,
@@ -2899,20 +2894,6 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 			     BACKGROUND_COLOR_COL, (char *)color_str,
 			     -1);
 
-#else
-	gtk_list_store_append  (list_store, &user_data->dlg.iter);
-	gtk_list_store_set  (list_store, &user_data->dlg.iter,
-			     PACKET_COLUMN, number,
-			     DELTA_COLUMN, delta,
-			     JITTER_COLUMN, jitter,
-			     IPBW_COLUMN, bandwidth,
-			     STATUS_COLUMN, (char *)status,
-			     DATE_COLUMN,  (char *)timeStr,
-			     LENGTH_COLUMN,	pkt_len,
-			     FOREGROUND_COLOR_COL, NULL,
-			     BACKGROUND_COLOR_COL, (char *)color_str,
-			     -1);
-#endif
 	if(flags & STAT_FLAG_FIRST){
 		/* Set first row as active */
 		gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)), &user_data->dlg.iter);
@@ -2986,10 +2967,8 @@ GtkWidget* create_list(user_data_t* user_data)
 	list_view = GTK_TREE_VIEW(list);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
 	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
 	/* Setup the sortable columns */
 	gtk_tree_sortable_set_sort_column_id(sortable, PACKET_COLUMN, GTK_SORT_ASCENDING);

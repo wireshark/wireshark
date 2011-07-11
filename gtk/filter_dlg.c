@@ -1262,9 +1262,7 @@ color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
 
     gtk_widget_modify_text(w, GTK_STATE_NORMAL, &black);
     gtk_widget_modify_base(w, GTK_STATE_NORMAL, &bg);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_modify_cursor(w, &black, &black);
-#endif
 }
 
 void
@@ -1273,9 +1271,7 @@ colorize_filter_te_as_empty(GtkWidget *w)
     /* use defaults */
     gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
     gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_modify_cursor(w, NULL, NULL);
-#endif
 }
 
 void
@@ -1383,4 +1379,3 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

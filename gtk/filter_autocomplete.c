@@ -697,12 +697,8 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
 static void
 filter_autocomplete_disable_sorting(GtkTreeModel *model)
 {
-#if GTK_CHECK_VERSION(2,6,0)
-  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), 
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model),
                                        GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
-#else
-  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), -2, GTK_SORT_ASCENDING);
-#endif
 }
 
 static void
@@ -738,9 +734,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
 
   /* Create tree view */
   treeview = gtk_tree_view_new();
-#if GTK_CHECK_VERSION(2,6,0)
   gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(treeview), TRUE);
-#endif
   init_autocompletion_list(treeview);
   g_object_set_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY, treeview);
 

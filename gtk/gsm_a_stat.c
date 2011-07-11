@@ -118,10 +118,8 @@ GtkWidget* create_list(void)
     list_view = GTK_TREE_VIEW(list);
     sortable = GTK_TREE_SORTABLE(list_store);
 
-#if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
-#endif
 
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, IEI_COLUMN, GTK_SORT_ASCENDING);
@@ -292,12 +290,7 @@ gsm_a_stat_draw_aux(
              * :
              * should generally be preferred when inserting rows in a sorted list store.
              */
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
-#else
-            gtk_list_store_append  (list_store, &iter);
-            gtk_list_store_set  (list_store, &iter,
-#endif
                     IEI_COLUMN, msg_strings[i].value,
                     MSG_NAME_COLUMN, (char *)msg_strings[i].strptr,
                     COUNT_COLUMN, message_count[msg_strings[i].value],
@@ -503,7 +496,7 @@ gsm_a_stat_gtk_dtap_cb(
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-void 
+void
 gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data )
 {
     gsm_a_stat_gtk_dtap_cb(action, user_data, &dlg_dtap_mm,

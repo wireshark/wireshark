@@ -1373,9 +1373,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 {
 	io_stat_t *io = user_data;
 	int i;
-#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
-#endif
 
 	if(io->pixmap){
 		gdk_pixmap_unref(io->pixmap);
@@ -1389,11 +1387,9 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 	io->pixmap_width=widget->allocation.width;
 	io->pixmap_height=widget->allocation.height;
 
-#if GTK_CHECK_VERSION(2,6,0)
 	save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
 	g_object_set_data(G_OBJECT(save_bt), "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
-#endif
 
 	gdk_draw_rectangle(io->pixmap,
 			widget->style->white_gc,
@@ -2147,14 +2143,8 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *hbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt, *help_bt;
-#if GTK_CHECK_VERSION(2,12,0)
-#else
-	GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
 	GtkWidget *copy_bt;
-#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
-#endif
 
 	/* create the main window, transient_for top_level */
 	io->window = dlg_window_new("I/O Graphs");
@@ -2177,51 +2167,27 @@ init_io_stat_window(io_stat_t *io)
 
 	io_stat_set_title(io);
 
-#if GTK_CHECK_VERSION(2,6,0)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
 				  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-#else
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY,
-				  GTK_STOCK_HELP, NULL);
-#endif
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(close_bt,  "Enter the hostname or host IP address to be used as a source for remote capture.");
-#else
-	gtk_tooltips_set_tip(tooltips, close_bt, "Close this dialog", NULL);
-#endif
-#if GTK_CHECK_VERSION(2,6,0)
 	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(save_bt, "Save the displayed graph to a file");
-#else
-	gtk_tooltips_set_tip(tooltips, save_bt, "Save the displayed graph to a file", NULL);
-#endif
 	g_signal_connect(save_bt, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
 	g_object_set_data(G_OBJECT(io->window), "save_bt", save_bt);
-#endif
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(copy_bt, "Copy values from selected graphs to the clipboard in CSV (Comma Separated Values) format");
-#else
-	gtk_tooltips_set_tip(tooltips, copy_bt,
-			     "Copy values from selected graphs to the clipboard in CSV (Comma Separated Values) format", NULL);
-#endif
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_IO_GRAPH_DIALOG);
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
-#else
-	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
-#endif
 	g_signal_connect(io->window, "delete-event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show(io->window);

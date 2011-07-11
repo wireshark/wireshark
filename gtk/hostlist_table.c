@@ -532,7 +532,7 @@ static const char *ui_desc_hostlist_table_popup =
 "  </popup>\n"
 "</ui>\n";
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -542,15 +542,15 @@ static const char *ui_desc_hostlist_table_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry service_resp_t__popup_entries[] = {
@@ -589,24 +589,24 @@ hostlist_create_popup_menu(hostlist_table *hl)
 	GtkActionGroup *action_group;
 	GError *error = NULL;
 
-	action_group = gtk_action_group_new ("HostlistTablePopupActionGroup"); 
+	action_group = gtk_action_group_new ("HostlistTablePopupActionGroup");
 	gtk_action_group_add_actions (action_group,								/* the action group */
 								(gpointer)service_resp_t__popup_entries,	/* an array of action descriptions */
 								G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
 								hl);										/* data to pass to the action callbacks */
 
 	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager, 
-		action_group, 
+	gtk_ui_manager_insert_action_group (ui_manager,
+		action_group,
 		0); /* the position at which the group will be inserted */
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_hostlist_table_popup, -1, &error); 
-	if (error != NULL) 
-    { 
-        fprintf (stderr, "Warning: building hostlist table filter popup failed: %s\n", 
-                error->message); 
-        g_error_free (error); 
-        error = NULL; 
-    } 
+	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_hostlist_table_popup, -1, &error);
+	if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building hostlist table filter popup failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
 	hl->menu = gtk_ui_manager_get_widget(ui_manager, "/HostlistTableFilterPopup");
 	g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
 }
@@ -746,12 +746,7 @@ draw_hostlist_table_data(hostlist_table *hl)
 
             get_hostlist_table_address(hl, host, entries);
             host->iter_valid = TRUE;
-#if GTK_CHECK_VERSION(2,6,0)
             gtk_list_store_insert_with_values( store , &host->iter, G_MAXINT,
-#else
-            gtk_list_store_append(store, &host->iter);
-            gtk_list_store_set (store, &host->iter,
-#endif
                   ADR_COLUMN,      entries[0],
                   PORT_COLUMN,     entries[1],
                   PACKETS_COLUMN,  host->tx_frames+host->rx_frames,

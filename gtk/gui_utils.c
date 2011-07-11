@@ -369,12 +369,12 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 		 * If the requested (x,y) position isn't within the monitor's
 		 * viewable area, change it to the viewable area's (0,0). */
 
-		default_screen = gdk_screen_get_default();		
+		default_screen = gdk_screen_get_default();
 		monitor_num = gdk_screen_get_monitor_at_point(default_screen,
 							      geom->x, geom->y);
 		gdk_screen_get_monitor_geometry(default_screen, monitor_num,
 						&viewable_area);
-		
+
 		if(geom->x < viewable_area.x || geom->x > viewable_area.width)
 			geom->x = viewable_area.x;
 
@@ -847,7 +847,7 @@ void
 reactivate_window(GtkWidget *win)
 {
     GdkWindow *win_window;
-	
+
 #if GTK_CHECK_VERSION(2,14,0)
     win_window = gtk_widget_get_window(win);
 #else
@@ -1363,9 +1363,7 @@ switch_to_fixed_col(GtkTreeView *view)
     }
     g_list_free(list);
 
-#if GTK_CHECK_VERSION(2,6,0)
     gtk_tree_view_set_fixed_height_mode(view, TRUE);
-#endif
 }
 
 gint

@@ -539,9 +539,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	new_win = file_selection_new("Wireshark: Save Follow Stream As",
 				     FILE_SELECTION_SAVE);
 	follow_info->follow_save_as_w = new_win;
-#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(new_win), TRUE);
-#endif
 
 	/* Tuck away the follow_info object into the window */
 	g_object_set_data(G_OBJECT(new_win), E_FOLLOW_INFO_KEY, follow_info);

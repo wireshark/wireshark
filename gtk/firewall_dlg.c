@@ -690,9 +690,7 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     new_win = file_selection_new("Wireshark: Save Firewall ACL Rule",
                                  FILE_SELECTION_SAVE);
     rule_info->firewall_save_as_w = new_win;
-#if GTK_CHECK_VERSION(2,8,0)
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(new_win), TRUE);
-#endif
 
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(new_win), WS_RULE_INFO_KEY, rule_info);
@@ -791,4 +789,3 @@ firewall_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
     /* Note that we no longer have a dialog box. */
     rule_info->firewall_save_as_w = NULL;
 }
-

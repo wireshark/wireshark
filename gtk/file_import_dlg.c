@@ -847,11 +847,6 @@ file_import_dlg_new(void)
                *framelen_hb, *framelen_lbl, *framelen_te,
                *bbox, *help_bt, *close_bt, *ok_bt;
 
-#if GTK_CHECK_VERSION(2,12,0)
-#else
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
-
     /* Setup the dialog */
 
     main_w = dlg_window_new("Wireshark: Import from Text");
@@ -885,21 +880,13 @@ file_import_dlg_new(void)
     gtk_table_attach(GTK_TABLE(input_tb), filename_lbl, 0, 1, 0, 1, 0, 0, 0, 0);
 
     filename_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(filename_te, "Set name of text file to import");
-#else
-    gtk_tooltips_set_tip(tooltips, filename_te, "Set name of text file to import", NULL);
-#endif
     gtk_table_attach_defaults(GTK_TABLE(input_tb), filename_te, 1, 2, 0, 1);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY, filename_te);
 
     browse_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(browse_bt, "Browse for text file to import");
-#else
-    gtk_tooltips_set_tip(tooltips, browse_bt, "Browse for text file to import", NULL);
-#endif
     gtk_table_attach(GTK_TABLE(input_tb), browse_bt, 2, 3, 0, 1, 0, 0, 0, 0);
 
     g_signal_connect(browse_bt, "clicked", G_CALLBACK(browse_file_cb), filename_te);
@@ -921,31 +908,19 @@ file_import_dlg_new(void)
 
     /* First entry in the group */
     offset_hex_rb = gtk_radio_button_new_with_label(NULL, "Hexadecimal");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_hex_rb, "Offsets in the text file are in hexadecimal notation");
-#else
-    gtk_tooltips_set_tip(tooltips, offset_hex_rb, "Offsets in the text file are in hexadecimal notation", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_hex_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_HEX_RB_KEY, offset_hex_rb);
 
     offset_oct_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Octal");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_oct_rb, "Offsets in the text file are in octal notation");
-#else
-    gtk_tooltips_set_tip(tooltips, offset_oct_rb, "Offsets in the text file are in octal notation", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_oct_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_OCT_RB_KEY, offset_oct_rb);
 
     offset_dec_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(offset_hex_rb), "Decimal");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(offset_dec_rb, "Offsets in the text file are in decimal notation");
-#else
-    gtk_tooltips_set_tip(tooltips, offset_dec_rb, "Offsets in the text file are in decimal notation", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(offset_rb_vb), offset_dec_rb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_DEC_RB_KEY, offset_dec_rb);
@@ -956,11 +931,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(input_vb), timefmt_hb, FALSE, FALSE, 0);
 
     timefmt_cb = gtk_check_button_new_with_label("Date/Time");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(timefmt_cb, "Whether or not the text file contains timestamp information");
-#else
-    gtk_tooltips_set_tip(tooltips, timefmt_cb, "Whether or not the text file contains timestamp information", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(timefmt_hb), timefmt_cb, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_DATETIME_CB_KEY, timefmt_cb);
@@ -971,11 +942,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_LBL_KEY, timefmt_lbl);
 
     timefmt_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(timefmt_te, "The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)");
-#else
-    gtk_tooltips_set_tip(tooltips, timefmt_te, "The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(timefmt_hb), timefmt_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_TE_KEY, timefmt_te);
@@ -1003,11 +970,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(encap_hb), encap_lbl, FALSE, FALSE, 0);
 
     encap_co = fill_encap_combo();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(encap_co, "Encapsulation type for the frames in the import capture file");
-#else
-    gtk_tooltips_set_tip(tooltips, encap_co, "Encapsulation type for the frames in the import capture file", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(encap_hb), encap_co, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_ENCAP_CO_KEY, encap_co);
@@ -1015,11 +978,7 @@ file_import_dlg_new(void)
     /* Dummy header */
     header_frm = gtk_frame_new(NULL);
     header_cb = gtk_check_button_new_with_label("Dummy header");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_cb, "Whether or not to prefix a dummy header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_cb, "Whether or not to prefix a dummy header to the frames", NULL);
-#endif
     gtk_frame_set_label_widget(GTK_FRAME(header_frm), header_cb);
     gtk_container_set_border_width(GTK_CONTAINER(header_frm), 3);
     gtk_box_pack_start(GTK_BOX(import_vb), header_frm, FALSE, FALSE, 0);
@@ -1040,11 +999,7 @@ file_import_dlg_new(void)
 
     /* First entry in the group */
     header_eth_rb = gtk_radio_button_new_with_label(NULL, "Ethernet");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_eth_rb, "Prefix an Ethernet header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_eth_rb, "Prefix an Ethernet header to the frames", NULL);
-#endif
     g_signal_connect(header_eth_rb, "toggled", G_CALLBACK(header_eth_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_eth_rb, FALSE, FALSE, 0);
 
@@ -1055,11 +1010,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_1_lbl), 1.0f, 0.5f);
 
     etype_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(etype_te, "The type to set in the Ethernet header");
-#else
-    gtk_tooltips_set_tip(tooltips, etype_te, "The type to set in the Ethernet header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_1_hb), etype_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_LBL_KEY, header_rblbl_1_lbl);
@@ -1070,11 +1021,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_2_hb, FALSE, FALSE, 2);
 
     header_ipv4_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "IPv4");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_ipv4_rb, "Prefix an Ethernet and IPv4 header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_ipv4_rb, "Prefix an Ethernet and IPv4 header to the frames", NULL);
-#endif
     g_signal_connect(header_ipv4_rb, "toggled", G_CALLBACK(header_ipv4_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_2_hb), header_ipv4_rb, FALSE, FALSE, 0);
 
@@ -1085,11 +1032,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_2_lbl), 1.0f, 0.5f);
 
     protocol_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(protocol_te, "The protocol id to set in the IPv4 header");
-#else
-    gtk_tooltips_set_tip(tooltips, protocol_te, "The protocol id to set in the IPv4 header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_2_hb), protocol_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_LBL_KEY, header_rblbl_2_lbl);
@@ -1100,11 +1043,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_3_hb, FALSE, FALSE, 2);
 
     header_udp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "UDP");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_udp_rb, "Prefix an Ethernet, IPv4 and UDP header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_udp_rb, "Prefix an Ethernet, IPv4 and UDP header to the frames", NULL);
-#endif
     g_signal_connect(header_udp_rb, "toggled", G_CALLBACK(header_udp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_3_hb), header_udp_rb, FALSE, FALSE, 0);
 
@@ -1115,11 +1054,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_3_lbl), 1.0f, 0.5f);
 
     src_port_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(src_port_te, "The source port to set in the UDP, TCP or SCTP header");
-#else
-    gtk_tooltips_set_tip(tooltips, src_port_te, "The source port to set in the UDP, TCP or SCTP header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_3_hb), src_port_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_LBL_KEY, header_rblbl_3_lbl);
@@ -1130,11 +1065,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_4_hb, FALSE, FALSE, 2);
 
     header_tcp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "TCP");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_tcp_rb, "Prefix an Ethernet, IPv4 and TCP header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_tcp_rb, "Prefix an Ethernet, IPv4 and TCP header to the frames", NULL);
-#endif
     g_signal_connect(header_tcp_rb, "toggled", G_CALLBACK(header_tcp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_4_hb), header_tcp_rb, FALSE, FALSE, 0);
 
@@ -1145,11 +1076,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_4_lbl), 1.0f, 0.5f);
 
     dst_port_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(dst_port_te, "The destination port to set in the UDP, TCP or SCTP header");
-#else
-    gtk_tooltips_set_tip(tooltips, dst_port_te, "The destination port to set in the UDP, TCP or SCTP header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_4_hb), dst_port_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_LBL_KEY, header_rblbl_4_lbl);
@@ -1160,11 +1087,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_5_hb, FALSE, FALSE, 2);
 
     header_sctp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_sctp_rb, "Prefix an Ethernet, IPv4 and SCTP header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_sctp_rb, "Prefix an Ethernet, IPv4 and SCTP header to the frames", NULL);
-#endif
     g_signal_connect(header_sctp_rb, "toggled", G_CALLBACK(header_sctp_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_5_hb), header_sctp_rb, FALSE, FALSE, 0);
 
@@ -1175,11 +1098,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_5_lbl), 1.0f, 0.5f);
 
     tag_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(tag_te, "The verification tag to set in the SCTP header");
-#else
-    gtk_tooltips_set_tip(tooltips, tag_te, "The verification tag to set in the SCTP header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_5_hb), tag_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_LBL_KEY, header_rblbl_5_lbl);
@@ -1190,11 +1109,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_6_hb, FALSE, FALSE, 2);
 
     header_sctp_data_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP (DATA)");
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(header_sctp_data_rb, "Prefix an Ethernet, IPv4 and SCTP DATA header to the frames");
-#else
-    gtk_tooltips_set_tip(tooltips, header_sctp_data_rb, "Prefix an Ethernet, IPv4 and SCTP DATA header to the frames", NULL);
-#endif
     g_signal_connect(header_sctp_data_rb, "toggled", G_CALLBACK(header_sctp_data_rb_toggle), header_frm);
     gtk_box_pack_start(GTK_BOX(header_rblbl_6_hb), header_sctp_data_rb, FALSE, FALSE, 0);
 
@@ -1205,11 +1120,7 @@ file_import_dlg_new(void)
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_6_lbl), 1.0f, 0.5f);
 
     ppi_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(ppi_te, "The payload protocol identifier to set in the SCTP DATA header");
-#else
-    gtk_tooltips_set_tip(tooltips, ppi_te, "The payload protocol identifier to set in the SCTP DATA header", NULL);
-#endif
     gtk_box_pack_end(GTK_BOX(header_rblbl_6_hb), ppi_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PPI_LBL_KEY, header_rblbl_6_lbl);
@@ -1233,11 +1144,7 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_lbl, FALSE, FALSE, 0);
 
     framelen_te = gtk_entry_new();
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(framelen_te, "The maximum size of the frames to write to the import capture file (max 64000)");
-#else
-    gtk_tooltips_set_tip(tooltips, framelen_te, "The maximum size of the frames to write to the import capture file (max 64000)", NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);
@@ -1249,28 +1156,16 @@ file_import_dlg_new(void)
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_IMPORT_DIALOG);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
-#else
-    gtk_tooltips_set_tip(tooltips, help_bt, "Show topic specific help", NULL);
-#endif
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     window_set_cancel_button(main_w, close_bt, window_cancel_button_cb);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(close_bt, "Close this dialog");
-#else
-    gtk_tooltips_set_tip(tooltips, close_bt, "Close this dialog", NULL);
-#endif
 
     ok_bt =  g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_import_ok_cb), main_w);
     gtk_widget_grab_default(ok_bt);
-#if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(ok_bt, "Import the selected file into a temporary capture file");
-#else
-    gtk_tooltips_set_tip(tooltips, ok_bt, "Import the selected file into a temporary capture file", NULL);
-#endif
 
     /* Setup widget handling */
 
@@ -1305,4 +1200,3 @@ file_import_cmd_cb(GtkWidget *widget _U_)
 
     return;
 }
-
