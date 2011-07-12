@@ -605,10 +605,10 @@ welcome_if_tree_load(void)
     } else if (err_str) {
         g_free(err_str);
     }
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-    gtk_tree_selection_unselect_all(entry);
     if (g_list_length(if_list) > 0) {
+        view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+        gtk_tree_selection_unselect_all(entry);
         store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
         /* List the interfaces */
         for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
@@ -643,10 +643,10 @@ welcome_if_tree_load(void)
             }
         }
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
-    }
-    if (global_capture_opts.ifaces->len > 0) {
-        gtk_tree_model_foreach(GTK_TREE_MODEL(store), select_current_ifaces, (gpointer) entry);
-        gtk_widget_grab_focus(view);
+        if (global_capture_opts.ifaces->len > 0) {
+            gtk_tree_model_foreach(GTK_TREE_MODEL(store), select_current_ifaces, (gpointer) entry);
+            gtk_widget_grab_focus(view);
+        }
     }
     free_interface_list(if_list);
 #endif  /* HAVE_LIBPCAP */
