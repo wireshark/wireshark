@@ -30,6 +30,33 @@
 
 #include "charsets.h"
 
+/*
+ * Wikipedia's "Character encoding" template, giving a pile of character encodings and
+ * Wikipedia pages for them:
+ *
+ *	http://en.wikipedia.org/wiki/Template:Character_encoding
+ *
+ * Unicode character encoding model:
+ *
+ *	http://www.unicode.org/reports/tr17/
+ *
+ * International Components for Unicode character set mapping tables:
+ *
+ *	http://site.icu-project.org/charts/charset
+ *
+ * MSDN information on code pages:
+ *
+ *	http://msdn.microsoft.com/en-us/library/dd317752(v=VS.85).aspx
+ *
+ * ASCII-based code pages, from IBM:
+ *
+ *	http://www-01.ibm.com/software/globalization/cp/cp_cpgid.html
+ *
+ * EBCDIC code pages, from IBM:
+ *
+ *	http://www-03.ibm.com/systems/i/software/globalization/codepages.html
+ */
+
 /* ASCII/EBCDIC conversion tables from
  * http://www.room42.com/store/computer_center/code_tables.shtml
  */
