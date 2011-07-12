@@ -1654,7 +1654,6 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	GtkWidget *hbuttonbox;
 	GtkWidget *bt_close;
 	GtkWidget *bt_save;
-	GtkTooltips *tooltips = gtk_tooltips_new();
 	const gchar *title_name_ptr;
 	gchar   *win_name;
 
@@ -1682,7 +1681,7 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_save);
 	gtk_widget_show(bt_save);
 	g_signal_connect(bt_save, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
-	gtk_tooltips_set_tip (tooltips, bt_save, "Save an ASCII representation of the graph to a file", NULL);
+	gtk_widget_set_tooltip_text(bt_save, "Save an ASCII representation of the graph to a file");
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
@@ -1692,7 +1691,7 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 #endif
 	gtk_widget_show(bt_close);
-	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+	gtk_widget_set_tooltip_text(bt_close, "Close this dialog");
 	window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(user_data->dlg.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

@@ -6585,7 +6585,6 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 
     GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
-    GtkTooltips *tooltips;
 
     switch (pref->type) {
     case PREF_UINT:
@@ -6615,8 +6614,6 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
         break;
     }
 
-    tooltips = gtk_tooltips_new();
-
     win = dlg_window_new(module->description);
 
     gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
@@ -6634,13 +6631,13 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
     if (pref->description)
-        gtk_tooltips_set_tip(tooltips, label, pref->description, NULL);
+        gtk_widget_set_tooltip_text(label, pref->description);
 
     entry = gtk_entry_new();
     gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
     gtk_entry_set_text(GTK_ENTRY(entry), value);
     if (pref->description)
-        gtk_tooltips_set_tip(tooltips, entry, pref->description, NULL);
+        gtk_widget_set_tooltip_text(entry, pref->description);
 
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
     gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);

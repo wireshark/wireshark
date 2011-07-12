@@ -442,10 +442,6 @@ packets_bar_new(void)
 static void
 profile_bar_new(void)
 {
-    GtkTooltips   *tooltips;
-
-    tooltips = gtk_tooltips_new();
-
     profile_bar_event = gtk_event_box_new();
     profile_bar = gtk_statusbar_new();
     gtk_container_add(GTK_CONTAINER(profile_bar_event), profile_bar);
@@ -453,8 +449,7 @@ profile_bar_new(void)
     g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(popup_menu_handler),
 		     g_object_get_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY));
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
-    gtk_tooltips_set_tip (tooltips, profile_bar_event,
-                          "Click to change configuration profile", NULL);
+	gtk_widget_set_tooltip_text(profile_bar_event, "Click to change configuration profile");
     profile_bar_update();
 
     gtk_widget_show(profile_bar);
@@ -532,40 +527,37 @@ static void
 status_expert_new(void)
 {
     GtkWidget *expert_image;
-    GtkTooltips   *tooltips;
-
-    tooltips = gtk_tooltips_new();
 
     expert_image = pixbuf_to_widget(expert_error_pb_data);
-    gtk_tooltips_set_tip(tooltips, expert_image, "ERROR is the highest expert info level", NULL);
+    gtk_widget_set_tooltip_text(expert_image, "ERROR is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_error = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
     g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_warn_pb_data);
-    gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
+    gtk_widget_set_tooltip_text(expert_image, "WARNING is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_warn = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
     g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_note_pb_data);
-    gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
+    gtk_widget_set_tooltip_text(expert_image, "NOTE is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_note = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
     g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_chat_pb_data);
-    gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
+    gtk_widget_set_tooltip_text(expert_image, "CHAT is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_chat = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
     g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
     expert_image = pixbuf_to_widget(expert_none_pb_data);
-    gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
+    gtk_widget_set_tooltip_text(expert_image, "No expert info");
     gtk_widget_show(expert_image);
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);

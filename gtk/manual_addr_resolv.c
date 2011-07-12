@@ -106,7 +106,6 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   GtkWidget   *addr_lb, *addr_cb;
   GtkWidget   *name_lb, *name_te, *resolv_cb;
   GList       *addr_list = NULL;
-  GtkTooltips *tooltips = gtk_tooltips_new();
 
   man_addr_resolv_dlg = dlg_window_new ("Manual Address Resolve");
   gtk_window_set_default_size (GTK_WINDOW(man_addr_resolv_dlg), 310, 80);
@@ -146,7 +145,7 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(resolv_cb), gbl_resolv_flags & RESOLV_NETWORK);
   gtk_widget_set_sensitive (resolv_cb, !(gbl_resolv_flags & RESOLV_NETWORK));
 
-  gtk_tooltips_set_tip (tooltips, resolv_cb, "Perform network layer name resolution.", NULL);
+  gtk_widget_set_tooltip_text(resolv_cb, "Perform network layer name resolution.");
   g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "resolv", resolv_cb);
   gtk_container_add (GTK_CONTAINER(vbox), resolv_cb);
 

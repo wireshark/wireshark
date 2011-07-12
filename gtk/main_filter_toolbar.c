@@ -88,7 +88,6 @@ GtkWidget *filter_toolbar_new(void)
     GtkWidget     *filter_cm;
     GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
-    GtkTooltips   *tooltips;
     GtkToolItem   *filter_bt, *filter_add_expr_bt, *filter_reset;
     GtkToolItem   *filter_apply, *item;
 
@@ -102,8 +101,6 @@ GtkWidget *filter_toolbar_new(void)
         TRUE,
         FALSE
     };
-
-    tooltips = gtk_tooltips_new();
 
     /* filter toolbar */
     filter_tb = gtk_toolbar_new();
@@ -122,9 +119,7 @@ GtkWidget *filter_toolbar_new(void)
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
                        filter_bt,
                        -1);
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_bt),
-                         "Open the \"Display Filter\" dialog, to edit/apply filters",
-                         "Private");
+	gtk_widget_set_tooltip_text( GTK_WIDGET(filter_bt), "Open the \"Display Filter\" dialog, to edit/apply filters");
 
     /* Create the filter combobox */
     filter_cm = gtk_combo_box_entry_new_text ();
@@ -152,11 +147,10 @@ GtkWidget *filter_toolbar_new(void)
                        -1);
 
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
-    gtk_tooltips_set_tip(tooltips, filter_cm,
+	gtk_widget_set_tooltip_text(filter_cm,
         "Enter a display filter, or choose one of your recently used filters. "
         "The background color of this field is changed by a continuous syntax check "
-        "(green is valid, red is invalid, yellow may have unexpected results).",
-        NULL);
+        "(green is valid, red is invalid, yellow may have unexpected results).");
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
@@ -169,9 +163,7 @@ GtkWidget *filter_toolbar_new(void)
                        filter_add_expr_bt,
                        -1);
 
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_add_expr_bt),
-                         "Add an expression to this filter string",
-                         "Private");
+	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_add_expr_bt), "Add an expression to this filter string");
 
     /* Create the "Clear" button */
     filter_reset = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
@@ -184,9 +176,7 @@ GtkWidget *filter_toolbar_new(void)
                        filter_reset,
                        -1);
 
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_reset),
-                         "Clear this filter string and update the display",
-                         "Private");
+	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_reset), "Clear this filter string and update the display");
 
     /* Create the "Apply" button */
     filter_apply = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
@@ -200,9 +190,7 @@ GtkWidget *filter_toolbar_new(void)
                        filter_apply,
                        -1);
 
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_apply),
-                         "Apply this filter string to the display",
-                         "Private");
+	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_apply), "Apply this filter string to the display");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs

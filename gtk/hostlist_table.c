@@ -1333,8 +1333,6 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
 #endif
-    GtkTooltips *tooltips = gtk_tooltips_new();
-
 
     hosttable=g_malloc(sizeof(hostlist_table));
 
@@ -1376,16 +1374,14 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt,
-                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+	gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
 #ifdef HAVE_GEOIP
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
     if(map_bt != NULL) {
-        gtk_tooltips_set_tip(tooltips, map_bt,
-                             "Show a map of the IP addresses (internet connection required).", NULL);
+        gtk_widget_set_tooltip_text(map_bt, "Show a map of the IP addresses (internet connection required).");
         g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
         g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     }
@@ -1578,7 +1574,6 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *page_lb;
     GSList  *current_table;
     register_hostlist_t *registered;
-    GtkTooltips *tooltips = gtk_tooltips_new();
     GtkWidget *copy_bt;
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
@@ -1627,15 +1622,15 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
-    gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
-                         "Please note: The corresponding name resolution must be enabled.", NULL);
+	gtk_widget_set_tooltip_text(resolv_cb, 
+		"Show results of name resolutions rather than the \"raw\" values. Please note: The corresponding name resolution must be enabled.");
 
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
     gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
-    gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to endpoints matching the current display filter.", NULL);
+	gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
 
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(hostlist_filter_toggle_dest), pages);
 
@@ -1651,15 +1646,13 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt,
-                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+    gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
 
 #ifdef HAVE_GEOIP
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
-    gtk_tooltips_set_tip(tooltips, map_bt,
-                         "Show a map of the IP addresses (internet connection required).", NULL);
+    gtk_widget_set_tooltip_text(map_bt, "Show a map of the IP addresses (internet connection required).");
     g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
     g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
