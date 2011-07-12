@@ -781,6 +781,7 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
       global_capture_opts.save_file = NULL;
   }
 #ifdef HAVE_AIRPCAP
+  interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
   airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, interface_opts.name);
   airpcap_if_selected = airpcap_if_active;
   airpcap_set_toolbar_start_capture(airpcap_if_active);
