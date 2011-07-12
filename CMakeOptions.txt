@@ -18,7 +18,13 @@ option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 option(DISABLE_WERROR    "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_GTK3       "Use GTK3 instead of GTK2 (does not compile yet)" OFF)
-option(ENABLE_AIRPCAP    "Enable Airpcap support" OFF)
+#
+# Do not make this the default on UN*X; AirPcap support is available
+# only on Windows.  It might be nice to have it, on Windows, check
+# whether the AirPcap SDK is available, and turn AirPcap support on
+# only if it is.
+#
+option(ENABLE_AIRPCAP    "Enable AirPcap support" OFF)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
