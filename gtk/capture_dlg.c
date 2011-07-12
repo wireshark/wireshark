@@ -264,6 +264,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   GtkTreeModel *model;
 #endif
 
+  if (!prefs.capture_syntax_check_filter)
+    return;
+
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 #if GTK_CHECK_VERSION(2,6,0)

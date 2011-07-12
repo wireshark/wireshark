@@ -105,6 +105,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  "File not found" box uses wrong filename encoding.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5715">Bug
+          5715</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
+          5803</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Wireshark crashes if Lua contains "Pref.range()" with missing arguments.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
           5895</ulink>)
@@ -177,21 +189,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  "File not found" box uses wrong filename encoding.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5715">Bug
-          5715</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+	  Packet parser takes too long for this trace.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6073">Bug
+          6073</ulink>)
         </para></listitem>
 
         <listitem><para>
