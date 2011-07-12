@@ -522,14 +522,8 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   GtkWidget     *bbox, *ok_bt, *cancel_bt, *help_bt;
 
-  GtkTooltips   *tooltips;
-
-
   /* dialog window */
   main_win = dlg_window_new(title);
-
-  /* Enable tooltips */
-  tooltips = gtk_tooltips_new();
 
   /* Vertical enclosing container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -552,7 +546,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   text_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Plain _text");
   if (args->format == PR_FMT_TEXT)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(text_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, text_rb, "Print output in ascii \"plain text\" format. If you're unsure, use this format.", NULL);
+  gtk_widget_set_tooltip_text(text_rb, "Print output in ascii \"plain text\" format. If you're unsure, use this format.");
   gtk_box_pack_start(GTK_BOX(printer_vb), text_rb, FALSE, FALSE, 0);
   if(action == output_action_print)
     gtk_widget_show(text_rb);
@@ -560,7 +554,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   ps_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "_PostScript");
   if (args->format == PR_FMT_PS)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ps_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, ps_rb, "Print output in \"postscript\" format, for postscript capable printers or print servers.", NULL);
+  gtk_widget_set_tooltip_text(ps_rb, "Print output in \"postscript\" format, for postscript capable printers or print servers.");
   gtk_box_pack_start(GTK_BOX(printer_vb), ps_rb, FALSE, FALSE, 0);
   if(action == output_action_print)
     gtk_widget_show(ps_rb);
@@ -568,40 +562,40 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   pdml_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "PDM_L (XML: Packet Details Markup Language)");
   if (action == output_action_export_pdml)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, pdml_rb,
+  gtk_widget_set_tooltip_text(pdml_rb,
       "Print output in \"PDML\" (Packet Details Markup Language), "
       "an XML based packet data interchange format. "
-      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file.", NULL);
+      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file.");
   gtk_box_pack_start(GTK_BOX(printer_vb), pdml_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(pdml_rb); */
 
   psml_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "PSML (XML: Packet Summary Markup Language)");
   if (action == output_action_export_psml)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(psml_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, psml_rb,
+  gtk_widget_set_tooltip_text(psml_rb,
       "Print output in \"PSML\" (Packet Summary Markup Language), "
       "an XML based packet summary interchange format. "
-      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file.", NULL);
+      "Usually used in combination with the \"Output to file\" option to export packet data into an XML file.");
   gtk_box_pack_start(GTK_BOX(printer_vb), psml_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(psml_rb); */
 
   csv_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "_CSV");
   if (action == output_action_export_csv)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(csv_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, csv_rb,
+  gtk_widget_set_tooltip_text(csv_rb,
       "Print output in \"Comma Separated Values\" (CSV) format, "
       "a text format compatible with OpenOffice and Excel. "
-      "One row for each packet, with its timestamp and size.", NULL);
+      "One row for each packet, with its timestamp and size.");
   gtk_box_pack_start(GTK_BOX(printer_vb), csv_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(csv_rb); */
 
   carrays_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "C Arrays");
   if (action == output_action_export_carrays)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(carrays_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, carrays_rb,
+  gtk_widget_set_tooltip_text(carrays_rb,
       "Print output in C Arrays format, "
       "a text file suitable for use in C/C++ programs. "
-      "One char[] for each packet.", NULL);
+      "One char[] for each packet.");
   gtk_box_pack_start(GTK_BOX(printer_vb), carrays_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(carrays_rb); */
 
@@ -621,7 +615,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   dest_cb = gtk_check_button_new_with_mnemonic("Output to _file:");
   if (args->to_file)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
-  gtk_tooltips_set_tip (tooltips, dest_cb, "Output to file instead of printer", NULL);
+  gtk_widget_set_tooltip_text(dest_cb, "Output to file instead of printer");
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), dest_cb, 0, 1, 0, 1);
   if(action == output_action_print)
     gtk_widget_show(dest_cb);
@@ -629,7 +623,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* File text entry */
   file_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_TE_KEY, file_te);
-  gtk_tooltips_set_tip (tooltips, file_te, "Enter Output filename", NULL);
+  gtk_widget_set_tooltip_text(file_te, "Enter Output filename");
   gtk_entry_set_text(GTK_ENTRY(file_te), args->file);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_te, 1, 2, 0, 1);
   gtk_widget_set_sensitive(file_te, args->to_file);
@@ -641,7 +635,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   file_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_BT_KEY, file_bt);
   g_object_set_data(G_OBJECT(file_bt), PRINT_TE_PTR_KEY, file_te);
-  gtk_tooltips_set_tip (tooltips, file_bt, "Browse output filename in filesystem", NULL);
+  gtk_widget_set_tooltip_text(file_bt, "Browse output filename in filesystem");
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_bt, 2, 3, 0, 1);
   gtk_widget_set_sensitive(file_bt, args->to_file);
   gtk_widget_show(file_bt);
@@ -658,7 +652,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   cmd_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_TE_KEY, cmd_te);
-  gtk_tooltips_set_tip (tooltips, cmd_te, "Enter print command", NULL);
+  gtk_widget_set_tooltip_text(cmd_te, "Enter print command");
   gtk_entry_set_text(GTK_ENTRY(cmd_te), args->cmd);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_te, 1, 2, 1, 2);
   gtk_widget_set_sensitive(cmd_te, !args->to_file);
@@ -709,7 +703,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   summary_cb = gtk_check_button_new_with_mnemonic("Packet summary line");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_cb), args->print_summary);
   g_signal_connect(summary_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
-  gtk_tooltips_set_tip (tooltips, summary_cb, "Output of a packet summary line, like in the packet list", NULL);
+  gtk_widget_set_tooltip_text(summary_cb, "Output of a packet summary line, like in the packet list");
   gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
   gtk_widget_show(summary_cb);
 
@@ -718,7 +712,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   details_cb = gtk_check_button_new_with_mnemonic("Packet details:");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(details_cb), args->print_dissections != print_dissections_none);
   g_signal_connect(details_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
-  gtk_tooltips_set_tip (tooltips, details_cb, "Output format of the selected packet details (protocol tree).", NULL);
+  gtk_widget_set_tooltip_text(details_cb, "Output format of the selected packet details (protocol tree).");
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
   gtk_widget_show(details_cb);
 
@@ -741,19 +735,19 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
   collapse_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "All co_llapsed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(collapse_all_rb), args->print_dissections == print_dissections_collapsed);
-  gtk_tooltips_set_tip (tooltips, collapse_all_rb, "Output of the packet details tree \"collapsed\"", NULL);
+  gtk_widget_set_tooltip_text(collapse_all_rb, "Output of the packet details tree \"collapsed\"");
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
   as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "As displa_yed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(as_displayed_rb), args->print_dissections == print_dissections_as_displayed);
-  gtk_tooltips_set_tip (tooltips, as_displayed_rb, "Output of the packet details tree \"as displayed\"", NULL);
+  gtk_widget_set_tooltip_text(as_displayed_rb, "Output of the packet details tree \"as displayed\"");
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
   expand_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "All e_xpanded");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(expand_all_rb), args->print_dissections == print_dissections_expanded);
-  gtk_tooltips_set_tip (tooltips, expand_all_rb, "Output of the packet details tree \"expanded\"", NULL);
+  gtk_widget_set_tooltip_text(expand_all_rb, "Output of the packet details tree \"expanded\"");
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
 
@@ -761,7 +755,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   hex_cb = gtk_check_button_new_with_mnemonic("Packet bytes");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_cb), args->print_hex);
   g_signal_connect(hex_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
-  gtk_tooltips_set_tip (tooltips, hex_cb, "Add a hexdump of the packet data", NULL);
+  gtk_widget_set_tooltip_text(hex_cb, "Add a hexdump of the packet data");
   gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
@@ -773,8 +767,8 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "Each packet on a new page" check button. */
   formfeed_cb = gtk_check_button_new_with_mnemonic("Each packet on a new page");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(formfeed_cb), args->print_formfeed);
-  gtk_tooltips_set_tip (tooltips, formfeed_cb, "When checked, a new page will be used for each packet. "
-      "This is done by adding a formfeed (or similar) between the packet outputs.", NULL);
+  gtk_widget_set_tooltip_text (formfeed_cb, "When checked, a new page will be used for each packet. "
+      "This is done by adding a formfeed (or similar) between the packet outputs.");
   gtk_container_add(GTK_CONTAINER(format_vb), formfeed_cb);
   gtk_widget_show(formfeed_cb);
 
@@ -819,11 +813,11 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_FORMFEED_CB_KEY, formfeed_cb);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(print_ok_cb), main_win);
-  gtk_tooltips_set_tip (tooltips, ok_bt, "Start output", NULL);
+  gtk_widget_set_tooltip_text (ok_bt, "Start output");
 
   cancel_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(main_win, cancel_bt, window_cancel_button_cb);
-  gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel and exit dialog", NULL);
+  gtk_widget_set_tooltip_text (cancel_bt, "Cancel and exit dialog");
 
   if(action == output_action_print) {
     help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

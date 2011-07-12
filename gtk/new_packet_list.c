@@ -325,8 +325,6 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	char       custom_occurrence_str[8];
 	gint       cur_fmt, i;
 
-	GtkTooltips   *tooltips = gtk_tooltips_new();
-
 	win = dlg_window_new("Wireshark: Edit Column Details");
 
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
@@ -344,19 +342,18 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	label = gtk_label_new(ep_strdup_printf("Title:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-	gtk_tooltips_set_tip (tooltips, label, "Packet list column title.", NULL);
+	gtk_widget_set_tooltip_text(label, "Packet list column title.");
 
 	title_te = gtk_entry_new();
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), title_te, 1, 2, 0, 1);
 	gtk_entry_set_text(GTK_ENTRY(title_te), unescaped_title);
 	g_free(unescaped_title);
-	gtk_tooltips_set_tip (tooltips, title_te, "Packet list column title.", NULL);
+	gtk_widget_set_tooltip_text(title_te, "Packet list column title.");
 
 	label = gtk_label_new(ep_strdup_printf("Field type:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-	gtk_tooltips_set_tip (tooltips, label,
-			      "Select which packet information to present in the column.", NULL);
+	gtk_widget_set_tooltip_text(label, "Select which packet information to present in the column.");
 
 	format_cmb = gtk_combo_box_new_text();
 	for (i = 0; i < NUM_COL_FMTS; i++) {
@@ -364,38 +361,37 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	}
 	g_signal_connect(format_cmb, "changed", G_CALLBACK(col_details_format_changed_cb), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_cmb, 1, 2, 1, 2);
-	gtk_tooltips_set_tip (tooltips, format_cmb,
-			      "Select which packet information to present in the column.", NULL);
+	gtk_widget_set_tooltip_text(format_cmb, "Select which packet information to present in the column.");
 
 	field_lb = gtk_label_new(ep_strdup_printf("Field name:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_lb, 0, 1, 2, 3);
 	gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
-	gtk_tooltips_set_tip (tooltips, field_lb,
+	gtk_widget_set_tooltip_text(field_lb,
 			      "Field name used when field type is \"Custom\". "
-			      "This string has the same syntax as a display filter string.", NULL);
+			      "This string has the same syntax as a display filter string.");
 	field_te = gtk_entry_new();
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_te, 1, 2, 2, 3);
 	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
 	g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
 	g_signal_connect(win, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
-	gtk_tooltips_set_tip (tooltips, field_te,
+	gtk_widget_set_tooltip_text(field_te,
 			      "Field name used when field type is \"Custom\". "
-			      "This string has the same syntax as a display filter string.", NULL);
+			      "This string has the same syntax as a display filter string.");
 
 	occurrence_lb = gtk_label_new(ep_strdup_printf("Occurrence:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_lb, 0, 1, 3, 4);
 	gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 1.0f, 0.5f);
-	gtk_tooltips_set_tip (tooltips, occurrence_lb,
+	gtk_widget_set_tooltip_text (occurrence_lb,
 			      "Field occurence to use. "
-			      "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+			      "0=all (default), 1=first, 2=second, ..., -1=last.");
 
 	occurrence_te = gtk_entry_new();
 	gtk_entry_set_max_length (GTK_ENTRY(occurrence_te), 4);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_te, 1, 2, 3, 4);
-	gtk_tooltips_set_tip (tooltips, occurrence_te,
+	gtk_widget_set_tooltip_text (occurrence_te,
 			      "Field occurence to use. "
-			      "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+			      "0=all (default), 1=first, 2=second, ..., -1=last.");
 
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -731,7 +727,6 @@ create_view_and_model(void)
 	header_field_info *hfi;
 	gint col_min_width;
 	gchar *escaped_title;
-	GtkTooltips *tooltips = gtk_tooltips_new ();
 
 	packetlist = new_packet_list_new();
 
@@ -836,7 +831,7 @@ create_view_and_model(void)
 		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
 		 * a GtkTreeView column header. See GTK bug #141937.
 		 */
-		gtk_tooltips_set_tip(tooltips, col->button, tooltip_text, NULL);
+		gtk_widget_set_tooltip_text(col->button, tooltip_text);
 		g_free(tooltip_text);
 		g_signal_connect(col->button, "button_press_event",
 				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);

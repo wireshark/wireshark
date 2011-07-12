@@ -219,10 +219,6 @@ welcome_button(const gchar *stock_item,
 {
     GtkWidget *eb, *w, *item_hb, *text_vb;
     gchar *formatted_text;
-    GtkTooltips *tooltips;
-
-
-    tooltips = gtk_tooltips_new();
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
@@ -231,7 +227,7 @@ welcome_button(const gchar *stock_item,
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
     if(tooltip != NULL) {
-        gtk_tooltips_set_tip(tooltips, eb, tooltip, "");
+		gtk_widget_set_tooltip_text(eb, tooltip);
     }
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
@@ -450,12 +446,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     const glong  max = 60;
     int          err;
     ws_statb64   stat_buf;
-    GtkTooltips *tooltips;
 
-
-    tooltips = gtk_tooltips_new();
-
-    /* filename */
+	/* filename */
     str = g_string_new(filename);
     uni_len = g_utf8_strlen(str->str, str->len);
 
@@ -507,8 +499,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     /* event box */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
-    gtk_tooltips_set_tip(tooltips, eb, filename, "");
-    if(err != 0) {
+	gtk_widget_set_tooltip_text(eb, filename);
+	if(err != 0) {
         gtk_widget_set_sensitive(w, FALSE);
     }
 

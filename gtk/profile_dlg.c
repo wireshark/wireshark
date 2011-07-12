@@ -777,7 +777,6 @@ profile_dialog_new(void)
     *profile_fr,
     *edit_fr,
     *props_fr;
-  GtkTooltips       *tooltips;
   GtkListStore      *store;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
@@ -788,8 +787,6 @@ profile_dialog_new(void)
   /* Get a pointer to a static variable holding the type of profile on
      which we're working, so we can pass that pointer to callback
      routines. */
-
-  tooltips = gtk_tooltips_new ();
 
   main_w = dlg_conf_window_new("Wireshark: Configuration Profiles");
   gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
@@ -823,15 +820,13 @@ profile_dialog_new(void)
   g_signal_connect(new_bt, "clicked", G_CALLBACK(profile_new_bt_clicked_cb), NULL);
   gtk_widget_show(new_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, new_bt,
-			"Create a new profile (with default properties)", NULL);
+  gtk_widget_set_tooltip_text (new_bt, "Create a new profile (with default properties)");
 
   copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
   g_signal_connect(copy_bt, "clicked", G_CALLBACK(profile_copy_bt_clicked_cb), NULL);
   gtk_widget_show(copy_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), copy_bt, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, copy_bt,
-			"Copy the selected profile", NULL);
+  gtk_widget_set_tooltip_text (copy_bt,	"Copy the selected profile");
 
   del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
@@ -839,7 +834,7 @@ profile_dialog_new(void)
   g_object_set_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY, del_bt);
   gtk_widget_show(del_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, del_bt, "Delete the selected profile", NULL);
+  gtk_widget_set_tooltip_text (del_bt, "Delete the selected profile");
 
   profile_fr = gtk_frame_new("Configuration Profiles");
   gtk_box_pack_start(GTK_BOX(top_hb), profile_fr, TRUE, TRUE, 0);
@@ -867,7 +862,7 @@ profile_dialog_new(void)
   renderer = gtk_cell_renderer_toggle_new();
   column = gtk_tree_view_column_new_with_attributes("Global", renderer, "active", GLOBAL_COLUMN, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
-  gtk_tooltips_set_tip(tooltips, column->button, "Global profiles will be copied to users profiles when used", NULL);
+  gtk_widget_set_tooltip_text(column->button, "Global profiles will be copied to users profiles when used");
   gtk_tree_view_column_set_visible(column, has_global);
 
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
@@ -907,9 +902,9 @@ profile_dialog_new(void)
   g_object_set_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY, name_te);
   g_signal_connect(name_te, "changed", G_CALLBACK(profile_name_te_changed_cb), NULL);
 #ifdef _WIN32
-  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |", NULL);
+  gtk_widget_set_tooltip_text (name_te, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |");
 #else
-  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot contain the '/' character", NULL);
+  gtk_widget_set_tooltip_text (name_te, "A profile name cannot contain the '/' character");
 #endif
   gtk_widget_show(name_te);
 
@@ -920,7 +915,7 @@ profile_dialog_new(void)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(profile_dlg_ok_cb), NULL);
-  gtk_tooltips_set_tip (tooltips, ok_bt, "Apply the profiles and close this dialog", NULL);
+  gtk_widget_set_tooltip_text (ok_bt, "Apply the profiles and close this dialog");
 
   /* Catch the "activate" signal on the profile name and profile
      list entries, so that if the user types Return
@@ -931,16 +926,16 @@ profile_dialog_new(void)
 
   apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(apply_bt, "clicked", G_CALLBACK(profile_dlg_apply_cb), NULL);
-  gtk_tooltips_set_tip (tooltips, apply_bt, "Apply the profiles and keep this dialog open", NULL);
+  gtk_widget_set_tooltip_text (apply_bt, "Apply the profiles and keep this dialog open");
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel the changes", NULL);
+  gtk_widget_set_tooltip_text (cancel_bt, "Cancel the changes");
   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_dlg_cancel_cb), NULL);
   window_set_cancel_button(main_w, cancel_bt, NULL);
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CONFIG_PROFILES_DIALOG);
-  gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+  gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
 
   if(ok_bt) {
     gtk_widget_grab_default(ok_bt);
@@ -1199,10 +1194,8 @@ profile_name_edit_dlg (gint operation)
   GtkTreeIter   iter, parent;
   gchar       *window_title=NULL;
   const gchar *profile_name, *profiles_dir, *name;
-  GtkTooltips *tooltips;
   gboolean     has_global = has_global_profiles();
 
-  tooltips = gtk_tooltips_new();
   profile_name = get_profile_name();
 
   switch (operation) {
@@ -1233,13 +1226,13 @@ profile_name_edit_dlg (gint operation)
 
   if (operation == PROF_OPERATION_NEW) {
     label = gtk_label_new("Create from:");
-    gtk_tooltips_set_tip (tooltips, label, "All configuration files will be copied from this profile", NULL);
+    gtk_widget_set_tooltip_text (label, "All configuration files will be copied from this profile");
     gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 
     store = gtk_tree_store_new(3, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
     combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL (store));
-    gtk_tooltips_set_tip (tooltips, combo_box, "All configuration files will be copied from this profile", NULL);
+    gtk_widget_set_tooltip_text (combo_box, "All configuration files will be copied from this profile");
 
     cell = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_box), cell, TRUE);
@@ -1306,9 +1299,9 @@ profile_name_edit_dlg (gint operation)
     break;
   }
 #ifdef _WIN32
-  gtk_tooltips_set_tip (tooltips, entry, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |", NULL);
+  gtk_widget_set_tooltip_text (entry, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |");
 #else
-  gtk_tooltips_set_tip (tooltips, entry, "A profile name cannot contain the '/' character", NULL);
+  gtk_widget_set_tooltip_text (entry, "A profile name cannot contain the '/' character");
 #endif
 
   bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);

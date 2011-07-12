@@ -119,8 +119,6 @@ column_prefs_show(GtkWidget *prefs_window) {
     GtkTreeIter        first_iter;
     gint               first_row = TRUE;
 
-    GtkTooltips   *tooltips = gtk_tooltips_new();
-
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -150,8 +148,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
     gtk_tree_view_set_reorderable(GTK_TREE_VIEW(column_l), TRUE);
-    gtk_tooltips_set_tip (tooltips, column_l,
-        "Click on a title to change its name.\nDrag an item to change its order.", NULL);
+    gtk_widget_set_tooltip_text(column_l, "Click on a title to change its name.\nDrag an item to change its order.");
 
     renderer = gtk_cell_renderer_toggle_new();
     g_signal_connect(renderer, "toggled", G_CALLBACK(visible_toggled), store);
@@ -225,16 +222,14 @@ column_prefs_show(GtkWidget *prefs_window) {
     add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(add_bt, "clicked", G_CALLBACK(column_list_new_cb), column_l);
     gtk_box_pack_start (GTK_BOX (add_remove_vb), add_bt, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip (tooltips, add_bt,
-                          "Add a new column at the end of the list.", NULL);
+    gtk_widget_set_tooltip_text(add_bt, "Add a new column at the end of the list.");
     gtk_widget_show(add_bt);
 
     remove_bt = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_widget_set_sensitive(remove_bt, FALSE);
     g_signal_connect(remove_bt, "clicked", G_CALLBACK(column_list_delete_cb), column_l);
     gtk_box_pack_start (GTK_BOX (add_remove_vb), remove_bt, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip (tooltips, remove_bt,
-                          "Remove the selected column.", NULL);
+    gtk_widget_set_tooltip_text(remove_bt, "Remove the selected column.");
     gtk_widget_show(remove_bt);
 
     /* properties frame */
@@ -253,23 +248,21 @@ column_prefs_show(GtkWidget *prefs_window) {
     lb = gtk_label_new("Field type:");
     gtk_misc_set_alignment(GTK_MISC(lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 0, 1);
-    gtk_tooltips_set_tip (tooltips, lb,
-                          "Select which packet information to present in the column.", NULL);
+    gtk_widget_set_tooltip_text(lb, "Select which packet information to present in the column.");
     gtk_widget_show(lb);
 
     props_hb = gtk_hbox_new(FALSE, 5);
     gtk_table_attach(GTK_TABLE(tb), props_hb, 1, 2, 0, 1, GTK_FILL, GTK_SHRINK, 0, 0);
-    gtk_tooltips_set_tip (tooltips, props_hb,
-                          "Select which packet information to present in the column.", NULL);
+    gtk_widget_set_tooltip_text(props_hb, "Select which packet information to present in the column.");
     gtk_widget_show(props_hb);
 
     field_lb = gtk_label_new("Field name:");
     gtk_misc_set_alignment(GTK_MISC(field_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 0, 1, 1, 2);
     gtk_widget_set_sensitive(field_lb, FALSE);
-    gtk_tooltips_set_tip (tooltips, field_lb,
+    gtk_widget_set_tooltip_text(field_lb, 
                           "Field name used when field type is \"Custom\". "
-                          "This string has the same syntax as a display filter string.", NULL);
+                          "This string has the same syntax as a display filter string.");
     gtk_widget_show(field_lb);
 
     field_te = gtk_entry_new();
@@ -288,18 +281,18 @@ column_prefs_show(GtkWidget *prefs_window) {
     colorize_filter_te_as_empty(field_te);
     gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 1, 2, 1, 2);
     gtk_widget_set_sensitive(field_te, FALSE);
-    gtk_tooltips_set_tip (tooltips, field_te,
+    gtk_widget_set_tooltip_text(field_te, 
                           "Field name used when field type is \"Custom\". "
-                          "This string has the same syntax as a display filter string.", NULL);
+                          "This string has the same syntax as a display filter string.");
     gtk_widget_show(field_te);
 
     occurrence_lb = gtk_label_new("Field occurrence:");
     gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), occurrence_lb, 2, 3, 1, 2);
     gtk_widget_set_sensitive(occurrence_lb, FALSE);
-    gtk_tooltips_set_tip (tooltips, occurrence_lb,
+    gtk_widget_set_tooltip_text(occurrence_lb, 
                           "Field occurence to use. "
-                          "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+                          "0=all (default), 1=first, 2=second, ..., -1=last.");
     gtk_widget_show(occurrence_lb);
 
     occurrence_te = gtk_entry_new();
@@ -313,9 +306,9 @@ column_prefs_show(GtkWidget *prefs_window) {
 
     gtk_table_attach_defaults(GTK_TABLE(tb), occurrence_te, 3, 4, 1, 2);
     gtk_widget_set_sensitive(occurrence_te, FALSE);
-    gtk_tooltips_set_tip (tooltips, occurrence_te,
+    gtk_widget_set_tooltip_text(occurrence_te, 
                           "Field occurence to use. "
-                          "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+                          "0=all (default), 1=first, 2=second, ..., -1=last.");
     gtk_widget_show(occurrence_te);
 
     fmt_cmb = gtk_combo_box_new_text();
