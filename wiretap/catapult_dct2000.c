@@ -141,6 +141,7 @@ static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
                              gchar *protocol_name, gchar *variant_name,
                              gchar *outhdr_name);
 static guchar hex_from_char(gchar c);
+static guchar hex_byte_from_chars(gchar *c);
 static gchar char_from_hex(guchar hex);
 
 static void set_pseudo_header_info(wtap *wth,
@@ -382,8 +383,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                 /* Copy data into buffer, converting from ascii hex */
                 for (n=0; n <= data_chars; n+=2) {
                     frame_buffer[stub_offset + n/2] =
-                        (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                         hex_from_char(linebuff[dollar_offset+n+1]);
+                        hex_byte_from_chars(linebuff+dollar_offset+n);
                 }
             }
             else {
@@ -505,8 +505,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
             /***********************************************************/
             /* Copy packet data into buffer, converting from ascii hex */
             for (n=0; n <= data_chars; n+=2) {
-                pd[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                                         hex_from_char(linebuff[dollar_offset+n+1]);
+                pd[stub_offset + n/2] = hex_byte_from_chars(linebuff+dollar_offset+n);
             }
         }
         else {
@@ -785,14 +784,15 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
                        gchar *linebuff, size_t linebuffsize)
 {
     /* Read in a line */
+    gint64 pos_before = file_tell(fh);
     char *result = file_gets(linebuff, (int)linebuffsize - 1, fh);
     if (result == NULL) {
         /* No characters found, or error */
         return FALSE;
     }
 
-    /* Set length and offset.. */
-    *length = (gint)strlen(linebuff);
+    /* Set length (avoiding strlen()) and offset.. */
+    *length = (gint)(file_tell(fh) - pos_before);
     *offset = *offset + *length;
 
     /* ...but don't want to include newline in line length */
@@ -1325,8 +1325,7 @@ static void set_aal_info(union wtap_pseudo_header *pseudo_header,
 
     /* vpi is 8 bits (2nd & 3rd nibble) */
     pseudo_header->dct2000.inner_pseudo_header.atm.vpi =
-        ((hex_from_char(aal_header_chars[1]) << 4) |
-          hex_from_char(aal_header_chars[2]));
+        hex_byte_from_chars(aal_header_chars+1);
 
     /* vci is next 16 bits */
     pseudo_header->dct2000.inner_pseudo_header.atm.vci =
@@ -1342,8 +1341,7 @@ static void set_aal_info(union wtap_pseudo_header *pseudo_header,
        case cid is derived from last char in ascii */
     if (isalnum((guchar)aal_header_chars[11])) {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
-            ((hex_from_char(aal_header_chars[10]) << 4) |
-              hex_from_char(aal_header_chars[11]));
+            hex_byte_from_chars(aal_header_chars+10);
     }
     else {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
@@ -1398,6 +1396,31 @@ guchar hex_from_char(gchar c)
     /* Not a valid hex string character */
     return 0xff;
 }
+
+/* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
+static guchar hex_byte_from_chars(gchar *c)
+{
+    static guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                                         'a', 'b', 'c', 'd', 'e', 'f' };
+
+    /* Populate lookup table first time */
+    static guchar tableValues[255][255];
+    static gint tableSet = FALSE;
+    if (!tableSet) {
+        gint i, j;
+        for (i=0; i < 16; i++) {
+            for (j=0; j < 16; j++) {
+                tableValues[hex_char_array[i]][hex_char_array[j]] = i*16 + j;
+            }
+        }
+
+        tableSet = TRUE;
+    }
+
+    /* Return value from quick table lookup */
+    return tableValues[(unsigned char)c[0]][(unsigned char)c[1]];
+}
+
 
 
 /********************************************************/
