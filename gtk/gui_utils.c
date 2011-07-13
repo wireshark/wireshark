@@ -1125,7 +1125,7 @@ void simple_list_url_col(GtkWidget *list, gint col)
     /* make the column look like a link ... */
     ul_column = gtk_tree_view_get_column(GTK_TREE_VIEW(list), col);
 
-    renderers_list = gtk_tree_view_column_get_cell_renderers(ul_column);
+    renderers_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(ul_column));
 
     if(renderers_list != NULL) {
         /* it is simple list - there should be only one renderer */

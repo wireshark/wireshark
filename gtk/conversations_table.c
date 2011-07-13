@@ -2586,7 +2586,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
 
 static void
-ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
+ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
 {
     GtkWidget *copy_bt = (GtkWidget *) data;
     GtkWidget *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);

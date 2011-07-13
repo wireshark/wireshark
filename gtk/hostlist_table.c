@@ -1406,7 +1406,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
 
 static void
-ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
+ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
 {
     GtkWidget *copy_bt = (GtkWidget *) data;
     void ** pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
@@ -1420,7 +1420,7 @@ ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpoin
 
 #ifdef HAVE_GEOIP
 static void
-ct_nb_map_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
+ct_nb_map_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
 {
     GtkWidget *map_bt = (GtkWidget *) data;
     void ** pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);

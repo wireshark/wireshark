@@ -273,7 +273,11 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     /* do we have a map button? -> special handling for it */
     if (map) {
         button = gtk_button_new_from_stock(map);
+#if GTK_CHECK_VERSION(2,18,0)
+        gtk_widget_set_can_default(button, TRUE);
+#else
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
         g_object_set_data(G_OBJECT(hbox), map, button);
         gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);
