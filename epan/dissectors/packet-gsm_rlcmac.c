@@ -1055,7 +1055,7 @@ CSN_DESCR_END(Starting_Frame_Number_t)
 /*< Ack/Nack Description IE >*/
 static const
 CSN_DESCR_BEGIN(Ack_Nack_Description_t)
-  M_BIT        (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, &hf_ack_nack_description_final_ack_indication),
+  M_UINT        (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, 1, &hf_ack_nack_description_final_ack_indication),
   M_UINT       (Ack_Nack_Description_t,  STARTING_SEQUENCE_NUMBER,  7, &hf_ack_nack_description_starting_sequence_number),
   M_BITMAP     (Ack_Nack_Description_t, RECEIVED_BLOCK_BITMAP, 64),
 CSN_DESCR_END  (Ack_Nack_Description_t)
@@ -4851,7 +4851,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
     case MT_EGPRS_PACKET_DOWNLINK_ACK_NACK:
     {
-      ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(Packet_Downlink_Ack_Nack_t), tvb, &data->u.Packet_Downlink_Ack_Nack, ett_gsm_rlcmac);
+      ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(EGPRS_PD_AckNack_t), tvb, &data->u.Egprs_Packet_Downlink_Ack_Nack, ett_gsm_rlcmac);
       break;
     }
     case MT_PACKET_PAUSE:

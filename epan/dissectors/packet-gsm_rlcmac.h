@@ -4237,6 +4237,7 @@ typedef struct
     Packet_Cell_Change_Failure_t          Packet_Cell_Change_Failure;
     Packet_Control_Acknowledgement_t      Packet_Control_Acknowledgement;
     Packet_Downlink_Ack_Nack_t            Packet_Downlink_Ack_Nack;
+    EGPRS_PD_AckNack_t							Egprs_Packet_Downlink_Ack_Nack;
     Packet_Uplink_Dummy_Control_Block_t   Packet_Uplink_Dummy_Control_Block;
     Packet_Measurement_Report_t           Packet_Measurement_Report;
     Packet_Resource_Request_t             Packet_Resource_Request;

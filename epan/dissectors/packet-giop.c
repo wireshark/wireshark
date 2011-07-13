@@ -1763,7 +1763,7 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
     else
       message_size = pletohl (&header->message_size);
 
-    if (*offset > header->message_size)
+    if (*offset > message_size)
       return FALSE;
   }
 

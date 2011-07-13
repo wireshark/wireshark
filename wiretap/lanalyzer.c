@@ -276,13 +276,13 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 			/* Trace Packet Data Record */
 			case RT_PacketData:
-				/* Go back header number ob ytes so that lanalyzer_read
+				/* Go back header number of bytes so that lanalyzer_read
 				 * can read this header */
-				if (file_seek(wth->fh, -bytes_read, SEEK_CUR, err) == -1) {
+				if (file_seek(wth->fh, -4, SEEK_CUR, err) == -1) {
 					g_free(wth->priv);
 					return -1;
 				}
-				wth->data_offset -= bytes_read;
+				wth->data_offset -= 4;
 				return 1;
 
 			default:

@@ -2092,8 +2092,12 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
                        ld->packet_count+1, ld->cap_pipe_rechdr.hdr.incl_len);
             break;
         }
-        ld->cap_pipe_state = STATE_EXPECT_DATA;
-        return 0;
+
+        if (ld->cap_pipe_rechdr.hdr.incl_len) {
+            ld->cap_pipe_state = STATE_EXPECT_DATA;
+            return 0;
+        }
+        /* no data to read? fall through */
 
     case PD_DATA_READ:
         /* Fill in a "struct pcap_pkthdr", and process the packet. */

@@ -159,6 +159,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  Cannot Live-capture VirtualBox network packets with Wireshark; pipe problem.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6002">Bug
+          6002</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Interface list in Capture Options isn't cleared when selecting other host.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008">Bug
           6008</ulink>)
@@ -237,33 +243,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  802.11 Association Response Packet's "Status Code" field is imprecisely decoded/described.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093">Bug
+          6093</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Abis interface not correctly handled in gsmtap dissector.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6097">Bug
           6097</ulink>)
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+	  Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP TS 44.060).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6098">Bug
+          6098</ulink>)
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+	  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101">Bug
+          6101</ulink>)
         </para></listitem>
 
       </itemizedlist>
