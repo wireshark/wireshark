@@ -93,13 +93,13 @@ static void packet_list_sortable_set_sort_func(GtkTreeSortable *sortable,
 						   gint sort_col_id,
 						   GtkTreeIterCompareFunc sort_func,
 						   gpointer user_data,
-						   GtkDestroyNotify destroy_func);
+						   GDestroyNotify destroy_func);
 static void packet_list_sortable_set_default_sort_func(GtkTreeSortable
 							   *sortable,
 							   GtkTreeIterCompareFunc
 							   sort_func,
 							   gpointer user_data,
-							   GtkDestroyNotify
+							   GDestroyNotify
 							   destroy_func);
 static gboolean packet_list_sortable_has_default_sort_func(GtkTreeSortable
 							   *sortable);
@@ -919,7 +919,7 @@ packet_list_sortable_set_sort_func(GtkTreeSortable *sortable _U_,
 				   gint sort_col_id _U_,
 				   GtkTreeIterCompareFunc sort_func _U_,
 				   gpointer user_data _U_,
-				   GtkDestroyNotify destroy_func _U_)
+				   GDestroyNotify destroy_func _U_)
 {
 	g_warning(G_STRLOC ": is not supported by the PacketList model.\n");
 }
@@ -928,7 +928,7 @@ static void
 packet_list_sortable_set_default_sort_func(GtkTreeSortable *sortable _U_,
 					   GtkTreeIterCompareFunc sort_func _U_,
 					   gpointer user_data _U_,
-					   GtkDestroyNotify destroy_func _U_)
+					   GDestroyNotify destroy_func _U_)
 {
 	g_warning(G_STRLOC ": is not supported by the PacketList model.\n");
 }
