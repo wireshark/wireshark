@@ -332,7 +332,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint sectionlen;
 	guint32 num_messages;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
+	gint tvb_sectionend,tvb_sectionbegin, tvb_len;
 	proto_tree *mgcp_tree, *ti;
 	const gchar *verb_name = "";
 
@@ -341,7 +341,6 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_sectionbegin = tvb_sectionend;
 	sectionlen = 0;
 	tvb_len = tvb_length(tvb);
-	tvb_current_len  = tvb_len;
 	num_messages = 0;
 	mgcp_tree = NULL;
 	ti = NULL;
@@ -467,7 +466,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	/* Declare variables */
 	gint sectionlen;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
+	gint tvb_sectionend,tvb_sectionbegin, tvb_len;
 	tvbuff_t *next_tvb;
 	const gchar *verb_name = "";
 
@@ -500,7 +499,6 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tvb_sectionbegin = tvb_sectionend;
 	sectionlen = 0;
 	tvb_len = tvb_length(tvb);
-	tvb_current_len  = tvb_len;
 
 	/*
 	 * Check to see whether we're really dealing with MGCP by looking
@@ -511,7 +509,6 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	{
 		/* dissect first line */
 		tvb_sectionbegin = 0;
-		tvb_current_len = tvb_len;
 		tvb_sectionend = tvb_sectionbegin;
 		sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
 		if (sectionlen > 0)
@@ -1773,13 +1770,12 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 {
 	int linelen, tokenlen, *my_param;
-	gint tvb_lineend,tvb_current_len, tvb_linebegin,tvb_len,old_lineend;
+	gint tvb_lineend, tvb_linebegin, tvb_len, old_lineend;
 	gint tvb_tokenbegin;
 	proto_tree *mgcp_param_ti, *mgcp_param_tree;
 
 	tvb_len = tvb_length(tvb);
 	tvb_linebegin = 0;
-	tvb_current_len = tvb_length_remaining(tvb,tvb_linebegin);
 	tvb_lineend = tvb_linebegin;
 
 	if (tree)

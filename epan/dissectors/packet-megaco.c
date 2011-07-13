@@ -1407,17 +1407,14 @@ static gint find_megaco_descriptors_names(tvbuff_t *tvb, int offset, guint heade
 static void
 dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, packet_info *pinfo, gint tvb_descriptors_start_offset, gint tvb_descriptors_end_offset)
 {
-    gint        tvb_len, len, token_index, tvb_offset, temp_offset;
+    gint        tvb_len, token_index, tvb_offset, temp_offset;
     gint        tvb_current_offset,tvb_previous_offset,tokenlen;
-    gint        tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
+    gint        tvb_RBRKT, tvb_LBRKT;
+
     tvb_len     = tvb_length(tvb);
 
-
-    len             = 0;
     tvb_RBRKT       = 0;
     tvb_LBRKT       = 0;
-    RBRKT_counter   = 0;
-    LBRKT_counter   = 0;
 
 
     tvb_LBRKT = megaco_tvb_skip_wsp(tvb, tvb_descriptors_start_offset +1);
@@ -1913,7 +1910,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 {
 
     gint tokenlen, tvb_current_offset, tvb_next_offset, tvb_help_offset;
-    gint tvb_events_end_offset, tvb_events_start_offset, tvb_LBRKT;
+    gint tvb_events_end_offset, tvb_LBRKT;
     proto_tree  *megaco_eventsdescriptor_tree, *megaco_eventsdescriptor_ti;
 
     guint8 tempchar;
@@ -1925,7 +1922,6 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
     tvb_next_offset                 = 0;
     tvb_help_offset                 = 0;
     tvb_events_end_offset           = 0;
-    tvb_events_start_offset         = 0;
     tvb_help_offset                 = 0;
     requested_event_start_offset    = 0;
     requested_event_end_offset      = 0;
@@ -1956,7 +1952,6 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
             tokenlen));
 
         tvb_events_end_offset   = tvb_RBRKT;
-        tvb_events_start_offset = tvb_previous_offset;
 
         tvb_RBRKT = tvb_next_offset+1;
         tvb_LBRKT = tvb_next_offset+1;
@@ -2499,7 +2494,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 {
 
     gint tokenlen, pkg_tokenlen, tvb_current_offset, tvb_next_offset, tvb_help_offset;
-    gint tvb_observedevents_end_offset, tvb_observedevents_start_offset, tvb_LBRKT;
+    gint tvb_observedevents_end_offset, tvb_LBRKT;
     proto_tree  *megaco_observedeventsdescriptor_tree, *megaco_observedeventsdescriptor_ti;
 
     guint8 tempchar;
@@ -2511,7 +2506,6 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
     tvb_next_offset                 = 0;
     tvb_help_offset                 = 0;
     tvb_observedevents_end_offset   = 0;
-    tvb_observedevents_start_offset = 0;
     tvb_LBRKT                       = 0;
     requested_event_start_offset    = 0;
     requested_event_end_offset  = 0;
@@ -2546,7 +2540,6 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
             tokenlen));
 
         tvb_observedevents_end_offset   = tvb_RBRKT;
-        tvb_observedevents_start_offset = tvb_previous_offset;
 
         tvb_RBRKT = tvb_next_offset+1;
         tvb_LBRKT = tvb_next_offset+1;
@@ -2696,7 +2689,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
 {
 
     gint tokenlen, tvb_current_offset, tvb_next_offset, tvb_help_offset;
-    gint tvb_packages_end_offset, tvb_packages_start_offset, tvb_LBRKT;
+    gint tvb_packages_end_offset, tvb_LBRKT;
     proto_tree  *megaco_packagesdescriptor_tree, *megaco_packagesdescriptor_ti;
 
     tokenlen                    = 0;
@@ -2704,7 +2697,6 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
     tvb_next_offset             = 0;
     tvb_help_offset             = 0;
     tvb_packages_end_offset     = 0;
-    tvb_packages_start_offset   = 0;
     tvb_LBRKT                   = 0;
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
@@ -2730,7 +2722,6 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
             tokenlen));
 
         tvb_packages_end_offset   = tvb_RBRKT;
-        tvb_packages_start_offset = tvb_previous_offset;
 
         tvb_RBRKT = tvb_next_offset+1;
         tvb_LBRKT = tvb_next_offset+1;
@@ -2895,15 +2886,12 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
     gint                tokenlen;
     gint                error_code;
     guint8              error[4];
-    gint                tvb_next_offset, tvb_current_offset,tvb_len;
+    gint                tvb_current_offset;
     proto_item*         item;
     proto_item*         hidden_item;
 
-    tvb_len             = tvb_length(tvb);
     tokenlen            = 0;
-    tvb_next_offset         = 0;
-    tvb_current_offset      = 0;
-    tvb_len             = 0;
+    tvb_current_offset  = 0;
 
     tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset , tvb_RBRKT, '=');
     tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset +1);

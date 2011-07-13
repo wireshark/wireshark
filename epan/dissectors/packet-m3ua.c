@@ -840,11 +840,9 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 static void
 dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint8 li;
   guint16 protocol_data_length;
   tvbuff_t *payload_tvb;
 
-  li                   = tvb_get_guint8(parameter_tvb, LI_OCTETT_OFFSET);
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
   payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_2_OFFSET, protocol_data_length, protocol_data_length);
   proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, ENC_BIG_ENDIAN);
@@ -965,9 +963,6 @@ dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 static void
 dissect_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint32 id;
-
-  id = tvb_get_ntohl(parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET);
   proto_tree_add_item(parameter_tree, hf_local_rk_identifier, parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET, LOCAL_RK_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET));
 }
