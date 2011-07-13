@@ -55,8 +55,6 @@ static int amqp_port = 5672;
 /*  Generic defines  */
 
 #define AMQP_INCREMENT(offset, addend, bound) {\
-    int tmp;\
-    tmp = offset;\
     offset += (addend);\
     THROW_ON((offset > bound), ReportedBoundsError);  \
 }
@@ -2295,14 +2293,14 @@ dissect_amqp_0_10_xid (tvbuff_t *tvb,
                        proto_item *ti)
 {
     proto_item *xid_tree;
-    guint8 flag1, flag2;
+    guint8 flag1/*, flag2*/;
     guint8 len8;
     int max_length;
 
     max_length = offset + xid_length;
     xid_tree = proto_item_add_subtree(ti, ett_args);
     flag1 = tvb_get_guint8(tvb, offset);
-    flag2 = tvb_get_guint8(tvb, offset+1);
+    /*flag2 = tvb_get_guint8(tvb, offset+1);*/
     proto_tree_add_item(xid_tree, hf_amqp_0_10_argument_packing_flags,
                         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, max_length);
@@ -2963,7 +2961,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
     guint8 flag1, flag2;
     guint16 size;
     guint32 struct_size;
-    int class_hf, flags_offset;
+    int class_hf;
     const gchar* method_name;
 
     method = tvb_get_guint8(tvb, offset+1);
@@ -2999,7 +2997,6 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
      * field. tvb_get_bits16() doesn't know how to do little-endian
      * at this time, so just pick out two bytes.
      */
-    flags_offset = offset;
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
     flags_item = proto_tree_add_item(args_tree,
@@ -4929,13 +4926,11 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
     guint16 len16;
     guint32 map_length;
     e_guid_t uuid;
-    int flags_offset, subflags_offset;
     int max_length;
 
     max_length = offset + struct_length;
     frag = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
-    flags_offset = offset;
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
     flags_item = proto_tree_add_item(frag,
@@ -4979,7 +4974,6 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
         subflags_item = proto_tree_add_item(args_tree,
                                             hf_amqp_0_10_argument_packing_flags,
                                             tvb, offset, 2, FALSE);
-        subflags_offset = offset;
         subflag1 = tvb_get_guint8(tvb, offset);
         subflag2 = tvb_get_guint8(tvb, offset + 1);
         if ((subflag1 & ~0x03) || subflag2 != 0)
@@ -5213,14 +5207,12 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
     guint8 len8;
     guint32 map_length;
     guint64 timestamp;
-    int flags_offset;
     int max_length;
     nstime_t tv;
 
     max_length = offset + struct_length;
     props = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
-    flags_offset = offset;
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
     flags_item = proto_tree_add_item(props,
@@ -5325,14 +5317,12 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
     guint8 len8;
     guint32 map_length;
     guint64 timestamp;
-    int flags_offset;
     int max_length;
     nstime_t tv;
 
     max_length = offset + struct_length;
     props = proto_item_add_subtree(tree, ett_args);
     AMQP_INCREMENT(offset, 2, max_length);  /* Skip class and struct codes */
-    flags_offset = offset;
     flag1 = tvb_get_guint8(tvb, offset);
     flag2 = tvb_get_guint8(tvb, offset+1);
     flags_item = proto_tree_add_item(props,
@@ -5400,7 +5390,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
 {
     guint8 class_code;
     guint8 struct_code;
-    guint8 flag1, flag2;
+    guint8 flag1/*, flag2*/;
     guint16 size;
     guint16 value;
     guint32 array_length;
@@ -5441,7 +5431,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            flag2 = tvb_get_guint8(tvb, offset+1);
+            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             proto_tree_add_item(result, hf_amqp_0_10_argument_packing_flags,
                                 tvb, offset, 2, FALSE);
             AMQP_INCREMENT(consumed, 2, struct_length);
@@ -5462,7 +5452,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            flag2 = tvb_get_guint8(tvb, offset+1);
+            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             proto_tree_add_item(result, hf_amqp_0_10_argument_packing_flags,
                                 tvb, offset, 2, FALSE);
             AMQP_INCREMENT(consumed, 2, struct_length);
@@ -5483,7 +5473,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            flag2 = tvb_get_guint8(tvb, offset+1);
+            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Packing bytes */
             offset += 2;
             value = tvb_get_ntohs(tvb, offset);
@@ -5500,7 +5490,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            flag2 = tvb_get_guint8(tvb, offset+1);
+            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Packing bytes */
             offset += 2;
             array_length = tvb_get_ntohl(tvb, offset);
