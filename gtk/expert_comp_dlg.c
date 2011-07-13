@@ -634,8 +634,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *close_bt;
     GtkWidget *help_bt;
     expert_tapdata_t *etd;
-    GtkTooltips *tooltips = gtk_tooltips_new();
-
+ 
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
     ss->disp_events = 0;
@@ -743,7 +742,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
-    gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+    gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
 
     g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(ss->win, "destroy", G_CALLBACK(win_destroy_cb), ss);

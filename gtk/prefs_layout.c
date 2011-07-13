@@ -72,7 +72,7 @@ typedef struct {
 #define LAYOUT_CONTENT3_VB_KEY      "layout_content3_vbox"
 
 
-static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *tooltips, int i, layout_pane_content_e content) {
+static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pane_content_e content) {
     GtkWidget	*radio_vb, *radio_lb;
     GtkWidget	*radio_none_rb, *radio_plist_rb, *radio_pdetails_rb, *radio_pbytes_rb;
     char buf[64];
@@ -89,22 +89,22 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
 
     radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "None");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
-    gtk_tooltips_set_tip (tooltips, radio_none_rb, "Put nothing in this pane.", NULL);
+    gtk_widget_set_tooltip_text (radio_none_rb, "Put nothing in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_none_rb);
 
     radio_plist_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet List");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_plist_rb), content == layout_pane_content_plist);
-    gtk_tooltips_set_tip (tooltips, radio_plist_rb, "Put the packet list in this pane.", NULL);
+    gtk_widget_set_tooltip_text (radio_plist_rb, "Put the packet list in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_plist_rb);
 
     radio_pdetails_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Details");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pdetails_rb), content == layout_pane_content_pdetails);
-    gtk_tooltips_set_tip (tooltips, radio_pdetails_rb, "Put the packet details tree in this pane.", NULL);
+    gtk_widget_set_tooltip_text (radio_pdetails_rb, "Put the packet details tree in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pdetails_rb);
 
     radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Bytes");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
-    gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes dump in this pane.", NULL);
+    gtk_widget_set_tooltip_text (radio_pbytes_rb, "Put the packet bytes dump in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);
 
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY,       radio_none_rb);
@@ -300,8 +300,6 @@ layout_prefs_show(void)
     GtkWidget	*filter_toolbar_placement_om;
     GtkWidget	*window_title_te;
 
-    GtkTooltips   *tooltips = gtk_tooltips_new();
-
     const char ** inline_txt [LAYOUT_QTY] = {
 		icon_layout_5_xpm, icon_layout_2_xpm, icon_layout_1_xpm,
 		icon_layout_4_xpm, icon_layout_3_xpm, icon_layout_6_xpm };
@@ -352,25 +350,24 @@ layout_prefs_show(void)
     gtk_container_set_border_width(GTK_CONTAINER(radio_hb), 6);
     gtk_box_pack_start (GTK_BOX(pane_vb), radio_hb, FALSE, FALSE, 0);
 
-    radio_vb = layout_content_radio_vbox(main_vb, tooltips, 1, prefs.gui_layout_content_1);
+    radio_vb = layout_content_radio_vbox(main_vb, 1, prefs.gui_layout_content_1);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY, radio_vb);
 
-    radio_vb = layout_content_radio_vbox(main_vb, tooltips, 2, prefs.gui_layout_content_2);
+    radio_vb = layout_content_radio_vbox(main_vb, 2, prefs.gui_layout_content_2);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY, radio_vb);
 
-    radio_vb = layout_content_radio_vbox(main_vb, tooltips, 3, prefs.gui_layout_content_3);
+    radio_vb = layout_content_radio_vbox(main_vb, 3, prefs.gui_layout_content_3);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY, radio_vb);
 
     default_vb = gtk_vbox_new(FALSE, 0);
     default_bt = gtk_button_new_with_label("Default panes");
-    gtk_tooltips_set_tip (tooltips, default_bt,
-        "Reset the pane layout settings to default values.", NULL);
+    gtk_widget_set_tooltip_text (default_bt, "Reset the pane layout settings to default values.");
     g_signal_connect(default_bt, "clicked", G_CALLBACK(layout_defaults_cb), main_vb);
     gtk_box_pack_end(GTK_BOX(default_vb), default_bt, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(radio_hb), default_vb, FALSE, FALSE, 0);
@@ -385,7 +382,6 @@ layout_prefs_show(void)
     gtk_box_pack_start( GTK_BOX(hbox), main_tb, FALSE, FALSE, 0 );
     gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
     gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
-    g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
     /* Scrollbar placement */
     scrollbar_om = create_preference_option_menu(main_tb, pos++,

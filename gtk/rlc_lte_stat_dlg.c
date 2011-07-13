@@ -1190,7 +1190,6 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     GtkWidget         *close_bt;
     GtkWidget         *help_bt;
-    GtkTooltips       *tooltips = gtk_tooltips_new();
     GtkListStore      *store;
 
     GtkTreeView       *tree_view;
@@ -1243,8 +1242,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     pdu_source_lb = gtk_frame_new("PDUs to use");
     show_mac_cb = gtk_check_button_new_with_mnemonic("Show RLC PDUs found inside logged MAC frames");
     gtk_container_add(GTK_CONTAINER(pdu_source_lb), show_mac_cb);
-    gtk_tooltips_set_tip(tooltips, show_mac_cb, "Can either use separately-logged RLC PDUs, OR find them "
-                         "decoded inside MAC PDUs (enabled in MAC dissector preferences)", NULL);
+    gtk_widget_set_tooltip_text(show_mac_cb, "Can either use separately-logged RLC PDUs, OR find them "
+                         "decoded inside MAC PDUs (enabled in MAC dissector preferences)");
 
 
     /* MAC on by default */
@@ -1416,26 +1415,26 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->ul_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
     gtk_widget_show(hs->ul_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->ul_filter_bt, "Generate and set a display filter to show frames "
+    gtk_widget_set_tooltip_text(hs->ul_filter_bt, "Generate and set a display filter to show frames "
                          "associated with the channel, in the UL direction only. "
-                         "N.B. DL Status PDUs sent on this channel will also be shown for AM", NULL);
+                         "N.B. DL Status PDUs sent on this channel will also be shown for AM");
 
     /* DL only */
     hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter for this channel");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
     gtk_widget_show(hs->dl_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->dl_filter_bt, "Generate and set a display filter to show frames "
+    gtk_widget_set_tooltip_text(hs->dl_filter_bt, "Generate and set a display filter to show frames "
                          "associated with the channel, in the DL direction only. "
-                         "N.B. UL Status PDUs sent on this channel will also be shown for AM", NULL);
+                         "N.B. UL Status PDUs sent on this channel will also be shown for AM");
 
     /* UL and DL */
     hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter for this channel");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->uldl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_show(hs->uldl_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->uldl_filter_bt, "Generate and set a display filter to show frames "
-                         "associated with the channel, in UL and DL", NULL);
+    gtk_widget_set_tooltip_text(hs->uldl_filter_bt, "Generate and set a display filter to show frames "
+                         "associated with the channel, in UL and DL");
 
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
@@ -1447,16 +1446,16 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     hs->show_only_control_pdus_cb = gtk_check_button_new_with_mnemonic("Show only status PDUs");
     gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_only_control_pdus_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb), FALSE);
-    gtk_tooltips_set_tip(tooltips, hs->show_only_control_pdus_cb, "Generated filters will only show AM status PDUs "
-                         "(i.e. if you filter on UL you'll see ACKs/NACK replies sent in the DL)", NULL);
+    gtk_widget_set_tooltip_text(hs->show_only_control_pdus_cb, "Generated filters will only show AM status PDUs "
+                         "(i.e. if you filter on UL you'll see ACKs/NACK replies sent in the DL)");
 
     /* Allow DCT errors to be shown... */
     hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings...");
     gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_dct_errors_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
     g_signal_connect(hs->show_dct_errors_cb, "toggled", G_CALLBACK(rlc_lte_dct_errors_cb), hs);
-    gtk_tooltips_set_tip(tooltips, hs->show_dct_errors_cb, "When checked, generated filters will "
-                         "include DCT2000 error strings", NULL);
+    gtk_widget_set_tooltip_text(hs->show_dct_errors_cb, "When checked, generated filters will "
+                         "include DCT2000 error strings");
 
     /* ... optionally limited by a substring */
     hs->dct_error_substring_lb = gtk_label_new("...containing");
@@ -1466,15 +1465,15 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     hs->dct_error_substring_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(sn_filter_hb), hs->dct_error_substring_te, FALSE, FALSE, 0);
     gtk_widget_show(hs->dct_error_substring_te);
-    gtk_tooltips_set_tip(tooltips, hs->dct_error_substring_te,
-                         "If given, only match error strings containing this substring", NULL);
+    gtk_widget_set_tooltip_text(hs->dct_error_substring_te,
+                         "If given, only match error strings containing this substring");
 
     /* Allow filtering of a particular sequence number */
     hs->sn_filter_te = gtk_entry_new();
     gtk_box_pack_end(GTK_BOX(sn_filter_hb), hs->sn_filter_te, FALSE, FALSE, 0);
     gtk_widget_show(hs->sn_filter_te);
-    gtk_tooltips_set_tip(tooltips, hs->sn_filter_te, "Can limit generated filters to a given sequence number (0-1023). "
-                         "Will also include relevant AM status PDUs", NULL);
+    gtk_widget_set_tooltip_text(hs->sn_filter_te, "Can limit generated filters to a given sequence number (0-1023). "
+                         "Will also include relevant AM status PDUs");
 
     hs->sn_filter_lb = gtk_label_new("Sequence number to filter on:");
     gtk_box_pack_end(GTK_BOX(sn_filter_hb), hs->sn_filter_lb, FALSE, FALSE, 0);

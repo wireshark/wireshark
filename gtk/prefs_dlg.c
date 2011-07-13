@@ -119,7 +119,6 @@ struct ct_struct {
   GtkWidget    *notebook;
   GtkWidget    *tree;
   GtkTreeIter  iter;
-  GtkTooltips  *tooltips;
   gint         page;
   gboolean     is_protocol;
 };
@@ -345,7 +344,6 @@ module_prefs_show(module_t *module, gpointer user_data)
     gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
     gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-    g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, cts->tooltips);
 
     /* Add items for each of the preferences */
     prefs_pref_foreach(module, pref_show, main_tb);
@@ -449,7 +447,6 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
    * and its control widgets is inactive and the tooltip doesn't pop up when
    * the mouse is over it.
    */
-  cts.tooltips = gtk_tooltips_new();
 
   /* Container for each row of widgets */
   cts.main_vb = gtk_vbox_new(FALSE, 5);
@@ -648,7 +645,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 
 static void
 set_option_label(GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const gchar *tooltip_text, GtkTooltips *tooltips)
+    const gchar *label_text, const gchar *tooltip_text)
 {
   GtkWidget *label;
   GtkWidget *event_box;
@@ -661,8 +658,8 @@ set_option_label(GtkWidget *main_tb, int table_position,
   gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1,
                             table_position, table_position + 1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(event_box, tooltip_text);
   gtk_container_add(GTK_CONTAINER(event_box), label);
   gtk_widget_show(event_box);
 }
@@ -671,20 +668,16 @@ GtkWidget *
 create_preference_check_button(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text, gboolean active)
 {
-  GtkTooltips *tooltips;
   GtkWidget *check_box;
 
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
-
-  set_option_label(main_tb, table_position, label_text, tooltip_text,
-                   tooltips);
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   check_box = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
                             table_position, table_position + 1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, check_box, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(check_box, tooltip_text);
 
   return check_box;
 }
@@ -694,17 +687,13 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text,
     const enum_val_t *enumvals, gint current_val)
 {
-  GtkTooltips *tooltips;
   GtkWidget *radio_button_hbox, *button = NULL;
   GSList *rb_group;
   int idx;
   const enum_val_t *enum_valp;
   GtkWidget *event_box;
 
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
-
-  set_option_label(main_tb, table_position, label_text, tooltip_text,
-                   tooltips);
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   radio_button_hbox = gtk_hbox_new(FALSE, 0);
   rb_group = NULL;
@@ -728,8 +717,8 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
   gtk_container_add(GTK_CONTAINER(event_box), radio_button_hbox);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 1, 2,
                             table_position, table_position+1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(event_box, tooltip_text);
   gtk_widget_show(event_box);
 
   /*
@@ -790,21 +779,17 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text,
     const enum_val_t *enumvals, gint current_val)
 {
-  GtkTooltips *tooltips;
   GtkWidget *menu_box, *combo_box;
   int menu_idx, idx;
   const enum_val_t *enum_valp;
   GtkWidget *event_box;
 
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
-
-  set_option_label(main_tb, table_position, label_text, tooltip_text,
-                   tooltips);
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   /* Create a menu from the enumvals */
   combo_box = gtk_combo_box_new_text ();
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, combo_box, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(combo_box, tooltip_text);
   menu_idx = 0;
   for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
        enum_valp++, idx++) {
@@ -827,8 +812,8 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
   gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box,
                             1, 2, table_position, table_position + 1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(event_box, tooltip_text);
   gtk_container_add(GTK_CONTAINER(event_box), menu_box);
 
   return combo_box;
@@ -852,21 +837,17 @@ GtkWidget *
 create_preference_entry(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text, char *value)
 {
-  GtkTooltips *tooltips;
   GtkWidget *entry;
 
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
-
-  set_option_label(main_tb, table_position, label_text, tooltip_text,
-                   tooltips);
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   entry = gtk_entry_new();
   if (value != NULL)
     gtk_entry_set_text(GTK_ENTRY(entry), value);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2,
                             table_position, table_position + 1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, entry, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(entry, tooltip_text);
   gtk_widget_show(entry);
 
   return entry;
@@ -876,10 +857,7 @@ GtkWidget *
 create_preference_static_text(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text)
 {
-  GtkTooltips *tooltips;
   GtkWidget *label;
-
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
   if(label_text != NULL)
     label = gtk_label_new(label_text);
@@ -887,8 +865,8 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
     label = gtk_label_new("");
   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 2,
                             table_position, table_position + 1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, label, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(label, tooltip_text);
   gtk_widget_show(label);
 
   return label;
@@ -898,13 +876,9 @@ GtkWidget *
 create_preference_uat(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text, void* uat)
 {
-  GtkTooltips *tooltips;
   GtkWidget *button = NULL;
 
-  tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
-
-  set_option_label(main_tb, table_position, label_text, tooltip_text,
-                   tooltips);
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   button = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 
@@ -912,8 +886,8 @@ create_preference_uat(GtkWidget *main_tb, int table_position,
 
   gtk_table_attach_defaults(GTK_TABLE(main_tb), button, 1, 2,
                             table_position, table_position+1);
-  if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, button, tooltip_text, NULL);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(button, tooltip_text);
   gtk_widget_show(button);
 
   return button;

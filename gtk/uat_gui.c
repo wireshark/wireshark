@@ -418,9 +418,6 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t* f = uat->fields;
 	guint colnum;
-	GtkTooltips *tooltips;
-
-	tooltips = gtk_tooltips_new();
 	
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
@@ -473,7 +470,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 
 		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		if (f[colnum].desc != NULL)
-			gtk_tooltips_set_tip(tooltips, event_box, f[colnum].desc, NULL);
+			gtk_widget_set_tooltip_text(event_box, f[colnum].desc);
 
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1, colnum+1, colnum + 2);
@@ -864,9 +861,6 @@ static GtkWidget* uat_window(void* u) {
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
-	GtkTooltips *tooltips;
-
-	tooltips = gtk_tooltips_new();
 
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -920,7 +914,7 @@ static GtkWidget* uat_window(void* u) {
 		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column (rep->list, column);
 		if (f[colnum].desc != NULL)
-			gtk_tooltips_set_tip(tooltips, column->button, f[colnum].desc, NULL);
+			gtk_widget_set_tooltip_text(column->button, f[colnum].desc);
 
 		/*
 		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);

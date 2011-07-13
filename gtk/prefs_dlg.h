@@ -91,8 +91,6 @@ extern void prefs_page_cb(GtkWidget *widget, gpointer data, PREFS_PAGE_E prefs_p
  */
 extern void properties_cb(GtkWidget *widget, gpointer data);
 
-#define E_TOOLTIPS_KEY "tooltips"
-
 /** Create a check button for a preferences page.
  *
  * @param main_tb the table to put this button into

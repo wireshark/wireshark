@@ -173,8 +173,6 @@ gui_prefs_show(void)
 	GtkWidget *macosx_style_cb;
 #endif
 
-	GtkTooltips *tooltips = gtk_tooltips_new();
-
 	int        pos = 0;
 	char       current_val_str[128];
 
@@ -193,7 +191,6 @@ gui_prefs_show(void)
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, pos++,

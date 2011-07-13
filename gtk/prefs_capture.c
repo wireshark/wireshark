@@ -104,7 +104,6 @@ capture_prefs_show(void)
 	GList		*if_list, *combo_list;
 	int		err;
 	int		row = 0;
-	GtkTooltips	*tooltips = gtk_tooltips_new();
 	gchar           *tooltips_text;
 
 	/* Main vertical box */
@@ -117,7 +116,6 @@ capture_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
-	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Default device */
 	if_lb = gtk_label_new("Default interface:");
@@ -149,8 +147,8 @@ capture_prefs_show(void)
 
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cbxe, 1, 2, row, row+1);
 	tooltips_text = "The default interface to be captured from.";
-	gtk_tooltips_set_tip(tooltips, if_lb, tooltips_text, NULL);
-	gtk_tooltips_set_tip(tooltips, gtk_bin_get_child(GTK_BIN(if_cbxe)), tooltips_text, NULL);
+	gtk_widget_set_tooltip_text(if_lb, tooltips_text);
+	gtk_widget_set_tooltip_text(gtk_bin_get_child(GTK_BIN(if_cbxe)), tooltips_text);
 	gtk_widget_show(if_cbxe);
 	g_object_set_data(G_OBJECT(main_vb), DEVICE_KEY, if_cbxe);
 	row++;
@@ -163,8 +161,8 @@ capture_prefs_show(void)
 
 	ifopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	tooltips_text = "Open a dialog box to set various interface options.";
-	gtk_tooltips_set_tip(tooltips, ifopts_lb, tooltips_text, NULL);
-	gtk_tooltips_set_tip(tooltips, ifopts_bt, tooltips_text, NULL);
+	gtk_widget_set_tooltip_text(ifopts_lb, tooltips_text);
+	gtk_widget_set_tooltip_text(ifopts_bt, tooltips_text);
 	g_signal_connect(ifopts_bt, "clicked", G_CALLBACK(ifopts_edit_cb), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
 	row++;
@@ -319,7 +317,6 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	int row = 0;
 
 	GtkWidget   *caller   = gtk_widget_get_toplevel(w);
-	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
@@ -580,19 +577,17 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(bbox);
 
 	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-	gtk_tooltips_set_tip(tooltips, ok_bt,
-			     "Save changes and exit dialog", NULL);
+	gtk_widget_set_tooltip_text(ok_bt, "Save changes and exit dialog");
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(ifopts_edit_ok_cb), ifopts_edit_dlg);
 
 	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	gtk_tooltips_set_tip(tooltips, cancel_bt,
-			     "Cancel and exit dialog", NULL);
+	gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog");
         window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
 			 (gpointer)HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG);
-	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+	gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
 
 	gtk_widget_grab_default(ok_bt);
 

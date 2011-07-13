@@ -965,7 +965,6 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkWidget     *close_bt;
     GtkWidget     *help_bt;
 
-    GtkTooltips   *tooltips = gtk_tooltips_new();
     GtkListStore  *store;
 
     GtkTreeView       *tree_view;
@@ -1208,9 +1207,8 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     g_signal_connect(hs->ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->ul_filter_bt, FALSE);
     gtk_widget_show(hs->ul_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->ul_filter_bt,
-                         "Generate and set a filter showing only UL frames with selected RNTI and UEId",
-                         NULL);
+    gtk_widget_set_tooltip_text(hs->ul_filter_bt,
+                         "Generate and set a filter showing only UL frames with selected RNTI and UEId");
 
     /* DL only */
     hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter on selected this RNTI / UEId");
@@ -1218,9 +1216,8 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     g_signal_connect(hs->dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->dl_filter_bt, FALSE);
     gtk_widget_show(hs->dl_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->dl_filter_bt,
-                         "Generate and set a filter showing only DL frames with selected RNTI and UEId",
-                         NULL);
+    gtk_widget_set_tooltip_text(hs->dl_filter_bt,
+                         "Generate and set a filter showing only DL frames with selected RNTI and UEId");
 
     /* UL and DL */
     hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter on selected this RNTI / UEId");
@@ -1228,9 +1225,8 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     g_signal_connect(hs->uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, FALSE);
     gtk_widget_show(hs->uldl_filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->uldl_filter_bt,
-                         "Generate and set a filter showing only frames with selected RNTI and UEId",
-                         NULL);
+    gtk_widget_set_tooltip_text(hs->uldl_filter_bt,
+                         "Generate and set a filter showing only frames with selected RNTI and UEId");
 
 
     /* Allow DCT errors to be shown... */
@@ -1238,8 +1234,8 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_dct_errors_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
     g_signal_connect(hs->show_dct_errors_cb, "toggled", G_CALLBACK(mac_lte_dct_errors_cb), hs);
-    gtk_tooltips_set_tip(tooltips, hs->show_dct_errors_cb, "When checked, generated filters will "
-                         "include DCT2000 error strings", NULL);
+    gtk_widget_set_tooltip_text(hs->show_dct_errors_cb, "When checked, generated filters will "
+                         "include DCT2000 error strings");
     /* Initially disabled */
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, FALSE);
 
@@ -1253,8 +1249,8 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dct_error_substring_te, FALSE, FALSE, 0);
     gtk_widget_show(hs->dct_error_substring_te);
     gtk_widget_set_sensitive(hs->dct_error_substring_te, FALSE);
-    gtk_tooltips_set_tip(tooltips, hs->dct_error_substring_te,
-                         "If given, only match error strings containing this substring", NULL);
+    gtk_widget_set_tooltip_text(hs->dct_error_substring_te,
+                         "If given, only match error strings containing this substring");
 
 
     /**********************************************/

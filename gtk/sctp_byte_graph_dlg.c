@@ -1027,7 +1027,6 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 	GtkWidget *bt_close, *sack_bt, *tsn_bt, *both_bt, *zoomin_bt;
-	GtkTooltips *tooltip_in, *tooltip_out;
 
 	/* create the main window */
 
@@ -1070,15 +1069,13 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_box_pack_start(GTK_BOX(hbox), zoomin_bt, FALSE, FALSE, 0);
 	gtk_widget_show(zoomin_bt);
 	g_signal_connect(zoomin_bt, "clicked", G_CALLBACK(on_zoomin_bt), u_data);
-	tooltip_in = gtk_tooltips_new();
-	gtk_tooltips_set_tip(tooltip_in, zoomin_bt, "Zoom in the area you have selected", NULL);
+	gtk_widget_set_tooltip_text(zoomin_bt, "Zoom in the area you have selected");
 
 	zoomout_bt = gtk_button_new_with_label ("Zoom out");
 	gtk_box_pack_start(GTK_BOX(hbox), zoomout_bt, FALSE, FALSE, 0);
 	gtk_widget_show(zoomout_bt);
 	g_signal_connect(zoomout_bt, "clicked", G_CALLBACK(on_zoomout_bt), u_data);
-	tooltip_out = gtk_tooltips_new();
-	gtk_tooltips_set_tip(tooltip_out, zoomout_bt, "Zoom out one step", NULL);
+	gtk_widget_set_tooltip_text(zoomout_bt, "Zoom out one step");
 	gtk_widget_set_sensitive(zoomout_bt, FALSE);
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);

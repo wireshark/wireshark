@@ -1692,7 +1692,6 @@ static void dialog_graph_init_window(user_data_t* user_data)
 	GtkWidget *hbox;
 	GtkWidget *bt_close;
 	GtkWidget *bt_save;
-	GtkTooltips   *tooltips = gtk_tooltips_new();
 
 	/* create the main window */
 	user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
@@ -1723,7 +1722,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
 	bt_save = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(bt_save, FALSE);
-	gtk_tooltips_set_tip(tooltips, bt_save, "Save the displayed graph to a file", NULL);
+	gtk_widget_set_tooltip_text(bt_save, "Save the displayed graph to a file");
 	g_signal_connect(bt_save, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
 	g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save", bt_save);
 
@@ -3392,7 +3391,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(box4), player_bt);
 	gtk_widget_show(player_bt);
 	g_signal_connect(player_bt, "clicked", G_CALLBACK(on_player_bt_clicked), NULL);
-	/*gtk_tooltips_set_tip (tooltips, player_bt, "Launch the RTP player to listen the audio stream", NULL);*/
+	/*gtk_widget_set_tooltip_text (player_bt, "Launch the RTP player to listen the audio stream");*/
 #endif /* HAVE_LIBPORTAUDIO */
 
 	next_bt = gtk_button_new_with_label("Next non-Ok");

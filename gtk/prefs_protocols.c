@@ -41,7 +41,6 @@ protocols_prefs_show(void)
 {
         GtkWidget   *main_tb, *main_vb;
         GtkWidget   *display_hidden_cb;
-        GtkTooltips *tooltips = gtk_tooltips_new();
         int pos = 0;
 
         /* Main vertical box */
@@ -54,7 +53,6 @@ protocols_prefs_show(void)
         gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
         gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
         gtk_widget_show(main_tb);
-        g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
         /* Show hidden protocol items in packet list */
         display_hidden_cb = create_preference_check_button(main_tb, pos++,

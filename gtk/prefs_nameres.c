@@ -85,7 +85,6 @@ nameres_prefs_show(void)
 	guint		table_row;
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
-	GtkTooltips *tooltips = gtk_tooltips_new();
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	GtkWidget	*c_resolv_cb;
 	GtkWidget	*resolv_concurrency_te;
@@ -119,7 +118,6 @@ nameres_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
-	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Resolve MAC addresses */
 	table_row = 0;

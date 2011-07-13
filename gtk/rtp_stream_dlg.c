@@ -968,7 +968,6 @@ rtpstream_dlg_create (void)
     GtkWidget *bt_analyze;
     GtkWidget *bt_close;
     GtkWidget *bt_copy;
-    GtkTooltips *tooltips = gtk_tooltips_new();
 
     rtpstream_dlg_w = dlg_window_new("Wireshark: RTP Streams");
     gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 400);
@@ -1002,41 +1001,41 @@ rtpstream_dlg_create (void)
 
     bt_unselect = gtk_button_new_with_label ("Unselect");
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
-    gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);
+    gtk_widget_set_tooltip_text (bt_unselect, "Undo stream selection");
 
     bt_findrev = gtk_button_new_with_label ("Find Reverse");
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
-    gtk_tooltips_set_tip (tooltips, bt_findrev, "Find the reverse stream matching the selected forward stream", NULL);
+    gtk_widget_set_tooltip_text (bt_findrev, "Find the reverse stream matching the selected forward stream");
 /*
     bt_goto = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */
     bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
-    gtk_tooltips_set_tip (tooltips, bt_save, "Save stream payload in rtpdump format", NULL);
+    gtk_widget_set_tooltip_text (bt_save, "Save stream payload in rtpdump format");
 
     bt_mark = gtk_button_new_with_label ("Mark Packets");
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
-    gtk_tooltips_set_tip (tooltips, bt_mark, "Mark packets of the selected stream(s)", NULL);
+    gtk_widget_set_tooltip_text (bt_mark, "Mark packets of the selected stream(s)");
 
     bt_filter = gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
-    gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
+    gtk_widget_set_tooltip_text (bt_filter, "Prepare a display filter of the selected stream(s)");
 
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
-    gtk_tooltips_set_tip(tooltips, bt_copy,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+    gtk_widget_set_tooltip_text(bt_copy,
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
 
     bt_analyze = gtk_button_new_from_stock(WIRESHARK_STOCK_ANALYZE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
-    gtk_tooltips_set_tip (tooltips, bt_analyze, "Open an analyze window of the selected stream(s)", NULL);
+    gtk_widget_set_tooltip_text (bt_analyze, "Open an analyze window of the selected stream(s)");
 
     bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
-    gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+    gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
     g_signal_connect(bt_unselect, "clicked", G_CALLBACK(rtpstream_on_unselect), NULL);

@@ -2109,8 +2109,6 @@ rtp_player_dlg_create(void)
 	const gchar *title_name_ptr;
 	gchar   *win_name;
 
-	GtkTooltips *tooltips = gtk_tooltips_new();
-
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);
 
@@ -2140,7 +2138,7 @@ rtp_player_dlg_create(void)
 	cb_view_as_time_of_day = gtk_check_button_new_with_label("View as time of day");
 	gtk_box_pack_start(GTK_BOX(timestamp_hb), cb_view_as_time_of_day, TRUE, FALSE, 0); /* Centered */
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day), FALSE);
-	gtk_tooltips_set_tip(tooltips, cb_view_as_time_of_day, "View the timestamps as time of day instead of seconds since beginning of capture", NULL);
+	gtk_widget_set_tooltip_text(cb_view_as_time_of_day, "View the timestamps as time of day instead of seconds since beginning of capture");
 	g_signal_connect(cb_view_as_time_of_day, "toggled", G_CALLBACK(on_cb_view_as_time_of_day_clicked), NULL);
 
 	h_jitter_buttons_box = gtk_hbox_new (FALSE, 0);
@@ -2152,14 +2150,14 @@ rtp_player_dlg_create(void)
 	jitter_spinner_adj = (GtkAdjustment *) gtk_adjustment_new (50, 0, 500, 5, 10, 0);
 	jitter_spinner = gtk_spin_button_new (jitter_spinner_adj, 5, 0);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
-	gtk_tooltips_set_tip (tooltips, jitter_spinner, "The simulated jitter buffer in [ms]", NULL);
+	gtk_widget_set_tooltip_text (jitter_spinner, "The simulated jitter buffer in [ms]");
 	g_signal_connect(GTK_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
 
 	cb_use_rtp_timestamp = gtk_check_button_new_with_label("Use RTP timestamp");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp), FALSE);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), cb_use_rtp_timestamp, FALSE, FALSE, 10);
 	g_signal_connect(cb_use_rtp_timestamp, "toggled", G_CALLBACK(on_cb_use_rtp_clicked), NULL);
-	gtk_tooltips_set_tip (tooltips, cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing", NULL);
+	gtk_widget_set_tooltip_text (cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing");
 
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
@@ -2170,27 +2168,27 @@ rtp_player_dlg_create(void)
 	bt_decode = gtk_button_new_from_stock(WIRESHARK_STOCK_DECODE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
 	g_signal_connect(bt_decode, "clicked", G_CALLBACK(on_bt_decode_clicked), NULL);
-	gtk_tooltips_set_tip (tooltips, bt_decode, "Decode the RTP stream(s)", NULL);
+	gtk_widget_set_tooltip_text (bt_decode, "Decode the RTP stream(s)");
 
 	bt_play = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_play);
 	g_signal_connect(bt_play, "clicked", G_CALLBACK(on_bt_play_clicked), NULL);
-	gtk_tooltips_set_tip (tooltips, bt_play, "Play the RTP channel(s)", NULL);
+	gtk_widget_set_tooltip_text (bt_play, "Play the RTP channel(s)");
 
 	bt_pause = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_pause);
 	g_signal_connect(bt_pause, "clicked", G_CALLBACK(on_bt_pause_clicked), NULL);
-	gtk_tooltips_set_tip (tooltips, bt_pause, "Pause the RTP channel(s)", NULL);
+	gtk_widget_set_tooltip_text (bt_pause, "Pause the RTP channel(s)");
 
 	bt_stop = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_stop);
 	g_signal_connect(bt_stop, "clicked", G_CALLBACK(on_bt_stop_clicked), NULL);
-	gtk_tooltips_set_tip (tooltips, bt_stop, "Stop the RTP channel(s)", NULL);
+	gtk_widget_set_tooltip_text (bt_stop, "Stop the RTP channel(s)");
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
-	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
 	window_set_cancel_button(rtp_player_dlg_w, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(rtp_player_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

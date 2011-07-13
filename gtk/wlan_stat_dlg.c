@@ -1737,7 +1737,6 @@ wlanstat_dlg_create (void)
 	GtkWidget     *close_bt;
 	GtkWidget     *help_bt;
 	GtkWidget     *copy_bt;
-	GtkTooltips   *tooltips = gtk_tooltips_new();
 	GtkListStore  *store;
 	GtkTreeView       *tree_view;
 	GtkCellRenderer   *renderer;
@@ -1905,22 +1904,22 @@ wlanstat_dlg_create (void)
 	resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
 	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
-	gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
-			     "Please note: The corresponding name resolution must be enabled.", NULL);
+	gtk_widget_set_tooltip_text(resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
+			     "Please note: The corresponding name resolution must be enabled.");
 
 	g_signal_connect(resolv_cb, "toggled", G_CALLBACK(wlan_resolve_toggle_dest), hs);
 
 	filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
 	gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
-	gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to entries matching the current display filter.", NULL);
+	gtk_widget_set_tooltip_text(filter_cb, "Limit the list to entries matching the current display filter.");
 	g_signal_connect(filter_cb, "toggled", G_CALLBACK(wlan_filter_toggle_dest), hs);
 
 	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
-	gtk_tooltips_set_tip(tooltips, existing_cb, "This option disables probe requests for "
-			     "unknown networks.", NULL);
+	gtk_widget_set_tooltip_text(existing_cb, "This option disables probe requests for "
+			     "unknown networks.");
 	g_signal_connect(existing_cb, "toggled", G_CALLBACK(wlan_existing_toggle_dest), hs);
 
 	/* Button row. */
@@ -1933,8 +1932,8 @@ wlanstat_dlg_create (void)
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 /* 	gtk_button_set_label(GTK_BUTTON(copy_bt), "Copy Overview"); */
-	gtk_tooltips_set_tip(tooltips, copy_bt,
-			     "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+	gtk_widget_set_tooltip_text(copy_bt,
+			     "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

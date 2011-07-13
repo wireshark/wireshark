@@ -52,8 +52,6 @@ stats_prefs_show(void)
 #ifdef HAVE_LIBPORTAUDIO
         GtkWidget   *rtp_player_max_visible_te;
 #endif
-
-        GtkTooltips *tooltips = gtk_tooltips_new();
         int pos = 0;
 
         /* Main vertical box */
@@ -66,7 +64,6 @@ stats_prefs_show(void)
         gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
         gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
         gtk_widget_show(main_tb);
-        g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
         /* Tap update gap in ms */
         tap_update_interval_te = create_preference_entry(main_tb, pos++,
@@ -74,8 +71,7 @@ stats_prefs_show(void)
             "Determines time between tap updates.", max_visible_str);
         g_snprintf(update_interval_str, sizeof(update_interval_str), "%d", prefs.tap_update_interval);
         gtk_entry_set_text(GTK_ENTRY(tap_update_interval_te), update_interval_str);
-        gtk_tooltips_set_tip(tooltips, tap_update_interval_te,
-            "Gap in milliseconds between updates to taps is defined here", NULL);
+        gtk_widget_set_tooltip_text(tap_update_interval_te, "Gap in milliseconds between updates to taps is defined here");
         g_object_set_data(G_OBJECT(main_vb), TAP_UPDATE_INTERVAL_KEY, tap_update_interval_te);
 
 #ifdef HAVE_LIBPORTAUDIO
@@ -85,8 +81,7 @@ stats_prefs_show(void)
             "Determines maximum height of RTP Player window.", max_visible_str);
         g_snprintf(max_visible_str, sizeof(max_visible_str), "%d", prefs.rtp_player_max_visible);
         gtk_entry_set_text(GTK_ENTRY(rtp_player_max_visible_te), max_visible_str);
-        gtk_tooltips_set_tip(tooltips, rtp_player_max_visible_te,
-            "Maximum height of RTP Player window is defined here.", NULL);
+        gtk_widget_set_tooltip_text(rtp_player_max_visible_te, "Maximum height of RTP Player window is defined here.");
         g_object_set_data(G_OBJECT(main_vb), RTP_PLAYER_MAX_VISIBLE_KEY, rtp_player_max_visible_te);
 #endif
 

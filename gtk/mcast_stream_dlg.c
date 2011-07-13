@@ -644,7 +644,6 @@ mcaststream_dlg_create(void)
 	/*GtkWidget *bt_unselect;*/
 	GtkWidget *bt_params;
 	GtkWidget *bt_close;
-	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	const gchar *title_name_ptr;
 	gchar *win_name;
@@ -684,19 +683,19 @@ mcaststream_dlg_create(void)
 
 	/*bt_unselect = gtk_button_new_with_label ("Unselect");
 	  gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
-	  gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);*/
+	  gtk_widget_set_tooltip_text (bt_unselect, "Undo stream selection");*/
 
 	bt_params = gtk_button_new_with_label ("Set parameters");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_params);
-	gtk_tooltips_set_tip (tooltips, bt_params, "Set buffer, limit and speed parameters", NULL);
+	gtk_widget_set_tooltip_text (bt_params, "Set buffer, limit and speed parameters");
 
 	bt_filter = gtk_button_new_with_label ("Prepare Filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
-	gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream", NULL);
+	gtk_widget_set_tooltip_text (bt_filter, "Prepare a display filter of the selected stream");
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
-	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
 	/*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(mcaststream_on_unselect), NULL);*/
