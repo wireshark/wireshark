@@ -210,12 +210,6 @@ typedef struct _protocol protocol_t;
  * ENC_LITTLE_ENDIAN as 0x80000000 - we're using the high-order bit
  * so that we could put a field type and/or a value such as a character
  * encoding in the lower bits.
- *
- * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
- * opaque byte-array fields (FT_BYTES), and other fields where there
- * is no choice of encoding (either because it's "just a bucket
- * of bytes" or because the encoding is completely fixed), we
- * have ENC_NA (for "Not Applicable").
  */
 #define ENC_BIG_ENDIAN		0x00000000
 #define ENC_LITTLE_ENDIAN	0x80000000
@@ -230,6 +224,34 @@ typedef struct _protocol protocol_t;
 #define ENC_TIME_TIMESPEC	0
 #define ENC_TIME_NTP		2
 
+/*
+ * Historically, the only place the representation mattered for strings
+ * was with FT_UINT_STRINGs, where we had FALSE for the string length
+ * being big-endian and TRUE for it being little-endian.
+ *
+ * This is a quick and dirty hack for bug 6084, which doesn't require
+ * support for multiple character encodings in FT_UINT_STRING.  We
+ * introduce ENC_UTF_8 and ENC_EBCDIC, with ENC_UTF_8 being 0 and
+ * ENC_EBCDIC being the unlikely value 0x0EBCD000, and treat all values
+ * other than ENC_EBCDIC as UTF-8.  That way, no matter how a dissector
+ * not converted to use ENC_ values calculates the last argument to
+ * proto_tree_add_item(), it's unlikely to get EBCDIC.
+ *
+ * The value for ENC_EBCDIC is subject to change in a future release (or
+ * to replacement with multiple values for different flavors of EBCDIC).
+ * Additional encodings will also be provided.
+ */
+#define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
+#define ENC_UTF_8		0x00000000
+#define ENC_EBCDIC		0x0EBCD1C0
+
+/*
+ * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
+ * opaque byte-array fields (FT_BYTES), and other fields where there
+ * is no choice of encoding (either because it's "just a bucket
+ * of bytes" or because the encoding is completely fixed), we
+ * have ENC_NA (for "Not Applicable").
+ */
 #define ENC_NA			0x00000000
 
 /* Values for header_field_info.display */

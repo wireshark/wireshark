@@ -1021,12 +1021,13 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 gchar*
 ws_strdup_escape_char (const gchar *str, const gchar chr)
 {
-	gchar *p, *q, *new_str;
+	const gchar *p;
+	gchar *q, *new_str;
 
 	if(!str)
 		return NULL;
 
-	p = (gchar *)str;
+	p = str;
 	/* Worst case: A string that is full of 'chr' */
 	q = new_str = g_malloc (strlen(str) * 2 + 1);
 
@@ -1049,12 +1050,13 @@ ws_strdup_escape_char (const gchar *str, const gchar chr)
 gchar*
 ws_strdup_unescape_char (const gchar *str, const char chr)
 {
-	gchar *p, *q, *new_str;
+	const gchar *p;
+	gchar *q, *new_str;
 
 	if(!str)
 		return NULL;
 
-	p = (gchar *)str;
+	p = str;
 	/* Worst case: A string that contains no 'chr' */
 	q = new_str = g_malloc (strlen(str) + 1);
 

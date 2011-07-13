@@ -501,6 +501,9 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
  *
+ * tvb_get_ephemeral_string_enc() takes a string encoding as well, and
+ * converts to UTF-8 from the encoding (only UTF-8 and EBCDIC supported)
+ *
  * tvb_get_ephemeral_unicode_string() Unicode (UTF-16) version of above
  *
  * tvb_get_seasonal_string() returns a string that does not need to be freed,
@@ -510,6 +513,8 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
 extern guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length);
 extern gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
+extern guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
+    const gint length, const gint encoding);
 extern gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
 
@@ -686,7 +691,7 @@ typedef struct dgt_set_t
 }
 dgt_set_t;
 
-extern gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
+extern const gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
 #define TVB_GET_DS_TVB(tvb)		\
 	(tvb->ds_tvb)

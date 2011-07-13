@@ -6948,7 +6948,8 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 static void
 dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 {
-  static isup_tap_rec_t tap_rec;
+  isup_tap_rec_t *tap_rec;
+
   tvbuff_t *parameter_tvb;
   tvbuff_t *optional_parameter_tvb;
   proto_item* pass_along_item;
@@ -6977,9 +6978,10 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   }
    offset +=  MESSAGE_TYPE_LENGTH;
 
-   tap_rec.message_type = message_type;
-   tap_rec.calling_number = NULL;
-   tap_rec.called_number = NULL;
+   tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
+   tap_rec->message_type = message_type;
+   tap_rec->calling_number = NULL;
+   tap_rec->called_number = NULL;
 
    parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 
@@ -7424,10 +7426,10 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
      proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
    /* if there are calling/called number, we'll get them for the tap */
 
-   tap_rec.calling_number=tap_calling_number?tap_calling_number:ep_strdup("");
-   tap_rec.called_number=tap_called_number;
-   tap_rec.cause_value=tap_cause_value;
-   tap_queue_packet(isup_tap, pinfo, &tap_rec);
+   tap_rec->calling_number=tap_calling_number?tap_calling_number:ep_strdup("");
+   tap_rec->called_number=tap_called_number;
+   tap_rec->cause_value=tap_cause_value;
+   tap_queue_packet(isup_tap, pinfo, tap_rec);
 }
 
 /* ------------------------------------------------------------------ */
@@ -7538,14 +7540,14 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->ctype = CT_BICC;
   pinfo->circuit_id = bicc_cic;
 
-
+  col_clear(pinfo->cinfo, COL_INFO);
   if (isup_show_cic_in_info) {
-    col_add_fstr(pinfo->cinfo, COL_INFO,
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                  "%s (CIC %u) ",
                  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"),
                  bicc_cic);
   } else {
-    col_add_fstr(pinfo->cinfo, COL_INFO,
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                  "%s ",
                  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
   }
@@ -7565,6 +7567,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
   dissect_isup_message(message_tvb, pinfo, bicc_tree);
+  col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
 static void

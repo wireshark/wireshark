@@ -49,6 +49,7 @@
 #include "tvbuff.h"
 #include "strutil.h"
 #include "emem.h"
+#include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
 static const guint8*
@@ -2359,10 +2360,11 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
 }
 
 /*
- * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a non-null-terminated string of that length at that offset,
- * plus a trailing '\0', copy the string into it, and return a pointer
- * to the string.
+ * Given a tvbuff, an offset, a length, and an encoding, allocate a
+ * buffer big enough to hold a non-null-terminated string of that length
+ * at that offset, plus a trailing '\0', copy the string into it, and
+ * return a pointer to the string; if the encoding is EBCDIC, map
+ * the string from EBCDIC to ASCII.
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
@@ -2373,7 +2375,8 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
+    const gint length, const gint encoding)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
@@ -2385,8 +2388,17 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
 	}
+	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
+		EBCDIC_to_ASCII(strbuf, length);
 	strbuf[length] = '\0';
 	return strbuf;
+}
+
+guint8 *
+tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset,
+    const gint length)
+{
+	return tvb_get_ephemeral_string_enc(tvb, offset, length, ENC_UTF_8|ENC_NA);
 }
 
 /*
@@ -3094,7 +3106,7 @@ static dgt_set_t Dgt1_9_bcd = {
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
-gchar *
+const gchar *
 tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
 {
 	int length;
@@ -3463,4 +3475,3 @@ tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset
 		tvb_set_child_real_data_tvbuff (parent, new_tvb);
 	return new_tvb;
 }
-

@@ -153,6 +153,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  VoIP call flow graph displays BICC APM as a BICC ANM.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5966">Bug
+          5966</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Interface list in Capture Options isn't cleared when selecting other host.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008">Bug
           6008</ulink>)
@@ -222,6 +228,36 @@ Wireshark Info
 	  Wireshark crashes after repeating "File -> Import -> Cancel".
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6080">Bug
           6080</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Decoding of MQ ASCII and EBCDIC Traffic Flow - ASCII shows fine, EBCDIC does not.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6084">Bug
+          6084</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Abis interface not correctly handled in gsmtap dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6097">Bug
+          6097</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
         </para></listitem>
 
         <listitem><para>
