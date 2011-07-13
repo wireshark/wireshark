@@ -1725,8 +1725,8 @@ static void graph_destroy (struct graph *g)
 	window_destroy (g->gui.control_panel);
 	window_destroy (g->toplevel);
 	/* window_destroy (g->text); */
-	gdk_gc_unref (g->fg_gc);
-	gdk_gc_unref (g->bg_gc);
+	g_object_unref (g->fg_gc);
+	g_object_unref (g->bg_gc);
 	gdk_pixmap_unref (g->pixmap[0]);
 	gdk_pixmap_unref (g->pixmap[1]);
 	g_free (g->x_axis);
