@@ -1724,7 +1724,7 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
                                         tvbuff_t *tvb, packet_info *pinfo _U_,
                                         int offset, int length, proto_tree *tree)
 {
-    int msg_start, msg_end, bytes_remaining;
+    int msg_end, bytes_remaining;
     guint8  helloClient, more;
     guint32 nusers, nfiles;
 
@@ -1734,7 +1734,6 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;
     if (length <= 0) return;
 
-    msg_start = offset;
     msg_end = offset + length;
 
     switch (msg_type) {
@@ -1924,7 +1923,7 @@ static void dissect_emule_tcp_message(guint8 msg_type,
                                       tvbuff_t *tvb, packet_info *pinfo _U_,
                                       int offset, int length, proto_tree *tree)
 {
-    int msg_start, msg_end, bytes_remaining;
+    int msg_end, bytes_remaining;
     guint32 packed_length;
     guint16 version, rank, partnum;
 
@@ -1934,7 +1933,6 @@ static void dissect_emule_tcp_message(guint8 msg_type,
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;
     if (length <= 0) return;
 
-    msg_start = offset;
     msg_end = offset + length;
 
     switch (msg_type) {
@@ -2081,7 +2079,7 @@ static int dissect_edonkey_udp_message(guint8 msg_type,
                                         tvbuff_t *tvb, packet_info *pinfo _U_,
                                         int offset, int length, proto_tree *tree)
 {
-    int msg_start, msg_end, bytes_remaining;
+    int msg_end, bytes_remaining;
     guint8 type;
     guint16 min, max;
     guint16 ischal;
@@ -2094,7 +2092,6 @@ static int dissect_edonkey_udp_message(guint8 msg_type,
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;
     if (length <= 0) return offset;
 
-    msg_start = offset;
     msg_end = offset + length;
 
     switch (msg_type) {
@@ -2263,14 +2260,13 @@ static int dissect_emule_udp_message(guint8 msg_type,
                                       tvbuff_t *tvb, packet_info *pinfo _U_,
                                       int offset, int length, proto_tree *tree)
 {
-    int msg_start, msg_end, bytes_remaining;
+    int msg_end, bytes_remaining;
     guint16 rank;
 
     bytes_remaining = tvb_reported_length_remaining(tvb, offset);
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;
     if (length <= 0) return offset;
 
-    msg_start = offset;
     msg_end = offset + length;
 
     switch (msg_type) {
@@ -2630,7 +2626,7 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
                                          tvbuff_t *tvb, packet_info *pinfo _U_,
                                          int offset, int length, proto_tree *tree)
 {
-    int msg_start, msg_end, bytes_remaining;
+    int msg_end, bytes_remaining;
     proto_item *hidden_item;
 
     bytes_remaining = tvb_reported_length_remaining(tvb, offset);
@@ -2640,7 +2636,6 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
     hidden_item = proto_tree_add_item(tree, hf_kademlia, tvb, offset, 1, FALSE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    msg_start = offset;
     msg_end = offset + length;
 
     switch (msg_type) {
@@ -2945,7 +2940,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *ti;
     proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL, *emule_zlib_tree = NULL;
-    int offset, bytes, messages;
+    int offset, bytes;
     guint8 protocol, msg_type;
     guint32 msg_len;
     const gchar *protocol_name, *message_name;
@@ -2960,7 +2955,6 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     offset = 0;
-    messages = 0;
     protocol = tvb_get_guint8(tvb, offset);
     msg_len = tvb_get_letohl(tvb, offset+1);
 

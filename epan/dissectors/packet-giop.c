@@ -5405,10 +5405,10 @@ static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5431,11 +5431,11 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32 count;    /* parameter count (of tuples)  */
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
-  /* get sequence lengt,h new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /* get sequence length new endianness and boundary for encapsulation */
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5478,11 +5478,11 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
   gint32   s_octet4;  /* signed int32 */
 
   guint32 count;    /* parameter count (of tuples)  */
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
   /* get sequence legnth, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5533,11 +5533,11 @@ static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32 count;    /* parameter count (of tuples)  */
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5575,10 +5575,10 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, proto_tree *tree, gint *of
 
   guint32 u_octet4; /* unsigned int32 */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5603,10 +5603,10 @@ static void dissect_tk_array_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 
   guint32 u_octet4; /* unsigned int32 */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5629,10 +5629,10 @@ static void dissect_tk_alias_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence legnth, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5658,11 +5658,11 @@ static void dissect_tk_except_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
   guint32 count;    /* parameter count (of tuples)  */
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5704,11 +5704,11 @@ static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
   gint16  s_octet2; /* signed int16 */
 
   guint32 count;    /* parameter count (of tuples)  */
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5764,10 +5764,10 @@ static void dissect_tk_value_box_params(tvbuff_t *tvb, proto_tree *tree, gint *o
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5790,10 +5790,10 @@ static void dissect_tk_native_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
@@ -5814,10 +5814,10 @@ static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree
   guint32  new_boundary;              /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian;  /* new endianness for encapsulation */
 
-  guint32 seqlen;   /* sequence length */
+  /*guint32 seqlen;*/   /* sequence length */
 
   /* get sequence length, new endianness and boundary for encapsulation */
-  seqlen = get_CDR_encap_info(tvb, tree, offset,
+  /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
