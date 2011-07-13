@@ -376,11 +376,13 @@ init_tcp_conversation_data(packet_info *pinfo)
     /* Initialize the tcp protocol data structure to add to the tcp conversation */
     tcpd=se_alloc0(sizeof(struct tcp_analysis));
     tcpd->flow1.win_scale=-1;
+    tcpd->flow1.window = G_MAXUINT32;
     tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
     /*
     tcpd->flow1.username = NULL;
     tcpd->flow1.command = NULL;
     */
+    tcpd->flow2.window = G_MAXUINT32;
     tcpd->flow2.win_scale=-1;
     tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
     /*
@@ -3399,13 +3401,14 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int save_desegment_offset;
     guint32 save_desegment_len;
 
-    /* dont call subdissectors for keepalive or zerowindowprobes
-     * even though they do contain payload "data"
-     * keeaplives just contain garbage and zwp contain too little data (1 byte)
-     * so why bother.
+    /* Don't call subdissectors for keepalives.  Even though they do contain
+     * payload "data", it's just garbage.  Display any data the keepalive
+     * packet might contain though.
      */
     if(tcpd && tcpd->ta){
-        if(tcpd->ta->flags&(TCP_A_ZERO_WINDOW_PROBE|TCP_A_KEEP_ALIVE)){
+        if(tcpd->ta->flags&TCP_A_KEEP_ALIVE){
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
             return TRUE;
         }
     }

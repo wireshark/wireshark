@@ -87,6 +87,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+	  TCP dissector doesn't decode TCP segments of length 1.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716">Bug
+          4716</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Missing LUA function.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
           5006</ulink>)
@@ -96,6 +102,12 @@ Wireshark Info
 	  Lua API description about creating a new Tvb from a bytearray is not correct in wireshark's user guide.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5199">Bug
           5199</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Character echo pauses in Capture Filter field in Capture Options.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
+          5356</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -189,9 +201,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
+          6059</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Packet parser takes too long for this trace.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6073">Bug
           6073</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
+          6059</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wireshark crashes after repeating "File -> Import -> Cancel".
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6080">Bug
+          6080</ulink>)
         </para></listitem>
 
         <listitem><para>

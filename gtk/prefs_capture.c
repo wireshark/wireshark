@@ -54,6 +54,7 @@
 #define CAPTURE_REAL_TIME_KEY	"capture_real_time"
 #define AUTO_SCROLL_KEY		"auto_scroll"
 #define SHOW_INFO_KEY           "show_info"
+#define SYNTAX_CHECK_FILTER_KEY "syntax_check_filter"
 
 #define CAPTURE_TABLE_ROWS 6
 
@@ -98,7 +99,7 @@ GtkWidget*
 capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
-	GtkWidget	*if_cbxe, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget	*if_cbxe, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb, *syntax_check_filter_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
@@ -206,6 +207,13 @@ capture_prefs_show(void)
 	    !prefs.capture_show_info);
 	g_object_set_data(G_OBJECT(main_vb), SHOW_INFO_KEY, show_info_cb);
 
+	/* Syntax check capture filter */
+	syntax_check_filter_cb = create_preference_check_button(main_tb, row++,
+	    "Syntax check capture filter:",
+	    "Syntax check capture filter. Turn this off if you experience delay when writing capture filters.",
+	    prefs.capture_syntax_check_filter);
+	g_object_set_data(G_OBJECT(main_vb), SYNTAX_CHECK_FILTER_KEY, syntax_check_filter_cb);
+
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
@@ -215,7 +223,7 @@ capture_prefs_show(void)
 void
 capture_prefs_fetch(GtkWidget *w)
 {
-	GtkWidget *if_cbxe, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget *if_cbxe, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb, *syntax_check_filter_cb;
 	gchar	*if_text;
 
 	if_cbxe    = (GtkWidget *)g_object_get_data(G_OBJECT(w), DEVICE_KEY);
@@ -224,6 +232,7 @@ capture_prefs_fetch(GtkWidget *w)
 	sync_cb    = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
 	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
         show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
+        syntax_check_filter_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SYNTAX_CHECK_FILTER_KEY);
 
 	if (prefs.capture_device != NULL) {
 		g_free(prefs.capture_device);
@@ -250,6 +259,7 @@ capture_prefs_fetch(GtkWidget *w)
 	prefs.capture_auto_scroll = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_scroll_cb));
 
 	prefs.capture_show_info = !(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_info_cb)));
+	prefs.capture_syntax_check_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(syntax_check_filter_cb));
 }
 
 void

@@ -273,7 +273,7 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-static struct ws_memory_slab field_info_slab = 
+static struct ws_memory_slab field_info_slab =
 	WS_MEMORY_SLAB_INIT(field_info, 128);
 
 static field_info *field_info_tmp=NULL;
@@ -283,7 +283,7 @@ static field_info *field_info_tmp=NULL;
 	sl_free(&field_info_slab, fi)
 
 /* Contains the space for proto_nodes. */
-static struct ws_memory_slab proto_node_slab = 
+static struct ws_memory_slab proto_node_slab =
 	WS_MEMORY_SLAB_INIT(proto_node, 128);
 
 #define PROTO_NODE_NEW(node)				\
@@ -296,7 +296,7 @@ static struct ws_memory_slab proto_node_slab =
 	sl_free(&proto_node_slab, node)
 
 /* String space for protocol and field items for the GUI */
-static struct ws_memory_slab item_label_slab = 
+static struct ws_memory_slab item_label_slab =
 	WS_MEMORY_SLAB_INIT(item_label_t, 128);
 
 #define ITEM_LABEL_NEW(il)				\
@@ -5223,9 +5223,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name, 
-				   get_eui64_name(integer64), 
-				   eui64_to_str(integer64)); 
+				   "%s: %s (%s)", hfinfo->name,
+				   get_eui64_name(integer64),
+				   eui64_to_str(integer64));
 			break;
 		case FT_STRING:
 		case FT_STRINGZ:
