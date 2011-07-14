@@ -104,8 +104,13 @@ GtkWidget *filter_toolbar_new(void)
 
     /* filter toolbar */
     filter_tb = gtk_toolbar_new();
+#if GTK_CHECK_VERSION(2,16,0)
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(filter_tb),
+                                GTK_ORIENTATION_HORIZONTAL);
+#else
     gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
+#endif
 
     g_object_set_data(G_OBJECT(top_level), E_TB_FILTER_KEY, filter_tb);
     gtk_widget_show(filter_tb);
