@@ -115,7 +115,7 @@ void dfilter_macro_save(const gchar* filename, gchar** error) {
 	FILE* f = ws_fopen(filename,"w");
 
 	if (!f) {
-		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, strerror(errno) );
+		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
 		return;
 	}
 

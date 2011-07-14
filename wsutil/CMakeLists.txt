@@ -33,7 +33,6 @@ set(WSUTIL_FILES
 #		@INET_ATON_LO@	# inet_aton.c
 #		@INET_NTOP_LO@	# inet_ntop.c
 #		@INET_PTON_LO@	# inet_pton.c
-#		@STRERROR_LO@	# strerror.c
 #		@STRNCASECMP_LO@ # strncasecmp.c
 #		@STRPTIME_LO@	# strptime.c
   mpeg-audio.c

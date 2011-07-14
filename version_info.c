@@ -371,7 +371,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	 */
 	if (uname(&name) < 0) {
 		g_string_append_printf(str, "unknown OS version (uname failed - %s)",
-		    strerror(errno));
+		    g_strerror(errno));
 		return;
 	}
 

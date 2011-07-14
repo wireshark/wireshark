@@ -32,10 +32,6 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef NEED_STRERROR_H
-#include "wsutil/strerror.h"
-#endif
-
 #include <glib.h>
 #include <epan/epan.h>
 
@@ -104,24 +100,24 @@ main(int argc, char **argv)
 		if (gpf_open_errno != 0) {
 			fprintf(stderr,
 				"can't open global preferences file \"%s\": %s.\n",
-				pf_path, strerror(gpf_open_errno));
+				pf_path, g_strerror(gpf_open_errno));
 		}
 		if (gpf_read_errno != 0) {
 			fprintf(stderr,
 				"I/O error reading global preferences file \"%s\": %s.\n",
-				pf_path, strerror(gpf_read_errno));
+				pf_path, g_strerror(gpf_read_errno));
 		}
 	}
 	if (pf_path != NULL) {
 		if (pf_open_errno != 0) {
 			fprintf(stderr,
 				"can't open your preferences file \"%s\": %s.\n",
-				pf_path, strerror(pf_open_errno));
+				pf_path, g_strerror(pf_open_errno));
 		}
 		if (pf_read_errno != 0) {
 			fprintf(stderr,
 				"I/O error reading your preferences file \"%s\": %s.\n",
-				pf_path, strerror(pf_read_errno));
+				pf_path, g_strerror(pf_read_errno));
 		}
 	}
 
@@ -190,7 +186,7 @@ static void
 read_failure_message(const char *filename, int err)
 {
 	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.\n",
-		filename, strerror(err));
+		filename, g_strerror(err));
 }
 
 /*
@@ -200,5 +196,5 @@ static void
 write_failure_message(const char *filename, int err)
 {
 	fprintf(stderr, "dftest: An error occurred while writing to the file \"%s\": %s.\n",
-		filename, strerror(err));
+		filename, g_strerror(err));
 }

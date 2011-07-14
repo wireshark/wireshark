@@ -158,7 +158,7 @@ write_recent(void)
   if (create_persconffile_dir(&pf_dir_path) == -1) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
-      strerror(errno));
+      g_strerror(errno));
      g_free(pf_dir_path);
      return FALSE;
   }
@@ -167,7 +167,7 @@ write_recent(void)
   if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
-      strerror(errno));
+      g_strerror(errno));
     g_free(rf_path);
     return FALSE;
   }
@@ -281,7 +281,7 @@ write_profile_recent(void)
   if (create_persconffile_dir(&pf_dir_path) == -1) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
-      strerror(errno));
+      g_strerror(errno));
      g_free(pf_dir_path);
      return FALSE;
   }
@@ -290,7 +290,7 @@ write_profile_recent(void)
   if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
-      strerror(errno));
+      g_strerror(errno));
     g_free(rf_path);
     return FALSE;
   }

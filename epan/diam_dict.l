@@ -275,7 +275,7 @@ description_attr description=\042
 			D(("entity: %s filename: %s yyin: %p\n",e->name,e->file,yyin));
 			if (!yyin) {
 				if (errno) {
-					fprintf(stderr, "Could not open file: '%s', error: %s\n", e->file, strerror(errno) );
+					fprintf(stderr, "Could not open file: '%s', error: %s\n", e->file, g_strerror(errno) );
 					yyterminate();
 				}
 			} else {

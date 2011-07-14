@@ -1588,15 +1588,6 @@ if test "$ac_cv_func_getopt" = no ; then
 fi
 AC_SUBST(GETOPT_LO)
 
-AC_CHECK_FUNC(strerror, STRERROR_LO="",
-  [STRERROR_LO="strerror.lo"
-   AC_DEFINE(NEED_STRERROR_H, 1, [Define if strerror.h needs to be included])
-])
-if test "$ac_cv_func_strerror" = no ; then
-  STRERROR_LO="strerror.lo"
-fi
-AC_SUBST(STRERROR_LO)
-
 AC_CHECK_FUNC(strncasecmp, STRNCASECMP_LO="",
   STRNCASECMP_LO="strncasecmp.lo")
 if test "$ac_cv_func_strncasecmp" = no ; then

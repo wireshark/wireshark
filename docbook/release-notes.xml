@@ -111,6 +111,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          &quot;File not found&quot; box uses wrong filename encoding.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5715">Bug
+          5715</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if Lua contains &quot;Pref.range()&quot; with missing arguments.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
           5895</ulink>)

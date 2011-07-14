@@ -35,7 +35,6 @@ wsutil_optional_objects =	\
 	@INET_ATON_LO@		\
 	@INET_NTOP_LO@		\
 	@INET_PTON_LO@		\
-	@STRERROR_LO@		\
 	@STRNCASECMP_LO@	\
 	@STRPTIME_LO@
 
@@ -54,8 +53,6 @@ EXTRA_libwsutil_la_SOURCES=	\
 	inet_ntop.c		\
 	inet_pton.c		\
 	inet_v6defs.h		\
-	strerror.c		\
-	strerror.h		\
 	strncasecmp.c		\
 	strptime.c		\
 	strptime.h		\
