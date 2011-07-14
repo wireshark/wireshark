@@ -45,7 +45,10 @@
 #include "gtk/rtp_stream.h"
 #include "tap-rtp-common.h"
 
-
+/* XXX: are changes needed to properly handle situations where
+        info_all_data_present == FALSE ?
+        E.G., when captured frames are truncated.
+ */
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for _rtp_stream_info */
