@@ -1210,7 +1210,7 @@ This option will activate a counter for LTE MAC messages. You will get
 information about the maximum number of UEs/TTI, common messages and
 various counters for each UE that appears in the log.
 
-Example: B<-z mac=;te,stat>.
+Example: B<-z mac-lte,stat>.
 
 This option can be used multiple times on the command line.
 
@@ -1218,6 +1218,21 @@ If the optional I<filter> is provided, the stats will only be calculated
 for those frames that match that filter.
 Example: B<-z "mac-lte,stat,mac-lte.rnti>3000"> will only collect stats for
 UEs with an assigned RNTI whose value is more than 3000.
+
+=item B<-z> rlc-lte,stat[I<,filter>]
+
+This option will activate a counter for LTE RLC messages. You will get
+information about common messages and various counters for each UE that appears
+in the log.
+
+Example: B<-z rlc-lte,stat>.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+for those frames that match that filter.
+Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
+UEs with a UEId of more than 3000.
 
 =back
 

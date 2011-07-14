@@ -580,6 +580,7 @@ set(TSHARK_TAP_SRC
 	tap-protocolinfo.c
 	tap-protohierstat.c
 	tap-radiusstat.c
+	tap-rlcltestat.c
 	tap-rpcstat.c
 	tap-rpcprogs.c
 	tap-rtp.c
