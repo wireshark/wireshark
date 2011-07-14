@@ -403,7 +403,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	memcpy(new_rtp_packet->info, rtp_info, sizeof(struct _rtp_info));
 	new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->fd->rel_ts) - stream_info->start_time;
 	/* copy the RTP payload to the rtp_packet to be decoded later */
-	if (rtp_info->info_payload_len) {
+	if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
 		new_rtp_packet->payload_data = g_malloc(rtp_info->info_payload_len);
 		memcpy(new_rtp_packet->payload_data, &(rtp_info->info_data[rtp_info->info_payload_offset]), rtp_info->info_payload_len);
 	} else {
