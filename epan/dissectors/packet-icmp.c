@@ -33,6 +33,7 @@
 #endif
 
 #include <glib.h>
+#include <time.h>
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
@@ -51,6 +52,8 @@ static int icmp_tap = -1;
 static int hf_icmp_resp_in = -1;
 static int hf_icmp_resp_to = -1;
 static int hf_icmp_resptime = -1;
+static int hf_icmp_data_time = -1;
+static int hf_icmp_data_time_relative = -1;
 
 typedef struct _icmp_conv_info_t {
     emem_tree_t *pdus;
@@ -827,6 +830,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *item;
   guint32 conv_key[2];
   icmp_transaction_t *trans = NULL;
+  nstime_t   ts,time_relative;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1009,29 +1013,46 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
       case ICMP_ECHOREPLY:
-          if ( !pinfo->in_error_pkt ) {
-            conv_key[0] = (guint32)tvb_get_ntohs(tvb, 2);
-            conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
-              tvb_get_ntohs(tvb, 6));
-            trans = transaction_end(pinfo, icmp_tree, conv_key);
-          }
-          call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
-            icmp_tree);
-        break;
-
       case ICMP_ECHO:
-          if ( !pinfo->in_error_pkt ) {
-            guint16 tmp[2];
+          if ( icmp_type == ICMP_ECHOREPLY ) {
+            if ( !pinfo->in_error_pkt ) {
+              conv_key[0] = (guint32)tvb_get_ntohs(tvb, 2);
+              conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
+                tvb_get_ntohs(tvb, 6));
+              trans = transaction_end(pinfo, icmp_tree, conv_key);
+            }
+          } else {
+            if ( !pinfo->in_error_pkt ) {
+              guint16 tmp[2];
 
-            tmp[0] = ~tvb_get_ntohs(tvb, 2);
-            tmp[1] = ~0x0800; /* The difference between echo request & reply */
-            conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
-            conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
-              tvb_get_ntohs(tvb, 6));
-            trans = transaction_start(pinfo, icmp_tree, conv_key);
+              tmp[0] = ~tvb_get_ntohs(tvb, 2);
+              tmp[1] = ~0x0800; /* The difference between echo request & reply */
+              conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
+              conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
+                tvb_get_ntohs(tvb, 6));
+              trans = transaction_start(pinfo, icmp_tree, conv_key);
+            }
           }
-          call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
-            icmp_tree);
+
+          /* Interpret the first 8 bytes of the icmp data as a timestamp
+           * But only if it does look like it's a timestamp.
+           */
+          ts.secs  = tvb_get_ntohl(tvb,8);
+          ts.nsecs = tvb_get_ntohl(tvb,8+4); /* Leave at microsec resolution for now */
+          if (abs(ts.secs - pinfo->fd->abs_ts.secs)<3600*24 &&
+              ts.nsecs < 1000000) {
+            ts.nsecs *= 1000; /* Convert to nanosec resolution */
+            proto_tree_add_time(icmp_tree, hf_icmp_data_time, tvb, 8, 8, &ts);
+            nstime_delta(&time_relative, &pinfo->fd->abs_ts, &ts);
+            ti = proto_tree_add_time(icmp_tree, hf_icmp_data_time_relative, tvb,
+                                     8, 8, &time_relative);
+            PROTO_ITEM_SET_GENERATED(ti);
+            call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8+8), pinfo,
+              icmp_tree);
+          } else {
+            call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
+              icmp_tree);
+          }
         break;
 
       case ICMP_RTRADVERT:
@@ -1248,7 +1269,15 @@ proto_register_icmp(void)
 
     { &hf_icmp_resptime,
       { "Response Time", "icmp.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-        "The time between the request and the response, in ms.", HFILL }}
+        "The time between the request and the response, in ms.", HFILL }},
+
+    { &hf_icmp_data_time,
+      { "Timestamp from icmp data", "icmp.data_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        "The timestamp in the first 8 btyes of the icmp data", HFILL }},
+
+    { &hf_icmp_data_time_relative,
+      { "Time since icmp packet was created", "icmp.data_time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        " The timestamp of the packet, relative to the timestamp in the first 8 btyes of the icmp data", HFILL }}
   };
 
   static gint *ett[] = {
