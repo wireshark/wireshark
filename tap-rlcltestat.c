@@ -1,7 +1,7 @@
 /* tap-rlclte_stat.c
  * Copyright 2011 Martin Mathieson
  *
- * $Id: rlc_lte_stat_dlg.c 37996 2011-07-13 08:48:13Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
