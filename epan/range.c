@@ -67,12 +67,12 @@ range_t *range_empty(void)
  * of ranges specified, and fills the array range->ranges containing
  * low and high values with the number of ranges being range->nranges.
  * After having called this function, the function value_is_in_range()
- * determines whether a given number is within the range or not. 
+ * determines whether a given number is within the range or not.
  *
- * In case of a single number, we make a range where low is equal to high. 
+ * In case of a single number, we make a range where low is equal to high.
  * We take care on wrongly entered ranges; opposite order will be taken
  * care of.
- * 
+ *
  * The following syntax is accepted :
  *
  *   1-20,30-40     Range from 1 to 20, and packets 30 to 40
@@ -94,6 +94,9 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
    guint32       tmp;
    unsigned long val;
 
+   if ( (rangep == NULL) || (es == NULL) )
+       return CVT_SYNTAX_ERROR;
+   
    /* Allocate a range; this has room for one subrange. */
    range = g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
    range->nranges = 0;
@@ -146,7 +149,7 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	    /* That was valid, but it's too big. */
 	    g_free(range);
 	    return CVT_NUMBER_TOO_BIG;
-	 } 
+	 }
 	 p = endp;
 	 range->ranges[range->nranges].low = val;
 
@@ -185,7 +188,7 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	       /* That was valid, but it's too big. */
 	       g_free(range);
 	       return CVT_NUMBER_TOO_BIG;
-	    } 
+	    }
 	    p = endp;
 	    range->ranges[range->nranges].high = val;
 
@@ -203,7 +206,7 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	  */
 	 range->ranges[range->nranges].high = range->ranges[range->nranges].low;
       } else {
-	 /* Invalid character. */ 
+	 /* Invalid character. */
 	 g_free(range);
 	 return CVT_SYNTAX_ERROR;
       }
@@ -260,6 +263,9 @@ gboolean ranges_are_equal(range_t *a, range_t *b)
 {
    guint i;
 
+   if ( (a == NULL) || (b == NULL) )
+       return FALSE;
+   
    if (a->nranges != b->nranges)
       return FALSE;
 
@@ -283,10 +289,12 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
 {
    guint32 i, j;
 
+   if (range && callback) {
    for (i=0; i < range->nranges; i++) {
       for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
 	 callback(j);
    }
+}
 }
 
 /* This function converts a range_t to a (ep_alloc()-allocated) string.  */
@@ -299,13 +307,15 @@ range_convert_range(range_t *range)
 
    strbuf=ep_strbuf_new(NULL);
 
-   for (i=0; i < range->nranges; i++) {
-      if (range->ranges[i].low == range->ranges[i].high) {
-	 ep_strbuf_append_printf(strbuf, "%s%u", prepend_comma?",":"", range->ranges[i].low);
-      } else {
-	 ep_strbuf_append_printf(strbuf, "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
+   if (range) {
+      for (i=0; i < range->nranges; i++) {
+         if (range->ranges[i].low == range->ranges[i].high) {
+            ep_strbuf_append_printf(strbuf, "%s%u", prepend_comma?",":"", range->ranges[i].low);
+         } else {
+            ep_strbuf_append_printf(strbuf, "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
+         }
+         prepend_comma = TRUE;
       }
-      prepend_comma = TRUE;
    }
 
    return strbuf->str;
@@ -316,6 +326,9 @@ range_t *range_copy(range_t *src)
 {
    range_t *dst;
    size_t range_size;
+
+   if (src == NULL)
+       return NULL;
 
    range_size = RANGE_HDR_SIZE + src->nranges*sizeof (range_admin_t);
    dst = g_malloc(range_size);
@@ -338,4 +351,3 @@ static void value_is_in_range_check(range_t *range, guint32 val)
   }
 }
 #endif
-

@@ -105,6 +105,30 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          White space in protocol field abbreviation causes runtime failure while registering Lua dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5569">Bug
+          5569</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes if Lua contains &quot;Pref.range()&quot; with missing arguments.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
+          5895</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The &quot;range&quot; field in Lua's &quot;Pref.range()&quot; serves as default while the &quot;default&quot; field does nothing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5896">Bug
+          5896</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
+          5941</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           TvbRange_string(lua_State* L)  call a wrong function.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
           5960</ulink>)
@@ -114,6 +138,12 @@ Wireshark Info
           H323 rate multiplier wrong.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6009">Bug
           6009</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          tshark crashes when loading Lua script that contains GUI function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6018">Bug
+          6018</ulink>)
         </para></listitem>
 
         <listitem><para>

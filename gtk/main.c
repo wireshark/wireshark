@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <locale.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -2098,6 +2099,8 @@ main(int argc, char *argv[])
 
   static const char optstring[] = OPTSTRING;
 
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
 #ifdef _WIN32
   /* Convert our arg list to UTF-8. */
   wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
