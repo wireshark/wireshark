@@ -73,28 +73,16 @@ mplicit declaration of function ‘gdk_cursor_destroy’
 
 -DGTK_DISABLE_DEPRECATED
   grep error: make.log| cut -d: -f5 | sort | uniq -c
-     10  implicit declaration of function ‘GTK_OBJECT_FLAGS’
-      2  implicit declaration of function ‘GTK_TOOLTIPS’
-      6  implicit declaration of function ‘GTK_WIDGET_STATE’
+     61  expected declaration specifiers or ‘...’ before ‘GtkItemFactoryCallback’
       1  implicit declaration of function ‘gtk_item_factory_create_item’
       1  implicit declaration of function ‘gtk_item_factory_from_widget’
       1  implicit declaration of function ‘gtk_item_factory_get_item’
       1  implicit declaration of function ‘gtk_item_factory_get_widget’
-      1  implicit declaration of function ‘gtk_tool_item_set_tooltip’
       2  implicit declaration of function ‘gtk_toolbar_set_orientation’
-     42  implicit declaration of function ‘gtk_tooltips_new’
-     38  implicit declaration of function ‘gtk_tooltips_set_tip’
-      1  implicit declaration of function ‘gtk_tree_view_column_get_cell_renderers’
+     11  passing argument 3 of ‘register_stat_menu_item’ from incompatible pointer type
+     11  too many arguments to function ‘register_stat_menu_item’
       2  ‘GtkItemFactoryEntry’ undeclared (first use in this function)
-     57  ‘GtkTooltips’ undeclared (first use in this function)
-      1  ‘button_bar_tips’ undeclared (first use in this function)
       3  ‘g_ph_menu_factory’ undeclared (first use in this function)
       1  ‘menu_entry’ undeclared (first use in this function)
       1  ‘sep_entry’ undeclared (first use in this function)
-      2  ‘struct ct_struct’ has no member named ‘is_protocol’
-     24  ‘struct ct_struct’ has no member named ‘page’
-      2  ‘struct ct_struct’ has no member named ‘tooltips’
-      2  ‘tooltip_in’ undeclared (first use in this function)
-      2  ‘tooltip_out’ undeclared (first use in this function)
-     58  ‘tooltips’ undeclared (first use in this function)
 
