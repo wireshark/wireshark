@@ -3821,9 +3821,9 @@ menus_init(void) {
 #ifndef MAIN_MENU_USE_UIMANAGER
         /* Init with an empty recent files list */
         clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
-#endif /* MAIN_MENU_USE_UIMANAGER */
         /* Protocol help links */
         proto_help_menu_init(gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
 }
 
@@ -4379,11 +4379,14 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 
 
 static void merge_all_tap_menus(GList *node) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
     GtkItemFactoryEntry *sep_entry;
 
     sep_entry = g_malloc0(sizeof (GtkItemFactoryEntry));
     sep_entry->item_type = "<Separator>";
     sep_entry->path = "/Statistics/";
+#endif
 #ifdef MAIN_MENU_USE_UIMANAGER
     /* build the new menus */
 #if 0
@@ -4431,8 +4434,10 @@ static void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_UNSORTED)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
     g_free (sep_entry);
+#endif
 }
 
 /*

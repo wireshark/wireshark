@@ -24,7 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+/* Exlude the whole menu if MAIN_MENU_USE_UIMANAGER */
+#ifndef MAIN_MENU_USE_UIMANAGER
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -662,3 +663,4 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 	}
 }
 #endif /* PH_DEBUG_LOG */
+#endif /* MAIN_MENU_USE_UIMANAGER */
