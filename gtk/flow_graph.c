@@ -609,7 +609,11 @@ flow_graph_dlg_create (void)
 
 	bt_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_cancel);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(bt_cancel, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(bt_cancel, GTK_CAN_DEFAULT);
+#endif
 	gtk_widget_set_tooltip_text (bt_cancel, "Cancel this dialog");
 	window_set_cancel_button(flow_graph_dlg_w, bt_cancel, window_cancel_button_cb);
 

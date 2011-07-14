@@ -709,12 +709,20 @@ voip_calls_dlg_create(void)
 
 	bt_select_all = gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_select_all);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(bt_select_all, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(bt_select_all, GTK_CAN_DEFAULT);
+#endif
 	gtk_widget_set_tooltip_text(bt_select_all, "Select all the calls");
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER (hbuttonbox), bt_close);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(bt_close, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+#endif
 	gtk_widget_set_tooltip_text(bt_close, "Close this dialog");
 
 	/*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(voip_calls_on_unselect), NULL);*/

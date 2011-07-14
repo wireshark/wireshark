@@ -610,7 +610,11 @@ gtk_sctpstat_dlg(void)
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(bt_close, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+#endif
 	window_set_cancel_button( sctp_stat_dlg_w, bt_close, sctp_stat_on_close);
 	gtk_widget_grab_focus(bt_close);
 	gtk_widget_show (bt_close);

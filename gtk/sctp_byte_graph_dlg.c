@@ -594,7 +594,11 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 	g_assert(ios != NULL);
 
 	gdk_draw_pixmap(u_data->io->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+	                u_data->io->draw_area->style->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
+#else
 	                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+#endif
 	                ios->pixmap,
 	                0,0,
 	                0, 0,
@@ -672,7 +676,11 @@ on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_
 	g_assert(ios != NULL);
 
 	gdk_draw_pixmap(widget->window,
+#if GTK_CHECK_VERSION(2,18,0)
+	                widget->style->fg_gc[gtk_widget_get_state(widget)],
+#else
 	                widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+#endif
 	                ios->pixmap,
 	                event->area.x, event->area.y,
 	                event->area.x, event->area.y,
@@ -822,7 +830,11 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		g_assert(ios != NULL);
 
 		gdk_draw_pixmap(u_data->io->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+		                u_data->io->draw_area->style->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
+#else
 		                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+#endif
 		                ios->pixmap,
 		                0, 0,
 		                0, 0,
@@ -883,7 +895,11 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		g_assert(ios != NULL);
 
 		gdk_draw_pixmap(u_data->io->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+		                u_data->io->draw_area->style->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
+#else
 		                u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+#endif
 		                ios->pixmap,
 		                0, 0,
 		                0, 0,
@@ -1011,7 +1027,11 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			g_assert(ios != NULL);
 
 			gdk_draw_pixmap(u_data->io->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+		                    u_data->io->draw_area->style->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
+#else
 		                    u_data->io->draw_area->style->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
+#endif
 		                    ios->pixmap,
 		                    0, 0,
 		                    0, 0,

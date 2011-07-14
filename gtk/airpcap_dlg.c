@@ -1088,13 +1088,21 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (ok_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
+#endif
 
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
     gtk_widget_set_name (cancel_bt, "cancel_bt");
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (cancel_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+#endif
 
     add_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
     gtk_widget_set_name (add_frame_lb, "add_frame_lb");
@@ -1326,13 +1334,21 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (ok_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
+#endif
 
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
     gtk_widget_set_name (cancel_bt, "cancel_bt");
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (cancel_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+#endif
 
     edit_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
     gtk_widget_set_name (edit_frame_lb, "edit_frame_lb");
@@ -2273,31 +2289,51 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_set_name (add_new_key_bt, "add_new_key_bt");
     gtk_widget_show (add_new_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), add_new_key_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (add_new_key_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (add_new_key_bt, GTK_CAN_DEFAULT);
+#endif
 
     edit_key_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
     gtk_widget_set_name (edit_key_bt, "edit_key_bt");
     gtk_widget_show (edit_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), edit_key_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (edit_key_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (edit_key_bt, GTK_CAN_DEFAULT);
+#endif
 
     remove_key_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
     gtk_widget_set_name (remove_key_bt, "remove_key_bt");
     gtk_widget_show (remove_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), remove_key_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (remove_key_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (remove_key_bt, GTK_CAN_DEFAULT);
+#endif
 
     move_key_up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
     gtk_widget_set_name (move_key_up_bt, "move_key_up_bt");
     gtk_widget_show (move_key_up_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_up_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (move_key_up_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (move_key_up_bt, GTK_CAN_DEFAULT);
+#endif
 
     move_key_down_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
     gtk_widget_set_name (move_key_down_bt, "move_key_down_bt");
     gtk_widget_show (move_key_down_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_down_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (move_key_down_bt, GTK_CAN_DEFAULT);
+#else
     GTK_WIDGET_SET_FLAGS (move_key_down_bt, GTK_CAN_DEFAULT);
+#endif
 
     keys_frame_lb = gtk_label_new ("<b>Decryption Keys</b>");
     gtk_widget_set_name (keys_frame_lb, "keys_frame_lb");
@@ -2820,13 +2856,21 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (ok_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
+#endif
 
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
     gtk_widget_set_name (cancel_bt, "cancel_bt");
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default (cancel_bt, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+#endif
 
     /* Store pointers to all widgets, for use by lookup_widget(). */
     g_signal_connect (ok_bt, "clicked", G_CALLBACK(on_keys_check_ok_bt_clicked), keys_check_w);

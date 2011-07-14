@@ -51,7 +51,7 @@ static GtkWidgetClass *parent_class = NULL;
 GType gtk_vumeter_get_type (void)
 {
     static GType vumeter_type = 0;
-    
+
     if (!vumeter_type) {
         static const GTypeInfo vumeter_info = {
             sizeof (GtkVUMeterClass),
@@ -109,7 +109,7 @@ static void gtk_vumeter_init (GtkVUMeter *vumeter)
     vumeter->level = 0;
     vumeter->level_min = 0;
     vumeter->level_max = 32767;
-    
+
     vumeter->peak = FALSE;
     vumeter->peak_level = 0;
     vumeter->peak_timeout = 0;
@@ -129,11 +129,11 @@ static void gtk_vumeter_class_init (GtkVUMeterClass *class)
     parent_class = g_type_class_ref (gtk_widget_get_type ());
 
     object_class->destroy = gtk_vumeter_destroy;
-    
+
     widget_class->realize = gtk_vumeter_realize;
     widget_class->expose_event = gtk_vumeter_expose;
     widget_class->size_request = gtk_vumeter_size_request;
-    widget_class->size_allocate = gtk_vumeter_size_allocate;    
+    widget_class->size_allocate = gtk_vumeter_size_allocate;
 }
 
 static void gtk_vumeter_destroy (GtkObject *object)
@@ -145,7 +145,7 @@ static void gtk_vumeter_destroy (GtkObject *object)
     }
 
     gtk_vumeter_free_colors (vumeter);
-    
+
     GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
@@ -155,7 +155,7 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     GdkWindowAttr attributes;
     gint attributes_mask;
     GtkAllocation widget_alloc;
-    
+
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
 
@@ -199,7 +199,7 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     gdk_window_set_user_data (widget->window, widget);
     gtk_style_set_background (widget->style, widget->window,  GTK_STATE_NORMAL);
 #endif
-    
+
     /* colors */
     vumeter->colormap = gdk_colormap_get_system ();
     gtk_vumeter_setup_colors (vumeter);
@@ -282,7 +282,7 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
 {
     GtkVUMeter *vumeter;
     GtkRequisition requisition;
-    
+
     g_return_if_fail (GTK_IS_VUMETER (widget));
     g_return_if_fail (allocation != NULL);
 
@@ -327,7 +327,7 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 #else
     GdkWindow *widget_window = widget->window;
 #endif
-    
+
     g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
     g_return_val_if_fail (event != NULL, FALSE);
 
@@ -349,12 +349,12 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     height = widget_alloc.height - vumeter->padding_top - vumeter->padding_bottom;
 
     /* clear widget and draw border */
-    gtk_paint_box (gtk_widget_get_style(widget), widget_window, GTK_STATE_NORMAL, GTK_SHADOW_IN, 
+    gtk_paint_box (gtk_widget_get_style(widget), widget_window, GTK_STATE_NORMAL, GTK_SHADOW_IN,
         NULL, widget, "trough", 0, 0, widget_alloc.width, widget_alloc.height);
 
 #if 0
     /* clear bar only */
-    gtk_paint_box (widget->style, widget_window, GTK_STATE_NORMAL, GTK_SHADOW_NONE, 
+    gtk_paint_box (widget->style, widget_window, GTK_STATE_NORMAL, GTK_SHADOW_NONE,
         NULL, widget, "trough", vumeter->padding_left, vumeter->padding_top, width+1, height+1);
 #endif
 
@@ -366,7 +366,7 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             h = vumeter->padding_top;
             inc = 1;
         }
-        
+
         /* draw scale */
         if(vumeter->scale_items != NULL) {
             /* iterate through scale items */
@@ -375,7 +375,7 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
                 int scale_level = gtk_vumeter_sound_level_to_draw_level (vumeter, item->level);
 
                 /* XXX - use a fixed color for the scale? */
-                gdk_draw_line (widget_window, vumeter->b_gc[scale_level], 
+                gdk_draw_line (widget_window, vumeter->b_gc[scale_level],
                     vumeter->padding_left+width, h + inc*scale_level,
                     vumeter->padding_left+width+(item->large==TRUE ? LARGE_PITCH_LINE : SMALL_PITCH_LINE)-1, h + inc*scale_level);
 
@@ -395,14 +395,14 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
         /* draw background gradient */
         for (index = 0; index < level; index++, h += inc) {
-            gdk_draw_line (widget_window, vumeter->b_gc[index], 
-                vumeter->padding_left+vumeter->reduced_thickness, h, 
+            gdk_draw_line (widget_window, vumeter->b_gc[index],
+                vumeter->padding_left+vumeter->reduced_thickness, h,
                 vumeter->padding_left+width-1-vumeter->reduced_thickness, h);
         }
         /* draw foreground gradient */
         for (index = level; index < height; index++, h += inc) {
-            gdk_draw_line (widget_window, vumeter->f_gc[index], 
-                vumeter->padding_left,h, 
+            gdk_draw_line (widget_window, vumeter->f_gc[index],
+                vumeter->padding_left,h,
                 vumeter->padding_left+width-1, h);
         }
         /* Draw the peak */
@@ -412,7 +412,7 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             for (; index < MIN (peak_level + 1, height - 2); index++) {
                 h = vumeter->scale_inverted == TRUE ? height +vumeter->padding_top - (index + 2) : vumeter->padding_top + index + 1;
                 gdk_draw_line (widget_window, vumeter->f_gc[index], vumeter->padding_left, h, vumeter->padding_left+width-1, h);
-            }            
+            }
         }
     } else { /* Horizontal */
         /* the start point of the bar */
@@ -432,8 +432,8 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
                 int scale_level = gtk_vumeter_sound_level_to_draw_level (vumeter, item->level);
 
                 /* XXX - use a fixed color for the scale? */
-                gdk_draw_line (widget_window, vumeter->b_gc[scale_level], 
-                    w + inc*scale_level, vumeter->padding_top+height, 
+                gdk_draw_line (widget_window, vumeter->b_gc[scale_level],
+                    w + inc*scale_level, vumeter->padding_top+height,
                     w + inc*scale_level, vumeter->padding_top+height+(item->large==TRUE ? LARGE_PITCH_LINE : SMALL_PITCH_LINE)-1);
 
                 if(item->label) {
@@ -451,14 +451,14 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
         /* draw background gradient */
         for (index = 0; index < level; index++, w += inc) {
-            gdk_draw_line (widget_window, vumeter->b_gc[index], 
-                w, vumeter->padding_top+vumeter->reduced_thickness, 
+            gdk_draw_line (widget_window, vumeter->b_gc[index],
+                w, vumeter->padding_top+vumeter->reduced_thickness,
                 w, vumeter->padding_top+height-1-vumeter->reduced_thickness);
         }
         /* draw foreground gradient */
         for (index = level; index < width; index++, w+= inc) {
-            gdk_draw_line (widget_window, vumeter->f_gc[index], 
-                w, vumeter->padding_top, 
+            gdk_draw_line (widget_window, vumeter->f_gc[index],
+                w, vumeter->padding_top,
                 w, vumeter->padding_top+height-1);
         }
 
@@ -470,9 +470,9 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             for (; index <= MIN (peak_level, width - 2); index++, w+= inc) {
                 gdk_draw_line (widget_window, vumeter->f_gc[index], w, vumeter->padding_top, w, vumeter->padding_top+height-1);
             }
-        }       
+        }
     }
-    
+
     return TRUE;
 }
 
@@ -484,11 +484,11 @@ static void gtk_vumeter_free_colors (GtkVUMeter *vumeter)
 
     /* Free old gc's */
     if (vumeter->f_gc && vumeter->b_gc) {
-        for (index = 0; index < vumeter->colors; index++) {    
+        for (index = 0; index < vumeter->colors; index++) {
             if (vumeter->f_gc[index]) {
                 g_object_unref (G_OBJECT(vumeter->f_gc[index]));
             }
-            if (vumeter->b_gc[index]) {        
+            if (vumeter->b_gc[index]) {
                 g_object_unref (G_OBJECT(vumeter->b_gc[index]));
             }
         }
@@ -497,7 +497,7 @@ static void gtk_vumeter_free_colors (GtkVUMeter *vumeter)
         vumeter->f_gc = NULL;
         vumeter->b_gc = NULL;
     }
-    
+
     /* Free old Colors */
     if (vumeter->f_colors) {
         gdk_colormap_free_colors (vumeter->colormap, vumeter->f_colors, vumeter->colors);
@@ -518,11 +518,11 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
     gint first, second;
     gint max = 0, min = 0, log_max = 0;
     GtkAllocation vumeter_alloc;
-    
+
     g_return_if_fail (vumeter->colormap != NULL);
-    
+
     gtk_vumeter_free_colors (vumeter);
-    
+
 #if GTK_CHECK_VERSION(2,18,0)
     gtk_widget_get_allocation(GTK_WIDGET(vumeter), &vumeter_alloc);
 #else
@@ -535,17 +535,17 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
     } else {
         vumeter->colors = MAX(vumeter_alloc.width - vumeter->padding_left - vumeter->padding_right, 0);
     }
-    
+
     /* allocate new memory */
     vumeter->f_colors = g_malloc (vumeter->colors * sizeof(GdkColor));
-    vumeter->b_colors = g_malloc (vumeter->colors * sizeof(GdkColor));    
+    vumeter->b_colors = g_malloc (vumeter->colors * sizeof(GdkColor));
     vumeter->f_gc = g_malloc (vumeter->colors * sizeof(GdkGC *));
-    vumeter->b_gc = g_malloc (vumeter->colors * sizeof(GdkGC *));    
+    vumeter->b_gc = g_malloc (vumeter->colors * sizeof(GdkGC *));
 
     /* Initialize stuff */
     if (vumeter->scaling == GTK_VUMETER_SCALING_LINEAR) {
         first = 1+gtk_vumeter_sound_level_to_draw_level (vumeter, vumeter->yellow_level);
-        second = vumeter->colors;      
+        second = vumeter->colors;
     } else {
         max = vumeter->level_max;
         min = vumeter->level_min;
@@ -588,7 +588,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
                 /* background */
                 vumeter->b_colors[index].red = vumeter->b_colors[index - 1].red;
                 vumeter->b_colors[index].green = vumeter->b_colors[index - 1].green - b_step;
-                vumeter->b_colors[index].blue = 0;     
+                vumeter->b_colors[index].blue = 0;
             }
         }
     } else {
@@ -613,9 +613,9 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
             vumeter->b_colors[index].green = vumeter->b_colors[index - 1].green + b_step;
             vumeter->b_colors[index].blue = 0;
         }
-        /* Allocate from Yellow to Green */    
+        /* Allocate from Yellow to Green */
         f_step = vumeter->f_brightness / MAX(second - first, 1);
-        b_step = vumeter->b_brightness / MAX(second - first, 1);        
+        b_step = vumeter->b_brightness / MAX(second - first, 1);
         for (index = first; index < second; index++) {
             /* foreground */
             vumeter->f_colors[index].red = vumeter->f_colors[index - 1].red - f_step;
@@ -624,12 +624,12 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
             /* background */
             vumeter->b_colors[index].red = vumeter->b_colors[index - 1].red - b_step;
             vumeter->b_colors[index].green = vumeter->b_colors[index - 1].green;
-            vumeter->b_colors[index].blue = 0;     
+            vumeter->b_colors[index].blue = 0;
         }
         if (vumeter->scaling == GTK_VUMETER_SCALING_LOG && (vumeter->colors - second) > 0) {
             /* Allocate from Green to Dark Green */
             f_step = vumeter->f_brightness / 2 / (vumeter->colors - second);
-            b_step = vumeter->b_brightness / 2 / (vumeter->colors - second);     
+            b_step = vumeter->b_brightness / 2 / (vumeter->colors - second);
             for (index = second; index < vumeter->colors; index++) {
                 /* foreground */
                 vumeter->f_colors[index].red = 0;
@@ -638,7 +638,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
                 /* background */
                 vumeter->b_colors[index].red = 0;
                 vumeter->b_colors[index].green = vumeter->b_colors[index - 1].green - b_step;
-                vumeter->b_colors[index].blue = 0;      
+                vumeter->b_colors[index].blue = 0;
             }
         }
     } /* colors_inverted */
@@ -660,7 +660,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
 #else
         vumeter->b_gc[index] = gdk_gc_new(GTK_WIDGET(vumeter)->window);
 #endif
-        gdk_gc_set_foreground(vumeter->b_gc[index], &vumeter->b_colors[index]);        
+        gdk_gc_set_foreground(vumeter->b_gc[index], &vumeter->b_colors[index]);
     }
 }
 
@@ -669,12 +669,12 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, gint sou
     gdouble draw_level;
     gdouble level, min, max, height;
     gdouble log_level, log_max;
-    
+
     level = (gdouble)sound_level;
     min = (gdouble)vumeter->level_min;
     max = (gdouble)vumeter->level_max;
     height = (gdouble)vumeter->colors;
-    
+
     if (vumeter->scaling == GTK_VUMETER_SCALING_LINEAR) {
         draw_level = (1.0 - (level - min)/(max - min)) * (height - 1.0);
         /* to avoid rounding problems */
@@ -684,7 +684,7 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, gint sou
         log_max = log10(1/(max - min + 1));
         draw_level = log_level/log_max * (height - 1.0);
     }
-    
+
     return ((gint)draw_level);
 }
 
@@ -699,7 +699,7 @@ static gboolean gtk_vumeter_redraw_timeout (gpointer data)
 #endif
     if (vumeter->peak == FALSE) { return TRUE; }
     if (vumeter->peak_level == vumeter->level) { return TRUE; }
-    
+
     if(vumeter->peak_hold != 0) {
         vumeter->peak_hold--;
         return TRUE;
@@ -708,9 +708,9 @@ static gboolean gtk_vumeter_redraw_timeout (gpointer data)
     /* Drop the peak_level by rate */
     vumeter->peak_level -= vumeter->peak_falloff_rate;
     vumeter->peak_level = MAX (vumeter->peak_level, vumeter->level);
-    
+
     gtk_widget_queue_draw (GTK_WIDGET(vumeter));
-    
+
     return TRUE;
 }
 
@@ -740,7 +740,7 @@ static void gtk_vumeter_setup_scale_items(GtkVUMeter *vumeter, GList *scale_item
 
     /* clone the whole list */
     new_list = gtk_vumeter_clone_scale_items(scale_items);
-    
+
     /* clamp the levels */
     for (new_list_item = new_list; new_list_item != NULL; new_list_item = g_list_next(new_list_item)) {
         GtkVUMeterScaleItem * item = new_list_item->data;
@@ -755,7 +755,7 @@ static void gtk_vumeter_setup_scale_items(GtkVUMeter *vumeter, GList *scale_item
 void gtk_vumeter_free_scale_items(GList *scale_items)
 {
     GList * current;
-    
+
     if(scale_items == NULL) return;
 
     for (current = scale_items; current != NULL; current = g_list_next(current)) {
@@ -795,7 +795,7 @@ void gtk_vumeter_set_orientation (GtkVUMeter *vumeter, GtkVUMeterOrientation ori
     if (GTK_WIDGET_REALIZED (vumeter)) {
 #endif
         gtk_widget_queue_draw (GTK_WIDGET (vumeter));
-    }            
+    }
 }
 
 /**
@@ -883,7 +883,7 @@ void gtk_vumeter_set_thickness_reduction (GtkVUMeter *vumeter, gint reduced_thic
         vumeter->reduced_thickness = reduced_thickness;
         vumeter->reduced_thickness = CLAMP(vumeter->reduced_thickness, 0, vumeter->thickness/2);
         gtk_widget_queue_resize (GTK_WIDGET (vumeter));
-    }      
+    }
 }
 
 /**
@@ -925,7 +925,7 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint *min, gint *max)
 
     /* Allow min or max to be NULL */
     mi = (min != NULL) ? *min : vumeter->level_min;
-    ma = (max != NULL) ? *max : vumeter->level_max;    
+    ma = (max != NULL) ? *max : vumeter->level_max;
 
     /* Ensure that max > min */
     vumeter->level_max = MAX(ma, mi);
@@ -938,7 +938,7 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint *min, gint *max)
     vumeter->level = CLAMP (vumeter->level, vumeter->level_min, vumeter->level_max);
     vumeter->peak_level = CLAMP (vumeter->peak_level, vumeter->level, vumeter->level_max);
     vumeter->yellow_level = CLAMP (vumeter->yellow_level, vumeter->level_min, vumeter->level_max);
-    
+
     gtk_widget_queue_draw (GTK_WIDGET(vumeter));
 }
 
@@ -981,7 +981,7 @@ void gtk_vumeter_set_level (GtkVUMeter *vumeter, gint level)
             vumeter->peak_level = vumeter->level;
         }
         gtk_widget_queue_draw (GTK_WIDGET(vumeter));
-    }        
+    }
 }
 
 /**
@@ -1012,7 +1012,7 @@ gint gtk_vumeter_get_level (GtkVUMeter *vumeter)
  */
 void gtk_vumeter_set_scaling (GtkVUMeter *vumeter, GtkVUMeterScaling scaling)
 {
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));  
+    g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     if (scaling != vumeter->scaling) {
         vumeter->scaling = CLAMP (scaling, GTK_VUMETER_SCALING_LINEAR, GTK_VUMETER_SCALING_LOG);
@@ -1023,7 +1023,7 @@ void gtk_vumeter_set_scaling (GtkVUMeter *vumeter, GtkVUMeterScaling scaling)
 #endif
             gtk_vumeter_setup_colors (vumeter);
             gtk_widget_queue_draw (GTK_WIDGET (vumeter));
-        }            
+        }
     }
 }
 
@@ -1057,7 +1057,7 @@ GtkVUMeterScaling gtk_vumeter_get_scaling (GtkVUMeter *vumeter)
  */
 void gtk_vumeter_set_scale_items(GtkVUMeter *vumeter, GList *scale_items)
 {
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));  
+    g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     gtk_vumeter_setup_scale_items(vumeter, scale_items);
 
@@ -1102,7 +1102,7 @@ void gtk_vumeter_set_scale_hole_size (GtkVUMeter *vumeter, gint hole_size)
     if (vumeter->scale_pitch_holes != hole_size) {
         vumeter->scale_pitch_holes = hole_size;
         gtk_widget_queue_resize (GTK_WIDGET (vumeter));
-    }      
+    }
 }
 
 /**
@@ -1150,7 +1150,7 @@ void gtk_vumeter_set_peak (GtkVUMeter *vumeter, gboolean peak, guint redraw_rate
 
     if(redraw_rate != 0 && vumeter->peak) {
         vumeter->peak_timeout = g_timeout_add (redraw_rate, gtk_vumeter_redraw_timeout, vumeter);
-    }    
+    }
 }
 
 /**
@@ -1211,9 +1211,9 @@ gint gtk_vumeter_get_peak_hold_factor (GtkVUMeter *vumeter)
  * @param user_rate pixels to reduce the peak level at each redraw_rate in GTK_VUMETER_PEAK_FALLOFF_USER mode, otherwise ignored
  *
  * Set the numbers of pixel reduced from the peak indicator each redraw_rate (after the hold period is over).
- * The peak_falloff will be around: SLOW:5%, MEDIUM:10%, FAST:20%, USER:user_rate 
+ * The peak_falloff will be around: SLOW:5%, MEDIUM:10%, FAST:20%, USER:user_rate
  * of the current range, reduced from peak at each redraw_rate (%gtk_vumeter_set_peak()).
- * 
+ *
  * Hint: a user_rate of 0 can be used to hold the peak indicator at the highest position ever.
  */
 void gtk_vumeter_set_peak_falloff (GtkVUMeter *vumeter, GtkVUMeterPeakFalloff peak_falloff, guint user_rate)
@@ -1273,7 +1273,7 @@ void gtk_vumeter_get_peak_falloff (GtkVUMeter *vumeter, GtkVUMeterPeakFalloff *p
  */
 void gtk_vumeter_set_colors_inverted (GtkVUMeter *vumeter, gboolean inverted)
 {
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));  
+    g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->colors_inverted = inverted;
 #if GTK_CHECK_VERSION(2,20,0)
@@ -1283,7 +1283,7 @@ void gtk_vumeter_set_colors_inverted (GtkVUMeter *vumeter, gboolean inverted)
 #endif
         gtk_vumeter_setup_colors (vumeter);
         gtk_widget_queue_draw (GTK_WIDGET (vumeter));
-    }            
+    }
 }
 
 /**
@@ -1309,7 +1309,7 @@ gboolean gtk_vumeter_get_colors_inverted (GtkVUMeter *vumeter)
  */
 void gtk_vumeter_set_yellow_level (GtkVUMeter *vumeter, gint yellow_level)
 {
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));  
+    g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->yellow_level = CLAMP (yellow_level, vumeter->level_min, vumeter->level_max);
 #if GTK_CHECK_VERSION(2,20,0)
@@ -1319,7 +1319,7 @@ void gtk_vumeter_set_yellow_level (GtkVUMeter *vumeter, gint yellow_level)
 #endif
         gtk_vumeter_setup_colors (vumeter);
         gtk_widget_queue_draw (GTK_WIDGET (vumeter));
-    }            
+    }
 }
 
 /**
@@ -1355,7 +1355,7 @@ void gtk_vumeter_set_brightness (GtkVUMeter *vumeter, gint foreground, gint back
 #endif
         gtk_vumeter_setup_colors (vumeter);
         gtk_widget_queue_draw (GTK_WIDGET (vumeter));
-    }            
+    }
 }
 
 /**

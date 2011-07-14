@@ -968,7 +968,11 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		gdk_draw_pixbuf(rci->pixmap, NULL, rci->cursor_pixbuf, 0, 0, (int) (rci->cursor_prev/MULT), 0, -1, -1, GDK_RGB_DITHER_NONE, 0 ,0);
 
 		gdk_draw_drawable(rci->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+			rci->draw_area->style->fg_gc[gtk_widget_get_state(rci->draw_area)],
+#else
 			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
+#endif
 			rci->pixmap,
 			(int) (rci->cursor_prev/MULT), 0,
 			(int) (rci->cursor_prev/MULT), 0,
@@ -988,7 +992,11 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_drawable(rci->draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+			rci->draw_area->style->fg_gc[gtk_widget_get_state(rci->draw_area)],
+#else
 			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
+#endif
 			rci->pixmap,
 			(int) (idx/MULT), 0,
 			(int) (idx/MULT), 0,
@@ -1421,7 +1429,11 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 
 	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_drawable(widget->window,
+#if GTK_CHECK_VERSION(2,18,0)
+			widget->style->fg_gc[gtk_widget_get_state(widget)],
+#else
 			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+#endif
 			rci->pixmap,
 			event->area.x, event->area.y,
 			event->area.x, event->area.y,
@@ -1583,7 +1595,11 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_container_add(GTK_CONTAINER(rci->scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_focus(rci->draw_area, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(rci->draw_area, GTK_CAN_FOCUS);
+#endif
 	gtk_widget_grab_focus(rci->draw_area);
 
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->scroll_window, FALSE, FALSE, 0);
@@ -2187,7 +2203,11 @@ rtp_player_dlg_create(void)
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(bt_close, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+#endif
 	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
 	window_set_cancel_button(rtp_player_dlg_w, bt_close, window_cancel_button_cb);
 

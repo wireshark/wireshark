@@ -793,7 +793,7 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 
 /****************************************************************************/
 static void on_notebook_switch_page(GtkNotebook *notebook _U_,
-				    GtkNotebookPage *page _U_,
+				    gpointer *page _U_,
 				    gint page_num _U_,
 				    user_data_t *user_data _U_)
 {
@@ -1272,7 +1272,11 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 
 	gdk_draw_pixmap(user_data->dlg.dialog_graph.draw_area->window,
+#if GTK_CHECK_VERSION(2,18,0)
+			user_data->dlg.dialog_graph.draw_area->style->fg_gc[gtk_widget_get_state(user_data->dlg.dialog_graph.draw_area)],
+#else
 			user_data->dlg.dialog_graph.draw_area->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.dialog_graph.draw_area)],
+#endif
 			user_data->dlg.dialog_graph.pixmap,
 			0, 0,
 			0, 0,
@@ -1319,7 +1323,11 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 
 
 	gdk_draw_pixmap(widget->window,
+#if GTK_CHECK_VERSION(2,18,0)
+			widget->style->fg_gc[gtk_widget_get_state(widget)],
+#else
 			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+#endif
 			user_data->dlg.dialog_graph.pixmap,
 			event->area.x, event->area.y,
 			event->area.x, event->area.y,
@@ -3401,7 +3409,11 @@ static void create_rtp_dialog(user_data_t* user_data)
 
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(close_bt, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
+#endif
 	gtk_widget_show(close_bt);
 	window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 

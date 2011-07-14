@@ -195,7 +195,11 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 	gtk_box_pack_start(GTK_BOX(main_vb), hbox, FALSE, FALSE, 0);
 
 	tw->bt_close = gtk_button_new_with_label("Close");
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(tw->bt_close, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(tw->bt_close, GTK_CAN_DEFAULT);
+#endif
 	g_object_set_data(G_OBJECT(hbox), "Close", tw->bt_close);
 
 	gtk_box_pack_end(GTK_BOX(hbox), tw->bt_close, FALSE, FALSE, 0);
@@ -353,7 +357,11 @@ static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, 
 	g_ptr_array_add(tw->buttons,cbd);
 
 	button = gtk_button_new_with_label(label);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(button, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
 
 	gtk_box_pack_start(GTK_BOX(tw->button_hbox), button, FALSE, FALSE, 0);
 
