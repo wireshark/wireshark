@@ -4424,11 +4424,11 @@ static void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_UNSORTED)) {
-        sep_entry->path = "/Analyze/";
+       /* sep_entry->path = "/Analyze/";*/
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER)) {
-        sep_entry->path = "/Analyze/Conversation Filter/";
+        /*sep_entry->path = "/Analyze/Conversation Filter/";*/
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_UNSORTED)) {
