@@ -1380,7 +1380,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 	GtkWidget *save_bt;
 
 	if(io->pixmap){
-		gdk_pixmap_unref(io->pixmap);
+		g_object_unref(io->pixmap);
 		io->pixmap=NULL;
 	}
 

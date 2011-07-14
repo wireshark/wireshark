@@ -996,13 +996,14 @@ my %deprecatedGtkFunctions = (
 		'gdk_drawable_get_display',					'W', # 
 		'gdk_drawable_get_image',					'W', # 
 		'gdk_drawable_get_screen',					'W', # 
-		'gdk_drawable_get_size',					'W', # 
+		'gdk_drawable_get_size',					'W', # deprecated since version 2.24 Use gdk_window_get_width() and gdk_window_get_height() for GdkWindows. 
+														 # Use gdk_pixmap_get_size() for GdkPixmaps
 		'gdk_drawable_get_visual',					'W', # 
 		'gdk_drawable_ref',							'W', # 
 		'gdk_drawable_set_data',					'W', # 
 		'gdk_drawable_unref',						'W', # 
-		'gdk_draw_arc',								'W', # 
-		'gdk_draw_drawable',						'W', # gdk_cairo_set_source_pixmap(), 
+		'gdk_draw_arc',								'W', # deprecated since version 2.22. Use cairo_arc() and cairo_fill() or cairo_stroke() instead.
+		'gdk_draw_drawable',						'W', # deprecated since version 2.22. Use  gdk_cairo_set_source_pixmap(), cairo_rectangle() and cairo_fill() to draw pixmap on top of other drawables 
 		'gdk_draw_glyphs',							'W', # 
 		'gdk_draw_glyphs_transformed',				'W', # 
 		'gdk_draw_gray_image',						'W', # 
@@ -1015,11 +1016,11 @@ my %deprecatedGtkFunctions = (
 		'gdk_draw_line',							'W', # 
 		'gdk_draw_lines',							'W', # 
 		'gdk_draw_pixbuf',							'W', # gdk_cairo_set_source_pixbuf() and cairo_paint() or cairo_rectangle() and cairo_fill() instead.
-		'gdk_draw_pixmap',							'W', # 
+		'gdk_draw_pixmap',							'W', # gdk_draw_drawable() (gdk_draw_drawable has been deprecated since version 2.22 )
 		'gdk_draw_point',							'W', # 
 		'gdk_draw_points',							'W', # 
 		'gdk_draw_polygon',							'W', # 
-		'gdk_draw_rectangle',						'W', # 
+		'gdk_draw_rectangle',						'W', # deprecated since version 2.22, Use cairo_rectangle() and cairo_fill() or cairo_stroke() 
 		'gdk_draw_rgb_32_image',					'W', # 
 		'gdk_draw_rgb_32_image_dithalign',			'W', # 
 		'gdk_draw_rgb_image',						'W', # 
@@ -1056,8 +1057,8 @@ my %deprecatedGtkFunctions = (
 		'gdk_gc_get_colormap',						'W', # 
 		'gdk_gc_get_screen',						'W', # 
 		'gdk_gc_get_values',						'W', # 
-		'gdk_gc_new',								'W', # 
-		'gdk_gc_new_with_values',					'W', # 
+		'gdk_gc_new',								'W', # deprecated since version 2.22 and should not be used in newly-written code. Use Cairo for rendering.
+		'gdk_gc_new_with_values',					'W', # deprecated since version 2.22
 		'gdk_gc_offset',							'W', # 
 		'gdk_gc_ref',								'W', # 
 		'gdk_gc_set_background',					'W', # 
@@ -1070,17 +1071,17 @@ my %deprecatedGtkFunctions = (
 		'gdk_gc_set_exposures',						'W', # 
 		'gdk_gc_set_fill',							'W', # 
 		'gdk_gc_set_font',							'W', # 
-		'gdk_gc_set_foreground',					'W', # 
-		'gdk_gc_set_function',						'W', # Use cairo_set_operator() with Cairo.
+		'gdk_gc_set_foreground',					'W', # deprecated since version 2.22. Use gdk_cairo_set_source_color() to use a GdkColor as the source in Cairo. 
+		'gdk_gc_set_function',						'W', # deprecated since version 2.22. Use cairo_set_operator() with Cairo.
 		'gdk_gc_set_line_attributes',				'W', # 
 		'gdk_gc_set_rgb_bg_color',					'W', # 
-		'gdk_gc_set_rgb_fg_color',					'W', # 
+		'gdk_gc_set_rgb_fg_color',					'W', # deprecated since version 2.22. Use gdk_cairo_set_source_color() instead.
 		'gdk_gc_set_stipple',						'W', # 
 		'gdk_gc_set_subwindow',						'W', # 
-		'gdk_gc_set_tile',							'W', # 
+		'gdk_gc_set_tile',							'W', # deprecated since version 2.22.
 		'gdk_gc_set_ts_origin',						'W', # 
 		'gdk_gc_set_values',						'W', # 
-		'gdk_gc_unref',								'W', # 
+		'gdk_gc_unref',								'E', # deprecated since version 2.0. Use g_object_unref() 
 		'gdk_get_use_xshm',							'W', # 
 		'gdk_image_destroy',						'W', # 
 		'gdk_image_get',							'W', # 
@@ -1114,9 +1115,10 @@ my %deprecatedGtkFunctions = (
 		'gdk_pixmap_colormap_create_from_xpm_d',	'W', # 
 		'gdk_pixmap_create_from_data',				'W', # 
 		'gdk_pixmap_create_from_xpm',				'W', # 
-		'gdk_pixmap_create_from_xpm_d',				'W', # 
+		'gdk_pixmap_create_from_xpm_d',				'W', # deprecated since version 2.22. Use a GdkPixbuf instead. You can use gdk_pixbuf_new_from_xpm_data() to create it.  
+														 # If you must use a pixmap, use gdk_pixmap_new() to create it and Cairo to draw the pixbuf onto it.
 		'gdk_pixmap_ref',							'W', # 
-		'gdk_pixmap_unref',							'W', # 
+		'gdk_pixmap_unref',							'E', # Deprecated equivalent of g_object_unref().
 		'gdk_region_polygon',						'W', # 
 		'gdk_region_rect_equal',					'W', # 
 		'gdk_region_shrink',						'W', # 
@@ -1175,9 +1177,9 @@ my %deprecatedGtkFunctions = (
 		'gdk_window_copy_area',							'W', # 
 		'gdk_window_foreign_new',						'W', # 
 		'gdk_window_foreign_new_for_display',			'W', # 
-		'gdk_window_get_colormap',						'W', # 
+		'gdk_window_get_colormap',						'W', # Deprecated equivalent of gdk_drawable_get_colormap(). 
 		'gdk_window_get_deskrelative_origin',			'W', # 
-		'gdk_window_get_size',							'W', # 
+		'gdk_window_get_size',							'W', # Deprecated equivalent of gdk_drawable_get_size(). 
 		'gdk_window_get_toplevels',						'W', # 
 		'gdk_window_get_type',							'W', # 
 		'gdk_window_lookup',							'W', # 

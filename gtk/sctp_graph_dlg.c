@@ -968,7 +968,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_d
 	g_assert(u_data->io != NULL);
 
 	if(u_data->io->pixmap){
-		gdk_pixmap_unref(u_data->io->pixmap);
+		g_object_unref(u_data->io->pixmap);
 		u_data->io->pixmap=NULL;
 	}
 

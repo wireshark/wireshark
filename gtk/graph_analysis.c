@@ -1287,7 +1287,7 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 	};
 
 	if(user_data->dlg.pixmap_main){
-		gdk_pixmap_unref(user_data->dlg.pixmap_main);
+		g_object_unref(user_data->dlg.pixmap_main);
 		user_data->dlg.pixmap_main=NULL;
 	}
 
@@ -1357,7 +1357,7 @@ static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *e
 #endif
 
 	if(user_data->dlg.pixmap_comments){
-		gdk_pixmap_unref(user_data->dlg.pixmap_comments);
+		g_object_unref(user_data->dlg.pixmap_comments);
 		user_data->dlg.pixmap_comments=NULL;
 	}
 
@@ -1399,7 +1399,7 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 #endif
 
 	if(user_data->dlg.pixmap_time){
-		gdk_pixmap_unref(user_data->dlg.pixmap_time);
+		g_object_unref(user_data->dlg.pixmap_time);
 		user_data->dlg.pixmap_time=NULL;
 	}
 

@@ -1350,7 +1350,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	}
 
 	if(user_data->dlg.dialog_graph.pixmap){
-		gdk_pixmap_unref(user_data->dlg.dialog_graph.pixmap);
+		g_object_unref(user_data->dlg.dialog_graph.pixmap);
 		user_data->dlg.dialog_graph.pixmap=NULL;
 	}
 

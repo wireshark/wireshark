@@ -1727,8 +1727,8 @@ static void graph_destroy (struct graph *g)
 	/* window_destroy (g->text); */
 	g_object_unref (g->fg_gc);
 	g_object_unref (g->bg_gc);
-	gdk_pixmap_unref (g->pixmap[0]);
-	gdk_pixmap_unref (g->pixmap[1]);
+	g_object_unref (g->pixmap[0]);
+	g_object_unref (g->pixmap[1]);
 	g_free (g->x_axis);
 	g_free (g->y_axis);
 	g_free ( (gpointer) (g->title) );
@@ -2015,7 +2015,7 @@ static void graph_element_lists_free (struct graph *g)
 static void graph_title_pixmap_create (struct graph *g)
 {
 	if (g->title_pixmap)
-		gdk_pixmap_unref (g->title_pixmap);
+		g_object_unref (g->title_pixmap);
 
 	g->title_pixmap = gdk_pixmap_new (g->drawing_area->window,
 							g->x_axis->p.width, g->wp.y, -1);
@@ -2050,9 +2050,9 @@ static void graph_pixmaps_create (struct graph *g)
 	debug(DBS_FENTRY) puts ("graph_pixmaps_create()");
 
 	if (g->pixmap[0])
-		gdk_pixmap_unref (g->pixmap[0]);
+		g_object_unref (g->pixmap[0]);
 	if (g->pixmap[1])
-		gdk_pixmap_unref (g->pixmap[1]);
+		g_object_unref (g->pixmap[1]);
 
 	g->pixmap[0] = gdk_pixmap_new (g->drawing_area->window,
 									g->wp.width, g->wp.height, -1);
@@ -2172,9 +2172,9 @@ static void axis_pixmaps_create (struct axis *axis)
 {
 	debug(DBS_FENTRY) puts ("axis_pixmaps_create()");
 	if (axis->pixmap[0])
-		gdk_pixmap_unref (axis->pixmap[0]);
+		g_object_unref (axis->pixmap[0]);
 	if (axis->pixmap[1])
-		gdk_pixmap_unref (axis->pixmap[1]);
+		g_object_unref (axis->pixmap[1]);
 
 	axis->pixmap[0] = gdk_pixmap_new (axis->drawing_area->window,
 							axis->p.width, axis->p.height, -1);
@@ -2186,8 +2186,8 @@ static void axis_pixmaps_create (struct axis *axis)
 
 static void axis_destroy (struct axis *axis)
 {
-	gdk_pixmap_unref (axis->pixmap[0]);
-	gdk_pixmap_unref (axis->pixmap[1]);
+	g_object_unref (axis->pixmap[0]);
+	g_object_unref (axis->pixmap[1]);
 	g_free ( (gpointer) (axis->label) );
 }
 
@@ -2742,8 +2742,8 @@ static void magnify_destroy (struct graph *g)
 	struct graph *mg = g->magnify.g;
 
 	window_destroy (GTK_WIDGET (mg->drawing_area));
-	gdk_pixmap_unref (mg->pixmap[0]);
-	gdk_pixmap_unref (mg->pixmap[1]);
+	g_object_unref (mg->pixmap[0]);
+	g_object_unref (mg->pixmap[1]);
 	for (list=mg->elists; list; list=list->next)
 		g_free (list->elements);
 
