@@ -574,6 +574,7 @@ set(TSHARK_TAP_SRC
 	tap-icmpv6stat.c
 	tap-iostat.c
 	tap-iousers.c
+	tap-macltestat.c
 	tap-mgcpstat.c
 	tap-megacostat.c
 	tap-protocolinfo.c
