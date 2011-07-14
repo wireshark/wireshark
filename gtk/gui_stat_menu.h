@@ -60,14 +60,26 @@ extern "C" {
  * FALSE if not.
  *
  * @param callback_data data for callback function
- */    
-extern void register_stat_menu_item(
-    const char *name, 
+ */
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+register_stat_menu_item(
+    const char *name _U_,
+    register_stat_group_t group _U_,
+    gpointer callback _U_,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data) _U_,
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data) _U_,
+    gpointer callback_data _U_);
+#else
+void
+register_stat_menu_item(
+    const char *name,
     register_stat_group_t group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
+#endif
 
 /**
  * Same as register_stat_menu_item() but with optional stock item.
@@ -179,7 +191,7 @@ extern void register_stat_menu_item_stock(
     gpointer callback_data);
 #else
 extern void register_stat_menu_item_stock(
-    const char *name, 
+    const char *name,
     register_stat_group_t group,
     const gchar *stock_id,
     GtkItemFactoryCallback callback,
