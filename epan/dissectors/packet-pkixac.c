@@ -61,6 +61,7 @@ static int hf_pkixac_IetfAttrSyntax_PDU = -1;     /* IetfAttrSyntax */
 static int hf_pkixac_SvceAuthInfo_PDU = -1;       /* SvceAuthInfo */
 static int hf_pkixac_RoleSyntax_PDU = -1;         /* RoleSyntax */
 static int hf_pkixac_Clearance_PDU = -1;          /* Clearance */
+static int hf_pkixac_RFC3281Clearance_PDU = -1;   /* RFC3281Clearance */
 static int hf_pkixac_AAControls_PDU = -1;         /* AAControls */
 static int hf_pkixac_ProxyInfo_PDU = -1;          /* ProxyInfo */
 static int hf_pkixac_digestedObjectType = -1;     /* T_digestedObjectType */
@@ -127,6 +128,7 @@ static gint ett_pkixac_SvceAuthInfo = -1;
 static gint ett_pkixac_RoleSyntax = -1;
 static gint ett_pkixac_Clearance = -1;
 static gint ett_pkixac_SET_OF_SecurityCategory = -1;
+static gint ett_pkixac_RFC3281Clearance = -1;
 static gint ett_pkixac_ClassList = -1;
 static gint ett_pkixac_SecurityCategory = -1;
 static gint ett_pkixac_AAControls = -1;
@@ -401,7 +403,7 @@ dissect_pkixac_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_pkixac_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/pkixac/pkixac.cnf"
+#line 63 "../../asn1/pkixac/pkixac.cnf"
    if (object_identifier_id)
       offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -419,7 +421,7 @@ static const ber_sequence_t SecurityCategory_sequence[] = {
 
 static int
 dissect_pkixac_SecurityCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "../../asn1/pkixac/pkixac.cnf"
+#line 56 "../../asn1/pkixac/pkixac.cnf"
   object_identifier_id = NULL;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecurityCategory_sequence, hf_index, ett_pkixac_SecurityCategory);
@@ -445,9 +447,9 @@ dissect_pkixac_SET_OF_SecurityCategory(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static const ber_sequence_t Clearance_sequence[] = {
-  { &hf_pkixac_policyId     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkixac_OBJECT_IDENTIFIER },
-  { &hf_pkixac_classList    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixac_ClassList },
-  { &hf_pkixac_securityCategories, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixac_SET_OF_SecurityCategory },
+  { &hf_pkixac_policyId     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkixac_OBJECT_IDENTIFIER },
+  { &hf_pkixac_classList    , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixac_ClassList },
+  { &hf_pkixac_securityCategories, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixac_SET_OF_SecurityCategory },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -455,6 +457,22 @@ static int
 dissect_pkixac_Clearance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Clearance_sequence, hf_index, ett_pkixac_Clearance);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RFC3281Clearance_sequence[] = {
+  { &hf_pkixac_policyId     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkixac_OBJECT_IDENTIFIER },
+  { &hf_pkixac_classList    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixac_ClassList },
+  { &hf_pkixac_securityCategories, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixac_SET_OF_SecurityCategory },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkixac_RFC3281Clearance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RFC3281Clearance_sequence, hf_index, ett_pkixac_RFC3281Clearance);
 
   return offset;
 }
@@ -548,6 +566,11 @@ static void dissect_Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkixac_Clearance(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixac_Clearance_PDU);
 }
+static void dissect_RFC3281Clearance_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkixac_RFC3281Clearance(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixac_RFC3281Clearance_PDU);
+}
 static void dissect_AAControls_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -589,6 +612,10 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
     { &hf_pkixac_Clearance_PDU,
       { "Clearance", "pkixac.Clearance",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkixac_RFC3281Clearance_PDU,
+      { "RFC3281Clearance", "pkixac.RFC3281Clearance",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkixac_AAControls_PDU,
@@ -790,6 +817,7 @@ void proto_register_pkixac(void) {
     &ett_pkixac_RoleSyntax,
     &ett_pkixac_Clearance,
     &ett_pkixac_SET_OF_SecurityCategory,
+    &ett_pkixac_RFC3281Clearance,
     &ett_pkixac_ClassList,
     &ett_pkixac_SecurityCategory,
     &ett_pkixac_AAControls,
@@ -806,6 +834,16 @@ void proto_register_pkixac(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pkixac, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+
+/*--- Included file: packet-pkixac-syn-reg.c ---*/
+#line 1 "../../asn1/pkixac/packet-pkixac-syn-reg.c"
+  /*--- Syntax registrations ---*/
+  register_ber_syntax_dissector("Clearance", proto_pkixac, dissect_Clearance_PDU);
+  register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
+
+/*--- End of included file: packet-pkixac-syn-reg.c ---*/
+#line 80 "../../asn1/pkixac/packet-pkixac-template.c"
 
 }
 
@@ -828,6 +866,6 @@ void proto_reg_handoff_pkixac(void) {
 
 
 /*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 85 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 87 "../../asn1/pkixac/packet-pkixac-template.c"
 }
 

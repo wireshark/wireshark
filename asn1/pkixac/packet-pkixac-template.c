@@ -76,6 +76,8 @@ void proto_register_pkixac(void) {
   proto_register_field_array(proto_pkixac, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+#include "packet-pkixac-syn-reg.c"
+
 }
 
 

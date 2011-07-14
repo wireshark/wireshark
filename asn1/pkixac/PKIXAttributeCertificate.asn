@@ -151,11 +151,19 @@ id-at-clearance              OBJECT IDENTIFIER ::=
        }
 
        Clearance  ::=  SEQUENCE {
+             policyId       OBJECT IDENTIFIER,
+             classList      ClassList DEFAULT {unclassified},
+             securityCategories
+                            SET OF SecurityCategory  OPTIONAL
+       }
+
+       RFC3281Clearance  ::=  SEQUENCE {
              policyId       [0] OBJECT IDENTIFIER,
              classList      [1] ClassList DEFAULT {unclassified},
              securityCategories
                             [2] SET OF SecurityCategory  OPTIONAL
        }
+
 
        ClassList  ::=  BIT STRING {
              unmarked       (0),
