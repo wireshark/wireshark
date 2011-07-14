@@ -52,6 +52,21 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The ANSI MAP dissector was susceptible to an infinite loop.
+            <!-- Fixed in trunk: r37930 -->
+            <!-- Fixed in trunk-1.6: r37966 -->
+            <!-- Fixed in trunk-1.4: r38010 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6044">Bug
+            6044</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.7, and 1.6.0.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
