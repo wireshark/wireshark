@@ -28,7 +28,7 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = PKCS1.asn
+ASN_FILE_LIST = PKIXAlgs-2009.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
