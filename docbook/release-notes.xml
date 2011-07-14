@@ -87,6 +87,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          TCP dissector doesn't decode TCP segments of length 1.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716">Bug
+          4716</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Missing LUA function.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
           5006</ulink>)
@@ -117,6 +123,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
+          5803</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if Lua contains &quot;Pref.range()&quot; with missing arguments.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
           5895</ulink>)
@@ -138,6 +150,12 @@ Wireshark Info
           TvbRange_string(lua_State* L)  call a wrong function.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
           5960</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          VoIP call flow graph displays BICC APM as a BICC ANM.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5966">Bug
+          5966</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -170,6 +188,24 @@ Wireshark Info
           6055</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
+          6059</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Packet parser takes too long for this trace.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6073">Bug
+          6073</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          802.11 Association Response Packet's &quot;Status Code&quot; field is imprecisely decoded/described.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093">Bug
+          6093</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -197,6 +233,14 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ANSI MAP,
+GIOP,
+H.323,
+IEEE 802.11,
+MSRP,
+RPCAP,
+sFlow,
+TCP,
 
     </para>
     </section>
@@ -204,7 +248,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Network Monitor.
+Lucent/Ascend.
 
     </para>
     </section>

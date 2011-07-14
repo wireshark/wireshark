@@ -80,6 +80,7 @@ my %version_pref = (
 	#"pkg_format" => "",
 	);
 my $srcdir = ".";
+my $svn_info_cmd = "";
 
 $ENV{LANG} = "C";  # Ensure we run with correct locale
 
@@ -104,7 +105,7 @@ sub read_svn_info {
 		eval {
 			use warnings "all";
 			no warnings "all";
-			$line = qx{svn info $srcdir};
+			$line = qx{$svn_info_cmd};
 			if (defined($line)) {
 				if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
@@ -311,6 +312,12 @@ sub get_config {
 &get_config();
 
 if (-d "$srcdir/.svn") {
+	$svn_info_cmd = "svn info $srcdir";
+} elsif (-d "$srcdir/.git/svn") {
+	$svn_info_cmd = "git svn info $srcdir";
+}
+
+if ($svn_info_cmd) {
 	print "This is a build from SVN (or a SVN snapshot).\n";
 	&read_svn_info();
 	if ($pkg_version) {
