@@ -4574,7 +4574,8 @@ update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     /* if this menu item is a file, count it */
     if (widget_cf_name) {
         (*(guint *)cnt)++;
-        main_welcome_add_recent_capture_files(widget_cf_name);
+        gtk_widget_set_sensitive(widget, FALSE);
+        main_welcome_add_recent_capture_file(widget_cf_name, G_OBJECT(widget));
     }
 }
 
@@ -4594,11 +4595,9 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
         /* Empty list */
         menu_item = gtk_menu_item_new_with_label("No recently used files");
         gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+        gtk_widget_set_sensitive(gtk_menu_get_attach_widget(GTK_MENU(menu_item)), FALSE);
         gtk_widget_show (menu_item);
     }
-
-    /* make parent menu item sensitive only, if we have any valid files in the list */
-    set_menu_sensitivity_old(MENU_RECENT_FILES_PATH_OLD, cnt);
 }
 
 #endif /* MAIN_MENU_USE_UIMANAGER */
@@ -4759,7 +4758,6 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     GtkAction *action;
     GtkWidget *submenu_recent_files;
     GList *items, *l;
-    gchar *name;
     gchar *action_name;
     guint i;
 
@@ -4787,6 +4785,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
                  "sensitive", FALSE,
                  NULL);
       gtk_action_group_add_action (action_group, action);
+      gtk_action_set_sensitive(action, FALSE);
       g_object_unref (action);
 
       gtk_ui_manager_add_ui (ui_manager, merge_id,
@@ -4804,8 +4803,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
        i +=1, l = l->next)
     {
       gchar *item_name = l->data;
-      name = g_strdup_printf ("recent-info-%u", i);
-      action_name = g_strdup (name);
+      action_name = g_strdup_printf ("recent-info-%u", i);
 
       action = g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
@@ -4819,16 +4817,15 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 
       gtk_ui_manager_add_ui (ui_manager, merge_id,
                  "/Menubar/FileMenu/OpenRecent/RecentFiles",
-                 name,
+                 action_name,
                  action_name,
                  GTK_UI_MANAGER_MENUITEM,
                  FALSE);
 
       /* Add the file name to the recent files list on the Welcome screen */
-      main_welcome_add_recent_capture_files(item_name);
+      main_welcome_add_recent_capture_file(item_name, G_OBJECT(action));
 
       g_free (action_name);
-      g_free (name);
     }
     /* Add a Separator */
     gtk_ui_manager_add_ui (ui_manager, merge_id,

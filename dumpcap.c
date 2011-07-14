@@ -134,10 +134,6 @@ FILE *debug_log;   /* for logging debug messages to  */
                    /*  is defined                    */
 #endif
 
-#ifdef _WIN32
-#define USE_THREADS
-#endif
-
 static GAsyncQueue *pcap_queue;
 static gint64 pcap_queue_bytes;
 static gint64 pcap_queue_packets;
