@@ -1039,7 +1039,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            */
           ts.secs  = tvb_get_ntohl(tvb,8);
           ts.nsecs = tvb_get_ntohl(tvb,8+4); /* Leave at microsec resolution for now */
-          if (abs(ts.secs - pinfo->fd->abs_ts.secs)<3600*24 &&
+          if (abs((guint32)(ts.secs - pinfo->fd->abs_ts.secs))<3600*24 &&
               ts.nsecs < 1000000) {
             ts.nsecs *= 1000; /* Convert to nanosec resolution */
             proto_tree_add_time(icmp_tree, hf_icmp_data_time, tvb, 8, 8, &ts);
