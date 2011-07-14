@@ -329,7 +329,8 @@ welcome_header_new(void)
 
     header_lb = gtk_label_new(NULL);
     welcome_header_set_message(NULL);
-    gtk_misc_set_alignment (GTK_MISC(header_lb), 0.0f, 0.5f);
+    gtk_label_set_selectable(GTK_LABEL(header_lb), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(header_lb), 0.0f, 0.5f);
     gtk_box_pack_start(GTK_BOX(item_hb), header_lb, TRUE, TRUE, 5);
 
     gtk_widget_show_all(eb);
