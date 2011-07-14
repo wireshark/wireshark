@@ -125,6 +125,7 @@ user-guide.zip:
 !endif
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
+	mkdir wsluarm_src
 	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
 	touch wsluarm
 
