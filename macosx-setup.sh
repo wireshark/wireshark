@@ -277,6 +277,14 @@ then
 	#
 	./configure --with-libgcrypt || exit 1
 	make -j 3 || exit 1
+	#
+	# The pkgconfig file for GnuTLS says "requires zlib", but OS X,
+	# while it supplies zlib, doesn't supply a pkgconfig file for
+	# it.
+	#
+	# Patch the GnuTLS pkgconfig file not to require zlib.
+	#
+	patch -p0 lib/gnutls.pc <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
 fi
@@ -319,7 +327,6 @@ fi
 echo ""
 
 echo "You are now prepared to build Wireshark. To do so do:"
-echo "Download Wireshark source"
 echo "./autogen.sh"
 echo "./configure"
 echo "make -j 3"

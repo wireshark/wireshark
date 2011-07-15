@@ -1,0 +1,10 @@
+*** gnutls.pc.orig	2011-07-15 15:02:32.000000000 -0700
+--- gnutls.pc	2011-07-15 15:02:42.000000000 -0700
+***************
+*** 21,25 ****
+  Version: 2.12.7
+  Libs: -L${libdir} -lgnutls
+  Libs.private: -L/usr/local/lib -lgcrypt -L/usr/local/lib -lgpg-error -L/usr/local/lib -lintl -liconv -lc -R/usr/local/lib 
+- Requires.private: zlib
+  Cflags: -I${includedir}
+--- 21,24 ----
