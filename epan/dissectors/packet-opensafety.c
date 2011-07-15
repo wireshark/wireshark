@@ -1304,7 +1304,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
     guint8 *bytes;
     gboolean handled, dissectorCalled;
     guint8 firstByte, found;
-    gint len, reported_len;
+    gint reported_len;
     dissector_handle_t epl_handle;
     guint8 packageCounter;
     handled = FALSE;
@@ -1322,7 +1322,6 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
         return TRUE;
     }
 
-    len = tvb_length_remaining(message_tvb, 0);
     reported_len = tvb_reported_length_remaining(message_tvb, 0);
     length = tvb_length(message_tvb);
     bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
@@ -1409,7 +1408,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
     guint8 *bytes;
     gboolean handled, dissectorCalled, udpDissectorCalled;
     guint8 firstByte, found;
-    gint len, reported_len;
+    gint reported_len;
     dissector_handle_t siii_handle;
     guint8 packageCounter = 0;
     gboolean internSIIIHandling;
@@ -1444,7 +1443,6 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
         return TRUE;
     }
 
-    len = tvb_length_remaining(message_tvb, 0);
     reported_len = tvb_reported_length_remaining(message_tvb, 0);
     length = tvb_length(message_tvb);
     bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
@@ -1617,9 +1615,9 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
             /* Only engage, if we are not called strictly for the overview */
             if ( tree )
             {
-            	/* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
-            	 * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
-            	 * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
+                /* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
+                 * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
+                 * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
                 if ( dissect_opensafety_frame(next_tvb, pinfo, ( tree->parent != NULL ? tree->parent : tree ), FALSE, found ) == TRUE )
                     packageCounter++;
             }
@@ -1645,7 +1643,7 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
     guint8 *bytes;
     gboolean handled, dissectorCalled;
     guint8 found;
-    gint len, reported_len;
+    gint reported_len;
     dissector_handle_t pn_io_handle;
     guint8 packageCounter;
     handled = FALSE;
@@ -1653,9 +1651,8 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 
     pn_io_handle = find_dissector("pn_io");
     if ( pn_io_handle == NULL )
-    	pn_io_handle = find_dissector("data");
+        pn_io_handle = find_dissector("data");
 
-    len = tvb_length_remaining(message_tvb, 0);
     reported_len = tvb_reported_length_remaining(message_tvb, 0);
     length = tvb_length(message_tvb);
     bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
@@ -1727,7 +1724,7 @@ dissect_heur_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto
     if ( calledOnce == FALSE )
     {
         calledOnce = TRUE;
-      	result = dissect_opensafety_pn_io(message_tvb, pinfo, tree );
+        result = dissect_opensafety_pn_io(message_tvb, pinfo, tree );
         calledOnce = FALSE;
         return result;
     }
@@ -1884,7 +1881,7 @@ proto_reg_handoff_opensafety(void)
 
     if ( !opensafety_inited )
     {
-    	/* EPL & SercosIII dissector registration */
+        /* EPL & SercosIII dissector registration */
         heur_dissector_add("epl", dissect_heur_opensafety_epl, proto_opensafety);
         heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
 
@@ -1905,7 +1902,7 @@ proto_reg_handoff_opensafety(void)
              * the ethernet subdissector list. No PNIO specific data will be dissected
              * and a warning will be displayed, recognizing the missing dissector plugin.
              */
-			g_warning ( "openSAFETY - Profinet IO heuristic dissector cannot be registered, openSAFETY/PNIO native dissection." );
+            g_warning ( "openSAFETY - Profinet IO heuristic dissector cannot be registered, openSAFETY/PNIO native dissection." );
             dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
         }
     }

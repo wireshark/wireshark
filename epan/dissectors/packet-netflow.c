@@ -2379,7 +2379,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 	int             i;
 
 	address         local_addr, remote_addr;
-	guint16         local_port = 0, remote_port = 0, ipv4_id = 0, icmp_id = 0;
+	guint16         local_port = 0, remote_port = 0/*, ipv4_id = 0, icmp_id = 0*/;
 	guint32         uid = 0, pid = 0;
 	int             uname_len;
 	gchar          *uname_str = NULL;
@@ -4470,15 +4470,15 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case VENDOR_CACE << 16 | 6: /* caceLocalIPv4id */
 			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_id,
 					    tvb, offset, length, ENC_BIG_ENDIAN);
-			ipv4_id = tvb_get_ntohs(tvb, offset);
-			got_flags |= GOT_IPv4_ID;
+			/*ipv4_id = tvb_get_ntohs(tvb, offset);*/
+			/*got_flags |= GOT_IPv4_ID;*/
 			break;
 
 		case VENDOR_CACE << 16 | 7: /* caceLocalICMPid */
 			ti = proto_tree_add_item(pdutree, hf_pie_cace_local_icmp_id,
 					    tvb, offset, length, ENC_BIG_ENDIAN);
-			icmp_id = tvb_get_ntohs(tvb, offset);
-			got_flags |= GOT_ICMP_ID;
+			/*icmp_id = tvb_get_ntohs(tvb, offset);*/
+			/*got_flags |= GOT_ICMP_ID;*/
 			break;
 
 		case VENDOR_CACE << 16 | 8: /* caceLocalProcessUserId */

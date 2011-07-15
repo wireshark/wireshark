@@ -2028,9 +2028,6 @@ padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
     proto_item  *item;
     nw_date_t   nw_date;
-    gint        offset;
-
-    offset = ptvcursor_current_offset(ptvc);
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length, rec->endianness);
@@ -2050,9 +2047,6 @@ padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
     proto_item  *item;
     nw_time_t   nw_time;
-    gint        offset;
-
-    offset = ptvcursor_current_offset(ptvc);
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length, rec->endianness);
@@ -2077,10 +2071,8 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
     proto_item      *item;
     /* nw_uni_t        nw_uni; */
-    guint            offset;
 
     /* nw_uni.buffer[0] = '\0'; */
-    offset = ptvcursor_current_offset(ptvc);
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
                          rec->length, rec->endianness);
@@ -2513,12 +2505,10 @@ get_info_type(const gchar* check_string)
 {
     guint length;
     guint i;
-    char char_val;
 
     length =  (guint) strlen(check_string);
 
     for (i = 0 ; i < length-1 ; i++ ) {
-        char_val = check_string[i+1];
         if (check_string[i] == 0x25 && check_string[i+1] == 0x64) {   /* %d Digits*/
             return 0;
         }
@@ -8813,9 +8803,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     const char          *error_string;
     guint32              nds_offset = 0;
     guint32              nds_error_code = 0;
-    guint32              nds_reply_buffer = 0;
+    /*guint32              nds_reply_buffer = 0;*/
     const char          *nds_error_string = NULL;
-    guint32              nds_frag=0;
+    /*guint32              nds_frag=0;*/
     proto_item          *expert_item;
     guint8               conn_stat;
 
@@ -8927,9 +8917,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         ncp_rec->subfunc==0x02 && (tvb_reported_length_remaining(tvb, 8) >= 8))
     {
         nds_offset = 8;
-        nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
+        /*nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);*/
         nds_offset += 4;
-        nds_frag = tvb_get_letohl(tvb, nds_offset);
+        /*nds_frag = tvb_get_letohl(tvb, nds_offset);*/
         nds_offset += 4;
         /*
          * Is the possibly-reassembled reply large enough to have

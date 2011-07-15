@@ -3805,14 +3805,14 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 {
 	guint fh3_len;
 	guint fh3_len_full;
-	guint fh3_fill;
+	/*guint fh3_fill;*/
 	proto_item* fitem = NULL;
 	proto_tree* ftree = NULL;
 	int fh_offset,fh_length;
 
 	fh3_len = tvb_get_ntohl(tvb, offset+0);
 	fh3_len_full = rpc_roundup(fh3_len);
-	fh3_fill = fh3_len_full - fh3_len;
+	/*fh3_fill = fh3_len_full - fh3_len;*/
 
 	if (tree) {
 		fitem = proto_tree_add_text(tree, tvb, offset, 4+fh3_len_full,
@@ -8928,7 +8928,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 ops, ops_counter, summary_counter;
 	guint opcode;
-	guint name_offset=0;
+	/*guint name_offset=0;*/
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
 	proto_tree *newftree = NULL;
@@ -9154,7 +9154,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_LOOKUP:
-			name_offset=offset;
+                    /*name_offset=offset;*/
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 								hf_nfs_component4, &name);
 			if (nfs_file_name_snooping){
@@ -9593,7 +9593,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
 	proto_tree *newftree = NULL;
-	guint32 string_length;
 	guint32 status;
 	const char *opname=NULL;
 	guint32 last_fh_hash=0;
@@ -9751,7 +9750,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_READ:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_eof, offset);
-			string_length = tvb_get_ntohl(tvb,offset+0);
 			dissect_rpc_uint32(tvb, newftree, hf_read_data_length, offset); /* don't change offset */
 			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 			break;
