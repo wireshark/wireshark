@@ -136,7 +136,7 @@ static gint hf_header_array[] = {
 #define MSRP_AUTHENTICATION_INFO                15
 
 static dissector_handle_t msrp_handle;
-gboolean global_msrp_raw_text = TRUE;
+static gboolean global_msrp_raw_text = TRUE;
 
 /* MSRP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -151,7 +151,8 @@ static gboolean global_msrp_show_setup_info = TRUE;
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Set up an MSRP conversation using the info given */
-void msrp_add_address( packet_info *pinfo,
+void
+msrp_add_address( packet_info *pinfo,
                        address *addr, int port,
                        const gchar *setup_method, guint32 setup_frame_number)
 {
@@ -215,7 +216,8 @@ void msrp_add_address( packet_info *pinfo,
 
 
 /* Look for conversation info and display any setup info found */
-void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Conversation and current data */
     conversation_t *p_conv = NULL;
@@ -340,7 +342,6 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 static gboolean
 check_msrp_header(tvbuff_t *tvb)
 {
-    gint offset = 0;
     gint linelen;
     gint space_offset;
     gint next_offset = 0;
@@ -352,7 +353,6 @@ check_msrp_header(tvbuff_t *tvb)
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" calls below won't throw exceptions.   *
      */
-    offset = 0;
     if(tvb_length(tvb) < 4 ||  tvb_get_ntohl(tvb, 0) != 0x4d535250 /* MSRP */){
         return FALSE;
     }
@@ -420,7 +420,6 @@ find_end_line(tvbuff_t *tvb, gint start)
 static gboolean
 dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
     conversation_t* conversation;
 
     if ( check_msrp_header(tvb)){
@@ -439,7 +438,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conversation_set_dissector(conversation, msrp_handle);
             }
         }
-        offset = dissect_msrp(tvb, pinfo, tree);
+        dissect_msrp(tvb, pinfo, tree);
         return TRUE;
     }
     return FALSE;
@@ -743,20 +742,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Wireshark */
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-void
-proto_reg_handoff_msrp(void)
-{
-    msrp_handle = find_dissector("msrp");
-    dissector_add_handle("tcp.port", msrp_handle);   /* for "decode-as" */
-    heur_dissector_add("tcp", dissect_msrp_heur, proto_msrp);
-    media_type_dissector_table = find_dissector_table("media_type");
-}
-
 void
 proto_register_msrp(void)
 {
@@ -941,4 +926,14 @@ proto_register_msrp(void)
     new_register_dissector("msrp", dissect_msrp, proto_msrp);
 }
 
+
+/* Register the protocol with Wireshark */
+void
+proto_reg_handoff_msrp(void)
+{
+    msrp_handle = find_dissector("msrp");
+    dissector_add_handle("tcp.port", msrp_handle);   /* for "decode-as" */
+    heur_dissector_add("tcp", dissect_msrp_heur, proto_msrp);
+    media_type_dissector_table = find_dissector_table("media_type");
+}
 
