@@ -1034,8 +1034,21 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
           }
 
+          /* Make sure we have enough bytes in the payload before trying to 
+           * see if the data looks like a timestamp; otherwise we'll get
+           * malformed packets as we try to access data that isn't there. */
+          if (tvb_length_remaining(tvb, 8) < sizeof(nstime_t)) {
+            call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8),
+              pinfo, icmp_tree);
+            break;
+          }
+
           /* Interpret the first 8 bytes of the icmp data as a timestamp
            * But only if it does look like it's a timestamp.
+           * 
+           * FIXME:
+           *    1) Timestamps might be in either big or little endian format
+           *    2) Timestamps could be in different formats depending on the OS
            */
           ts.secs  = tvb_get_ntohl(tvb,8);
           ts.nsecs = tvb_get_ntohl(tvb,8+4); /* Leave at microsec resolution for now */
