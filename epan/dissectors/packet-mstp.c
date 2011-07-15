@@ -92,21 +92,22 @@ static int hf_mstp_frame_checksum_good = -1;
 /* Return value is updated CRC */
 /*  The ^ operator means exclusive OR. */
 /* Note: This function is copied directly from the BACnet standard. */
-static guint8 CRC_Calc_Header(
-    guint8 dataValue,
-    guint8 crcValue)
+static guint8
+CRC_Calc_Header(
+	guint8 dataValue,
+	guint8 crcValue)
 {
-    guint16 crc;
+	guint16 crc;
 
-    crc = crcValue ^ dataValue; /* XOR C7..C0 with D7..D0 */
+	crc = crcValue ^ dataValue; /* XOR C7..C0 with D7..D0 */
 
-    /* Exclusive OR the terms in the table (top down) */
-    crc = crc ^ (crc << 1) ^ (crc << 2) ^ (crc << 3)
-        ^ (crc << 4) ^ (crc << 5) ^ (crc << 6)
-        ^ (crc << 7);
+	/* Exclusive OR the terms in the table (top down) */
+	crc = crc ^ (crc << 1) ^ (crc << 2) ^ (crc << 3)
+		^ (crc << 4) ^ (crc << 5) ^ (crc << 6)
+		^ (crc << 7);
 
-    /* Combine bits shifted out left hand end */
-    return (crc & 0xfe) ^ ((crc >> 8) & 1);
+	/* Combine bits shifted out left hand end */
+	return (crc & 0xfe) ^ ((crc >> 8) & 1);
 }
 #endif
 
@@ -115,23 +116,25 @@ static guint8 CRC_Calc_Header(
 /*  Return value is updated CRC */
 /*  The ^ operator means exclusive OR. */
 /* Note: This function is copied directly from the BACnet standard. */
-static guint16 CRC_Calc_Data(
-    guint8 dataValue,
-    guint16 crcValue)
+static guint16
+CRC_Calc_Data(
+	guint8 dataValue,
+	guint16 crcValue)
 {
-    guint16 crcLow;
+	guint16 crcLow;
 
-    crcLow = (crcValue & 0xff) ^ dataValue;     /* XOR C7..C0 with D7..D0 */
+	crcLow = (crcValue & 0xff) ^ dataValue;     /* XOR C7..C0 with D7..D0 */
 
-    /* Exclusive OR the terms in the table (top down) */
-    return (crcValue >> 8) ^ (crcLow << 8) ^ (crcLow << 3)
-        ^ (crcLow << 12) ^ (crcLow >> 4)
-        ^ (crcLow & 0x0f) ^ ((crcLow & 0x0f) << 7);
+	/* Exclusive OR the terms in the table (top down) */
+	return (crcValue >> 8) ^ (crcLow << 8) ^ (crcLow << 3)
+		^ (crcLow << 12) ^ (crcLow >> 4)
+		^ (crcLow & 0x0f) ^ ((crcLow & 0x0f) << 7);
 }
 #endif
 
 /* Common frame type text */
-const gchar *mstp_frame_type_text(guint32 val)
+const gchar *
+mstp_frame_type_text(guint32 val)
 {
 	return val_to_str(val,
 		bacnet_mstp_frame_type_name,
@@ -145,8 +148,6 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *subtree, gint offset)
 {
 	guint8 mstp_frame_type = 0;
-	guint8 mstp_frame_source = 0;
-	guint8 mstp_frame_destination = 0;
 	guint16 mstp_frame_pdu_len = 0;
 	guint16 mstp_tvb_pdu_len = 0;
 	guint16 vendorid = 0;
@@ -165,8 +166,6 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet");
 	col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
 	mstp_frame_type = tvb_get_guint8(tvb, offset);
-	mstp_frame_destination = tvb_get_guint8(tvb, offset+1);
-	mstp_frame_source = tvb_get_guint8(tvb, offset+2);
 	mstp_frame_pdu_len = tvb_get_ntohs(tvb, offset+3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -244,7 +243,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			/* With Vendor ID */
 			vendorid = tvb_get_ntohs(tvb, offset);
-			
+
 			/* Write Vendor ID as tree */
 			proto_tree_add_item(subtree, hf_mstp_frame_vendor_id, tvb,
 				offset, 2, FALSE);
@@ -254,7 +253,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				mstp_tvb_pdu_len-2, mstp_frame_pdu_len);
 		}
 
-		if (!(dissector_try_uint(subdissector_table, (vendorid<<16) + mstp_frame_type, 
+		if (!(dissector_try_uint(subdissector_table, (vendorid<<16) + mstp_frame_type,
 			next_tvb, pinfo, tree))) {
 				/* Unknown function - dissect the payload as data */
 				call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -421,14 +420,13 @@ proto_register_mstp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
-		
+
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC);
 	/* Table_type: (Vendor ID << 16) + Frametype */
 }
 
 void
-
 proto_reg_handoff_mstp(void)
 {
 	dissector_handle_t mstp_handle;
