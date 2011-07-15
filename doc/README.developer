@@ -3907,16 +3907,16 @@ You must call this and use this ptvcursor_t object so you can use the
 ptvcursor API.
 
 proto_item*
-ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
+ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, const guint encoding)
     This will extract 'length' bytes from the tvbuff and place it in
 the proto_tree as field 'hf', which is a registered header_field. The
 pointer to the proto_item that is created is passed back to you. Internally,
 the ptvcursor advances its cursor so the next call to ptvcursor_add
-starts where this call finished. The 'endianness' parameter matters for
-FT_UINT* and FT_INT* fields.
+starts where this call finished. The 'encoding' parameter is relevant for
+certain type of fields (See above under proto_tree_add_item()).
 
 proto_item*
-ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, const guint encoding)
     Like ptvcursor_add, but does not advance the internal cursor.
 
 void
@@ -3940,7 +3940,7 @@ ptvcursor_pop_subtree(ptvcursor_t* ptvc);
 
 proto_tree*
 ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
-			    gboolean little_endian, gint ett_subtree);
+			    const guint encoding, gint ett_subtree);
     Adds an item to the tree and creates a subtree.
 If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
 In this case, at the next pop, the item length will be equal to the advancement
