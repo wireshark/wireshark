@@ -324,6 +324,7 @@ static const fragment_items tcp_segment_items = {
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
+static guint32 tcp_stream_index;
 
 /* TCP structs and definitions */
 
@@ -396,7 +397,7 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
-
+    tcpd->stream = tcp_stream_index++;
 
     return tcpd;
 }
@@ -1573,11 +1574,6 @@ print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *
 /* Desegmentation of TCP streams */
 /* table to hold defragmented TCP streams */
 static GHashTable *tcp_fragment_table = NULL;
-static void
-tcp_fragment_init(void)
-{
-    fragment_table_init(&tcp_fragment_table);
-}
 
 /* functions to trace tcp segments */
 /* Enable desegmenting of TCP streams */
@@ -3737,7 +3733,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tcpd->ta->flags|=TCP_A_REUSED_PORTS;
     }
 
-    item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, conv->index);
+    item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
     PROTO_ITEM_SET_GENERATED(item);
 
 
@@ -4332,6 +4328,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd);
         }
     }
+}
+
+static void
+tcp_init(void)
+{
+    tcp_stream_index = 0;
+    fragment_table_init(&tcp_fragment_table);
 }
 
 void
@@ -5043,7 +5046,7 @@ proto_register_tcp(void)
         "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
         &try_heuristic_first);
 
-    register_init_routine(tcp_fragment_init);
+    register_init_routine(tcp_init);
 }
 
 void

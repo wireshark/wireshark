@@ -227,6 +227,12 @@ struct tcp_analysis {
 	 * to previous frame in this conversation
 	 */
 	nstime_t	ts_prev;
+
+        /* Keep track of tcp stream numbers instead of using the conversation
+         * index (as how it was done before). This prevents gaps in the 
+         * stream index numbering
+         */
+        guint32         stream; 
 };
 
 /* Structure that keeps per packet data. First used to be able
