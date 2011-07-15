@@ -417,7 +417,9 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -n                       use pcapng format instead of pcap\n");
     /*fprintf(output, "\n");*/
     fprintf(output, "Miscellaneous:\n");
+#ifdef USE_THREADS
     fprintf(output, "  -t                       use a separate thread per interface\n");
+#endif
     fprintf(output, "  -q                       don't report packet capture counts\n");
     fprintf(output, "  -v                       print version information and exit\n");
     fprintf(output, "  -h                       display this help and exit\n");
@@ -2257,7 +2259,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     if ((use_threads == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, (gulong) errmsg_len,
-                   "Using threads is required for capturing on mulitple interfaces! Use the -t option.");
+                   "Using threads is required for capturing on mulitple interfaces!");
         return FALSE;
     }
 
@@ -3746,7 +3748,12 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
+#ifdef USE_THREADS
+#define OPTSTRING_t "t"
+#else
+#define OPTSTRING_t ""
+#endif
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:" OPTSTRING_t OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -3847,8 +3854,10 @@ main(int argc, char *argv[])
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(pcap_options *));
 
     /* Initialize the thread system */
+#ifdef USE_THREADS
     if (!g_thread_supported())
         g_thread_init(NULL);
+#endif
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
@@ -4065,10 +4074,11 @@ main(int argc, char *argv[])
         case 'q':        /* Quiet */
             quiet = TRUE;
             break;
-
+#ifdef USE_THREADS
         case 't':
             use_threads = TRUE;
             break;
+#endif
             /*** all non capture option specific ***/
         case 'D':        /* Print a list of capture devices and exit */
             list_interfaces = TRUE;
@@ -4135,10 +4145,12 @@ main(int argc, char *argv[])
     } else {
         /* We're supposed to capture traffic; */
         /* Are we capturing on multiple interface? If so, use threads and pcapng. */
+#ifdef USE_THREADS
         if (global_capture_opts.ifaces->len > 1) {
             use_threads = TRUE;
             global_capture_opts.use_pcapng = TRUE;
         }
+#endif
         /* Was the ring buffer option specified and, if so, does it make sense? */
         if (global_capture_opts.multi_files_on) {
             /* Ring buffer works only under certain conditions:
