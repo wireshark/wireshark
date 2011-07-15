@@ -743,7 +743,9 @@ AC_ARG_ENABLE(threads,
   AC_HELP_STRING( [--enable-threads],
                   [use threads in wireshark.  @<:@default=no@:>@]),
     enable_threads=$enableval,enable_threads=no)
-AM_CONDITIONAL(USE_THREADS, test x$enable_threads = xyes)
+if test x$enable_threads = xyes; then
+	AC_DEFINE(USE_THREADS, 1, [Support for threads])
+fi
 
 AC_ARG_ENABLE(profile-build,
   AC_HELP_STRING( [--enable-profile-build],
