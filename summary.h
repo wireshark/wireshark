@@ -66,7 +66,7 @@ typedef struct _summary_tally {
     gboolean    drops_known;	/* TRUE if number of packet drops is known */
     guint64     drops;		/* number of packet drops */
     const char	*dfilter;	/* display filter */
-
+    gboolean    is_tempfile;
     /* capture related, use summary_fill_in_capture() to get values */
     GArray	*ifaces;
     gboolean	legacy;

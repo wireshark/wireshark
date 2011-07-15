@@ -122,6 +122,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->filename = cf->filename;
   st->file_length = cf->f_datalen;
   st->file_type = cf->cd_t;
+  st->is_tempfile = cf->is_tempfile;
   st->encap_type = cf->lnk_t;
   st->has_snap = cf->has_snap;
   st->snap = cf->snap;
@@ -143,14 +144,14 @@ summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
   interface_options interface_opts;
   guint i;
 
-  if (capture_opts->ifaces->len > 0) {
-    while (st->ifaces->len > 0) {
-      iface = g_array_index(st->ifaces, iface_options, 0);
-      st->ifaces = g_array_remove_index(st->ifaces, 0);
-      g_free(iface.name);
-      g_free(iface.descr);
-      g_free(iface.cfilter);
-    }
+  while (st->ifaces->len > 0) {
+    iface = g_array_index(st->ifaces, iface_options, 0);
+    st->ifaces = g_array_remove_index(st->ifaces, 0);
+    g_free(iface.name);
+    g_free(iface.descr);
+    g_free(iface.cfilter);
+  }
+  if (st->is_tempfile) {
     for (i = 0; i < capture_opts->ifaces->len; i++) {
       interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
       iface.cfilter = g_strdup(interface_opts.cfilter);
@@ -163,6 +164,6 @@ summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
       iface.linktype = interface_opts.linktype;
       g_array_append_val(st->ifaces, iface);
     }
-  } 
+  }
 }
 #endif
