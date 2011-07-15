@@ -24,7 +24,7 @@
  *
  * See
  *
- *	http://linux-decnet.sourceforge.net/docs/doc_index.html
+ *	http://h71000.www7.hp.com/wizard/decnet/
  *
  * for some DECnet specifications.
  *
