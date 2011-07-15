@@ -16,13 +16,15 @@ be able to build TShark.  The X11 and X11 SDK that come with Mac OS X
 releases starting with Panther can be used to build and run Wireshark.
 
 You must also have GLib and, if you want to build Wireshark as well as
-TShark, GTK+.  See
+TShark, GTK+.  The macosx-setup.sh script can be used to download, patch
+as necessary, build, and install those libraries and the libraries on
+which they depend; it will, by default, also install other libraries
+that can be used by Wireshark and TShark.  The versions of libraries to
+download are specified by variables set early in the script; you can
+comment out the settings of optional libraries if you don't want them
+downloaded and installed.
 
-	https://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
-
-for information on how to install GLib, GTK+'s dependencies, GTK+, and
-some additional optional support libraries from source.
-from source
+After you have installed those libraries:
 
 If you are building from a Subversion tree, rather than from a source
 distribution tarball, run the autogen.sh script.  This should not be
@@ -59,7 +61,8 @@ to un-install them and rebuild them on Snow Leopard (10.6), to get 64-bit
 versions.
 
 Some required and optional libraries require special attention if you
-install them by building from source code on Snow Leopard:
+install them by building from source code on Snow Leopard; the
+macosx-setup.sh script will handle that for you.
 
 GLib - the GLib configuration script determines whether the system's
 libiconv is GNU iconv or not by checking whether it has libiconv_open(),
@@ -67,7 +70,8 @@ and the compile will fail if that test doesn't correctly indicate
 whether libiconv is GNU iconv.  In Mac OS X, libiconv is GNU iconv, but
 the 64-bit version doesn't have libiconv_open(); a workaround for this
 is to replace all occurrences of "libiconv_open" with "iconv_open" in
-the configure script before running the script.
+the configure script before running the script.  The macosx-setup.sh
+setup script will patch GLib to work around this.
 
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
@@ -77,7 +81,8 @@ determine the processor type; however, in Mac OS X, uname always reports
 64-bit processors, so it will attempt to assemble the 32-bit x86
 assembler-language routines, which will fail.  The workaround for this
 is to run the configure script with the --disable-asm argument, so that
-the assembler-language routines are not used.
+the assembler-language routines are not used.  The macosx-setup.sh will
+configure libgcrypt with that option.
 
 PortAudio - when compiling on Mac OS X, the configure script for the
 pa_stable_v19_20071207 version of PortAudio will cause certain
@@ -85,8 +90,5 @@ platform-dependent build environment #defines to be set in the
 Makefile rules, and to cause a universal build to be done; those
 #defines will be incorrect for all but one of the architectures for
 which the build is being done, and that will cause a compile-time error
-on Snow Leopard.  The current snapshot version of PortAudio still
-defines those values in the Makefile, but it appears to use them in ways
-that don't cause build problems; its configure script also has a
-"--disable-mac-universal" flag that can cause the build not to be done
-universal.
+on Snow Leopard.  Newer versions don't have this problem; the
+macosx-setup.sh script downloads a newer version.

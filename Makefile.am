@@ -793,6 +793,9 @@ EXTRA_DIST = \
 	image/wssplash-dev.xpm	\
 	image/wssplash.xpm	\
 	ipmap.html		\
+	macosx-setup.sh		\
+	macosx-support-lib-patches/glib-gconvert.patch \
+	macosx-support-lib-patches/glib-pkgconfig.patch \
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\
