@@ -96,7 +96,9 @@ static GtkWidget *if_view = NULL;
 
 static GSList *status_messages = NULL;
 
+#ifdef USE_THREADS
 static GMutex *recent_mtx = NULL;
+#endif
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
@@ -465,7 +467,9 @@ static void *get_recent_item_status(void *data)
      * most OSes use.
      */
     err = ws_stat64(ri_stat->filename, &stat_buf);
+#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
+#endif
     ri_stat->err = err;
     if(err == 0) {
         if (stat_buf.st_size/1024/1024/1024 > 10) {
@@ -491,7 +495,9 @@ static void *get_recent_item_status(void *data)
     } else {
         ri_stat->stat_done = TRUE;
     }
+#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
+#endif
 
     return NULL;
 }
@@ -507,8 +513,9 @@ update_recent_items(gpointer data)
         return FALSE;
     }
 
+#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
-
+#endif
     if (ri_stat->stat_done) {
         again = FALSE;
         gtk_label_set_markup(GTK_LABEL(ri_stat->label), ri_stat->str->str);
@@ -523,8 +530,9 @@ update_recent_items(gpointer data)
         ri_stat->timer = 0;
     }
     /* Else append some sort of Unicode or ASCII animation to the label? */
+#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
-
+#endif
     return again;
 }
 
@@ -535,7 +543,9 @@ static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
 	return;
     }
 
+#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
+#endif
     if (ri_stat->timer) {
 	g_source_remove(ri_stat->timer);
 	ri_stat->timer = 0;
@@ -550,7 +560,9 @@ static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
     } else {
         ri_stat->label = NULL;
     }
+#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
+#endif
 }
 
 /* create a "file link widget" */
@@ -1210,7 +1222,9 @@ welcome_new(void)
                                           welcome_eb);
     gtk_widget_show_all(welcome_scrollw);
 
+#ifdef USE_THREADS
     recent_mtx = g_mutex_new();
+#endif
 
     return welcome_scrollw;
 }
