@@ -1637,6 +1637,7 @@ static void *cap_pipe_read(void *arg)
 }
 #endif /* USE_THREADS */
 
+#if !defined(USE_THREADS) || defined(MUST_DO_SELECT)
 /* Provide select() functionality for a single file descriptor
  * on UNIX/POSIX. Windows uses cap_pipe_read via a thread.
  *
@@ -1656,6 +1657,7 @@ cap_pipe_select(int pipe_fd)
 
     return select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
 }
+#endif
 
 
 /* Mimic pcap_open_live() for pipe captures
