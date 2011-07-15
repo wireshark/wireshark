@@ -589,10 +589,6 @@ mikey_dissector_lookup(const struct mikey_dissector_entry *map, int type)
 static void
 add_next_payload(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint8 next_payload;
-
-	next_payload = tvb_get_guint8(tvb, offset);
-
 	proto_tree_add_item(tree, hf_mikey[POS_NEXT_PAYLOAD], tvb, offset, 1, FALSE);
 }
 
@@ -754,10 +750,8 @@ dissect_payload_pke(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 {
 	int offset = 0;
 	guint16 length;
-	guint8 pke_c;
 
 	tvb_ensure_bytes_exist(tvb, offset+0, 3);
-	pke_c = (tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6;
 	length = ((tvb_get_guint8(tvb, offset+1) & 0x3f) << 8) |
 		tvb_get_guint8(tvb, offset+2);
 
@@ -821,10 +815,8 @@ dissect_payload_sign(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
 {
 	int offset = 0;
 	guint16 length;
-	guint8 s_type;
 
 	tvb_ensure_bytes_exist(tvb, offset+0, 2);
-	s_type = (tvb_get_guint8(tvb, offset+0) & 0xf0) >> 4;
 	length = ((tvb_get_guint8(tvb, offset+0) & 0x0f) << 8) + tvb_get_guint8(tvb, offset+1);
 
 	if (tree) {
