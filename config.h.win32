@@ -44,8 +44,6 @@
 
 #define HAVE_PLUGINS		1
 
-#define USE_THREADS 1
-
 /* #undef HAVE_SA_LEN */
 
 /* #undef HAVE_MKSTEMP */
