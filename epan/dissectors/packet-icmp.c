@@ -1047,11 +1047,16 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            * But only if it does look like it's a timestamp.
            * 
            * FIXME:
-           *    1) Timestamps might be in either big or little endian format
-           *    2) Timestamps could be in different formats depending on the OS
+           *    Timestamps could be in different formats depending on the OS
            */
           ts.secs  = tvb_get_ntohl(tvb,8);
           ts.nsecs = tvb_get_ntohl(tvb,8+4); /* Leave at microsec resolution for now */
+          if (abs((guint32)(ts.secs - pinfo->fd->abs_ts.secs))>=3600*24 ||
+              ts.nsecs >= 1000000) {
+            /* Timestamp does not look right in BE, try LE representation */
+            ts.secs  = tvb_get_letohl(tvb,8);
+            ts.nsecs = tvb_get_letohl(tvb,8+4); /* Leave at microsec resolution for now */
+          }
           if (abs((guint32)(ts.secs - pinfo->fd->abs_ts.secs))<3600*24 &&
               ts.nsecs < 1000000) {
             ts.nsecs *= 1000; /* Convert to nanosec resolution */
@@ -1289,8 +1294,8 @@ proto_register_icmp(void)
         "The timestamp in the first 8 btyes of the icmp data", HFILL }},
 
     { &hf_icmp_data_time_relative,
-      { "Time since icmp packet was created", "icmp.data_time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        " The timestamp of the packet, relative to the timestamp in the first 8 btyes of the icmp data", HFILL }}
+      { "Timestamp from icmp data (relative)", "icmp.data_time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The timestamp of the packet, relative to the timestamp in the first 8 btyes of the icmp data", HFILL }}
   };
 
   static gint *ett[] = {
