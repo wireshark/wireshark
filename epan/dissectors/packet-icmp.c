@@ -1037,7 +1037,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /* Make sure we have enough bytes in the payload before trying to 
            * see if the data looks like a timestamp; otherwise we'll get
            * malformed packets as we try to access data that isn't there. */
-          if (tvb_length_remaining(tvb, 8) < sizeof(nstime_t)) {
+          if (tvb_length_remaining(tvb, 8) < 8) {
             call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8),
               pinfo, icmp_tree);
             break;
