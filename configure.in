@@ -741,8 +741,8 @@ fi
 
 AC_ARG_ENABLE(threads,
   AC_HELP_STRING( [--enable-threads],
-                  [use threads in wireshark.  @<:@default=no@:>@]),
-    enable_threads=$enableval,enable_threads=no)
+                  [use threads in wireshark.  @<:@default=yes@:>@]),
+    enable_threads=$enableval,enable_threads=yes)
 if test x$enable_threads = xyes; then
 	AC_DEFINE(USE_THREADS, 1, [Support for threads])
 fi
