@@ -873,11 +873,18 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
   view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
   entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   len = gtk_tree_selection_count_selected_rows(entry);
-  if (!entry || len==0) {
+  if (!entry || len == 0) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "You didn't specify an interface on which to capture packets.");
     return;
   }
+#ifndef USE_THREADS
+  if (len > 1) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
+    return;
+  }
+#endif
   while (global_capture_opts.ifaces->len > 0) {
     interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
     global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
@@ -1051,11 +1058,19 @@ welcome_new(void)
         gtk_tree_view_column_set_visible(column, FALSE);
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
+#ifdef USE_THREADS
         item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
             "Start",
             "Choose one or more interfaces to capture from, then <b>Start</b>",
             "Same as Capture/Interfaces with default options",
             (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
+#else
+        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
+            "Start",
+            "Choose exactly one interface to capture from, then <b>Start</b>",
+            "Same as Capture/Interfaces with default options",
+            (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
+#endif
         gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
         welcome_if_tree_load();
         gtk_container_add (GTK_CONTAINER (swindow), if_view);

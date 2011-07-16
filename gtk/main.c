@@ -2762,6 +2762,12 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
 #ifdef HAVE_LIBPCAP
+#ifndef USE_THREADS
+  if ((global_capture_opts.ifaces->len > 0) && start_capture) {
+    cmdarg_err("You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
+    exit(2);
+  }
+#endif
   if ((global_capture_opts.ifaces->len == 0) &&
       (prefs.capture_device != NULL)) {
     interface_options interface_opts;
@@ -2992,8 +2998,7 @@ main(int argc, char *argv[])
            one of MATE's late-registered fields as part of the filter. */
         start_requested_stats();
       }
-    }
-    else {
+    } else {
       show_main_window(FALSE);
       check_and_warn_user_startup(cf_name);
       set_menus_for_capture_in_progress(FALSE);

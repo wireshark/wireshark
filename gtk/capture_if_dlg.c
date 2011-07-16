@@ -158,7 +158,11 @@ store_selected(GtkWidget *choose_bt _U_, gpointer if_data)
     }
   }
   if (cap_if_w) {
+#ifdef USE_THREADS
     gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected > 0));
+#else
+    gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected == 1));
+#endif
     gtk_widget_set_sensitive(options_bt, !gbl_capture_in_progress && (currently_selected <= 1));
   }
 }
@@ -237,7 +241,7 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
     global_capture_opts.save_file = NULL;
   }
 
-  if (global_capture_opts.ifaces->len >= 2) {
+  if (global_capture_opts.ifaces->len > 1) {
     global_capture_opts.use_pcapng = TRUE;
   }
   /* stop capturing from all interfaces, we are going to do real work now ... */
@@ -306,7 +310,7 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data _U_)
   }
   /* stop capturing from all interfaces, we are going to do real work now ... */
   window_destroy(cap_if_w);
-  if (global_capture_opts.ifaces->len >= 2) {
+  if (global_capture_opts.ifaces->len > 1) {
     global_capture_opts.use_pcapng = TRUE;
   }
   capture_prep_cb(NULL, NULL);
@@ -389,7 +393,11 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
   gbl_capture_in_progress = capture_in_progress;
   if (cap_if_w) {
     gtk_widget_set_sensitive(stop_bt, capture_in_progress);
+#ifdef USE_THREADS
     gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected > 0));
+#else
+    gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected == 1));
+#endif
     gtk_widget_set_sensitive(options_bt, !capture_in_progress && (currently_selected <= 1));
   }
 }

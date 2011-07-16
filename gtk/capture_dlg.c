@@ -2706,6 +2706,13 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
       return;   /* error in options dialog */
   }
 
+#ifndef USE_THREADS
+  if (global_capture_opts.ifaces->len > 1) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        "You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
+    return;
+  }
+#endif
   if (global_capture_opts.ifaces->len == 0) {
     if (prefs.capture_device == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
