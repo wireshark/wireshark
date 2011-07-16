@@ -2763,7 +2763,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
 #ifndef USE_THREADS
-  if ((global_capture_opts.ifaces->len > 0) && start_capture) {
+  if ((global_capture_opts.ifaces->len > 1) && start_capture) {
     cmdarg_err("You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
     exit(2);
   }
