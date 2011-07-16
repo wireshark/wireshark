@@ -2041,7 +2041,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
       col_l_elt = col_l_elt->next;
 
       /* Check the format.  */
-      if (strncmp(col_l_elt->data, cust_format, cust_format_len) != 0) {
+      if ((strlen(col_l_elt->data) <= cust_format_len) ||
+	  (((char*)col_l_elt->data)[cust_format_len] != ':') ||
+	  strncmp(col_l_elt->data, cust_format, cust_format_len) != 0)
+      {
         if (get_column_format_from_str(col_l_elt->data) == -1) {
           /* It's not a valid column format.  */
           prefs_clear_string_list(col_l);
@@ -2066,7 +2069,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
       cfmt->title    = g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
-      if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
+      if ((strlen(col_l_elt->data) > cust_format_len) &&
+	  (((char*)col_l_elt->data)[cust_format_len] == ':') &&
+	  strncmp(col_l_elt->data, cust_format, cust_format_len) == 0)
+      {
         cfmt->fmt      = g_strdup(cust_format);
         prefs_fmt      = g_strdup(col_l_elt->data);
         cust_format_info = g_strsplit(&prefs_fmt[cust_format_len+1],":",3); /* add 1 for ':' */
