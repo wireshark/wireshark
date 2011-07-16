@@ -685,12 +685,10 @@ static gboolean select_current_ifaces(GtkTreeModel  *model,
 
     GtkTreeSelection *selection = (GtkTreeSelection *)userdata;
     gtk_tree_model_get (model, iter, 2, &if_name, -1);
-    if (global_capture_opts.ifaces->len > 0) {
-        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-            if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
-                gtk_tree_selection_select_iter(selection, iter);
-                break;
-            }
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+        if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
+            gtk_tree_selection_select_iter(selection, iter);
+            break;
         }
     }
     return FALSE;
