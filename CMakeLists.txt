@@ -440,6 +440,10 @@ if(ENABLE_PCAP_NG_DEFAULT)
 	set(PCAP_NG_DEFAULT 1)
 endif()
 
+if(ENABLE_THREADS)
+	set(USE_THREADS 1)
+endif()
+
 #Platform specific
 if(UNIX)
 	set(WS_VAR_IMPORT "extern")
