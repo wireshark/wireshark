@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-07-07)
+(last updated 2011-07-11)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -14954,7 +14954,8 @@ twds            8937/tcp    Transaction Warehouse Data Service
 #               8937/udp    Reserved
 #               8938-8952   Unassigned
 ub-dns-control  8953/tcp    unbound dns nameserver control
-#                           Wouter Wijngaards <wouter&nlnetlabs.nl> 10 May 2011
+#                           Previous contact: Wouter Wijngaards <wouter&nlnetlabs.nl> 10 May 2011
+#                           Current Contact: NLnet Labs Support <support&nlnetlabs.nl> 11 July 2011
 #               8953/udp    Reserved
 cumulus-admin   8954/tcp    Cumulus Admin Port
 cumulus-admin   8954/udp    Cumulus Admin Port

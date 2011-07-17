@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-07-09)
+(last updated 2011-07-16)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -103904,9 +103904,9 @@ Auswertungsstelle
     Jean-Paul ECOCHARD
       jean-paul.ecochard&certira.cnafmail.fr
 26083
-  OneTec
+  CacheGuard Technologies Ltd. (previous was 'OneTec')
     Charles Tajvidi
-      charles.tajvidi&cacheguard.com
+      iana&cacheguard.com
 26084
   Enter srl
     Mariano Cunietti
@@ -140659,9 +140659,9 @@ Decentralization / Helenic Public Administra
     Ivan V Kvasnikov
       kvasnikov&oresco.ru
 35269
-  Siemens AG Österreich, SIS SDE SVI OSS SAC
-    Heinrich Ruthensteiner
-      heinrich.ruthensteiner&siemens.com
+  Siemens AG Österreich, CMT (previous was 'Siemens AG Österreich, SIS SDE SVI OSS SAC')
+    Werner Hornik
+      werner.hornik&siemens.com
 35270
   Samji Eletronics Co., Ltd.
     Chungsoo Shin
@@ -152763,6 +152763,158 @@ Decentralization / Helenic Public Administra
   IOMachine LLC
     Nilanjan Bhowmik
       billing&iomachine.com
+38295
+  Pro Broadband Inc.
+    Xinkai Wang
+      xkwang&pbicn.com
+38296
+  Multi Sinergi Infrastruktur, PT 
+    Trijaya Danisaputra
+      trijaya_danisaputra&multisinergi.co.id
+38297
+  ComMedia, Lda
+    Antonio Paneiro
+      info&commedia.pt
+38298
+  DaGo Solutions
+    Dave Goldstraw
+      technical&dago.co.uk
+38299
+  Dillard's Inc
+    Shawn Thex
+      Shawn.Thex&Dillards.com
+38300
+  GrubHub
+    Devon Mackay
+      systems&grubhub.com
+38301
+  hosthis.org
+    Jonathan THIBERVILLE
+      jonathan.thiberville&gmail.com
+38302
+  ITSUMO s.c.
+    Szymon Kowalczyk
+      pkit&itsumo.pl
+38303
+  Pask
+    Thien Pask
+      henrydcat&gmail.com
+38304
+  CrossImaging Inc.
+    Hisayuki Naitoh
+      naitoh&crossimaging.jp
+38305
+  LybreDyne Technologies
+    Christopher Dobbs
+      crdobbs&lybredyne.net
+38306
+  MASIBUS AUTOMATION AND INSTRUMENTATION PVT LTD
+    Sumitkumar Nagar
+      sumitnagar&masibus.com
+38307
+  OIS-Net
+    Juerg Oehler
+      juerg.oehler&ois-net.org
+38308
+  Joint Stock Company «Banking & Financial Network»
+    Kovalyov Andrey
+      a_kovalyov&bfn.by
+38309
+  Cirquent GmbH
+    Hermann Baier
+      Hermann.Baier&cirquent.de
+38310
+  PREMIER Bankcard, LLC
+    Michael Baker
+      Michael.Baker&premierbankcard.com
+38311
+  OPTIM'HEXA
+    Jean-Charles Lopez
+      jc.lopez&optimexa.com
+38312
+  CareView Communications
+    Matt Clark
+      mclark&care-view.com
+38313
+  STG (Stargazer)
+    Maxim Mamontov
+      faust&stg.dp.ua
+38314
+  adjectivism.org
+    Erick Turnquist
+      jhujhiti&adjectivism.org
+38315
+  National Land Survey of Iceland
+    Samúel Jón Gunnarsson
+      sysadmin&lmi.is
+38316
+  SEKONIC CORPORATION
+    HIROSHI TAKEI
+      h.takei&sekonic.co.jp
+38317
+  JR East Mechatronics Co.Ltd.
+    Kiyotaka  Suzuki
+      suzuki-kiyotaka&jrem.co.jp
+38318
+  Ing. Buero Fischer GmbH
+    Bernhard Fischer
+      fischerb&fischer-ing.de
+38319
+  Lantiq Deutschland GmbH
+    Olaf Wachendorf
+      olaf.wachendorf&lantiq.com
+38320
+  Bubblephone Ltd
+    Johnathan Turrall
+      john.t&bubblephone.com
+38321
+  Greatnet.de OHG
+    Stephan Sedlmeier
+      ss&greatnet.de
+38322
+  Strangeloop Networks
+    Alex McCubbin
+      alex.mccubbin&strangeloopnetworks.com
+38323
+  Stuart McGraw
+    Stuart McGraw
+      smcg4191&frii.com
+38324
+  emagsoftware
+    dingrong
+      dingrong&emagsoftware.cn
+38325
+  Precogen, LLC
+    Brian McKenna
+      oid&precogen.com
+38326
+  nepda
+    Nepomuk Frädrich
+      webmaster&nepda.de
+38327
+  Vokzal-infokom
+    Ivoilovsky Mikhail
+      mivoilovsky&yandex.ru
+38328
+  LvlUp e.V.
+    Olaf Rühenbeck
+      some.individuum&gmail.com
+38329
+  Three Laws of Mobility
+    Sridhar Venkatakrishnan
+      sridhar&3lm.com
+38330
+  Datametrix AS
+    Glenn Andersson
+      glenn&datametrix.no
+38331
+  Skeed Co., Ltd.
+    YANAGISAWA, Kentaro
+      k-yanagisawa&skeed.co.jp
+38332
+  LeonIT GbR
+    Maximilian Thoma
+      info&leonit.net
 
 
 End of Document
