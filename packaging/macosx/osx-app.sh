@@ -27,9 +27,13 @@
 #		https://gnunet.org/svn/GNUnet/contrib/OSX/build_app
 #
 # NB:
-# When packaging Wireshark for OS X, configure should be run with the
-# "--enable-osxapp" option which sets the correct paths for support
-# files inside the app bundle.
+# This originally came from Inkscape; Inkscape's configure script has an
+# "--enable-osxapp", which causes some of Inkscape's installation data
+# files to have OS X-ish paths under Contents/Resources of the package
+# or under /Library/Application Support.  We don't have such an option;
+# we just put them in "bin", "etc", "lib", and "share" directories
+# under Contents/Resources, rather than in the "bin", "etc", "lib",
+# and "share" directories under the installation directory.
 #
 
 # Defaults
