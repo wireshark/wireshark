@@ -274,7 +274,20 @@ cp -r $LIBPREFIX/etc/fonts/conf.avail $pkgetc/fonts/
 cp -r $LIBPREFIX/etc/fonts/conf.d $pkgetc/fonts/
 
 mkdir -p $pkgetc/gtk-2.0
-sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
+#
+# In newer versions of GTK+, the gdk-pixbuf library was split off from
+# GTK+, and the gdk-pixbuf.loaders file moved, so we check for its
+# existence here.
+#
+# The file is ultimately copied to the user's home directory, with
+# the pathnames adjusted to refer to the installed package, so we
+# always put it in the same location in the installed package,
+# regardless of where it lives in the machine on which it's built.
+#
+if [ -e $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders ]
+then
+	sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
+fi
 sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gtk.immodules > $pkgetc/gtk-2.0/gtk.immodules
 
 pango_version=`pkg-config --variable=pango_module_version pango`
@@ -288,10 +301,26 @@ cp -r $LIBPREFIX/lib/gtk-2.0/$gtk_version/* $pkglib/gtk-2.0/$gtk_version/
 gdk_pixbuf_version=`pkg-config --variable=gdk_pixbuf_binary_version gdk-pixbuf-2.0`
 if [ ! -z $gdk_pixbuf_version ]; then
 	mkdir -p $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
+	#
+	# As per the above, check whether we have a loaders.cache file
+	# in $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version, as
+	# that's where the output of gdk-pixbuf-query-loaders gets
+	# put if gdk-pixbuf and GTK+ are separated.
+	#
+	# The file is ultimately copied to the user's home directory,
+	# with the pathnames adjusted to refer to the installed package,
+	# so we always put it in the same location in the installed
+	# package, regardless of where it lives in the machine on which
+	# it's built.
+	#
+	if [ -e $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders.cache ]
+	then
+		sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders.cache > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
+	fi
 	cp -r $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/* $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
 fi
 
-# Find out libs we need from fink, darwinports, or from a custom install
+# Find out libs we need from Fink, MacPorts, or from a custom install
 # (i.e. $LIBPREFIX), then loop until no changes.
 a=1
 nfiles=0
