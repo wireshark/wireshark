@@ -4201,7 +4201,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tcph->th_have_seglen) {
         if( data_out_file ) {
-            reassemble_tcp( conv->index,              /* conversation index */
+            reassemble_tcp( tcpd->stream,                         /* tcp stream index */
                             tcph->th_seq,                         /* sequence number */
                             tcph->th_ack,                         /* acknowledgement number */
                             tcph->th_seglen,                      /* data length */

@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/dissectors/packet-tcp.h>
 #include "follow.h"
 #include <epan/conversation.h>
 
@@ -87,16 +88,28 @@ build_follow_filter( packet_info *pi ) {
   char* buf;
   int len;
   conversation_t *conv=NULL;
+  struct tcp_analysis *tcpd;
 
-  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+  if( ((pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4) ||
+       (pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6))
 	&& pi->ipproto == IP_PROTO_TCP 
         && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
               pi->srcport, pi->destport, 0)) != NULL ) {
     /* TCP over IPv4 */
-    buf = g_strdup_printf("tcp.stream eq %d", conv->index);
-    len = 4;
-    is_ipv6 = FALSE;
-    tcp_stream_to_follow = conv->index;
+    tcpd=get_tcp_conversation_data(conv, pi);
+    if (tcpd) {
+      buf = g_strdup_printf("tcp.stream eq %d", tcpd->stream);
+      tcp_stream_to_follow = tcpd->stream;
+      if (pi->net_src.type == AT_IPv4) {
+        len = 4;
+        is_ipv6 = FALSE;
+      } else {
+        len = 16;
+        is_ipv6 = TRUE;
+      }
+    } else {
+      return NULL;
+    }
   }
   else if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	   && pi->ipproto == IP_PROTO_UDP ) {
@@ -108,16 +121,6 @@ build_follow_filter( packet_info *pi ) {
 	     pi->srcport, pi->destport );
     len = 4;
     is_ipv6 = FALSE;
-  }
-  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == IP_PROTO_TCP 
-        && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
-              pi->srcport, pi->destport, 0)) != NULL ) {
-    /* TCP over IPv6 */
-    buf = g_strdup_printf("tcp.stream eq %d", conv->index);
-    len = 16;
-    is_ipv6 = TRUE;
-    tcp_stream_to_follow = conv->index;
   }
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
 	&& pi->ipproto == IP_PROTO_UDP ) {
