@@ -91,4 +91,5 @@ all: COPYING.txt
 install: all
 
 clean-local:
-	rm -rf Utilities Wireshark.app ScriptExec/build COPYING.txt
+	rm -rf Utilities Wireshark.app ScriptExec/build COPYING.txt \
+	    *.dmg *.pkg
