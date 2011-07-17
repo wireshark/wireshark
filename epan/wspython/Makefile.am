@@ -43,21 +43,18 @@ libwspython_la_SOURCES = $(LIBWSPYTHON_SRC) $(LIBWSPYTHON_INCLUDES)
 libwspython_la_LIBADD = @PY_LIBS@
 libwspython_la_CFLAGS = @PY_CFLAGS@
 
-wspythondir=@pythondir@
+wspythondir = @pythondir@
 
-wspython_DATA=				\
-  register-dissector.py			\
-  wspy_dissector.py			\
-  wspy_dissectors/homeplug.py.sample	\
-  wspy_libws.py
+wspython_DATA =	\
+	register-dissector.py			\
+	wspy_dissector.py			\
+	wspy_dissectors/homeplug.py.sample	\
+	wspy_libws.py
 
 
 EXTRA_DIST = \
 	Makefile.common				\
 	Makefile.nmake				\
-	register-dissector.py			\
-	wspy_dissector.py			\
-	wspy_libws.py				\
-	wspy_dissectors/homeplug.py.sample	\
+	$(wspython_DATA)			\
 	CMakeLists.txt
 
