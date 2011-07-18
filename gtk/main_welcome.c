@@ -682,18 +682,108 @@ static gboolean select_current_ifaces(GtkTreeModel  *model,
 {
     guint i;
     gchar *if_name;
+    gboolean found = FALSE;
 
     GtkTreeSelection *selection = (GtkTreeSelection *)userdata;
-    gtk_tree_model_get (model, iter, 2, &if_name, -1);
+    gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
         if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
             gtk_tree_selection_select_iter(selection, iter);
+            found = TRUE;
             break;
         }
     }
+    if (!found) {
+        gtk_tree_selection_unselect_iter(selection, iter);
+    }
     return FALSE;
 }
+
+gboolean on_selection_changed(GtkTreeSelection *selection _U_,
+                              GtkTreeModel *model,
+                              GtkTreePath *path,
+                              gboolean path_currently_selected,
+                              gpointer data _U_)
+{
+    GtkTreeIter  iter;
+    gchar *if_name;
+    interface_options interface_opts;
+    guint i;
+    cap_settings_t    cap_settings;
+    gboolean found = FALSE;
+    
+    gtk_tree_model_get_iter (model, &iter, path);
+    gtk_tree_model_get (model, &iter, IFACE_NAME, &if_name, -1);
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+        if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
+            found = TRUE;
+            if (path_currently_selected) {
+                interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+                global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+                g_free(interface_opts.name);
+                g_free(interface_opts.descr);
+                g_free(interface_opts.cfilter);
+#ifdef HAVE_PCAP_REMOTE
+                g_free(interface_opts.remote_host);
+                g_free(interface_opts.remote_port);
+                g_free(interface_opts.auth_username);
+                g_free(interface_opts.auth_password);
 #endif
+                break;
+            }
+        } 
+    } 
+    if (!found && !path_currently_selected) {
+        interface_opts.name = g_strdup(if_name);
+        interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+        interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+        interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+        interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+        interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+        cap_settings = capture_get_cap_settings (interface_opts.name);;
+        interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+#endif
+        interface_opts.monitor_mode = cap_settings.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+        interface_opts.src_type = global_capture_opts.default_options.src_type;
+        interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+        interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+        interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+        interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+        interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+        interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+        interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+        interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+        interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+#endif
+        g_array_append_val(global_capture_opts.ifaces, interface_opts);
+    }
+    return TRUE;
+}
+#endif
+
+void
+select_ifaces(void)
+{
+#ifdef HAVE_LIBPCAP
+    GtkWidget        *view;
+    GtkTreeModel     *model;
+    GtkTreeSelection *entry;
+
+    if (global_capture_opts.ifaces->len > 0) {
+        view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+        gtk_tree_model_foreach(GTK_TREE_MODEL(model), select_current_ifaces, (gpointer) entry);
+        gtk_widget_grab_focus(view);
+    }
+#endif
+}
 
 /* list the interfaces */
 void
@@ -725,7 +815,7 @@ welcome_if_tree_load(void)
         view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
         entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
         gtk_tree_selection_unselect_all(entry);
-        store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
+        store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
         /* List the interfaces */
         for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
             if_info = curr->data;
@@ -750,12 +840,12 @@ welcome_if_tree_load(void)
                 user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
                 g_free (comment);
 #endif
-                gtk_list_store_set(store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, user_descr, 2, if_info->name, -1);
+                gtk_list_store_set(store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, user_descr, IFACE_NAME, if_info->name, -1);
                 g_free (user_descr);
             } else if (if_info->description) {
-                gtk_list_store_set (store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, if_info->description, 2, if_info->name, -1);
+                gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->description, IFACE_NAME, if_info->name, -1);
             } else {
-                gtk_list_store_set (store, &iter, 0, gtk_image_get_pixbuf(GTK_IMAGE(icon)), 1, if_info->name, 2, if_info->name, -1);
+                gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->name, IFACE_NAME, if_info->name, -1);
             }
         }
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
@@ -763,6 +853,7 @@ welcome_if_tree_load(void)
             gtk_tree_model_foreach(GTK_TREE_MODEL(store), select_current_ifaces, (gpointer) entry);
             gtk_widget_grab_focus(view);
         }
+        gtk_tree_selection_set_select_function(entry, on_selection_changed, NULL, NULL);
     }
     free_interface_list(if_list);
 #endif  /* HAVE_LIBPCAP */
@@ -810,7 +901,7 @@ static void make_selections_array(GtkTreeModel  *model,
   int               err;
   if_info_t        *if_info;
 
-  gtk_tree_model_get (model, iter, 2, &if_name, -1);
+  gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
 
   if_list = capture_interface_list(&err, NULL);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
@@ -1037,20 +1128,20 @@ welcome_new(void)
         renderer = gtk_cell_renderer_pixbuf_new();
         column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
-                                               "pixbuf", 0,
+                                               "pixbuf", ICON,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
-                                               "text", 1,
+                                               "text", IFACE_DESCR,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(if_view), 0), TRUE);
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes ("",
                                                GTK_CELL_RENDERER(renderer),
-                                               "text", 2,
+                                               "text", IFACE_NAME,
                                                NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
         gtk_tree_view_column_set_visible(column, FALSE);

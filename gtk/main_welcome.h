@@ -25,6 +25,13 @@
 #ifndef __MAIN_WELCOME_H__
 #define __MAIN_WELCOME_H__
 
+enum
+{
+  ICON = 0,
+  IFACE_DESCR,
+  IFACE_NAME,
+  NUMCOLUMNS
+};
 
 GtkWidget *welcome_new(void);
 
@@ -54,6 +61,6 @@ void welcome_header_set_message(gchar *msg);
  */
 void welcome_header_pop_msg(void);
 
-void welcome_if_tree_load(void);
+void select_ifaces(void);
 
 #endif /* __MAIN_WELCOME_H__ */
