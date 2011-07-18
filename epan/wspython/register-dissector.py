@@ -56,6 +56,11 @@ def register_dissectors(dir):
   libws = get_libws_handle()
 
   dissectors_dir = os.path.join(dir, "wspy_dissectors")
+
+  #Check if we have the dissectors directory
+  if not os.path.isdir(dissectors_dir):
+    return []
+
   #append dir to be able to import python dissectors
   sys.path.append(dissectors_dir)
 

@@ -1,4 +1,4 @@
-Wireshark 1.6.0 Release Notes
+Wireshark 1.6.1 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,124 +12,131 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o The Lucent/Ascend file parser was susceptible to an infinite
+       loop.
+
+       Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.
+
+       CVE-2011-2597
+
+     o The ANSI MAP dissector was susceptible to an infinite loop.
+       (Bug 6044)
+
+       Versions affected: 1.4.0 to 1.4.7, and 1.6.0.
+
    The following bugs have been fixed:
 
-     o Wireshark is unresponsive when capturing from named pipes on
-       Windows. (Bug 1759)
+     o TCP dissector doesn't decode TCP segments of length 1. (Bug
+       4716)
 
-     o Crash when sorting column while capturing. (Bug 4273)
+     o wireshark 1.4.0rc1 and python - spurious message. (Bug 4878)
 
-     o Ring buffers are no longer turned on by default when using
-       multiple capture files.
+     o Missing LUA function. (Bug 5006)
+
+     o Lua API description about creating a new Tvb from a bytearray
+       is not correct in wireshark's user guide. (Bug 5199)
+
+     o Character echo pauses in Capture Filter field in Capture
+       Options. (Bug 5356)
+
+     o White space in protocol field abbreviation causes runtime
+       failure while registering Lua dissector. (Bug 5569)
+
+     o "File not found" box uses wrong filename encoding. (Bug 5715)
+
+     o capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many
+       . (Bug 5803)
+
+     o Wireshark crashes if Lua contains "Pref.range()" with missing
+       arguments. (Bug 5895)
+
+     o The "range" field in Lua's "Pref.range()" serves as default
+       while the "default" field does nothing . (Bug 5896)
+
+     o Wireshark crashes when calling TreeItem:set_len() on TreeItem
+       without tvb. (Bug 5941)
+
+     o TvbRange_string(lua_State* L) call a wrong function. (Bug
+       5960)
+
+     o VoIP call flow graph displays BICC APM as a BICC ANM. (Bug
+       5966)
+
+     o Cannot Live-capture VirtualBox network packets with Wireshark;
+       pipe problem. (Bug 6002)
+
+     o Interface list in Capture Options isn't cleared when selecting
+       other host. (Bug 6008)
+
+     o H323 rate multiplier wrong. (Bug 6009)
+
+     o Inclusion of config.h is too late in lex-files resulting in
+       wrong definition of _FILE_OFFSET_BITS. (Bug 6012)
+
+     o tshark crashes when loading Lua script that contains GUI
+       function. (Bug 6018)
+
+     o 802.11 Disassociation Packet's "Reason Code" field is
+       imprecisely decoded/described. (Bug 6022)
+
+     o Wireshark crashes when setting custom column's field name with
+       conditional. (Bug 6028)
+
+     o Crash after applying "expert.severity" field as column. (Bug
+       6035)
+
+     o GTS Descriptor count limited to 3 instead of 7. (Bug 6055)
+
+     o The SSL dissector can not resemble correctly the frames after
+       TCP zero window probe packet. (Bug 6059)
+
+     o Packet parser takes too long for this trace. (Bug 6073)
+
+     o The SSL dissector can not resemble correctly the frames after
+       TCP zero window probe packet. (Bug 6059)
+
+     o Wireshark crashes after repeating "File -> Import -> Cancel".
+       (Bug 6080)
+
+     o Decoding of MQ ASCII and EBCDIC Traffic Flow - ASCII shows
+       fine, EBCDIC does not. (Bug 6084)
+
+     o 802.11 Association Response Packet's "Status Code" field is
+       imprecisely decoded/described. (Bug 6093)
+
+     o Abis interface not correctly handled in gsmtap dissector. (Bug
+       6097)
+
+     o Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP
+       TS 44.060). (Bug 6098)
+
+     o CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl
+       dissector (3GPP TS 44.060). (Bug 6101)
+
+     o wireshark 1.6.0 and python support: installer fails to create
+       the wspy_dissectors subdirectory and . (Bug 6110)
+
+     o Wireshark crash during RTP stream analysis. (Bug 6120)
+
+     o Tshark custom columns: Why don't I get an error message? (Bug
+       6131)
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 1.4:
-
-     o Wireshark is now distributed as an installation package rather
-       than a drag-installer on OS X. The installer adds a startup
-       item that should make it easier to capture packets.
-
-     o Large file (greater than 2 GB) support has been improved.
-
-     o Wireshark and TShark can import text dumps, similar to
-       text2pcap.
-
-     o You can now view Wireshark's dissector tables (for example the
-       TCP port to dissector mappings) from the main window.
-
-     o Wireshark can export SSL session keys via File→Export→SSL
-       Session Keys...
-
-     o TShark can show a specific occurrence of a field when using
-       '-T fields'.
-
-     o Custom columns can show a specific occurrence of a field.
-
-     o You can hide columns in the packet list.
-
-     o Wireshark can now export SMB objects.
-
-     o dftest and randpkt now have manual pages.
-
-     o TShark can now display iSCSI, ICMP and ICMPv6 service response
-       times.
-
-     o Dumpcap can now save files with a user-specified group id.
-
-     o Syntax checking is done for capture filters.
-
-     o You can display the compiled BPF code for capture filters in
-       the Capture Options dialog.
-
-     o You can now navigate backwards and forwards through TCP and
-       UDP sessions using Ctrl+, and Ctrl+. .
-
-     o Packet length is (finally) a default column.
-
-     o TCP window size is now avaiable both scaled and unscaled. A
-       TCP window scaling graph is available in the GUI.
-
-     o 802.1q VLAN tags are now shown in the Ethernet II protocol
-       tree instead of a separate tree.
-
-     o Various dissectors now display some UTF-16 strings as proper
-       Unicode including the DCE/RPC and SMB dissectors.
-
-     o The RTP player now has an option to show the time of day in
-       the graph in addition to the seconds since beginning of
-       capture.
-
-     o The RTP player now shows why media interruptions occur.
-
-     o Graphs now save as PNG images by default.
-
-     o TShark can read and write host name information from and to
-       pcapng-formatted files. Wireshark can read it. TShark can dump
-       host name information via
-
-       [-z hosts]
-
-       .
-
-     o TShark's -z option now uses the
-
-       [-z <proto>,srt]
-
-       syntax instead of
-
-       [-z <proto>,rtt]
-
-       for all protocols that support service response time
-       statistics. This matches Wireshark's syntax for this option.
-
-     o Wireshark and TShark can now read compressed Windows Sniffer
-       files.
+   There are no new features in this release.
 
   New Protocol Support
 
-   ADwin, ADwin-Config, Apache Etch, Aruba PAPI, Babel Routing
-   Protocol, Broadcast/Multicast Control, Constrained Application
-   Protocol (COAP), Digium TDMoE, Erlang Distribution Protocol,
-   Ether-S-I/O, FastCGI, Fibre Channel over InfiniBand (FCoIB),
-   Gopher, Gigamon GMHDR, IDMP, Infiniband Socket Direct Protocol
-   (SDP), JSON, LISP Control, LISP Data, LISP, MikroTik MAC-Telnet,
-   MRP Multiple Mac Registration Protocol (MMRP) Mongo Wire Protocol,
-   MUX27010, Network Monitor 802.11 radio header, OPC UA
-   ExtensionObjects, openSAFETY, PPI-GEOLOCATION-GPS, ReLOAD, ReLOAD
-   Framing, RObust Header Compression (ROHC), RSIP, SAMETIME, SCoP,
-   SGSAP, Tektronix Teklink, USB/AT Commands, uTorrent Transport
-   Protocol, WAI authentication, Wi-Fi P2P (Wi-Fi Direct)
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
   New and Updated Capture File Support
 
-   Apple PacketLogger, Catapult DCT2000, Daintree SNA, Endace ERF, HP
-   OpenVMS TCPTrace, IPFIX (the file format, not the protocol),
-   Lucent/Ascend debug, Microsoft Network Monitor, Network
-   Instruments, TamoSoft CommView
+   Network Monitor.
 
 Getting Wireshark
 

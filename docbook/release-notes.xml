@@ -41,7 +41,7 @@ Wireshark Info
             The Lucent/Ascend file parser was susceptible to an infinite loop.
             <!-- Fixed in trunk: r37625 -->
             <!-- Fixed in trunk-1.6: r37965 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r38009 -->
             <!-- Fixed in trunk-1.2: r37809 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
@@ -57,13 +57,15 @@ Wireshark Info
             The ANSI MAP dissector was susceptible to an infinite loop.
             <!-- Fixed in trunk: r37930 -->
             <!-- Fixed in trunk-1.6: r37966 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r38010 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6044">Bug
             6044</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.7, and 1.6.0.</para>
           <para>
+	    <!--
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+	  -->
           </para>
         </listitem>
       </itemizedlist>
@@ -90,6 +92,12 @@ Wireshark Info
 	  TCP dissector doesn't decode TCP segments of length 1.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716">Bug
           4716</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark 1.4.0rc1 and python - spurious message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4878">Bug
+          4878</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -264,6 +272,24 @@ Wireshark Info
 	  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060).
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101">Bug
           6101</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark 1.6.0 and python support: installer fails to create the wspy_dissectors subdirectory and .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6110">Bug
+          6110</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crash during RTP stream analysis.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120">Bug
+          6120</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Tshark custom columns: Why don't I get an error message?
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6131">Bug
+          6131</ulink>)
         </para></listitem>
 
       </itemizedlist>
