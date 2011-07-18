@@ -43,8 +43,17 @@
 
 #include "gtk/proto_help.h"
 
+/* Right now proto_help will not build with -DGTK_DISABLE_DEPRECATED due to
+   its use of GtkItemFactory.
+   See http://developer.gnome.org/gtk/2.24/GtkItemFactory.html
+   This needs to be rewritten by the people who added this code or some other
+   volunteers. Otherwise this functionality will be lost once the UI_MANAGER
+   stuff becomes default.
+ */
 #ifdef MAIN_MENU_USE_UIMANAGER
 void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}
+void proto_help_menu_init(GtkWidget *widget _U_) {}
+void proto_help_init(void) {}
 #else
 
 #define PH_MENU_TOP "/Protocol Help"

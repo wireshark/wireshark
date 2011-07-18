@@ -72,17 +72,7 @@ mplicit declaration of function ‘gdk_cursor_destroy’
       1  implicit declaration of function ‘gdk_window_get_size’
 
 -DGTK_DISABLE_DEPRECATED
-  grep error: make.log| cut -d: -f5 | sort | uniq -c
-     61  expected declaration specifiers or ‘...’ before ‘GtkItemFactoryCallback’
-      1  implicit declaration of function ‘gtk_item_factory_create_item’
-      1  implicit declaration of function ‘gtk_item_factory_from_widget’
-      1  implicit declaration of function ‘gtk_item_factory_get_item’
-      1  implicit declaration of function ‘gtk_item_factory_get_widget’
-      2  implicit declaration of function ‘gtk_toolbar_set_orientation’
-     11  passing argument 3 of ‘register_stat_menu_item’ from incompatible pointer type
-     11  too many arguments to function ‘register_stat_menu_item’
-      2  ‘GtkItemFactoryEntry’ undeclared (first use in this function)
-      3  ‘g_ph_menu_factory’ undeclared (first use in this function)
-      1  ‘menu_entry’ undeclared (first use in this function)
-      1  ‘sep_entry’ undeclared (first use in this function)
-
+	Will work if and only if building with UI_MANAGER enabled:
+        autofoo: configure ... --enable-uimanager ...
+	cmake: cmake ... -DUI_MANAGER=ON ...
+	Right now this looses the proto_help functionality.

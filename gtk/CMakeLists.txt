@@ -208,6 +208,10 @@ set(CLEAN_FILES
 	${WIRESHARK_TAP_SRC}
 )
 
+add_lex_files(WIRESHARK_GTK_SRC
+	text_import_scanner.l
+)
+
 if (WERROR)
 	set_source_files_properties(
 		${CLEAN_FILES}
@@ -233,16 +237,15 @@ add_definitions(
 	# you can use defines to remove deprecated symbols from the header files
 
 	# -DGDK_DISABLE_DEPRECATED
-	# -DGTK_DISABLE_DEPRECATED
-)
 
-add_lex_files(WIRESHARK_GTK_SRC
-	text_import_scanner.l
+	# This is automatically enabled if we build with UI_MANAGER (see below)
+	# -DGTK_DISABLE_DEPRECATED
 )
 
 if (UI_MANAGER)
 	add_definitions(
 		-DMAIN_MENU_USE_UIMANAGER=1
+		-DGTK_DISABLE_DEPRECATED
 	)
 endif()
 if (WANT_PACKET_EDITOR)
