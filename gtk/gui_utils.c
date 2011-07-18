@@ -340,7 +340,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
     }
 
     /* XXX - Is this the "approved" method? */
-    gdk_window_get_size(widget_window,
+    gdk_drawable_get_size(widget_window,
         &geom->width,
         &geom->height);
 

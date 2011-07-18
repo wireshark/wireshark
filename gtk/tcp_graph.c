@@ -767,7 +767,7 @@ static void create_drawing_area (struct graph *g)
 
         g->font = g->drawing_area->style->font_desc;
 
-	colormap = gdk_drawable_get_colormap (g->drawing_area->window);
+	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {
 		xor_gc = gdk_gc_new (g->drawing_area->window);
 		gdk_gc_set_function (xor_gc, GDK_XOR);
@@ -3659,7 +3659,7 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	g->s.tseq_tcptrace.gc_seq = gdk_gc_new (g->drawing_area->window);
 	g->s.tseq_tcptrace.gc_ack[0] = gdk_gc_new (g->drawing_area->window);
 	g->s.tseq_tcptrace.gc_ack[1] = gdk_gc_new (g->drawing_area->window);
-	colormap = gdk_window_get_colormap (g->drawing_area->window);
+	colormap = gtk_widget_get_colormap (GTK_WIDGET(g->drawing_area));
 	if (!gdk_color_parse ("black", &color)) {
 		/*
 		 * XXX - do more than just warn.
