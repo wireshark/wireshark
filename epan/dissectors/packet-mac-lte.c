@@ -174,6 +174,9 @@ static int hf_mac_lte_suspected_dl_retx_time_since_previous_frame = -1;
 
 static int hf_mac_lte_ul_harq_resend_original_frame = -1;
 static int hf_mac_lte_ul_harq_resend_time_since_previous_frame = -1;
+static int hf_mac_lte_ul_harq_resend_next_frame = -1;
+static int hf_mac_lte_ul_harq_resend_time_until_next_frame = -1;
+
 
 static int hf_mac_lte_grant_answering_sr = -1;
 static int hf_mac_lte_failure_answering_sr = -1;
@@ -746,12 +749,15 @@ typedef struct ULHarqBuffers {
 static GHashTable *mac_lte_ul_harq_hash = NULL;
 
 typedef struct ULHARQResult {
+    gboolean    previousSet, nextSet;
     guint       previousFrameNum;
     guint       timeSincePreviousFrame;
+    guint       nextFrameNum;
+    guint       timeToNextFrame;
 } ULHARQResult;
 
 
-/* This table stores (CRFrameNum -> ULHARQResult).  It is assigned during the first
+/* This table stores (FrameNum -> ULHARQResult).  It is assigned during the first
    pass and used thereafter */
 static GHashTable *mac_lte_ul_harq_result_hash = NULL;
 
@@ -1794,12 +1800,24 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         /* Could be as many as max-tx (which we don't know) * 8ms ago.
                            32 is the most I've seen... */
                         if (total_gap <= 33) {
+                            ULHARQResult *original_result = NULL;
 
-                            /* Original detected!!! Store result */
-                            result = se_alloc(sizeof(ULHARQResult));
+                            /* Original detected!!! Store result pointing back */
+                            result = se_alloc0(sizeof(ULHARQResult));
+                            result->previousSet = TRUE;
                             result->previousFrameNum = lastData->framenum;
                             result->timeSincePreviousFrame = total_gap;
                             g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+
+                            /* Now make previous frame point forward to here */
+                            original_result = g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
+                            if (original_result == NULL) {
+                                original_result = se_alloc0(sizeof(ULHARQResult));
+                                g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
+                            }
+                            original_result->nextSet = TRUE;
+                            original_result->nextFrameNum = pinfo->fd->num;
+                            original_result->timeToNextFrame = total_gap;
                         }
                     }
                 }
@@ -1821,26 +1839,45 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         thisData->received_time = pinfo->fd->abs_ts;
     }
     else {
-        /* Not first time, so just set whats already stored in result */
+        /* Not first time, so just get whats already stored in result */
         result = g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
     }
 
+    /* Show any link back to previous Tx */
     if (retx_ti != NULL) {
         if (result != NULL) {
-            proto_item *original_ti, *gap_ti;
+            if (result->previousSet) {
+                proto_item *original_ti, *gap_ti;
 
-            original_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_original_frame,
-                                              tvb, 0, 0, result->previousFrameNum);
-            PROTO_ITEM_SET_GENERATED(original_ti);
+                original_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_original_frame,
+                                                  tvb, 0, 0, result->previousFrameNum);
+                PROTO_ITEM_SET_GENERATED(original_ti);
 
-            gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_since_previous_frame,
-                                         tvb, 0, 0, result->timeSincePreviousFrame);
-            PROTO_ITEM_SET_GENERATED(gap_ti);
+                gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_since_previous_frame,
+                                             tvb, 0, 0, result->timeSincePreviousFrame);
+                PROTO_ITEM_SET_GENERATED(gap_ti);
+            }
         }
         else {
             expert_add_info_format(pinfo, retx_ti, PI_SEQUENCE, PI_ERROR,
                                    "Original Tx of UL frame not found (UE %u) !!", p_mac_lte_info->ueid);
         }
+    }
+
+    /* Show link forward to any known next Tx */
+    if ((result != NULL) && result->nextSet) {
+        proto_item *next_ti, *gap_ti;
+
+        next_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_next_frame,
+                                          tvb, 0, 0, result->nextFrameNum);
+        expert_add_info_format(pinfo, next_ti, PI_SEQUENCE, PI_WARN,
+                               "UL MAC PDU (UE %u) needed to be retransmitted", p_mac_lte_info->ueid);
+
+        PROTO_ITEM_SET_GENERATED(next_ti);
+
+        gap_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_time_until_next_frame,
+                                     tvb, 0, 0, result->timeToNextFrame);
+        PROTO_ITEM_SET_GENERATED(gap_ti);
     }
 }
 
@@ -1874,13 +1911,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     /* Get appropriate identifiers */
-    if (event == SR_Grant) {
-        rnti = p_mac_lte_info->rnti;
-        ueid = p_mac_lte_info->ueid;
-    }
-    else {
+    if (event == SR_Request) {
         rnti = p_mac_lte_info->oob_rnti[idx];
         ueid = p_mac_lte_info->oob_ueid[idx];
+    }
+    else {
+        rnti = p_mac_lte_info->rnti;
+        ueid = p_mac_lte_info->ueid;
     }
 
     /* Create state for this RNTI if necessary */
@@ -4227,7 +4264,18 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
-
+        { &hf_mac_lte_ul_harq_resend_next_frame,
+            { "Frame with next tx",
+              "mac-lte.ulsch.retx.next-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_ul_harq_resend_time_until_next_frame,
+            { "Time until next tx (ms)",
+              "mac-lte.ulsch.retx.time-until-next", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
 
         { &hf_mac_lte_grant_answering_sr,
             { "First Grant Following SR from",
