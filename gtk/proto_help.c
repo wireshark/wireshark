@@ -24,7 +24,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-/* Exlude the whole menu if MAIN_MENU_USE_UIMANAGER */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -42,6 +41,15 @@
 #include <epan/proto.h>
 
 #include "gtk/proto_help.h"
+
+/*
+ * The protocol help files cannot be downloaded downloaded directly. You
+ * will need to go to http://www.inacon.com/download/, then download one
+ * of the packages, e.g. the source package and extract the protocol_help
+ * folder. To actually use the help you will also need to be able to
+ * access the URL beginning at the contents of the loclation line in the
+ * ph.ini file (e.g. location=http://www.inacon.de/ph/data/).
+ */
 
 /* Right now proto_help will not build with -DGTK_DISABLE_DEPRECATED due to
    its use of GtkItemFactory.
