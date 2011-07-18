@@ -49,6 +49,9 @@
  * folder. To actually use the help you will also need to be able to
  * access the URL beginning at the contents of the loclation line in the
  * ph.ini file (e.g. location=http://www.inacon.de/ph/data/).
+ * To provide offline service download the contents of the given location
+ * to your computer, then change the location parameter in the ph.ini file
+ * to point to that new URL. This may be a file:/// URL.
  */
 
 /* Right now proto_help will not build with -DGTK_DISABLE_DEPRECATED due to
