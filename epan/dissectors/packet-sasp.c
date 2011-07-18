@@ -204,7 +204,7 @@ static gint ett_sasp_setmemstate_req = -1;
 static gint ett_setlbstate_req_lbflag = -1;
 static gint ett_sasp_grp_memstatedatacomp =-1;
 static gint ett_sasp_memstatedatacomp =-1;
-static gint ett_dereg_req_reason_flag = -1;
+/*static gint ett_dereg_req_reason_flag = -1;*/
 static gint ett_sasp_grp_wt_entry_datacomp = -1;
 static gint ett_sasp_weight_entry_data_comp =-1;
 static gint ett_wt_entry_data_flag = -1;
@@ -371,7 +371,6 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *msg_tree;
 	proto_tree *pay_load;
 
-	guint32 length;
 	guint16 msg_type;
 	guint16 hdr_type;
 
@@ -396,7 +395,6 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 	offset+=2;
-	length = tvb_get_guint8(tvb, offset);
 
 	/*length*/
 	proto_tree_add_item(sasp_tree,hf_sasp_length,tvb,offset,2,FALSE);
@@ -578,8 +576,8 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	proto_item *dereg_tree;
 	proto_tree *dereg_req_data;
 
-	proto_item *dereg_req_reason_flag;
-	proto_tree *dereg_req_reason_flag_tree;
+	/*proto_item *dereg_req_reason_flag;*/
+	/*proto_tree *dereg_req_reason_flag_tree;*/
 
 
 	guint8 reason_flag;
@@ -617,11 +615,12 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	}
 
 
-	dereg_req_reason_flag = proto_tree_add_uint_format(dereg_req_data,hf_dereg_req_reason_flag,tvb,
+	/*dereg_req_reason_flag =*/ proto_tree_add_uint_format(dereg_req_data,hf_dereg_req_reason_flag,tvb,
 							offset,1,reason_flag,"Reason: 0x%02x (%s)",reason_flag,
 							reasonflags_strbuf->str);
+#if 0   /* XXX: ToDo?? Flags to be displayed under a subtree ? */
 	dereg_req_reason_flag_tree = proto_item_add_subtree(dereg_req_reason_flag,ett_dereg_req_reason_flag);
-
+#endif
 
 	offset+=1;
 
@@ -1162,26 +1161,26 @@ static guint32 dissect_grp_wt_entry_datacomp(tvbuff_t *tvb,proto_tree *pay_load,
 	grp_wt_entry_datacomp_tree = proto_item_add_subtree(grp_wt_entry_datacomp, ett_sasp_grp_wt_entry_datacomp);
 
 	/* Type */
-	proto_tree_add_item(grp_wt_entry_datacomp, hf_sasp_grp_wt_entry_datacomp_type, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_type, tvb, offset,2, FALSE);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(grp_wt_entry_datacomp, hf_sasp_grp_wt_entry_datacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_sz, tvb, offset,2, FALSE);
 	offset+=2;
 
 	wt_entry_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Wt Entry Count*/
-	proto_tree_add_item(grp_wt_entry_datacomp, hf_sasp_grp_wt_entry_datacomp_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_cnt,tvb,offset,2,FALSE);
 	offset+=2;
 
 	/* Group Data */
-	offset = dissect_grpdatacomp(tvb,grp_wt_entry_datacomp, offset);
+	offset = dissect_grpdatacomp(tvb,grp_wt_entry_datacomp_tree, offset);
 
 	/* Member Data */
 	for( i=0; i<wt_entry_cnt; i++)
 	{
-		offset=dissect_weight_entry_data_comp(tvb,grp_wt_entry_datacomp, offset);
+		offset=dissect_weight_entry_data_comp(tvb,grp_wt_entry_datacomp_tree, offset);
 	}
 
 	return offset;
@@ -1571,7 +1570,7 @@ void proto_register_sasp(void)
 		&ett_setlbstate_req_lbflag,
 		&ett_sasp_grp_memstatedatacomp,
 		&ett_sasp_memstatedatacomp,
-		&ett_dereg_req_reason_flag,
+/*		&ett_dereg_req_reason_flag,*/
 		&ett_sasp_grp_wt_entry_datacomp,
 		&ett_sasp_weight_entry_data_comp,
 		&ett_wt_entry_data_flag,
