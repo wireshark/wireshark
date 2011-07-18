@@ -322,7 +322,6 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 
 	char pdut;
-	char pdu_msg_type;
 	guint count = 0;
 	guint offset_wtls = 0;
 
@@ -414,7 +413,6 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					ti = proto_tree_add_item(wtls_rec_tree, hf_wtls_alert, tvb, offset,
 							 count, bo_little_endian);
 					wtls_msg_type_tree = proto_item_add_subtree(ti, ett_wtls_msg_type);
-					pdu_msg_type = tvb_get_guint8 (tvb, offset);
 					proto_tree_add_item (wtls_msg_type_tree, hf_wtls_alert_level,
 							tvb,offset,1,bo_big_endian);
 					offset+=1;
@@ -485,7 +483,6 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	guint value = 0;
 	int size = 0;
 	guint public_key = 0;
-	guint signature = 0;
 	char valStr[1024];
 	const char *valBulk = NULL;
 	const char *valMac = NULL;
@@ -930,7 +927,6 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							bo_little_endian);
 						offset++;
 						client_size++;
-						signature =  tvb_get_guint8 (tvb, offset);
 						proto_tree_add_item(wtls_msg_type_item_sub_tree,
 							hf_wtls_hands_certificate_wtls_signature_type,
 							tvb, offset,1,

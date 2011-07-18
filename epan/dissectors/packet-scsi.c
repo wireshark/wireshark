@@ -30,12 +30,12 @@
 /*
  * Some Notes on using the SCSI Decoder:
  *
- * The SCSI decoder has been built right now that it is invoked directly by the
+ * The SCSI decoder has been built right now so that it is invoked directly by the
  * SCSI transport layers as compared to the standard mechanism of being invoked
  * via a dissector chain. There are multiple reasons for this:
  * - The SCSI CDB is typically embedded inside the transport along with other
  *   header fields that have nothing to do with SCSI. So, it is required to be
-
+ *   done this way.
  * - Originally, Wireshark couldn't do filtering on protocol trees that were not
  *   on the top level.
  *
@@ -4621,16 +4621,18 @@ static scsi_cdb_table_t spc[256] = {
 };
 
 
-/* This function must be called with walid pointers for both itlq and itl */
+/* This function must be called with valid pointers for both itlq and itl */
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  gint devtype_arg, itlq_nexus_t *itlq, itl_nexus_t *itl)
+                  gint devtype_arg _U_, itlq_nexus_t *itlq, itl_nexus_t *itl)
 {
     int offset = 0;
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode;
+#if 0
     scsi_device_type devtype;
+#endif
     const gchar *valstr;
     scsi_task_data_t *cdata;
     const char *old_proto;
@@ -4651,6 +4653,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     itlq->scsi_opcode=opcode;
     csdata=get_cmdset_data(itlq, itl);
 
+#if 0 /* XXX: devtype never actually used ?? */
     if (devtype_arg != SCSI_DEV_UNKNOWN) {
         devtype = devtype_arg;
     } else {
@@ -4660,6 +4663,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             devtype = (scsi_device_type)scsi_def_devtype;
         }
     }
+#endif
 
     if ((valstr = match_strval (opcode, scsi_spc_vals)) == NULL) {
         valstr = match_strval(opcode, csdata->cdb_vals);
@@ -4737,7 +4741,6 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode;
-    scsi_device_type devtype;
     scsi_task_data_t *cdata;
     int payload_len;
     const char *old_proto;
@@ -4768,7 +4771,6 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->current_proto="SCSI";
 
     opcode = (guint8) cdata->itlq->scsi_opcode;
-    devtype = cdata->itl->cmdset&SCSI_CMDSET_MASK;
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,

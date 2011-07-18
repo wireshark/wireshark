@@ -3177,11 +3177,11 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   for(nr_gap_block_number = 1; nr_gap_block_number <= number_of_nr_gap_blocks; nr_gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
-    guint32 tsn_start;
+    /*guint32 tsn_start;*/
 
     start = tvb_get_ntohs(chunk_tvb, nr_gap_block_offset);
     end   = tvb_get_ntohs(chunk_tvb, nr_gap_block_offset + NR_SACK_CHUNK_NR_GAP_BLOCK_START_LENGTH);
-    tsn_start = cum_tsn_ack + start;
+    /*tsn_start = cum_tsn_ack + start;*/
 
     block_item = proto_tree_add_text(chunk_tree, chunk_tvb, nr_gap_block_offset, NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH, "NR-Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
     block_tree = proto_item_add_subtree(block_item, ett_sctp_nr_sack_chunk_nr_gap_block);
@@ -3610,7 +3610,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
                    sctp_half_assoc_t* ha,
                    gboolean useinfo)
 {
-  guint8 type, flags;
+  guint8 type;
   guint16 length, padding_length, reported_length;
   gboolean result;
   proto_item *flags_item;
@@ -3623,7 +3623,6 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 
   /* first extract the chunk header */
   type            = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
-  flags           = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
   length          = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
   reported_length = tvb_reported_length(chunk_tvb);
   padding_length  = reported_length - length;

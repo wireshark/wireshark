@@ -108,7 +108,7 @@ static gint hf_sip_tc_user                = -1;
 static gint hf_sip_tc_host                = -1;
 static gint hf_sip_tc_port                = -1;
 static gint hf_sip_tc_turi                = -1;
-static gint hf_sip_contact_param           = -1;
+static gint hf_sip_contact_param          = -1;
 static gint hf_sip_resend                 = -1;
 static gint hf_sip_original_frame         = -1;
 static gint hf_sip_matching_request_frame = -1;
@@ -1575,7 +1575,6 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 			gboolean equals_found = FALSE;
 			gboolean found_end_of_parameters = FALSE;
 			gint parameter_name_end = 0;
-			gint parameter_value_end;
 			header_parameter_t *via_parameter;
 			guint i = 0;
 
@@ -1638,7 +1637,6 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 			}
 
 			/* Note parameter name */
-			parameter_value_end = current_offset;
 			param_name = tvb_get_ephemeral_string(tvb, semicolon_offset+1,
 												  parameter_name_end - semicolon_offset - 1);
 
@@ -2345,7 +2343,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					case POS_RACK :
 					{
 						int cseq_no_offset;
-						int cseq_method_offset;
+						/*int cseq_method_offset;*/
 
 						/* Add RAck  tree */
 						if (hdr_tree) {
@@ -2402,7 +2400,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								break;
 							}
 						}
-						cseq_method_offset = sub_value_offset;
+						/*cseq_method_offset = sub_value_offset;*/
 
 						if (sub_value_offset == linelen)
 						{
@@ -3448,7 +3446,9 @@ guint sip_find_invite(packet_info *pinfo,
 			guint32 cseq_number _U_,
 			guint32 *response_time)
 {
+#if 0
 	guint32 cseq_to_compare = 0;
+#endif
 	sip_hash_key   key;
 	sip_hash_value *p_val = 0;
 	sip_frame_result_value *sip_frame_result = NULL;
@@ -3507,8 +3507,10 @@ guint sip_find_invite(packet_info *pinfo,
 
 	if (p_val)
 	{
+#if 0
 		/* Table entry found, we'll use its value for comparison */
 		cseq_to_compare = p_val->cseq;
+#endif
 	}
 	else
 	{

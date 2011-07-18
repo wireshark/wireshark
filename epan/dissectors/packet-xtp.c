@@ -322,7 +322,7 @@ static gint ett_xtp_diag = -1;
 static int
 dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset, start2;
+	guint32 start = offset;
 	proto_item *ti, *ti2, *top_ti;
 	proto_tree *xtp_subtree;
 	struct xtp_ip_addr_seg aseg[1];
@@ -395,7 +395,6 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		return (offset - start);
 
 	/** parse and display each address fileds */
-	start2 = offset;
 	switch (aseg->aformat) {
 	case 0:
 		/* address(4) */
@@ -518,7 +517,7 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	guint32 len = tvb_length_remaining(tvb, offset);
-	guint32 start = offset, start2;
+	guint32 start = offset;
 	proto_item *ti, *ti2;
 	proto_tree *xtp_subtree;
 	struct xtp_traffic_spec1 tspec[1];
@@ -590,7 +589,6 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		return (offset - start);
 
 	/** parse and display each traffic fields **/
-	start2 = offset;
 	switch (tspec->tformat) {
 	case 0:
 		/* traffic(4) */

@@ -507,9 +507,8 @@ static const value_string tei_draft_status_values[] = {
 static void
 dissect_draft_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  gint length, offset;
+  gint offset;
   offset = tvb_get_ntohs(parameter_tvb, TEI_STATUS_LENGTH_OFFSET) + 8;
-  length = msg_length - offset;
   if(tvb_length_remaining(parameter_tvb, offset) > 0 ){
 	  proto_tree_add_item(parameter_tree, hf_tei_draft_status, parameter_tvb, offset, TEI_STATUS_LENGTH, FALSE);
 	  proto_item_append_text(parameter_item, " (%s)",
@@ -649,27 +648,13 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 static void
 dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_item *parameter_item, packet_info *pinfo)
 {
-  guint16 discriminator_offset, address_offset, low_address_offset, msg_type_offset,  info_element_offset;
-
-
-  guint32 all_address_offset;
+  guint16 discriminator_offset;
 
   if(iua_version == DRAFT){
 	  discriminator_offset = DISCRIMINATOR_OFFSET;
-	  address_offset       = ADDRESS_OFFSET;
-	  low_address_offset   = LOW_ADDRESS_OFFSET;
-	  msg_type_offset      = MSG_TYPE_OFFSET;
-	  info_element_offset  = INFO_ELEMENT_OFFSET;
   }
   else{
 	  discriminator_offset = DISCRIMINATOR_OFFSET + PARAMETER_HEADER_LENGTH;
-	  address_offset       = ADDRESS_OFFSET + PARAMETER_HEADER_LENGTH;
-	  low_address_offset   = LOW_ADDRESS_OFFSET + PARAMETER_HEADER_LENGTH;
-
-	  all_address_offset   = address_offset;
-
-	  msg_type_offset      = MSG_TYPE_OFFSET + PARAMETER_HEADER_LENGTH;
-	  info_element_offset  = INFO_ELEMENT_OFFSET + PARAMETER_HEADER_LENGTH;
   }
 
   if (tvb_get_guint8(layer3_data_tvb, discriminator_offset) == 0x48){

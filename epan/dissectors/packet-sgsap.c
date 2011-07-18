@@ -124,10 +124,6 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static guint16
 de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
 	/* 18.4.5 Erroneous message
 	 * The Erroneous message IE is a TLV IE that encapsulates the message in error.
 	 * Octet 3 - Octet n
@@ -324,11 +320,8 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 static guint16
 de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
 	guint   name_len, tmp;
 	guint8 	*fqdn = NULL;
-
-	curr_offset = offset;
 
 	/* The MME name information element specifies the MME name and is coded as shown in figure 9.4.13.1. Octets 3
 	 * through n contain the name in the form of a fully qualified domain name (FQDN) as specified in 3GPP TS 23.003 [3].
@@ -528,11 +521,9 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
 	guint     name_len, tmp;
 	guint8 	*fqdn = NULL;
 
-	curr_offset = offset;
 	/* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1. 
 	 * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN) 
 	 * as specified in IETF RFC 1035 [21]. 

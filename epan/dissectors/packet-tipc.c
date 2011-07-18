@@ -654,7 +654,7 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 	guint32 portNameInst, dword;
 	guint32 portNameType, portNameInstLow, portNameInstHigh;
 	guint8 error;
-	guint8 item_size = 0;
+	/*guint8 item_size = 0;*/
 
 	switch (user) {
 		case TIPCv2_DATA_LOW:
@@ -703,8 +703,8 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 			break;
 		case TIPCv2_ROUTE_DISTRIBUTOR:
 			/* determine if it is TIPC v1.6 or v1.7 */
-			dword = tvb_get_ntohl(tvb, 36);
-			item_size = (dword >> 24) & 0xff;
+			/*dword = tvb_get_ntohl(tvb, 36);  */
+			/*item_size = (dword >> 24) & 0xff;*/
 			if ((handle_v2_as & V2_AS_1_6) || ((handle_v2_as & V2_AS_ALL) == 0)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_route_mtype_strings_1_6, "unknown"));
 			} else {
@@ -1799,7 +1799,6 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 {
 	guint8 msg_type;
 	tvbuff_t *data_tvb;
-	guint16 message_count;
 	guint32 msg_in_bundle_size;
 	guint32 dword;
 	guint msg_no = 0;
@@ -1831,7 +1830,6 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 		proto_tree_add_item(tipc_tree, hf_tipc_link_selector, tvb, offset, 4, FALSE);
 	/* Message count */
 	if (user == TIPC_MSG_BUNDLER || user == TIPC_CHANGEOVER_PROTOCOL) {
-		message_count = tvb_get_ntohs(tvb, offset+2);
 		proto_tree_add_item(tipc_tree, hf_tipc_msg_cnt, tvb, offset, 4, FALSE);
 	}
 	/* Unused */

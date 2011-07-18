@@ -651,7 +651,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        gint offset;
        gint sbus_eth_len;
        guint sbus_crc_calc;
-       guint8 sbus_version;
        guint8 sbus_attribut;
        guint8 sbus_media_cnt;
        guint8 sbus_fio_cnt;
@@ -664,7 +663,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint8 sbus_rdwr_block_tlg;
        guint8 sbus_rdwr_block_type;
        guint8 sbus_rdwr_ack_nak;
-       guint8 sbus_sysinfo_number;
        guint8 sbus_quint8_helper0;
        guint32 sbus_binarymasked;
        guint32 sbus_binaries;
@@ -903,7 +901,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                   hf_sbus_length, tvb, offset, 4, FALSE);
               offset += 4;
 
-              sbus_version = tvb_get_guint8(tvb,offset);
               proto_tree_add_item(ethsbus_tree,
                                   hf_sbus_version, tvb, offset, 1, FALSE);
               offset += 1;
@@ -1170,11 +1167,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    /*Request for reading system info*/
                                    /*Syinfo 05 is not implemented as no serial baud is possible*/
                             case SBUS_RD_SYSTEM_INFORMATION:
-                                   sbus_sysinfo_number = (tvb_get_guint8(tvb,13));
                                    proto_tree_add_item(sbus_tree,
                                                        hf_sbus_sysinfo_nr, tvb, offset, 1, FALSE);
                                    offset += 1;
-                                   sbus_sysinfo_number = (tvb_get_guint8(tvb,14));
                                    proto_tree_add_item(sbus_tree,
                                                        hf_sbus_sysinfo_nr, tvb, offset, 1, FALSE);
                                    offset += 1;
