@@ -974,3 +974,135 @@ Changed paths:
 
 [Automatic manuf, services and enterprise-numbers update for 2011-07-17]
 ------------------------------------------------------------------------
+r38088 | gerald | 2011-07-18 09:21:42 -0700 (Mon, 18 Jul 2011) | 121 lines
+Changed paths:
+   M /trunk-1.6/ChangeLog
+   M /trunk-1.6/NEWS
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/prefs.c
+   M /trunk-1.6/epan/wspython/register-dissector.py
+   M /trunk-1.6/gtk/rtp_player.c
+   M /trunk-1.6/packaging/macosx/osx-app.sh
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r37919 | etxrab | 2011-07-06 05:53:04 -0700 (Wed, 06 Jul 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
+     M /trunk/epan/dissectors/packet-gsm_rlcmac.h
+
+  From Ludovic Haessler:
+  Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP TS 44.060)
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6098
+  ------------------------------------------------------------------------
+  r37923 | cmaynard | 2011-07-06 09:03:43 -0700 (Wed, 06 Jul 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-wsp.c
+
+  Fix memory leak, using ep_alloc() instead of g_malloc().
+  ------------------------------------------------------------------------
+  r37926 | etxrab | 2011-07-07 00:44:25 -0700 (Thu, 07 Jul 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-csn1.c
+     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
+
+  From Ludovic Haessler:
+  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060)
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101
+  ------------------------------------------------------------------------
+  r37927 | alagoutte | 2011-07-07 03:19:02 -0700 (Thu, 07 Jul 2011) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  From Ali Bahar via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093
+  802.11 Association Response Packet's "Status Code" field is imprecisely decoded/described.
+
+  From me :
+  * Display Reason code in decimal (not Hexa)
+  * Check list from last standard (802.11-2007, 802.11r-2008, 802.11n-2009, 802.11w-2009 & 802.11z-2011)
+  * Add link to 802.11z-2010 documentation
+  ------------------------------------------------------------------------
+  r37945 | cmaynard | 2011-07-08 19:04:48 -0700 (Fri, 08 Jul 2011) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gre.c
+
+  Per README.developer, we must call subdissectors regardless of whether "tree"
+  is NULL or not.  With this change, GRE-encapsulated packets (such as IP)
+  should now appear in then endpoint and conversation lists.  This was
+  essentially the request made at Sharkfest '11.  The actual request was for a
+  "GRE" tab to be added, but that doesn't really make much sense to me.  I
+  believe this change should fulfill that request.
+  ------------------------------------------------------------------------
+  r37953 | guy | 2011-07-10 14:05:19 -0700 (Sun, 10 Jul 2011) | 5 lines
+  Changed paths:
+     M /trunk/wiretap/lanalyzer.c
+
+  At that point in the code, bytes_read isn't the total number of record
+  header bytes read, as we're reading the two header fields separately and
+  checking the byte count for each read.  We *do*, however, know that the
+  record header is 4 bytes long, so we can just seek back 4 bytes.
+  ------------------------------------------------------------------------
+  r37955 | etxrab | 2011-07-10 15:13:03 -0700 (Sun, 10 Jul 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-msrp.c
+
+  From Jaap:
+  Limit the search to the line.
+  ------------------------------------------------------------------------
+  r37957 | cmaynard | 2011-07-10 17:17:08 -0700 (Sun, 10 Jul 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-giop.c
+
+  As noted by Jaap Keuter on -dev, be sure to use message_size instead of
+  header->message_size for a correct host endianness comparison.
+  ------------------------------------------------------------------------
+  r38023 | wmeier | 2011-07-14 12:51:53 -0700 (Thu, 14 Jul 2011) | 6 lines
+  Changed paths:
+     M /trunk/gtk/rtp_player.c
+
+  Fix a crash when doing Telephony ! RTP ! Stream Analysis with capture files with truncated frames.
+  (That is: the capture files were created with a snapshot length less than the maximum).
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120
+  ------------------------------------------------------------------------
+  r38064 | stig | 2011-07-16 11:30:57 -0700 (Sat, 16 Jul 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/prefs.c
+
+  Improved check for valid custom column in preferences.
+
+  This fixes bug 6131.
+  ------------------------------------------------------------------------
+  r38070 | stig | 2011-07-17 10:56:42 -0700 (Sun, 17 Jul 2011) | 1 line
+  Changed paths:
+     M /trunk/epan/wspython/register-dissector.py
+
+  Check for a valid wspy_dissectors disectory to avoid a warning if missing.
+  ------------------------------------------------------------------------
+  r38072 | guy | 2011-07-17 13:23:07 -0700 (Sun, 17 Jul 2011) | 2 lines
+  Changed paths:
+     M /trunk/packaging/macosx/osx-app.sh
+
+  Handle versions of GTK+ where gdk-pixbuf is a separate library.
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+  ------------------------------------------------------------------------
+  r37924 | cmaynard | 2011-07-06 09:22:11 -0700 (Wed, 06 Jul 2011) | 5 lines
+  Changed paths:
+     M /trunk/dumpcap.c
+
+  From Jakub Zawadzki via bug 6002:  Don't set state to STATE_EXPECT_DATA if there's no data to read.
+
+  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6002
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
