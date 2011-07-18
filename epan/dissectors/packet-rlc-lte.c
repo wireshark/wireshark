@@ -140,6 +140,7 @@ static int hf_rlc_lte_am_ack_sn = -1;
 static int hf_rlc_lte_am_e1 = -1;
 static int hf_rlc_lte_am_e2 = -1;
 static int hf_rlc_lte_am_nack_sn = -1;
+static int hf_rlc_lte_am_nacks = -1;
 static int hf_rlc_lte_am_so_start = -1;
 static int hf_rlc_lte_am_so_end = -1;
 
@@ -1710,6 +1711,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     } while (e1 || e2);
 
     if (nack_count > 0) {
+        proto_item *count_ti = proto_tree_add_uint(tree, hf_rlc_lte_am_nacks, tvb, 0, 1, nack_count);
+        PROTO_ITEM_SET_GENERATED(count_ti);
         proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
         tap_info->noOfNACKs = nack_count;
     }
@@ -2486,6 +2489,12 @@ void proto_register_rlc_lte(void)
             { "Extension bit 2",
               "rlc-lte.am.e2", FT_UINT8, BASE_HEX, VALS(am_e2_vals), 0x0,
               NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_am_nacks,
+            { "Number of NACKs",
+              "rlc-lte.am.nacks", FT_UINT16, BASE_DEC, 0, 0x0,
+              "Number of NACKs in this status PDU", HFILL
             }
         },
         { &hf_rlc_lte_am_nack_sn,
