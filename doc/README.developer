@@ -2513,7 +2513,7 @@ e_guid_t structure.
 For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
 ASN.1 Object Identifier.
 
-For proto_tree_add_eui64(), the 'value' argument is a 64-bit integer 
+For proto_tree_add_eui64(), the 'value' argument is a 64-bit integer
 value
 
 proto_tree_add_bytes_format()
@@ -2964,6 +2964,34 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 1.10 Using the SVN source code tree.
 
   See <http://www.wireshark.org/develop.html>
+
+
+1.10a Using git with the SVN source code tree.
+
+  Install git and the git-svn package.
+  Run "mkdir git; cd git; git svn clone <svn-url>", e.g. if you are using
+  the anonymous svn tree, run
+  "git svn clone http://anonsvn.wireshark.org/wireshark/trunk/"
+
+  After that, a typical workflow may look like this (from "man git-svn"):
+
+  # Clone a repo (like git clone):
+          git svn clone http://svn.example.com/project/trunk
+  # Enter the newly cloned directory:
+          cd trunk
+  # You should be on master branch, double-check with ´git branch´
+          git branch
+  # Do some work and commit locally to git:
+          git commit ...
+  # Something is committed to SVN, rebase your local changes against the
+  # latest changes in SVN:
+          git svn rebase
+  # Now commit your changes (that were committed previously using git) to SVN
+  # as well as automatically updating your working HEAD:
+          git svn dcommit
+  # Append svn:ignore settings to the default git exclude file:
+          git svn show-ignore >> .git/info/exclude
+
 
 1.11 Submitting code for your new dissector.
 
