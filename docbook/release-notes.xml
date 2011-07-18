@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.8">
+  <!ENTITY WiresharkCurrentVersion "1.4.9">
 
 ]>
 
@@ -32,36 +32,20 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-10.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-12.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The Lucent/Ascend file parser was susceptible to an infinite loop.
-            <!-- Fixed in trunk: r37625 -->
-            <!-- Fixed in trunk-1.6: r37965 -->
-            <!-- Fixed in trunk-1.4: r38009 -->
-            <!-- Fixed in trunk-1.2: r37809 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2597">CVE-2011-2597</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The ANSI MAP dissector was susceptible to an infinite loop.
-            <!-- Fixed in trunk: r37930 -->
-            <!-- Fixed in trunk-1.6: r37966 -->
-            <!-- Fixed in trunk-1.4: r38010 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6044">Bug
-            6044</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.7, and 1.6.0.</para>
+          <para>Versions affected: 1.4.0 to 1.4.8 and 1.6.0 to 1.6.1.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para>
@@ -85,150 +69,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          TCP dissector doesn't decode TCP segments of length 1.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716">Bug
-          4716</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark 1.4.0rc1 and python - spurious message.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4878">Bug
-          4878</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Missing LUA function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
-          5006</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Lua API description about creating a new Tvb from a bytearray is not correct in wireshark's user guide.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5199">Bug
-          5199</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          sflow decode error for some extended formats.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5379">Bug
-          5379</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          White space in protocol field abbreviation causes runtime failure while registering Lua dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5569">Bug
-          5569</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          &quot;File not found&quot; box uses wrong filename encoding.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5715">Bug
-          5715</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
-          5803</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if Lua contains &quot;Pref.range()&quot; with missing arguments.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
-          5895</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The &quot;range&quot; field in Lua's &quot;Pref.range()&quot; serves as default while the &quot;default&quot; field does nothing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5896">Bug
-          5896</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
-          5941</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TvbRange_string(lua_State* L)  call a wrong function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
-          5960</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          VoIP call flow graph displays BICC APM as a BICC ANM.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5966">Bug
-          5966</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          H323 rate multiplier wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6009">Bug
-          6009</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark crashes when loading Lua script that contains GUI function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6018">Bug
-          6018</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11 Disassociation Packet's &quot;Reason Code&quot; field is imprecisely decoded/described.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6022">Bug
-          6022</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when setting custom column's field name with conditional.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6028">Bug
-          6028</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GTS Descriptor count limited to 3 instead of 7.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6055">Bug
-          6055</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
-          6059</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Packet parser takes too long for this trace.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6073">Bug
-          6073</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11 Association Response Packet's &quot;Status Code&quot; field is imprecisely decoded/described.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093">Bug
-          6093</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark 1.6.0 and Python support: installer fails to create the wspy_dissectors subdirectory and .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6110">Bug
-          6110</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crash during RTP stream analysis.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120">Bug
-          6120</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Tshark custom columns: Why don't I get an error message?
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6131">Bug
-          6131</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -257,14 +97,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ANSI MAP,
-GIOP,
-H.323,
-IEEE 802.11,
-MSRP,
-RPCAP,
-sFlow,
-TCP,
+.
 
     </para>
     </section>
@@ -272,7 +105,7 @@ TCP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Lucent/Ascend.
+.
 
     </para>
     </section>
