@@ -1015,11 +1015,6 @@ static void rtps_util_add_protocol_version(proto_tree *tree,
   if (tree) {
     proto_item * ti;
     proto_tree * version_tree;
-    guint8       major = 0;
-    guint8       minor = 0;
-
-    major = tvb_get_guint8(tvb, offset);
-    minor = tvb_get_guint8(tvb, offset+1);
 
     ti = proto_tree_add_none_format(tree,
                           hf_rtps_protocol_version,
@@ -2408,7 +2403,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         gint8 * struct_name;
         const char * discriminator_name = "<unknown>";    /* for unions */
         char *       discriminator_enum_name = NULL;      /* for unions with enum discriminator */
-        guint32 defaultIdx; /* Currently is ignored */
+        /*guint32 defaultIdx;*/ /* Currently is ignored */
         guint32 disc_id;    /* Used temporarily to populate 'discriminator_name' */
         guint16 disc_size;  /* Currently is ignored */
         guint32 disc_offset_begin;
@@ -2436,7 +2431,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
 
         /* - - - - - - -      Default index      - - - - - - - */
         LONG_ALIGN(offset);
-        defaultIdx = NEXT_guint32(tvb, offset, little_endian);
+        /*defaultIdx = NEXT_guint32(tvb, offset, little_endian);*/
         offset += 4;
 
         /* - - - - - - -      Discriminator type code     - - - - - - - */
@@ -2646,16 +2641,16 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         if (tk_id == RTI_CDR_TK_ENUM) {
             typecode_name = "enum";
         } else if (tk_id == RTI_CDR_TK_VALUE_PARARM) {
-            guint16 type_modifier;
-            guint32 baseTypeCodeKind;
+            /*guint16 type_modifier;*/
+            /*guint32 baseTypeCodeKind;*/
             guint32 baseTypeCodeLength;
             /* Need to read the type modifier and the base type code */
             typecode_name = "<sparse type>";
             SHORT_ALIGN(offset);
-            type_modifier = NEXT_guint16(tvb, offset, little_endian);
+            /*type_modifier = NEXT_guint16(tvb, offset, little_endian);*/
             offset += 2;
             LONG_ALIGN(offset);
-            baseTypeCodeKind = NEXT_guint32(tvb, offset, little_endian);
+            /*baseTypeCodeKind = NEXT_guint32(tvb, offset, little_endian);*/
             offset += 4;
             baseTypeCodeLength = NEXT_guint32(tvb, offset, little_endian);
             offset += 4;
@@ -7682,7 +7677,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
       guint32 kind;
       guint16 encapsulation_id;
       guint16 encapsulation_len;
-      int encapsulation_little_endian = 0;
+      /*int encapsulation_little_endian = 0;*/
       proto_item * ti = proto_tree_add_text(tree,
                         tvb,
                         offset,
@@ -7702,11 +7697,13 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
                         encapsulation_id_vals, "unknown (%02x)"));
       offset += 2;
 
+#if 0 /* XXX: encapsulation_little_endian not actually used anywhere ?? */
       /* Sets the correct values for encapsulation_le */
       if (encapsulation_id == ENCAPSULATION_CDR_LE ||
           encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
         encapsulation_little_endian = 1;
       }
+#endif
 
       /* Encapsulation length (or option) */
       encapsulation_len =  NEXT_guint16(tvb, offset, 0);    /* Always big endian */
@@ -8091,7 +8088,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
   guint32 wid;                  /* Writer EntityID */
   guint32 status_info = 0xffffffff;
   gint32 octectsToSLEncapsulationId;
-  guint32 batchSampleCount;
+  /*guint32 batchSampleCount;*/
   gint32 sampleListOffset;
   guint16 encapsulation_id;
   guint16 *sample_info_flags = NULL;
@@ -8221,7 +8218,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
   offset += 4;
 
   /* batchSampleCount */
-  batchSampleCount = rtps_util_add_long(tree,
+  /*batchSampleCount =*/ rtps_util_add_long(tree,
                         tvb,
                         offset,
                         -1,
@@ -8286,7 +8283,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
      * is greater or equal than 'sampleListOffset' */
     while (offset < sampleListOffset) {
       guint16 flags2;
-      guint16 octetsToInlineQos;
+      /*guint16 octetsToInlineQos;*/
       gint min_length;
       proto_tree * si_tree;
       gint offset_begin_sampleinfo = offset;
@@ -8312,7 +8309,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
       sample_info_flags[sample_info_count] = flags2;
       rtps_util_decode_flags_16bit(si_tree, tvb, offset, flags2, RTPS_SAMPLE_INFO_FLAGS16);
       offset += 2;
-      octetsToInlineQos = rtps_util_add_short(si_tree,
+      /*octetsToInlineQos =*/ rtps_util_add_short(si_tree,
                         tvb,
                         offset,
                         -1,

@@ -764,11 +764,6 @@ static void rtps_util_add_protocol_version(proto_tree *tree, /* Can NOT be NULL 
                         gint        offset) {
   proto_item * ti;
   proto_tree * version_tree;
-  guint8       major = 0;
-  guint8       minor = 0;
-
-  major = tvb_get_guint8(tvb, offset);
-  minor = tvb_get_guint8(tvb, offset+1);
 
   ti = proto_tree_add_none_format(tree,
                         hf_rtps_protocol_version,
@@ -995,7 +990,7 @@ static void rtps_util_add_locator_list(proto_tree *tree,
 
     for (i = 0; i < num_locators; ++i) {
       g_snprintf(temp_buff, 20, "Locator[%d]", i);
-      rtps_util_add_locator_t(tree,
+      rtps_util_add_locator_t(locator_tree,
                         tvb,
                         offset + 4 + (i * 24),
                         little_endian,
@@ -2111,7 +2106,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         gint8 * struct_name;
         const char * discriminator_name = "<unknown>";    /* for unions */
         char *       discriminator_enum_name = NULL;      /* for unions with enum discriminator */
-        guint32 defaultIdx; /* Currently is ignored */
+        /*guint32 defaultIdx;*/ /* Currently is ignored */
         guint32 disc_id;    /* Used temporarily to populate 'discriminator_name' */
         guint16 disc_size;  /* Currently is ignored */
         guint32 disc_offset_begin;
@@ -2139,7 +2134,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
 
         /* - - - - - - -      Default index      - - - - - - - */
         LONG_ALIGN(offset);
-        defaultIdx = NEXT_guint32(tvb, offset, little_endian);
+        /*defaultIdx = NEXT_guint32(tvb, offset, little_endian);*/
         offset += 4;
 
         /* - - - - - - -      Discriminator type code     - - - - - - - */

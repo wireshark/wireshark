@@ -954,7 +954,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	char ascii_name[5];
 	guint sdes_type		= 0;
 	guint item_len		= 0;
-	guint items_start_offset;
 	proto_tree *PoC1_tree;
 	proto_item *PoC1_item;
 
@@ -1000,7 +999,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		}
 		/* Create a subtree for the PoC1 Application items; we don't yet know
 		   the length */
-		items_start_offset = offset;
 
 		/* Top-level poc tree */
 		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, FALSE);
@@ -1304,7 +1302,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 			case TBCP_BURST_RELEASE:
 				{
 				guint16 last_seq_no;
-				guint16 ignore_last_seq_no;
+				/*guint16 ignore_last_seq_no;*/
 
 				/* Sequence number of last RTP packet in burst */
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
@@ -1313,8 +1311,9 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Bit 16 is ignore flag */
 				offset += 2;
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ignore_seq_no, tvb, offset, 2, FALSE );
-				ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);
+				/*ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);*/
 
+                                /* XXX: Was the intention to also show the "ignore_last_seq_no' flag in COL_INFO ? */
 				col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
 				                last_seq_no);
 
@@ -1454,10 +1453,11 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* One SDES item for every set flag in contents array */
 				for ( i = 0; i < array_length(contents); ++i ) {
 					if ( contents[i] ) {
-						guint sdes_type2, sdes_len2;
+						guint /*sdes_type2,*/ sdes_len2;
 						/* (sdes_type2 not currently used...).  Could complain if type
 						   doesn't match expected for item... */
-						sdes_type2 = tvb_get_guint8( tvb, offset++ );
+						/*sdes_type2 = tvb_get_guint8( tvb, offset );*/
+						offset += 1;
 						sdes_len2  = tvb_get_guint8( tvb, offset );
 
 						/* Add SDES field indicated as present */
@@ -1793,7 +1793,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
     for(;packet_len > 0; block_num++) {
         guint block_type = tvb_get_guint8(tvb, offset), block_length = 0;
         gint content_length = 0;
-        gboolean valid = TRUE;
+        /*gboolean valid = TRUE;*/
 
         /* Create a subtree for this block, dont know the length yet*/
         proto_item *block = proto_tree_add_text(tree, tvb, offset, -1, "Block %u", block_num);
@@ -1807,7 +1807,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
             if (packet_len >= 4) {
                 block_length = tvb_get_ntohs(tvb, offset + 2);
-                valid = validate_xr_block_length(tvb, pinfo, offset + 2, block_type, block_length, xr_block_tree);
+                /* XXX: What if FALSE return from the following ?? */
+                /*valid =*/ validate_xr_block_length(tvb, pinfo, offset + 2, block_type, block_length, xr_block_tree);
             }
         } else {
             proto_tree_add_text(xr_block_tree, tvb, offset + 1, packet_len, "Missing Required Block Headers");
@@ -2052,7 +2053,6 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         case RTCP_XR_DUP_RLE: {
             /* 8 bytes of fixed header */
             gint count = 0, skip = 8;
-            guint16 begin = 0;
             proto_item *chunks_item;
             proto_tree *chunks_tree;
 
@@ -2061,7 +2061,6 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset += 4;
 
             /* Begin Seq */
-            begin = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
             offset += 2;
 

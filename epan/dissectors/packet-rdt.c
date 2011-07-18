@@ -754,10 +754,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* Dissect an att-request packet */
 guint dissect_rdt_rtt_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint8      flags1;
-
     /* Flags in first byte */
-    flags1 = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* Packet type */
@@ -772,10 +769,7 @@ guint dissect_rdt_rtt_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Dissect an att-response packet */
 guint dissect_rdt_rtt_response_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint8      flags1;
-
     /* Flags in first byte */
-    flags1 = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* Packet type */
@@ -795,10 +789,7 @@ guint dissect_rdt_rtt_response_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* Dissect an congestion packet */
 guint dissect_rdt_congestion_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint8      flags1;
-
     /* Flags in first byte */
-    flags1 = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* Packet type */
@@ -1023,7 +1014,6 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
     guint8      flags1;
     guint8      request_rtt_info_flag;
     guint8      request_buffer_info_flag;
-    guint32     request_time_msec;
     proto_tree  *flags_tree;
     proto_item  *ti;
 
@@ -1053,7 +1043,6 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
 
     if (request_rtt_info_flag)
     {
-        request_time_msec = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(tree, hf_rdt_tirq_request_time_msec, tvb, offset, 4, FALSE);
         offset += 4;
     }
@@ -1070,8 +1059,6 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     guint8      has_rtt_info;
     guint8      is_delayed;
     guint8      has_buffer_info;
-    guint32     request_time_msec;
-    guint32     response_time_msec;
     proto_tree  *flags_tree;
     proto_item  *ti;
 
@@ -1105,13 +1092,11 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     /* RTT info */
     if (has_rtt_info)
     {
-        request_time_msec = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(tree, hf_rdt_tirp_request_time_msec, tvb, offset, 4, FALSE);
         offset += 4;
 
         if (is_delayed)
         {
-            response_time_msec = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(tree, hf_rdt_tirp_response_time_msec, tvb, offset, 4, FALSE);
             offset += 4;
         }
@@ -1225,10 +1210,7 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* Dissect an unknown control packet */
 guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint8      flags1;
-
     /* Flags in first byte */
-    flags1 = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_rdt_unk_flags1, tvb, offset, 1, FALSE);
     offset++;
 

@@ -6229,7 +6229,6 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
      * the private use of the registered enterprise.
      */
     proto_item *hidden_item = NULL;
-    guint32 enterprise_code = 0;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree,
                                       hf_rsvp_filter[RSVPF_PRIVATE_OBJ],
@@ -6237,7 +6236,6 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
                         "C-type: %u", type);
-    enterprise_code = tvb_get_ntohl(tvb, offset + 4);
     proto_tree_add_item(rsvp_object_tree,
                         hf_rsvp_filter[RSVPF_ENT_CODE],
                         tvb, offset + 4, 4, FALSE);
@@ -6587,9 +6585,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 ver_flags;
     guint8 message_type;
-    int msg_length;
     int session_off, tempfilt_off;
     rsvp_conversation_info *rsvph;
 
@@ -6602,9 +6598,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ver_flags = tvb_get_guint8(tvb, 0);
     message_type = tvb_get_guint8(tvb, 1);
-    msg_length = tvb_get_ntohs(tvb, 6);
 
     rsvph = ep_alloc0(sizeof(rsvp_conversation_info));
 

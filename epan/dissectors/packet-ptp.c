@@ -2591,7 +2591,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_FOLLOWUP_MESSAGE:{
-                guint16     tlv_type;
                 guint16     tlv_length;
                 proto_item *tlv_ti;
                 proto_tree *ptp_tlv_tree;
@@ -2610,7 +2609,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
 
                     /* There are TLV's to be processed */
-                    tlv_type = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_TYPE_OFFSET);
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
 
                     tlv_ti = proto_tree_add_text(
@@ -2764,7 +2762,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_SIGNALLING_MESSAGE:{
-                guint16 tlv_type, tlv_length;
+                guint16 tlv_length;
                 proto_item *tlv_ti, *sig_tlv_flags_ti;
                 proto_tree *ptp_tlv_tree, *sig_tlv_flags_tree;
 
@@ -2778,7 +2776,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK){
 
                     /* There are TLV's to be processed */
-                    tlv_type = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_TYPE_OFFSET);
                     tlv_length = tvb_get_ntohs (tvb, PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET + PTP_AS_SIG_TLV_LENGTHFIELD_OFFSET);
 
                     tlv_ti = proto_tree_add_text(
@@ -2872,7 +2869,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_lengthField, tvb,
                         PTP_V2_SIG_TARGETPORTID_OFFSET+4, 2, FALSE);
 
-                    tlv_type = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_TYPE_OFFSET);
+                    /*tlv_type = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_TYPE_OFFSET);*/
                     tlv_length = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_LENGTHFIELD_OFFSET);
 
                     if (tlv_length <= 2)

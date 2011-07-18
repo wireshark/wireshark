@@ -1044,9 +1044,7 @@ void proto_reg_handoff_pppoed(void)
 static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  pppoe_code;
-	guint16 pppoe_session_id;
 	guint16 reported_payload_length;
-	guint16 poe_tag;
 	guint16 poe_tag_length;
 	gint    actual_payload_length;
 	gint    length, reported_length;
@@ -1069,7 +1067,6 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		             val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 
-	pppoe_session_id = tvb_get_ntohs(tvb, 2);
 	reported_payload_length = tvb_get_ntohs(tvb, 4);
 	actual_payload_length = tvb_reported_length_remaining(tvb, 6);
 
@@ -1088,7 +1085,6 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (PPPOE_TAG_CREDITS == tvb_get_ntohs(tvb, 6))
 		{
 			tagstart = 6;
-			poe_tag = tvb_get_ntohs(tvb, tagstart);
 			poe_tag_length = tvb_get_ntohs(tvb, tagstart + 2);
 
 			/* Create tags subtree */

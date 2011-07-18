@@ -803,9 +803,8 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
   proto_item *ti;
   tvbuff_t *new_tvb;
   gint len, offset = 0;
-  guint8 version, msg_type;
+  guint8 msg_type;
   guint16 msg_value;
-  guint32 plen;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -814,7 +813,6 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
   ti = proto_tree_add_item (top_tree, proto_rpcap, tvb, offset, -1, FALSE);
   tree = proto_item_add_subtree (ti, ett_rpcap);
 
-  version = tvb_get_guint8 (tvb, offset);
   proto_tree_add_item (tree, hf_version, tvb, offset, 1, FALSE);
   offset++;
 
@@ -837,7 +835,6 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
   }
   offset += 2;
 
-  plen = tvb_get_ntohl (tvb, offset);
   proto_tree_add_item (tree, hf_plen, tvb, offset, 4, FALSE);
   offset += 4;
 

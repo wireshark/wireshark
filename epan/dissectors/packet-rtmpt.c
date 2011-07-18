@@ -1050,15 +1050,9 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         while (tvb_length_remaining(tvb, offset) > 0) {
                 guint8 iTagType = 0;
                 guint iDataSize = 0;
-                guint iTimestamp = 0;
-                guint8 iETS = 0;
-                guint iStreamID = 0;
 
                 iTagType = tvb_get_guint8(tvb, offset + 0);
                 iDataSize = tvb_get_ntoh24(tvb, offset + 1);
-                iTimestamp = tvb_get_ntoh24(tvb, offset + 4);
-                iETS = tvb_get_guint8(tvb, offset + 7);
-                iStreamID = tvb_get_ntoh24(tvb, offset + 8);
 
                 tag_item = proto_tree_add_text(rtmpt_tree, tvb, offset, 11+iDataSize+4, "%s", val_to_str(iTagType, rtmpt_tag_vals, "Unknown Tag"));
                 tag_tree = proto_item_add_subtree(tag_item, ett_rtmpt_tag);
