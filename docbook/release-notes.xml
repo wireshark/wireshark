@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.6.1">
+  <!ENTITY WiresharkCurrentVersion "1.6.2">
 
 ]>
 
@@ -38,37 +38,18 @@ Wireshark Info
 
         <listitem>
           <para>
-            The Lucent/Ascend file parser was susceptible to an infinite loop.
-            <!-- Fixed in trunk: r37625 -->
-            <!-- Fixed in trunk-1.6: r37965 -->
-            <!-- Fixed in trunk-1.4: r38009 -->
-            <!-- Fixed in trunk-1.2: r37809 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.</para>
+          <para>Versions affected: 1.4.0 to 1.4.8 and 1.6.0 to 1.6.1.</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2597">CVE-2011-2597</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The ANSI MAP dissector was susceptible to an infinite loop.
-            <!-- Fixed in trunk: r37930 -->
-            <!-- Fixed in trunk-1.6: r37966 -->
-            <!-- Fixed in trunk-1.4: r38010 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6044">Bug
-            6044</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.7, and 1.6.0.</para>
-          <para>
-	    <!--
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-	  -->
           </para>
         </listitem>
-      </itemizedlist>
 
     </para>
 
@@ -87,210 +68,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-	  TCP dissector doesn't decode TCP segments of length 1.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716">Bug
-          4716</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          wireshark 1.4.0rc1 and python - spurious message.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4878">Bug
-          4878</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Missing LUA function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
-          5006</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Lua API description about creating a new Tvb from a bytearray is not correct in wireshark's user guide.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5199">Bug
-          5199</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Character echo pauses in Capture Filter field in Capture Options.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
-          5356</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  White space in protocol field abbreviation causes runtime failure while registering Lua dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5569">Bug
-          5569</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  "File not found" box uses wrong filename encoding.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5715">Bug
-          5715</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5803">Bug
-          5803</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Wireshark crashes if Lua contains "Pref.range()" with missing arguments.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5895">Bug
-          5895</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  The "range" field in Lua's "Pref.range()" serves as default while the "default" field does nothing .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5896">Bug
-          5896</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Wireshark crashes when calling TreeItem:set_len() on TreeItem without tvb.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5941">Bug
-          5941</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  TvbRange_string(lua_State* L) call a wrong function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5960">Bug
-          5960</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  VoIP call flow graph displays BICC APM as a BICC ANM.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5966">Bug
-          5966</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Cannot Live-capture VirtualBox network packets with Wireshark; pipe problem.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6002">Bug
-          6002</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Interface list in Capture Options isn't cleared when selecting other host.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008">Bug
-          6008</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  H323 rate multiplier wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6009">Bug
-          6009</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Inclusion of config.h is too late in lex-files resulting in wrong definition of _FILE_OFFSET_BITS.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6012">Bug
-          6012</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  tshark crashes when loading Lua script that contains GUI function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6018">Bug
-          6018</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  802.11 Disassociation Packet's "Reason Code" field is imprecisely decoded/described.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6022">Bug
-          6022</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Wireshark crashes when setting custom column's field name with conditional.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6028">Bug
-          6028</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Crash after applying "expert.severity" field as column.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6035">Bug
-          6035</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  GTS Descriptor count limited to 3 instead of 7.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6055">Bug
-          6055</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
-          6059</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Packet parser takes too long for this trace.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6073">Bug
-          6073</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  The SSL dissector can not resemble correctly the frames after TCP zero window probe packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6059">Bug
-          6059</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Wireshark crashes after repeating "File -> Import -> Cancel".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6080">Bug
-          6080</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Decoding of MQ ASCII and EBCDIC Traffic Flow - ASCII shows fine, EBCDIC does not.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6084">Bug
-          6084</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  802.11 Association Response Packet's "Status Code" field is imprecisely decoded/described.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093">Bug
-          6093</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Abis interface not correctly handled in gsmtap dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6097">Bug
-          6097</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP TS 44.060).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6098">Bug
-          6098</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101">Bug
-          6101</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          wireshark 1.6.0 and python support: installer fails to create the wspy_dissectors subdirectory and .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6110">Bug
-          6110</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crash during RTP stream analysis.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120">Bug
-          6120</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Tshark custom columns: Why don't I get an error message?
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6131">Bug
-          6131</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
