@@ -25,7 +25,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 /* Exlude the whole menu if MAIN_MENU_USE_UIMANAGER */
-#ifndef MAIN_MENU_USE_UIMANAGER
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -43,6 +42,10 @@
 #include <epan/proto.h>
 
 #include "gtk/proto_help.h"
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}
+#else
 
 #define PH_MENU_TOP "/Protocol Help"
 
