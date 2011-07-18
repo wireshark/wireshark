@@ -45,7 +45,8 @@
 
 /* Right now proto_help will not build with -DGTK_DISABLE_DEPRECATED due to
    its use of GtkItemFactory.
-   See http://developer.gnome.org/gtk/2.24/GtkItemFactory.html
+   See http://developer.gnome.org/gtk/2.24/GtkItemFactory.html: "As of GTK+ 2.4,
+   GtkItemFactory has been deprecated in favour of GtkUIManager."
    This needs to be rewritten by the people who added this code or some other
    volunteers. Otherwise this functionality will be lost once the UI_MANAGER
    stuff becomes default.
