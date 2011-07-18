@@ -1,4 +1,4 @@
-Wireshark 1.4.7 Release Notes
+Wireshark 1.4.8 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,60 +15,85 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Large/infinite loop in the DICOM dissector. (Bug 5876)
+     o The Lucent/Ascend file parser was susceptible to an infinite
+       loop.
 
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+       Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.
 
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted Diameter dictionary file could
-       crash Wireshark.
+       CVE-2011-2597
 
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+     o The ANSI MAP dissector was susceptible to an infinite loop.
+       (Bug 6044)
 
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted snoop file could crash Wireshark.
-       (Bug 5912)
+       Versions affected: 1.4.0 to 1.4.7, and 1.6.0.
 
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o David Maciejak of Fortinet's FortiGuard Labs discovered that
-       malformed compressed capture data could crash Wireshark. (Bug
-       5908)
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
-
-     o Huzaifa Sidhpurwala of the Red Hat Security Response Team
-       discovered that a corrupted Visual Networks file could crash
-       Wireshark. (Bug 5934)
-
-       Versions affected: 1.2.0 to 1.2.16 and 1.4.0 to 1.4.6.
+       CVE-2011-????
 
    The following bugs have been fixed:
 
-     o AIM dissector has some endian issues. (Bug 5464)
+     o TCP dissector doesn't decode TCP segments of length 1. (Bug
+       4716)
 
-     o Telephony→MTP3→MSUS doesn't display window. (Bug 5605)
+     o Wireshark 1.4.0rc1 and python - spurious message. (Bug 4878)
 
-     o Support for MS NetMon 3.x traces containing raw IPv6 ("Type
-       7") packets. (Bug 5817)
+     o Missing LUA function. (Bug 5006)
 
-     o Service Indicator in M3UA protocol data. (Bug 5834)
+     o Lua API description about creating a new Tvb from a bytearray
+       is not correct in wireshark's user guide. (Bug 5199)
 
-     o IEC60870-5-104 protocol, incorrect decoding of timestamp type
-       CP56Time2a. (Bug 5889)
+     o sflow decode error for some extended formats. (Bug 5379)
 
-     o DNP3 dissector incorrect constants AL_OBJ_FCTR_16NF
-       _FDCTR_32NF _FDCTR_16NF. (Bug 5920)
+     o White space in protocol field abbreviation causes runtime
+       failure while registering Lua dissector. (Bug 5569)
 
-     o 3GPP QoS: Traffic class is not decoded properly. (Bug 5928)
+     o "File not found" box uses wrong filename encoding. (Bug 5715)
 
-     o Wireshark crashes when creating ProtoField.framenum in Lua.
-       (Bug 5930)
+     o capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too
+       many. (Bug 5803)
 
-     o Fix a wrong mask to extract FMID from DECT packets dissector.
-       (Bug 5947)
+     o Wireshark crashes if Lua contains "Pref.range()" with missing
+       arguments. (Bug 5895)
 
-     o Incorrect DHCPv6 remote identifier option parsing. (Bug 5962)
+     o The "range" field in Lua's "Pref.range()" serves as default
+       while the "default" field does nothing. (Bug 5896)
+
+     o Wireshark crashes when calling TreeItem:set_len() on TreeItem
+       without tvb. (Bug 5941)
+
+     o TvbRange_string(lua_State* L) call a wrong function. (Bug
+       5960)
+
+     o VoIP call flow graph displays BICC APM as a BICC ANM. (Bug
+       5966)
+
+     o H323 rate multiplier wrong. (Bug 6009)
+
+     o tshark crashes when loading Lua script that contains GUI
+       function. (Bug 6018)
+
+     o 802.11 Disassociation Packet's "Reason Code" field is
+       imprecisely decoded/described. (Bug 6022)
+
+     o Wireshark crashes when setting custom column's field name with
+       conditional. (Bug 6028)
+
+     o GTS Descriptor count limited to 3 instead of 7. (Bug 6055)
+
+     o The SSL dissector can not resemble correctly the frames after
+       TCP zero window probe packet. (Bug 6059)
+
+     o Packet parser takes too long for this trace. (Bug 6073)
+
+     o 802.11 Association Response Packet's "Status Code" field is
+       imprecisely decoded/described. (Bug 6093)
+
+     o Wireshark 1.6.0 and Python support: installer fails to create
+       the wspy_dissectors subdirectory and . (Bug 6110)
+
+     o Wireshark crash during RTP stream analysis. (Bug 6120)
+
+     o Tshark custom columns: Why don't I get an error message? (Bug
+       6131)
 
   New and Updated Features
 
@@ -80,11 +105,11 @@ What's New
 
   Updated Protocol Support
 
-   DICOM, IEC104, M3UA, TCP,
+   ANSI MAP, GIOP, H.323, IEEE 802.11, MSRP, RPCAP, sFlow, TCP,
 
   New and Updated Capture File Support
 
-   Network Monitor.
+   Lucent/Ascend.
 
 Getting Wireshark
 

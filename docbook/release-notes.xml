@@ -93,6 +93,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark 1.4.0rc1 and python - spurious message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4878">Bug
+          4878</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Missing LUA function.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5006">Bug
           5006</ulink>)
@@ -204,6 +210,24 @@ Wireshark Info
           802.11 Association Response Packet's &quot;Status Code&quot; field is imprecisely decoded/described.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093">Bug
           6093</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark 1.6.0 and Python support: installer fails to create the wspy_dissectors subdirectory and .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6110">Bug
+          6110</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crash during RTP stream analysis.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120">Bug
+          6120</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Tshark custom columns: Why don't I get an error message?
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6131">Bug
+          6131</ulink>)
         </para></listitem>
 
       </itemizedlist>
