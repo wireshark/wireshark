@@ -2751,6 +2751,9 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   if (cap_settings_history != NULL) {
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+      if (interface_opts.name == NULL) {
+        continue;
+      }
       if_name = g_strdup(interface_opts.name);
       cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
       if (cap_settings_p == NULL) {
