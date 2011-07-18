@@ -19,12 +19,12 @@ There are two ways to make the Wireshark code gtk3 ready:
   -DGTK_DISABLE_SINGLE_INCLUDES [works]
   -DGSEAL_ENABLE
   -DGDK_DISABLE_DEPRECATED
-  -DGTK_DISABLE_DEPRECATED
+  -DGTK_DISABLE_DEPRECATED [works if building with UI_MANAGER code]
   Gtk2 offers several compile time flags, so if you run a sufficiently new
   version of gtk2 and turn on one or more of these flags, you can find many
   things that are not gtk3 compatible yet. 
 
-Some statistics (as of rev 37715)
+Some statistics (as of rev 38092)
 
 -DGSEAL_ENABLE
   grep error: make.log| cut -d: -f5 | sort | uniq -c
@@ -36,18 +36,15 @@ Some statistics (as of rev 37715)
      14  ‘GtkAdjustment’ has no member named ‘value’
       1  ‘GtkCheckMenuItem’ has no member named ‘active’
       1  ‘GtkDialog’ has no member named ‘vbox’
-     14  ‘GtkObject’ has no member named ‘flags’
       1  ‘GtkTable’ has no member named ‘nrows’
      43  ‘GtkToggleButton’ has no member named ‘active’
       4  ‘GtkTreeViewColumn’ has no member named ‘button’
      79  ‘GtkWidget’ has no member named ‘allocation’
-     19  ‘GtkWidget’ has no member named ‘state’
     103  ‘GtkWidget’ has no member named ‘style’
-    115  ‘GtkWidget’ has no member named ‘window’
+    113  ‘GtkWidget’ has no member named ‘window’
 
 -DGDK_DISABLE_DEPRECATED
-  grep error: make.log| cut -d: -f5 | sort | uniq -c
-mplicit declaration of function ‘gdk_cursor_destroy’
+  grep error: make.log| grep -v assignment | cut -d: -f5 | sort | uniq -c
       2  implicit declaration of function ‘gdk_draw_arc’
       1  implicit declaration of function ‘gdk_draw_drawable’
       9  implicit declaration of function ‘gdk_draw_layout’
@@ -64,15 +61,12 @@ mplicit declaration of function ‘gdk_cursor_destroy’
       7  implicit declaration of function ‘gdk_gc_set_rgb_fg_color’
       1  implicit declaration of function ‘gdk_gc_set_tile’
       1  implicit declaration of function ‘gdk_gc_set_ts_origin’
-      1  implicit declaration of function ‘gdk_gc_unref’
       2  implicit declaration of function ‘gdk_pixmap_create_from_xpm_d’
-      7  implicit declaration of function ‘gdk_pixmap_unref’
-      1  implicit declaration of function ‘gdk_window_get_colormap’
       1  implicit declaration of function ‘gdk_window_get_deskrelative_origin’
-      1  implicit declaration of function ‘gdk_window_get_size’
 
 -DGTK_DISABLE_DEPRECATED
 	Will work if and only if building with UI_MANAGER enabled:
         autofoo: configure ... --enable-uimanager ...
 	cmake: cmake ... -DUI_MANAGER=ON ...
-	Right now this looses the proto_help functionality.
+	Right now this looses the proto_help functionality and quite some
+	additional stuff (mostly? statistics).
