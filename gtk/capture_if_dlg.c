@@ -878,7 +878,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
         found = FALSE;
         for (i = 0; i < (gint)global_capture_opts.ifaces->len; i++) {
           interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-          if (strcmp(interface_opts.name, (char*)if_info->name) != 0)
+          if ((interface_opts.name == NULL) ||
+              (strcmp(interface_opts.name, (char*)if_info->name) != 0))
             continue;
           else {
             found = TRUE;
