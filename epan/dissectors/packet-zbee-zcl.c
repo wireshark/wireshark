@@ -1374,9 +1374,7 @@ static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
 static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type)
 {
     guint attr_uint;
-    guint64 attr_uint64;
     gint attr_int;
-    gint64 attr_int64;
     guint8 *attr_string;
     guint8 attr_uint8[4];
     gfloat attr_float;
@@ -1384,9 +1382,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
     nstime_t attr_time;
 
     attr_uint = 0;
-    attr_uint64 = 0;
     attr_int = 0;
-    attr_int64 = 0;
 
     /* Dissect attribute data type and data */
     switch ( data_type ) {

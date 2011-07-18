@@ -793,10 +793,10 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     proto_tree  *field_tree = NULL;
 
     guint16     flags;
-    guint8      capability;
-    guint16     mfr_code;
-    guint8      max_buff;
-    guint16     max_transfer;
+    /*guint8      capability;*/
+    /*guint16     mfr_code;*/
+    /*guint8      max_buff;*/
+    /*guint16     max_transfer;*/
 
     if ((tree) && (ettindex != -1)) {
         field_root = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset), "Node Descriptor");
@@ -824,10 +824,10 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
     *offset += sizeof(guint16);
 
     /* Get and display the capability flags. */
-    capability      = zdp_parse_cinfo(field_tree, ett_zbee_zdp_cinfo, tvb, offset);
-    mfr_code        = zbee_parse_uint(field_tree, hf_zbee_zdp_node_manufacturer, tvb, offset, sizeof(guint16), NULL);
-    max_buff        = zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_buffer, tvb, offset, sizeof(guint8), NULL);
-    max_transfer    = zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_transfer, tvb, offset, sizeof(guint16), NULL);
+    /*capability      =*/ zdp_parse_cinfo(field_tree, ett_zbee_zdp_cinfo, tvb, offset);
+    /*mfr_code        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_manufacturer, tvb, offset, sizeof(guint16), NULL);
+    /*max_buff        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_buffer, tvb, offset, sizeof(guint8), NULL);
+    /*max_transfer    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_transfer, tvb, offset, sizeof(guint16), NULL);
 
     /* Get and display the server flags. */
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
@@ -930,10 +930,10 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
     proto_tree  *field_tree = NULL, *cluster_tree = NULL;
     guint       i, sizeof_cluster;
 
-    guint8      endpoint;
-    guint16     profile;
-    guint16     app_device;
-    guint8      app_version;
+    /*guint8      endpoint;*/
+    /*guint16     profile;*/
+    /*guint16     app_device;*/
+    /*guint8      app_version;*/
     guint8      in_count;
     guint8      out_count;
 
@@ -943,10 +943,10 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
     }
     else field_tree = tree;
 
-    endpoint    = zbee_parse_uint(field_tree, hf_zbee_zdp_endpoint, tvb, offset, sizeof(guint8), NULL);
-    profile     = zbee_parse_uint(field_tree, hf_zbee_zdp_profile, tvb, offset, sizeof(guint16), NULL);
-    app_device  = zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_device, tvb, offset, sizeof(guint16), NULL);
-    app_version = zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_version, tvb, offset, sizeof(guint8), NULL);
+    /*endpoint    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_endpoint, tvb, offset, sizeof(guint8), NULL);
+    /*profile     =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_profile, tvb, offset, sizeof(guint16), NULL);
+    /*app_device  =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_device, tvb, offset, sizeof(guint16), NULL);
+    /*app_version =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_version, tvb, offset, sizeof(guint8), NULL);
 
     sizeof_cluster = (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007)?sizeof(guint16):sizeof(guint8);
 

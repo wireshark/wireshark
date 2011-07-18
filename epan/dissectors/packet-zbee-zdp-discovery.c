@@ -62,12 +62,12 @@ dissect_zbee_zdp_req_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint       offset = 0;
 
     guint64 ext_addr;
-    guint8  req_type;
-    guint8  idx;
+    /*guint8  req_type;*/
+    /*guint8  idx;*/
 
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
-    req_type = zbee_parse_uint(tree, hf_zbee_zdp_req_type, tvb, &offset, sizeof(guint8), NULL);
-    idx      = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*req_type =*/ zbee_parse_uint(tree, hf_zbee_zdp_req_type, tvb, &offset, sizeof(guint8), NULL);
+    /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
 
@@ -95,12 +95,12 @@ dissect_zbee_zdp_req_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint       offset = 0;
 
     guint16 device;
-    guint8  req_type;
-    guint8  idx;
+    /*guint8  req_type;*/
+    /*guint8  idx;*/
 
     device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
-    req_type = zbee_parse_uint(tree, hf_zbee_zdp_req_type, tvb, &offset, sizeof(guint8), NULL);
-    idx      = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*req_type =*/ zbee_parse_uint(tree, hf_zbee_zdp_req_type, tvb, &offset, sizeof(guint8), NULL);
+    /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: 0x%04x", device);
 
@@ -348,10 +348,10 @@ void
 dissect_zbee_zdp_req_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -378,13 +378,13 @@ void
 dissect_zbee_zdp_device_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
-    guint8  capability;
+    /*guint8  capability;*/
 
-    device      = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device      =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
-    capability  = zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
+    /*capability  =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
 
@@ -454,9 +454,9 @@ void
 dissect_zbee_zdp_req_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 server_flags;
+    /*guint16 server_flags;*/
 
-    server_flags = zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
+    /*server_flags =*/ zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -484,18 +484,18 @@ dissect_zbee_zdp_req_store_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint       offset = 0;
     guint       i;
 
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
-    guint8  node_size;
-    guint8  power_size;
-    guint8  ep_count;
+    /*guint8  node_size;*/
+    /*guint8  power_size;*/
+    /*guint8  ep_count;*/
     guint8  simple_count;
 
-    device      = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device      =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
-    node_size   = zbee_parse_uint(tree, hf_zbee_zdp_disc_node_size, tvb, &offset, sizeof(guint8), NULL);
-    power_size  = zbee_parse_uint(tree, hf_zbee_zdp_disc_power_size, tvb, &offset, sizeof(guint8), NULL);
-    ep_count    = zbee_parse_uint(tree, hf_zbee_zdp_disc_ep_count, tvb, &offset, sizeof(guint8), NULL);
+    /*node_size   =*/ zbee_parse_uint(tree, hf_zbee_zdp_disc_node_size, tvb, &offset, sizeof(guint8), NULL);
+    /*power_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_disc_power_size, tvb, &offset, sizeof(guint8), NULL);
+    /*ep_count    =*/ zbee_parse_uint(tree, hf_zbee_zdp_disc_ep_count, tvb, &offset, sizeof(guint8), NULL);
     simple_count= zbee_parse_uint(tree, hf_zbee_zdp_disc_simple_count, tvb, &offset, sizeof(guint8), NULL);
 
     if (tree) {
@@ -530,10 +530,10 @@ void
 dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
     zdp_parse_node_desc(tree, ett_zbee_zdp_node, tvb, &offset, pinfo);
 
@@ -561,10 +561,10 @@ void
 dissect_zbee_zdp_req_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
     zdp_parse_power_desc(tree, ett_zbee_zdp_power, tvb, &offset);
 
@@ -596,11 +596,11 @@ dissect_zbee_zdp_req_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint       offset = 0;
     guint       i;
 
-    guint16     device;
+    /*guint16     device;*/
     guint64     ext_addr;
     guint8      ep_count;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
     ep_count = zbee_parse_uint(tree, hf_zbee_zdp_ep_count, tvb, &offset, sizeof(guint8), NULL);
 
@@ -636,13 +636,13 @@ void
 dissect_zbee_zdp_req_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
-    guint8  simple_len;
+    /*guint8  simple_len;*/
 
-    device      = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device      =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
-    simple_len  = zbee_parse_uint(tree, hf_zbee_zdp_simple_length, tvb, &offset, sizeof(guint8), NULL);
+    /*simple_len  =*/ zbee_parse_uint(tree, hf_zbee_zdp_simple_length, tvb, &offset, sizeof(guint8), NULL);
     zdp_parse_simple_desc(tree, ett_zbee_zdp_simple, tvb, &offset, pinfo);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -669,10 +669,10 @@ void
 dissect_zbee_zdp_req_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset   = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -699,10 +699,10 @@ void
 dissect_zbee_zdp_req_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint   offset = 0;
-    guint16 device;
+    /*guint16 device;*/
     guint64 ext_addr;
 
-    device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
+    /*device   =*/ zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -731,11 +731,11 @@ dissect_zbee_zdp_req_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint   offset = 0;
     guint16 device;
     guint8  endpt;
-    guint8  idx;
+    /*guint8  idx;*/
 
     device = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
     endpt  = zbee_parse_uint(tree, hf_zbee_zdp_endpoint, tvb, &offset, sizeof(guint8), NULL);
-    idx    = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx    =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: 0x%04x, Endpoint: %d", device, endpt);
 
@@ -762,10 +762,10 @@ dissect_zbee_zdp_req_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     guint   offset = 0;
     guint16 device;
-    guint8  idx;
+    /*guint8  idx;*/
 
     device = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
-    idx    = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx    =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: 0x%04x", device);
 
@@ -803,7 +803,7 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint64     ext_addr;
     guint16     device;
     guint8      assoc;
-    guint8      idx;
+    /*guint8      idx;*/
 
     status   = zdp_parse_status(tree, tvb, &offset);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
@@ -812,7 +812,7 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (tvb_bytes_exist(tvb, offset, 2*sizeof(guint8))) {
         /* The presence of these fields depends on the request message. Include them if they exist. */
         assoc    = zbee_parse_uint(tree, hf_zbee_zdp_assoc_device_count, tvb, &offset, sizeof(guint8), NULL);
-        idx      = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+        /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
         if ((tree) && (assoc)) {
             ti = proto_tree_add_text(tree, tvb, offset, assoc*sizeof(guint16), "Associated Device List");
@@ -858,7 +858,7 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint64     ext_addr;
     guint16     device;
     guint8      assoc;
-    guint8      idx;
+    /*guint8      idx;*/
 
     status   = zdp_parse_status(tree, tvb, &offset);
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
@@ -867,7 +867,7 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (tvb_bytes_exist(tvb, offset, 2*sizeof(guint8))) {
         /* The presence of these fields depends on the request message. Include them if they exist. */
         assoc    = zbee_parse_uint(tree, hf_zbee_zdp_assoc_device_count, tvb, &offset, sizeof(guint8), NULL);
-        idx      = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+        /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
 
         if ((tree) && (assoc)) {
             ti = proto_tree_add_text(tree, tvb, offset, assoc*sizeof(guint16), "Associated Device List");
@@ -977,12 +977,12 @@ dissect_zbee_zdp_rsp_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint       offset = 0;
 
     guint8      status;
-    guint8      length;
+    /*guint8      length;*/
     guint16     device;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
-    length   = zbee_parse_uint(tree, hf_zbee_zdp_simple_length, tvb, &offset, sizeof(guint8), NULL);
+    /*length   =*/ zbee_parse_uint(tree, hf_zbee_zdp_simple_length, tvb, &offset, sizeof(guint8), NULL);
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
         zdp_parse_simple_desc(tree, ett_zbee_zdp_simple, tvb, &offset, pinfo);
     }
@@ -1251,10 +1251,10 @@ dissect_zbee_zdp_rsp_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto
     guint       offset = 0;
 
     guint8      status;
-    guint16     server;
+    /*guint16     server;*/
 
     status   = zdp_parse_status(tree, tvb, &offset);
-    server   = zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
+    /*server =*/ zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
 
@@ -1457,11 +1457,11 @@ dissect_zbee_zdp_rsp_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     guint16     cache;
     guint16     device;
-    guint64     ext_addr;
+    /*guint64     ext_addr;*/
 
     cache    = zbee_parse_uint(tree, hf_zbee_zdp_cache, tvb, &offset, sizeof(guint16), NULL);
     device   = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
+    /*ext_addr =*/ zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
 
     zbee_append_info(tree, pinfo, ", Cache: 0x%04x", cache);
     zbee_append_info(tree, pinfo, ", Device: 0x%04x", device);
@@ -1493,14 +1493,14 @@ dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     guint8      status;
     guint16     device;
-    guint8      endpt;
+    /*guint8      endpt;*/
     guint8      in_count;
     guint8      out_count;
     guint8      idx;
 
     status      = zdp_parse_status(tree, tvb, &offset);
     device      = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, sizeof(guint16), NULL);
-    endpt       = zbee_parse_uint(tree, hf_zbee_zdp_endpoint, tvb, &offset, sizeof(guint8), NULL);
+    /*endpt     =*/ zbee_parse_uint(tree, hf_zbee_zdp_endpoint, tvb, &offset, sizeof(guint8), NULL);
     in_count    = zbee_parse_uint(tree, hf_zbee_zdp_in_count, tvb, &offset, sizeof(guint8), NULL);
     out_count   = zbee_parse_uint(tree, hf_zbee_zdp_out_count, tvb, &offset, sizeof(guint8), NULL);
     idx         = zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
