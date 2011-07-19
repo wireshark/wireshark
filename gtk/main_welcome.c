@@ -888,106 +888,24 @@ welcome_if_panel_reload(void)
 }
 
 #ifdef HAVE_LIBPCAP
-static void make_selections_array(GtkTreeModel  *model,
-                                  GtkTreePath   *path _U_,
-                                  GtkTreeIter   *iter,
-                                  gpointer       userdata _U_)
-{
-  gchar            *if_name;
-  interface_options interface_opts;
-  cap_settings_t    cap_settings;
-  GList            *if_list;
-  GList            *curr;
-  int               err;
-  if_info_t        *if_info;
-
-  gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
-
-  if_list = capture_interface_list(&err, NULL);
-  if_list = g_list_sort (if_list, if_list_comparator_alph);
-  if (g_list_length(if_list) > 0) {
-      for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
-          if_info = curr->data;
-          /* Continue if capture device is hidden */
-          if (prefs_is_capture_device_hidden(if_info->name)) {
-              continue;
-          }
-          if (strcmp(if_info->name, if_name) == 0) {
-              interface_opts.name = g_strdup(if_name);
-              interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-              break;
-          }
-      }
-      free_interface_list(if_list);
-  } else {
-      free_interface_list(if_list);
-      return;
-  }
-
-  interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-  interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-  interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-  interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-  cap_settings = capture_get_cap_settings (interface_opts.name);;
-  interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
-#endif
-  interface_opts.monitor_mode = cap_settings.monitor_mode;
-#ifdef HAVE_PCAP_REMOTE
-  interface_opts.src_type = global_capture_opts.default_options.src_type;
-  interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-  interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-  interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-  interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-  interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-  interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-  interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-  interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-  interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-  interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
-#endif
-  g_array_append_val(global_capture_opts.ifaces, interface_opts);
-}
-
 static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkTreeSelection *entry;
-  GtkWidget*	view;
-  gint len;
-  interface_options  interface_opts;
+#ifdef HAVE_AIRPCAP
+  interface_options interface_opts;
+#endif
 
-  view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-  entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-  len = gtk_tree_selection_count_selected_rows(entry);
-  if (!entry || len == 0) {
+  if (global_capture_opts.ifaces->len == 0) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "You didn't specify an interface on which to capture packets.");
     return;
   }
 #ifndef USE_THREADS
-  if (len > 1) {
+  if (global_capture_opts.ifaces->len > 1) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
     return;
   }
 #endif
-  while (global_capture_opts.ifaces->len > 0) {
-    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-    g_free(interface_opts.name);
-    g_free(interface_opts.descr);
-    g_free(interface_opts.cfilter);
-#ifdef HAVE_PCAP_REMOTE
-    g_free(interface_opts.remote_host);
-    g_free(interface_opts.remote_port);
-    g_free(interface_opts.auth_username);
-    g_free(interface_opts.auth_password);
-#endif
-  }
-  gtk_tree_selection_selected_foreach(entry, make_selections_array, NULL);
 
   /* XXX - remove this? */
   if (global_capture_opts.save_file) {
@@ -1001,33 +919,6 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
   airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
   capture_start_cb(NULL, NULL);
-}
-
-void capture_if_cb_prep(GtkWidget *w _U_, gpointer d _U_)
-{
-  GtkTreeSelection *entry;
-  GtkWidget* view;
-
-  view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-  entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-  if (entry) {
-   /* global_capture_opts.number_of_ifaces = gtk_tree_selection_count_selected_rows(entry);*/
-    gtk_tree_selection_selected_foreach(entry, make_selections_array, NULL);
-  }
-  capture_if_cb(NULL, NULL);
-}
-
-void capture_opts_cb_prep(GtkWidget *w _U_, gpointer d _U_)
-{
-  GtkTreeSelection *entry;
-  GtkWidget* view;
-
-  view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-  entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-  if (entry) {
-    gtk_tree_selection_selected_foreach(entry, make_selections_array, NULL);
-  }
-  capture_prep_cb(NULL, NULL);
 }
 #endif
 
@@ -1114,7 +1005,7 @@ welcome_new(void)
             "Interface List",
             "Live list of the capture interfaces\n(counts incoming packets)",
             "Same as Capture/Interfaces menu or toolbar item",
-            welcome_button_callback_helper, capture_if_cb_prep);
+            welcome_button_callback_helper, capture_if_cb);
         gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
         swindow = gtk_scrolled_window_new (NULL, NULL);

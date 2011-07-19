@@ -50,6 +50,9 @@ capture_if_cb(GtkWidget *widget, gpointer data);
 GtkWidget *
 capture_get_if_icon(const if_info_t* if_info);
 
+GtkWidget *
+get_interfaces_dialog_window(void);
+
 #endif /* HAVE_LIBPCAP */
 
 #endif /* capture_if_dlg.h */

@@ -64,6 +64,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/capture_globals.h"
 #include "gtk/cfilter_combo_utils.h"
+#include "gtk/capture_if_dlg.h"
 
 #ifdef _WIN32
 #include "../capture-wpcap.h"
@@ -2687,6 +2688,10 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
+  if (get_interfaces_dialog_window()) {
+    window_destroy(get_interfaces_dialog_window());
+  }
+  
   if (cap_open_w) {
     /*
      * There's an options dialog; get the values from it and close it.
