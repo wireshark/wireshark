@@ -200,11 +200,12 @@ static const value_string rlc_mode_vals[] =
 
 static const value_string rlc_channel_type_vals[] =
 {
-    { CHANNEL_TYPE_CCCH,     "CCCH"},
-    { CHANNEL_TYPE_BCCH,     "BCCH"},
-    { CHANNEL_TYPE_PCCH,     "PCCH"},
-    { CHANNEL_TYPE_SRB,      "SRB"},
-    { CHANNEL_TYPE_DRB,      "DRB"},
+    { CHANNEL_TYPE_CCCH,         "CCCH"},
+    { CHANNEL_TYPE_BCCH_BCH,     "BCCH_BCH"},
+    { CHANNEL_TYPE_PCCH,         "PCCH"},
+    { CHANNEL_TYPE_SRB,          "SRB"},
+    { CHANNEL_TYPE_DRB,          "DRB"},
+    { CHANNEL_TYPE_BCCH_DL_SCH,  "BCCH_DL_SCH"},
     { 0, NULL }
 };
 
@@ -1386,10 +1387,12 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
 
-            case CHANNEL_TYPE_BCCH:
-                /* TODO: Problem is don't know which transport channel... */
-                return;
-
+            case CHANNEL_TYPE_BCCH_BCH:
+                protocol_handle = find_dissector("lte_rrc.bcch.bch");
+                break;
+            case CHANNEL_TYPE_BCCH_DL_SCH:
+                protocol_handle = find_dissector("lte_rrc.bcch.dl.sch");
+                break;
             case CHANNEL_TYPE_PCCH:
                 protocol_handle = find_dissector("lte-rrc.pcch");
                 break;

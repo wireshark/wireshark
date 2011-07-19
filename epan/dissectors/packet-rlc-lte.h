@@ -36,10 +36,11 @@
 
 /* channelType */
 #define CHANNEL_TYPE_CCCH 1
-#define CHANNEL_TYPE_BCCH 2
+#define CHANNEL_TYPE_BCCH_BCH 2
 #define CHANNEL_TYPE_PCCH 3
 #define CHANNEL_TYPE_SRB 4
 #define CHANNEL_TYPE_DRB 5
+#define CHANNEL_TYPE_BCCH_DL_SCH 6
 
 /* UMSequenceNumberLength */
 #define UM_SN_LENGTH_5_BITS 5
