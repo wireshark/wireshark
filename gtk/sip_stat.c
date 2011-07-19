@@ -256,7 +256,7 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
     /* Create an entry in the relevant box of the window */
     if (data->widget==NULL)
     {
-        guint16 x;
+        guint x, dummy;
         GtkWidget *tmp;
         guint i = data->response_code;
 
@@ -293,7 +293,7 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
         }
 
         /* Get number of rows in table */
-        x = GTK_TABLE(data->table)->nrows;
+        gtk_table_get_size(GTK_TABLE(data->table), &x, &dummy);
 
         /* Create a new label with this response, e.g. "SIP 180 Ringing" */
         g_snprintf(string_buff, sizeof(string_buff),

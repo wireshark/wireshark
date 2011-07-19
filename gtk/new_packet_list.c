@@ -831,9 +831,9 @@ create_view_and_model(void)
 		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
 		 * a GtkTreeView column header. See GTK bug #141937.
 		 */
-		gtk_widget_set_tooltip_text(col->button, tooltip_text);
+		gtk_widget_set_tooltip_text(gtk_tree_view_column_get_widget(col), tooltip_text);
 		g_free(tooltip_text);
-		g_signal_connect(col->button, "button_press_event",
+		g_signal_connect(gtk_tree_view_column_get_widget(col), "button_press_event",
 				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
 
 		if (i == 0) {  /* Default sort on first column */
