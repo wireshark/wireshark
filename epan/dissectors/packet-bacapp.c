@@ -7560,7 +7560,7 @@ fAuthenticateRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fUnsignedTag (tvb, tree, offset, "pseudo Random Number: ");
 			break;
 		case 1:	/* expected Invoke ID Unsigned8 OPTIONAL */
-			proto_tree_add_item(tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_BIG_ENDIAN);
 			break;
 		case 2: /* Chararacter String OPTIONAL */
 			offset = fCharacterString (tvb, tree, offset, "operator Name: ");
@@ -8678,30 +8678,30 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
 	if (bacapp_flags & 0x08)
 		*svc = (gint) tvb_get_guint8(tvb, offset+extra+2);
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_pduflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_pduflags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp_control);
 
-	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SEG, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(bacapp_tree_control, hf_bacapp_MOR, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SEG, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_MOR, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (ack == 0) { /* The following are for ConfirmedRequest, not Complex ack */
-	    proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	    proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bacapp_tree, hf_bacapp_response_segments, tvb,
-							offset, 1, ENC_LITTLE_ENDIAN);
+							offset, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bacapp_tree, hf_bacapp_max_adpu_size, tvb,
-							offset, 1, ENC_LITTLE_ENDIAN);
+							offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset++;
-	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	if (bacapp_flags & 0x08) {
 		bacapp_seq = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
-		    offset++, 1, ENC_LITTLE_ENDIAN);
+		    offset++, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,
-		    offset++, 1, ENC_LITTLE_ENDIAN);
+		    offset++, 1, ENC_BIG_ENDIAN);
 	}
 	*tt = proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-				  offset++, 1, ENC_LITTLE_ENDIAN);
+				  offset++, 1, ENC_BIG_ENDIAN);
 	return offset;
 }
 
@@ -8731,11 +8731,11 @@ fUnconfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tre
 
 	gint tmp;
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
 	tmp = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(bacapp_tree, hf_bacapp_uservice, tvb,
-	    offset++, 1, ENC_LITTLE_ENDIAN);
+	    offset++, 1, ENC_BIG_ENDIAN);
 	/* Service Request follows... Variable Encoding 20.2ff */
 	return fUnconfirmedServiceRequest  (tvb, pinfo, bacapp_tree, offset, tmp);
 }
@@ -8745,12 +8745,12 @@ fSimpleAckPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, gu
 {	/* BACnet-Simple-Ack-PDU */
 	/* ASHRAE 135-2001 20.1.4 */
 
-	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 
 	return offset;
 }
@@ -8783,17 +8783,17 @@ fSegmentAckPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, g
 	proto_item *tc;
 	proto_tree *bacapp_tree_control;
 
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree_control, hf_bacapp_NAK, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_NAK, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_sequence_number, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_window_size, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	return offset;
 }
 
@@ -8986,14 +8986,14 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tree, guint offs
 	proto_tree *bacapp_tree_control;
 	guint8 tmp;
 
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	tmp = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_service, tvb,
-				 offset++, 1, ENC_LITTLE_ENDIAN);
+				 offset++, 1, ENC_BIG_ENDIAN);
 	/* Error Handling follows... */
 	return fBACnetError (tvb, pinfo, bacapp_tree, offset, tmp);
 }
@@ -9006,13 +9006,13 @@ fRejectPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint
 	proto_item *tc;
 	proto_tree *bacapp_tree_control;
 
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_BACnetRejectReason, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	return offset;
 }
 
@@ -9024,14 +9024,14 @@ fAbortPDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, guint 
 	proto_item *tc;
 	proto_tree *bacapp_tree_control;
 
-	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(bacapp_tree_control, hf_bacapp_SRV, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bacapp_tree_control, hf_BACnetAbortReason, tvb,
-			    offset++, 1, ENC_LITTLE_ENDIAN);
+			    offset++, 1, ENC_BIG_ENDIAN);
 	return offset;
 }
 
