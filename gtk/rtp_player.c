@@ -1028,10 +1028,10 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 
 		gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 	} else if ( (rci->cursor_prev/MULT < gtk_adjustment_get_value(rci->h_scrollbar_adjustment)+gtk_adjustment_get_page_increment(rci->h_scrollbar_adjustment)) &&
-		(idx/MULT >= gtk_adjustment_get_value(rci->h_scrollbar_adjustment) + +gtk_adjustment_get_page_increment(rci->h_scrollbar_adjustment)) ){
+		(idx/MULT >= gtk_adjustment_get_value(rci->h_scrollbar_adjustment) + gtk_adjustment_get_page_increment(rci->h_scrollbar_adjustment)) ){
 		rci->cursor_catch = FALSE;
 		for (i=1; i<10; i++) {
-			gtk_adjustment_set_value(rci->h_scrollbar_adjustment, MIN(gtk_adjustment_get_upper(rci->h_scrollbar_adjustment)-gtk_adjustment_get_page_size(rci->h_scrollbar_adjustment), gtk_adjustment_get_value(rci->h_scrollbar_adjustment) + -gtk_adjustment_get_page_size(rci->h_scrollbar_adjustment)/20));
+			gtk_adjustment_set_value(rci->h_scrollbar_adjustment, MIN(gtk_adjustment_get_upper(rci->h_scrollbar_adjustment)-gtk_adjustment_get_page_size(rci->h_scrollbar_adjustment), gtk_adjustment_get_value(rci->h_scrollbar_adjustment) + gtk_adjustment_get_page_size(rci->h_scrollbar_adjustment)/20));
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 		}
 	}
