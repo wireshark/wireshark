@@ -83,13 +83,13 @@ all: _FORCE_
 # fetch the latest available user-guide.chm version
 user-guide.chm::
 	if exist ..\..\docbook\user-guide.chm xcopy ..\..\docbook\user-guide.chm . /Y /D
-	if exist $(WIRESHARK_LIBS)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIBS)\user-guide\user-guide.chm . /Y /D
+	if exist $(WIRESHARK_LIB_DIR)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIB_DIR)\user-guide\user-guide.chm . /Y /D
 
 wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
 	/DWIRESHARK_TARGET_PLATFORM=$(WIRESHARK_TARGET_PLATFORM) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
-	/DWIRESHARK_LIBS=$(WIRESHARK_LIBS) \
+	/DWIRESHARK_LIB_DIR=$(WIRESHARK_LIB_DIR) \
 !IFDEF MSVCR_DLL
 	/DMSVCR_DLL="$(MSVCR_DLL)" \
 !ENDIF

@@ -16,7 +16,7 @@ SOURCE		= WiresharkPortableSource
 WSMANIFEST	= ../../wireshark.manifest
 
 NSIS_PLUGINS	= nsis-plugins
-FINDPROCDLL	= $(WIRESHARK_LIBS)\$(NSIS_PLUGINS)\FindProcDLL.dll
+FINDPROCDLL	= $(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)\FindProcDLL.dll
 
 TOPDIR		= ..\..\..
 U3DIST		= ..\..\u3\win32
@@ -97,7 +97,7 @@ source:  WiresharkPortable.ini
 
 findprocdll:
 	if not exist $(FINDPROCDLL) \
-	@$(SH) ../../../tools/win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) ../../../tools/win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		$(NSIS_PLUGINS) FindProc.zip
 
 
@@ -105,14 +105,14 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
-	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
+	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
 Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
-	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
+	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
 	/DDEFAULTWINPCAP=WinPcap_$(PCAP_VERSION).exe \
 	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
 	WiresharkPortable.nsi

@@ -3,7 +3,7 @@
 
 <chapter id="ChapterLibraries">
   <title>Library Reference</title>
-  
+
   <section id="ChLibIntro">
 	<title>Introduction</title>
 	<para>
@@ -31,7 +31,7 @@
 	<para>
 	Win32: All libraries for the VS9 generation are available at:
 	<ulink	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>,
-	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
+	but see <xref linkend="ChLibsSetup"/> for an easier way to install the
 	libraries.
 	</para>
 	</tip>
@@ -45,18 +45,18 @@
 	</tip>
 	</para>
   </section>
-	
+
   <section id="ChLibsFormat">
     <title>Binary library formats</title>
 	<para>
-	Binary libraries are available in different formats, depending on the C 
+	Binary libraries are available in different formats, depending on the C
 	compiler used to build it and of course the platform they were built for.
 	</para>
-	
+
 	<section id="ChLibsFormatUnix">
 	<title>Unix</title>
 	<para>
-	If you have installed unix binary libraries on your system, they will 
+	If you have installed unix binary libraries on your system, they will
 	match the C compiler. If not already installed, the libraries should be
 	available as a package from the platform installer, or you can download
 	and compile the source and then install the binaries.
@@ -74,40 +74,40 @@
 	<section id="ChLibsFormatWin32Cygwin">
 	<title>Win32: cygwin gcc</title>
 	<para>
-	Cygwin provides most of the required libraries (with file extension .a or .lib) 
+	Cygwin provides most of the required libraries (with file extension .a or .lib)
 	for Wireshark suitable for cygwin's gcc compiler.
 	</para>
 	</section>
   </section>
-	
+
   <section id="ChLibsSetup">
 	<title>Win32: Automated library download</title>
 	<section id="ChLibsSetupInitial">
 	<title>Initial download</title>
 
 	<para>
-	You can download/install all required libraries by using the setup target 
+	You can download/install all required libraries by using the setup target
 	of the <filename>Makefile.nmake</filename> from the source package.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
-	It's a really good idea to use the Win32 automated library download to 
+	It's a really good idea to use the Win32 automated library download to
 	install the required libraries as it makes this download very easy.
 	</para>
 	</tip>
 	<note><title>Note!</title>
 	<para>
 	Before you start the download, you must have installed both
-	the required tools (see <xref linkend="ChapterTools"/>) and also the 
+	the required tools (see <xref linkend="ChapterTools"/>) and also the
 	Wireshark sources (see <xref linkend="ChSrcObtain"/>).
 	</para>
 	</note>
 	<para>
-	By default the libraries will be downloaded and installed into 
+	By default the libraries will be downloaded and installed into
 	<filename>C:\wireshark-win32-libs</filename>.
 	You can change this to any other location by editing the file
-	<filename>config.nmake</filename> and changing the line containing 
-	the WIRESHARK_LIBS setting to your favourite place (use an absolute path 
+	<filename>config.nmake</filename> and changing the line containing
+	the WIRESHARK_LIB_DIR setting to your favourite place (use an absolute path
 	here).
 	</para>
 	<para>
@@ -121,15 +121,15 @@
 	as described already in <xref linkend="ChToolsWin32Verify"/>.
 	</para>
 	<para>
-	Then it will download the zipped libraries (together around 30MB!) from 
-	the server location at: <ulink 
-	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/> 
-	into the directory specified by WIRESHARK_LIBS and install (unzip) all 
+	Then it will download the zipped libraries (together around 30MB!) from
+	the server location at: <ulink
+	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
+	into the directory specified by WIRESHARK_LIB_DIR and install (unzip) all
 	required library files there.
 	</para>
 	<para>
-	If you have problems downloading the library files, you might be connected 
-	to the internet through a proxy/firewall. 
+	If you have problems downloading the library files, you might be connected
+	to the internet through a proxy/firewall.
 	In this case see the wget proxy comment in <xref linkend="ChToolsWget"/>.
 	</para>
         </section>
@@ -140,8 +140,8 @@
 	some new functionality, your libraries get outdated.
 	</para>
 	<para>
-	You could simply remove everything in the WIRESHARK_LIBS dir and call the 
-	<userinput>setup</userinput> target again, but that would require a download of every file again, 
+	You could simply remove everything in the WIRESHARK_LIB_DIR dir and call the
+	<userinput>setup</userinput> target again, but that would require a download of every file again,
 	which isn't necessary.
 	</para>
 	<para>
@@ -150,8 +150,8 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	Update your Wireshark sources to the latest SVN files (see <xref 
-	linkend="ChSrcObtain"/>), so the zip filenames in the setup target 
+	Update your Wireshark sources to the latest SVN files (see <xref
+	linkend="ChSrcObtain"/>), so the zip filenames in the setup target
 	of Makefile.nmake are in sync with the library zip files on the server.
 	</para>
         </listitem>
@@ -162,41 +162,41 @@
           <para>
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
 	</para>
-	<para>	
+	<para>
 	Note that this command will automatically do a <userinput>clean-setup</userinput> which will
-        remove all files previously unzipped from the downloaded files in your 
-	WIRESHARK_LIBS library path (all the subdirs, e.g. 
-	<filename>c:\wireshark-win32-libs\gtk+</filename>), 
-	except for the zip files located at the toplevel, which are the files 
+        remove all files previously unzipped from the downloaded files in your
+	WIRESHARK_LIB_DIR library path (all the subdirs, e.g.
+	<filename>c:\wireshark-win32-libs\gtk+</filename>),
+	except for the zip files located at the toplevel, which are the files
 	downloaded the last time(s).
 	</para>
 	<para>
-	Also note that as wget will download only the 
-	missing (updated) files, existing zip files in the WIRESHARK_LIBS dir won't be 
+	Also note that as wget will download only the
+	missing (updated) files, existing zip files in the WIRESHARK_LIB_DIR dir won't be
 	downloaded again. Remaining (outdated) zip files shouldn't do any harm.
 	</para>
         </listitem>
 	</itemizedlist>
 	</section>
-	
+
   </section>
 
   <section id="ChLibsGtk">
 	<title>GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv</title>
 	<para>
-	The Glib library is used as a basic platform abstraction library, it's 
-	not related to graphical user interface (GUI) things. For a detailed 
+	The Glib library is used as a basic platform abstraction library, it's
+	not related to graphical user interface (GUI) things. For a detailed
 	description about GLib, see <xref linkend="ChCodeGLib"/>.
 	</para>
 	<para>
-	The GTK and its dependent libraries are used to build Wireshark's GUI. 
-	For a detailed description of the GTK libraries, see <xref 
+	The GTK and its dependent libraries are used to build Wireshark's GUI.
+	For a detailed description of the GTK libraries, see <xref
 	linkend="ChUIGTK"/>.
 	</para>
 	<para>
-	All other libraries are dependent on the two libraries mentioned above, 
-	you will typically not come in touch with these while doing Wireshark 
-	development. 
+	All other libraries are dependent on the two libraries mentioned above,
+	you will typically not come in touch with these while doing Wireshark
+	development.
 	</para>
 	<para>
 	As the requirements for the GLib/GTK libraries have increased in the past,
@@ -207,12 +207,12 @@
 	<section id="ChLibsUnixGTK">
 	<title>Unix</title>
 	<para>
-	The GLib/GTK+ libraries are available for many unix-like platforms and 
+	The GLib/GTK+ libraries are available for many unix-like platforms and
 	cygwin.
 	</para>
 	<para>
-	If these libraries aren't already installed and also aren't available as a 
-	package for your platform, you can get them at: 
+	If these libraries aren't already installed and also aren't available as a
+	package for your platform, you can get them at:
 	<ulink url="http://www.gtk.org/download.html"/>.
 	</para>
 	</section>
@@ -220,23 +220,23 @@
 	<section id="ChLibsWin32GTK">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://www.gtk.org/download.html"/>.
 	</para>
 	</section>
   </section>
-  
+
   <section id="ChLibsSMI">
 	<title>SMI (optional)</title>
 	<para>
 	"Various tools relating to the SMI MIB Information"
 	</para>
-	
+
 	<section id="ChLibsUnixSMI">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.ibr.cs.tu-bs.de/projects/libsmi/"/>.
 	</para>
 	</section>
@@ -244,15 +244,15 @@
 	<section id="ChLibsWin32SMI">
 	<title>Win32 MSVC</title>
 	<para>
-	Wireshark uses the source libSMI distribution at 
+	Wireshark uses the source libSMI distribution at
 	<ulink url="http://www.ibr.cs.tu-bs.de/projects/libsmi/"/>.
 	libSMI is compiled using MSVC++ 6.0. It's stored in the libsmi zip archive at
 	<ulink url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
 	</para>
 	</section>
-		
+
   </section>
-  
+
   <section id="ChLibsCares">
     <title>c-ares (optional)</title>
 	<para>
@@ -284,12 +284,12 @@
 	"Advanced, easy to use, asynchronous-capable DNS client library and
 utilities."
 	</para>
-	
+
 	<section id="ChLibsUnixADNS">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.gnu.org/software/adns/"/>.
 	</para>
 	</section>
@@ -297,13 +297,13 @@ utilities."
 	<section id="ChLibsWin32ADNS">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://adns.jgaa.com/"/>
 	</para>
 	</section>
-	
+
   </section>
-  
+
 
   <section id="ChLibsPCRE">
 	<title>PCRE (optional)</title>
@@ -316,12 +316,12 @@ utilities."
 	wrapper around PCRE. Wireshark's configure script will use it instead of
 	PCRE if it is present.
 	</para>
-	
+
 	<section id="ChLibsUnixPCRE">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.pcre.org/"/>.
 	</para>
 	</section>
@@ -329,18 +329,18 @@ utilities."
 	<section id="ChLibsWin32PCRE">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
 	</para>
 	</section>
-		
+
   </section>
-  
-  
+
+
   <section id="ChLibsZlib">
 	<title>zlib (optional)</title>
 	<para>
-	"zlib is designed to be a 
+	"zlib is designed to be a
 	<ulink url="http://www.gzip.org/zlib/zlib_license.html">free</ulink>,
 	general-purpose, legally unencumbered -- that is, not covered by any
 	patents -- lossless data-compression library for use on virtually any computer
@@ -350,8 +350,8 @@ utilities."
 	<section id="ChLibsUnixZlib">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.gzip.org/zlib/"/>.
 	</para>
 	</section>
@@ -359,7 +359,7 @@ utilities."
 	<section id="ChLibsWin32Zlib">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://gnuwin32.sourceforge.net/packages/zlib.htm"/>
 	</para>
 	<para>
@@ -369,19 +369,19 @@ utilities."
 	</section>
 
   </section>
-  
-  
+
+
   <section id="ChLibsPcap">
 	<title>libpcap/WinPcap (optional)</title>
 	<para>
 	"packet capture library"
 	</para>
-	
+
 	<section id="ChLibsLibpcap">
 	<title>Unix: libpcap</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.tcpdump.org/"/>.
 	</para>
 	</section>
@@ -400,15 +400,15 @@ utilities."
   <section id="ChLibsGNUTLS">
 	<title>GnuTLS (optional)</title>
 	<para>
-	The "GNU Transport Layer Security Library" is used to dissect SSL and TLS 
+	The "GNU Transport Layer Security Library" is used to dissect SSL and TLS
 	protocols (aka: HTTPS).
 	</para>
-	
+
 	<section id="ChLibsUnixGNUTLS">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.gnu.org/software/gnutls/download.html"/>.
 	</para>
 	</section>
@@ -416,7 +416,7 @@ utilities."
 	<section id="ChLibsWin32GNUTLS">
 	<title>Win32 MSVC</title>
 	<para>
-	We roll our own version using: 
+	We roll our own version using:
 	<ulink url="http://josefsson.org/gnutls4win/"/>
 	</para>
 	</section>
@@ -426,15 +426,15 @@ utilities."
   <section id="ChLibsGcrypt">
 	<title>Gcrypt (optional)</title>
 	<para>
-	The "Gcrypt Library" is Low-level encryption library and provides 
+	The "Gcrypt Library" is Low-level encryption library and provides
 	support for many ciphers, such as DES, 3DES, AES, Blowfish, and others..
 	</para>
-	
+
 	<section id="ChLibsUnixGcrypt">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://directory.fsf.org/security/libgcrypt.html"/>.
 	</para>
 	</section>
@@ -451,15 +451,15 @@ utilities."
   <section id="ChLibsKerberos">
 	<title>Kerberos (optional)</title>
 	<para>
-	The Kerberos library is used to dissect Kerberos, sealed DCERPC and 
+	The Kerberos library is used to dissect Kerberos, sealed DCERPC and
 	secureLDAP protocols.
 	</para>
-	
+
 	<section id="ChLibsUnixKerberos">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://web.mit.edu/Kerberos/dist/"/>.
 	</para>
 	<para>
@@ -470,7 +470,7 @@ utilities."
 	<section id="ChLibsWin32Kerberos">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version of KfW "Kerberos for Windows" at: 
+	You can get the latest version of KfW "Kerberos for Windows" at:
 	<ulink url="http://web.mit.edu/Kerberos/dist/"/>
 	</para>
 	</section>
@@ -482,12 +482,12 @@ utilities."
 	<para>
 	The LUA library is used to add scripting support to Wireshark.
 	</para>
-	
+
 	<section id="ChLibsUnixLua">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.lua.org/download.html"/>.
 	</para>
 	</section>
@@ -495,7 +495,7 @@ utilities."
 	<section id="ChLibsWin32Lua">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://luaforge.net/frs/?group_id=110"/>
 	</para>
 	</section>
@@ -507,12 +507,12 @@ utilities."
 	<para>
 	The PortAudio library enables audio output for RTP streams.
 	</para>
-	
+
 	<section id="ChLibsUnixPortAudio">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed or available as a 
-	package for your platform, you can get it at: 
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
 	<ulink url="http://www.portaudio.com/download.html"/>.
 	</para>
 	</section>
@@ -520,7 +520,7 @@ utilities."
 	<section id="ChLibsWin32PortAudio">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	You can get the latest version at:
 	<ulink url="http://www.portaudio.com/download.html"/>
 	</para>
 	</section>

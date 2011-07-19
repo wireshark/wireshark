@@ -29,7 +29,7 @@ WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 #      as to the required library package files will be made.
 #
 LIBS_CHECK=_libs_check_
-!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
+!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIB_DIR)"] != 0
 CHECK_TAG=_check_tag_
 !ELSE
 CHECK_TAG=
@@ -589,7 +589,7 @@ image::
 #
 $(ADNS_DLL):
 !IF "$(MSVC_VARIANT)" == "MSVC6"
-	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
+	if not exist $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns
 	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.dll $(ADNS_DLL)
 	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.lib $(ADNS_LIBS)
 !ELSE
@@ -603,7 +603,7 @@ $(ADNS_DLL):
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
 !ENDIF
-	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
+	if not exist $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns
 	copy adns_dll.dll $(ADNS_DLL)
 	copy adns_dll.lib $(ADNS_LIBS)
 	cd ..\..\..
@@ -727,7 +727,7 @@ REQUIRED_TOOLS=\
 
 verify_tools:
 # As win-setup.sh assumes the dir exists create it if it doesn't
-	@if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
+	@if not exist $(WIRESHARK_LIB_DIR) md $(WIRESHARK_LIB_DIR)
 	@$(SH) $(WIN_SETUP) --appverify $(REQUIRED_TOOLS)
 
 # Targets and etc used to verify or download libraries
@@ -765,7 +765,7 @@ $(CHECK_TAG): _FORCE_
 
 !ENDIF
 
-# Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
+# Download (if needed) and install all the required libraries into WIRESHARK_LIB_DIR.
 # A clean_setup is done first to ensure that the target dirs don't
 # contain old files remaining from a previous setup run.
 setup: verify_tools clean_setup process_libs
@@ -774,35 +774,35 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
-    @if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
+    @if not exist $(WIRESHARK_LIB_DIR) md $(WIRESHARK_LIB_DIR)
 !IFDEF GTK_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ENDIF
 !IFDEF KFW_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. kfw-3-2-2-i386-ws-vc6.zip
-#	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+#	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 #		. kfw-3-2-2.zip
 !ENDIF
 !IFDEF PCAP_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. WpdPack_$(PCAP_VERSION).zip
 !ENDIF
 !IFDEF AIRPCAP_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		AirPcap_Devpack_4_1_0_1622 AirPcap_Devpack_4_1_0_1622.zip
 !ENDIF
 !IFDEF C_ARES_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF ADNS_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. adns-1.0-win32-05ws.zip
 !ENDIF
 !IFDEF ZLIB_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 		zlib125 zlib-1.2.5.zip
 !else
@@ -810,40 +810,40 @@ process_libs:
 !endif
 !ENDIF
 !IFDEF LUA_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		lua5.1.4 lua$(LUA_DIST)_lib.zip
 !ENDIF
 
 !IFDEF GNUTLS_PKG
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. gnutls-$(GNUTLS_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. portaudio_v19_2.zip
 !ENDIF
 !IFDEF SMI_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. libsmi-$(SMI_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF GEOIP_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. GeoIP-1.4.6-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF HHC_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		user-guide user-guide-37310.zip
 !ENDIF
 !IFDEF UPX
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. upx303w.zip
 !ENDIF
 !IFDEF NASM
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. nasm-2.09.08-win32.zip
 !ENDIF
 !IF "$(WIN_SETUP_OPT)" == "--download"
-	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIBS)"
+	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIB_DIR)"
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.
@@ -853,7 +853,7 @@ process_libs:
 # WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
-    cd $(WIRESHARK_LIBS)
+    cd $(WIRESHARK_LIB_DIR)
     rm -r -f adns-1.0-win32-05ws
     rm -r -f c-ares-1.5.3ws
     rm -r -f c-ares-1.6.0ws
