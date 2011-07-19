@@ -1152,7 +1152,7 @@ static void callback_zoom_inout (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->zoom.flags &= ~ZOOM_OUT;
 	else
 		g->zoom.flags |= ZOOM_OUT;
@@ -1208,7 +1208,7 @@ static void callback_zoom_flags (GtkWidget *toggle, gpointer data)
 	struct graph *g = (struct graph * )data;
 	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->zoom.flags |= flag;
 	else
 		g->zoom.flags &= ~flag;
@@ -1413,7 +1413,7 @@ static void callback_mag_flags (GtkWidget *toggle, gpointer data)
 	struct graph *g = (struct graph * )data;
 	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->magnify.flags |= flag;
 	else
 		g->magnify.flags &= ~flag;
@@ -1450,7 +1450,7 @@ static void callback_zoomlock_h (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->zoom.flags |= ZOOM_HLOCK;
 	else
 		g->zoom.flags &= ~ZOOM_HLOCK;
@@ -1460,7 +1460,7 @@ static void callback_zoomlock_v (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->zoom.flags |= ZOOM_VLOCK;
 	else
 		g->zoom.flags &= ~ZOOM_VLOCK;
@@ -1497,7 +1497,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
 
-	if (GTK_TOGGLE_BUTTON (toggle)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
 		gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
@@ -1589,7 +1589,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 
 	new_type = (long)g_object_get_data(G_OBJECT(toggle),"new-graph-type");
 
-	if (!GTK_TOGGLE_BUTTON (toggle)->active)
+	if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		return;
 
 	old_type = g->type;

@@ -275,9 +275,9 @@ nameres_prefs_fetch(GtkWidget *w)
 #ifdef HAVE_LIBSMI
 	load_smi_modules_orig = prefs.load_smi_modules;
 	load_smi_modules_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), LOAD_SMI_MODULES_KEY);
-	prefs.load_smi_modules = GTK_TOGGLE_BUTTON (load_smi_modules_cb)->active;
+	prefs.load_smi_modules = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (load_smi_modules_cb));
 	suppress_smi_errors_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SUPPRESS_SMI_ERRORS_KEY);
-	prefs.suppress_smi_errors = GTK_TOGGLE_BUTTON (suppress_smi_errors_cb)->active;
+	prefs.suppress_smi_errors = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (suppress_smi_errors_cb));
 
 	/* Perform actions needed when enabling/disabling OID resolution */
 	if (load_smi_modules_orig && !prefs.load_smi_modules) {

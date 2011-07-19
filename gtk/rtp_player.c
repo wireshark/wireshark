@@ -315,7 +315,7 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 
 	gtk_widget_set_sensitive(bt_decode, decode);
 	gtk_widget_set_sensitive(cb_use_rtp_timestamp, decode);
-	if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 		gtk_widget_set_sensitive(jitter_spinner, FALSE);
 	} else {
 		gtk_widget_set_sensitive(jitter_spinner, decode);
@@ -746,7 +746,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 		rtp_time = (double)(rp->info->info_timestamp-start_timestamp)/SAMPLE_RATE - start_rtp_time;
 
-		if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 			arrive_time = rtp_time;
 		} else {
 			arrive_time = (double)rp->arrive_offset/1000 - start_time;
@@ -1411,7 +1411,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 					(int) (i - offset),
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+4);
 
-				if(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day)->active) {
+				if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day))) {
 					seconds = rci->start_time_abs.secs + i * MULT / SAMPLE_RATE;
 					timestamp = localtime(&seconds);
 					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
@@ -1633,7 +1633,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 
 	label = g_string_new("");
-	if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
 		get_addr_name(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
 		get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,

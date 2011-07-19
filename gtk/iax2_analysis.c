@@ -1885,7 +1885,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	both = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "both_rb");
 	user_data = (user_data_t*)g_object_get_data(G_OBJECT(fc), "user_data");
 
-	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(forw)) || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 		fp = ws_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
@@ -1893,7 +1893,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 			return TRUE; /* we're done */
 		}
 
-		if (GTK_TOGGLE_BUTTON(both)->active) {
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 			fprintf(fp, "Forward\n");
 			if (ferror(fp)) {
 				write_failure_alert_box(g_dest, errno);
@@ -1959,9 +1959,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 		}
 	}
 
-	if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rev)) || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 
-		if (GTK_TOGGLE_BUTTON(both)->active) {
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 			fp = ws_fopen(g_dest, "a");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
@@ -2545,7 +2545,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	*/
 
 	/* we can not save in both directions */
-	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
+	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both)))) {
 		/* there are many combinations here, we just exit when first matches */
 		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
@@ -2566,8 +2566,8 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		return TRUE; /* we're done */
 	}
 	/* we can not save forward direction */
-	else if ((user_data->forward.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
-		(GTK_TOGGLE_BUTTON (both)->active))) {
+	else if ((user_data->forward.saveinfo.saved == FALSE) && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (forw))) ||
+		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Unsupported codec!");
@@ -2584,8 +2584,8 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		return TRUE; /* we're done */
 	}
 	/* we can not save reversed direction */
-	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
-		(GTK_TOGGLE_BUTTON (both)->active))) {
+	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rev))) ||
+		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Unsupported codec!");
@@ -2606,24 +2606,24 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	}
 
 #if 0
-	if (GTK_TOGGLE_BUTTON (wav)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (wav)))
 		format = SAVE_WAV_FORMAT;
 	else
 #endif
-	if (GTK_TOGGLE_BUTTON (au)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (au)))
 		format = SAVE_AU_FORMAT;
 #if 0
-	else if (GTK_TOGGLE_BUTTON (sw)->active)
+	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (sw)))
 		format = SAVE_SW_FORMAT;
 #endif
-	else if (GTK_TOGGLE_BUTTON (raw)->active)
+	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (raw)))
 		format = SAVE_RAW_FORMAT;
 	else
 		format = SAVE_NONE_FORMAT;
 
-	if (GTK_TOGGLE_BUTTON (rev)->active)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rev)))
 		channels = SAVE_REVERSE_DIRECTION_MASK;
-	else if (GTK_TOGGLE_BUTTON (both)->active)
+	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both)))
 		channels = SAVE_BOTH_DIRECTION_MASK;
 	else
 		channels = SAVE_FORWARD_DIRECTION_MASK;

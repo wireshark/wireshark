@@ -838,7 +838,7 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 	if (!widget){
 		g_warning("view_menu_auto_scroll_live_cb: No widget found");
 	}else{
-		menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(gtk_check_menu_item_get_active(widget)));
+		menu_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
 	}
 }
 #endif
