@@ -145,7 +145,7 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 	if (group == PI_MALFORMED) {
 		/* Add hidden malformed protocol filter */
 		gint proto_malformed = proto_get_id_by_filter_name("malformed");
-		proto_item *malformed_ti = proto_tree_add_item(tree, proto_malformed, NULL, 0, 0, FALSE);
+		proto_item *malformed_ti = proto_tree_add_item(tree, proto_malformed, NULL, 0, 0, ENC_NA);
 		PROTO_ITEM_SET_HIDDEN(malformed_ti);
 	}
 
