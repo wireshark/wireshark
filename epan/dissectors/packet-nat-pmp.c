@@ -94,7 +94,7 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, ENC_NA);
   nat_pmp_tree = proto_item_add_subtree (ti, ett_nat_pmp);
 
   proto_tree_add_item (nat_pmp_tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);

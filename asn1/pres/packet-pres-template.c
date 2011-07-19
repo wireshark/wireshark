@@ -263,7 +263,7 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
 	if (tree){
-		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, ENC_NA);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);
 	}
 
@@ -334,7 +334,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (parent_tree)
 		{
-			ti = proto_tree_add_item(parent_tree, proto_clpres, tvb, offset, -1, FALSE);
+			ti = proto_tree_add_item(parent_tree, proto_clpres, tvb, offset, -1, ENC_NA);
 			clpres_tree = proto_item_add_subtree(ti, ett_pres);
 		}
 

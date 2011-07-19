@@ -257,7 +257,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when extras is missing */
 
   if (extras_len) {
-    extras_item = proto_tree_add_item (tree, hf_extras, tvb, offset, extras_len, ENC_BIG_ENDIAN);
+    extras_item = proto_tree_add_item (tree, hf_extras, tvb, offset, extras_len, ENC_NA);
     extras_tree = proto_item_add_subtree (extras_item, ett_extras);
   }
 
@@ -355,20 +355,20 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   default:
     if (extras_len) {
       /* Decode as unknown extras */
-      proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_BIG_ENDIAN);
+      proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_NA);
       offset += extras_len;
     }
     break;
   }
 
   if (illegal) {
-    ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_NA);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s shall not have Extras",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
     offset += extras_len;
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_extras_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, hf_extras_missing, tvb, offset, 0, ENC_NA);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Extras",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -427,7 +427,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_key_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, hf_key_missing, tvb, offset, 0, ENC_NA);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Key",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -497,7 +497,7 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_value_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, hf_value_missing, tvb, offset, 0, ENC_NA);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Value",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -518,7 +518,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_BIG_ENDIAN);
+  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_NA);
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
   magic = tvb_get_guint8 (tvb, offset);
@@ -603,7 +603,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
                      val_to_str (status, status_vals, "Unknown status: %d"));
   } else {
-    ti = proto_tree_add_item (memcache_tree, hf_value_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (memcache_tree, hf_value_missing, tvb, offset, 0, ENC_NA);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s with status %s (%d) must have Value",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             val_to_str (status, status_vals, "Unknown"), status);
@@ -871,7 +871,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
   orig_offset = offset;
 
-  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_BIG_ENDIAN);
+  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_NA);
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
   /* Process the packet data. The first line is expected to be a

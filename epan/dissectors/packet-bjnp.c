@@ -97,7 +97,7 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, ENC_NA);
   bjnp_tree = proto_item_add_subtree (ti, ett_bjnp);
 
   proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -131,7 +131,7 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (payload_len > 0) {
     /* TBD: Dissect various commands */
-    proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, ENC_BIG_ENDIAN);
+    proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, ENC_NA);
     offset += payload_len;
   }
 }

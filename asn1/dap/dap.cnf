@@ -234,7 +234,7 @@ OPERATION.&ResultType
 
 #.FN_BODY	FilterItem/substrings/strings/_item/initial
 	proto_item *it;
-	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
+	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, ENC_BIG_ENDIAN);
 	proto_item_append_text(it," XXX: Not yet implemented!");
 
 #.FN_BODY	FilterItem/substrings/strings/_item/any

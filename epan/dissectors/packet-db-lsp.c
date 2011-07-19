@@ -92,7 +92,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_set_str (pinfo->cinfo, COL_INFO, PNAME);
 
-  db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, ENC_BIG_ENDIAN);
+  db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
 
   type = tvb_get_guint8 (tvb, offset);
@@ -127,12 +127,12 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvbuff_t *cert_tvb = tvb_new_subset (tvb, offset+10, length-10, length-10);
       dissect_x509af_Certificate_PDU (cert_tvb, pinfo, db_lsp_tree);
     } else {
-      proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_BIG_ENDIAN);
+      proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_NA);
     }
   } else if (type == TYPE_DATA) {
-    proto_tree_add_item (db_lsp_tree, hf_data, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item (db_lsp_tree, hf_data, tvb, offset, length, ENC_NA);
   } else {
-    proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_NA);
   }
   offset += length;
 

@@ -371,7 +371,7 @@ dissect_rpcap_findalldevs_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_item *ti;
   gint boffset = offset;
 
-  ti = proto_tree_add_item (parent_tree, hf_findalldevs_ifaddr, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_ifaddr, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_findalldevs_ifaddr);
 
   offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_addr, ti);
@@ -394,7 +394,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16 namelen, desclen, naddr, i;
   gint boffset = offset;
 
-  ti = proto_tree_add_item (parent_tree, hf_findalldevs_if, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_if, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_findalldevs_if);
 
   namelen = tvb_get_ntohs (tvb, offset);
@@ -449,7 +449,7 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_item *ti;
   guint16 i;
 
-  ti = proto_tree_add_item (parent_tree, hf_findalldevs_reply, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_reply, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_findalldevs_reply);
 
   for (i = 0; i < no_devs; i++) {
@@ -472,7 +472,7 @@ dissect_rpcap_filterbpf_insn (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item (parent_tree, hf_filterbpf_insn, tvb, offset, 8, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_filterbpf_insn, tvb, offset, 8, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_filterbpf_insn);
 
   proto_tree_add_item (tree, hf_code, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -499,7 +499,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti;
   guint32 nitems, i;
 
-  ti = proto_tree_add_item (parent_tree, hf_filter, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_filter, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_filter);
 
   proto_tree_add_item (tree, hf_filtertype, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -531,7 +531,7 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_item *ti;
   guint16 type, slen1, slen2;
 
-  ti = proto_tree_add_item (parent_tree, hf_auth_request, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_auth_request, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_auth_request);
 
   type = tvb_get_ntohs (tvb, offset);
@@ -585,7 +585,7 @@ dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item (parent_tree, hf_open_reply, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_open_reply, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_open_reply);
 
   linktype = tvb_get_ntohl (tvb, offset);
@@ -604,7 +604,7 @@ dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti, *field_ti;
   guint16 flags;
 
-  ti = proto_tree_add_item (parent_tree, hf_startcap_request, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_startcap_request, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_startcap_request);
 
   proto_tree_add_item (tree, hf_snaplen, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -650,7 +650,7 @@ dissect_rpcap_startcap_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item (parent_tree, hf_startcap_reply, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_startcap_reply, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_startcap_reply);
 
   proto_tree_add_item (tree, hf_bufsize, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -670,7 +670,7 @@ dissect_rpcap_stats_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item (parent_tree, hf_stats_reply, tvb, offset, 16, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_stats_reply, tvb, offset, 16, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_stats_reply);
 
   proto_tree_add_item (tree, hf_ifrecv, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -695,7 +695,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   guint32 value;
   guint8 method;
 
-  ti = proto_tree_add_item (parent_tree, hf_sampling_request, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_sampling_request, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_sampling_request);
 
   method = tvb_get_guint8 (tvb, offset);
@@ -739,7 +739,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   guint caplen, len, frame_no;
   gint reported_length_remaining;
 
-  ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_packet);
 
   ts.secs = tvb_get_ntohl (tvb, offset);
@@ -810,7 +810,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 
   col_clear(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (top_tree, proto_rpcap, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (top_tree, proto_rpcap, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_rpcap);
 
   proto_tree_add_item (tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);

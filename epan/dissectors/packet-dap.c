@@ -1325,7 +1325,7 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	proto_item *it;
-	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
+	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, ENC_BIG_ENDIAN);
 	proto_item_append_text(it," XXX: Not yet implemented!");
 
 
