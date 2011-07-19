@@ -914,7 +914,7 @@ static GtkWidget* uat_window(void* u) {
 		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column (rep->list, column);
 		if (f[colnum].desc != NULL)
-			gtk_widget_set_tooltip_text(gtk_tree_view_column_get_widget(column), f[colnum].desc);
+			gtk_widget_set_tooltip_text(column->button, f[colnum].desc);
 
 		/*
 		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);
