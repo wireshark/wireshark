@@ -391,12 +391,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Common channel stats */
     switch (si->channelType) {
-        case CHANNEL_TYPE_BCCH_BCH:
+        /* case CHANNEL_TYPE_BCCH_BCH:
         case CHANNEL_TYPE_BCCH_DL_SCH:
             hs->common_stats.bcch_frames++;
             hs->common_stats.bcch_bytes += si->pduLength;
             return 1;
-
+ */
         case CHANNEL_TYPE_PCCH:
             hs->common_stats.pcch_frames++;
             hs->common_stats.pcch_bytes += si->pduLength;
