@@ -2056,8 +2056,7 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	*fi = proto_tree_add_item(tree, *(fit->hf_fragments),
-		tvb, 0, -1, FALSE);
+	*fi = proto_tree_add_item(tree, *(fit->hf_fragments), tvb, 0, -1, ENC_NA);
 	PROTO_ITEM_SET_GENERATED(*fi);
 
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
@@ -2103,8 +2102,7 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	*fi = proto_tree_add_item(tree, *(fit->hf_fragments),
-		tvb, 0, -1, FALSE);
+	*fi = proto_tree_add_item(tree, *(fit->hf_fragments), tvb, 0, -1, ENC_NA);
 	PROTO_ITEM_SET_GENERATED(*fi);
 
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
